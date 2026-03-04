@@ -7,7 +7,7 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/central',
+      path: '/',
       component: CentralLayout,
       children: [...centralRoutes],
     },
@@ -20,7 +20,7 @@ const router = createRouter({
     },
     {
       path: '/',
-      redirect: '/central',
+      redirect: '/login',
     },
   ],
 })

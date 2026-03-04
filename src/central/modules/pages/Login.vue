@@ -46,11 +46,7 @@ const elements = [
   { icon: Users, label: "Member Growth", angle: 300, z: "70px", delay: "0.5s" },
 ];
 
-const phrases = [
-  "Empowering Your Sacco's Future",
-  "Precision Accounting, Community Impact",
-  "Seamless Savings, Smarter Credit"
-];
+
 const showPassword = ref(false);
 
 const submit = async () => {
@@ -122,54 +118,51 @@ const submit = async () => {
 
       <div class="text-center text-sm text-muted-foreground" v-if="canRegister">
         Don't have an account?
-        <TextLink href="/central/register" class="font-semibold text-[#001d22] hover:underline" :tabindex="5">Register
+        <TextLink href="/register" class="font-semibold text-[#001d22] hover:underline" :tabindex="5">Register
         </TextLink>
       </div>
     </form>
 
     <template #right-panel>
-      <div class="relative w-full h-full flex flex-col items-center justify-center overflow-hidden">
+      <div class="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-[#001418]">
         <!-- 3D Interactive Scene -->
         <div class="relative w-full h-[600px] flex items-center justify-center transform-gpu" :style="parallaxStyle">
           <!-- Central Outstanding Hub -->
           <div class="relative z-20 group transition-all duration-700 ease-out" style="transform: translateZ(50px)">
             <!-- Outer Glow Rings -->
             <div
-              class="absolute -inset-8 bg-teal-500/20 blur-3xl rounded-full animate-pulse group-hover:bg-teal-400/30 transition-all duration-700">
+              class="absolute -inset-8 bg-white/10 blur-3xl rounded-full animate-pulse group-hover:bg-white/20 transition-all duration-700">
             </div>
             <div
-              class="absolute -inset-4 border border-white/20 rounded-[2.5rem] animate-[spin_10s_linear_infinite] opacity-50">
+              class="absolute -inset-4 border border-white/10 rounded-[2.5rem] animate-[spin_10s_linear_infinite] opacity-40">
             </div>
 
             <!-- Main Logo Container -->
             <div
-              class="relative w-48 h-48 bg-white/95 backdrop-blur-2xl border-2 border-white/50 rounded-[2.5rem] flex flex-col items-center justify-center shadow-[0_0_50px_rgba(45,212,191,0.4)] transition-all duration-500 group-hover:shadow-[0_0_80px_rgba(45,212,191,0.6)] group-hover:scale-105 overflow-hidden">
-              <img src="/images/mfuko_plus_logo.webp" alt="Mfuko Plus Logo"
-                class="w-full h-auto object-contain p-2 hover:scale-105 transition-transform duration-500" />
+              class="relative w-48 h-48 bg-white backdrop-blur-2xl border border-white/20 rounded-[3rem] flex flex-col items-center justify-center shadow-2xl transition-all duration-500 group-hover:scale-105 overflow-hidden">
+              <img src="/images/mfuko_plus_logo.webp" alt="Mfuko Plus Logo" class="w-full h-full object-contain p-6" />
             </div>
           </div>
 
           <!-- Circular Orbiting Elements -->
           <div v-for="(el, i) in elements" :key="i"
             class="absolute flex flex-col items-center gap-3 transition-opacity duration-1000" :style="{
-              transform: `rotate(${el.angle}deg) translate(220px) rotate(-${el.angle}deg) translateZ(${el.z})`,
+              transform: `rotate(${el.angle}deg) translate(250px) rotate(-${el.angle}deg) translateZ(${el.z})`,
             }">
             <!-- Animation Wrapper -->
             <div class="animate-float flex flex-col items-center gap-3"
               :style="{ animationDelay: el.delay, '--tw-translate-z': el.z }">
               <!-- Outstanding Icon Box -->
               <div
-                class="p-5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:bg-teal-400/30 hover:border-teal-400/50 hover:shadow-[0_0_40px_rgba(45,212,191,0.4)] hover:scale-110 transition-all cursor-default group/icon active:scale-95">
+                class="p-5 bg-[#001d22]/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl hover:bg-[#002d35]/60 hover:border-white/30 transition-all cursor-default group/icon">
                 <component :is="el.icon"
-                  class="w-10 h-10 text-white group-hover/icon:text-teal-200 transition-colors drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
+                  class="w-10 h-10 text-white/80 group-hover/icon:text-white transition-colors" />
               </div>
 
               <!-- Premium Label Tag -->
-              <div
-                class="px-4 py-1.5 bg-[#001d22]/80 backdrop-blur-md rounded-full border border-white/10 shadow-xl group/label">
-                <span
-                  class="text-[11px] font-black text-white tracking-[0.25em] uppercase whitespace-nowrap group-hover/icon:text-teal-300 transition-colors">{{
-                    el.label }}</span>
+              <div class="px-4 py-1.5 bg-black/40 backdrop-blur-md rounded-full border border-white/5 shadow-lg">
+                <span class="text-[10px] font-bold text-white/70 tracking-[0.2em] uppercase whitespace-nowrap">{{
+                  el.label }}</span>
               </div>
             </div>
           </div>
@@ -177,24 +170,17 @@ const submit = async () => {
 
         <!-- Text Content -->
         <div class="mt-8 text-center space-y-4 max-w-sm relative z-30 px-6 transform transition-all duration-1000">
-          <h2 class="text-5xl font-extrabold tracking-tight text-white leading-tight">
-            Mfuko <span
-              class="block text-xl mt-3 text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-emerald-300 drop-shadow-[0_0_15px_rgba(45,212,191,0.5)] tracking-[0.2em] uppercase font-black">The
-              Ledger of Your Growth</span>
+          <h2 class="text-6xl font-black tracking-tight text-white leading-tight">
+            Mfuko Pro
+            <span
+              class="block text-xl mt-4 text-[#2dd4bf] tracking-[0.3em] uppercase font-black drop-shadow-[0_0_10px_rgba(45,212,191,0.3)]">
+              THE LEDGER OF YOUR GROWTH
+            </span>
           </h2>
-          <div class="flex flex-col gap-2 opacity-60">
-            <p v-for="phrase in phrases" :key="phrase" class="text-sm text-center font-medium tracking-wide text-white">
-              {{ phrase }}
-            </p>
-          </div>
         </div>
 
         <!-- Decorative Background Elements -->
-        <div
-          class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-teal-900/10 via-transparent to-transparent pointer-events-none">
-        </div>
-        <div class="absolute inset-0 opacity-[0.03] pointer-events-none"
-          style="background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\' fill-rule=\'evenodd\'%3E%3Ccircle cx=\'3\' cy=\'3\' r=\'3\'/%3E%3Ccircle cx=\'13\' cy=\'13\' r=\'3\'/%3E%3C/g%3E%3C/svg%3E');">
+        <div class="absolute inset-0 bg-gradient-to-b from-[#001418] via-transparent to-[#001418] pointer-events-none">
         </div>
       </div>
     </template>
@@ -210,7 +196,7 @@ const submit = async () => {
   }
 
   50% {
-    transform: translateY(-20px);
+    transform: translateY(-15px);
   }
 }
 
@@ -219,16 +205,18 @@ const submit = async () => {
   transform-style: preserve-3d;
 }
 
-/* Base styles for circular positioning in the loop */
-.absolute {
-  --rot: 0deg;
-}
-
 :deep(.relative.z-10.w-full.max-w-lg) {
   perspective: 1500px;
 }
 
 .transform-gpu {
   transform-style: preserve-3d;
+}
+
+/* Ensure the layout container takes full height and width without padding */
+:deep(.auth-container) {
+  padding: 0;
+  margin: 0;
+  max-width: none;
 }
 </style>

@@ -1,254 +1,206 @@
-<template>
-    <div class="auth-container">
-        <div class="auth-card">
-            <div class="brand">
-                <h1 class="text-gradient">Mfuko Pro</h1>
-                <p>Start your financial management journey</p>
-            </div>
-
-            <form @submit.prevent="handleRegister" class="auth-form">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="firstName">First Name</label>
-                        <input type="text" id="firstName" v-model="firstName" placeholder="John" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="lastName">Last Name</label>
-                        <input type="text" id="lastName" v-model="lastName" placeholder="Doe" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" v-model="email" placeholder="john@company.com" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" v-model="password" placeholder="••••••••" required>
-                    <p class="input-hint">At least 8 characters long</p>
-                </div>
-
-                <div class="form-group">
-                    <label for="confirmPassword">Confirm Password</label>
-                    <input type="password" id="confirmPassword" v-model="confirmPassword" placeholder="••••••••"
-                        required>
-                </div>
-
-                <div class="auth-actions">
-                    <label class="terms">
-                        <input type="checkbox" v-model="acceptTerms" required>
-                        <span>I accept the <a href="#">Terms & Conditions</a></span>
-                    </label>
-                </div>
-
-                <button type="submit" class="submit-btn" :disabled="loading">
-                    <span v-if="!loading">Create Account</span>
-                    <span v-else class="loader"></span>
-                </button>
-            </form>
-
-            <div class="auth-footer">
-                <p>Already have an account? <router-link to="/central/login">Sign in</router-link></p>
-            </div>
-        </div>
-    </div>
-</template>
-
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { Eye, EyeOff } from 'lucide-vue-next';
+import { ref, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
 
-const firstName = ref('')
-const lastName = ref('')
-const email = ref('')
-const password = ref('')
-const confirmPassword = ref('')
-const acceptTerms = ref(false)
-const loading = ref(false)
+import InputError from '@/components/InputError.vue';
+import TextLink from '@/components/TextLink.vue';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
+import AuthBase from '@/layouts/auth/AuthSplitLayout.vue';
 
-const router = useRouter()
+const router = useRouter();
 
-const handleRegister = async () => {
-    if (password.value !== confirmPassword.value) {
-        alert('Passwords do not match')
-        return
-    }
+const name = ref('');
+const email = ref('');
+const password = ref('');
+const password_confirmation = ref('');
+const processing = ref(false);
+const errors = ref<{ name?: string; email?: string; password?: string; password_confirmation?: string }>({});
 
-    loading.value = true
-    try {
-        console.log('Registering user...')
-        setTimeout(() => {
-            loading.value = false
-            router.push('/central/login')
-        }, 2000)
-    } catch (error) {
-        console.error('Registration failed', error)
-        loading.value = false
-    }
-}
+const features = [
+  {
+    title: "Precision Accounting",
+    description: "Seamlessly manage your ledgers with bank-grade security and accuracy.",
+    image: "/images/automated_reporting.png"
+  },
+  {
+    title: "Community-First Credit",
+    description: "Intelligent credit scoring tailored for the unique needs of your Sacco.",
+    image: "/images/credit_scoring.png"
+  },
+  {
+    title: "Unified Savings Hub",
+    description: "Empower your members with easy-access savings and automated tracking.",
+    image: "/images/ai_savings.png"
+  },
+  {
+    title: "Scalable Financial Growth",
+    description: "The complete financial ecosystem for modern, growing Saccos.",
+    image: "/images/unified_ecosystem.png"
+  }
+];
+
+const activeIndex = ref(0);
+let interval: any = null;
+
+onMounted(() => {
+  interval = setInterval(() => {
+    activeIndex.value = (activeIndex.value + 1) % features.length;
+  }, 5000);
+});
+
+onUnmounted(() => {
+  if (interval) clearInterval(interval);
+});
+
+const showPassword = ref(false);
+const showConfirmPassword = ref(false);
+
+const submit = async () => {
+  processing.value = true;
+  errors.value = {};
+
+  if (password.value !== password_confirmation.value) {
+    errors.value.password_confirmation = "The password confirmation does not match.";
+    processing.value = false;
+    return;
+  }
+
+  // Simulate API call
+  setTimeout(() => {
+    processing.value = false;
+    console.log('Registration successful');
+    router.push('/central/login');
+  }, 1500);
+};
+
+const loginPath = '/login';
 </script>
 
+<template>
+  <AuthBase title="Create an account" description="Join Mfuko Pro today and elevate your financial management">
+    <form @submit.prevent="submit" class="flex flex-col gap-6">
+      <div class="grid gap-6">
+        <div class="grid gap-2">
+          <Label for="name" class="text-sm font-semibold text-[#001d22]">Name</Label>
+          <Input id="name" v-model="name" type="text" required autofocus :tabindex="1" autocomplete="name" name="name"
+            placeholder="Your full name"
+            class="h-12 border-[#d1dfdb] focus:border-[#001d22] focus:ring-[#001d22]/10 transition-all duration-300" />
+          <InputError :message="errors.name" />
+        </div>
+
+        <div class="grid gap-2">
+          <Label for="email" class="text-sm font-semibold text-[#001d22]">Email address</Label>
+          <Input id="email" v-model="email" type="email" required :tabindex="2" autocomplete="email" name="email"
+            placeholder="m@example.com"
+            class="h-12 border-[#d1dfdb] focus:border-[#001d22] focus:ring-[#001d22]/10 transition-all duration-300" />
+          <InputError :message="errors.email" />
+        </div>
+
+        <div class="grid gap-2">
+          <Label for="password" class="text-sm font-semibold text-[#001d22]">Password</Label>
+          <div class="relative">
+            <Input id="password" v-model="password" :type="showPassword ? 'text' : 'password'" required :tabindex="3"
+              autocomplete="new-password" name="password" placeholder="Create a secure password"
+              class="h-12 pr-12 border-[#d1dfdb] focus:border-[#001d22] focus:ring-[#001d22]/10 transition-all duration-300" />
+            <button type="button" @click="showPassword = !showPassword"
+              class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-neutral-400 hover:text-[#001d22] transition-colors"
+              tabindex="-1">
+              <component :is="showPassword ? EyeOff : Eye" :size="20" />
+            </button>
+          </div>
+          <InputError :message="errors.password" />
+        </div>
+
+        <div class="grid gap-2">
+          <Label for="password_confirmation" class="text-sm font-semibold text-[#001d22]">Confirm password</Label>
+          <div class="relative">
+            <Input id="password_confirmation" v-model="password_confirmation"
+              :type="showConfirmPassword ? 'text' : 'password'" required :tabindex="4" autocomplete="new-password"
+              name="password_confirmation" placeholder="Re-enter password"
+              class="h-12 pr-12 border-[#d1dfdb] focus:border-[#001d22] focus:ring-[#001d22]/10 transition-all duration-300" />
+            <button type="button" @click="showConfirmPassword = !showConfirmPassword"
+              class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-neutral-400 hover:text-[#001d22] transition-colors"
+              tabindex="-1">
+              <component :is="showConfirmPassword ? EyeOff : Eye" :size="20" />
+            </button>
+          </div>
+          <InputError :message="errors.password_confirmation" />
+        </div>
+
+        <Button type="submit"
+          class="h-12 w-full bg-[#001d22] hover:bg-[#001d22]/90 text-white font-semibold rounded-xl transition-all shadow-lg shadow-[#001d22]/10 mt-2"
+          tabindex="5" :disabled="processing" data-test="register-user-button">
+          <Spinner v-if="processing" class="mr-2" />
+          Create account
+        </Button>
+      </div>
+
+      <div class="text-center text-sm text-muted-foreground">
+        Already have an account?
+        <TextLink :href="loginPath" class="font-semibold text-[#001d22] hover:underline" :tabindex="6">Log in</TextLink>
+      </div>
+    </form>
+
+    <template #right-panel>
+      <div class="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-[#001418] p-8">
+        <div class="relative w-full aspect-square max-w-sm mb-12">
+          <transition-group name="fade-slide" tag="div" class="relative w-full h-full">
+            <div v-for="(feature, index) in features" :key="feature.title" v-show="activeIndex === index"
+              class="absolute inset-0 flex flex-col items-center justify-center">
+              <img :src="feature.image" :alt="feature.title"
+                class="w-full h-auto object-contain rounded-3xl shadow-2xl shadow-black/40" />
+            </div>
+          </transition-group>
+        </div>
+
+        <div class="space-y-4 max-w-sm text-center">
+          <h2 class="text-4xl font-bold tracking-tight leading-tight text-white">
+            {{ features[activeIndex].title }}
+          </h2>
+          <p class="text-lg text-white/70">
+            {{ features[activeIndex].description }}
+          </p>
+        </div>
+
+        <!-- Indicator dots -->
+        <div class="mt-12 flex gap-3">
+          <button v-for="(_, index) in features" :key="index" @click="activeIndex = index"
+            class="h-1.5 rounded-full transition-all duration-300"
+            :class="activeIndex === index ? 'w-8 bg-white' : 'w-1.5 bg-white/20'"></button>
+        </div>
+
+        <!-- Gradient background decoration to match Login.vue -->
+        <div class="absolute inset-0 bg-gradient-to-b from-[#001418] via-transparent to-[#001418] pointer-events-none">
+        </div>
+      </div>
+    </template>
+  </AuthBase>
+</template>
+
 <style scoped>
-.auth-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    background: radial-gradient(circle at bottom left, #05291d, #021a12);
-    padding: 20px;
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.8s ease;
 }
 
-.auth-card {
-    width: 100%;
-    max-width: 500px;
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 24px;
-    padding: 48px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateX(30px);
 }
 
-.brand {
-    text-align: center;
-    margin-bottom: 32px;
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateX(-30px);
 }
 
-.brand h1 {
-    font-size: 32px;
-    font-weight: 800;
-    margin-bottom: 8px;
-}
-
-.text-gradient {
-    background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.brand p {
-    color: #94a3b8;
-    font-size: 15px;
-}
-
-.auth-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.form-group label {
-    font-size: 14px;
-    font-weight: 500;
-    color: #e2e8f0;
-}
-
-input {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 12px 16px;
-    color: white;
-    font-size: 15px;
-    transition: all 0.2s;
-    outline: none;
-}
-
-input:focus {
-    border-color: #22c55e;
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
-}
-
-.input-hint {
-    font-size: 12px;
-    color: #64748b;
-    margin-top: 2px;
-}
-
-.auth-actions {
-    font-size: 14px;
-    margin-top: 4px;
-}
-
-.terms {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #94a3b8;
-    cursor: pointer;
-}
-
-.terms a {
-    color: #22c55e;
-    text-decoration: underline;
-}
-
-.submit-btn {
-    background: #22c55e;
-    color: #05291d;
-    border: none;
-    border-radius: 12px;
-    padding: 14px;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 12px;
-}
-
-.submit-btn:hover:not(:disabled) {
-    background: #4ade80;
-    transform: translateY(-1px);
-}
-
-.submit-btn:disabled {
-    opacity: 0.7;
-}
-
-.auth-footer {
-    margin-top: 32px;
-    text-align: center;
-    color: #94a3b8;
-    font-size: 14px;
-}
-
-.auth-footer a {
-    color: #22c55e;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.loader {
-    width: 20px;
-    height: 20px;
-    border: 3px solid rgba(5, 41, 29, 0.3);
-    border-top: 3px solid #05291d;
-    border-radius: 50%;
-    display: inline-block;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
+/* Ensure the layout container takes full height and width without padding */
+:deep(.auth-container) {
+  padding: 0;
+  margin: 0;
+  max-width: none;
 }
 </style>
