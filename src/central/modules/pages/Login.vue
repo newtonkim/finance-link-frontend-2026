@@ -143,10 +143,9 @@ const submit = async () => {
 
             <!-- Main Logo Container -->
             <div
-              class="relative w-48 h-48 bg-gradient-to-br from-[#003d44] via-[#001d22] to-black backdrop-blur-2xl border-2 border-white/30 rounded-[2.5rem] flex flex-col items-center justify-center shadow-[0_0_50px_rgba(45,212,191,0.2)] transition-all duration-500 group-hover:shadow-[0_0_80px_rgba(45,212,191,0.4)] group-hover:scale-105">
-              <img src="/logo.svg" alt="Logo"
-                class="w-24 h-24 object-contain brightness-110 drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]" />
-              <span class="mt-2 text-white font-black text-xl tracking-widest uppercase">MFUKO PRO</span>
+              class="relative w-48 h-48 bg-white/95 backdrop-blur-2xl border-2 border-white/50 rounded-[2.5rem] flex flex-col items-center justify-center shadow-[0_0_50px_rgba(45,212,191,0.4)] transition-all duration-500 group-hover:shadow-[0_0_80px_rgba(45,212,191,0.6)] group-hover:scale-105 overflow-hidden">
+              <img src="/images/mfuko_plus_logo.webp" alt="Mfuko Plus Logo"
+                class="w-full h-auto object-contain p-2 hover:scale-105 transition-transform duration-500" />
             </div>
           </div>
 
