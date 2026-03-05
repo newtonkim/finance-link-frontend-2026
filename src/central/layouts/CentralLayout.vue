@@ -1,6 +1,5 @@
 <template>
     <div class="central-layout">
-        <header>Central Management</header>
         <main>
             <router-view />
         </main>
