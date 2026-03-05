@@ -35,7 +35,7 @@ defineProps<{
                 <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-neutral-400" />
                 <Input
                     placeholder="Search anything"
-                    class="pl-10 h-10 bg-neutral-100 border-none rounded-xl focus-visible:ring-1 focus-visible:ring-[#031512]/10"
+                    class="pl-10 h-10 bg-neutral-100 border-none rounded-xl focus-visible:ring-1 focus-visible:ring-[#001d22]/10"
                 />
                 <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 uppercase text-[10px] font-bold text-neutral-400">
                     <span>⌘</span>

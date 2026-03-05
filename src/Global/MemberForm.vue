@@ -3,7 +3,7 @@
 /**
  * MemberForm — The complete member registration/edit form.
  *
- * Shared between Create and Edit pages. Receives an Inertia form object
+ * Shared between Create and Edit pages. Receives a reactive form object
  * and renders all fields. The parent page controls submission and layout chrome.
  */
 import SearchableSelect from '@/Global/SearchableSelect.vue';
@@ -44,7 +44,7 @@ const handleAvatarChange = (event: Event) => {
     if (target.files && target.files[0]) {
         const file = target.files[0];
         props.form.avatar = file;
-        
+
         // Create preview
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -260,9 +260,9 @@ const handleAvatarChange = (event: Event) => {
                             <UserCircle2 v-else :size="32" class="text-neutral-400" />
                         </div>
                         <div class="flex-1">
-                            <input 
-                                id="avatar" 
-                                type="file" 
+                            <input
+                                id="avatar"
+                                type="file"
                                 accept="image/*"
                                 @change="handleAvatarChange"
                                 class="block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#10C469]/10 file:text-[#10C469] hover:file:bg-[#10C469]/20 transition-colors"

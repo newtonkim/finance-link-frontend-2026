@@ -91,7 +91,7 @@ const salesData = [
 ];
 
 const categoryData = [
-    { name: 'Electronics', color: '#031512', value: 68 },
+    { name: 'Electronics', color: '#001d22', value: 68 },
     { name: 'Fashion', color: '#2d9d78', value: 20 },
     { name: 'Health & Wellness', color: '#9bb5a5', value: 8 },
     { name: 'Others', color: '#d1dfdb', value: 4 },
@@ -200,7 +200,7 @@ const categoryData = [
                     <div class="relative size-48">
                         <svg viewBox="0 0 100 100" class="rotate-[-90deg]">
                             <circle cx="50" cy="50" r="40" fill="transparent" stroke="#d1dfdb" stroke-width="12" />
-                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#031512" stroke-width="12" stroke-dasharray="251.2" stroke-dashoffset="80" />
+                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#001d22" stroke-width="12" stroke-dasharray="251.2" stroke-dashoffset="80" />
                             <circle cx="50" cy="50" r="40" fill="transparent" stroke="#2d9d78" stroke-width="12" stroke-dasharray="251.2" stroke-dashoffset="180" />
                             <circle cx="50" cy="50" r="40" fill="transparent" stroke="#9bb5a5" stroke-width="12" stroke-dasharray="251.2" stroke-dashoffset="230" />
                         </svg>

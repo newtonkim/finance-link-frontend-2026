@@ -33,7 +33,7 @@ const { isMobile, state } = useSidebar();
                         <ChevronsUpDown class="ml-auto size-4 text-white/40" />
                     </SidebarMenuButton>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent class="w-(--reka-dropdown-menu-trigger-width) min-w-56 rounded-lg bg-[#031512] text-white border-white/10" :side="isMobile
+                <DropdownMenuContent class="w-(--reka-dropdown-menu-trigger-width) min-w-56 rounded-lg bg-[#001d22] text-white border-white/10" :side="isMobile
                         ? 'bottom'
                         : state === 'collapsed'
                             ? 'left'
