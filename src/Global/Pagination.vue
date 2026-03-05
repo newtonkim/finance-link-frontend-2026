@@ -28,25 +28,17 @@ const emit = defineEmits<{
 
 const perPageFrequency = [50, 100, 200, 300, 500]
 
-/* -----------------------------
-   Computed Current Page
-------------------------------*/
+ 
 const currentPage = computed({
   get: () => props.page ?? props.pagination?.current_page ?? 1,
   set: (val: number) => emit('update:page', val),
 })
-
-/* -----------------------------
-   Computed Per Page
-------------------------------*/
+ 
 const currentPerPage = computed({
   get: () => props.perPage ?? props.pagination?.per_page ?? 50,
   set: (val: number) => emit('update:perPage', val),
 })
-
-/* -----------------------------
-   Navigation
-------------------------------*/
+ 
 function goToPage(page: number) {
   if (!props.pagination) return
   if (page < 1 || page > props.pagination.last_page) return
