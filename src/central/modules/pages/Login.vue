@@ -1,38 +1,26 @@
 <script setup lang="ts">
-import { useMouse, useWindowSize } from '@vueuse/core'
+import { useMouse, useWindowSize } from '@vueuse/core';
+import { Landmark, ShieldCheck, Wallet, PieChart, TrendingUp, Users, Eye, EyeOff } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import {
-  Landmark,
-  ShieldCheck,
-  Wallet,
-  PieChart,
-  TrendingUp,
-  Users,
-  Eye,
-  EyeOff,
-} from 'lucide-vue-next'
-import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
+  Button, InputError,
+  TextLink,
+  Checkbox,
+  Input,
+  Label,
+  Spinner,
+  AuthBase,
+} from '@/Global';
 
-import InputError from '@/components/InputError.vue'
-import TextLink from '@/components/TextLink.vue'
-import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Spinner } from '@/components/ui/spinner'
-import AuthBase from '@/layouts/auth/AuthSplitLayout.vue'
 
-const router = useRouter()
-
-const email = ref('')
-const password = ref('')
-const rememberMe = ref(false)
-const processing = ref(false)
-const errors = ref<{ email?: string; password?: string }>({})
-const status = ref('')
-
-const canResetPassword = ref(true)
-const canRegister = ref(true)
+const router = useRouter();
+const email = ref('');
+const password = ref('');
+const rememberMe = ref(false);
+const processing = ref(false);
+const errors = ref<{ email?: string; password?: string }>({});
+const status = ref('');
 
 const { x, y } = useMouse()
 const { width, height } = useWindowSize()
