@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { Eye, EyeOff } from 'lucide-vue-next';
+import { isAxiosError } from 'axios';
 import { ref, onMounted, onUnmounted,computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { registerApi } from '@/central/api/auth';
+import { useAuthStore } from '@/stores/auth';
 import {
   Button, InputError,
   TextLink,
