@@ -66,11 +66,11 @@ const navigate = (href: string) => {
 </script>
 
 <template>
-    <Sidebar collapsible="icon" variant="inset" class="bg-[#031512] text-white border-r-0">
+    <Sidebar collapsible="icon" variant="inset" class="bg-[#001d22] text-white border-r-0">
         <SidebarHeader class="p-6">
             <div class="flex items-center gap-3">
                 <div class="flex aspect-square size-10 items-center justify-center rounded-xl bg-white">
-                    <div class="size-6 rounded-md bg-[#031512]"></div>
+                    <div class="size-6 rounded-md bg-[#001d22]"></div>
                 </div>
                 <div v-if="state === 'expanded'" class="flex flex-col">
                     <span class="text-lg font-bold tracking-tight">Mfuko Pro</span>
@@ -165,6 +165,6 @@ const navigate = (href: string) => {
 
 <style scoped>
 :deep(.bg-sidebar) {
-    background-color: #031512;
+    background-color: #001d22;
 }
 </style>
