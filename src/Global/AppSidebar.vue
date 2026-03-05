@@ -23,7 +23,7 @@ import { ref, computed } from 'vue';
 import type { FunctionalComponent } from 'vue';
 import NavUser from '@/components/NavUser.vue';
 import {
-} from '@/components/ui/dropdown-menu';
+} from '@/Global/ui/dropdown-menu';
 import {
     Sidebar,
     SidebarContent,
@@ -39,7 +39,7 @@ import {
     SidebarMenuSubButton,
     SidebarRail,
     useSidebar,
-} from '@/components/ui/sidebar';
+} from '@/Global/ui/sidebar';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { dashboard } from '@/routes';
 import AppLogo from './AppLogo.vue';

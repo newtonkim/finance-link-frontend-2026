@@ -7,11 +7,11 @@ import {
     SheetHeader,
     SheetTitle,
     SheetFooter,
-} from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
+} from '@/Global/ui/sheet';
+import { Button } from '@/Global/ui/button';
+import { Input } from '@/Global/ui/input';
+import { Label } from '@/Global/ui/label';
+import { Badge } from '@/Global/ui/badge';
 import { X, Check } from 'lucide-vue-next';
 import SearchableSelect from '@/components/SearchableSelect.vue';
 

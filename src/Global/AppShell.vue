@@ -2,7 +2,7 @@
 import { usePage } from '@inertiajs/vue3';
 import { watch, onMounted } from 'vue';
 import { Toaster, toast } from 'vue-sonner';
-import { SidebarProvider } from '@/components/ui/sidebar';
+import { SidebarProvider } from '@/Global/ui/sidebar';
 import type { AppShellVariant } from '@/types';
 
 type Props = {

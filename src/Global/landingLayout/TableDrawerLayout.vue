@@ -77,7 +77,8 @@ import Drawer from '../Drawer/Drawer.vue';
 import { UserCircle2 } from 'lucide-vue-next';
 import ConfirmationDialog from '../confirmationDialog/confirmationDialog.vue';
 // import { EmptySvg } from '..';
-import Searchbar from './Componets/Searchbar.vue';
+import Searchbar from './Components/Searchbar.vue';
+import Table from './Components/Table.vue';
 import { Download, Printer } from 'lucide-vue-next';
 const drawerOpen = ref(false);
 const showDelete = ref(false);
@@ -86,7 +87,6 @@ const emit = defineEmits(['save']);
 const selected = reactive();
 import { pomPinia } from 'septor-store';
 import { ACTION_CONFIG, dataTabelFilter, fetchTableData } from './util';
-import Table from './Componets/Table.vue';
 const Store = pomPinia();
 
 function handleExport() {

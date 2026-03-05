@@ -6,10 +6,10 @@ import {
     SheetHeader,
     SheetTitle,
     SheetFooter,
-} from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from '@/Global/ui/sheet';
+import { Button } from '@/Global/ui/button';
+import { Input } from '@/Global/ui/input';
+import { Label } from '@/Global/ui/label';
 import { Search, Check, ChevronDown } from 'lucide-vue-next';
 
 interface Charge {

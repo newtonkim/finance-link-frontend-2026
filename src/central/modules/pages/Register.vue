@@ -5,10 +5,10 @@ import { useRouter } from 'vue-router';
 
 import InputError from '@/components/InputError.vue';
 import TextLink from '@/components/TextLink.vue';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/Global/ui/button';
+import { Input } from '@/Global/ui/input';
+import { Label } from '@/Global/ui/label';
+import { Spinner } from '@/Global/ui/spinner';
 import AuthBase from '@/layouts/auth/AuthSplitLayout.vue';
 
 const router = useRouter();

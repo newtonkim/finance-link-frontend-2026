@@ -5,8 +5,8 @@ import {
     SheetHeader,
     SheetTitle,
     SheetFooter,
-} from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
+} from '@/Global/ui/sheet';
+import { Button } from '@/Global/ui/button';
 
 const props = withDefaults(defineProps<{
     open: boolean;

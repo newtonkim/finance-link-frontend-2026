@@ -3,18 +3,18 @@ import { useMouse, useWindowSize } from '@vueuse/core';
 import { Landmark, ShieldCheck, Wallet, PieChart, TrendingUp, Users, Eye, EyeOff } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import {
+  Button, InputError,
+  TextLink,
+  Checkbox,
+  Input,
+  Label,
+  Spinner,
+  AuthBase,
+} from '@/Global';
 
-import InputError from '@/components/InputError.vue';
-import TextLink from '@/components/TextLink.vue';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
-import AuthBase from '@/layouts/auth/AuthSplitLayout.vue';
 
 const router = useRouter();
-
 const email = ref('');
 const password = ref('');
 const rememberMe = ref(false);

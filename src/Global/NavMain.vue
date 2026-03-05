@@ -6,7 +6,7 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-} from '@/components/ui/sidebar';
+} from '@/Global/ui/sidebar';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { type NavItem } from '@/types';
 
