@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { ref, watch, computed, reactive } from 'vue';
 import {
     Sheet,
     SheetContent,
@@ -14,8 +13,14 @@ import { Label } from '@/Global/ui/label';
 import { Badge } from '@/Global/ui/badge';
 import { X, Check } from 'lucide-vue-next';
 import SearchableSelect from '@/Global/SearchableSelect.vue';
+import { apiClient } from '@/central/api/client';
 
-
+type Charge = {
+    id: number;
+    type: string;
+    charge_type: string;
+    amount: string | number;
+};
 
 const props = defineProps<{
     open: boolean;
@@ -26,7 +31,7 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:open', 'success']);
 
-const form = useForm({
+const initialState = {
     member_id: '',
     savings_product_id: '',
     account_type: 'voluntary',
@@ -34,65 +39,92 @@ const form = useForm({
     initial_deposit: 0,
     consider_min_balance: true,
     credited_account_id: '',
-    charges: [] as any[],
-});
+    charges: [] as Charge[],
+};
 
-// Mocked data for demo/conceptual fields
+const form = reactive({ ...initialState });
+const processing = ref(false);
+const errors = ref<Record<string, any>>({});
+
+const reset = () => {
+    Object.assign(form, {
+        member_id: '',
+        savings_product_id: '',
+        account_type: 'voluntary',
+        is_new_account: true,
+        initial_deposit: 0,
+        consider_min_balance: true,
+        credited_account_id: '',
+        charges: [],
+    });
+    errors.value = {};
+};
+
 const sourceAccounts = [
     { id: 1, name: 'Main Cash Account' },
     { id: 2, name: 'Bank - Equity' },
     { id: 3, name: 'M-Pesa Till' },
 ];
 
-const availableCharges = computed(() => {
+const availableCharges = computed<Charge[]>(() => {
     if (!form.savings_product_id) return [];
-    const product = props.products.find(p => String(p.id) === String(form.savings_product_id));
+    const product = props.products.find(
+        (p) => String(p.id) === String(form.savings_product_id),
+    );
     return product?.charges || [];
 });
 
-watch(() => props.open, (newVal) => {
-    if (newVal) {
-        if (props.account) {
-            form.member_id = props.account.member_id;
-            form.savings_product_id = props.account.savings_product_id;
-            form.account_type = props.account.account_type;
-            form.is_new_account = props.account.is_new_account;
-            form.initial_deposit = props.account.initial_deposit;
-            form.consider_min_balance = props.account.consider_min_balance;
-            form.charges = props.account.selected_charges || [];
-        } else {
-            form.reset();
+watch(
+    () => props.open,
+    (newVal) => {
+        if (newVal) {
+            if (props.account) {
+                form.member_id = props.account.member_id;
+                form.savings_product_id = props.account.savings_product_id;
+                form.account_type = props.account.account_type;
+                form.is_new_account = props.account.is_new_account;
+                form.initial_deposit = props.account.initial_deposit;
+                form.consider_min_balance = props.account.consider_min_balance;
+                form.charges = props.account.selected_charges || [];
+            } else {
+                reset();
+            }
         }
-    }
-});
+    },
+);
 
-// Watch for product changes to reset charges if needed
-watch(() => form.savings_product_id, (newVal, oldVal) => {
-    if (oldVal && newVal !== oldVal) {
-        form.charges = [];
-    }
-});
+watch(
+    () => form.savings_product_id,
+    (newVal, oldVal) => {
+        if (oldVal && newVal !== oldVal) {
+            form.charges = [];
+        }
+    },
+);
 
-const submit = () => {
-    if (props.account) {
-        form.put(`/savings-accounts/${props.account.id}`, {
-            onSuccess: () => {
-                emit('update:open', false);
-                emit('success');
-            },
-        });
-    } else {
-        form.post('/savings-accounts', {
-            onSuccess: () => {
-                emit('update:open', false);
-                emit('success');
-            },
-        });
+const submit = async () => {
+    processing.value = true;
+    errors.value = {};
+
+    try {
+        if (props.account) {
+            await apiClient.put(`/savings-accounts/${props.account.id}`, form);
+        } else {
+            await apiClient.post('/savings-accounts', form);
+        }
+        emit('update:open', false);
+        emit('success');
+    } catch (error: any) {
+        if (error.response?.status === 422) {
+            errors.value = error.response.data.errors || {};
+        }
+    } finally {
+        processing.value = false;
     }
 };
 
-const toggleCharge = (charge: any) => {
-    const index = form.charges.findIndex(c => c.id === charge.id);
+const toggleCharge = (charge: Charge) => {
+    const index = form.charges.findIndex((c: Charge) => c.id === charge.id);
     if (index > -1) {
         form.charges.splice(index, 1);
     } else {
@@ -102,7 +134,7 @@ const toggleCharge = (charge: any) => {
 };
 
 const isChargeSelected = (id: number) => {
-    return form.charges.some(c => c.id === id);
+    return form.charges.some((c: Charge) => c.id === id);
 };
 
 const showChargeDropdown = ref(false);
@@ -119,7 +151,6 @@ const showChargeDropdown = ref(false);
             </SheetHeader>
 
             <div class="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide">
-                <!-- Member Selection -->
                 <div class="space-y-2">
                     <Label class="text-sm font-bold text-neutral-700 dark:text-neutral-300">Member <span
                             class="text-red-500">*</span></Label>
@@ -128,7 +159,6 @@ const showChargeDropdown = ref(false);
                         placeholder="Select Member" :error="errors.member_id" />
                 </div>
 
-                <!-- Account Type (Product) -->
                 <div class="space-y-2">
                     <Label class="text-sm font-bold text-neutral-700 dark:text-neutral-300">Account Type
                         (Product) <span class="text-red-500">*</span></Label>
@@ -137,7 +167,6 @@ const showChargeDropdown = ref(false);
                         :error="errors.savings_product_id" />
                 </div>
 
-                <!-- Is New Account -->
                 <div class="space-y-2">
                     <Label class="text-sm font-bold text-neutral-700 dark:text-neutral-300">Is New Account</Label>
                     <select v-model="form.is_new_account"
@@ -147,7 +176,6 @@ const showChargeDropdown = ref(false);
                     </select>
                 </div>
 
-                <!-- Charges (Multi-select) -->
                 <div class="space-y-2">
                     <Label class="text-sm font-bold text-neutral-700 dark:text-neutral-300">Charges (to apply) <span
                             class="text-red-500">*</span></Label>
@@ -181,7 +209,6 @@ const showChargeDropdown = ref(false);
                     </div>
                 </div>
 
-                <!-- Credited Account -->
                 <div class="space-y-2">
                     <Label class="text-sm font-bold text-neutral-700 dark:text-neutral-300">Credited Account <span
                             class="text-red-500">*</span></Label>
@@ -189,7 +216,6 @@ const showChargeDropdown = ref(false);
                         placeholder="Select Account" :error="errors.credited_account_id" />
                 </div>
 
-                <!-- Initial Deposit -->
                 <div class="space-y-2">
                     <Label class="text-sm font-bold text-neutral-700 dark:text-neutral-300">Initial deposit <span
                             class="text-red-500">*</span></Label>
@@ -205,7 +231,6 @@ const showChargeDropdown = ref(false);
                     </p>
                 </div>
 
-                <!-- Consider Min Balance -->
                 <div class="space-y-2">
                     <Label class="text-sm font-bold text-neutral-700 dark:text-neutral-300">Consider account type
                         minimum
@@ -225,9 +250,9 @@ const showChargeDropdown = ref(false);
                         class="flex-1 h-11 font-bold rounded-xl border-neutral-200 dark:border-neutral-800">
                         Close
                     </Button>
-                    <Button @click="submit" :disabled="form.processing"
+                    <Button @click="submit" :disabled="processing"
                         class="flex-1 h-11 font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all shadow-emerald-500/20">
-                        {{ account ? 'Update changes' : 'Save changes' }}
+                        {{ account ? (processing ? 'Updating...' : 'Update changes') : (processing ? 'Saving...' : 'Save changes') }}
                     </Button>
                 </div>
             </SheetFooter>

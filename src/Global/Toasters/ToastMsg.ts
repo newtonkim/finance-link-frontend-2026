@@ -51,14 +51,18 @@ export function notify({
         case 'info':
         case 'warning':
         case 'error':
-        case 'promise':
-            (toast[typeMap[typeCheck]] as Function)(msg, {
-                position: definePosition[pos],
-            });
+        case 'promise': {
+            const toastMethod = typeMap[typeCheck as keyof typeof typeMap];
+            if (toastMethod) {
+                (toast[toastMethod] as Function)(msg, {
+                    position: definePosition[pos],
+                });
+            }
             break;
+        }
         default:
 
-        case 'Action':
+        case 'action':
             toast(msg, {
                 action: {
                     label,

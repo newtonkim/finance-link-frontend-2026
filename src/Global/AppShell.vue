@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { usePage } from '@inertiajs/vue3';
-import { watch, onMounted } from 'vue';
-import { Toaster, toast } from 'vue-sonner';
+import { ref } from 'vue';
+import { Toaster } from 'vue-sonner';
 import { SidebarProvider } from '@/Global/ui/sidebar';
 import type { AppShellVariant } from '@/types';
 
@@ -11,30 +10,7 @@ type Props = {
 
 defineProps<Props>();
 
-const page = usePage();
-const isOpen = page.props.sidebarOpen as boolean;
-
-const triggerFlash = () => {
-    const flash = page.props.flash as { success?: string; error?: string };
-    if (flash?.success) {
-        toast.success(flash.success);
-    }
-    if (flash?.error) {
-        toast.error(flash.error);
-    }
-};
-
-onMounted(() => {
-    setTimeout(triggerFlash, 100);
-});
-
-watch(
-    () => page.props.flash,
-    () => {
-        setTimeout(triggerFlash, 50);
-    },
-    { deep: true }
-);
+const isOpen = ref(true);
 </script>
 
 <template>

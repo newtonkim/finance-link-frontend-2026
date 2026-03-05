@@ -106,7 +106,11 @@ const props = defineProps({
     drawerTitle: { type: String, default: 'Drawer Title' },
     drawerWidth: { type: String, default: '30rem' },
     title: { type: String, required: true },
-    data: { type: Object, required: true },
+    data: {
+        type: Object,
+        required: false,
+        default: () => ({ data: [], links: [], from: null, to: null, total: 0 }),
+    },
     columns: { type: Array, required: true },
     removeInSearch: { type: Array, default: () => ['action'] },
     showTableAction: { type: Boolean, default: false },
@@ -127,7 +131,7 @@ const save = (data: unknown, type = 'save') => {
 };
 
 const handleAction = (item: any, action: keyof typeof ACTION_CONFIG) => {
-    const fn = ACTION_CONFIG?.[action]?.action;
+    const fn = (ACTION_CONFIG?.[action] as { action?: (payload: any) => void } | undefined)?.action;
     if (action === 'delete') {
         showDelete.value = true;
         selected.value = item
