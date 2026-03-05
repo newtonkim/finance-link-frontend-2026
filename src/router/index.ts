@@ -1,16 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import CentralLayout from '../central/layouts/CentralLayout.vue'
 import TenantLayout from '../tenant/layouts/TenantLayout.vue'
+import { centralRoutes } from '../central/modules/routes'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/central',
+      path: '/',
       component: CentralLayout,
-      children: [
-        // Central module routes will be imported here
-      ],
+      children: [...centralRoutes],
     },
     {
       path: '/tenant',
@@ -21,7 +20,7 @@ const router = createRouter({
     },
     {
       path: '/',
-      redirect: '/central',
+      redirect: '/login',
     },
   ],
 })
