@@ -21,7 +21,7 @@ import {
 import type { LucideProps } from 'lucide-vue-next';
 import { ref, computed } from 'vue';
 import type { FunctionalComponent } from 'vue';
-import NavUser from '@/components/NavUser.vue';
+import NavUser from '@/Global/NavUser.vue';
 import {
 } from '@/Global/ui/dropdown-menu';
 import {

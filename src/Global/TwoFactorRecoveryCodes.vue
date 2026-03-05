@@ -2,7 +2,7 @@
 import { Form } from '@inertiajs/vue3';
 import { Eye, EyeOff, LockKeyhole, RefreshCw } from 'lucide-vue-next';
 import { nextTick, onMounted, ref, useTemplateRef } from 'vue';
-import AlertError from '@/components/AlertError.vue';
+import AlertError from '@/Global/AlertError.vue';
 import { Button } from '@/Global/ui/button';
 import {
     Card,

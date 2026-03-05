@@ -2,9 +2,9 @@
 import { Link, usePage } from '@inertiajs/vue3';
 import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-vue-next';
 import { computed } from 'vue';
-import AppLogo from '@/components/AppLogo.vue';
-import AppLogoIcon from '@/components/AppLogoIcon.vue';
-import Breadcrumbs from '@/components/Breadcrumbs.vue';
+import AppLogo from '@/Global/AppLogo.vue';
+import AppLogoIcon from '@/Global/AppLogoIcon.vue';
+import Breadcrumbs from '@/Global/Breadcrumbs.vue';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Global/ui/avatar';
 import { Button } from '@/Global/ui/button';
 import {
@@ -31,7 +31,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/Global/ui/tooltip';
-import UserMenuContent from '@/components/UserMenuContent.vue';
+import UserMenuContent from '@/Global/UserMenuContent.vue';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { getInitials } from '@/composables/useInitials';
 import { toUrl } from '@/lib/utils';

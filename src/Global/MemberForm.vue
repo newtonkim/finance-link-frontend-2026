@@ -6,11 +6,11 @@
  * Shared between Create and Edit pages. Receives an Inertia form object
  * and renders all fields. The parent page controls submission and layout chrome.
  */
-import SearchableSelect from '@/components/SearchableSelect.vue';
-import PhoneInput from '@/components/PhoneInput.vue';
-import FormField from '@/components/FormField.vue';
-import FormRow from '@/components/FormRow.vue';
-import MoneyInput from '@/components/MoneyInput.vue';
+import SearchableSelect from '@/Global/SearchableSelect.vue';
+import PhoneInput from '@/Global/PhoneInput.vue';
+import FormField from '@/Global/FormField.vue';
+import FormRow from '@/Global/FormRow.vue';
+import MoneyInput from '@/Global/MoneyInput.vue';
 import { UserCircle2 } from 'lucide-vue-next';
 import { ref, computed } from 'vue';
 import {

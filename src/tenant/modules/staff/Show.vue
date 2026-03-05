@@ -8,7 +8,7 @@ import {
 } from 'lucide-vue-next';
 import { ref, computed, watch } from 'vue';
 import { toast } from 'vue-sonner';
-import SearchableSelect from '@/components/SearchableSelect.vue';
+import SearchableSelect from '@/Global/SearchableSelect.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 
 const props = defineProps<{

@@ -3,7 +3,7 @@ import { usePage } from '@inertiajs/vue3';
 import { Bell, ChevronDown, Plus, Search } from 'lucide-vue-next';
 import { computed } from 'vue';
 
-import Breadcrumbs from '@/components/Breadcrumbs.vue';
+import Breadcrumbs from '@/Global/Breadcrumbs.vue';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Global/ui/avatar';
 import { Button } from '@/Global/ui/button';
 import {
@@ -12,7 +12,7 @@ import {
     DropdownMenuTrigger,
 } from '@/Global/ui/dropdown-menu';
 import { SidebarTrigger } from '@/Global/ui/sidebar';
-import UserMenuContent from '@/components/UserMenuContent.vue';
+import UserMenuContent from '@/Global/UserMenuContent.vue';
 import { getInitials } from '@/composables/useInitials';
 import type { BreadcrumbItem } from '@/types';
 
