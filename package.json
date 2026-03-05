@@ -26,6 +26,7 @@
     "septor-store": "^1.2.2",
     "tailwind-merge": "^3.5.0",
     "vue": "^3.5.29",
+    "vue-input-otp": "^0.3.2",
     "vue-router": "^5.0.3"
   },
   "devDependencies": {
