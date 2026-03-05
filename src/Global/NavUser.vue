@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { usePage } from '@inertiajs/vue3';
 import { ChevronsUpDown } from 'lucide-vue-next';
 import {
     DropdownMenu,
@@ -14,9 +13,10 @@ import {
 } from '@/Global/ui/sidebar';
 import UserInfo from '@/Global/UserInfo.vue';
 import UserMenuContent from './UserMenuContent.vue';
+import { useAuthStore } from '@/stores/auth';
 
-const page = usePage();
-const user = page.props.auth?.user;
+const authStore = useAuthStore();
+const user = authStore.user;
 const { isMobile, state } = useSidebar();
 </script>
 
@@ -26,13 +26,13 @@ const { isMobile, state } = useSidebar();
             <DropdownMenu>
                 <DropdownMenuTrigger as-child>
                     <SidebarMenuButton size="lg"
-                        class="data-[state=open]:bg-white/10 data-[state=open]:text-[#C9A84C] hover:bg-white/5 transition-all duration-200"
+                        class="data-[state=open]:bg-white/10 data-[state=open]:text-white hover:bg-white/5 transition-all duration-200"
                         data-test="sidebar-menu-button">
                         <UserInfo :user="user" />
-                        <ChevronsUpDown class="ml-auto size-4 text-[#C9A84C]" />
+                        <ChevronsUpDown class="ml-auto size-4 text-white/40" />
                     </SidebarMenuButton>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent class="w-(--reka-dropdown-menu-trigger-width) min-w-56 rounded-lg" :side="isMobile
+                <DropdownMenuContent class="w-(--reka-dropdown-menu-trigger-width) min-w-56 rounded-lg bg-[#031512] text-white border-white/10" :side="isMobile
                         ? 'bottom'
                         : state === 'collapsed'
                             ? 'left'

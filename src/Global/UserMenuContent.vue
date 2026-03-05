@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link, router, usePage } from '@inertiajs/vue3';
+import { useRouter } from 'vue-router';
 import { LogOut, Settings, LayoutGrid } from 'lucide-vue-next';
 import {
     DropdownMenuGroup,
@@ -8,21 +8,23 @@ import {
     DropdownMenuSeparator,
 } from '@/Global/ui/dropdown-menu';
 import UserInfo from '@/Global/UserInfo.vue';
-import { logout } from '@/routes';
-import { edit } from '@/routes/profile';
-import type { User } from '@/types';
+import { useAuthStore } from '@/stores/auth';
 
-const page = usePage();
+const router = useRouter();
+const authStore = useAuthStore();
 
-type Props = {
-    user: User;
+const props = defineProps<{
+    user: any;
+}>();
+
+const handleLogout = async () => {
+    await authStore.logout();
+    router.push('/login');
 };
 
-const handleLogout = () => {
-    router.flushAll();
+const navigate = (path: string) => {
+    router.push(path);
 };
-
-defineProps<Props>();
 </script>
 
 <template>
@@ -31,32 +33,24 @@ defineProps<Props>();
             <UserInfo :user="user" :show-email="true" />
         </div>
     </DropdownMenuLabel>
-    <DropdownMenuSeparator />
+    <DropdownMenuSeparator class="bg-white/10" />
     <DropdownMenuGroup>
-        <DropdownMenuItem :as-child="true">
-            <Link class="block w-full cursor-pointer" :href="edit()" prefetch>
-                <Settings class="mr-2 h-4 w-4" />
-                Settings
-            </Link>
+        <DropdownMenuItem @click="navigate('/settings/profile')" class="cursor-pointer hover:bg-white/5 focus:bg-white/5 focus:text-white">
+            <Settings class="mr-2 h-4 w-4" />
+            Settings
         </DropdownMenuItem>
-        <DropdownMenuItem v-if="!page.props.auth?.is_platform_admin" :as-child="true">
-            <Link class="block w-full cursor-pointer" href="/settings/system" prefetch>
-                <LayoutGrid class="mr-2 h-4 w-4" />
-                System Settings
-            </Link>
+        <DropdownMenuItem @click="navigate('/settings/system')" class="cursor-pointer hover:bg-white/5 focus:bg-white/5 focus:text-white">
+            <LayoutGrid class="mr-2 h-4 w-4" />
+            System Settings
         </DropdownMenuItem>
     </DropdownMenuGroup>
-    <DropdownMenuSeparator />
-    <DropdownMenuItem :as-child="true">
-        <Link
-            class="block w-full cursor-pointer"
-            :href="logout()"
-            @click="handleLogout"
-            as="button"
-            data-test="logout-button"
-        >
-            <LogOut class="mr-2 h-4 w-4" />
-            Log out
-        </Link>
+    <DropdownMenuSeparator class="bg-white/10" />
+    <DropdownMenuItem
+        class="cursor-pointer text-red-400 hover:bg-red-400/10 focus:bg-red-400/10 focus:text-red-400"
+        @click="handleLogout"
+        data-test="logout-button"
+    >
+        <LogOut class="mr-2 h-4 w-4" />
+        Log out
     </DropdownMenuItem>
 </template>
