@@ -1,15 +1,17 @@
-<script setup lang="ts">
-import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { RouterLink, useRouter } from 'vue-router';
 import {
     Edit, MinusCircle, PlusCircle, Trash2, Plus, UserCircle2,
     Users, Wallet, FileText, BarChart3, Star, X, TrendingUp, Check,
     Calendar, MessageSquare, ArrowDownLeft, ArrowUpRight, AlertTriangle,
     Printer
 } from 'lucide-vue-next';
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, reactive } from 'vue';
 import { toast } from 'vue-sonner';
 import SearchableSelect from '@/Global/SearchableSelect.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { apiClient } from '@/central/api/client';
+
+const router = useRouter();
 
 const props = defineProps<{
     member: {
@@ -90,16 +92,19 @@ const tabs = computed(() => [
 const drawerOpen = ref<null | 'deposit' | 'withdraw'>(null);
 
 // Deposit / Withdraw form
-const depositForm = useForm({
+const depositForm = reactive({
     deposit_date: new Date().toISOString().split('T')[0],
     savings_account_id: '' as string | number,
-    amount: '',
+    amount: '' as string | number,
     deposited_by: '',
     transaction_reference: '',
     payment_mode: '',
     narration: '',
     use_for_loan_repayment: 'no',
 });
+
+const depositProcessing = ref(false);
+const depositErrors = ref<Record<string, any>>({});
 
 const paymentModeOptions = [
     { id: 'cash', name: 'Cash' },
@@ -186,17 +191,17 @@ const txnEndDate = ref('');
 
 const filteredTransactions = computed(() => {
     let txns = props.member.transactions || [];
-    
+
     // Search filter
     if (txnSearchQuery.value) {
         const query = txnSearchQuery.value.toLowerCase();
-        txns = txns.filter(t => 
+        txns = txns.filter(t =>
             (t.reference?.toLowerCase().includes(query)) ||
             (t.narration?.toLowerCase().includes(query)) ||
             (t.deposited_by?.toLowerCase().includes(query))
         );
     }
-    
+
     // Date filter
     if (txnStartDate.value) {
         txns = txns.filter(t => (t.transaction_date || t.created_at) >= txnStartDate.value);
@@ -204,7 +209,7 @@ const filteredTransactions = computed(() => {
     if (txnEndDate.value) {
         txns = txns.filter(t => (t.transaction_date || t.created_at) <= txnEndDate.value);
     }
-    
+
     return txns;
 });
 
@@ -264,40 +269,51 @@ const cancelDeleteTxn = () => {
     txnToDelete.value = null;
 };
 
-const executeDeleteTxn = () => {
+const executeDeleteTxn = async () => {
     if (!txnToDelete.value) return;
     isDeletingTxn.value = true;
-    router.delete(`/transactions/${txnToDelete.value.id}`, {
-        preserveScroll: true,
-        onFinish: () => {
-            isDeletingTxn.value = false;
-            showTxnDeleteDialog.value = false;
-            txnToDelete.value = null;
-        },
-        onSuccess: () => {
-            toast.success('Transaction deleted successfully.');
-        },
-        onError: () => {
-            toast.error('Failed to delete transaction.');
-        },
-    });
+    try {
+        await apiClient.delete(`/transactions/${txnToDelete.value.id}`);
+        toast.success('Transaction deleted successfully.');
+        // In a pure Vue app, we likely need to fetch the member data again or remove the txn from the local list
+        props.member.transactions = (props.member.transactions || []).filter(t => t.id !== txnToDelete.value.id);
+        showTxnDeleteDialog.value = false;
+        txnToDelete.value = null;
+    } catch (error) {
+        toast.error('Failed to delete transaction.');
+    } finally {
+        isDeletingTxn.value = false;
+    }
 };
 
-const newAccountForm = useForm({
+const newAccountForm = reactive({
     member_id: props.member.id,
     savings_product_id: '' as string | number,
     account_type: '',
     is_new_account: true,
-    initial_deposit: '',
+    initial_deposit: '' as string | number,
     consider_min_balance: false,
     credited_account_id: '' as string | number,
     charges: [] as number[],
     status: 'active',
 });
 
+const newAccountProcessing = ref(false);
+const newAccountErrors = ref<Record<string, any>>({});
+
 const openNewAccountDrawer = () => {
-    newAccountForm.reset();
-    newAccountForm.member_id = props.member.id;
+    Object.assign(newAccountForm, {
+        member_id: props.member.id,
+        savings_product_id: '',
+        account_type: '',
+        is_new_account: true,
+        initial_deposit: '',
+        consider_min_balance: false,
+        credited_account_id: '',
+        charges: [],
+        status: 'active',
+    });
+    newAccountErrors.value = {};
     newAccountDrawerOpen.value = true;
 };
 
@@ -378,26 +394,38 @@ const setMinBalance = (val: string | number) => {
     newAccountForm.consider_min_balance = val === 'yes';
 };
 
-const submitNewAccount = () => {
-    newAccountForm.post('/savings-accounts', {
-        preserveScroll: true,
-        onSuccess: () => {
-            closeNewAccountDrawer();
-        },
-    });
+const submitNewAccount = async () => {
+    newAccountProcessing.value = true;
+    newAccountErrors.value = {};
+    try {
+        await apiClient.post('/savings-accounts', newAccountForm);
+        toast.success('Savings account created successfully.');
+        closeNewAccountDrawer();
+        // Ideally reload member data here
+    } catch (error: any) {
+        if (error.response?.status === 422) {
+            newAccountErrors.value = error.response.data.errors || {};
+        } else {
+            toast.error('Failed to create savings account.');
+        }
+    } finally {
+        newAccountProcessing.value = false;
+    }
 };
 
 const openDrawer = (type: 'deposit' | 'withdraw') => {
     drawerOpen.value = type;
-    depositForm.reset();
-    depositForm.deposit_date = new Date().toISOString().split('T')[0];
-    depositForm.use_for_loan_repayment = 'no';
-    depositForm.deposited_by = props.member.name;
-    depositForm.transaction_reference = generateTransactionRef();
-    // Auto-select first account if available
-    if (props.member.savings_accounts?.length) {
-        depositForm.savings_account_id = props.member.savings_accounts[0].id;
-    }
+    Object.assign(depositForm, {
+        deposit_date: new Date().toISOString().split('T')[0],
+        savings_account_id: props.member.savings_accounts?.length ? props.member.savings_accounts[0].id : '',
+        amount: '',
+        deposited_by: props.member.name,
+        transaction_reference: generateTransactionRef(),
+        payment_mode: '',
+        narration: '',
+        use_for_loan_repayment: 'no',
+    });
+    depositErrors.value = {};
 };
 
 const closeDrawer = () => {
@@ -405,15 +433,28 @@ const closeDrawer = () => {
     depositForm.reset();
 };
 
-const submitTransaction = () => {
+const submitTransaction = async () => {
     if (!drawerOpen.value) return;
+    depositProcessing.value = true;
+    depositErrors.value = {};
     const url = drawerOpen.value === 'deposit'
         ? `/savings-accounts/${depositForm.savings_account_id}/deposit`
         : `/savings-accounts/${depositForm.savings_account_id}/withdraw`;
-    depositForm.post(url, {
-        preserveScroll: true,
-        onSuccess: () => closeDrawer(),
-    });
+
+    try {
+        await apiClient.post(url, depositForm);
+        toast.success(`${drawerOpen.value === 'deposit' ? 'Deposit' : 'Withdrawal'} successful.`);
+        closeDrawer();
+        // Ideally reload member data here
+    } catch (error: any) {
+        if (error.response?.status === 422) {
+            depositErrors.value = error.response.data.errors || {};
+        } else {
+            toast.error(`Failed to execute ${drawerOpen.value}.`);
+        }
+    } finally {
+        depositProcessing.value = false;
+    }
 };
 
 const computedAge = computed(() => {
@@ -481,40 +522,54 @@ const cancelDelete = () => {
     showDeleteDialog.value = false;
 };
 
-const executeDelete = () => {
+const executeDelete = async () => {
     deleting.value = true;
-    router.delete(`/members/${props.member.id}`, {
-        preserveScroll: true,
-        onFinish: () => {
-            deleting.value = false;
-            showDeleteDialog.value = false;
-        },
-        onError: () => {
-            toast.error('An error occurred. The member could not be deleted.');
-        },
-    });
+    try {
+        await apiClient.delete(`/members/${props.member.id}`);
+        toast.success('Member deleted successfully.');
+        router.push('/members');
+    } catch (error) {
+        toast.error('An error occurred. The member could not be deleted.');
+    } finally {
+        deleting.value = false;
+        showDeleteDialog.value = false;
+    }
 };
 
 const avatarInput = ref<HTMLInputElement | null>(null);
-const uploadForm = useForm({
+const uploadForm = reactive({
     avatar: null as File | null,
 });
+const uploadProcessing = ref(false);
 
 const triggerAvatarUpload = () => {
     avatarInput.value?.click();
 };
 
-const handleAvatarUpload = (event: Event) => {
+const handleAvatarUpload = async (event: Event) => {
     const target = event.target as HTMLInputElement;
     if (target.files && target.files[0]) {
         uploadForm.avatar = target.files[0];
-        uploadForm.post(`/members/${props.member.id}/avatar`, {
-            preserveScroll: true,
-            onSuccess: () => {
-                if (avatarInput.value) avatarInput.value.value = '';
-                uploadForm.reset();
-            },
-        });
+        uploadProcessing.value = true;
+
+        const formData = new FormData();
+        formData.append('avatar', uploadForm.avatar);
+
+        try {
+            await apiClient.post(`/members/${props.member.id}/avatar`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            toast.success('Avatar updated successfully.');
+            if (avatarInput.value) avatarInput.value.value = '';
+            uploadForm.avatar = null;
+            // Ideally reload member data here
+        } catch (error) {
+            toast.error('Failed to upload avatar.');
+        } finally {
+            uploadProcessing.value = false;
+        }
     }
 };
 </script>
@@ -522,7 +577,6 @@ const handleAvatarUpload = (event: Event) => {
 <template>
     <AppLayout>
 
-        <Head :title="`Member - ${member.name}`" />
 
         <div class="min-h-screen bg-background text-foreground relative">
 
@@ -555,7 +609,7 @@ const handleAvatarUpload = (event: Event) => {
                                     class="w-full h-full object-cover" />
                                 <span v-else
                                     class="text-xl font-bold text-[#c9a84c]">{{ memberInitials }}</span>
-                                <div v-if="uploadForm.processing"
+                                <div v-if="uploadProcessing"
                                     class="absolute inset-0 bg-black/60 flex items-center justify-center">
                                     <div class="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white">
                                     </div>
@@ -604,11 +658,11 @@ const handleAvatarUpload = (event: Event) => {
 
                         <!-- Edit Profile Button -->
                         <div class="px-4 pb-4">
-                            <Link :href="`/members/${member.id}/edit`"
+                            <RouterLink :to="`/members/${member.id}/edit`"
                                 class="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-[12px] font-semibold text-muted-foreground border border-border hover:bg-accent hover:text-foreground transition-all">
                                 <Edit :size="13" />
                                 Edit Profile
-                            </Link>
+                            </RouterLink>
                         </div>
                     </div>
 
@@ -1149,7 +1203,7 @@ const handleAvatarUpload = (event: Event) => {
                                 Track and manage member shares, certificates, and dividends here.
                             </p>
                         </div>
-                        
+
                         <div v-show="activeTab === 'loans'" class="p-12 text-center">
                             <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mx-auto mb-3">
                                 <Wallet :size="20" class="text-blue-600 dark:text-blue-400" />
@@ -1198,7 +1252,7 @@ const handleAvatarUpload = (event: Event) => {
                                         @update:modelValue="newAccountForm.savings_product_id = $event"
                                         :options="productOptions"
                                         placeholder="Select account type"
-                                        :error="newAccountForm.errors.savings_product_id"
+                                        :error="newAccountErrors.savings_product_id"
                                     />
                                 </div>
 
@@ -1274,7 +1328,7 @@ const handleAvatarUpload = (event: Event) => {
                                             @update:modelValue="newAccountForm.credited_account_id = $event"
                                             :options="creditedAccountOptions"
                                             placeholder="Select Account"
-                                            :error="newAccountForm.errors.credited_account_id"
+                                            :error="newAccountErrors.credited_account_id"
                                         />
                                     </div>
 
@@ -1288,7 +1342,7 @@ const handleAvatarUpload = (event: Event) => {
                                             <input v-model="formattedInitialDeposit" type="text" placeholder="0"
                                                 class="w-full py-3 pl-14 pr-4 rounded-xl bg-background border border-border text-foreground text-[14px] font-mono font-bold placeholder-muted-foreground/50 focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30 transition-all" />
                                         </div>
-                                        <p v-if="newAccountForm.errors.initial_deposit" class="mt-1 text-[11px] text-[#dc2626]">{{ newAccountForm.errors.initial_deposit }}</p>
+                                        <p v-if="newAccountErrors.initial_deposit" class="mt-1 text-[11px] text-[#dc2626]">{{ newAccountErrors.initial_deposit }}</p>
                                     </div>
                                 </template>
 
@@ -1314,7 +1368,7 @@ const handleAvatarUpload = (event: Event) => {
                                             <input v-model="formattedOpeningBalance" type="text" placeholder="0"
                                                 class="w-full py-3 pl-14 pr-4 rounded-xl bg-background border border-border text-foreground text-[14px] font-mono font-bold placeholder-muted-foreground/50 focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30 transition-all" />
                                         </div>
-                                        <p v-if="newAccountForm.errors.initial_deposit" class="mt-1 text-[11px] text-[#dc2626]">{{ newAccountForm.errors.initial_deposit }}</p>
+                                        <p v-if="newAccountErrors.initial_deposit" class="mt-1 text-[11px] text-[#dc2626]">{{ newAccountErrors.initial_deposit }}</p>
                                     </div>
                                 </template>
 
@@ -1338,9 +1392,9 @@ const handleAvatarUpload = (event: Event) => {
                                     class="px-5 py-2.5 rounded-lg text-[12px] font-semibold text-muted-foreground border border-border hover:bg-accent hover:text-foreground transition-all">
                                     Close
                                 </button>
-                                <button @click="submitNewAccount" :disabled="newAccountForm.processing"
+                                <button @click="submitNewAccount" :disabled="newAccountProcessing"
                                     class="px-5 py-2.5 rounded-lg text-[12px] font-bold bg-[#c9a84c] text-white hover:bg-[#b8973e] transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                                    <div v-if="newAccountForm.processing" class="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
+                                    <div v-if="newAccountProcessing" class="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
                                     Save changes
                                 </button>
                             </div>
@@ -1397,7 +1451,7 @@ const handleAvatarUpload = (event: Event) => {
                                                 <input v-model="depositForm.deposit_date" type="date"
                                                     class="w-full py-3 pl-10 pr-4 rounded-xl bg-background border border-border text-foreground text-[13px] font-medium focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30 transition-all" />
                                             </div>
-                                            <p v-if="depositForm.errors.deposit_date" class="mt-1 text-[11px] text-red-500">{{ depositForm.errors.deposit_date }}</p>
+                                            <p v-if="depositErrors.deposit_date" class="mt-1 text-[11px] text-red-500">{{ depositErrors.deposit_date }}</p>
                                         </div>
                                         <div>
                                             <label class="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
@@ -1408,7 +1462,7 @@ const handleAvatarUpload = (event: Event) => {
                                                 @update:modelValue="depositForm.savings_account_id = $event"
                                                 :options="accountOptions"
                                                 placeholder="Select Account"
-                                                :error="depositForm.errors.savings_account_id"
+                                                :error="depositErrors.savings_account_id"
                                             />
                                         </div>
                                     </div>
@@ -1431,7 +1485,7 @@ const handleAvatarUpload = (event: Event) => {
                                                             : 'border-border text-foreground focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30'
                                                     ]" />
                                             </div>
-                                            <p v-if="depositForm.errors.amount" class="mt-1 text-[11px] text-red-500">{{ depositForm.errors.amount }}</p>
+                                            <p v-if="depositErrors.amount" class="mt-1 text-[11px] text-red-500">{{ depositErrors.amount }}</p>
                                         </div>
                                         <div>
                                             <label class="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
@@ -1442,7 +1496,7 @@ const handleAvatarUpload = (event: Event) => {
                                                 <input v-model="depositForm.deposited_by" type="text" :placeholder="member.name"
                                                     class="w-full py-3 pl-10 pr-4 rounded-xl bg-background border border-border text-foreground text-[13px] font-medium placeholder-muted-foreground/40 focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30 transition-all" />
                                             </div>
-                                            <p v-if="depositForm.errors.deposited_by" class="mt-1 text-[11px] text-red-500">{{ depositForm.errors.deposited_by }}</p>
+                                            <p v-if="depositErrors.deposited_by" class="mt-1 text-[11px] text-red-500">{{ depositErrors.deposited_by }}</p>
                                         </div>
                                     </div>
 
@@ -1457,7 +1511,7 @@ const handleAvatarUpload = (event: Event) => {
                                                 <input v-model="depositForm.transaction_reference" type="text" readonly
                                                     class="w-full py-3 pl-10 pr-4 rounded-xl bg-secondary/60 border border-border text-foreground text-[13px] font-medium font-mono cursor-default focus:outline-none transition-all" />
                                             </div>
-                                            <p v-if="depositForm.errors.transaction_reference" class="mt-1 text-[11px] text-red-500">{{ depositForm.errors.transaction_reference }}</p>
+                                            <p v-if="depositErrors.transaction_reference" class="mt-1 text-[11px] text-red-500">{{ depositErrors.transaction_reference }}</p>
                                         </div>
                                         <div>
                                             <label class="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
@@ -1468,7 +1522,7 @@ const handleAvatarUpload = (event: Event) => {
                                                 @update:modelValue="depositForm.payment_mode = $event"
                                                 :options="paymentModeOptions"
                                                 placeholder="Select payment mode"
-                                                :error="depositForm.errors.payment_mode"
+                                                :error="depositErrors.payment_mode"
                                             />
                                         </div>
                                     </div>
@@ -1486,7 +1540,7 @@ const handleAvatarUpload = (event: Event) => {
                                                 :placeholder="drawerOpen === 'deposit' ? 'Savings deposit...' : 'Withdrawal reason...'"
                                                 rows="2"
                                                 class="w-full py-3 px-4 rounded-xl bg-background border border-border text-foreground text-[13px] font-medium placeholder-muted-foreground/40 focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30 transition-all resize-none"></textarea>
-                                            <p v-if="depositForm.errors.narration" class="mt-1 text-[11px] text-red-500">{{ depositForm.errors.narration }}</p>
+                                            <p v-if="depositErrors.narration" class="mt-1 text-[11px] text-red-500">{{ depositErrors.narration }}</p>
                                         </div>
                                         <div>
                                             <label class="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
@@ -1535,14 +1589,14 @@ const handleAvatarUpload = (event: Event) => {
                                     Close
                                 </button>
                                 <button @click="submitTransaction"
-                                    :disabled="depositForm.processing || !depositForm.amount || Number(depositForm.amount) <= 0"
+                                    :disabled="depositProcessing || !depositForm.amount || Number(depositForm.amount) <= 0"
                                     :class="[
                                         'px-6 py-2.5 rounded-lg text-[12px] font-bold transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2',
                                         drawerOpen === 'deposit'
                                             ? 'bg-emerald-600 text-white hover:bg-emerald-700'
                                             : 'bg-orange-600 text-white hover:bg-orange-700'
                                     ]">
-                                    <div v-if="depositForm.processing" class="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
+                                    <div v-if="depositProcessing" class="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
                                     Submit
                                 </button>
                             </div>
@@ -1567,7 +1621,7 @@ const handleAvatarUpload = (event: Event) => {
                             <div>
                                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white">Delete Transaction</h3>
                                 <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-                                    Are you sure you want to delete transaction <strong class="text-neutral-700 dark:text-neutral-200">{{ txnToDelete?.reference }}</strong>? 
+                                    Are you sure you want to delete transaction <strong class="text-neutral-700 dark:text-neutral-200">{{ txnToDelete?.reference }}</strong>?
                                     <br><br>
                                     <span class="text-amber-600 font-semibold italic">Warning: This will reverse the account balance!</span>
                                 </p>
@@ -1636,7 +1690,7 @@ const handleAvatarUpload = (event: Event) => {
                 <p class="text-[13px] font-medium italic mb-1">Address: KAMPALA</p>
                 <p class="text-[13px] font-medium italic mb-1">TEL: +256701270153</p>
                 <p class="text-[13px] font-medium italic">Email: nugsoftemail@nugsoft.com</p>
-                
+
                 <div class="mt-6 inline-block border-b-2 border-double border-gray-800 px-8 pb-1">
                     <h2 class="text-sm font-bold uppercase tracking-wider">{{ printingTxn.type }} RECEIPT</h2>
                 </div>
@@ -1676,7 +1730,7 @@ const handleAvatarUpload = (event: Event) => {
             <!-- Served By -->
             <div class="text-center mt-10 space-y-4">
                 <p class="text-[13px] font-bold tracking-wider">Served By: <span class="uppercase">{{ printingTxn.deposited_by || 'SYSTEM ADMIN' }}</span></p>
-                
+
                 <div class="pt-8">
                     <p class="text-[12px] italic text-gray-500 mb-2">Signature & stamp</p>
                     <div class="w-48 mx-auto border-b border-gray-400"></div>
@@ -1687,7 +1741,7 @@ const handleAvatarUpload = (event: Event) => {
             <div class="mt-12 text-center text-[12px] space-y-4 border-t-2 border-double border-gray-800 pt-6">
                 <p class="font-bold italic">Thank you for Saving with <span class="uppercase">Nugsoft Main Testing Sacco</span>.</p>
                 <p class="font-bold">For Inquiry About this loan Call: 256701270153.</p>
-                
+
                 <div class="pt-4 border-t border-dashed border-gray-300">
                     <p class="font-mono tracking-tighter text-gray-400">Mfuko Plus - Microfinance Mgt Software</p>
                 </div>

@@ -7,7 +7,7 @@ import { toast } from 'vue-sonner';
  * **/
 interface INotify {
     label?: string;
-    callback?: Function;
+    callback?: (event: Event) => void;
     pos?: 'tl' | 'tr' | 'bl' | 'br';
     msg?: string;
     type?:
@@ -62,7 +62,7 @@ export function notify({
             toast(msg, {
                 action: {
                     label,
-                    onClick: (e) => callback && callback(e),
+                    onClick: (e: Event) => callback?.(e),
                 },
             });
             break;

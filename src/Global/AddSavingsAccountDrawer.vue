@@ -125,7 +125,7 @@ const showChargeDropdown = ref(false);
                             class="text-red-500">*</span></Label>
                     <SearchableSelect v-model="form.member_id"
                         :options="members.map(m => ({ id: m.id, name: `${m.name} (${m.member_number})` }))"
-                        placeholder="Select Member" :error="form.errors.member_id" />
+                        placeholder="Select Member" :error="errors.member_id" />
                 </div>
 
                 <!-- Account Type (Product) -->
@@ -134,7 +134,7 @@ const showChargeDropdown = ref(false);
                         (Product) <span class="text-red-500">*</span></Label>
                     <SearchableSelect v-model="form.savings_product_id"
                         :options="products.map(p => ({ id: p.id, name: p.name }))" placeholder="General Savings Account"
-                        :error="form.errors.savings_product_id" />
+                        :error="errors.savings_product_id" />
                 </div>
 
                 <!-- Is New Account -->
@@ -186,7 +186,7 @@ const showChargeDropdown = ref(false);
                     <Label class="text-sm font-bold text-neutral-700 dark:text-neutral-300">Credited Account <span
                             class="text-red-500">*</span></Label>
                     <SearchableSelect v-model="form.credited_account_id" :options="sourceAccounts"
-                        placeholder="Select Account" :error="form.errors.credited_account_id" />
+                        placeholder="Select Account" :error="errors.credited_account_id" />
                 </div>
 
                 <!-- Initial Deposit -->
@@ -201,7 +201,7 @@ const showChargeDropdown = ref(false);
                             style: 'currency', currency: 'KES'
                         }).format(form.initial_deposit) }}
                     </div>
-                    <p v-if="form.errors.initial_deposit" class="text-xs text-red-500">{{ form.errors.initial_deposit }}
+                    <p v-if="errors.initial_deposit" class="text-xs text-red-500">{{ errors.initial_deposit }}
                     </p>
                 </div>
 

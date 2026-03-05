@@ -3,7 +3,8 @@ import { computed } from 'vue';
 import { RouterLink } from 'vue-router';
 
 const props = defineProps<{
-    href: string;
+    to?: string;
+    href?: string;
     class?: string;
     tabindex?: number;
 }>();
@@ -14,7 +15,7 @@ const classes = computed(() => {
 </script>
 
 <template>
-    <RouterLink :to="href" :class="classes" :tabindex="tabindex">
+    <RouterLink :to="to ?? href ?? '/'" :class="classes" :tabindex="tabindex">
         <slot />
     </RouterLink>
 </template>

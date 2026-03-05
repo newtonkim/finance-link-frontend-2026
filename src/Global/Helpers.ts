@@ -1,5 +1,6 @@
 // import Swal from "sweetalert2";
 import { EncryptStorage } from 'encrypt-storage';
+import { apiClient as customAxios } from '@/central/api/client';
 const encryptStorage = new EncryptStorage(import.meta.env.VITE_ENCRYPT_STORAGE);
 
 export function dateTime(time:string) {
@@ -156,7 +157,7 @@ export function addCommasCurrency(number:any, delimeter = ",") {
 }
 export function addMinutesToTime(startTime: string, minutesToAdd:number|string = 40) {
   const [hours = 0, minutes = 0] = startTime.split(":").map(Number);
-  const totalMinutes = hours * 60 + minutes + parseFloat(minutesToAdd); // add 50 minutes
+  const totalMinutes = hours * 60 + minutes + parseFloat(String(minutesToAdd));
   const endHours = Math.floor(totalMinutes / 60) % 24; // keep within 24h
   const endMinutes = totalMinutes % 60;
   return `${String(endHours).padStart(2, "0")}:${String(endMinutes).padStart(
@@ -293,5 +294,4 @@ export function formDataFormat(data:any) {
 
 
  
-
 

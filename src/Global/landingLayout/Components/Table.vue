@@ -26,7 +26,7 @@
             </tr>
 
             <tr v-for="(item, idx) in dataFilter()" :key="item.id"
-                :class="idx < dataFilter().length - 1 ? 'border-b border-neutral-50 dark:border-neutral-800' : ''">
+                :class="Number(idx) < dataFilter().length - 1 ? 'border-b border-neutral-50 dark:border-neutral-800' : ''">
 
                 <td v-for="col in columns" :key="col.key" :class="[
                     'py-3 text-[14px] text-neutral-500 dark:text-neutral-400 ',
@@ -65,7 +65,7 @@
     </table>
 </template>
 <script setup lang="ts">
-import { PropType } from 'vue';
+import type { PropType } from 'vue';
 import { dataFomater } from '../util';
 import { EmptySvg } from '../..';
 
