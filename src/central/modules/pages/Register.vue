@@ -3,13 +3,24 @@ import { Eye, EyeOff } from 'lucide-vue-next';
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 
-import InputError from '@/components/InputError.vue';
-import TextLink from '@/components/TextLink.vue';
-import { Button } from '@/Global/ui/button';
-import { Input } from '@/Global/ui/input';
-import { Label } from '@/Global/ui/label';
-import { Spinner } from '@/Global/ui/spinner';
-import AuthBase from '@/layouts/auth/AuthSplitLayout.vue';
+// import InputError from '@/components/InputError.vue';
+// import TextLink from '@/components/TextLink.vue';
+// import { Button } from '@/Global/ui/button';
+// import { Input } from '@/Global/ui/input';
+// import { Label } from '@/Global/ui/label';
+// import { Spinner } from '@/Global/ui/spinner';
+// import AuthBase from '@/layouts/auth/AuthSplitLayout.vue';
+
+import {
+  Button, InputError,
+  TextLink,
+  Checkbox,
+  Input,
+  Label,
+  Spinner,
+  AuthBase,
+} from '@/Global';
+
 
 const router = useRouter();
 

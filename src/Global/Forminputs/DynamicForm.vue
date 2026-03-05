@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref,  watch } from 'vue';
-import SearchableSelect from '@/components/SearchableSelect.vue';
-import PhoneInput from '@/components/PhoneInput.vue';
-import FormField from '@/components/FormField.vue';
-import MoneyInput from '@/components/MoneyInput.vue';
+import SearchableSelect from '@/Global/SearchableSelect.vue';
+import PhoneInput from '@/Global/PhoneInput.vue';
+import FormField from '@/Global/FormField.vue';
+import MoneyInput from '@/Global/MoneyInput.vue';
 import { UserCircle2 } from 'lucide-vue-next';
 
 // Props: form object + array of dynamic fields
