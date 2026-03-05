@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { ref, watch, computed, reactive } from 'vue';
 import {
     Sheet,
     SheetContent,
@@ -14,8 +13,7 @@ import { Label } from '@/Global/ui/label';
 import { Badge } from '@/Global/ui/badge';
 import { X, Check } from 'lucide-vue-next';
 import SearchableSelect from '@/Global/SearchableSelect.vue';
-
-
+import { apiClient } from '@/central/api/client';
 
 const props = defineProps<{
     open: boolean;
@@ -26,7 +24,7 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:open', 'success']);
 
-const form = useForm({
+const initialState = {
     member_id: '',
     savings_product_id: '',
     account_type: 'voluntary',
@@ -35,7 +33,25 @@ const form = useForm({
     consider_min_balance: true,
     credited_account_id: '',
     charges: [] as any[],
-});
+};
+
+const form = reactive({ ...initialState });
+const processing = ref(false);
+const errors = ref<Record<string, any>>({});
+
+const reset = () => {
+    Object.assign(form, {
+        member_id: '',
+        savings_product_id: '',
+        account_type: 'voluntary',
+        is_new_account: true,
+        initial_deposit: 0,
+        consider_min_balance: true,
+        credited_account_id: '',
+        charges: [],
+    });
+    errors.value = {};
+};
 
 // Mocked data for demo/conceptual fields
 const sourceAccounts = [
@@ -61,7 +77,7 @@ watch(() => props.open, (newVal) => {
             form.consider_min_balance = props.account.consider_min_balance;
             form.charges = props.account.selected_charges || [];
         } else {
-            form.reset();
+            reset();
         }
     }
 });
@@ -73,21 +89,26 @@ watch(() => form.savings_product_id, (newVal, oldVal) => {
     }
 });
 
-const submit = () => {
-    if (props.account) {
-        form.put(`/savings-accounts/${props.account.id}`, {
-            onSuccess: () => {
-                emit('update:open', false);
-                emit('success');
-            },
-        });
-    } else {
-        form.post('/savings-accounts', {
-            onSuccess: () => {
-                emit('update:open', false);
-                emit('success');
-            },
-        });
+const submit = async () => {
+    processing.value = true;
+    errors.value = {};
+
+    try {
+        if (props.account) {
+            await apiClient.put(`/savings-accounts/${props.account.id}`, form);
+        } else {
+            await apiClient.post('/savings-accounts', form);
+        }
+        emit('update:open', false);
+        emit('success');
+    } catch (error: any) {
+        if (error.response?.status === 422) {
+            errors.value = error.response.data.errors || {};
+        } else {
+            console.error('Failed to save savings account:', error);
+        }
+    } finally {
+        processing.value = false;
     }
 };
 
@@ -225,9 +246,9 @@ const showChargeDropdown = ref(false);
                         class="flex-1 h-11 font-bold rounded-xl border-neutral-200 dark:border-neutral-800">
                         Close
                     </Button>
-                    <Button @click="submit" :disabled="form.processing"
+                    <Button @click="submit" :disabled="processing"
                         class="flex-1 h-11 font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all shadow-emerald-500/20">
-                        {{ account ? 'Update changes' : 'Save changes' }}
+                        {{ account ? (processing ? 'Updating...' : 'Update changes') : (processing ? 'Saving...' : 'Save changes') }}
                     </Button>
                 </div>
             </SheetFooter>

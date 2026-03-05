@@ -1,18 +1,5 @@
 <script setup lang="ts">
-import { usePage } from '@inertiajs/vue3';
-import { Bell, ChevronDown, Plus, Search } from 'lucide-vue-next';
-import { computed } from 'vue';
-
-import Breadcrumbs from '@/Global/Breadcrumbs.vue';
-import { Avatar, AvatarFallback, AvatarImage } from '@/Global/ui/avatar';
-import { Button } from '@/Global/ui/button';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuTrigger,
-} from '@/Global/ui/dropdown-menu';
-import { SidebarTrigger } from '@/Global/ui/sidebar';
-import UserMenuContent from '@/Global/UserMenuContent.vue';
+import { useAuthStore } from '@/stores/auth';
 import { getInitials } from '@/composables/useInitials';
 import type { BreadcrumbItem } from '@/types';
 
@@ -25,8 +12,8 @@ withDefaults(
     },
 );
 
-const page = usePage();
-const user = computed(() => page.props.auth.user);
+const authStore = useAuthStore();
+const user = computed(() => authStore.user);
 
 // Mock team members for the header avatars
 const teamMembers = [

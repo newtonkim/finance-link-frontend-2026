@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { Form } from '@inertiajs/vue3';
+import { ref, onMounted, nextTick, useTemplateRef } from 'vue';
 import { Eye, EyeOff, LockKeyhole, RefreshCw } from 'lucide-vue-next';
-import { nextTick, onMounted, ref, useTemplateRef } from 'vue';
 import AlertError from '@/Global/AlertError.vue';
 import { Button } from '@/Global/ui/button';
 import {
@@ -12,11 +11,12 @@ import {
     CardTitle,
 } from '@/Global/ui/card';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
-import { regenerateRecoveryCodes } from '@/routes/two-factor';
+import { apiClient } from '@/central/api/client';
 
 const { recoveryCodesList, fetchRecoveryCodes, errors } = useTwoFactorAuth();
 const isRecoveryCodesVisible = ref<boolean>(false);
 const recoveryCodeSectionRef = useTemplateRef('recoveryCodeSectionRef');
+const processing = ref(false);
 
 const toggleRecoveryCodesVisibility = async () => {
     if (!isRecoveryCodesVisible.value && !recoveryCodesList.value.length) {
@@ -28,6 +28,18 @@ const toggleRecoveryCodesVisibility = async () => {
     if (isRecoveryCodesVisible.value) {
         await nextTick();
         recoveryCodeSectionRef.value?.scrollIntoView({ behavior: 'smooth' });
+    }
+};
+
+const handleRegenerateCodes = async () => {
+    processing.value = true;
+    try {
+        await apiClient.post('/user/two-factor-recovery-codes');
+        await fetchRecoveryCodes();
+    } catch (error) {
+        console.error('Failed to regenerate recovery codes:', error);
+    } finally {
+        processing.value = false;
     }
 };
 
@@ -62,22 +74,16 @@ onMounted(async () => {
                     Codes
                 </Button>
 
-                <Form
+                <Button
                     v-if="isRecoveryCodesVisible && recoveryCodesList.length"
-                    v-bind="regenerateRecoveryCodes.form()"
-                    method="post"
-                    :options="{ preserveScroll: true }"
-                    @success="fetchRecoveryCodes"
-                    #default="{ processing }"
+                    variant="secondary"
+                    @click="handleRegenerateCodes"
+                    :disabled="processing"
+                    class="gap-2"
                 >
-                    <Button
-                        variant="secondary"
-                        type="submit"
-                        :disabled="processing"
-                    >
-                        <RefreshCw /> Regenerate Codes
-                    </Button>
-                </Form>
+                    <RefreshCw :class="{ 'animate-spin': processing }" class="size-4" />
+                    {{ processing ? 'Regenerating...' : 'Regenerate Codes' }}
+                </Button>
             </div>
             <div
                 :class="[

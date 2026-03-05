@@ -1,5 +1,4 @@
-<script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { RouterLink as Link } from 'vue-router';
 import {
     SidebarGroup,
     SidebarGroupLabel,
