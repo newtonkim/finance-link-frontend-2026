@@ -16,7 +16,7 @@ const props = withDefaults(defineProps<{
     width: 'w-2/3 sm:full'
 });
 
-const emit = defineEmits(['update:open', 'save', 'cancel', "submit"]);
+const emit = defineEmits(['update:open', 'save', 'cancel', 'submit']);
 
 const handleSave = () => {
     emit('save');
@@ -26,7 +26,6 @@ const handleCancel = () => {
     emit('cancel');
     emit('update:open', false);
 };
-// const emits = defineEmits(['submit', 'clear', 'update:form']);
 
 </script>
 
