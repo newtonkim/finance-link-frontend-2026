@@ -14,6 +14,7 @@ import { Spinner } from '@/components/ui/spinner';
 import AuthBase from '@/layouts/auth/AuthSplitLayout.vue';
 
 const router = useRouter();
+j 6fbd5 bv
 
 const email = ref('');
 const password = ref('');
