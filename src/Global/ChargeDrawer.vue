@@ -108,7 +108,8 @@ const selectedLabel = computed(() => {
 const formatMoney = (val: number | string | null | undefined) => {
     if (val === null || val === undefined || val === '') return '';
     const parts = val.toString().split('.');
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    const whole = parts[0] ?? '';
+    parts[0] = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     return parts.join('.');
 };
 

@@ -51,7 +51,12 @@ const features = [
 
 const activeIndex = ref(0);
 let interval: any = null;
-const activeFeature = computed(() => features[activeIndex.value] ?? features[0]);
+const fallbackFeature = {
+  title: '',
+  description: '',
+  image: '',
+};
+const activeFeature = computed(() => features[activeIndex.value] ?? fallbackFeature);
 
 onMounted(() => {
   interval = setInterval(() => {
@@ -201,7 +206,7 @@ const loginPath = '/login';
 
       <div class="text-center text-sm text-muted-foreground">
         Already have an account?
-        <TextLink :href="loginPath" class="font-semibold text-[#001d22] hover:underline" :tabindex="6">Log in</TextLink>
+        <TextLink :to="loginPath" class="font-semibold text-[#001d22] hover:underline" :tabindex="6">Log in</TextLink>
       </div>
     </form>
 

@@ -169,7 +169,7 @@ const submit = async () => {
           </div>
           <TextLink
             v-if="canResetPassword"
-            href="/central/forgot-password"
+            to="/central/forgot-password"
             class="text-sm font-medium text-[#001d22] hover:underline"
             :tabindex="5"
           >
@@ -192,7 +192,7 @@ const submit = async () => {
       <div class="text-center text-sm text-muted-foreground" v-if="canRegister">
         Don't have an account?
         <TextLink
-          href="/register"
+          to="/register"
           class="font-semibold text-[#001d22] hover:underline"
           :tabindex="5"
           >Register

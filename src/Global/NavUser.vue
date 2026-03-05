@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ChevronsUpDown } from 'lucide-vue-next';
+import { computed } from 'vue';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -16,7 +17,7 @@ import UserMenuContent from './UserMenuContent.vue';
 import { useAuthStore } from '@/stores/auth';
 
 const authStore = useAuthStore();
-const user = authStore.user;
+const user = computed(() => authStore.user);
 const { isMobile, state } = useSidebar();
 </script>
 
@@ -28,7 +29,7 @@ const { isMobile, state } = useSidebar();
                     <SidebarMenuButton size="lg"
                         class="data-[state=open]:bg-white/10 data-[state=open]:text-white hover:bg-white/5 transition-all duration-200"
                         data-test="sidebar-menu-button">
-                        <UserInfo :user="user" />
+                        <UserInfo v-if="user" :user="user" />
                         <ChevronsUpDown class="ml-auto size-4 text-white/40" />
                     </SidebarMenuButton>
                 </DropdownMenuTrigger>
@@ -38,7 +39,7 @@ const { isMobile, state } = useSidebar();
                             ? 'left'
                             : 'bottom'
                     " align="end" :side-offset="4">
-                    <UserMenuContent :user="user" />
+                    <UserMenuContent v-if="user" :user="user" />
                 </DropdownMenuContent>
             </DropdownMenu>
         </SidebarMenuItem>

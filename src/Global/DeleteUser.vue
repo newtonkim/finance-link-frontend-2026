@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, useTemplateRef } from 'vue';
-import { useRouter } from 'vue-router';
+import { reactive, ref, useTemplateRef } from 'vue';
+import { apiClient } from '@/central/api/client';
 import Heading from '@/Global/Heading.vue';
 import InputError from '@/Global/InputError.vue';
 import { Button } from '@/Global/ui/button';
@@ -16,44 +16,31 @@ import {
 } from '@/Global/ui/dialog';
 import { Input } from '@/Global/ui/input';
 import { Label } from '@/Global/ui/label';
-import { apiClient } from '@/central/api/client';
-import { useAuthStore } from '@/stores/auth';
 
 const passwordInput = useTemplateRef('passwordInput');
-const router = useRouter();
-const authStore = useAuthStore();
-
-const password = ref('');
 const processing = ref(false);
-const errors = ref<Record<string, string>>({});
+const errors = reactive<Record<string, string>>({});
+const form = reactive({ password: '' });
 
-const clearErrors = () => {
-    errors.value = {};
+const clearForm = () => {
+    form.password = '';
+    Object.keys(errors).forEach((key) => delete errors[key]);
 };
 
-const reset = () => {
-    password.value = '';
-    clearErrors();
-};
-
-const deleteAccount = async () => {
+const submitDelete = async () => {
     processing.value = true;
-    clearErrors();
+    Object.keys(errors).forEach((key) => delete errors[key]);
 
     try {
-        await apiClient.delete('/settings/profile', {
-            data: { password: password.value },
-        });
-
-        // After successful deletion, logout and redirect
-        await authStore.logout();
-        router.push('/login');
+        await apiClient.delete('/user', { data: { password: form.password } });
+        clearForm();
     } catch (error: any) {
         if (error.response?.status === 422) {
-            errors.value = error.response.data.errors || {};
-            passwordInput.value?.$el?.focus();
-        } else {
-            console.error('Failed to delete account:', error);
+            const payload = error.response.data?.errors || {};
+            Object.assign(errors, {
+                password: payload.password?.[0] || 'Invalid password.',
+            });
+            passwordInput.value?.focus();
         }
     } finally {
         processing.value = false;
@@ -77,14 +64,14 @@ const deleteAccount = async () => {
                     Please proceed with caution, this cannot be undone.
                 </p>
             </div>
-            <Dialog @update:open="(val) => !val && reset()">
+            <Dialog>
                 <DialogTrigger as-child>
                     <Button variant="destructive" data-test="delete-user-button"
                         >Delete account</Button
                     >
                 </DialogTrigger>
                 <DialogContent>
-                    <form @submit.prevent="deleteAccount" class="space-y-6">
+                    <form class="space-y-6" @submit.prevent="submitDelete">
                         <DialogHeader class="space-y-3">
                             <DialogTitle
                                 >Are you sure you want to delete your
@@ -107,10 +94,9 @@ const deleteAccount = async () => {
                                 id="password"
                                 type="password"
                                 name="password"
-                                v-model="password"
                                 ref="passwordInput"
                                 placeholder="Password"
-                                :disabled="processing"
+                                v-model="form.password"
                             />
                             <InputError :message="errors.password" />
                         </div>
@@ -119,8 +105,7 @@ const deleteAccount = async () => {
                             <DialogClose as-child>
                                 <Button
                                     variant="secondary"
-                                    type="button"
-                                    @click="reset"
+                                    @click="clearForm"
                                 >
                                     Cancel
                                 </Button>
@@ -132,8 +117,7 @@ const deleteAccount = async () => {
                                 :disabled="processing"
                                 data-test="confirm-delete-user-button"
                             >
-                                <template v-if="processing">Deleting...</template>
-                                <template v-else>Delete account</template>
+                                Delete account
                             </Button>
                         </DialogFooter>
                     </form>

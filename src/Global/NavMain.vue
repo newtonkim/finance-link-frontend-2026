@@ -1,4 +1,5 @@
-import { RouterLink as Link } from 'vue-router';
+<script setup lang="ts">
+import { RouterLink } from 'vue-router';
 import {
     SidebarGroup,
     SidebarGroupLabel,
@@ -26,10 +27,10 @@ const { isCurrentUrl } = useCurrentUrl();
                     :is-active="isCurrentUrl(item.href)"
                     :tooltip="item.title"
                 >
-                    <Link :href="item.href">
+                    <RouterLink :to="item.href">
                         <component :is="item.icon" />
                         <span>{{ item.title }}</span>
-                    </Link>
+                    </RouterLink>
                 </SidebarMenuButton>
             </SidebarMenuItem>
         </SidebarMenu>

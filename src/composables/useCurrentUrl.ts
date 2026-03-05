@@ -17,7 +17,8 @@ export function useCurrentUrl(): UseCurrentUrlReturn {
         const urlToCompare = currentUrl ?? currentUrlReactive.value;
 
         // Remove query params and trailing slashes for comparison if needed
-        const cleanUrl = (url: string) => url.split('?')[0].replace(/\/$/, '') || '/';
+        const cleanUrl = (url: string) =>
+            (url.split('?')[0] ?? '/').replace(/\/$/, '') || '/';
 
         return cleanUrl(urlToCheck) === cleanUrl(urlToCompare);
     }

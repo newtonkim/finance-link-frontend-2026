@@ -1,4 +1,4 @@
-import { RouterLink as Link, useRouter } from 'vue-router';
+import { RouterLink, useRouter } from 'vue-router';
 import {
     Edit, MinusCircle, PlusCircle, Trash2, Plus, UserCircle2,
     Users, Wallet, FileText, BarChart3, Star, X, TrendingUp, Check,
@@ -658,11 +658,11 @@ const handleAvatarUpload = async (event: Event) => {
 
                         <!-- Edit Profile Button -->
                         <div class="px-4 pb-4">
-                            <Link :href="`/members/${member.id}/edit`"
+                            <RouterLink :to="`/members/${member.id}/edit`"
                                 class="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-[12px] font-semibold text-muted-foreground border border-border hover:bg-accent hover:text-foreground transition-all">
                                 <Edit :size="13" />
                                 Edit Profile
-                            </Link>
+                            </RouterLink>
                         </div>
                     </div>
 

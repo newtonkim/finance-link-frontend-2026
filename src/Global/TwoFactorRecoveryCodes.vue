@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick, useTemplateRef } from 'vue';
 import { Eye, EyeOff, LockKeyhole, RefreshCw } from 'lucide-vue-next';
+import { nextTick, onMounted, ref, useTemplateRef } from 'vue';
+import { apiClient } from '@/central/api/client';
 import AlertError from '@/Global/AlertError.vue';
 import { Button } from '@/Global/ui/button';
 import {
@@ -11,12 +12,11 @@ import {
     CardTitle,
 } from '@/Global/ui/card';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
-import { apiClient } from '@/central/api/client';
 
 const { recoveryCodesList, fetchRecoveryCodes, errors } = useTwoFactorAuth();
 const isRecoveryCodesVisible = ref<boolean>(false);
-const recoveryCodeSectionRef = useTemplateRef('recoveryCodeSectionRef');
 const processing = ref(false);
+const recoveryCodeSectionRef = useTemplateRef('recoveryCodeSectionRef');
 
 const toggleRecoveryCodesVisibility = async () => {
     if (!isRecoveryCodesVisible.value && !recoveryCodesList.value.length) {
@@ -31,13 +31,11 @@ const toggleRecoveryCodesVisibility = async () => {
     }
 };
 
-const handleRegenerateCodes = async () => {
+const regenerateCodes = async () => {
     processing.value = true;
     try {
         await apiClient.post('/user/two-factor-recovery-codes');
         await fetchRecoveryCodes();
-    } catch (error) {
-        console.error('Failed to regenerate recovery codes:', error);
     } finally {
         processing.value = false;
     }
@@ -77,12 +75,11 @@ onMounted(async () => {
                 <Button
                     v-if="isRecoveryCodesVisible && recoveryCodesList.length"
                     variant="secondary"
-                    @click="handleRegenerateCodes"
+                    type="button"
                     :disabled="processing"
-                    class="gap-2"
+                    @click="regenerateCodes"
                 >
-                    <RefreshCw :class="{ 'animate-spin': processing }" class="size-4" />
-                    {{ processing ? 'Regenerating...' : 'Regenerate Codes' }}
+                    <RefreshCw /> Regenerate Codes
                 </Button>
             </div>
             <div

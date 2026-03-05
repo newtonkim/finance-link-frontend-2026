@@ -46,9 +46,10 @@ const countries: Country[] = [
     { code: 'CN', name: 'China', dial: '+86', flag: '🇨🇳' },
     { code: 'AE', name: 'UAE', dial: '+971', flag: '🇦🇪' },
 ];
+const DEFAULT_COUNTRY: Country = { code: 'UG', name: 'Uganda', dial: '+256', flag: '🇺🇬' };
 
 const selectedCountry = computed(() => {
-    return countries.find(c => c.code === (props.countryCode || 'UG')) || countries[0];
+    return countries.find(c => c.code === (props.countryCode || 'UG')) || countries[0] || DEFAULT_COUNTRY;
 });
 
 const filteredCountries = computed(() => {

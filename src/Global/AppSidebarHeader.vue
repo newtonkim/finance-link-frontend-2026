@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { getInitials } from '@/composables/useInitials';
 import type { BreadcrumbItem } from '@/types';

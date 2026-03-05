@@ -15,6 +15,13 @@ import { X, Check } from 'lucide-vue-next';
 import SearchableSelect from '@/Global/SearchableSelect.vue';
 import { apiClient } from '@/central/api/client';
 
+type Charge = {
+    id: number;
+    type: string;
+    charge_type: string;
+    amount: string | number;
+};
+
 const props = defineProps<{
     open: boolean;
     account?: any;
@@ -32,7 +39,7 @@ const initialState = {
     initial_deposit: 0,
     consider_min_balance: true,
     credited_account_id: '',
-    charges: [] as any[],
+    charges: [] as Charge[],
 };
 
 const form = reactive({ ...initialState });
@@ -53,41 +60,47 @@ const reset = () => {
     errors.value = {};
 };
 
-// Mocked data for demo/conceptual fields
 const sourceAccounts = [
     { id: 1, name: 'Main Cash Account' },
     { id: 2, name: 'Bank - Equity' },
     { id: 3, name: 'M-Pesa Till' },
 ];
 
-const availableCharges = computed(() => {
+const availableCharges = computed<Charge[]>(() => {
     if (!form.savings_product_id) return [];
-    const product = props.products.find(p => String(p.id) === String(form.savings_product_id));
+    const product = props.products.find(
+        (p) => String(p.id) === String(form.savings_product_id),
+    );
     return product?.charges || [];
 });
 
-watch(() => props.open, (newVal) => {
-    if (newVal) {
-        if (props.account) {
-            form.member_id = props.account.member_id;
-            form.savings_product_id = props.account.savings_product_id;
-            form.account_type = props.account.account_type;
-            form.is_new_account = props.account.is_new_account;
-            form.initial_deposit = props.account.initial_deposit;
-            form.consider_min_balance = props.account.consider_min_balance;
-            form.charges = props.account.selected_charges || [];
-        } else {
-            reset();
+watch(
+    () => props.open,
+    (newVal) => {
+        if (newVal) {
+            if (props.account) {
+                form.member_id = props.account.member_id;
+                form.savings_product_id = props.account.savings_product_id;
+                form.account_type = props.account.account_type;
+                form.is_new_account = props.account.is_new_account;
+                form.initial_deposit = props.account.initial_deposit;
+                form.consider_min_balance = props.account.consider_min_balance;
+                form.charges = props.account.selected_charges || [];
+            } else {
+                reset();
+            }
         }
-    }
-});
+    },
+);
 
-// Watch for product changes to reset charges if needed
-watch(() => form.savings_product_id, (newVal, oldVal) => {
-    if (oldVal && newVal !== oldVal) {
-        form.charges = [];
-    }
-});
+watch(
+    () => form.savings_product_id,
+    (newVal, oldVal) => {
+        if (oldVal && newVal !== oldVal) {
+            form.charges = [];
+        }
+    },
+);
 
 const submit = async () => {
     processing.value = true;
@@ -104,16 +117,14 @@ const submit = async () => {
     } catch (error: any) {
         if (error.response?.status === 422) {
             errors.value = error.response.data.errors || {};
-        } else {
-            console.error('Failed to save savings account:', error);
         }
     } finally {
         processing.value = false;
     }
 };
 
-const toggleCharge = (charge: any) => {
-    const index = form.charges.findIndex(c => c.id === charge.id);
+const toggleCharge = (charge: Charge) => {
+    const index = form.charges.findIndex((c: Charge) => c.id === charge.id);
     if (index > -1) {
         form.charges.splice(index, 1);
     } else {
@@ -123,7 +134,7 @@ const toggleCharge = (charge: any) => {
 };
 
 const isChargeSelected = (id: number) => {
-    return form.charges.some(c => c.id === id);
+    return form.charges.some((c: Charge) => c.id === id);
 };
 
 const showChargeDropdown = ref(false);
@@ -140,25 +151,22 @@ const showChargeDropdown = ref(false);
             </SheetHeader>
 
             <div class="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide">
-                <!-- Member Selection -->
                 <div class="space-y-2">
                     <Label class="text-sm font-bold text-neutral-700 dark:text-neutral-300">Member <span
                             class="text-red-500">*</span></Label>
                     <SearchableSelect v-model="form.member_id"
                         :options="members.map(m => ({ id: m.id, name: `${m.name} (${m.member_number})` }))"
-                        placeholder="Select Member" :error="form.errors.member_id" />
+                        placeholder="Select Member" :error="errors.member_id" />
                 </div>
 
-                <!-- Account Type (Product) -->
                 <div class="space-y-2">
                     <Label class="text-sm font-bold text-neutral-700 dark:text-neutral-300">Account Type
                         (Product) <span class="text-red-500">*</span></Label>
                     <SearchableSelect v-model="form.savings_product_id"
                         :options="products.map(p => ({ id: p.id, name: p.name }))" placeholder="General Savings Account"
-                        :error="form.errors.savings_product_id" />
+                        :error="errors.savings_product_id" />
                 </div>
 
-                <!-- Is New Account -->
                 <div class="space-y-2">
                     <Label class="text-sm font-bold text-neutral-700 dark:text-neutral-300">Is New Account</Label>
                     <select v-model="form.is_new_account"
@@ -168,7 +176,6 @@ const showChargeDropdown = ref(false);
                     </select>
                 </div>
 
-                <!-- Charges (Multi-select) -->
                 <div class="space-y-2">
                     <Label class="text-sm font-bold text-neutral-700 dark:text-neutral-300">Charges (to apply) <span
                             class="text-red-500">*</span></Label>
@@ -202,15 +209,13 @@ const showChargeDropdown = ref(false);
                     </div>
                 </div>
 
-                <!-- Credited Account -->
                 <div class="space-y-2">
                     <Label class="text-sm font-bold text-neutral-700 dark:text-neutral-300">Credited Account <span
                             class="text-red-500">*</span></Label>
                     <SearchableSelect v-model="form.credited_account_id" :options="sourceAccounts"
-                        placeholder="Select Account" :error="form.errors.credited_account_id" />
+                        placeholder="Select Account" :error="errors.credited_account_id" />
                 </div>
 
-                <!-- Initial Deposit -->
                 <div class="space-y-2">
                     <Label class="text-sm font-bold text-neutral-700 dark:text-neutral-300">Initial deposit <span
                             class="text-red-500">*</span></Label>
@@ -222,11 +227,10 @@ const showChargeDropdown = ref(false);
                             style: 'currency', currency: 'KES'
                         }).format(form.initial_deposit) }}
                     </div>
-                    <p v-if="form.errors.initial_deposit" class="text-xs text-red-500">{{ form.errors.initial_deposit }}
+                    <p v-if="errors.initial_deposit" class="text-xs text-red-500">{{ errors.initial_deposit }}
                     </p>
                 </div>
 
-                <!-- Consider Min Balance -->
                 <div class="space-y-2">
                     <Label class="text-sm font-bold text-neutral-700 dark:text-neutral-300">Consider account type
                         minimum

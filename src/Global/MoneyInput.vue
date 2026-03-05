@@ -22,8 +22,8 @@ const formatMoney = (val: string | number | null): string => {
     
     // Handle multiple decimal points (keep only the first one)
     const parts = numericString.split('.');
-    const wholePart = parts[0];
-    const decimalPart = parts.length > 1 ? '.' + parts[1].substring(0, 2) : '';
+    const wholePart = parts[0] ?? '';
+    const decimalPart = parts.length > 1 ? '.' + (parts[1] ?? '').substring(0, 2) : '';
     
     // Add commas to the whole part
     const formattedWhole = wholePart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');

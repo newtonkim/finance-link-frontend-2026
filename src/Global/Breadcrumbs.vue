@@ -1,4 +1,5 @@
-import { RouterLink as Link } from 'vue-router';
+<script setup lang="ts">
+import { RouterLink } from 'vue-router';
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -26,9 +27,9 @@ defineProps<Props>();
                     </template>
                     <template v-else>
                         <BreadcrumbLink as-child>
-                            <Link :href="item.href ?? '#'">{{
+                            <RouterLink :to="item.href ?? '/'">{{
                                 item.title
-                            }}</Link>
+                            }}</RouterLink>
                         </BreadcrumbLink>
                     </template>
                 </BreadcrumbItem>
