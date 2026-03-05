@@ -13,7 +13,7 @@ import { Input } from '@/Global/ui/input';
 import { Label } from '@/Global/ui/label';
 import { Badge } from '@/Global/ui/badge';
 import { X, Check } from 'lucide-vue-next';
-import SearchableSelect from '@/components/SearchableSelect.vue';
+import SearchableSelect from '@/Global/SearchableSelect.vue';
 
 
 
