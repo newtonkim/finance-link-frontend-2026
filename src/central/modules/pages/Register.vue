@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { Eye, EyeOff } from 'lucide-vue-next';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { isAxiosError } from 'axios';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { registerApi } from '@/central/api/auth';
+import { useAuthStore } from '@/stores/auth';
 
 // import InputError from '@/components/InputError.vue';
 // import TextLink from '@/components/TextLink.vue';
@@ -14,7 +17,6 @@ import { useRouter } from 'vue-router';
 import {
   Button, InputError,
   TextLink,
-  Checkbox,
   Input,
   Label,
   Spinner,
@@ -23,13 +25,15 @@ import {
 
 
 const router = useRouter();
+const authStore = useAuthStore();
 
 const name = ref('');
 const email = ref('');
 const password = ref('');
 const password_confirmation = ref('');
 const processing = ref(false);
-const errors = ref<{ name?: string; email?: string; password?: string; password_confirmation?: string }>({});
+const errors = ref<{ name?: string; email?: string; password?: string; password_confirmation?: string; form?: string }>({});
+const status = ref('');
 
 const features = [
   {
@@ -56,6 +60,7 @@ const features = [
 
 const activeIndex = ref(0);
 let interval: any = null;
+const activeFeature = computed(() => features[activeIndex.value] ?? features[0]);
 
 onMounted(() => {
   interval = setInterval(() => {
@@ -73,6 +78,7 @@ const showConfirmPassword = ref(false);
 const submit = async () => {
   processing.value = true;
   errors.value = {};
+  status.value = '';
 
   if (password.value !== password_confirmation.value) {
     errors.value.password_confirmation = "The password confirmation does not match.";
@@ -80,12 +86,52 @@ const submit = async () => {
     return;
   }
 
-  // Simulate API call
-  setTimeout(() => {
+  try {
+    const response = await registerApi({
+      name: name.value,
+      email: email.value,
+      password: password.value,
+      password_confirmation: password_confirmation.value,
+    });
+
+    authStore.setAuthSession(response.data);
+    status.value = response.message;
+
+    const targetPath = response.data.redirect_url ?? '/central/dashboard';
+    const hasRoute = router.resolve(targetPath).matched.length > 0;
+    if (hasRoute) {
+      await router.push(targetPath);
+    } else {
+      window.location.assign(targetPath);
+    }
+  } catch (error) {
+    if (isAxiosError(error)) {
+      const payload = error.response?.data as {
+        message?: string;
+        errors?: Record<string, string[]>;
+      };
+
+      if (payload?.errors?.name?.[0]) {
+        errors.value.name = payload.errors.name[0];
+      }
+      if (payload?.errors?.email?.[0]) {
+        errors.value.email = payload.errors.email[0];
+      }
+      if (payload?.errors?.password?.[0]) {
+        errors.value.password = payload.errors.password[0];
+      }
+      if (payload?.errors?.password_confirmation?.[0]) {
+        errors.value.password_confirmation = payload.errors.password_confirmation[0];
+      }
+      if (!errors.value.name && !errors.value.email && !errors.value.password && !errors.value.password_confirmation) {
+        errors.value.form = payload?.message ?? 'Registration failed. Please try again.';
+      }
+    } else {
+      errors.value.form = 'Registration failed. Please try again.';
+    }
+  } finally {
     processing.value = false;
-    console.log('Registration successful');
-    router.push('/central/login');
-  }, 1500);
+  }
 };
 
 const loginPath = '/login';
@@ -93,6 +139,18 @@ const loginPath = '/login';
 
 <template>
   <AuthBase title="Create an account" description="Join Mfuko Pro today and elevate your financial management">
+    <div
+      v-if="status"
+      class="mb-6 rounded-lg bg-green-50 p-4 text-center text-sm font-medium text-green-600 border border-green-100"
+    >
+      {{ status }}
+    </div>
+    <div
+      v-if="errors.form"
+      class="mb-6 rounded-lg bg-red-50 p-4 text-center text-sm font-medium text-red-600 border border-red-100"
+    >
+      {{ errors.form }}
+    </div>
     <form @submit.prevent="submit" class="flex flex-col gap-6">
       <div class="grid gap-6">
         <div class="grid gap-2">
@@ -170,10 +228,10 @@ const loginPath = '/login';
 
         <div class="space-y-4 max-w-sm text-center">
           <h2 class="text-4xl font-bold tracking-tight leading-tight text-white">
-            {{ features[activeIndex].title }}
+            {{ activeFeature.title }}
           </h2>
           <p class="text-lg text-white/70">
-            {{ features[activeIndex].description }}
+            {{ activeFeature.description }}
           </p>
         </div>
 

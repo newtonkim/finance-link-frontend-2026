@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { useMouse, useWindowSize } from '@vueuse/core';
 import { Landmark, ShieldCheck, Wallet, PieChart, TrendingUp, Users, Eye, EyeOff } from 'lucide-vue-next';
+import { isAxiosError } from 'axios';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { loginApi } from '@/central/api/auth';
+import { useAuthStore } from '@/stores/auth';
 import {
   Button, InputError,
   TextLink,
@@ -15,12 +18,15 @@ import {
 
 
 const router = useRouter();
+const authStore = useAuthStore();
 const email = ref('');
 const password = ref('');
 const rememberMe = ref(false);
 const processing = ref(false);
-const errors = ref<{ email?: string; password?: string }>({});
+const errors = ref<{ email?: string; password?: string; form?: string }>({});
 const status = ref('');
+const canResetPassword = false;
+const canRegister = true;
 
 const { x, y } = useMouse()
 const { width, height } = useWindowSize()
@@ -46,15 +52,49 @@ const elements = [
 const showPassword = ref(false)
 
 const submit = async () => {
-  processing.value = true
-  errors.value = {}
+  processing.value = true;
+  errors.value = {};
+  status.value = '';
 
-  // Simulate API call
-  setTimeout(() => {
-    processing.value = false
-    // authStore.login(...)
-    router.push('/central')
-  }, 1500)
+  try {
+    const response = await loginApi({
+      email: email.value,
+      password: password.value,
+      type: 'central',
+    });
+
+    authStore.setAuthSession(response.data);
+    status.value = response.message;
+
+    const targetPath = response.data.redirect_url ?? '/central/dashboard';
+    const hasRoute = router.resolve(targetPath).matched.length > 0;
+    if (hasRoute) {
+      await router.push(targetPath);
+    } else {
+      window.location.assign(targetPath);
+    }
+  } catch (error) {
+    if (isAxiosError(error)) {
+      const payload = error.response?.data as {
+        message?: string;
+        errors?: Record<string, string[]>;
+      };
+
+      if (payload?.errors?.email?.[0]) {
+        errors.value.email = payload.errors.email[0];
+      }
+      if (payload?.errors?.password?.[0]) {
+        errors.value.password = payload.errors.password[0];
+      }
+      if (!errors.value.email && !errors.value.password) {
+        errors.value.form = payload?.message ?? 'Login failed. Please try again.';
+      }
+    } else {
+      errors.value.form = 'Login failed. Please try again.';
+    }
+  } finally {
+    processing.value = false;
+  }
 }
 </script>
 
@@ -65,6 +105,12 @@ const submit = async () => {
       class="mb-6 rounded-lg bg-green-50 p-4 text-center text-sm font-medium text-green-600 border border-green-100"
     >
       {{ status }}
+    </div>
+    <div
+      v-if="errors.form"
+      class="mb-6 rounded-lg bg-red-50 p-4 text-center text-sm font-medium text-red-600 border border-red-100"
+    >
+      {{ errors.form }}
     </div>
 
     <form @submit.prevent="submit" class="flex flex-col gap-8">
