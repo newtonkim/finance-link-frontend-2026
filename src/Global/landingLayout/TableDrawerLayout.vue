@@ -67,10 +67,10 @@
         </template>
     </Drawer>
 
-    <ConfirmationDialog v-model:show="showDelete" items1="selectedItem" @confirm="() => save(selected, 'delete')" />
+    <ConfirmationDialog v-model:show="showDelete" items1="selectedItem" @confirm="() => save(selected.value, 'delete')" />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
 import Pagination from '@/Global/Pagination.vue';
 import Drawer from '../Drawer/Drawer.vue';
@@ -84,7 +84,7 @@ const drawerOpen = ref(false);
 const showDelete = ref(false);
 const searchQuery = ref('');
 const emit = defineEmits(['save']);
-const selected = reactive();
+const selected = ref(null);
 import { pomPinia } from 'septor-store';
 import { ACTION_CONFIG, dataTabelFilter, fetchTableData } from './util';
 const Store = pomPinia();
@@ -130,11 +130,11 @@ const handleAction = (item, action) => {
     const fn = ACTION_CONFIG?.[action]?.action;
     if (action === 'delete') {
         showDelete.value = true;
-        selected = item
+        selected.value = item
     } else {
         if (fn) fn(item);
     }
-    save(item ?? selected, action);
+    save(item ?? selected.value, action);
 };
 const changeThePage = (item) => {
 

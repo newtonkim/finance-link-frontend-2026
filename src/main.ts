@@ -3,9 +3,15 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
+import { useAuthStore } from './stores/auth'
+
 const app = createApp(App)
-// setBaseURL({ backendURL: import.meta.env.VITE_BACKEND_URL });
-app.use(createPinia())
-app.use(router)
+const pinia = createPinia()
+
+app.use(pinia)
+.use(router)
+
+const authStore = useAuthStore(pinia)
+authStore.hydrateAuth()
 
 app.mount('#app')
