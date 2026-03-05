@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { Form } from '@inertiajs/vue3';
-import { useTemplateRef } from 'vue';
-import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
+import { ref, useTemplateRef } from 'vue';
+import { useRouter } from 'vue-router';
 import Heading from '@/Global/Heading.vue';
 import InputError from '@/Global/InputError.vue';
 import { Button } from '@/Global/ui/button';
@@ -17,8 +16,49 @@ import {
 } from '@/Global/ui/dialog';
 import { Input } from '@/Global/ui/input';
 import { Label } from '@/Global/ui/label';
+import { apiClient } from '@/central/api/client';
+import { useAuthStore } from '@/stores/auth';
 
 const passwordInput = useTemplateRef('passwordInput');
+const router = useRouter();
+const authStore = useAuthStore();
+
+const password = ref('');
+const processing = ref(false);
+const errors = ref<Record<string, string>>({});
+
+const clearErrors = () => {
+    errors.value = {};
+};
+
+const reset = () => {
+    password.value = '';
+    clearErrors();
+};
+
+const deleteAccount = async () => {
+    processing.value = true;
+    clearErrors();
+
+    try {
+        await apiClient.delete('/settings/profile', {
+            data: { password: password.value },
+        });
+
+        // After successful deletion, logout and redirect
+        await authStore.logout();
+        router.push('/login');
+    } catch (error: any) {
+        if (error.response?.status === 422) {
+            errors.value = error.response.data.errors || {};
+            passwordInput.value?.$el?.focus();
+        } else {
+            console.error('Failed to delete account:', error);
+        }
+    } finally {
+        processing.value = false;
+    }
+};
 </script>
 
 <template>
@@ -37,23 +77,14 @@ const passwordInput = useTemplateRef('passwordInput');
                     Please proceed with caution, this cannot be undone.
                 </p>
             </div>
-            <Dialog>
+            <Dialog @update:open="(val) => !val && reset()">
                 <DialogTrigger as-child>
                     <Button variant="destructive" data-test="delete-user-button"
                         >Delete account</Button
                     >
                 </DialogTrigger>
                 <DialogContent>
-                    <Form
-                        v-bind="ProfileController.destroy.form()"
-                        reset-on-success
-                        @error="() => passwordInput?.$el?.focus()"
-                        :options="{
-                            preserveScroll: true,
-                        }"
-                        class="space-y-6"
-                        v-slot="{ errors, processing, reset, clearErrors }"
-                    >
+                    <form @submit.prevent="deleteAccount" class="space-y-6">
                         <DialogHeader class="space-y-3">
                             <DialogTitle
                                 >Are you sure you want to delete your
@@ -76,8 +107,10 @@ const passwordInput = useTemplateRef('passwordInput');
                                 id="password"
                                 type="password"
                                 name="password"
+                                v-model="password"
                                 ref="passwordInput"
                                 placeholder="Password"
+                                :disabled="processing"
                             />
                             <InputError :message="errors.password" />
                         </div>
@@ -86,12 +119,8 @@ const passwordInput = useTemplateRef('passwordInput');
                             <DialogClose as-child>
                                 <Button
                                     variant="secondary"
-                                    @click="
-                                        () => {
-                                            clearErrors();
-                                            reset();
-                                        }
-                                    "
+                                    type="button"
+                                    @click="reset"
                                 >
                                     Cancel
                                 </Button>
@@ -103,10 +132,11 @@ const passwordInput = useTemplateRef('passwordInput');
                                 :disabled="processing"
                                 data-test="confirm-delete-user-button"
                             >
-                                Delete account
+                                <template v-if="processing">Deleting...</template>
+                                <template v-else>Delete account</template>
                             </Button>
                         </DialogFooter>
-                    </Form>
+                    </form>
                 </DialogContent>
             </Dialog>
         </div>
