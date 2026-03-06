@@ -1,8 +1,9 @@
 <template>
     <!-- <button @click="tableRef.toggleDrawer">ww</button> -->
 
-    <TableDrawer ref="tableRef" u rl="/list" sta te="staff" :data="collection" drawerTitle="create Staff"
-        @save="saveUser" title="Tenants" :filters="filters" :columns="columns">
+    <TableDrawer :drawerShowFooter="Store.showSaveButton ? true : false" ref="tableRef" u rl="/list" sta te="staff"
+        :data="collection" drawerTitle="create Tenants" @save="saveUser" title="Tenants" :filters="filters"
+        :columns="columns">
         <!-- <template #created_at="{ item }">
             {{ date(item.created_at) }}
 </template> -->
@@ -33,8 +34,10 @@ import { reactive, ref, watch } from 'vue';
 import StaffForm from './Create.vue';
 import { TableDrawer } from '@/Global';
 import { tenantsApi } from '../apis';
-const formData = reactive({}),
-    tableRef = ref()
+import { pomPinia } from 'septor-store';
+
+const Store = pomPinia(),
+    formData = reactive({}), tableRef = ref()
 const statusConfig: Record<string, { bg: string; text: string; dot: string }> = {
     active: { bg: 'bg-emerald-50 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-400', dot: 'bg-emerald-500' },
     suspended: { bg: 'bg-red-50 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-400', dot: 'bg-red-500' },

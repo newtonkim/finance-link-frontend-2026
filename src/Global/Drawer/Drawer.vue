@@ -5,13 +5,14 @@ import {
     SheetHeader,
     SheetTitle,
     SheetFooter,
-} from '@/Global/ui/sheet';
+} from '@/Global';
 import { Button } from '@/Global/ui/button';
 
 const props = withDefaults(defineProps<{
     open: boolean;
     title: string;
     width?: string;
+    showFooter?: boolean;
 }>(), {
     width: 'w-2/3 sm:full'
 });
@@ -30,8 +31,8 @@ const handleCancel = () => {
 </script>
 
 <template>
-    <Sheet :open="props.open" @update:open="emit('update:open', $event)">
-        <SheetContent side="right" :class="props.width + ' sm:max-w-none'">
+    <Sheet   :open="props.open" @update:open="emit('update:open', $event)">
+        <SheetContent side="right" :class="props.width + ' sm:max-w-none bg-white dark:bg-neutral-900'">
             <SheetHeader class="p-6 border-b border-neutral-100 dark:border-neutral-800">
                 <SheetTitle class="text-xl font-bold text-neutral-900 dark:text-white capitalize">
                     {{ props.title.toLocaleLowerCase() }}
@@ -46,11 +47,13 @@ const handleCancel = () => {
                 </form>
             </div>
 
-            <SheetFooter
+            <SheetFooter v-if="props.showFooter"
                 class="p-2 border-0 border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-900/50">
-                <slot name="actions">
+                <div v-if="$slots.actions">
+                    <slot name="actions" ></slot>
+                </div>
 
-                    <div class="flex w-full gap-3 items-center justify-between">
+                    <div v-else class="flex w-full gap-3 items-center justify-between">
                         <div>
                             <Button variant="outline"
                                 class="flex-1 h-11 w-full  font-bold border-neutral-200 dark:border-neutral-800"
@@ -67,7 +70,7 @@ const handleCancel = () => {
                             </Button>
                         </div>
                     </div>
-                </slot>
+              
             </SheetFooter>
         </SheetContent>
     </Sheet>

@@ -154,7 +154,7 @@ const formatLabel = (label: string) => {
           :key="value"
           :value="value"
         >
-   <span class="text-neutral-200">{{ value }}</span>
+ {{ value }}
         </option>
       </select>
     </nav>
