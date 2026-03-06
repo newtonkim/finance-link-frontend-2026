@@ -1,7 +1,7 @@
 <template>
     <table class="w-full min-w-[800px] text-left border-collapse p-5">
         <!-- HEAD -->
-        <thead class="sticky top-0 z-40 bg-white  shadow-sm hover dark:bg-neutral-900  rounded-sm ">
+        <thead v-once class="sticky top-0 z-40 bg-white  shadow-sm hover dark:bg-neutral-900  rounded-sm ">
             <tr class="px-4 py-3 font-bold text-neutral-700 dark:text-white ">
                 <th v-for="col in columns" :key="col.key" :class="[
                     'py-2 text-[14px]  capitalize px-2 dark:text-white font-semibold border-b dark:border-slate-700 bg-neutral-50/50 dark:bg-neutral-600/50 border-b border-neutral-100 dark:border-neutral-800',
