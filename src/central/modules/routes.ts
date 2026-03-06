@@ -1,6 +1,8 @@
 import type { RouteRecordRaw } from 'vue-router' 
 import Tenants from './pages/Tenants.vue'
 import CreateTenant from './pages/CreateTenant.vue'
+import Licenses from './pages/Licenses.vue'
+import CreateLicense from './pages/CreateLicense.vue'
 
 // Auth routes — rendered WITHOUT the sidebar layout
 export const centralAuthRoutes: RouteRecordRaw[] = [
@@ -26,6 +28,18 @@ export const centralAuthRoutes: RouteRecordRaw[] = [
     path: '/central/tenants/create',
     name: 'central-tenants-create',
     component: CreateTenant,
+    meta: { layout: 'central' },
+  },
+  {
+    path: 'central/licenses',
+    name: 'central-licenses',
+    component: Licenses,
+    meta: { layout: 'central' },
+  },
+  {
+    path: 'central/licenses/create',
+    name: 'central-licenses-create',
+    component: CreateLicense,
     meta: { layout: 'central' },
   },
 ]
