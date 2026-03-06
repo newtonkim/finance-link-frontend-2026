@@ -34,6 +34,8 @@ defineProps<{
             </Breadcrumb>
         </div>
 
+        
+
         <div class="flex items-center gap-4 flex-1 max-w-sm mx-12">
             <div class="relative w-full">
                 <Search
