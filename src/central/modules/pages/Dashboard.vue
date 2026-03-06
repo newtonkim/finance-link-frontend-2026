@@ -165,7 +165,7 @@ const topProducts = [
         </div>
 
         <!-- Stats Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-auto lg:grid-cols-6 gap-4">
             <Card v-for="stat in stats" :key="stat.title"
                 class="border-neutral-100 dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
                 <CardContent class="p-5 flex gap-4 items-center">

@@ -133,7 +133,6 @@ const navigate = (href: string) => {
         </SidebarContent>
 
         <SidebarFooter class="p-4 mt-auto">
-            <!-- Dark Mode Toggle -->
             <div v-if="state === 'expanded'" class="mb-4 flex items-center justify-between px-3 py-2">
                 <span class="text-sm font-medium text-[#9BB5A5]/60">Dark Mode</span>
                 <button @click="toggleDarkMode"
@@ -143,9 +142,7 @@ const navigate = (href: string) => {
                         class="inline-block h-4 w-4 transform rounded-full bg-white transition-all duration-200 shadow-sm"
                         :class="isDark ? 'translate-x-6' : 'translate-x-1'" />
                 </button>
-            </div>
-
-            <NavUser />
+            </div> 
         </SidebarFooter>
         <SidebarRail />
     </Sidebar>
