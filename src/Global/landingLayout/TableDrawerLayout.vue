@@ -3,7 +3,7 @@
 
         <!-- HEADER -->
         <div class="flex items-center justify-between">
-            <h3 class="text-lg font-bold text-neutral-900 dar-k:text-white capitalize">{{ title }}</h3>
+            <h3 class="text-lg font-bold text-neutral-900 dark:text-white capitalize">{{ title }}</h3>
 
             <div v-if="$slots['header-action']">
                 <slot name="header-action" />
@@ -11,7 +11,7 @@
             <span v-else>
 
                 <button v-if="showAddButton" @click="createNewRecord"
-                    class="justify-center bg-[#001d22] hover:bg-[#001d22]/90 whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dar-k:aria-invalid:ring-destructive/40 aria-invalid:border-destructive  h-9 has-[>svg]:px-3 flex items-center gap-2 rounded-xl  px-4 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90 shadow-sm ">
+                    class="justify-center bg-[#001d22] hover:bg-[#001d22]/90 whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive  h-9 has-[>svg]:px-3 flex items-center gap-2 rounded-xl  px-4 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90 shadow-sm ">
                     <component :is="addButtonText.icon" :size="16" />
                     {{ addButtonText.text }}
                 </button>
@@ -20,32 +20,34 @@
 
         <!-- SEARCH -->
         <div
-            class="rounded-xl border border-neutral-200 bg-white dar-k:border-neutral-800 dar-k:bg-neutral-900 shadow-sm overflow-hidden p-4">
+            class="rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 shadow-sm overflow-hidden p-4">
             <div class="flex  justify-between">
 
                 <Searchbar v-if="showSearchbar" @search="onSearch" :removeInSearch="removeInSearch"
                     :columns="columns" />
 
+                    <slot name="searchSideAction" />
+
 
                 <div class="flex items-center gap-2" v-if="showTableAction">
                     <button @click="handleExport"
-                        class="p-2 bg-white dar-k:bg-slate-800 text-slate-500 border border-slate-100 dar-k:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
+                        class="p-2 bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
                         <Download :size="18" />
                     </button>
 
                     <!-- Print Button -->
                     <button @click="handlePrint"
-                        class="p-2 bg-white dar-k:bg-slate-800 text-slate-500 border border-slate-100 dar-k:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
+                        class="p-2 bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
                         <Printer :size="18" />
                     </button>
 
                     <!-- Divider -->
-                    <div class="h-8 w-[1px] bg-slate-200 dar-k:bg-slate-700 mx-2"></div>
+                    <div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2"></div>
                 </div>
             </div>
             <!-- TABLE -->
             <div
-                class="rounded-2xl  border-neutral-100 bg-white py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] dar-k:border-neutral-800 dar-k:bg-neutral-900">
+                class="rounded-2xl  border-neutral-100 bg-white py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] dark:border-neutral-800 dark:bg-neutral-900">
                 <div class="overflow-x-auto flex-grow custom-scrollbar h-[64vh]">
 
                     <Table :handleAction="handleAction" :action_config="ACTION_CONFIG" :dataFilter="dataFilter"
@@ -74,7 +76,7 @@
 import { computed, onMounted, ref } from 'vue';
 import Pagination from '@/Global/Pagination.vue';
 import Drawer from '../Drawer/Drawer.vue';
-import { UserCircle2 } from 'lucide-vue-next';
+import { Plus, PlusSquare, UserCircle2 } from 'lucide-vue-next';
 import ConfirmationDialog from '../confirmationDialog/confirmationDialog.vue';
 // import { EmptySvg } from '..';
 import Searchbar from './Components/Searchbar.vue';
@@ -106,7 +108,7 @@ function handlePrint() {
 const props = defineProps({
     addButtonText: {
         type: Object,
-        default: () => ({ icon: UserCircle2, text: 'Add New', link: '#' })
+        default: () => ({ icon: Plus, text: 'Add New', link: '#' })
     },
     showAddButton: { type: Boolean, default: true },
     drawerTitle: { type: String, default: 'Drawer Title' },

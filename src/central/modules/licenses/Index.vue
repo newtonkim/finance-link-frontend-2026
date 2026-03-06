@@ -1,23 +1,11 @@
 <template>
     <!-- <button @click="tableRef.toggleDrawer">ww</button> -->
 
-    <TableDrawer ref="tableRef" u rl="/list" sta te="staff" :data="collection" drawerTitle="create Staff"
-        @save="saveUser" title="Tenants" :filters="filters" :columns="columns">
+    <TableDrawer ref="tableRef" u rl="/list" sta te="staff" :data="collection" drawerTitle="create license"
+        @save="saveUser" title="licenses" :filters="filters" :columns="columns">
         <!-- <template #created_at="{ item }">
             {{ date(item.created_at) }}
-</template> -->
-        <template #searchSideAction>
-            <div
-                class="h-[5vh] flex rounded-lg border border-neutral-200 bg-neutral-50 p-[4px] dark:border-neutral-700 dark:bg-neutral-800">
-                <button v-for="filter in ['all', 'active', 'suspended', 'trial']" :key="filter"
-                    class="rounded-md px-3.5 py-1 text-xs font-medium capitalize transition-all" :class="statusFilter === filter
-                        ? 'bg-white text-neutral-900 shadow-sm dark:bg-neutral-700 dark:text-white'
-                        : 'text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300'"
-                    @click="statusFilter = filter">
-                    {{ filter }}
-                </button>
-            </div>
-        </template>
+</template> --> 
 
         <template #drawer="{ action }">
             <StaffForm v-if="action == 'add'" v-model:form="formData" />
@@ -32,7 +20,7 @@
 import { reactive, ref, watch } from 'vue';
 import StaffForm from './Create.vue';
 import { TableDrawer } from '@/Global';
-import { tenantsApi } from '../apis';
+import { lisenseApi } from '../apis';
 const formData = reactive({}),
     tableRef = ref()
 const statusConfig: Record<string, { bg: string; text: string; dot: string }> = {
@@ -69,7 +57,7 @@ const props = defineProps<{
 }>();
 
 
-const { create, Erase } = tenantsApi()
+const { create, Erase } = lisenseApi()
 
 
 const triggerAction: Record<string, Function> = {
