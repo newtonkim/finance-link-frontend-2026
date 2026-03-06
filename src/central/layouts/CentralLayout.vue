@@ -1,7 +1,7 @@
 <template>
     <SidebarProvider>
         <AppSidebar />
-        <SidebarInset class="bg-[#f8faf9]">
+        <SidebarInset class="bg-[#f8faf9] dark:bg-[#0a0a0a]">
             <TopBar title="Dashboard" />
             <main class="flex-1 overflow-y-auto">
                 <router-view />
