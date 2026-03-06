@@ -10,11 +10,11 @@
                 <input v-model="searchQuery" type="search" autocomplete="off"
                     placeholder="Search by name, member number, phone, or email..." class="w-full rounded-lg border border-neutral-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none 
         focus:border-neutral-300 border
-        dark:border-neutral-700 dark:bg-neutral-900 dark:text-white 
-        dark:focus:border-white" />
+        dar-k:border-neutral-700 dar-k:bg-neutral-900 dar-k:text-white 
+        dar-k:focus:border-white" />
             </div>
             <button v-if="searchQuery" @click="() => {
-                
+
                 const v = Object.keys(searchBy ?? []);
                 const obj = { search_keyword: searchQuery, }
                 console.log(v);
@@ -33,13 +33,13 @@
         <!-- Dropdown -->
         <!-- Dropdown -->
         <div v-if="searchQuery" class="absolute top-full mt-1 w-full max-h-[200px] overflow-auto 
-         bg-white shadow-lg rounded-lg z-50 dark:bg-neutral-900
+         bg-white shadow-lg rounded-lg z-50 dar-k:bg-neutral-900
          opacity-0 invisible 
          group-hover:opacity-100 group-hover:visible
          group-focus-within:opacity-100 group-focus-within:visible
          transition-all duration-200">
             <div v-for="col in removeActionInSupperseach" :key="col.key" class="px-3 py-2 text-sm cursor-pointer
-           hover:bg-neutral-100 dark:hover:bg-neutral-800" @click="selectColumn(col)">
+           hover:bg-neutral-100 dar-k:hover:bg-neutral-800" @click="selectColumn(col)">
                 {{ col.label }}
             </div>
         </div>
@@ -47,11 +47,11 @@
         <!-- Pills -->
         <div v-if="Object.keys(searchBy)?.length" class="flex flex-wrap gap-1 my-1">
             <div v-for="(value, index) in Object.keys(searchBy)" :key="index"
-                class="flex items-center gap-2 px-2 py-1    text-xs font-medium    bg-white    text-neutral-600   dark:bg-[#001d22] hover:bg-[#001d22]/90 dark:text-white   rounded-full capitalize   transition-all duration-200">
+                class="flex items-center gap-2 px-2 py-1    text-xs font-medium    bg-white    text-neutral-600   dar-k:bg-[#001d22] hover:bg-[#001d22]/90 dar-k:text-white   rounded-full capitalize   transition-all duration-200">
                 <span>{{ value }}</span>
 
                 <button @click.stop="removeColumn(value)"
-                    class="ml-1 text-red-200/80 hover:text-red-300 hover:dark:text-red-500 hover:rounded-full hover:bg-red-50 hover:px-1  hover:dark:bg-red-900 text-xs ">
+                    class="ml-1 text-red-200/80 hover:text-red-300 hover:dar-k:text-red-500 hover:rounded-full hover:bg-red-50 hover:px-1  hover:dar-k:bg-red-900 text-xs ">
                     ✕
                 </button>
             </div>

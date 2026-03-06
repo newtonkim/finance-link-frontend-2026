@@ -147,14 +147,14 @@ const formatLabel = (label: string) => {
       <!-- Per Page -->
       <select
         v-model="currentPerPage"
-        class="ml-3 border rounded-md text-sm px-2 py-1 focus:outline-none"
+        class="ml-3 border border-neutral-100 rounded-md text-sm px-2 py-1 focus:outline-none text-neutral-500"
       >
         <option
           v-for="value in perPageFrequency"
           :key="value"
           :value="value"
         >
-          {{ value }}
+   <span class="text-neutral-200">{{ value }}</span>
         </option>
       </select>
     </nav>

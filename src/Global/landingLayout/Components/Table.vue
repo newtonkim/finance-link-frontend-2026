@@ -1,10 +1,10 @@
 <template>
     <table class="w-full min-w-[800px] text-left border-collapse p-5">
         <!-- HEAD -->
-        <thead class="sticky top-0 z-40 bg-white  shadow-sm hover dark:bg-neutral-900  rounded-sm ">
-            <tr class="px-4 py-3 font-bold text-neutral-700 dark:text-white ">
+        <thead class="sticky top-0 z-40 bg-white  shadow-sm hover dar-k:bg-neutral-900  rounded-sm ">
+            <tr class="px-4 py-3 font-bold text-neutral-700 dar-k:text-white ">
                 <th v-for="col in columns" :key="col.key" :class="[
-                    'py-2 text-[14px]  capitalize px-2 dark:text-white font-semibold border-b dark:border-slate-700 bg-neutral-50/50 dark:bg-neutral-600/50 border-b border-neutral-100 dark:border-neutral-800',
+                    'py-2 text-[14px]  capitalize px-2 dar-k:text-white font-semibold border-b dar-k:border-slate-700 bg-neutral-50/50 dar-k:bg-neutral-600/50 border-b border-neutral-100 dar-k:border-neutral-800',
                     col.key === 'actions' ? 'text-center' : '',
                     col.sticky ? `sticky z-30 ${col.sticky}-0  da rk:bg-neutral-900` : '',
                     col.key === 'actions' ? 'text-center sticky z-30 right-0 d ark:bg-neutral-900 ' : '',
@@ -26,14 +26,14 @@
             </tr>
 
             <tr v-for="(item, idx) in dataFilter()" :key="item.id"
-                :class="Number(idx) < dataFilter().length - 1 ? 'border-b border-neutral-50 dark:border-neutral-800' : ''">
+                :class="Number(idx) < dataFilter().length - 1 ? 'border-b border-neutral-50 dar-k:border-neutral-800' : ''">
 
                 <td v-for="col in columns" :key="col.key" :class="[
-                    'py-3 text-[14px] text-neutral-500 dark:text-neutral-400 ',
-                    col.sticky ? `sticky z-30 ${col.sticky}-0 dark:bg-neutral-900` : '',
+                    'py-3 text-[14px] text-neutral-500 dar-k:text-neutral-400 ',
+                    col.sticky ? `sticky z-30 ${col.sticky}-0 dar-k:bg-neutral-900` : '',
                     col.width ? `w-[${col.width}px]` : '',
                     col.class || '',
-                    col.key === 'actions' ? 'text-center sticky z-30 right-0 dark:bg-neutral-900 ' : '',
+                    col.key === 'actions' ? 'text-center sticky z-30 right-0 dar-k:bg-neutral-900 ' : '',
                 ]
 
                     " class="px-2">

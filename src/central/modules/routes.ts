@@ -1,25 +1,28 @@
 import type { RouteRecordRaw } from 'vue-router'
-import Login from './pages/Login.vue'
-import Register from './pages/Register.vue'
-import Dashboard from './pages/Dashboard.vue'
 
 export const centralRoutes: RouteRecordRaw[] = [
   {
     path: 'login',
     name: 'central-login',
-    component: Login,
+    component: () => import('./pages/Login.vue'),
     meta: { layout: 'central' },
   },
   {
     path: 'register',
     name: 'central-register',
-    component: Register,
+    component: () => import('./pages/Register.vue'),
     meta: { layout: 'central' },
   },
   {
     path: 'central/dashboard',
     name: 'central-dashboard',
-    component: Dashboard,
+    component: () => import('./pages/Dashboard.vue'),
+    meta: { layout: 'central' },
+  },
+  {
+    path: 'central/tenants',
+    name: 'tenants-dashboard',
+    component: () => import('./tenants/Index.vue'),
     meta: { layout: 'central' },
   },
 ]

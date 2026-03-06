@@ -13,14 +13,17 @@ export const dataFomater = (data: any, type: 'date' | 'dateTime') => {
 export const ACTION_CONFIG = {
     edit: {
         icon: Edit,
+         action:()=>{return 'edit'},
         class: "flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-600 transition-colors hover:bg-blue-100 dark:bg-blue-900/40 dark:text-blue-300 dark:hover:bg-blue-900/60",
     },
     delete: {
         icon: Trash,
+
         class: "flex h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-600 transition-colors hover:bg-red-100 dark:bg-red-900/40 dark:text-red-400 dark:hover:bg-red-900/60",
     },
     view: {
         icon: Eye,
+        action:()=>{return 'view'},
         class: "flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-600 transition-colors hover:bg-indigo-100 dark:bg-indigo-900/40 dark:text-indigo-300 dark:hover:bg-indigo-900/60",
     },
 };
