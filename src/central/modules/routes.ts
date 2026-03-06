@@ -3,19 +3,22 @@ import Login from './pages/Login.vue'
 import Register from './pages/Register.vue'
 import Dashboard from './pages/Dashboard.vue'
 
-export const centralRoutes: RouteRecordRaw[] = [
+// Auth routes — rendered WITHOUT the sidebar layout
+export const centralAuthRoutes: RouteRecordRaw[] = [
   {
-    path: 'login',
+    path: '/login',
     name: 'central-login',
     component: Login,
-    meta: { layout: 'central' },
   },
   {
-    path: 'register',
+    path: '/register',
     name: 'central-register',
     component: Register,
-    meta: { layout: 'central' },
   },
+]
+
+// App routes — rendered INSIDE CentralLayout (with sidebar)
+export const centralRoutes: RouteRecordRaw[] = [
   {
     path: 'central/dashboard',
     name: 'central-dashboard',
