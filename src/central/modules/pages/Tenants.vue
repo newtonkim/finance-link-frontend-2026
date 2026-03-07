@@ -154,12 +154,53 @@ function formatDate(dateStr?: string): string {
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-neutral-50 dark:divide-white/5">
-                        <!-- Loading state -->
-                        <tr v-if="isLoading">
-                            <td colspan="6" class="px-6 py-20 text-center text-sm text-neutral-400 dark:text-neutral-500">
-                                Loading tenants...
-                            </td>
-                        </tr>
+                        <!-- Loading skeleton rows -->
+                        <template v-if="isLoading">
+                            <tr v-for="i in 6" :key="`skeleton-${i}`"
+                                class="border-b border-neutral-50 dark:border-white/5">
+                                <!-- Tenant cell -->
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="size-10 rounded-xl bg-neutral-200 dark:bg-white/10 animate-pulse shrink-0"></div>
+                                        <div class="space-y-2">
+                                            <div class="h-3.5 rounded-md bg-neutral-200 dark:bg-white/10 animate-pulse"
+                                                :style="{ width: `${90 + (i * 17) % 60}px` }"></div>
+                                            <div class="h-2.5 w-24 rounded-md bg-neutral-100 dark:bg-white/5 animate-pulse"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <!-- Subdomain cell -->
+                                <td class="px-6 py-4">
+                                    <div class="h-7 rounded-lg bg-neutral-100 dark:bg-white/5 animate-pulse"
+                                        :style="{ width: `${70 + (i * 13) % 40}px` }"></div>
+                                </td>
+                                <!-- Plan cell -->
+                                <td class="px-6 py-4">
+                                    <div class="h-3.5 w-16 rounded-md bg-neutral-100 dark:bg-white/5 animate-pulse"></div>
+                                </td>
+                                <!-- License expiry cell -->
+                                <td class="px-6 py-4">
+                                    <div class="space-y-2">
+                                        <div class="h-3.5 w-20 rounded-md bg-neutral-200 dark:bg-white/10 animate-pulse"></div>
+                                        <div class="h-2.5 w-24 rounded-md bg-neutral-100 dark:bg-white/5 animate-pulse"></div>
+                                    </div>
+                                </td>
+                                <!-- Status cell -->
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <div class="size-2 rounded-full bg-neutral-200 dark:bg-white/10 animate-pulse"></div>
+                                        <div class="h-3.5 w-14 rounded-md bg-neutral-100 dark:bg-white/5 animate-pulse"></div>
+                                    </div>
+                                </td>
+                                <!-- Actions cell -->
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <div class="size-8 rounded-lg bg-neutral-100 dark:bg-white/5 animate-pulse"></div>
+                                        <div class="size-8 rounded-lg bg-neutral-100 dark:bg-white/5 animate-pulse"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
 
                         <!-- Tenant rows -->
                         <template v-if="!isLoading">
@@ -184,7 +225,7 @@ function formatDate(dateStr?: string): string {
                                     <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/10 text-xs font-mono font-medium text-neutral-700 dark:text-neutral-300">
                                         {{ tenant.subdomain }}
                                     </span>
-                                    <a :href="tenant.full_url ?? '#'" target="_blank"
+                                    <a :href="tenant.full_url ? `${tenant.full_url}/tenant/login` : '#'" target="_blank"
                                         class="p-1 rounded-md text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
                                         <ExternalLink class="size-3.5" />
                                     </a>
@@ -228,6 +269,7 @@ function formatDate(dateStr?: string): string {
                             <td class="px-6 py-4">
                                 <div class="flex items-center justify-end gap-1">
                                     <button
+                                        @click="router.push(`/central/tenants/${tenant.id}`)"
                                         class="p-2 rounded-lg text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/10 transition-colors"
                                         title="View">
                                         <Eye class="size-4" />
@@ -267,5 +309,21 @@ function formatDate(dateStr?: string): string {
 </template>
 
 <style scoped>
-/* Tenant page specific styles */
+/* Staggered skeleton fade-in */
+tr:nth-child(1) td > * { animation-delay: 0ms; }
+tr:nth-child(2) td > * { animation-delay: 80ms; }
+tr:nth-child(3) td > * { animation-delay: 160ms; }
+tr:nth-child(4) td > * { animation-delay: 240ms; }
+tr:nth-child(5) td > * { animation-delay: 320ms; }
+tr:nth-child(6) td > * { animation-delay: 400ms; }
+
+@keyframes shimmer {
+    0%   { opacity: 0.5; }
+    50%  { opacity: 1; }
+    100% { opacity: 0.5; }
+}
+
+.animate-pulse {
+    animation: shimmer 1.6s ease-in-out infinite;
+}
 </style>
