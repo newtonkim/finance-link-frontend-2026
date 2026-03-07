@@ -1,18 +1,17 @@
-<template>
-  <div class="tenant-layout">
-    <header>Tenant Portal</header>
-    <main>
-      <router-view />
-    </main>
-  </div>
-</template>
-
 <script setup lang="ts">
-// Tenant Layout Logic
+import { SidebarProvider, SidebarInset } from '@/Global/ui/sidebar'
+import TenantSidebar from './TenantSidebar.vue'
+import TopBar from '@/Global/TopBar.vue'
 </script>
 
-<style scoped>
-.tenant-layout {
-  min-height: 100vh;
-}
-</style>
+<template>
+  <SidebarProvider>
+    <TenantSidebar />
+    <SidebarInset class="bg-[#f8faf9] dark:bg-[#0a0a0a]">
+      <TopBar title="Tenant Portal" />
+      <main class="flex-1 overflow-y-auto">
+        <router-view />
+      </main>
+    </SidebarInset>
+  </SidebarProvider>
+</template>
