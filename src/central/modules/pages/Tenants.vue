@@ -1,19 +1,21 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import {
     Search,
     Plus,
     FileText,
-    MoreHorizontal,
+    Building2,
+    ExternalLink,
+    Clock,
     Eye,
-    Pencil,
-    Trash2,
+    Ban,
 } from 'lucide-vue-next';
 import { Card } from '@/Global/ui/card';
 import { Button } from '@/Global/ui/button';
 import { Input } from '@/Global/ui/input';
 import type { Tenant } from '@/types';
+import { getTenants } from '@/central/api/tenants';
 
 const router = useRouter();
 
@@ -21,6 +23,7 @@ const router = useRouter();
 type FilterTab = 'all' | 'active' | 'suspended' | 'trial';
 const activeFilter = ref<FilterTab>('all');
 const searchQuery = ref('');
+const isLoading = ref(false);
 
 const filterTabs: { label: string; value: FilterTab }[] = [
     { label: 'All', value: 'all' },
@@ -29,60 +32,72 @@ const filterTabs: { label: string; value: FilterTab }[] = [
     { label: 'Trial', value: 'trial' },
 ];
 
-// Mock tenants data (empty for now to show empty state)
 const tenants = ref<Tenant[]>([]);
+
+onMounted(async () => {
+    isLoading.value = true;
+    try {
+        const res = await getTenants();
+        tenants.value = res.data.data ?? res.data;
+    } catch {
+        // leave empty
+    } finally {
+        isLoading.value = false;
+    }
+});
 
 // Filtered tenants
 const filteredTenants = computed(() => {
     let result = tenants.value;
 
-    // Filter by status tab
     if (activeFilter.value !== 'all') {
         result = result.filter((t) => t.status === activeFilter.value);
     }
 
-    // Filter by search query
     if (searchQuery.value.trim()) {
         const q = searchQuery.value.toLowerCase();
         result = result.filter(
             (t) =>
                 t.name.toLowerCase().includes(q) ||
-                t.domain.toLowerCase().includes(q) ||
-                t.slug.toLowerCase().includes(q)
+                t.subdomain.toLowerCase().includes(q)
         );
     }
 
     return result;
 });
 
-// Actions dropdown
-const openActionMenu = ref<number | null>(null);
-
-function toggleActionMenu(id: number) {
-    openActionMenu.value = openActionMenu.value === id ? null : id;
-}
-
-function closeActionMenus() {
-    openActionMenu.value = null;
-}
-
-// Status badge styles
-function statusClasses(status?: string) {
+function statusDotClass(status?: string) {
     switch (status) {
-        case 'active':
-            return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400';
-        case 'suspended':
-            return 'bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400';
-        case 'trial':
-            return 'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400';
-        default:
-            return 'bg-neutral-100 text-neutral-600 dark:bg-white/10 dark:text-neutral-400';
+        case 'active': return 'bg-emerald-500';
+        case 'suspended': return 'bg-rose-500';
+        case 'trial': return 'bg-amber-500';
+        default: return 'bg-neutral-400';
     }
+}
+
+function statusTextClass(status?: string) {
+    switch (status) {
+        case 'active': return 'text-emerald-600 dark:text-emerald-400';
+        case 'suspended': return 'text-rose-600 dark:text-rose-400';
+        case 'trial': return 'text-amber-600 dark:text-amber-400';
+        default: return 'text-neutral-500 dark:text-neutral-400';
+    }
+}
+
+function daysLeft(expiresAt?: string): number | null {
+    if (!expiresAt) return null;
+    const diff = new Date(expiresAt).getTime() - Date.now();
+    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+}
+
+function formatDate(dateStr?: string): string {
+    if (!dateStr) return '—';
+    return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 </script>
 
 <template>
-    <div class="p-6 space-y-6" @click="closeActionMenus">
+    <div class="p-6 space-y-6">
         <!-- Header -->
         <div class="flex items-center justify-between">
             <div>
@@ -139,72 +154,96 @@ function statusClasses(status?: string) {
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-neutral-50 dark:divide-white/5">
-                        <!-- Tenant rows -->
-                        <tr v-for="tenant in filteredTenants" :key="tenant.id"
-                            class="group hover:bg-neutral-50/50 dark:hover:bg-white/[0.03] transition-colors">
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="size-9 rounded-lg bg-[#001d22]/5 dark:bg-white/10 flex items-center justify-center text-sm font-bold text-[#001d22] dark:text-white">
-                                        {{ tenant.name?.charAt(0)?.toUpperCase() }}
-                                    </div>
-                                    <span class="text-sm font-semibold text-neutral-900 dark:text-white">{{ tenant.name
-                                    }}</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="text-sm text-neutral-500 dark:text-neutral-400 font-mono">{{ tenant.domain
-                                    || tenant.slug }}</span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="text-sm text-neutral-600 dark:text-neutral-300">{{
-                                    tenant.plan || '—'
-                                }}</span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="text-sm text-neutral-500 dark:text-neutral-400">{{
-                                    tenant.license_expiry || '—'
-                                }}</span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span :class="statusClasses(tenant.status)"
-                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold capitalize">
-                                    {{ tenant.status || 'unknown' }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <div class="relative inline-block">
-                                    <button @click.stop="toggleActionMenu(tenant.id)"
-                                        class="p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-white/10 transition-colors">
-                                        <MoreHorizontal class="size-4 text-neutral-400 dark:text-neutral-500" />
-                                    </button>
-                                    <!-- Dropdown -->
-                                    <Transition enter-active-class="transition duration-100 ease-out"
-                                        enter-from-class="opacity-0 scale-95" enter-to-class="opacity-100 scale-100"
-                                        leave-active-class="transition duration-75 ease-in"
-                                        leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
-                                        <div v-if="openActionMenu === tenant.id"
-                                            class="absolute right-0 top-full mt-1 w-40 bg-white dark:bg-[#1a1a1a] border border-neutral-100 dark:border-white/10 rounded-xl shadow-lg py-1 z-50">
-                                            <button
-                                                class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors">
-                                                <Eye class="size-3.5" /> View
-                                            </button>
-                                            <button
-                                                class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors">
-                                                <Pencil class="size-3.5" /> Edit
-                                            </button>
-                                            <button
-                                                class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors">
-                                                <Trash2 class="size-3.5" /> Delete
-                                            </button>
-                                        </div>
-                                    </Transition>
-                                </div>
+                        <!-- Loading state -->
+                        <tr v-if="isLoading">
+                            <td colspan="6" class="px-6 py-20 text-center text-sm text-neutral-400 dark:text-neutral-500">
+                                Loading tenants...
                             </td>
                         </tr>
 
+                        <!-- Tenant rows -->
+                        <template v-if="!isLoading">
+                        <tr v-for="tenant in filteredTenants" :key="tenant.id"
+                            class="group hover:bg-neutral-50/50 dark:hover:bg-white/3 transition-colors">
+                            <!-- Tenant -->
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="size-10 rounded-xl bg-neutral-100 dark:bg-white/10 flex items-center justify-center shrink-0">
+                                        <Building2 class="size-5 text-neutral-500 dark:text-neutral-400" />
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-neutral-900 dark:text-white">{{ tenant.name }}</p>
+                                        <p class="text-xs text-neutral-400 dark:text-neutral-500 mt-0.5">Created {{ formatDate(tenant.created_at) }}</p>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Subdomain -->
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-white/10 text-xs font-mono font-medium text-neutral-700 dark:text-neutral-300">
+                                        {{ tenant.subdomain }}
+                                    </span>
+                                    <a :href="tenant.full_url ?? '#'" target="_blank"
+                                        class="p-1 rounded-md text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
+                                        <ExternalLink class="size-3.5" />
+                                    </a>
+                                </div>
+                            </td>
+
+                            <!-- Plan -->
+                            <td class="px-6 py-4">
+                                <span class="text-sm text-neutral-600 dark:text-neutral-300 capitalize">
+                                    {{ tenant.active_license?.plan_slug || '—' }}
+                                </span>
+                            </td>
+
+                            <!-- License Expiry -->
+                            <td class="px-6 py-4">
+                                <template v-if="tenant.active_license?.expires_at">
+                                    <div class="flex items-center gap-1.5">
+                                        <Clock class="size-3.5 text-neutral-400 dark:text-neutral-500 shrink-0" />
+                                        <div>
+                                            <p class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                                {{ daysLeft(tenant.active_license.expires_at) }}d left
+                                            </p>
+                                            <p class="text-xs text-neutral-400 dark:text-neutral-500">{{ formatDate(tenant.active_license.expires_at) }}</p>
+                                        </div>
+                                    </div>
+                                </template>
+                                <span v-else class="text-sm text-neutral-400">—</span>
+                            </td>
+
+                            <!-- Status -->
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="size-2 rounded-full shrink-0" :class="statusDotClass(tenant.status)"></span>
+                                    <span class="text-sm font-medium capitalize" :class="statusTextClass(tenant.status)">
+                                        {{ tenant.status || 'unknown' }}
+                                    </span>
+                                </div>
+                            </td>
+
+                            <!-- Actions -->
+                            <td class="px-6 py-4">
+                                <div class="flex items-center justify-end gap-1">
+                                    <button
+                                        class="p-2 rounded-lg text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/10 transition-colors"
+                                        title="View">
+                                        <Eye class="size-4" />
+                                    </button>
+                                    <button
+                                        class="p-2 rounded-lg text-neutral-400 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors"
+                                        title="Suspend">
+                                        <Ban class="size-4" />
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        </template>
+
                         <!-- Empty state -->
-                        <tr v-if="filteredTenants.length === 0">
+                        <tr v-if="!isLoading && filteredTenants.length === 0">
                             <td colspan="6" class="px-6 py-20">
                                 <div class="flex flex-col items-center justify-center text-center">
                                     <div

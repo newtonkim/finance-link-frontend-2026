@@ -7,14 +7,22 @@ export interface User {
   [key: string]: unknown
 }
 
-export interface Tenant {
+export interface TenantLicense {
   id: number
+  plan_slug: string
+  expires_at: string
+  status: string
+}
+
+export interface Tenant {
+  id: string
   name: string
-  slug: string
-  domain: string
-  plan?: string
-  license_expiry?: string
+  subdomain: string
+  database_name?: string
+  full_domain?: string
+  full_url?: string
   status?: 'active' | 'suspended' | 'trial'
+  active_license?: TenantLicense
   settings?: {
     logo_url?: string
     slogan?: string
@@ -22,6 +30,8 @@ export interface Tenant {
     email?: string
     [key: string]: unknown
   }
+  created_at?: string
+  updated_at?: string
 }
 
 export type BreadcrumbItem = {
