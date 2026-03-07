@@ -93,11 +93,20 @@ const submit = async () => {
     authStore.setAuthSession(response.data);
     status.value = response.message;
 
-    const targetPath = response.data.redirect_url ?? '/central/dashboard';
-    const hasRoute = router.resolve(targetPath).matched.length > 0;
-    if (hasRoute) {
+    const redirectUrl = response.data.redirect_url;
+    const targetPath =
+      typeof redirectUrl === 'string' && redirectUrl.trim().length > 0
+        ? redirectUrl.trim()
+        : '/central/dashboard';
+
+    if (targetPath.startsWith('http://') || targetPath.startsWith('https://') || targetPath.startsWith('//')) {
+      window.location.assign(targetPath);
+      return;
+    }
+
+    try {
       await router.push(targetPath);
-    } else {
+    } catch {
       window.location.assign(targetPath);
     }
   } catch (error) {
