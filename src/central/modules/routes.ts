@@ -4,6 +4,7 @@ import Register from './pages/Register.vue'
 import Dashboard from './pages/Dashboard.vue'
 import Tenants from './pages/Tenants.vue'
 import CreateTenant from './pages/CreateTenant.vue'
+import TenantDetail from './pages/TenantDetail.vue'
 import Licenses from './pages/Licenses.vue'
 import CreateLicense from './pages/CreateLicense.vue'
 
@@ -39,6 +40,12 @@ export const centralRoutes: RouteRecordRaw[] = [
     path: 'central/tenants/create',
     name: 'central-tenants-create',
     component: CreateTenant,
+    meta: { layout: 'central' },
+  },
+  {
+    path: 'central/tenants/:id',
+    name: 'central-tenants-show',
+    component: TenantDetail,
     meta: { layout: 'central' },
   },
   {
