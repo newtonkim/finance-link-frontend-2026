@@ -1,7 +1,5 @@
 import axios from 'axios'
 
-const baseURL = import.meta.env.VITE_BACKEND_URL ?? 'http://127.0.0.1:8000/api/v1'
-
 function getTenantSubdomain(): string | null {
   const hostname = window.location.hostname
   if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) return null
@@ -11,8 +9,20 @@ function getTenantSubdomain(): string | null {
   return subdomain
 }
 
+/**
+ * When on a tenant subdomain (e.g. naivasha-sacco.localhost:8000) use the
+ * current page origin so the Host header carries the subdomain and the
+ * Laravel IdentifyTenant middleware resolves the tenant from the hostname.
+ */
+function getBaseURL(): string {
+  if (getTenantSubdomain()) {
+    return `${window.location.origin}/api/v1`
+  }
+  return import.meta.env.VITE_BACKEND_URL ?? 'http://127.0.0.1:8000/api/v1'
+}
+
 export const tenantClient = axios.create({
-  baseURL,
+  baseURL: getBaseURL(),
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json',
