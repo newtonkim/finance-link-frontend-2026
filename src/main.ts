@@ -4,12 +4,14 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import { useAuthStore } from './stores/auth'
-
+import { VueDatePicker } from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css'
 const app = createApp(App)
 const pinia = createPinia()
 
 app.use(pinia)
 .use(router)
+.component('DatePicker', VueDatePicker)
 
 const authStore = useAuthStore(pinia)
 authStore.hydrateAuth()

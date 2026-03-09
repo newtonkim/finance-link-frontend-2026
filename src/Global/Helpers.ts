@@ -4,19 +4,19 @@ import { apiClient as customAxios } from '@/central/api/client';
 const encryptStorage = new EncryptStorage(import.meta.env.VITE_ENCRYPT_STORAGE);
 
 export function dateTime(time:string) {
- return tryCatch(() => {
-   if(`${time}`.trim()?.length>3) return ''
-
-
-  const date = new Date(time);
-  const formatted = date.toISOString().replace("T", " ").substring(0, 19);
-  return formatted
+  
+  return tryCatch(() => {
+    if(`${time}`.trim()?.length<9) return ''
+    const date = new Date(time);
+    const formatted = date.toISOString().replace("T", " ").substring(0, 19);
+    return formatted
 
   });
 }
 export function date(time:string) {
  return tryCatch(() => {
-  if(`${time}`.trim()?.length>3) return ''
+    if(`${time}`.trim()?.length<9) return ''
+
 
   const date = new Date(time);
   const formatted = date.toISOString().split('T')[0];
@@ -233,6 +233,17 @@ export function NameInitials(strings: string) {
   return firstInitial + lastInitial;
 }
 
+export function  scopeValues(data:any) {
+ return tryCatch(() => {
+  const values:any={}
+   data.forEach(( vl:any) => {
+    values[vl.name]=vl.value
+    
+   });
+   return values;
+   
+ })
+}
  
  
 

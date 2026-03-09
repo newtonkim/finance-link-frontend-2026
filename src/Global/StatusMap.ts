@@ -1,12 +1,20 @@
 
 export const status = {
   active: { label: "Active", className: " text-xs font-bold px-2 py-1 rounded-full   bg-green-100 text-green-700" },
-  reached: { label: "Reached", className: " text-xs font-bold px-2 py-1 rounded-full bg-blue-100 text-blue-600" },
-  "on-leave": { label: "On Leave", className: " text-xs font-bold px-2 py-1 rounded-full  bg-blue-100 text-blue-700" },
-  "in-transit": { label: "transit", className: " text-xs font-bold px-2 py-1 rounded-full bg-ugGreen text-white" },
-  "approved-approval": { label: "Approved", className: " text-xs font-bold px-2 py-1 rounded-full bg-ugGreen " },
-  "pedding-approval": { label: "Pending Approval", className: " text-xs font-bold px-2 py-1 rounded-full  bg-yellow-100 text-yellow-700" },
-  suspended: { label: "Suspended", className: " text-xs font-bold px-2 py-1 rounded-full bg-red-100 text-red-700 " },
+  expired: { label: "expired", className: " text-xs font-bold px-2 py-1 rounded-full bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400" },
+  "trial": { label: "transit", className: " text-xs font-bold px-2 py-1 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400" },
+  basic: {
+    label: "basic",
+    className: "text-xs font-bold px-2 py-1 rounded-full bg-white text-amber-700 shadow-sm"
+  },
+  enterprise: {
+    label: "enterprise",
+    className: "text-xs font-bold px-2 py-1 rounded-full bg-amber-500/10 text-neutral-700 shadow-sm"
+  },
+  professional: {
+    label: "Pending Approval",
+    className: "text-xs font-bold px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 shadow-sm"
+  }, suspended: { label: "Suspended", className: " text-xs font-bold px-2 py-1 rounded-fullbg-orange-50 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400   " },
   fired: { label: "Fired", className: " text-xs font-bold px-2 py-1 rounded-full bg-red-100 text-red-700" },
 
 };

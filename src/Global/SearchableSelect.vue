@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { Check, ChevronDown, Search, X } from 'lucide-vue-next';
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch, shallowRef } from 'vue';
+import { fetchTableData } from './landingLayout/util';
+import { pomPinia } from 'septor-store';
+const Store = pomPinia();
+import debounce from 'lodash/debounce'; // install lodash if not already: npm i lodash
+import { tryCatch } from './Helpers';
+
+// import { ACTION_CONFIG, dataTabelFilter, fetchTableData } from './util';
 
 interface Option {
     id: string | number;
@@ -15,22 +22,43 @@ const props = defineProps<{
     label?: string;
     error?: string;
     disabled?: boolean;
+    remote?: boolean;
+    url?: string;
 }>();
 
 const emit = defineEmits(['update:modelValue']);
+const remoteUrl = debounce(async (url: string) => {
+    if (!url) return;
+    tryCatch(async () => {
+        const data = { }
+        if(searchQuery.value?.length >= 3)
+         data.search_keyword = searchQuery.value
+         const res = await fetchTableData({
+            data:data?.search_keyword?data:null,
+            props: { url, reload: false },
+            Store,
+        });
+        if (res.success !== false)
+            collection.value = res?.payload?.data ?? res?.payload ?? res ?? [];
+    })
+}, 1000);
+
+
 
 const isOpen = ref(false);
 const searchQuery = ref('');
+const collection = shallowRef<any[]>([]);
 const containerRef = ref<HTMLElement | null>(null);
-
 const selectedOption = computed(() => {
-    return props.options.find(opt => opt.id === props.modelValue);
+    const options = props?.url ? collection.value : props.options
+    return options.find(opt => opt.id === props.modelValue);
 });
 
 const filteredOptions = computed(() => {
-    if (!searchQuery.value) return props.options;
+    const options = props?.url ? collection.value : props.options
+    if (!searchQuery.value) return options;
     const query = searchQuery.value.toLowerCase();
-    return props.options.filter(opt =>
+    return options.filter(opt =>
         opt.name.toLowerCase().includes(query)
     );
 });
@@ -47,6 +75,11 @@ const toggleDropdown = () => {
     if (isOpen.value) {
         searchQuery.value = '';
     }
+
+    if (props.url) {
+        remoteUrl(props.url)
+    }
+
 };
 
 const closeDropdown = (e: MouseEvent) => {
@@ -68,13 +101,22 @@ watch(isOpen, (newVal) => {
         // Optional: focus searchable input
     }
 });
+watch(searchQuery, (newVal) => {
+    if (searchQuery.value?.length >= 3 && props.url) {
+        remoteUrl(props.url)
+    }
+}, { immediate: true, deep: true });
+
+
+
 </script>
 
 <template>
     <div ref="containerRef" class="relative w-full">
-        <label v-if="label" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5 ">
+
+        <!-- <label v-if="label" class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5 ">
             {{ label }}
-        </label>
+        </label> -->
 
         <div @click="toggleDropdown"
             class="relative w-full cursor-pointer rounded-xl border bg-white px-3.5 py-2.5 text-left text-sm transition-all duration-200 focus-within:ring-2 focus-within:ring-[#001d22]/10 focus-within:border-[#001d22] dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"

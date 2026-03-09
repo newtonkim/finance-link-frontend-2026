@@ -8,10 +8,10 @@ export function lisenseApi() {
     function create(data: any) {
         const collection: any = {
             reload: 1,
-            StateStore: 'createTenants',
+            StateStore: 'createLicesense',
             time: 0,
             reqs: {
-                url: '/Tenants/create',
+                url: 'central/licenses/create',
                 method: 'post',
                 data,
             },
@@ -19,12 +19,12 @@ export function lisenseApi() {
         const res: any = Store.stateGenaratorApi(collection);
 
         let msg: Record<string, string> = {
-            msg: 'Failed to create Tenants',
+            msg: 'Failed to create Licesense',
             type: 'Error',
         };
         if (!res || res.status == 200) {
             msg = {
-                msg: 'Tenants created successfully',
+                msg: 'Licesense created successfully',
                 type: 'Success',
             };
         }
@@ -36,7 +36,7 @@ export function lisenseApi() {
             StateStore: 'fetchPositions',
             time: 0,
             reqs: {
-                url: '/Tenants/positions',
+                url: '/Licesense/positions',
                 method: 'post',
                 data,
             },
@@ -44,13 +44,13 @@ export function lisenseApi() {
         };
         return Store.stateGenaratorApi(collection);
     }
-    function fetchTenants(data: any) {
+    function fetchLicesense(data: any) {
         const collection: any = {
             reload: 1,
             StateStore: 'fetchPositions',
             time: 0,
             reqs: {
-                url: '/Tenants/list',
+                url: '/Licesense/list',
                 method: 'post',
                 data,
             },
@@ -64,7 +64,7 @@ export function lisenseApi() {
             StateStore: 'fetchPositions',
             time: 0,
             reqs: {
-                url: '/Tenants/list',
+                url: '/Licesense/list',
                 method: 'post',
                 data,
             },
@@ -75,7 +75,7 @@ export function lisenseApi() {
 
     return {
         create,Erase,
-        fetchTenants,
+        fetchLicesense,
         fetchPositions,
     };
 }

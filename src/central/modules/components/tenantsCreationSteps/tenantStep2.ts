@@ -3,28 +3,28 @@
 
 export const tenantStep2 = [{
     label: 'admin Name',
-    name: 'AdminName',
+    name: 'admin_name',
     type: 'text',
     required: true,
     props: { placeholder: 'Enter Admin Name' },
 },
 {
     label: 'admin Email',
-    name: 'adminEmail',
+    name: 'admin_email',
     type: 'email',
     required: true,
     props: { placeholder: 'Enter Admin Email' },
 },
 {
     label: 'admin Phone',
-    name: 'AdminPhone',
+    name: 'admin_phone',
     type: 'tel',
     required: false,
     props: { placeholder: 'Enter Admin Phone' },
 },
 {
     label: 'admin Password',
-    name: 'Admin Password',
+    name: 'admin_password',
     type: 'password',
     required: true,
 },

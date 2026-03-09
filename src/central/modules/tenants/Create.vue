@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import {
     Building2,
     UserPlus,
@@ -10,13 +10,24 @@ import {
 } from 'lucide-vue-next'
 import { Form, Card, Button } from '@/Global'
 import { tenantStep1, tenantStep2, tenantStep3, TenantStep4 } from '../components/tenantsCreationSteps'
+import { pomPinia } from 'septor-store';
+const emits = defineEmits(['update:form']);
+const Store = pomPinia(),
+    currentStep = ref(null), remount = ref<boolean>(true), form = ref([]), formValues = ref([]), steps = [
+        { label: 'SACCO Info', icon: Building2 },
+        { label: 'Admin Account', icon: UserPlus },
+        { label: 'Licensing', icon: CreditCard },
+        { label: 'Review', icon: FileCheck }
+    ]
+const props = defineProps({
+    watcher: {
+        type: Object,
+        default: {},
+        required: false
 
-const currentStep = ref(0), remount = ref<boolean>(true), form = ref([...tenantStep1]), formValues = ref([]), steps = [
-    { label: 'SACCO Info', icon: Building2 },
-    { label: 'Admin Account', icon: UserPlus },
-    { label: 'Licensing', icon: CreditCard },
-    { label: 'Review', icon: FileCheck }
-]
+    }
+})
+
 
 
 watch(currentStep, (step) => {
@@ -35,13 +46,15 @@ watch(currentStep, (step) => {
     setTimeout(() => {
         remount.value = true
     }, 100)
+    if (step == steps.length - 1)
+        Store.showSaveButton = true
 
 })
 
 
 const onFormResults = (fields: any) => {
-    const saccoName = fields.find((f: any) => f.name === 'SACCOName')
-    const subdomain = fields.find((f: any) => f.name === 'Subdomain')
+    const saccoName = fields.find((f: any) => f.name === 'name')
+    const subdomain = fields.find((f: any) => f.name === 'subdomain')
     if (saccoName && subdomain) {
         subdomain.value = saccoName.value
             ?.replace(/\s+/g, '')
@@ -51,6 +64,8 @@ const onFormResults = (fields: any) => {
     }
     formValues.value = [...new Set([...formValues.value, ...fields])]
 }
+
+
 
 const canProceed = computed(() => {
     return form.value.every((field: any) => {
@@ -73,21 +88,42 @@ function nextStep() {
 
 }
 
-function submitForm() {
-    console.log("Tenant Data:", form.value)
-}
+
 function storeStep3Data(data: any) {
-    formValues.value = [...formValues.value, ...data]
+    formValues.value = [...formValues.value, ...(data)]
 }
+onMounted(() => {
+  
+    setTimeout(() => {
+        Store.showSaveButton = false
+        if (['edit', 'view'].includes(props.watcher.action)) {
+            currentStep.value = 1
+
+        } else {
+            currentStep.value = 0
+            form.value = tenantStep1.map((f: any) => {
+                f.value = null
+                return f
+            });
+            form.value = tenantStep2.map((f: any) => {
+                f.value = null
+                return f
+            })
+        }
+    }, 50)
+})
+
+watch(() => formValues.value, (value) => {
+    if (value) {
+        emits('update:form', value);
+    }
+}, { deep: true, immediate: true })
 </script>
 
 <template>
 
     <div class="p-2 space-y-6">
-
-
         <div class="flex items-center justify-between">
-
             <template v-for="(step, index) in steps" :key="step.label">
 
                 <div class="flex flex-col items-center gap-2 z-10">
@@ -119,7 +155,6 @@ function storeStep3Data(data: any) {
             </template>
 
         </div>
-
         <Card
             class="border-neutral-100 h-[67vh] dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-2xl overflow-hidden">
             <div v-if="remount">
@@ -141,11 +176,6 @@ function storeStep3Data(data: any) {
                 <Button v-if="currentStep < steps.length - 1" @click="nextStep" :disabled="steps.length === currentStep"
                     class="flex items-center gap-1">
                     Next
-                    <ChevronRight class="size-4" />
-                </Button>
-
-                <Button v-else @click="submitForm" :disabled="!canProceed" class="flex items-center gap-1">
-                    Create Tenant
                     <ChevronRight class="size-4" />
                 </Button>
 

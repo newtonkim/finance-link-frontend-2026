@@ -7,7 +7,9 @@
             <div class="relative w-full">
                 <Search class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size="16" />
 
-                <input v-model="searchQuery" type="search" autocomplete="off"
+                <input v-model="searchQuery"
+                 @input="(e)=>inputValue(e.target.value)"
+                type="search" autocomplete="off"
                     placeholder="Search by name, member number, phone, or email..." class="w-full rounded-lg border border-neutral-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none 
         focus:border-neutral-300 border
         dark:border-neutral-700 dark:bg-neutral-900 dark:text-white 
@@ -22,6 +24,8 @@
                     obj.search_by = v
 
                 save(obj, 'search');
+                
+            
 
             }" class="flex items-center justify-center rounded-lg bg-[#001d22] px-2.5 py-2.5 text-white 
            hover:bg-[#00343d] transition-colors">
@@ -65,7 +69,7 @@ import { Search, } from 'lucide-vue-next';
 
 const searchBy = ref({});
 const searchQuery = ref('');
-const emit = defineEmits(['save']);
+const emit = defineEmits(['search','filter']);
 
 const props = defineProps({
     columns: { type: Array, required: true },
@@ -77,12 +81,16 @@ const removeActionInSupperseach = props.columns.filter(col => ![...props.removeI
 const selectColumn = (col) => {
     // prevent duplicates 
     searchBy.value[col.label] = col.key
-    // save({ search_by: searchBy?.value }, 'search')
-
 }
 
 const save = (data, type = "save") => {
     emit("search", type, data)
+    
+};
+const inputValue = (data, type = "filter") => {
+                 emit(type, data)
+                
+
 };
 
 const removeColumn = (index) => {

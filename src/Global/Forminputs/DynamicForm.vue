@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import SearchableSelect from '@/Global/SearchableSelect.vue';
 import PhoneInput from '@/Global/PhoneInput.vue';
 import FormField from '@/Global/FormField.vue';
@@ -24,8 +24,12 @@ const props = defineProps<{
 
 const emits = defineEmits(['update:form', 'field-changed', 'results']);
 
-const prfields = ref([...props.form]);
+const prfields = ref<any>([]);
 
+onMounted(() => {
+    if (Array.isArray(props.form))
+        prfields.value = [...(props.form)];
+})
 const avatarPreviews = ref<Record<number, string>>({});
 
 const inputClass =
@@ -63,6 +67,7 @@ const handleAvatarChange = (field: any, index: number, event: Event) => {
 
     emits('field-changed', { field, index });
 };
+
 </script>
 
 <template>
@@ -87,14 +92,14 @@ const handleAvatarChange = (field: any, index: number, event: Event) => {
                 <!-- Textarea -->
                 <template v-else-if="field.type === 'textarea'">
                     <textarea :id="field.name" v-model="field.value" :class="inputClass + ' resize-y min-h-[80px]'"
-                        v-bind="field.props" @input="() => field?.change && handleChange(field, index)" />
+                        v-bind="field.props ?? field" @input="() => field?.change && handleChange(field, index)" />
                 </template>
 
                 <!-- Select -->
                 <template v-else-if="field.type === 'select'">
                     <SearchableSelect v-model="field.value" :options="field.options || []"
                         :placeholder="field.props?.placeholder || ''"
-                        @update:modelValue="() => handleChange(field, index)" />
+                        @update:modelValue="() => handleChange(field, index)" v-bind="field" />
                 </template>
 
                 <!-- Phone -->
@@ -106,6 +111,12 @@ const handleAvatarChange = (field: any, index: number, event: Event) => {
                 <!-- Money -->
                 <template v-else-if="field.type === 'money'">
                     <MoneyInput :id="field.name" v-model="field.value" :placeholder="field.props?.placeholder || ''"
+                        @input="() => field?.change && handleChange(field, index)" />
+                </template>
+                <!-- date -->
+                <template v-else-if="field.type === 'datec'">
+
+                    <DatePicker :id="field.name" v-model="field.value" v-bind="field"
                         @input="() => field?.change && handleChange(field, index)" />
                 </template>
 
@@ -128,7 +139,7 @@ const handleAvatarChange = (field: any, index: number, event: Event) => {
 
                 <!-- Default -->
                 <template v-else>
-                    <input type="text" v-model="field.value" :class="inputClass" v-bind="field.props"
+                    <input type="text" v-model="field.value" :class="inputClass" v-bind="field.props ?? field"
                         @input="() => field?.change && handleChange(field, index)" />
                 </template>
 

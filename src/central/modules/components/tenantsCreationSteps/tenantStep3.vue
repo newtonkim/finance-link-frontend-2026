@@ -43,8 +43,8 @@
                     License Duration <span class="text-rose-500">*</span>
                 </label>
                 <div class="flex flex-wrap gap-3">
-                    <button v-for="dur in licenseDurations" :key="dur.value" @click="form.licenseMonths = dur.value"
-                        class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200" :class="form.licenseMonths === dur.value
+                    <button v-for="dur in licenseDurations" :key="dur.value" @click="form.license_months = dur.value"
+                        class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200" :class="form.license_months === dur.value
                             ? 'bg-[#001d22] dark:bg-white text-white dark:text-[#001d22] shadow-sm'
                             : 'bg-neutral-100 dark:bg-white/5 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-white/10'
                             ">
@@ -60,12 +60,12 @@
 
 <script setup>
 import { ref, watch } from 'vue';
-const emits = defineEmits(['update:form',"change"]);
+const emits = defineEmits(['update:form', "change"]);
 
 const plans = [
     { value: 'basic', label: 'Basic', price: '$29/mo', description: 'For small SACCOs with up to 100 members' },
-    { value: 'standard', label: 'Standard', price: '$79/mo', description: 'For growing SACCOs with up to 500 members' },
-    { value: 'premium', label: 'Premium', price: '$149/mo', description: 'For large SACCOs with unlimited members' },
+    { value: 'professional', label: 'Standard', price: '$79/mo', description: 'For growing SACCOs with up to 500 members' },
+    { value: 'enterprise', label: 'Premium', price: '$149/mo', description: 'For large SACCOs with unlimited members' },
 ];
 
 const licenseDurations = [
@@ -75,25 +75,24 @@ const licenseDurations = [
     { value: 24, label: '24 Months' },
 ];
 
-const form = ref({
-    // Step 1: SACCO Info
-    saccoName: '',
-    subdomain: '',
-    // Step 2: Admin Account
-    adminName: '',
-    adminEmail: '',
-    adminPassword: '',
-    adminPasswordConfirmation: '',
-    // Step 3: Licensing
+const form = ref({ 
     plan: '',
-    licenseMonths: 0,
+    license_months: 0,
 });
 
 watch(form.value, (newValue) => {
-    if(newValue){
-    emits('update:form', [newValue]);
-    emits('change', [newValue]);
-}
+    if (newValue) {
+        const data = []
+
+        for (const key in newValue) {
+            data.push({
+                label: key,
+                name: key,
+                value: newValue[key],
+            });
+        }
+        emits('change', data);
+    }
 }, { deep: true });
 
 </script>

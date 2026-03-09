@@ -1,145 +1,84 @@
 <script setup lang="ts">
-import { onMounted, reactive, watch } from 'vue';
-import { lisenseApi } from '../apis';
-
+import { reactive, ref, watch, computed } from 'vue';
 import { Form } from '@/Global';
-const { create, fetchPositions } = lisenseApi()
+const emits = defineEmits(['update:form']);
+const planSearch = ref('');
+const planOptions = [
+    { name: 'Basic', id: 'basic' },
+    { name: 'Standard', id: 'standard' },
+    { name: 'Premium', id: 'premium' },
+];
 
+const filteredPlans = computed(() => {
+    if (!planSearch.value.trim()) return planOptions;
+    const q = planSearch.value.toLowerCase();
+    return planOptions.filter(o => o.label.toLowerCase().includes(q));
+});
 const form = reactive({
+    full_name: '',
+    plan: '',
+    date: { start: '', end: '' },
+    status: '',
     payment_number: '',
     phone: '',
     errors: {},
     processing: false,
 });
-const genderOptions = [
-    { id: 'male', name: 'Male' },
-    { id: 'female', name: 'Female' },
-];
 
-const maritalStatusOptions = [
-    { id: 'single', name: 'Single' },
-    { id: 'married', name: 'Married' },
+const statusOptions = [
+    { name: 'Active', id: 'active' },
+    { name: 'Trial', id: 'trial' },
+    { name: 'Suspended', id: 'suspended' },
+    { name: 'Expired', id: 'expired' },
 ];
-
-const staffPositionOptions = [
-    { id: 'manager', name: 'Manager' },
-    { id: 'teller', name: 'Teller' },
-    { id: 'system_admin', name: 'system Admin' },
-    { id: 'administrator', name: 'Administrator' },
-    { id: 'front_desk', name: 'Front desk' },
-];
-
-const fields = [
+const fields = ref([
     {
-        label: 'Full Name',
+        label: 'Select Tenant',
         name: 'full_name',
-        type: 'text',
-        required: true,
-        props: { placeholder: 'Enter Full Name' },
-    },
-
-    {
-        label: 'Gender',
-        name: 'gender',
         type: 'select',
-        options: genderOptions,
         required: true,
-        props: { placeholder: 'Select Gender' },
+        placeholder: 'Search Full Name/ Email/ Phone Number',
+        remote: true,
+        url: "central/licenses/licenses-drop-down",
     },
-
     {
-        label: 'Email',
-        name: 'email',
-        type: 'email',
-        props: { placeholder: 'Enter Email' },
-    },
-
-    {
-        label: 'Marital Status',
-        name: 'marital_status',
+        label: 'Select Plan',
+        name: 'plan',
         type: 'select',
-        options: maritalStatusOptions,
+        required: true,
+        options: filteredPlans,
+        props: { placeholder: 'Select a Plan' },
+    },
+    {
+        label: 'Starts At / Expires At',
+        name: 'date',
+        type: 'datec',
+        required: true,
+        range: true,
+        'multi-calendars': true,
+        props: { placeholder: 'Select Start & End Dates' },
+    },
+    {
+        label: 'Select Status',
+        name: 'status',
+        type: 'select',
+        required: true,
+        options: statusOptions,
         props: { placeholder: 'Select Status' },
     },
-
-    {
-        label: 'Location',
-        name: 'location',
-        type: 'textarea',
-        props: { placeholder: 'Enter Location' },
-    },
-
-    {
-        label: 'Staff Position',
-        name: 'staff_position',
-        type: 'select',
-        options: staffPositionOptions,
-        required: true,
-        props: { placeholder: 'Select Position' },
-    },
-
-    {
-        label: 'Primary Contact',
-        name: 'phone',
-        type: 'phone',
-        required: true,
-        props: { placeholder: 'Enter Contact' },
-    },
-
-    {
-        label: 'Other Contact',
-        name: 'other_contact',
-        type: 'phone',
-        props: { placeholder: 'Enter Other Contact' },
-    },
-
-    {
-        label: 'Date of Birth',
-        name: 'dob',
-        type: 'date',
-    },
-
-    {
-        label: 'NIN',
-        name: 'nin',
-        type: 'text',
-        props: { placeholder: 'Enter NIN' },
-    },
-
-    {
-        label: 'Next of Kin',
-        name: 'next_of_kin',
-        type: 'text',
-        props: { placeholder: 'Enter Next of Kin' },
-    },
-
-    {
-        label: 'Next of Kin Contact',
-        name: 'next_of_kin_contact',
-        type: 'phone',
-        props: { placeholder: 'Enter Contact' },
-    },
-];
-const emits = defineEmits(['update:form']);
-
+]);
 watch(
-    () => form,
+    form,
     (newVal) => {
         emits('update:form', newVal);
     },
-    { deep: true },
+    { deep: true }
 );
-
-onMounted(async () => {
-    fetchPositions()
-})
-
-
 </script>
 
 <template>
+    <div class="card shadow-md p-4 py-10 bg-white dark:bg-neutral-800 rounded-md">
+        <Form parentStyle="grid  grid-cols-1 gap-4 md:gap-6" v-model:form="fields" />
 
-    <div class="card shadow-md p-4 bg-white dark:bg-neutral-800 rounded-md">
-        <Form parentStyle="grid grid-cols-2 s m:grid-cols-1 gap-4 md:gap-6" :fields="fields" v-model:form="form" />
     </div>
 </template>

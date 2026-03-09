@@ -74,27 +74,28 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
-const emits = defineEmits(['update:form',"change"]);
+const emits = defineEmits(['update:form', "change"]);
 
-const form = ref({ 
-    // Step 1: SACCO Info
-    saccoName: '',
-    subdomain: '',
-    // Step 2: Admin Account
-    adminName: '',
-    adminEmail: '',
-    adminPhone: '',
-    // Step 3: Licensing
-    plan: '',
-    licenseMonths: 0
+const form = ref({
 });
 
+
 watch(form.value, (newValue) => {
-    if(newValue){
-    emits('update:form', [newValue]);
-    emits('change', [newValue]);
-}
+    if (newValue) {
+        const data = []
+
+        for (const key in newValue) {
+            data.push({
+                label: key,
+                name: key,
+                value: newValue[key],
+            });
+        }
+
+        emits('change', data);
+
+    }
 }, { deep: true });
 </script>

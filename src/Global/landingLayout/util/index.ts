@@ -1,13 +1,16 @@
 
+import { statusMap } from '@/Global/StatusMap';
 import { dateTime, date } from '../../Helpers';
 import { Eye, Edit, Trash, UserCircle2 } from 'lucide-vue-next';
 
 export const dataFomater = (data: any, type: 'date' | 'dateTime') => {
     const filter = {
         date: () => date(data),
-        dateTime: () => dateTime(data)
+        dateTime: () => dateTime(data),
+        status: () =>`<span class="${statusMap[data]?.className}">${statusMap[data]?.label}</span>`
+        // status: () => statusMap[data]?.label
     }
-    return filter?.[type]?.();
+    return filter?.[type]?.()??data;
 }
 
 export const ACTION_CONFIG = {
@@ -38,9 +41,9 @@ export const dataTabelFilter = (collection: any,searchQuery:any) => {
 }
 export function fetchTableData({data, props,Store}:{data:any,props:any,Store:any}) {
     const collection = {
-        reload: 1,
+        reload: !!props.reload?0:1, // dont think am stupid i know that
         StateStore: props?.state,
-        time: 0,
+        time: props?.time??1,
         reqs: {
             url: props?.url,
             method: 'post',
@@ -48,5 +51,7 @@ export function fetchTableData({data, props,Store}:{data:any,props:any,Store:any
         },
         mStore: { mUse: true },
     };
+    console.log(Store);
+    
     return Store.stateGenaratorApi(collection);
 }

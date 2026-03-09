@@ -31,13 +31,13 @@ export const centralAuthRoutes: RouteRecordRaw[] = [
     meta: { layout: 'central' },
   },
   {
-    path: 'central/licenses',
+    path: '/central/licenses',
     name: 'central-licenses',
     component: Licenses,
     meta: { layout: 'central' },
   },
   {
-    path: 'central/licenses/create',
+    path: '/central/licenses/create',
     name: 'central-licenses-create',
     component: CreateLicense,
     meta: { layout: 'central' },

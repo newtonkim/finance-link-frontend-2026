@@ -22,25 +22,19 @@
         <div
             class="rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 shadow-sm overflow-hidden p-4">
             <div class="flex  justify-between">
-
-                <Searchbar v-if="showSearchbar" @search="onSearch" :removeInSearch="removeInSearch"
-                    :columns="columns" />
-
+                <Searchbar v-if="showSearchbar" @search="onSearch" :removeInSearch="removeInSearch" :columns="columns"
+                    @filter="(v) => filterDataByString(v)" />
                 <slot name="searchSideAction" />
-
-
                 <div class="flex items-center gap-2" v-if="showTableAction">
                     <button @click="handleExport"
                         class="p-2 bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
                         <Download :size="18" />
                     </button>
-
                     <!-- Print Button -->
                     <button @click="handlePrint"
                         class="p-2 bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
                         <Printer :size="18" />
                     </button>
-
                     <!-- Divider -->
                     <div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2"></div>
                 </div>
@@ -53,18 +47,17 @@
                     <Table :handleAction="handleAction" :action_config="ACTION_CONFIG" :dataFilter="dataFilter"
                         :data="data" :columns="columns" />
                 </div>
-
-
-                <Pagination @change="callNewPage" :pagination="paginationSource" v-if="data?.links && data?.total"
-                    :links="data?.links" :from="data?.from" :to="data?.to" :total="data?.total" />
+                <Pagination @change="callNewPage" v-if="dataPageLinks?.links && dataPageLinks?.total"
+                    :links="dataPageLinks?.links" :from="dataPageLinks?.from" :to="dataPageLinks?.to"
+                    :total="dataPageLinks?.total" />
             </div>
         </div>
         <!-- DRAWER -->
-
     </div>
-    <Drawer :width="drawerWidth" :showFooter="drawerShowFooter" v-model:open="drawerOpen" :title="drawerTitle" @save="save">
+    <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShowFooter" v-model:open="drawerOpen"
+        :title="drawerTitle" @save="saveDrawerData">
         <template #body>
-            <slot name="drawer" :action="buttonTypeClicked" />
+            <slot :data="provideDataTotheParent" name="drawer" :action="buttonTypeClicked" :submit="submitChanges" />
         </template>
     </Drawer>
 
@@ -73,12 +66,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import Pagination from '@/Global/Pagination.vue';
 import Drawer from '../Drawer/Drawer.vue';
-import { Plus, PlusSquare, UserCircle2 } from 'lucide-vue-next';
+import { Plus } from 'lucide-vue-next';
 import ConfirmationDialog from '../confirmationDialog/confirmationDialog.vue';
-// import { EmptySvg } from '..';
 import Searchbar from './Components/Searchbar.vue';
 import Table from './Components/Table.vue';
 import { Download, Printer } from 'lucide-vue-next';
@@ -91,8 +83,8 @@ const emit = defineEmits(['save']);
 const selected = ref<Record<string, unknown> | null>(null);
 const Store = pomPinia();
 const buttonTypeClicked = ref<any>(null);
-
-
+const submitChanges = ref<any>(null);
+const provideDataTotheParent = ref<any>([]);
 function createNewRecord() {
     toggleDrawer(); save('create', 'add');
     buttonTypeClicked.value = 'add'
@@ -114,7 +106,7 @@ const props = defineProps({
     drawerShowFooter: { type: Boolean, default: true },
     drawerTitle: { type: String, default: 'Drawer Title' },
     drawerWidth: { type: String, default: '30rem' },
-    title: { type: String, required: true },
+    title: { type: String, required: false },
     data: {
         type: Object,
         required: false,
@@ -131,60 +123,114 @@ const props = defineProps({
 
 
 
-const toggleDrawer = () => (drawerOpen.value = !drawerOpen.value);
+const toggleDrawer = () => {
+    (drawerOpen.value = !drawerOpen.value)
+
+};
 const save = (data: unknown, type = 'save') => {
     if (type == 'search' && props?.state && props?.url) {
         fetchTableData({ data, props, Store })
+        return
     }
+    if (type == 'delete' && props?.state && props?.url) {
+        const newprosDta = { ...props, url: createUrl(props?.url, 'delete') }
+        fetchTableData({ data, props: newprosDta, Store })
+        return
+    }
+    if (type === 'save')
+        submitChanges.value = true
     emit("save", type, data)
+
 };
 
-const handleAction = (item: any, action: keyof typeof ACTION_CONFIG) => {
+function createUrl(url: string, action: string) {
+    const url2 = url.split("/")
+    url2.length = url2.length - 1
+    return url2.join("/") + `/${action}`
+}
+
+function saveDrawerData(data: any) {
+    save(data, 'create')
+    setTimeout(() => {
+        submitChanges.value = false
+    }, 2000)
+}
+
+const handleAction = async (item: any, action: keyof typeof ACTION_CONFIG) => {
     const fn = (ACTION_CONFIG?.[action] as { action?: (payload: any) => void } | undefined)?.action;
     if (action === 'delete') {
         showDelete.value = true;
         selected.value = item
+        if (props?.state && props?.url) {
+            return  // dont send the  action to the parent
+        }
     } else if (["edit", "view"].includes(action)) {
         if (fn) fn(item);
         toggleDrawer()// open the drawer on this action clicked
+        if (props?.state && props?.url && ['edit', 'view'].includes(action)) {
+
+            const res = await fetchTableData({
+                data: item, props: {
+                    ...props,
+                    state: props?.state + "_details",
+                    url: createUrl(props?.url, "details")
+                }, Store
+            });
+            provideDataTotheParent.value = res?.payload ?? res
+        }
     }
     else {
         if (fn) fn(item);
     }
+
+
     save(item ?? selected.value, String(action));
     buttonTypeClicked.value = action
+
 };
-const changeThePage = (item: unknown) => {
+const changeThePage = (page: unknown) => {
+    if (page && props?.state && props?.url) {
+        fetchTableData({
+            data: {
+                page
+                //    search_keyword:searchQuery.value  // i have avoided this coz it will look in the page  instead let goo globa
+            }, props, Store
+        })
 
-    save(item, "changePage");
-
+    }
+    save(page, "changePage");
 };
 const callNewPage = changeThePage;
 const onSearch = (type: string, data: unknown) => save(data, type);
-
-const paginationSource = computed(() => {
-    if (!props?.state) return props.data;
-    return (Store[props.state as keyof typeof Store] as any)?.payload ?? props.data;
-});
-
-
-const dataFilter = () => {
+const dataFilter = computed(() => {
     const collection = (props?.state ? (Store[props.state as keyof typeof Store] as any)?.payload : null) ?? props.data ?? { data: [] }
     return dataTabelFilter(collection?.data, searchQuery.value);
+})
+const dataPageLinks = computed(() => {
+    return (props?.state ? (Store[props.state as keyof typeof Store] as any)?.payload : null) ?? props.data ?? { data: [] }
+})
+function filterDataByString(value: string) {
+    searchQuery.value = value
 }
-
 onMounted(async () => {
-    if (props?.state && props?.url)
-        await fetchTableData({ data: null, props, Store });
+    callOnmount()
 });
+
+watch(() => props?.url, () => {
+    callOnmount()
+})
+function callOnmount() {
+    if (props?.state && props?.url)
+        fetchTableData({ data: null, props, Store });
+}
 
 defineExpose({
     toggleDrawer,
     callNewPage,
     changeThePage,
     handleAction, handlePrint
-
 })
+
 </script>
 <style>
 .text0ashfgdahsdga {

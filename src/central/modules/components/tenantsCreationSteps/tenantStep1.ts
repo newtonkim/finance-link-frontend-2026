@@ -1,7 +1,7 @@
 
 export const tenantStep1 = [{
     label: 'Sacco Name',
-    name: 'SACCOName',
+    name: 'name',
     type: 'text',
     required: true,
     props: { placeholder: 'Enter  SACCO Name' },
@@ -14,7 +14,7 @@ export const tenantStep1 = [{
 },
 {
     label: 'subdomain',
-    name: 'Subdomain',
+    name: 'subdomain',
     type: 'text',
     disabled: true,
     required: true,
