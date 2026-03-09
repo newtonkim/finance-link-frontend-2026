@@ -57,7 +57,7 @@
             <!-- DEFAULT CELL -->
             <template v-else> 
               <slot v-if="$slots[col.key]" :name="col.key" :item="item" />
-              <span v-else v-html="col.type ? dataFomater(item[col.key], col.type) : item[col.key]"></span>
+              <span v-else v-html="col.type ? dataFomater(item[col?.key], col.type) : item[col.key]"></span>
             </template>
           </td>
 

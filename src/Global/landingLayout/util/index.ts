@@ -4,6 +4,7 @@ import { dateTime, date } from '../../Helpers';
 import { Eye, Edit, Trash, UserCircle2 } from 'lucide-vue-next';
 
 function  splitTheLink(link:string){
+    if(!link) return
     const url = new URL(link);
     const url2 = url.pathname.split("/")
    const  name= url2.length - 1
@@ -17,6 +18,7 @@ export const dataFomater = (data: any, type:string) => {
         dateTime: () => dateTime(data),
         link: () =>{
             const dd=splitTheLink(data)
+            if(!dd?.url) return
             return` 
            <a 
   href="${dd?.url}" 
@@ -64,7 +66,7 @@ export const ACTION_CONFIG = {
 
 export const dataTabelFilter = (collection: any,searchQuery:any) => {
     // const collection = Store[props?.state]?.payload ?? props.data ?? { data: [] }
-    return collection.filter((item:any) => {
+    return (collection??[]).filter((item:any) => {
         const stng = JSON.stringify(item);
         return `${stng}`.toLowerCase().includes(searchQuery.toLowerCase())
     })

@@ -23,14 +23,13 @@ import {
     SidebarGroupLabel,
     SidebarRail,
     useSidebar,
-} from '@/Global/ui/sidebar';
-import NavUser from '@/Global/NavUser.vue';
+} from '@/Global';
 import { useAuthStore } from '@/stores/auth';
+import { reactive } from 'vue';
 
 const router = useRouter();
 const route = useRoute();
 const { state } = useSidebar();
-const authStore = useAuthStore();
 
 // Helper to check active route
 const isCurrentUrl = (path: string) => {
@@ -53,16 +52,26 @@ const centralItems = [
     { title: 'Platform Dashboard', href: '/central/dashboard', icon: LayoutGrid },
     { title: 'Tenants', href: '/central/tenants', icon: Store },
     { title: 'Licenses', href: '/central/licenses', icon: CreditCard },
-    { title: 'Platform Users', href: '/platform-users', icon: Users },
+    { title: 'Platform Users', href: '/central/platform-users', icon: Users },
 ];
 
 const configItems = [
-    { title: 'Settings', href: '/settings', icon: Settings },
+    {
+        title: 'Settings',
+        href: '/settings',
+        icon: Settings,
+        children: [
+            { title: 'General', href: '/central/settings' },
+            { title: 'Notifications', href: '/settings/notifications' },
+            { title: 'Billing', href: '/settings/billing' },
+        ],
+    },
 ];
 
 const navigate = (href: string) => {
     router.push(href);
 };
+const openMenus = reactive<Record<string, boolean>>({});
 </script>
 
 <template>
@@ -114,22 +123,28 @@ const navigate = (href: string) => {
             </SidebarGroup>
 
             <!-- CONFIGURATION section -->
-            <SidebarGroup class="mt-4">
-                <SidebarGroupLabel class="px-3 text-[10px] font-bold uppercase tracking-widest text-[#9BB5A5]/40 mb-2">
-                    Configuration
-                </SidebarGroupLabel>
-                <SidebarMenu>
-                    <SidebarMenuItem v-for="item in configItems" :key="item.title">
-                        <SidebarMenuButton @click="navigate(item.href)" :tooltip="item.title"
-                            class="px-3 py-5 rounded-xl transition-all duration-200 flex items-center"
-                            :class="isCurrentUrl(item.href) ? 'bg-white/10 text-white' : 'text-[#9BB5A5]/60 hover:bg-white/5 hover:text-white'">
-                            <component :is="item.icon" class="size-5" />
-                            <span class="flex-1 text-sm font-medium">{{ item.title }}</span>
-                            <ChevronRight v-if="state === 'expanded'" class="size-4 opacity-40 ml-auto" />
+            <SidebarMenuItem v-for="item in configItems" :key="item.title" style="list-style: none;">
+                <SidebarMenuButton
+                    @click="item.children ? (openMenus[item.title] = !openMenus[item.title]) : navigate(item.href)"
+                    :tooltip="item.title" class="px-3 py-5 rounded-xl transition-all duration-200 flex items-center"
+                    :class="isCurrentUrl(item.href) ? ' ' : 'text-[#9BB5A5]/60 hover:bg-white/5 hover:text-white'">
+                    <component :is="item.icon" class="size-5" />
+                    <span class="flex-1 text-sm font-medium">{{ item.title }}</span>
+                    <ChevronRight v-if="item.children && state === 'expanded'" class="size-4 opacity-40 ml-auto"
+                        :class="openMenus[item.title] ? 'rotate-90' : ''" />
+                </SidebarMenuButton>
+
+                <!-- Nested children -->
+                <SidebarMenu v-if="item.children && openMenus[item.title]" class="ml-6 mt-2">
+                    <SidebarMenuItem v-for="child in item.children" :key="child.title">
+                        <SidebarMenuButton @click="navigate(child.href)"
+                            class="px-3 py-3 rounded-xl transition-all duration-200 text-[#9BB5A5]/60 hover:bg-white/5 hover:text-white"
+                            :class="isCurrentUrl(child.href) ? 'bg-white/10 text-white' : ''">
+                            <span class="text-sm">{{ child.title }}</span>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
-            </SidebarGroup>
+            </SidebarMenuItem>
         </SidebarContent>
 
         <SidebarFooter class="p-4 mt-auto">
@@ -142,7 +157,7 @@ const navigate = (href: string) => {
                         class="inline-block h-4 w-4 transform rounded-full bg-white transition-all duration-200 shadow-sm"
                         :class="isDark ? 'translate-x-6' : 'translate-x-1'" />
                 </button>
-            </div> 
+            </div>
         </SidebarFooter>
         <SidebarRail />
     </Sidebar>

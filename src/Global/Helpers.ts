@@ -283,12 +283,13 @@ export function formDataFormat(data:any) {
     if (Array.isArray(value)) {
       // Handle arrays
       value.forEach((element, index) => {
+        const lowerCaseKeys=`${key}[${index}]`.toLocaleLowerCase().replace("\+S",'_')
         if (
           element &&
           typeof element === "object" &&
           element.file instanceof File
         ) {
-          formData.append(`${key}[${index}]`, element.file); // Use index for clarity
+          formData.append(lowerCaseKeys, element.file); // Use index for clarity
         } else if (
           element &&
           typeof element === "object" &&
@@ -297,16 +298,16 @@ export function formDataFormat(data:any) {
           element?.lastModifiedDate &&
           element?.type
         ) {
-          formData.append(`${key}[${index}]`, element); // Use index for clarity
+          formData.append(lowerCaseKeys, element); // Use index for clarity
         } else {
-          formData.append(`${key}[${index}]`, JSON.stringify(element));
+          formData.append(lowerCaseKeys, JSON.stringify(element));
         }
       });
     } else if (typeof value === "object" && !(value instanceof File)) {
-      formData.append(`${key}`, JSON.stringify(value));
+      formData.append(`${key}`.toLocaleLowerCase(), JSON.stringify(value));
     } else {
       // Handle primitive values and Files
-      formData.append(key, value);
+      formData.append(key.toLocaleLowerCase(), value);
     }
   }
 
