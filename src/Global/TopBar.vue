@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Search, Bell, Plus, LayoutGrid } from 'lucide-vue-next';
-import { Input } from '@/Global/ui/input';
-import { Button } from '@/Global/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/Global/ui/avatar';
+import { Button, DropdownMenuTrigger, Input, Avatar, AvatarFallback, AvatarImage, DropdownMenu, DropdownMenuContent } from '@/Global';
+import UserMenuContent from '@/Global/UserMenuContent.vue';
+
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -11,10 +11,17 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from '@/Global/ui/breadcrumb';
+import { useAuthStore } from '@/stores/auth';
+import { computed } from 'vue';
+import { getInitials } from './Helpers';
 
 defineProps<{
     title: string;
 }>();
+const authStore = useAuthStore();
+const user = computed(() => authStore.user);
+const userName = computed(() => String(user.value?.name ?? 'User'));
+
 </script>
 
 <template>
@@ -34,7 +41,7 @@ defineProps<{
             </Breadcrumb>
         </div>
 
-        
+
 
         <div class="flex items-center gap-4 flex-1 max-w-sm mx-12">
             <div class="relative w-full">
@@ -91,10 +98,22 @@ defineProps<{
                 </span>
             </Button>
 
-            <div
-                class="size-10 rounded-xl bg-[#F1F5F9] dark:bg-white/10 flex items-center justify-center font-bold text-xs text-neutral-600 dark:text-neutral-300 border border-neutral-200/50 dark:border-white/10 cursor-pointer hover:bg-neutral-200 dark:hover:bg-white/20 transition-all shadow-sm">
-                NK
-            </div>
+            <DropdownMenu>
+                <DropdownMenuTrigger :as-child="true">
+                    <Avatar class="size-8 overflow-hidden rounded-full">
+
+                        <AvatarFallback
+                            class="size-10 rounded-xl bg-[#F1F5F9] dark:bg-white/10 flex items-center justify-center font-bold text-xs text-neutral-600 dark:text-neutral-300 border border-neutral-200/50 dark:border-white/10 cursor-pointer hover:bg-neutral-200 dark:hover:bg-white/20 transition-all shadow-sm">
+
+                            {{ getInitials(userName) }}
+                        </AvatarFallback>
+                    </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" class="w-56">
+                    <UserMenuContent v-if="user" :user="user" />
+                </DropdownMenuContent>
+            </DropdownMenu>
+
         </div>
     </header>
 </template>

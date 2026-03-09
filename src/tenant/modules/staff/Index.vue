@@ -22,36 +22,7 @@ import { StaffApi } from '../../apis/staff/staffApi';
 import { TableDrawer } from '@/Global';
 
 const formData = reactive({})
-
-
-const props = defineProps<{
-    members: {
-        data: Array<{
-            id: number;
-            member_number: string;
-            name: string;
-            phone: string;
-            email: string;
-            gender: string;
-            status: string;
-            joined_at: string;
-            created_at: string;
-            avatar_url: string | null;
-        }>;
-        links: Array<any>;
-        from: number | null;
-        to: number | null;
-        total: number;
-    };
-    filters: {
-        search?: string;
-    };
-}>();
-
-
 const { create, fetchStaff, fetchPositions, Erase } = StaffApi()
-
-
 const triggerAction: Record<string, Function> = {
     delete: (data: any) => Erase(data),
     // search: (data: any) => fetchStaff(data),
@@ -60,15 +31,10 @@ const triggerAction: Record<string, Function> = {
 
 function saveUser(type: string, data: any,) {
     triggerAction?.[type]?.(data)
-
-
 }
-
-
-
 const columns = [
     { key: 'id', label: '#', width: '10' },
-    { key: 'full_name', label: 'Name', width: '40', sticky: 'left' },
+    { key: 'full_name', label: 'Name', width: '50', sticky: 'left' },
     { key: 'email_address', label: 'Email' },
     { key: 'everified_at', label: 'Verified', type: 'dateTime' },
     { key: 'phone_number', label: 'Phone' },

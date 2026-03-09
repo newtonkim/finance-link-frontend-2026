@@ -1,63 +1,63 @@
-import type { RouteRecordRaw } from 'vue-router'
-import Login from './pages/Login.vue'
-import Register from './pages/Register.vue'
-import Dashboard from './pages/Dashboard.vue'
-import Tenants from './pages/Tenants.vue'
-import CreateTenant from './pages/CreateTenant.vue'
-import TenantDetail from './pages/TenantDetail.vue'
-import Licenses from './pages/Licenses.vue'
-import CreateLicense from './pages/CreateLicense.vue'
-
-// Auth routes — rendered WITHOUT the sidebar layout
-export const centralAuthRoutes: RouteRecordRaw[] = [
+import type { RouteRecordRaw } from 'vue-router' 
+export const hRoutes: RouteRecordRaw[] = [
   {
     path: '/login',
-    name: 'central-login',
-    component: Login,
+    component: () => import('./pages/Login.vue'),
   },
   {
     path: '/register',
-    name: 'central-register',
-    component: Register,
+    component: () => import('./pages/Register.vue'),
   },
-]
+  {
+    path: '/central/tenants',  
+    component: () => import('./pages/Licenses.vue'),
+  },
+  {
+    path: '/central/tenants/create',
+    component: () => import('./pages/CreateTenant.vue'),
+  },
+  { 
+    path: '/central/tenants/:id',  
+    component: () => import('./pages/TenantDetail.vue'), 
+  },
+  {
+    path: '/central/licenses',
+    component: () => import('./pages/Licenses.vue'),
+  },
+  {
+    path: '/central/licenses/create',
+    component: () => import('./pages/CreateLicense.vue'),
 
-// App routes — rendered INSIDE CentralLayout (with sidebar)
-export const centralRoutes: RouteRecordRaw[] = [
-  {
-    path: 'central/dashboard',
-    name: 'central-dashboard',
-    component: Dashboard,
-    meta: { layout: 'central' },
-  },
-  {
-    path: 'central/tenants',
-    name: 'central-tenants',
-    component: Tenants,
-    meta: { layout: 'central' },
-  },
-  {
-    path: 'central/tenants/create',
-    name: 'central-tenants-create',
-    component: CreateTenant,
-    meta: { layout: 'central' },
-  },
-  {
-    path: 'central/tenants/:id',
-    name: 'central-tenants-show',
-    component: TenantDetail,
-    meta: { layout: 'central' },
-  },
-  {
-    path: 'central/licenses',
-    name: 'central-licenses',
-    component: Licenses,
-    meta: { layout: 'central' },
-  },
-  {
-    path: 'central/licenses/create',
-    name: 'central-licenses-create',
-    component: CreateLicense,
-    meta: { layout: 'central' },
   },
 ]
+export const centralAuthRoutes: RouteRecordRaw[] = routebuilder(hRoutes)
+const routes = [
+  {
+    path: 'platform-users',
+    component: () => import('./staff/Index.vue'),
+  },
+  {
+    path: 'settings',
+    component: () => import('./settings/Index.vue'),
+  },
+  {
+    path: 'tenants',
+    component: () => import('./tenants/Index.vue'),
+  },
+  {
+    path: 'licenses',
+    component: () => import('./licenses/Index.vue'),
+  },
+]
+export const centralRoutes: RouteRecordRaw[] = routebuilder(routes)
+function routebuilder(routes,prifex="central",){
+  return routes.map((route) => {
+    const routePath= `${prifex}/${route.path}`
+    return({
+      meta:{layout:'central'},
+      name: routePath.replaceAll("/","-"),
+  path: `/${routePath}`,
+  component: route.component,
+})}
+)
+}

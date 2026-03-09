@@ -1,0 +1,1 @@
+export {default as DetailsTable} from './Details.vue'

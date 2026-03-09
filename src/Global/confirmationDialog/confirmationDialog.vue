@@ -19,10 +19,7 @@
                                     Are you sure you want to delete <strong
                                         class="text-neutral-700 dark:text-neutral-200"> {{ items?.name }}</strong>? This
                                     action cannot be undone.
-                                </span>
-                                <!-- Are you sure you want to delete <strong
-                                    class="text-neutral-700 dark:text-neutral-200">{{ items?.name
-                                    }}</strong>? This action cannot be undone. -->
+                                </span> 
                             </p>
                         </div>
                     </div>
