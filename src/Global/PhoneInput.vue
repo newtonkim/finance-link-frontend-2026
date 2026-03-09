@@ -166,14 +166,14 @@ onUnmounted(() => window.removeEventListener('click', closeDropdown));
                 type="button"
                 @click.stop="toggleDropdown"
                 :class="[
-                    'flex items-center gap-2 rounded-2xl border border-[#E8EEE8] bg-[#F9FBF9] px-4 py-4 text-sm font-bold text-[#002D1D] transition-all hover:border-neutral-300 disabled:opacity-50 disabled:cursor-not-allowed',
+                    'flex h-full min-h-[48px] items-center gap-2 rounded-xl border border-neutral-200 bg-neutral-100 px-4 py-3 text-sm font-semibold text-neutral-800 transition-all hover:border-neutral-300 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700',
                     countryButtonClass,
                 ]"
                 :disabled="disabled"
             >
                 <span class="flex items-center gap-2">
-                    <span class="text-lg leading-none">{{ selectedCountry.flag }}</span>
-                    <span class="font-bold">{{ selectedCountry.dial }}</span>
+                    <span class="text-xl leading-none">{{ selectedCountry.flag }}</span>
+                    <span class="font-semibold">{{ selectedCountry.dial }}</span>
                 </span>
                 <ChevronDown class="h-4 w-4 text-neutral-400 transition-transform" :class="{ 'rotate-180': isOpen }" />
             </button>
@@ -236,11 +236,13 @@ onUnmounted(() => window.removeEventListener('click', closeDropdown));
             @input="handleInput"
             :maxlength="maxLength"
             type="text"
-            :placeholder="placeholder || 'e.g. 777 123 456'"
+            :placeholder="placeholder || 'Phone number'"
             :disabled="disabled"
             :class="[
-                'flex-1 rounded-2xl border py-4 px-5 text-sm font-bold tracking-widest outline-none transition-all',
-                error ? 'border-red-400 bg-red-50/30' : 'border-[#E8EEE8] bg-[#F9FBF9] focus:border-[#002D1D] focus:ring-4 focus:ring-[#002D1D]/5',
+                'flex-1 rounded-xl border py-3 px-4 text-sm outline-none transition-all placeholder:text-neutral-400 disabled:opacity-50 dark:text-white dark:placeholder:text-neutral-500',
+                error
+                    ? 'border-red-300 bg-red-50 focus:border-red-400 focus:ring-2 focus:ring-red-100 dark:border-red-700 dark:bg-red-950/30'
+                    : 'border-neutral-200 bg-neutral-100 focus:border-neutral-400 focus:bg-white focus:ring-2 focus:ring-neutral-200 dark:border-neutral-700 dark:bg-neutral-800 dark:focus:bg-neutral-700',
                 inputClass
             ]"
         />
