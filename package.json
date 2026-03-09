@@ -19,6 +19,7 @@
     "@vuepic/vue-datepicker": "^12.1.0",
     "@vueuse/core": "^14.2.1",
     "axios": "^1.13.6",
+    "chart.js": "^4.5.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "encrypt-storage": "^2.14.7",
@@ -29,6 +30,7 @@
     "septor-store": "^1.2.4",
     "tailwind-merge": "^3.5.0",
     "vue": "^3.5.29",
+    "vue-chartjs": "^5.3.3",
     "vue-input-otp": "^0.3.2",
     "vue-router": "^5.0.3",
     "vue-sonner": "^2.0.9"
@@ -65,5 +67,5 @@
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
   },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  "packageManager": "pnpm@10.27.0+sha512.72d699da16b1179c14ba9e64dc71c9a40988cbdc65c264cb0e489db7de917f20dcf4d64d8723625f2969ba52d4b7e2a1170682d9ac2a5dcaeaab732b7e16f04a"
 }

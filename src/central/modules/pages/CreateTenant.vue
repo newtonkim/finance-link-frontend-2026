@@ -8,12 +8,20 @@ import {
     FileCheck,
     ChevronRight,
     ChevronLeft,
+    Eye,
+    EyeOff,
 } from 'lucide-vue-next';
 import { Card } from '@/Global/ui/card';
 import { Button } from '@/Global/ui/button';
 import { Input } from '@/Global/ui/input';
+import { createTenant } from '@/central/api/tenants';
 
 const router = useRouter();
+
+const isSubmitting = ref(false);
+const submitError = ref('');
+const showPassword = ref(false);
+const showConfirmPassword = ref(false);
 
 // Stepper
 const currentStep = ref(0);
@@ -86,10 +94,33 @@ function prevStep() {
     }
 }
 
-function submitForm() {
-    // TODO: Submit to API
-    console.log('Submitting tenant:', form.value);
-    router.push('/central/tenants');
+async function submitForm() {
+    if (isSubmitting.value) return;
+    isSubmitting.value = true;
+    submitError.value = '';
+
+    try {
+        await createTenant({
+            name: form.value.saccoName,
+            subdomain: form.value.subdomain,
+            admin_name: form.value.adminName,
+            admin_email: form.value.adminEmail,
+            admin_phone: form.value.adminPhone || undefined,
+            admin_password: form.value.adminPassword,
+            plan: form.value.plan,
+            license_months: form.value.licenseMonths,
+        });
+        router.push('/central/tenants');
+    } catch (err: any) {
+        const data = err?.response?.data;
+        if (data?.errors) {
+            submitError.value = Object.values(data.errors).flat().join(' ');
+        } else {
+            submitError.value = data?.message ?? 'Failed to create tenant. Please try again.';
+        }
+    } finally {
+        isSubmitting.value = false;
+    }
 }
 
 // Auto-generate subdomain from name
@@ -225,15 +256,29 @@ function onNameInput() {
                             <label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
                                 Password <span class="text-rose-500">*</span>
                             </label>
-                            <Input v-model="form.adminPassword" type="password" placeholder="••••••••"
-                                class="h-12 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-[#001d22]/10 dark:focus:ring-white/10" />
+                            <div class="relative">
+                                <Input v-model="form.adminPassword" :type="showPassword ? 'text' : 'password'" placeholder="••••••••"
+                                    class="h-12 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-[#001d22]/10 dark:focus:ring-white/10 pr-11" />
+                                <button type="button" @click="showPassword = !showPassword"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
+                                    <EyeOff v-if="showPassword" class="size-4" />
+                                    <Eye v-else class="size-4" />
+                                </button>
+                            </div>
                         </div>
                         <div class="space-y-2">
                             <label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
                                 Confirm Password <span class="text-rose-500">*</span>
                             </label>
-                            <Input v-model="form.adminPasswordConfirmation" type="password" placeholder="••••••••"
-                                class="h-12 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-[#001d22]/10 dark:focus:ring-white/10" />
+                            <div class="relative">
+                                <Input v-model="form.adminPasswordConfirmation" :type="showConfirmPassword ? 'text' : 'password'" placeholder="••••••••"
+                                    class="h-12 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-[#001d22]/10 dark:focus:ring-white/10 pr-11" />
+                                <button type="button" @click="showConfirmPassword = !showConfirmPassword"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
+                                    <EyeOff v-if="showConfirmPassword" class="size-4" />
+                                    <Eye v-else class="size-4" />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -371,6 +416,11 @@ function onNameInput() {
                 </div>
             </div>
 
+            <!-- Error Message -->
+            <div v-if="submitError" class="mx-8 mb-2 px-4 py-3 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-sm text-rose-600 dark:text-rose-400">
+                {{ submitError }}
+            </div>
+
             <!-- Footer Navigation -->
             <div class="px-8 py-5 border-t border-neutral-100 dark:border-white/10 flex items-center justify-between">
                 <Button v-if="currentStep > 0" @click="prevStep" variant="ghost"
@@ -388,12 +438,12 @@ function onNameInput() {
                     Next
                     <ChevronRight class="size-4" />
                 </Button>
-                <Button v-else @click="submitForm" :disabled="!canProceed"
+                <Button v-else @click="submitForm" :disabled="!canProceed || isSubmitting"
                     class="font-semibold rounded-xl px-6 py-2.5 shadow-sm transition-all duration-200 flex items-center gap-1.5"
-                    :class="canProceed
+                    :class="canProceed && !isSubmitting
                         ? 'bg-[#001d22] hover:bg-[#002e35] dark:bg-white dark:text-[#001d22] dark:hover:bg-neutral-200 text-white cursor-pointer'
                         : 'bg-neutral-200 dark:bg-white/10 text-neutral-400 dark:text-neutral-500 cursor-not-allowed'">
-                    Create Tenant
+                    {{ isSubmitting ? 'Creating...' : 'Create Tenant' }}
                     <ChevronRight class="size-4" />
                 </Button>
             </div>
