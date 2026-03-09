@@ -10,21 +10,35 @@ function  splitTheLink(link:string){
     return {url:url.href,name:url2[name]}
 }    
 export const dataFomater = (data: any, type:string) => {
+    console.log(data);
+    
     const filter = {
         date: () => date(data),
         dateTime: () => dateTime(data),
         link: () =>{
             const dd=splitTheLink(data)
             return` 
-            <a   href="${dd?.url}" class="w-full flex justify-between gap-1.5 hover:text-blue-300" target="_blank>
-            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg- neutral-100 dark:b g-white/10 text-xs font-mono font-medium text-neutral-700 dark:text-neutral-300">${ dd?.name??'-' }</span>
-            <div class="flex justify-between gap-1.5">
-            <svg data-v-fd4fd7b8="" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide size-3.5 lucide-external-link-icon lucide-external-link size-3.5" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
-            </div>
-             
-            </a>
-            `}
-        // status: () => statusMap[data]?.label
+           <a 
+  href="${dd?.url}" 
+  class="w-full flex justify-between items-center hover:bg-blue-50 gap-2 rounded-lg hover:font-bold hover:text-blue-600   cursor-pointer hover:text-blue-600 dark:hover:text-blue-400"
+  target="_blank"
+>
+  <div class="max-w-[200px] truncate px-2.5 py-1 rounded-lg   dark:bg-white/10 text-xs font-mono font-medium text-neutral-700 dark:text-neutral-300">
+    ${dd?.name ?? '-'}
+  </div>
+
+  <div class="flex items-center">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+      stroke-linejoin="round" class="size-3.5">
+      <path d="M15 3h6v6"></path>
+      <path d="M10 14 21 3"></path>
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+    </svg>
+  </div>
+</a>
+            `},
+             status: () =>`<span class="${statusMap[data]?.className}">${statusMap[data]?.label}</span>`
     }
     return filter?.[type]?.()??data;
 }

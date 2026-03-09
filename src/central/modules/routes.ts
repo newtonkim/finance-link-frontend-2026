@@ -38,6 +38,7 @@ const routes = [
   // },
   {
     path: 'tenants',
+    // component: () => import('./pages/Tenants.vue'),
     component: () => import('./tenants/Index.vue'),
   },
   {

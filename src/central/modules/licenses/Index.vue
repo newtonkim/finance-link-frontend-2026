@@ -43,7 +43,7 @@ function saveUser(type: string, data: any) {
         drawerTitle.value = title?.[type]
 }
 const columns = [
-    { key: 'tenant_name', label: 'Tenant', sticky: 'left',width: '80', },
+    { key: 'tenant_name', label: 'Tenant', sticky: 'left',width: '0', },
     { key: 'starts', label: 'Starts', },
     { key: 'expires', label: 'Expires' },
     { key: 'grace_ends', label: 'grace ends' },

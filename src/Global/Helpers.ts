@@ -44,6 +44,16 @@ export  function tryCatch<T>(callback: () => Promise<T> | T) {
     return null;
   }
 }
+export function formatDateUs(dateStr?: string): string {
+    if (!dateStr) return '—';
+    return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+export function daysLeft(expiresAt?: string): number | null {
+    if (!expiresAt) return null;
+    const diff = new Date(expiresAt).getTime() - Date.now();
+    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+}
+
 
 
 
