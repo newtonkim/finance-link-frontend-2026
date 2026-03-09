@@ -38,7 +38,7 @@ const error = ref<string | null>(null)
 
 onMounted(async () => {
   try {
-    const { data } = await tenantClient.get('/tenant/dashboard')
+    const { data } = await tenantClient.get('/dashboard')
     metrics.value = data
   } catch (e: any) {
     error.value = e?.response?.data?.message ?? 'Failed to load dashboard data.'

@@ -5,6 +5,9 @@ import TenantLogin from '../tenant/pages/TenantLogin.vue'
 import { centralRoutes, centralAuthRoutes } from '../central/modules/routes'
 import { dashboardRoutes } from '../tenant/modules/dashboard/routes'
 import { membersRoutes } from '../tenant/modules/members/routes'
+import { settingsRoutes } from '../tenant/modules/settings/routes'
+import { savingsRoutes } from '../tenant/modules/savings/routes'
+import { accountingRoutes } from '../tenant/modules/accounting/routes'
 
 /** Returns the subdomain if running on a tenant subdomain (e.g. naivasha-sacco.localhost) */
 function getTenantSubdomain(): string | null {
@@ -42,7 +45,7 @@ const router = createRouter({
     {
       path: '/tenant',
       component: TenantLayout,
-      children: [...dashboardRoutes, ...membersRoutes],
+      children: [...dashboardRoutes, ...membersRoutes, ...savingsRoutes, ...accountingRoutes, ...settingsRoutes],
     },
   ],
 })
