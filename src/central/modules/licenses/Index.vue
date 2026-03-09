@@ -1,6 +1,6 @@
 <template>
-    <TableDrawer drawerWidth=" sm:w-full xs:w-full md:w-1/2 lg:w-1/2" :url="tableUrl" state="Licesnes" :drawerTitle="drawerTitle" " :columns="columns"
-        @save="saveUser">
+    <TableDrawer drawerWidth=" sm:w-full xs:w-full md:w-1/2 lg:w-1/2" :url="tableUrl" state="Licesnes"
+        :drawerTitle="drawerTitle" " :columns="columns" @save="saveUser">
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
 
@@ -44,7 +44,7 @@ function saveUser(type: string, data: any) {
 }
 const columns = [
     { key: 'tenant_name', label: 'Tenant', sticky: 'left' },
-    { key: 'starts', label: 'Starts' ,},
+    { key: 'starts', label: 'Starts', },
     { key: 'expires', label: 'Expires' },
     { key: 'grace_ends', label: 'grace ends' },
     { key: 'fuserss', label: 'users' },
