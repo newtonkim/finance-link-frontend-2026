@@ -1,6 +1,6 @@
 <template>
-  <div class="flex-grow overflow-x-auto">
-    <table class="w-full table-auto text-left border-collapse p-5 min-w-[600px]">
+  <div class=" ">
+    <table class="w-full table-auto text-left border-collapse  ">
       <!-- HEAD -->
       <thead v-once class="sticky top-0 z-40 bg-white shadow-sm dark:bg-neutral-900 rounded-sm">
         <tr class="font-bold text-neutral-700 dark:text-white">
@@ -85,18 +85,17 @@ const props = defineProps({
 });
 
 function getColumnStyle(col: any) {
-  // Default responsive width using minWidth for dynamic resizing
-  const style: any = { ...(col.style || {}) };
+    const width =
+        typeof col.width
+            ? col.width + 'px' // convert numeric to percentage
+            : col.width;
 
-  if (col.width) {
-    style.width = typeof col.width === 'number' ? col.width + '%' : col.width;
-    style.minWidth = typeof col.width === 'number' ? col.width + 'px' : col.width;
-  } else {
-    style.width = 'auto';
-    style.minWidth = '100px'; // ensures a minimum width for small screens
-  }
 
-  return style;
+    return {
+        'min-width': width,
+        minWidth: col.width ? (typeof col.width === 'number' ? col.width + 'px' : col.width) : undefined,
+        ...(col.style || {})
+    };
 }
 </script>
 

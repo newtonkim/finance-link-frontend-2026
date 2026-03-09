@@ -46,7 +46,7 @@ function saveUser(type: string, data: any) {
 
 }
 const columns = [
-    { key: 'sacco_name', label: 'Sacco Name', width: '40', sticky: 'left' },
+    { key: 'sacco_name', label: 'Sacco Name',  sticky: 'left' },
     { key: 'sacco_domain', label: 'Sacco Domain' },
     { key: 'host_domain', label: 'Host Name' },
     { key: 'storage', label: 'Database' },
