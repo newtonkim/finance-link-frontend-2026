@@ -55,7 +55,7 @@ function statusClasses(status: string) {
 </script>
 
 <template>
-    <div class="p-6 space-y-6" @click="closeActionMenus">
+    <div class="p-6 space-y-6" click="closeActionMenus">
         <!-- Header -->
         <div class="flex items-center justify-between">
             <h1 class="text-2xl font-bold text-neutral-900 dark:text-white tracking-tight">

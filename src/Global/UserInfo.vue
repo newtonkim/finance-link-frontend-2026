@@ -29,10 +29,10 @@ const showAvatar = computed(
         </AvatarFallback>
     </Avatar>
 
-    <div class="grid flex-1 text-left text-sm leading-tight ml-2" v-if="user">
+    <!-- <div class="grid flex-1 text-left text-sm leading-tight ml-2" v-if="user">
         <span class="truncate font-bold text-white tracking-wide text-[13px]">{{ user.name }}</span>
         <span v-if="showEmail" class="truncate text-[10px] font-medium text-[#9BB5A5]/60">{{
             user.email
             }}</span>
-    </div>
+    </div> -->
 </template>

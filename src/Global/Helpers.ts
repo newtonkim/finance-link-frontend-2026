@@ -4,19 +4,19 @@ import { apiClient as customAxios } from '@/central/api/client';
 const encryptStorage = new EncryptStorage(import.meta.env.VITE_ENCRYPT_STORAGE);
 
 export function dateTime(time:string) {
- return tryCatch(() => {
-   if(`${time}`.trim()?.length>3) return ''
-
-
-  const date = new Date(time);
-  const formatted = date.toISOString().replace("T", " ").substring(0, 19);
-  return formatted
+  
+  return tryCatch(() => {
+    if(`${time}`.trim()?.length<9) return ''
+    const date = new Date(time);
+    const formatted = date.toISOString().replace("T", " ").substring(0, 19);
+    return formatted
 
   });
 }
 export function date(time:string) {
  return tryCatch(() => {
-  if(`${time}`.trim()?.length>3) return ''
+    if(`${time}`.trim()?.length<9) return ''
+
 
   const date = new Date(time);
   const formatted = date.toISOString().split('T')[0];
@@ -44,6 +44,16 @@ export  function tryCatch<T>(callback: () => Promise<T> | T) {
     return null;
   }
 }
+export function formatDateUs(dateStr?: string): string {
+    if (!dateStr) return '—';
+    return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+export function daysLeft(expiresAt?: string): number | null {
+    if (!expiresAt) return null;
+    const diff = new Date(expiresAt).getTime() - Date.now();
+    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+}
+
 
 
 
@@ -233,6 +243,17 @@ export function NameInitials(strings: string) {
   return firstInitial + lastInitial;
 }
 
+export function  scopeValues(data:any) {
+ return tryCatch(() => {
+  const values:any={}
+   data.forEach(( vl:any) => {
+    values[vl.name]=vl.value
+    
+   });
+   return values;
+   
+ })
+}
  
  
 
@@ -262,12 +283,13 @@ export function formDataFormat(data:any) {
     if (Array.isArray(value)) {
       // Handle arrays
       value.forEach((element, index) => {
+        const lowerCaseKeys=`${key}[${index}]`.toLocaleLowerCase().replace("\+S",'_')
         if (
           element &&
           typeof element === "object" &&
           element.file instanceof File
         ) {
-          formData.append(`${key}[${index}]`, element.file); // Use index for clarity
+          formData.append(lowerCaseKeys, element.file); // Use index for clarity
         } else if (
           element &&
           typeof element === "object" &&
@@ -276,16 +298,16 @@ export function formDataFormat(data:any) {
           element?.lastModifiedDate &&
           element?.type
         ) {
-          formData.append(`${key}[${index}]`, element); // Use index for clarity
+          formData.append(lowerCaseKeys, element); // Use index for clarity
         } else {
-          formData.append(`${key}[${index}]`, JSON.stringify(element));
+          formData.append(lowerCaseKeys, JSON.stringify(element));
         }
       });
     } else if (typeof value === "object" && !(value instanceof File)) {
-      formData.append(`${key}`, JSON.stringify(value));
+      formData.append(`${key}`.toLocaleLowerCase(), JSON.stringify(value));
     } else {
       // Handle primitive values and Files
-      formData.append(key, value);
+      formData.append(key.toLocaleLowerCase(), value);
     }
   }
 
@@ -295,3 +317,26 @@ export function formDataFormat(data:any) {
 
  
 
+export type UseInitialsReturn = {
+    getInitials: (fullName?: string) => string;
+};
+
+export function getInitials(fullName?: string): string {
+    if (!fullName) return '';
+
+    const names = fullName
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+
+    if (names.length === 0) return '';
+    if (names.length === 1) return names[0]?.charAt(0).toUpperCase() ?? '';
+
+    const first = names[0]?.charAt(0) ?? '';
+    const last = names[names.length - 1]?.charAt(0) ?? '';
+    return `${first}${last}`.toUpperCase();
+}
+
+export function useInitials(): UseInitialsReturn {
+    return { getInitials };
+}

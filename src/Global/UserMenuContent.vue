@@ -1,56 +1,72 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
-import { LogOut, Settings, LayoutGrid } from 'lucide-vue-next';
+import { useRouter } from 'vue-router'
+import { LogOut, Settings, LayoutGrid } from 'lucide-vue-next'
+
 import {
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-} from '@/Global/ui/dropdown-menu';
-import UserInfo from '@/Global/UserInfo.vue';
-import { useAuthStore } from '@/stores/auth';
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '@/Global/ui/dropdown-menu'
 
-const router = useRouter();
-const authStore = useAuthStore();
+import { useAuthStore } from '@/stores/auth'
 
-const props = defineProps<{
-    user: any;
-}>();
+const router = useRouter()
+const authStore = useAuthStore()
+
+defineProps<{
+  user: Record<string, any>
+}>()
+
+const menuItems = [
+  {
+    label: 'Settings',
+    icon: Settings,
+    path: '/settings/profile',
+  },
+  {
+    label: 'System Settings',
+    icon: LayoutGrid,
+    path: '/settings/system',
+  },
+]
+
+const navigate = (path: string) => router.push(path)
 
 const handleLogout = async () => {
-    await authStore.logout();
-    router.push('/login');
-};
-
-const navigate = (path: string) => {
-    router.push(path);
-};
+  await authStore.logout()
+  router.push('/login')
+}
 </script>
 
 <template>
-    <DropdownMenuLabel class="p-0 font-normal">
-        <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-            <UserInfo :user="user" :show-email="true" />
-        </div>
-    </DropdownMenuLabel>
-    <DropdownMenuSeparator class="bg-white/10" />
-    <DropdownMenuGroup>
-        <DropdownMenuItem @click="navigate('/settings/profile')" class="cursor-pointer hover:bg-white/5 focus:bg-white/5 focus:text-white">
-            <Settings class="mr-2 h-4 w-4" />
-            Settings
-        </DropdownMenuItem>
-        <DropdownMenuItem @click="navigate('/settings/system')" class="cursor-pointer hover:bg-white/5 focus:bg-white/5 focus:text-white">
-            <LayoutGrid class="mr-2 h-4 w-4" />
-            System Settings
-        </DropdownMenuItem>
-    </DropdownMenuGroup>
-    <DropdownMenuSeparator class="bg-white/10" />
+  <DropdownMenuSeparator class="bg-white/90 shadow-lg border-0 z-50" />
+
+  <DropdownMenuGroup>
     <DropdownMenuItem
-        class="cursor-pointer text-red-400 hover:bg-red-400/10 focus:bg-red-400/10 focus:text-red-400"
-        @click="handleLogout"
-        data-test="logout-button"
+      v-for="item in menuItems"
+      :key="item.path"
+      @click="navigate(item.path)"
+      class="cursor-pointer focus:bg-white/5   hover:text-neutral-600 hover:text-neutral-500"
     >
-        <LogOut class="mr-2 h-4 w-4" />
-        Log out
+      <component :is="item.icon" class="mr-2 h-4 w-4" />
+      {{ item.label }}
     </DropdownMenuItem>
+  </DropdownMenuGroup>
+
+  <DropdownMenuSeparator class="bg-white/10" />
+
+  <DropdownMenuItem
+    class="cursor-pointer text-red-400 hover:bg-red-400/10 focus:bg-red-400/10 focus:text-red-400"
+    @click="handleLogout"
+    data-test="logout-button"
+  >
+    <LogOut class="mr-2 h-4 w-4" />
+    Log out
+  </DropdownMenuItem>
 </template>
+
+<style>
+#reka-dropdown-menu-content-v-9 {
+  border: 0 !important;
+}
+</style>
