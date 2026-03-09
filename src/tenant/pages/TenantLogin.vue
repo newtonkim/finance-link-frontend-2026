@@ -11,7 +11,7 @@ import {
   Spinner,
   AuthBase,
 } from '@/Global';
-import { apiClient } from '@/central/api/client';
+import { tenantClient } from '@/tenant/apis/tenantClient';
 
 const router = useRouter();
 
@@ -47,7 +47,7 @@ async function submit() {
       headers['X-Tenant-Subdomain'] = subdomain.value;
     }
 
-    const { data } = await apiClient.post(
+    const { data } = await tenantClient.post(
       '/auth/login',
       { email: email.value, password: password.value, type: 'tenant' },
       { headers },
