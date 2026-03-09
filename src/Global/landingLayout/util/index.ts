@@ -84,7 +84,5 @@ export function fetchTableData({data, props,Store}:{data:any,props:any,Store:any
         },
         mStore: { mUse: true },
     };
-    console.log(Store);
-    
     return Store.stateGenaratorApi(collection);
 }

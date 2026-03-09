@@ -4,12 +4,6 @@ import { Form, Card } from '@/Global'
 const emits = defineEmits(['update:form']);
 const remount = ref<boolean>(true), formValues = ref([]);
 
-//     staff_fall_name
-// staff_email
-// email_verified_time
-// system_role
-// is_tenant_admin
-// status
 const form = ref([
     {
         label: 'Staff Name',
