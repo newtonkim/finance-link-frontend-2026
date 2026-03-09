@@ -46,12 +46,12 @@ function saveUser(type: string, data: any) {
 
 }
 const columns = [
-    { key: 'sacco_name', label: 'Sacco Name',  sticky: 'left' },
+    { key: 'sacco_name', label: 'Sacco Name', width: '150', sticky: 'left' },
     { key: 'sacco_domain', label: 'Sacco Domain' },
-    { key: 'host_domain', label: 'Host Name' },
+    { key: 'host_domain', label: 'Host Name',width: '200', },
     { key: 'storage', label: 'Database' },
     { key: 'status', label: 'Status', type: 'status' },
-    { key: 'created_at', label: 'Created Date', type: 'dateTime' },
+    { key: 'created_at', label: 'Created Date', type: 'dateTime' ,width: '200',},
     { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 ]
 
