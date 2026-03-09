@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   LayoutGrid,
@@ -13,6 +13,7 @@ import {
   Sun,
   MapPin,
   Mail,
+  ChevronDown,
 } from 'lucide-vue-next'
 import {
   Sidebar,
@@ -24,11 +25,20 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
   SidebarRail,
   useSidebar,
 } from '@/Global/ui/sidebar'
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from '@/Global/ui/collapsible'
 import NavUser from '@/Global/NavUser.vue'
 import { useTenantContextStore } from '@/stores/tenantContext'
+import { membersApi } from '@/tenant/apis/members/membersApi'
 
 const route = useRoute()
 const router = useRouter()
@@ -42,6 +52,7 @@ function toggleDarkMode() {
 }
 
 const isActive = (path: string) => route.path === path
+const isSettingsActive = computed(() => route.path.startsWith('/tenant/settings'))
 
 const navItems = [
   { title: 'Dashboard', href: '/tenant/dashboard', icon: LayoutGrid },
@@ -53,11 +64,26 @@ const navItems = [
   { title: 'Chart of Accounts', href: '/tenant/chart-of-accounts', icon: BookOpen },
 ]
 
-const configItems = [
-  { title: 'Settings', href: '/tenant/settings', icon: Settings },
+const settingsSubItems = [
+  { title: 'General Settings', href: '/tenant/settings/general' },
+  { title: 'Notifications', href: '/tenant/settings/notifications' },
+  { title: 'System Settings', href: '/tenant/settings/system' },
+  { title: 'Savings Products', href: '/tenant/settings/savings-products' },
+  { title: 'Transaction Charges', href: '/tenant/settings/transaction-charges' },
 ]
 
 const tenant = tenantStore.currentTenant as any
+
+const memberCount = ref<number | null>(null)
+
+onMounted(async () => {
+  try {
+    const res = await membersApi.list({ page: 1 })
+    memberCount.value = res.data?.meta?.total ?? res.data?.total ?? null
+  } catch {
+    // silently ignore — badge just won't show
+  }
+})
 </script>
 
 <template>
@@ -109,9 +135,13 @@ const tenant = tenantStore.currentTenant as any
               <div class="flex w-full items-center gap-3 pl-4 pr-3">
                 <component :is="item.icon" class="h-4 w-4 transition-colors duration-200"
                   :class="isActive(item.href) ? 'text-[#C9A84C]' : 'text-[#9BB5A5] group-hover:text-[#C9A84C]'" />
-                <span class="font-medium text-[13px] tracking-wide transition-colors duration-200"
+                <span class="flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200"
                   :class="isActive(item.href) ? 'text-[#C9A84C]' : 'text-[#9BB5A5] group-hover:text-white'">
                   {{ item.title }}
+                </span>
+                <span v-if="item.href === '/tenant/members' && memberCount !== null"
+                  class="min-w-[20px] rounded-full bg-[#C9A84C] px-1.5 py-0.5 text-center text-[11px] font-bold leading-none text-[#0A2318]">
+                  {{ memberCount }}
                 </span>
               </div>
               <!-- Active left indicator -->
@@ -128,19 +158,36 @@ const tenant = tenantStore.currentTenant as any
           Configuration
         </SidebarGroupLabel>
         <SidebarMenu>
-          <SidebarMenuItem v-for="item in configItems" :key="item.title">
-            <SidebarMenuButton :tooltip="item.title" @click="router.push(item.href)"
-              class="px-0 py-2.5 hover:bg-white/5 transition-all duration-200 group">
-              <div class="flex w-full items-center gap-3 pl-4 pr-3">
-                <component :is="item.icon" class="h-4 w-4 transition-colors duration-200"
-                  :class="isActive(item.href) ? 'text-[#C9A84C]' : 'text-[#9BB5A5] group-hover:text-[#C9A84C]'" />
-                <span class="font-medium text-[13px] tracking-wide transition-colors duration-200"
-                  :class="isActive(item.href) ? 'text-[#C9A84C]' : 'text-[#9BB5A5] group-hover:text-white'">
-                  {{ item.title }}
-                </span>
-              </div>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          <Collapsible :default-open="isSettingsActive" class="group/collapsible">
+            <SidebarMenuItem>
+              <CollapsibleTrigger as-child>
+                <SidebarMenuButton :tooltip="'Settings'"
+                  class="px-0 py-2.5 hover:bg-white/5 transition-all duration-200 group">
+                  <div class="flex w-full items-center gap-3 pl-4 pr-3">
+                    <Settings class="h-4 w-4 transition-colors duration-200"
+                      :class="isSettingsActive ? 'text-[#C9A84C]' : 'text-[#9BB5A5] group-hover:text-[#C9A84C]'" />
+                    <span class="flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200"
+                      :class="isSettingsActive ? 'text-[#C9A84C]' : 'text-[#9BB5A5] group-hover:text-white'">
+                      Settings
+                    </span>
+                    <ChevronDown
+                      class="h-4 w-4 text-[#9BB5A5]/50 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
+                  </div>
+                </SidebarMenuButton>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <SidebarMenuSub class="border-[#9BB5A5]/10">
+                  <SidebarMenuSubItem v-for="sub in settingsSubItems" :key="sub.title">
+                    <SidebarMenuSubButton as="button" @click="router.push(sub.href)" :is-active="isActive(sub.href)"
+                      class="text-[#9BB5A5]/70 hover:text-white transition-colors duration-200 cursor-pointer"
+                      :class="isActive(sub.href) ? '!text-[#C9A84C] font-semibold' : ''">
+                      <span>{{ sub.title }}</span>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                </SidebarMenuSub>
+              </CollapsibleContent>
+            </SidebarMenuItem>
+          </Collapsible>
         </SidebarMenu>
       </SidebarGroup>
     </SidebarContent>

@@ -10,15 +10,18 @@ function getTenantSubdomain(): string | null {
 }
 
 /**
- * When on a tenant subdomain (e.g. naivasha-sacco.localhost:8000) use the
- * current page origin so the Host header carries the subdomain and the
- * Laravel IdentifyTenant middleware resolves the tenant from the hostname.
+ * All tenant API routes are mounted at /api/v1/tenant/*.
+ * On a subdomain (e.g. nakuru-sacco.localhost:8000) use the page origin so
+ * the Host header carries the subdomain for tenant resolution.
+ * On dev (localhost:3000 → backend at 127.0.0.1:8000) use VITE_BACKEND_URL.
  */
 function getBaseURL(): string {
   if (getTenantSubdomain()) {
-    return `${window.location.origin}/api/v1`
+    return `${window.location.origin}/api/v1/tenant`
   }
-  return import.meta.env.VITE_BACKEND_URL ?? 'http://127.0.0.1:8000/api/v1'
+  const backendUrl = import.meta.env.VITE_BACKEND_URL ?? 'http://127.0.0.1:8000/api/v1'
+  // Strip any trailing /tenant to avoid double-prefix, then append
+  return backendUrl.replace(/\/tenant\/?$/, '') + '/tenant'
 }
 
 export const tenantClient = axios.create({
