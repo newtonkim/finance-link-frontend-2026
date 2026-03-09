@@ -43,9 +43,16 @@
             <div
                 class="rounded-2xl  border-neutral-100 bg-white py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] dark:border-neutral-800 dark:bg-neutral-900">
                 <div class="overflow-x-auto flex-grow custom-scrollbar h-[64vh]">
+                  
 
-                    <Table :handleAction="handleAction" :action_config="ACTION_CONFIG" :dataFilter="dataFilter"
-                        :data="data" :columns="columns" />
+<Table
+:handleAction="handleAction" :action_config="ACTION_CONFIG" :dataFilter="dataFilter"
+    :data="data" :columns="columns" >
+    <template v-for="(_, name) in $slots" #[name]="slotProps">
+        <slot :name="name" v-bind="slotProps || {}" />
+    </template>
+</Table>
+                    
                 </div>
                 <Pagination @change="callNewPage" v-if="dataPageLinks?.links && dataPageLinks?.total"
                     :links="dataPageLinks?.links" :from="dataPageLinks?.from" :to="dataPageLinks?.to"

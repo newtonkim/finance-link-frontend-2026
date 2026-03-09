@@ -32,10 +32,10 @@ export const hRoutes: RouteRecordRaw[] = [
 ]
 export const centralAuthRoutes: RouteRecordRaw[] = routebuilder(hRoutes)
 const routes = [
-  {
-    path: 'dashboard',
-    component: () => import('./pages/Dashboard.vue'),
-  },
+  // {
+  //   path: 'dashboard',
+  //   component: () => import('./pages/Dashboard.vue'),
+  // },
   {
     path: 'tenants',
     component: () => import('./tenants/Index.vue'),

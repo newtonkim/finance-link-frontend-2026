@@ -16,6 +16,7 @@
 import { ref, computed } from 'vue'
 import StaffForm from './Create.vue'
 import { StatusButtonsHorizontal, TableDrawer } from '@/Global'
+import { ExternalLink, } from 'lucide-vue-next';
 import { tenantsApi } from '../apis'
 import { pomPinia } from 'septor-store'
 import Show from './Show.vue'
@@ -47,24 +48,12 @@ function saveUser(type: string, data: any) {
 }
 const columns = [
     { key: 'sacco_name', label: 'Sacco Name', width: '150', sticky: 'left' },
-    { key: 'sacco_domain', label: 'Sacco Domain' },
-    { key: 'host_domain', label: 'Host Name',width: '200', },
+    { key: 'url', label: 'Sacco Domain', type: 'link' },
+    { key: 'host_domain', label: 'Host Name', width: '200', },
     { key: 'storage', label: 'Database' },
     { key: 'status', label: 'Status', type: 'status' },
-    { key: 'created_at', label: 'Created Date', type: 'dateTime' ,width: '200',},
+    { key: 'created_at', label: 'Created Date', type: 'dateTime', width: '200', },
     { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 ]
 
 </script>
-
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-    transition: opacity 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-    opacity: 0;
-}
-</style>

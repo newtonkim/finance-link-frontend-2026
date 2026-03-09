@@ -5,12 +5,6 @@ export const tenantStep1 = [{
     type: 'text',
     required: true,
     props: { placeholder: 'Enter  SACCO Name' },
-//    change: (value:any, form:any) => {
-//     console.log(form.value);
-//     tenantStep1[1].props.placeholder = form.value   
-    
-//         // form.value = value.replace(/\s+/g, '').toLowerCase()+'.mfukopro.com'
-//     }
 },
 {
     label: 'subdomain',
