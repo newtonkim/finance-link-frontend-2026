@@ -2,7 +2,7 @@
 import { notify } from '@/Global/Toasters/ToastMsg';
 import { pomPinia } from 'septor-store';
 
-export function memebersApi() {
+export function membersApi() {
     const Store = pomPinia();
 
     function create(data: any) {
