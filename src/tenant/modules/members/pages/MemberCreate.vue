@@ -1,0 +1,426 @@
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { isAxiosError } from 'axios'
+import { ArrowLeft, UserCircle2 } from 'lucide-vue-next'
+import { Label, InputError, Spinner } from '@/Global'
+import PhoneInput from '@/Global/PhoneInput.vue'
+import SearchableSelect from '@/Global/SearchableSelect.vue'
+import { membersApi } from '@/tenant/apis/members/membersApi'
+
+const router = useRouter()
+
+// ─── Select options ───────────────────────────────────────────────────────────
+const memberTypeOptions   = [{ id: 'new_member', name: 'New Member' }, { id: 'existing_member', name: 'Existing Member' }]
+const salutationOptions   = [{ id: 'Mr', name: 'Mr' }, { id: 'Mrs', name: 'Mrs' }, { id: 'Ms', name: 'Ms' }, { id: 'Dr', name: 'Dr' }, { id: 'Prof', name: 'Prof' }]
+const genderOptions       = [{ id: 'male', name: 'Male' }, { id: 'female', name: 'Female' }, { id: 'other', name: 'Other' }]
+const maritalOptions      = [{ id: 'single', name: 'Single' }, { id: 'married', name: 'Married' }, { id: 'divorced', name: 'Divorced' }, { id: 'widowed', name: 'Widowed' }]
+const shareholderOptions  = [{ id: 'yes', name: 'Yes' }, { id: 'no', name: 'No' }]
+const nationalityOptions  = [
+  { id: 'Ugandan', name: 'Uganda' }, { id: 'Kenyan', name: 'Kenya' },
+  { id: 'Tanzanian', name: 'Tanzania' }, { id: 'Rwandan', name: 'Rwanda' },
+  { id: 'Burundian', name: 'Burundi' }, { id: 'South Sudanese', name: 'South Sudan' },
+  { id: 'Congolese', name: 'DR Congo' }, { id: 'Ethiopian', name: 'Ethiopia' },
+  { id: 'Somali', name: 'Somalia' }, { id: 'Nigerian', name: 'Nigeria' },
+  { id: 'Ghanaian', name: 'Ghana' }, { id: 'South African', name: 'South Africa' },
+  { id: 'British', name: 'United Kingdom' }, { id: 'American', name: 'United States' },
+  { id: 'Indian', name: 'India' }, { id: 'Other', name: 'Other' },
+]
+
+// ─── Form state ───────────────────────────────────────────────────────────────
+const form = ref({
+  member_type: 'new_member',
+  name: '',
+  salutation: '',
+  gender: '',
+  dob: '',
+  phone: '',
+  phone_country: 'UG',
+  other_contact: '',
+  other_contact_country: 'UG',
+  mobile_money_number: '',
+  mobile_money_country: 'UG',
+  email: '',
+  id_number: '',
+  marital_status: '',
+  nationality: 'Ugandan',
+  address: '',
+  next_of_kin: '',
+  next_of_kin_contact: '',
+  next_of_kin_contact_country: 'UG',
+  initial_deposit: '',
+  joined_at: '',
+  is_shareholder: '',
+  savings_product_id: '',
+  opening_balance: '',
+})
+
+const avatarFile    = ref<File | null>(null)
+const avatarPreview = ref<string | null>(null)
+const processing    = ref(false)
+const errors        = ref<Record<string, string>>({})
+
+const isExisting = computed(() => form.value.member_type === 'existing_member')
+
+// ─── Avatar ───────────────────────────────────────────────────────────────────
+function onAvatarChange(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0] ?? null
+  avatarFile.value = file
+  avatarPreview.value = file ? URL.createObjectURL(file) : null
+}
+
+// ─── Submit ───────────────────────────────────────────────────────────────────
+async function submit() {
+  processing.value = true
+  errors.value = {}
+  try {
+    const payload: Record<string, any> = { ...form.value }
+    Object.keys(payload).forEach((k) => { if (payload[k] === '') payload[k] = null })
+
+    if (avatarFile.value) {
+      const fd = new FormData()
+      Object.entries(payload).forEach(([k, v]) => { if (v !== null && v !== undefined) fd.append(k, String(v)) })
+      fd.append('avatar', avatarFile.value)
+      await membersApi.storeFormData(fd)
+    } else {
+      await membersApi.store(payload)
+    }
+    router.push('/tenant/members')
+  } catch (err) {
+    if (isAxiosError(err)) {
+      const data = err.response?.data as { message?: string; errors?: Record<string, string[]> }
+      if (data?.errors) {
+        Object.entries(data.errors).forEach(([k, v]) => { errors.value[k] = v[0] })
+      } else {
+        errors.value.form = data?.message ?? 'Something went wrong.'
+      }
+    } else {
+      errors.value.form = 'Something went wrong.'
+    }
+  } finally {
+    processing.value = false
+  }
+}
+
+// ─── Shared input class ───────────────────────────────────────────────────────
+const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-800 outline-none placeholder:text-neutral-400 focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300'
+</script>
+
+<template>
+  <div class="min-h-screen bg-[#f2f6f5] px-6 py-8">
+    <!-- Page header -->
+    <div class="mb-6 flex items-center gap-3">
+      <button
+        type="button"
+        @click="router.push('/tenant/members')"
+        class="flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-200 transition-colors"
+      >
+        <ArrowLeft class="h-5 w-5" />
+      </button>
+      <h1 class="text-xl font-bold text-neutral-900">Register New Member</h1>
+    </div>
+
+    <!-- Card -->
+    <div class="rounded-2xl bg-white shadow-sm p-8">
+      <form @submit.prevent="submit">
+        <!-- Global error -->
+        <div v-if="errors.form" class="mb-6 rounded-lg bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-600">
+          {{ errors.form }}
+        </div>
+
+        <div class="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
+
+          <!-- ── Row 1 ── Member Type + (Full Name | Is a Shareholder) ───────── -->
+
+          <div class="grid gap-1.5">
+            <Label>Member type <span class="text-red-500">*</span></Label>
+            <SearchableSelect
+              v-model="form.member_type"
+              :options="memberTypeOptions"
+              placeholder="Select Member Type"
+              :error="errors.member_type"
+            />
+            <InputError :message="errors.member_type" />
+          </div>
+
+          <!-- New Member: Full Name in col 2 of row 1 -->
+          <div v-if="!isExisting" class="grid gap-1.5">
+            <Label for="name">Full Name <span class="text-red-500">*</span></Label>
+            <input id="name" v-model="form.name" type="text" placeholder="Enter Full name" required :class="inputCls" />
+            <InputError :message="errors.name" />
+          </div>
+
+          <!-- Existing Member: Is a Shareholder in col 2 of row 1 -->
+          <div v-else class="grid gap-1.5">
+            <Label>Is a shareholder <span class="text-red-500">*</span></Label>
+            <SearchableSelect
+              v-model="form.is_shareholder"
+              :options="shareholderOptions"
+              placeholder="Select"
+              :error="errors.is_shareholder"
+            />
+            <InputError :message="errors.is_shareholder" />
+          </div>
+
+          <!-- ── Existing Member: Full Name + Salutation in row 2 ─────────── -->
+          <template v-if="isExisting">
+            <div class="grid gap-1.5">
+              <Label for="name-ex">Full Name <span class="text-red-500">*</span></Label>
+              <input id="name-ex" v-model="form.name" type="text" placeholder="Enter Full name" required :class="inputCls" />
+              <InputError :message="errors.name" />
+            </div>
+            <div class="grid gap-1.5">
+              <Label>Salutation</Label>
+              <SearchableSelect v-model="form.salutation" :options="salutationOptions" placeholder="Select Salutation" :error="errors.salutation" />
+              <InputError :message="errors.salutation" />
+            </div>
+          </template>
+
+          <!-- ── New Member: Salutation + Gender ──────────────────────────── -->
+          <template v-else>
+            <div class="grid gap-1.5">
+              <Label>Salutation</Label>
+              <SearchableSelect v-model="form.salutation" :options="salutationOptions" placeholder="Select Salutation" :error="errors.salutation" />
+              <InputError :message="errors.salutation" />
+            </div>
+            <div class="grid gap-1.5">
+              <Label>Gender <span class="text-red-500">*</span></Label>
+              <SearchableSelect v-model="form.gender" :options="genderOptions" placeholder="Select Gender" :error="errors.gender" />
+              <InputError :message="errors.gender" />
+            </div>
+          </template>
+
+          <!-- ── Existing: Gender + DOB  |  New: DOB + Primary Contact ───── -->
+          <template v-if="isExisting">
+            <div class="grid gap-1.5">
+              <Label>Gender <span class="text-red-500">*</span></Label>
+              <SearchableSelect v-model="form.gender" :options="genderOptions" placeholder="Select Gender" :error="errors.gender" />
+              <InputError :message="errors.gender" />
+            </div>
+            <div class="grid gap-1.5">
+              <Label for="dob-ex">Date Of birth</Label>
+              <input id="dob-ex" v-model="form.dob" type="date" :class="inputCls" />
+              <InputError :message="errors.dob" />
+            </div>
+          </template>
+
+          <template v-else>
+            <div class="grid gap-1.5">
+              <Label for="dob">Date Of Birth</Label>
+              <input id="dob" v-model="form.dob" type="date" :class="inputCls" />
+              <InputError :message="errors.dob" />
+            </div>
+            <div class="grid gap-1.5">
+              <Label>Primary Contact <span class="text-red-500">*</span></Label>
+              <PhoneInput v-model="form.phone" v-model:countryCode="form.phone_country" placeholder="Contact" :error="errors.phone" />
+              <InputError :message="errors.phone" />
+            </div>
+          </template>
+
+          <!-- ── Existing: Primary + Other  |  New: Other + Mobile Money ─── -->
+          <template v-if="isExisting">
+            <div class="grid gap-1.5">
+              <Label>Primary Contact <span class="text-red-500">*</span></Label>
+              <PhoneInput v-model="form.phone" v-model:countryCode="form.phone_country" placeholder="Contact" :error="errors.phone" />
+              <InputError :message="errors.phone" />
+            </div>
+            <div class="grid gap-1.5">
+              <Label>Other Contact</Label>
+              <PhoneInput v-model="form.other_contact" v-model:countryCode="form.other_contact_country" placeholder="Other Contact" :error="errors.other_contact" />
+              <InputError :message="errors.other_contact" />
+            </div>
+          </template>
+
+          <template v-else>
+            <div class="grid gap-1.5">
+              <Label>Other Contact</Label>
+              <PhoneInput v-model="form.other_contact" v-model:countryCode="form.other_contact_country" placeholder="Other Contact" :error="errors.other_contact" />
+              <InputError :message="errors.other_contact" />
+            </div>
+            <div class="grid gap-1.5">
+              <Label>Mobile Money Number</Label>
+              <PhoneInput v-model="form.mobile_money_number" v-model:countryCode="form.mobile_money_country" placeholder="Mobile Money Number" :error="errors.mobile_money_number" />
+              <InputError :message="errors.mobile_money_number" />
+            </div>
+          </template>
+
+          <!-- ── Existing: Mobile + Email  |  New: Email + NIN ────────────── -->
+          <template v-if="isExisting">
+            <div class="grid gap-1.5">
+              <Label>Mobile Money Number</Label>
+              <PhoneInput v-model="form.mobile_money_number" v-model:countryCode="form.mobile_money_country" placeholder="Mobile Money Number" :error="errors.mobile_money_number" />
+              <InputError :message="errors.mobile_money_number" />
+            </div>
+            <div class="grid gap-1.5">
+              <Label for="email-ex">Email</Label>
+              <input id="email-ex" v-model="form.email" type="email" placeholder="Enter Email" :class="inputCls" />
+              <InputError :message="errors.email" />
+            </div>
+          </template>
+
+          <template v-else>
+            <div class="grid gap-1.5">
+              <Label for="email">Email</Label>
+              <input id="email" v-model="form.email" type="email" placeholder="Enter Email" :class="inputCls" />
+              <InputError :message="errors.email" />
+            </div>
+            <div class="grid gap-1.5">
+              <Label for="nin">NIN</Label>
+              <input id="nin" v-model="form.id_number" type="text" placeholder="Enter NIN" :class="inputCls" />
+              <InputError :message="errors.id_number" />
+            </div>
+          </template>
+
+          <!-- ── Existing: NIN + Marital  |  New: Marital + Nationality ───── -->
+          <template v-if="isExisting">
+            <div class="grid gap-1.5">
+              <Label for="nin-ex">NIN</Label>
+              <input id="nin-ex" v-model="form.id_number" type="text" placeholder="Enter NIN" :class="inputCls" />
+              <InputError :message="errors.id_number" />
+            </div>
+            <div class="grid gap-1.5">
+              <Label>Marital Status <span class="text-red-500">*</span></Label>
+              <SearchableSelect v-model="form.marital_status" :options="maritalOptions" placeholder="Select Marital Status" :error="errors.marital_status" />
+              <InputError :message="errors.marital_status" />
+            </div>
+          </template>
+
+          <template v-else>
+            <div class="grid gap-1.5">
+              <Label>Marital Status <span class="text-red-500">*</span></Label>
+              <SearchableSelect v-model="form.marital_status" :options="maritalOptions" placeholder="Select Marital Status" :error="errors.marital_status" />
+              <InputError :message="errors.marital_status" />
+            </div>
+            <div class="grid gap-1.5">
+              <Label>Nationality <span class="text-red-500">*</span></Label>
+              <SearchableSelect v-model="form.nationality" :options="nationalityOptions" placeholder="Select Nationality" :error="errors.nationality" />
+              <InputError :message="errors.nationality" />
+            </div>
+          </template>
+
+          <!-- ── Existing: Nationality + Address  |  New: Address + Avatar ── -->
+          <template v-if="isExisting">
+            <div class="grid gap-1.5">
+              <Label>Nationality <span class="text-red-500">*</span></Label>
+              <SearchableSelect v-model="form.nationality" :options="nationalityOptions" placeholder="Select Nationality" :error="errors.nationality" />
+              <InputError :message="errors.nationality" />
+            </div>
+            <div class="grid gap-1.5">
+              <Label for="address-ex">Address <span class="text-red-500">*</span></Label>
+              <textarea id="address-ex" v-model="form.address" rows="3" placeholder="Location" required class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-800 outline-none placeholder:text-neutral-400 focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 resize-none" />
+              <InputError :message="errors.address" />
+            </div>
+          </template>
+
+          <template v-else>
+            <div class="grid gap-1.5">
+              <Label for="address">Address <span class="text-red-500">*</span></Label>
+              <textarea id="address" v-model="form.address" rows="3" placeholder="Location" required class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-800 outline-none placeholder:text-neutral-400 focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 resize-none" />
+              <InputError :message="errors.address" />
+            </div>
+            <!-- Profile Picture (New Member only in this row) -->
+            <div class="grid gap-1.5">
+              <Label>Profile Picture <span class="text-neutral-400 font-normal">(Optional)</span></Label>
+              <div class="flex items-center gap-4">
+                <div class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-neutral-100 border border-neutral-200">
+                  <img v-if="avatarPreview" :src="avatarPreview" class="h-full w-full object-cover" alt="Avatar" />
+                  <UserCircle2 v-else class="h-10 w-10 text-neutral-300" />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label for="avatar-new" class="inline-flex cursor-pointer items-center rounded-full bg-[#3ab88a] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#32a87e] transition-colors">
+                    Choose File
+                    <input id="avatar-new" type="file" accept="image/*" class="sr-only" @change="onAvatarChange" />
+                  </label>
+                  <span class="text-xs text-neutral-400">{{ avatarFile ? avatarFile.name : 'No file chosen' }}</span>
+                  <span class="text-xs text-neutral-400">Recommended: Square image, max 2MB.</span>
+                </div>
+              </div>
+              <InputError :message="errors.avatar" />
+            </div>
+          </template>
+
+          <!-- ── Next of Kin (same for both) ──────────────────────────────── -->
+          <div class="grid gap-1.5">
+            <Label for="next_of_kin">Next of kin</Label>
+            <input id="next_of_kin" v-model="form.next_of_kin" type="text" placeholder="Enter Next of kin" :class="inputCls" />
+            <InputError :message="errors.next_of_kin" />
+          </div>
+
+          <div class="grid gap-1.5">
+            <Label>Next of kin contact</Label>
+            <PhoneInput v-model="form.next_of_kin_contact" v-model:countryCode="form.next_of_kin_contact_country" placeholder="Enter Next of kin's contact" :error="errors.next_of_kin_contact" />
+            <InputError :message="errors.next_of_kin_contact" />
+          </div>
+
+          <!-- ── Initial Deposit + Date Joined (same for both) ─────────────── -->
+          <div class="grid gap-1.5">
+            <Label for="initial_deposit">Initial deposit <span class="text-red-500">*</span></Label>
+            <div class="flex overflow-hidden rounded-xl border border-neutral-200 bg-white focus-within:border-neutral-400 focus-within:ring-1 focus-within:ring-neutral-300">
+              <span class="flex items-center border-r border-neutral-200 bg-neutral-50 px-4 text-sm font-medium text-neutral-500">UGX</span>
+              <input id="initial_deposit" v-model="form.initial_deposit" type="number" min="0" step="0.01" placeholder="Initial deposit" required class="flex-1 bg-white px-4 py-3 text-sm text-neutral-800 outline-none placeholder:text-neutral-400" />
+            </div>
+            <InputError :message="errors.initial_deposit" />
+          </div>
+
+          <div class="grid gap-1.5">
+            <Label for="joined_at">Date Joined <span class="text-neutral-400 font-normal">(Optional)</span></Label>
+            <input id="joined_at" v-model="form.joined_at" type="date" :class="inputCls" />
+            <InputError :message="errors.joined_at" />
+          </div>
+
+          <!-- ── Existing Member: Opening Balance + Avatar ──────────────────── -->
+          <template v-if="isExisting">
+            <div class="grid gap-1.5">
+              <Label for="opening_balance">Opening Balance <span class="text-red-500">*</span></Label>
+              <div class="flex overflow-hidden rounded-xl border border-neutral-200 bg-white focus-within:border-neutral-400 focus-within:ring-1 focus-within:ring-neutral-300">
+                <span class="flex items-center border-r border-neutral-200 bg-neutral-50 px-4 text-sm font-medium text-neutral-500">UGX</span>
+                <input id="opening_balance" v-model="form.opening_balance" type="number" min="0" step="0.01" placeholder="Opening balance" class="flex-1 bg-white px-4 py-3 text-sm text-neutral-800 outline-none placeholder:text-neutral-400" />
+              </div>
+              <InputError :message="errors.opening_balance" />
+            </div>
+
+            <!-- Profile Picture for Existing Member -->
+            <div class="grid gap-1.5">
+              <Label>Profile Picture <span class="text-neutral-400 font-normal">(Optional)</span></Label>
+              <div class="flex items-center gap-4">
+                <div class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-neutral-100 border border-neutral-200">
+                  <img v-if="avatarPreview" :src="avatarPreview" class="h-full w-full object-cover" alt="Avatar" />
+                  <UserCircle2 v-else class="h-10 w-10 text-neutral-300" />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label for="avatar-ex" class="inline-flex cursor-pointer items-center rounded-full bg-[#3ab88a] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#32a87e] transition-colors">
+                    Choose File
+                    <input id="avatar-ex" type="file" accept="image/*" class="sr-only" @change="onAvatarChange" />
+                  </label>
+                  <span class="text-xs text-neutral-400">{{ avatarFile ? avatarFile.name : 'No file chosen' }}</span>
+                  <span class="text-xs text-neutral-400">Recommended: Square image, max 2MB.</span>
+                </div>
+              </div>
+              <InputError :message="errors.avatar" />
+            </div>
+          </template>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-8 flex items-center justify-between border-t border-neutral-100 pt-6">
+          <button
+            type="button"
+            @click="router.push('/tenant/members')"
+            class="rounded-full border border-neutral-300 px-6 py-2.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            :disabled="processing"
+            class="inline-flex items-center gap-2 rounded-full bg-[#001d22] px-8 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#001d22]/90 transition-colors disabled:opacity-60"
+          >
+            <Spinner v-if="processing" class="h-4 w-4" />
+            Register Member
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</template>
