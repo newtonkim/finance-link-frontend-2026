@@ -85,14 +85,11 @@ async function submit() {
 </script>
 
 <template>
-  <AuthBase
-    :title="`Sign in to ${saccoName}`"
-    description="Enter your admin credentials to access the portal"
-  >
+  <AuthBase :title="`Sign in to ${saccoName}`" description="Enter your admin credentials to access the portal">
     <!-- SACCO badge -->
     <div class="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl bg-[#001d22]/5 border border-[#001d22]/10">
-      <div class="size-8 rounded-lg bg-[#001d22] flex items-center justify-center shrink-0">
-        <Building2 class="size-4 text-white" />
+      <div class="size-8 rounded-lg bg-white flex items-center justify-center shrink-0 overflow-hidden">
+        <img src="/images/mfuko_plus_logo.webp" alt="Logo" class="size-full object-contain p-1" />
       </div>
       <div>
         <p class="text-xs text-neutral-500 font-medium">Tenant Portal</p>
@@ -111,17 +108,9 @@ async function submit() {
         <!-- Email -->
         <div class="grid gap-2">
           <Label for="email" class="text-sm font-semibold text-[#001d22]">Email address</Label>
-          <Input
-            id="email"
-            type="email"
-            v-model="email"
-            required
-            autofocus
-            :tabindex="1"
-            autocomplete="email"
+          <Input id="email" type="email" v-model="email" required autofocus :tabindex="1" autocomplete="email"
             placeholder="Enter your email"
-            class="h-12 border-[#d1dfdb] focus:border-[#001d22] focus:ring-[#001d22]/10"
-          />
+            class="h-12 border-[#d1dfdb] focus:border-[#001d22] focus:ring-[#001d22]/10" />
           <InputError :message="errors.email" />
         </div>
 
@@ -129,22 +118,12 @@ async function submit() {
         <div class="grid gap-2">
           <Label for="password" class="text-sm font-semibold text-[#001d22]">Password</Label>
           <div class="relative">
-            <Input
-              id="password"
-              :type="showPassword ? 'text' : 'password'"
-              v-model="password"
-              required
-              :tabindex="2"
-              autocomplete="current-password"
-              placeholder="Enter your password"
-              class="h-12 w-full pr-12 border-[#d1dfdb] focus:border-[#001d22] focus:ring-[#001d22]/10"
-            />
-            <button
-              type="button"
-              @click="showPassword = !showPassword"
+            <Input id="password" :type="showPassword ? 'text' : 'password'" v-model="password" required :tabindex="2"
+              autocomplete="current-password" placeholder="Enter your password"
+              class="h-12 w-full pr-12 border-[#d1dfdb] focus:border-[#001d22] focus:ring-[#001d22]/10" />
+            <button type="button" @click="showPassword = !showPassword"
               class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-neutral-400 hover:text-[#001d22] transition-colors"
-              tabindex="-1"
-            >
+              tabindex="-1">
               <component :is="showPassword ? EyeOff : Eye" :size="20" />
             </button>
           </div>
@@ -152,12 +131,9 @@ async function submit() {
         </div>
 
         <!-- Submit -->
-        <Button
-          type="submit"
+        <Button type="submit"
           class="h-12 w-full bg-[#001d22] hover:bg-[#001d22]/90 text-white font-semibold rounded-xl transition-all shadow-lg shadow-[#001d22]/10"
-          :tabindex="3"
-          :disabled="processing"
-        >
+          :tabindex="3" :disabled="processing">
           <Spinner v-if="processing" class="mr-2" />
           Sign in
         </Button>
@@ -175,9 +151,12 @@ async function submit() {
         <div class="relative z-10 flex flex-col items-center gap-8">
           <div class="relative">
             <div class="absolute -inset-6 bg-white/10 blur-3xl rounded-full animate-pulse"></div>
-            <div class="absolute -inset-3 border border-white/10 rounded-[2.5rem] animate-[spin_12s_linear_infinite] opacity-30"></div>
-            <div class="relative size-36 bg-white rounded-[2.5rem] flex items-center justify-center shadow-2xl">
-              <Building2 class="size-16 text-[#001d22]" />
+            <div
+              class="absolute -inset-3 border border-white/10 rounded-[2.5rem] animate-[spin_12s_linear_infinite] opacity-30">
+            </div>
+            <div
+              class="relative size-36 bg-white rounded-[2.5rem] flex items-center justify-center shadow-2xl overflow-hidden p-6">
+              <img src="/images/mfuko_plus_logo.webp" alt="Mfuko Pro" class="size-full object-contain" />
             </div>
           </div>
 
@@ -195,7 +174,8 @@ async function submit() {
         </div>
 
         <!-- Gradient overlay -->
-        <div class="absolute inset-0 bg-gradient-to-b from-[#001418] via-transparent to-[#001418] pointer-events-none"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-[#001418] via-transparent to-[#001418] pointer-events-none">
+        </div>
       </div>
     </template>
   </AuthBase>
@@ -203,7 +183,14 @@ async function submit() {
 
 <style scoped>
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-12px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-12px);
+  }
 }
 </style>
