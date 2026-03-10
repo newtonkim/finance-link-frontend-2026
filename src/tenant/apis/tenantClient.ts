@@ -16,12 +16,8 @@ function getTenantSubdomain(): string | null {
  * On dev (localhost:3000 → backend at 127.0.0.1:8000) use VITE_BACKEND_URL.
  */
 function getBaseURL(): string {
-  if (getTenantSubdomain()) {
-    return `${window.location.origin}/api/v1/tenant`
-  }
   const backendUrl = import.meta.env.VITE_BACKEND_URL ?? 'http://127.0.0.1:8000/api/v1'
-  // Strip any trailing /tenant to avoid double-prefix, then append
-  return backendUrl.replace(/\/tenant\/?$/, '') + '/tenant'
+  return backendUrl.replace(/\/+$/, '').replace(/\/tenant\/?$/, '') + '/tenant'
 }
 
 export const tenantClient = axios.create({

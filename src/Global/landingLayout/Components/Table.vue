@@ -11,15 +11,24 @@
            'py-3 px-3 text-sm font-semibold text-gray-700 dark:text-white border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-[14px] capitalize',
                         col.key === 'actions' ? 'text-center' : '',
                         col.sticky ? `sticky z-30 ${col.sticky}-0 dark:bg-neutral-900 bg-white w-fit` : '',
-                        col.key === 'actions' ? 'text-center sticky z-30 right-0 dark:bg-neutral-900 bg-white' : '',
+                        col.key.toLowerCase() === 'actions' ? 'text-center sticky z-30 right-0 dark:bg-neutral-900 bg-white' : '',
                         col.class || ''
             ]"
             :style="getColumnStyle(col)"
           >
             <slot v-if="$slots[`${col.key}Header`]" :name="col.key" />
             <span v-else>{{ col.label }}</span>
+           
           </th>
-          <th v-if="$slots.actions" class="text-right">Actions</th>
+          <th v-if="$slots.actions" class="
+            
+    text-sm font-semibold
+    text-gray-700 dark:text-white
+    border-b border-gray-200 dark:border-slate-700
+    text-[14px] capitalize text-center
+    sticky right-0 z-30
+    bg-white dark:bg-neutral-900
+       ">Actions</th>
         </tr>
       </thead>
 
@@ -47,12 +56,17 @@
           >
             <!-- ACTION SLOT -->
             <div v-if="col.key === 'actions'" class="flex justify-center gap-2 capitalize-table-action">
-              <button v-for="action in col?.show ?? []" :key="action" @click="handleAction(item, action)"
-                      :class="action_config?.[action]?.class">
-                <component :is="action_config?.[action]?.icon" class="h-3.5 w-3.5" />
-                <span v-if="action !== 'delete'">{{ action }}</span>
-              </button>
+                <template   v-for="action in col?.show ?? []" :key="action" @click="handleAction(item, action)">
+                    <button
+                    v-auth="permissions?.[action]"
+                    :class="action_config?.[action]?.class">
+                    <component :is="action_config?.[action]?.icon" class="h-3.5 w-3.5" />
+                    <span v-if="action !== 'delete'">{{ action }}</span>
+                  </button>
+
+                </template>
             </div>
+            <!-- permissions -->
 
             <!-- DEFAULT CELL -->
             <template v-else> 
@@ -81,7 +95,8 @@ const props = defineProps({
   dataFilter: { type: Array, required: true },
   data: { type: Object as PropType<any>, required: true },
   columns: { type: Array as PropType<any[]>, required: true },
-  action_config: { type: Object as PropType<any>, required: true }
+  action_config: { type: Object as PropType<any>, required: true },
+    permissions: { type: Object, required: false },
 });
 
 function getColumnStyle(col: any) {

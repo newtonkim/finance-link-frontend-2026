@@ -150,12 +150,14 @@ function onNameInput() {
             <template v-for="(step, index) in steps" :key="step.label">
                 <!-- Step -->
                 <div class="flex flex-col items-center gap-2 z-10">
-                    <div class="size-12 rounded-full flex items-center justify-center transition-all duration-300"
+                    <div class="size-12 rounded-full flex items-center justify-center transition-all duration-300 overflow-hidden p-2"
                         :class="index <= currentStep
-                            ? 'bg-[#001d22] dark:bg-white text-white dark:text-[#001d22] shadow-lg shadow-[#001d22]/20 dark:shadow-white/20'
+                            ? 'bg-white dark:bg-white text-[#001d22] shadow-lg shadow-[#001d22]/20 dark:shadow-white/20'
                             : 'bg-neutral-100 dark:bg-white/5 text-neutral-400 dark:text-neutral-500'
                             ">
-                        <component :is="step.icon" class="size-5" />
+                        <img v-if="index === 0" src="/images/mfuko_plus_logo.webp" alt="Logo"
+                            class="size-full object-contain" />
+                        <component v-else :is="step.icon" class="size-5" />
                     </div>
                     <span class="text-xs font-semibold transition-colors duration-200" :class="index <= currentStep
                         ? 'text-neutral-900 dark:text-white'
@@ -257,7 +259,8 @@ function onNameInput() {
                                 Password <span class="text-rose-500">*</span>
                             </label>
                             <div class="relative">
-                                <Input v-model="form.adminPassword" :type="showPassword ? 'text' : 'password'" placeholder="••••••••"
+                                <Input v-model="form.adminPassword" :type="showPassword ? 'text' : 'password'"
+                                    placeholder="••••••••"
                                     class="h-12 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-[#001d22]/10 dark:focus:ring-white/10 pr-11" />
                                 <button type="button" @click="showPassword = !showPassword"
                                     class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
@@ -271,7 +274,8 @@ function onNameInput() {
                                 Confirm Password <span class="text-rose-500">*</span>
                             </label>
                             <div class="relative">
-                                <Input v-model="form.adminPasswordConfirmation" :type="showConfirmPassword ? 'text' : 'password'" placeholder="••••••••"
+                                <Input v-model="form.adminPasswordConfirmation"
+                                    :type="showConfirmPassword ? 'text' : 'password'" placeholder="••••••••"
                                     class="h-12 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-[#001d22]/10 dark:focus:ring-white/10 pr-11" />
                                 <button type="button" @click="showConfirmPassword = !showConfirmPassword"
                                     class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
@@ -307,7 +311,7 @@ function onNameInput() {
                                     ">
                                 <div class="flex items-center justify-between mb-2">
                                     <span class="text-sm font-bold text-neutral-900 dark:text-white">{{ plan.label
-                                    }}</span>
+                                        }}</span>
                                     <div class="size-5 rounded-full border-2 flex items-center justify-center transition-all"
                                         :class="form.plan === plan.value
                                             ? 'border-[#001d22] dark:border-white'
@@ -366,7 +370,7 @@ function onNameInput() {
                             <div>
                                 <span class="text-neutral-500 dark:text-neutral-400">Subdomain</span>
                                 <p class="font-semibold text-neutral-900 dark:text-white">{{ form.subdomain || '—'
-                                }}.mfukopro.com</p>
+                                    }}.mfukopro.com</p>
                             </div>
                         </div>
                     </div>
@@ -417,7 +421,8 @@ function onNameInput() {
             </div>
 
             <!-- Error Message -->
-            <div v-if="submitError" class="mx-8 mb-2 px-4 py-3 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-sm text-rose-600 dark:text-rose-400">
+            <div v-if="submitError"
+                class="mx-8 mb-2 px-4 py-3 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-sm text-rose-600 dark:text-rose-400">
                 {{ submitError }}
             </div>
 

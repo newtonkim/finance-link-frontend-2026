@@ -44,8 +44,8 @@
           >
             {{ child.title }}
           </div>
-
           <RouteLink
+            :prifix="item.prifix"
             :item="child.items"
             :title="child.title"
             @click="showSubmenu = false"

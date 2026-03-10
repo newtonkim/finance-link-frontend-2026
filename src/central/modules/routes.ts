@@ -57,11 +57,23 @@ export const  centarRoutes:any=[
     label: "Settings",
     icon: SettingsIcon,
     showSideBar: true,
+    prifix:"central",
     children: [
        {
         title: "General",
         items: [
           
+          {
+            path: "Permission",
+            label: "Permission",
+            component: () => import('./settings/General/Permisions/Index.vue'),
+          },
+           
+          {
+            path: "staffs-permission",
+            label: "staffs-permission",
+            component: () => import('./settings/PagesTrials/GeneralSettings.vue'),
+          },
           {
             path: "settings",
             label: "settings",
@@ -98,6 +110,7 @@ export const  centarRoutes:any=[
 ]
 
 export const centralRoutes: RouteRecordRaw[] = routebuilder(centarRoutes,"central")
+console.log(centralRoutes);
 
 function RouteStructure(route:any,routePath:string){
   return ({
@@ -105,23 +118,23 @@ function RouteStructure(route:any,routePath:string){
       name: routePath.replaceAll("/","-"),
   path: `/${routePath}`,
   component: route.component,
+
 })
 }
-function routebuilder(routes=[],prifex="central",){
+function routebuilder(routes=[],prifix="central",){
   const collecction:any=[];
   routes.forEach(route => {
     if(!route?.children){
-      const routePath= `${prifex}/${route.path}`
+      const routePath= `${prifix}/${route.path}`
      collecction.push(RouteStructure(route,routePath))
     }else if(Array.isArray(route.children)){
       route.children.forEach(child => {
-         if(child?.items){
-            const ltb= `${prifex}/${child.title}`
+         if(child?.items){ 
            child.items.forEach(item => {
-             const childRoutePath= `${ltb}/${item.path}`
+             const childRoutePath= `${prifix}/${item.path}`
              console.log(childRoutePath);
              
-     collecction.push(RouteStructure(route,childRoutePath))
+     collecction.push(RouteStructure(item,childRoutePath))
 
            })
          }
@@ -133,4 +146,5 @@ function routebuilder(routes=[],prifex="central",){
 
 }
 
+// prifix/title/path
 

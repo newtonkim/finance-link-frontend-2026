@@ -101,7 +101,8 @@ function daysLeft(expiresAt?: string): number | null {
         </button>
 
         <!-- Loading -->
-        <div v-if="isLoading" class="flex items-center justify-center py-32 text-sm text-neutral-400 dark:text-neutral-500">
+        <div v-if="isLoading"
+            class="flex items-center justify-center py-32 text-sm text-neutral-400 dark:text-neutral-500">
             Loading tenant details...
         </div>
 
@@ -115,8 +116,9 @@ function daysLeft(expiresAt?: string): number | null {
             <!-- Header -->
             <div class="flex items-start justify-between">
                 <div class="flex items-center gap-4">
-                    <div class="size-14 rounded-2xl bg-neutral-100 dark:bg-white/10 flex items-center justify-center shrink-0">
-                        <Building2 class="size-7 text-neutral-500 dark:text-neutral-400" />
+                    <div
+                        class="size-14 rounded-2xl bg-white dark:bg-white/10 flex items-center justify-center shrink-0 overflow-hidden p-2">
+                        <img src="/images/mfuko_plus_logo.webp" alt="Tenant" class="size-full object-contain" />
                     </div>
                     <div>
                         <h1 class="text-2xl font-bold text-neutral-900 dark:text-white tracking-tight">
@@ -148,12 +150,14 @@ function daysLeft(expiresAt?: string): number | null {
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <!-- Subdomain -->
                 <Card class="border-neutral-100 dark:border-white/10 dark:bg-[#151515] rounded-2xl p-5 space-y-2">
-                    <div class="flex items-center gap-2 text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">
+                    <div
+                        class="flex items-center gap-2 text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">
                         <Globe class="size-3.5" />
                         Subdomain
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="text-sm font-mono font-semibold text-neutral-800 dark:text-neutral-200 bg-neutral-100 dark:bg-white/10 px-2.5 py-1 rounded-lg">
+                        <span
+                            class="text-sm font-mono font-semibold text-neutral-800 dark:text-neutral-200 bg-neutral-100 dark:bg-white/10 px-2.5 py-1 rounded-lg">
                             {{ tenant.subdomain }}
                         </span>
                         <a v-if="tenant.full_url" :href="`${tenant.full_url}/tenant/login`" target="_blank"
@@ -165,7 +169,8 @@ function daysLeft(expiresAt?: string): number | null {
 
                 <!-- Database -->
                 <Card class="border-neutral-100 dark:border-white/10 dark:bg-[#151515] rounded-2xl p-5 space-y-2">
-                    <div class="flex items-center gap-2 text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">
+                    <div
+                        class="flex items-center gap-2 text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">
                         <Database class="size-3.5" />
                         Database
                     </div>
@@ -176,7 +181,8 @@ function daysLeft(expiresAt?: string): number | null {
 
                 <!-- License Expiry -->
                 <Card class="border-neutral-100 dark:border-white/10 dark:bg-[#151515] rounded-2xl p-5 space-y-2">
-                    <div class="flex items-center gap-2 text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">
+                    <div
+                        class="flex items-center gap-2 text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">
                         <Clock class="size-3.5" />
                         License Expiry
                     </div>
@@ -200,25 +206,37 @@ function daysLeft(expiresAt?: string): number | null {
                 </div>
                 <div class="p-6 grid grid-cols-2 md:grid-cols-4 gap-6">
                     <div>
-                        <p class="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Plan</p>
+                        <p
+                            class="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">
+                            Plan
+                        </p>
                         <p class="text-sm font-semibold text-neutral-900 dark:text-white capitalize">
                             {{ tenant.active_license.plan_slug || '—' }}
                         </p>
                     </div>
                     <div>
-                        <p class="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Status</p>
-                        <p class="text-sm font-semibold capitalize" :class="statusTextClass(tenant.active_license.status)">
+                        <p
+                            class="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">
+                            Status
+                        </p>
+                        <p class="text-sm font-semibold capitalize"
+                            :class="statusTextClass(tenant.active_license.status)">
                             {{ tenant.active_license.status }}
                         </p>
                     </div>
                     <div>
-                        <p class="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Expires</p>
+                        <p
+                            class="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">
+                            Expires</p>
                         <p class="text-sm font-semibold text-neutral-900 dark:text-white">
                             {{ formatDate(tenant.active_license.expires_at) }}
                         </p>
                     </div>
                     <div>
-                        <p class="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Days Left</p>
+                        <p
+                            class="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">
+                            Days
+                            Left</p>
                         <p class="text-sm font-semibold text-neutral-900 dark:text-white">
                             {{ daysLeft(tenant.active_license.expires_at) ?? '—' }}d
                         </p>
@@ -234,15 +252,23 @@ function daysLeft(expiresAt?: string): number | null {
                 </div>
                 <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div v-if="tenant.settings?.email">
-                        <p class="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Email</p>
+                        <p
+                            class="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">
+                            Email
+                        </p>
                         <p class="text-sm text-neutral-900 dark:text-white">{{ tenant.settings.email }}</p>
                     </div>
                     <div v-if="tenant.settings?.address">
-                        <p class="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Address</p>
+                        <p
+                            class="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">
+                            Address</p>
                         <p class="text-sm text-neutral-900 dark:text-white">{{ tenant.settings.address }}</p>
                     </div>
                     <div v-if="tenant.settings?.slogan">
-                        <p class="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Slogan</p>
+                        <p
+                            class="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">
+                            Slogan
+                        </p>
                         <p class="text-sm text-neutral-900 dark:text-white">{{ tenant.settings.slogan }}</p>
                     </div>
                 </div>
@@ -254,14 +280,16 @@ function daysLeft(expiresAt?: string): number | null {
                     <h2 class="text-sm font-bold text-neutral-900 dark:text-white">License History</h2>
                 </div>
 
-                <div v-if="licenses.length === 0" class="px-6 py-10 text-center text-sm text-neutral-400 dark:text-neutral-500">
+                <div v-if="licenses.length === 0"
+                    class="px-6 py-10 text-center text-sm text-neutral-400 dark:text-neutral-500">
                     No license history found.
                 </div>
 
                 <div v-else class="overflow-x-auto">
                     <table class="w-full">
                         <thead>
-                            <tr class="text-left text-[11px] font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest border-b border-neutral-100 dark:border-white/10">
+                            <tr
+                                class="text-left text-[11px] font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest border-b border-neutral-100 dark:border-white/10">
                                 <th class="px-6 py-3 font-bold">Plan</th>
                                 <th class="px-6 py-3 font-bold">Status</th>
                                 <th class="px-6 py-3 font-bold">Expires</th>
@@ -271,14 +299,16 @@ function daysLeft(expiresAt?: string): number | null {
                         <tbody class="divide-y divide-neutral-50 dark:divide-white/5">
                             <tr v-for="license in licenses" :key="license.id"
                                 class="hover:bg-neutral-50/50 dark:hover:bg-white/3 transition-colors">
-                                <td class="px-6 py-3 text-sm font-semibold text-neutral-800 dark:text-neutral-200 capitalize">
+                                <td
+                                    class="px-6 py-3 text-sm font-semibold text-neutral-800 dark:text-neutral-200 capitalize">
                                     {{ license.plan_slug }}
                                 </td>
                                 <td class="px-6 py-3">
                                     <div class="flex items-center gap-1.5">
-                                        <component :is="licenseStatusIcon(license.status)"
-                                            class="size-4 shrink-0" :class="licenseStatusClass(license.status)" />
-                                        <span class="text-sm font-medium capitalize" :class="licenseStatusClass(license.status)">
+                                        <component :is="licenseStatusIcon(license.status)" class="size-4 shrink-0"
+                                            :class="licenseStatusClass(license.status)" />
+                                        <span class="text-sm font-medium capitalize"
+                                            :class="licenseStatusClass(license.status)">
                                             {{ license.status }}
                                         </span>
                                     </div>

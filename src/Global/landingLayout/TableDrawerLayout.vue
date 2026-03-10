@@ -9,12 +9,16 @@
                 <slot name="header-action" />
             </div>
             <span v-else>
+                <span v-auth="haspermission('create')">
 
-                <button v-if="showAddButton" @click="createNewRecord"
-                    class="justify-center bg-[#001d22] hover:bg-[#001d22]/90 whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive  h-9 has-[>svg]:px-3 flex items-center gap-2 rounded-xl  px-4 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90 shadow-sm ">
-                    <component :is="addButtonText.icon" :size="16" />
-                    {{ addButtonText.text }}
-                </button>
+
+
+                    <button v-if="showAddButton" @click="createNewRecord"
+                        class="justify-center bg-[#001d22] hover:bg-[#001d22]/90 whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive  h-9 has-[>svg]:px-3 flex items-center gap-2 rounded-xl  px-4 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90 shadow-sm ">
+                        <component :is="addButtonText.icon" :size="16" />
+                        {{ addButtonText.text }}
+                    </button>
+                </span>
             </span>
         </div>
 
@@ -43,16 +47,17 @@
             <div
                 class="rounded-2xl  border-neutral-100 bg-white py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] dark:border-neutral-800 dark:bg-neutral-900">
                 <div class="overflow-x-auto flex-grow custom-scrollbar h-[64vh]">
-                  
 
-<Table
-:handleAction="handleAction" :action_config="ACTION_CONFIG" :dataFilter="dataFilter"
-    :data="data" :columns="columns" >
-    <template v-for="(_, name) in $slots" #[name]="slotProps">
-        <slot :name="name" v-bind="slotProps || {}" />
-    </template>
-</Table>
-                    
+
+                    <Table :handleAction="handleAction" :action_config="ACTION_CONFIG" :dataFilter="dataFilter"
+                        :data="data" :columns="columns"
+                        :permissions="permissions"
+                        >
+                        <template v-for="(_, name) in $slots" #[name]="slotProps">
+                            <slot :name="name" v-bind="slotProps || {}" />
+                        </template>
+                    </Table>
+
                 </div>
                 <Pagination @change="callNewPage" v-if="dataPageLinks?.links && dataPageLinks?.total"
                     :links="dataPageLinks?.links" :from="dataPageLinks?.from" :to="dataPageLinks?.to"
@@ -83,6 +88,7 @@ import Table from './Components/Table.vue';
 import { Download, Printer } from 'lucide-vue-next';
 import { pomPinia } from 'septor-store';
 import { ACTION_CONFIG, dataTabelFilter, fetchTableData } from './util';
+import { localStoragePicker } from '../Helpers';
 const drawerOpen = ref(false);
 const showDelete = ref(false);
 const searchQuery = ref('');
@@ -125,6 +131,8 @@ const props = defineProps({
     showSearchbar: { type: Boolean, default: true },
     state: { type: String, required: false },
     url: { type: String, required: false },
+    module: { type: String, required: false },
+    permissions: { type: Object, required: false },
 });
 
 
@@ -146,6 +154,8 @@ const save = (data: unknown, type = 'save') => {
     }
     if (type === 'save')
         submitChanges.value = true
+    console.log(data, "---==");
+
     emit("save", type, data)
 
 };
@@ -221,6 +231,7 @@ function filterDataByString(value: string) {
 }
 onMounted(async () => {
     callOnmount()
+
 });
 
 watch(() => props?.url, () => {
@@ -237,6 +248,11 @@ defineExpose({
     changeThePage,
     handleAction, handlePrint
 })
+
+function haspermission(permission = "") {
+    return props.permissions?.[permission]
+
+}
 
 </script>
 <style>

@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue'
 import { Form, Card } from '@/Global'
 const emits = defineEmits(['update:form']);
-const remount = ref<boolean>(true), formValues = ref([]);
+const remount = ref<boolean>(true)
 const form = ref([
     {
         label: 'Staff Name',
@@ -37,12 +37,13 @@ const form = ref([
         name: 'system_role',
         type: 'select',
         required: true,
-        options: [
-            { name: 'Supper Admin', id: 'super-admin' },
-            { name: 'Manager', id: 'manager' },
-            { name: 'Accountant', id: 'accountant' },
-            { name: 'Ordinally', id: 'ordinally' },
-        ],
+        url: 'central/staff/roles-drop-down',
+        // options: [
+        //     { name: 'Supper Admin', id: 'super-admin' },
+        //     { name: 'Manager', id: 'manager' },
+        //     { name: 'Accountant', id: 'accountant' },
+        //     { name: 'Ordinally', id: 'ordinally' },
+        // ],
         props: { placeholder: 'Select Status' },
     },
     {
@@ -79,13 +80,16 @@ const onFormResults = (fields: any) => {
         pwd.error = null
     }
 }
-watch(() => formValues.value, (value) => {
-    if (value)
+watch(() => form.value, (value) => {
+    if (value){
         emits('update:form', value);
+        
+    }
 }, { deep: true, immediate: true })
 </script>
 <template>
     <div class="">
+       
         <Card
             class="border-neutral-100 h-[79vh] dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-2xl overflow-hidden">
             <div v-if="remount">

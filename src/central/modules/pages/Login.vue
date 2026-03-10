@@ -201,7 +201,7 @@ const submit = async () => {
       <div class="text-center text-sm text-muted-foreground" v-if="canRegister">
         Don't have an account?
         <TextLink
-          to="/register"
+          to="/central/register"
           class="font-semibold text-[#001d22] hover:underline"
           :tabindex="5"
           >Register
