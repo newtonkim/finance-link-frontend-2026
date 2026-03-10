@@ -25,7 +25,11 @@ const router = createRouter({
     // Default redirect — resolved by beforeEach guard below
     {
       path: '/',
-      redirect: '/login',
+      redirect: '/central/login',
+    },
+    {
+      path: '/login',
+      redirect: '/central/login',
     },
     // Tenant auth — no layout wrapper
     {
