@@ -17,7 +17,6 @@ import { ref, computed } from 'vue'
 import StaffForm from './Create.vue'
 import {  StatusButtonsHorizontal, TableDrawer } from '@/Global'
 import { staffsApi } from '../apis'
-import { pomPinia } from 'septor-store'
 import Show from './Show.vue' 
 const formData = ref<Record<string, any>>({})
 const statusFilter = ref('all')
@@ -47,7 +46,7 @@ function saveUser(type: string, data: any) {
 const columns = [
     { key: 'staff_fall_name', label: 'Name',  sticky: 'left' },
     { key: 'staff_email', label: 'Email' },
-    { key: 'system_role', label: 'Role' },
+    { key: 'system_role', label: 'Role',type:"status" },
     { key: 'status', label: 'Status', type: 'status' },
     { key: 'created_at', label: 'Created Date', type: 'date', },
     { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }

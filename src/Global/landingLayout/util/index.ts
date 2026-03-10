@@ -40,7 +40,9 @@ export const dataFomater = (data: any, type:string) => {
   </div>
 </a>
             `},
-             status: () =>`<span class="${statusMap[data]?.className}">${statusMap[data]?.label}</span>`
+             status: () =>{
+                const verifyTheStatus = statusMap?.[data]??statusMap?.[data.toLowerCase()]??statusMap?.[data.toUpperCase()]
+               return `<span class="${verifyTheStatus?.className}">${verifyTheStatus?.label}</span>`}
     }
     return filter?.[type]?.()??data;
 }
