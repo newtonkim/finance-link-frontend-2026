@@ -44,10 +44,6 @@ function toggleDarkMode() {
 }
 
 // Navigation items
-const mainItems = [
-    { title: 'Dashboard', href: '/', icon: LayoutGrid },
-];
-
 const centralItems = [
     { title: 'Platform Dashboard', href: '/central/dashboard', icon: LayoutGrid },
     { title: 'Tenants', href: '/central/tenants', icon: Store },
@@ -88,23 +84,6 @@ const openMenus = reactive<Record<string, boolean>>({});
         </SidebarHeader>
 
         <SidebarContent class="px-3">
-            <!-- MAIN section -->
-            <SidebarGroup>
-                <SidebarGroupLabel class="px-3 text-[10px] font-bold uppercase tracking-widest text-[#9BB5A5]/40 mb-2">
-                    Main
-                </SidebarGroupLabel>
-                <SidebarMenu>
-                    <SidebarMenuItem v-for="item in mainItems" :key="item.title">
-                        <SidebarMenuButton @click="navigate(item.href)" :tooltip="item.title"
-                            class="px-3 py-6 rounded-xl transition-all duration-200"
-                            :class="isCurrentUrl(item.href) ? 'bg-white/10 text-white' : 'text-[#9BB5A5]/60 hover:bg-white/5 hover:text-white'">
-                            <component :is="item.icon" class="size-5" />
-                            <span class="text-sm font-medium">{{ item.title }}</span>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-            </SidebarGroup>
-
             <!-- CENTRAL ADMIN section -->
             <SidebarGroup class="mt-4">
                 <SidebarGroupLabel class="px-3 text-[10px] font-bold uppercase tracking-widest text-[#9BB5A5]/40 mb-2">
