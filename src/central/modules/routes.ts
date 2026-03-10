@@ -33,6 +33,10 @@ export const hRoutes: RouteRecordRaw[] = [
 export const centralAuthRoutes: RouteRecordRaw[] = routebuilder(hRoutes)
 const routes = [
   {
+    path: 'dashboard',
+    component: () => import('./pages/Dashboard.vue'),
+  },
+  {
     path: 'platform-users',
     component: () => import('./staff/Index.vue'),
   },
@@ -50,14 +54,14 @@ const routes = [
   },
 ]
 export const centralRoutes: RouteRecordRaw[] = routebuilder(routes)
-function routebuilder(routes,prifex="central",){
+function routebuilder(routes: RouteRecordRaw[], prefix = 'central') {
   return routes.map((route) => {
-    const routePath= `${prifex}/${route.path}`
-    return({
-      meta:{layout:'central'},
-      name: routePath.replaceAll("/","-"),
-  path: `/${routePath}`,
-  component: route.component,
-})}
-)
+    const routePath = `${prefix}/${route.path}`
+    return {
+      meta: { layout: 'central' },
+      name: routePath.replace(/\//g, '-'),
+      path: `/${routePath}`,
+      component: route.component,
+    }
+  })
 }
