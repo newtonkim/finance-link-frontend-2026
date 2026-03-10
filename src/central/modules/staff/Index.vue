@@ -2,7 +2,6 @@
 
     <TableDrawer drawerWidth="w-1/2"  :url="tableUrl" state="staff"
         :drawerTitle="drawerTitle" title="Central Staff" :columns="columns" @save="saveUser">
-        
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
@@ -22,10 +21,10 @@ const formData = ref<Record<string, any>>({})
 const statusFilter = ref('all')
 const drawerTitle = ref('Create staff')
 const filters = ['all', 'active', 'suspended', 'trial']
-const { create, Erase } = staffsApi()
+const { create} = staffsApi()
 const tableUrl = computed(() => `/central/staff/list?status=${statusFilter.value}`)
 const triggerAction: Record<string, Function> = {
-    delete: Erase,
+    // delete: Erase,
     async create() {
         await create(formData.value)
         formData.value = {}

@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import CentralLayout from '../central/layouts/CentralLayout.vue'
 import TenantLayout from '../tenant/layouts/TenantLayout.vue'
 import TenantLogin from '../tenant/pages/TenantLogin.vue'
-import { centralRoutes, centralAuthRoutes } from '../central/modules/routes'
+import {  centralRoutes, } from '../central/modules/routes'
 import { dashboardRoutes } from '../tenant/modules/dashboard/routes'
 import { membersRoutes } from '../tenant/modules/members/routes'
 import { settingsRoutes } from '../tenant/modules/settings/routes'
@@ -26,27 +26,18 @@ const router = createRouter({
     {
       path: '/',
       redirect: '/login',
-    },
-    // Tenant auth — no layout wrapper
-    {
-      path: '/tenant/login',
-      name: 'tenant-login',
-      component: TenantLogin,
-    },
-    // Central auth routes — no sidebar/layout wrapper
-    ...centralAuthRoutes,
-    // Central app routes — wrapped in CentralLayout (sidebar + top bar)
+    }, 
     {
       path: '/',
       component: CentralLayout,
       children: [...centralRoutes],
-    },
-    // Tenant app routes — wrapped in TenantLayout
-    {
-      path: '/tenant',
-      component: TenantLayout,
-      children: [...dashboardRoutes, ...membersRoutes, ...savingsRoutes, ...accountingRoutes, ...settingsRoutes],
-    },
+    }, 
+    // // Tenant app routes — wrapped in TenantLayout
+    // {
+    //   path: '',
+    //   component: TenantLayout,
+    //   children: [...Routes],
+    // },
   ],
 })
 
