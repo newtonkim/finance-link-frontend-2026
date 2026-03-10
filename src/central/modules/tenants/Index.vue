@@ -1,15 +1,15 @@
 <template>
-    <TableDrawer drawerWidth="w-1/2" :drawerShowFooter="Store.showSaveButton" :url="tableUrl" state="staff"
+    <TableDrawer drawerWidth="w-1/2" :url="tableUrl" state="staff"
         :drawerTitle="drawerTitle" title="Tenants" :columns="columns" @save="saveUser">
-        <template #expiry="{ item }">
-            <div v-if="item?.active_license?.expires_at" class="flex items-center gap-1.5">
+        <template #expiry="{ item }: { item: any }">
+            <div v-if="item?.license_expires_at" class="flex items-center gap-1.5">
                 <Clock class="size-3.5 text-neutral-400 dark:text-neutral-500 shrink-0" />
                 <div>
                     <p class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                        {{ daysLeft(item?.active_license?.expires_at) }}d left
+                        {{ daysLeft(item?.license_expires_at) }}d left
                     </p>
                     <p class="text-xs text-neutral-400 dark:text-neutral-500">{{
-                        formatDateUs(item?.active_license?.expires_at) }}</p>
+                        formatDateUs(item?.license_expires_at) }}</p>
                 </div>
             </div>
             <span v-else class="text-sm  font-bold text-red-600/60">No active license</span>
@@ -29,11 +29,9 @@
 import { ref, computed } from 'vue'
 import StaffForm from './Create.vue'
 import { daysLeft, formatDateUs, StatusButtonsHorizontal, TableDrawer } from '@/Global'
-import { Clock, ExternalLink, } from 'lucide-vue-next';
+import { Clock } from 'lucide-vue-next';
 import { tenantsApi } from '../apis'
-import { pomPinia } from 'septor-store'
 import Show from './Show.vue'
-const Store = pomPinia()
 const formData = ref<Record<string, any>>({})
 const statusFilter = ref('all')
 const drawerTitle = ref('Create Tenant')

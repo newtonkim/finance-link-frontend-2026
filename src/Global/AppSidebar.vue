@@ -44,10 +44,6 @@ function toggleDarkMode() {
 }
 
 // Navigation items
-const mainItems = [
-    { title: 'Dashboard', href: '/', icon: LayoutGrid },
-];
-
 const centralItems = [
     { title: 'Platform Dashboard', href: '/central/dashboard', icon: LayoutGrid },
     { title: 'Tenants', href: '/central/tenants', icon: Store },
@@ -78,33 +74,12 @@ const openMenus = reactive<Record<string, boolean>>({});
     <Sidebar collapsible="icon" variant="inset" class="bg-[#001d22] text-white border-r-0">
         <SidebarHeader class="p-6">
             <div class="flex items-center gap-3">
-                <div class="flex aspect-square size-8 items-center justify-center rounded-lg bg-white">
-                    <div class="size-5 rounded-[4px] bg-[#001d22]"></div>
-                </div>
-                <div v-if="state === 'expanded'" class="flex flex-col">
-                    <span class="text-base font-bold tracking-tight text-white">Mfuko Pro</span>
-                </div>
+                <img src="/images/mfuko_plus_logo.webp" alt="Mfuko Pro" class="h-8 w-auto transition-all"
+                    :class="state === 'collapsed' ? 'scale-125' : ''" />
             </div>
         </SidebarHeader>
 
         <SidebarContent class="px-3">
-            <!-- MAIN section -->
-            <SidebarGroup>
-                <SidebarGroupLabel class="px-3 text-[10px] font-bold uppercase tracking-widest text-[#9BB5A5]/40 mb-2">
-                    Main
-                </SidebarGroupLabel>
-                <SidebarMenu>
-                    <SidebarMenuItem v-for="item in mainItems" :key="item.title">
-                        <SidebarMenuButton @click="navigate(item.href)" :tooltip="item.title"
-                            class="px-3 py-6 rounded-xl transition-all duration-200"
-                            :class="isCurrentUrl(item.href) ? 'bg-white/10 text-white' : 'text-[#9BB5A5]/60 hover:bg-white/5 hover:text-white'">
-                            <component :is="item.icon" class="size-5" />
-                            <span class="text-sm font-medium">{{ item.title }}</span>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-            </SidebarGroup>
-
             <!-- CENTRAL ADMIN section -->
             <SidebarGroup class="mt-4">
                 <SidebarGroupLabel class="px-3 text-[10px] font-bold uppercase tracking-widest text-[#9BB5A5]/40 mb-2">

@@ -18,6 +18,11 @@ export const membersApi = {
   update(id: number, data: Record<string, any>) {
     return tenantClient.put(`/members/${id}`, data)
   },
+  updateFormData(id: number, data: FormData) {
+    return tenantClient.post(`/members/${id}`, data, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
   destroy(id: number) {
     return tenantClient.delete(`/members/${id}`)
   },
