@@ -33,12 +33,13 @@
         v-if="showSubmenu === item?.label && item?.children"
         class="max-w-[50em] flex absolute left-full top-0 mt-0 ml-6   rounded-xl py-2 shadow-md shadow-black/20 border  transition-all z-[9999] bg-white dark:bg-[#001e22]"
       >
-      
-        <div
+      <template
           v-for="(child, index) in item.children"
-          :key="index"
+          :key="index">
+         <div  v-auth="subItem?.permissions"
           class="w-[40em] items-center gap-4 px-4 py-3"
         >
+     
           <div
             class="w-full flex items-center my-1 gap-0 px-4 py-2 rounded-md bg-[#001e22]/90  dark:text-white"
           >
@@ -51,6 +52,9 @@
             @click="showSubmenu = false"
           />
         </div>
+      </template>
+      
+       
       </div>
     </div>
   </div>

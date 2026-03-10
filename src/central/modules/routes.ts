@@ -56,6 +56,7 @@ export const  centarRoutes:any=[
  {
     label: "Settings",
     icon: SettingsIcon,
+    permissions:"settings-module-link-view",
     showSideBar: true,
     prifix:"central",
     children: [
@@ -67,6 +68,8 @@ export const  centarRoutes:any=[
             path: "Permission",
             label: "Permission",
             component: () => import('./settings/General/Permisions/Index.vue'),
+            permissions:"settings-permission-view",
+
           },
            
           {
