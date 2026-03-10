@@ -15,30 +15,30 @@ import { Button } from '@/Global/ui/button';
 const stats = [
     {
         title: 'Total Tenants',
-        value: '0',
-        trend: '0 Active',
+        value: '7',
+        trend: '7 Active',
         trendColor: 'text-emerald-500',
         icon: Users,
-        bgColor: 'bg-neutral-50',
-        iconColor: 'text-neutral-500'
+        bgColor: 'bg-[#f0f9f6]', // Light greenish/mint
+        iconColor: 'text-[#2d9d78]'
     },
     {
         title: 'Monthly Revenue',
-        value: '$0.00',
+        value: '$889.87',
         trend: 'Monthly',
         trendColor: 'text-neutral-400',
         icon: DollarSign,
-        bgColor: 'bg-emerald-50',
-        iconColor: 'text-emerald-600'
+        bgColor: 'bg-[#f0f9f6]',
+        iconColor: 'text-[#2d9d78]'
     },
     {
         title: 'Annual Revenue',
-        value: '$0.00',
+        value: '$10,678.44',
         trend: 'ARR',
         trendColor: 'text-neutral-400',
         icon: TrendingUp,
-        bgColor: 'bg-emerald-50',
-        iconColor: 'text-emerald-600'
+        bgColor: 'bg-[#f0f9f6]',
+        iconColor: 'text-[#2d9d78]'
     },
     {
         title: 'Expiring (3d)',
@@ -160,29 +160,29 @@ const topProducts = [
 <template>
     <div class="p-6 space-y-8">
         <!-- Platform Overview Heading -->
-        <div>
-            <h2 class="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">Platform Overview</h2>
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold text-neutral-800 dark:text-white tracking-tight">Platform Overview</h2>
         </div>
 
         <!-- Stats Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-auto lg:grid-cols-6 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             <Card v-for="stat in stats" :key="stat.title"
-                class="border-neutral-100 dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
-                <CardContent class="p-5 flex gap-4 items-center">
-                    <div :class="['p-3 rounded-xl flex items-center justify-center dark:bg-white/10', stat.bgColor]">
-                        <component :is="stat.icon" :class="['size-5', stat.iconColor]" />
+                class="border-neutral-100 dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-xl overflow-hidden hover:shadow-md transition-shadow bg-white !border-none">
+                <CardContent class="p-4 flex gap-3 items-center">
+                    <div
+                        :class="['size-10 rounded-lg flex items-center justify-center dark:bg-white/10 shrink-0', stat.bgColor]">
+                        <component :is="stat.icon" :class="['size-4', stat.iconColor]" />
                     </div>
-                    <div class="flex-1">
-                        <div class="flex items-center justify-between mb-0.5">
-                            <span
-                                class="text-[11px] font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">{{
-                                    stat.title
-                                }}</span>
+                    <div class="flex-1 min-w-0">
+                        <div class="mb-0">
+                            <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400 truncate block">{{
+                                stat.title
+                            }}</span>
                         </div>
-                        <div class="flex items-baseline gap-2">
+                        <div class="flex flex-col">
                             <span class="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">{{
                                 stat.value }}</span>
-                            <span :class="['text-[10px] font-bold', stat.trendColor]">{{ stat.trend }}</span>
+                            <span :class="['text-[10px] font-semibold mt-0', stat.trendColor]">{{ stat.trend }}</span>
                         </div>
                     </div>
                 </CardContent>
@@ -302,7 +302,7 @@ const topProducts = [
                             </div>
                             <div class="flex items-center gap-4">
                                 <span class="text-[13px] font-bold text-neutral-900 dark:text-white">{{ cat.amount
-                                    }}</span>
+                                }}</span>
                                 <span
                                     class="text-[13px] font-bold text-neutral-400 dark:text-neutral-500 w-8 text-right">{{
                                         cat.value
@@ -419,7 +419,7 @@ const topProducts = [
                                 </td>
                                 <td class="py-4 text-right text-[13px] font-bold text-neutral-900 dark:text-white">{{
                                     product.earnings
-                                    }}</td>
+                                }}</td>
                             </tr>
                         </tbody>
                     </table>

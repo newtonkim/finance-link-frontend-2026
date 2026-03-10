@@ -74,12 +74,8 @@ const openMenus = reactive<Record<string, boolean>>({});
     <Sidebar collapsible="icon" variant="inset" class="bg-[#001d22] text-white border-r-0">
         <SidebarHeader class="p-6">
             <div class="flex items-center gap-3">
-                <div class="flex aspect-square size-8 items-center justify-center rounded-lg bg-white">
-                    <div class="size-5 rounded-[4px] bg-[#001d22]"></div>
-                </div>
-                <div v-if="state === 'expanded'" class="flex flex-col">
-                    <span class="text-base font-bold tracking-tight text-white">Mfuko Pro</span>
-                </div>
+                <img src="/images/mfuko_plus_logo.webp" alt="Mfuko Pro" class="h-8 w-auto transition-all"
+                    :class="state === 'collapsed' ? 'scale-125' : ''" />
             </div>
         </SidebarHeader>
 
