@@ -1,7 +1,7 @@
 
 import { statusMap } from '@/Global/StatusMap';
 import { dateTime, date } from '../../Helpers';
-import { Eye, Edit, Trash, UserCircle2 } from 'lucide-vue-next';
+import { Eye, Edit, Trash, UserCircle2, X } from 'lucide-vue-next';
 
 function  splitTheLink(link:string){
     if(!link) return
@@ -41,7 +41,7 @@ export const dataFomater = (data: any, type:string) => {
 </a>
             `},
              status: () =>{
-                const verifyTheStatus = statusMap?.[data]??statusMap?.[data.toLowerCase()]??statusMap?.[data.toUpperCase()]
+                const verifyTheStatus = statusMap?.[`${data}`]??statusMap?.[`${data}`?.toLowerCase()]??statusMap?.[`${data}`?.toUpperCase()]
                return `<span class="${verifyTheStatus?.className}">${verifyTheStatus?.label}</span>`}
     }
     return filter?.[type]?.()??data;
@@ -49,6 +49,11 @@ export const dataFomater = (data: any, type:string) => {
 
 
 export const ACTION_CONFIG = {
+    close: {
+        icon:X ,
+         action:()=>{return 'close'},
+        class: "flex items-center gap-1.5 rounded-full bg-red-500 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-red-100 dark:bg-blue-900/40 dark:text-red-300 dark:hover:bg-red-900/60",
+    },
     edit: {
         icon: Edit,
          action:()=>{return 'edit'},

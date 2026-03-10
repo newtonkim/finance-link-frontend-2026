@@ -156,6 +156,15 @@ export function storeUserPermissions(props: { data: any } = { data: null }) {
     console.error('Error storing user permissions:', error);
   }
 }
+export async function localStoragePicker(key = "") {
+  try {
+    const data = encryptStorage.getItem(key);
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching from storage:', error);
+    return [];
+  }
+}
 
 
 

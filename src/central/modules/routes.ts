@@ -1,67 +1,153 @@
-import type { RouteRecordRaw } from 'vue-router' 
-export const hRoutes: RouteRecordRaw[] = [
+import type { RouteRecordRaw } from 'vue-router'  
+import { CreditCard, LayoutGrid, SettingsIcon, Store, Users } from 'lucide-vue-next'
+ 
+export const  centarRoutes:any=[
   {
-    path: '/login',
+    path: 'login',
+    label:"login",
     component: () => import('./pages/Login.vue'),
   },
   {
-    path: '/register',
+    path: 'register',
+    label:"register",
     component: () => import('./pages/Register.vue'),
   },
   {
-    path: '/central/tenants',  
-    component: () => import('./pages/Licenses.vue'),
+    path: 'Main',
+    label:"Main",
+    type:"label",
+    showSideBar: true
   },
-  {
-    path: '/central/tenants/create',
-    component: () => import('./pages/CreateTenant.vue'),
-  },
-  { 
-    path: '/central/tenants/:id',  
-    component: () => import('./pages/TenantDetail.vue'), 
-  },
-  {
-    path: '/central/licenses',
-    component: () => import('./pages/Licenses.vue'),
-  },
-  {
-    path: '/central/licenses/create',
-    component: () => import('./pages/CreateLicense.vue'),
-
-  },
-]
-export const centralAuthRoutes: RouteRecordRaw[] = routebuilder(hRoutes)
-const routes = [
   {
     path: 'dashboard',
+    label:"dashboard",
+    icon: LayoutGrid,
     component: () => import('./pages/Dashboard.vue'),
-  },
-  {
-    path: 'platform-users',
-    component: () => import('./staff/Index.vue'),
-  },
-  {
-    path: 'settings',
-    component: () => import('./settings/Index.vue'),
-  },
-  {
-    path: 'tenants',
-    component: () => import('./tenants/Index.vue'),
+    showSideBar: true
   },
   {
     path: 'licenses',
+    label:"licenses",
+    icon: CreditCard,
+    showSideBar: true,
     component: () => import('./licenses/Index.vue'),
+  },  
+  { 
+    path: 'platform-users',
+    label:"platform-users",
+    icon: Users, 
+    showSideBar: true,
+    component: () => import('./staff/Index.vue'),
   },
+  {
+   path: 'tenants',
+   icon: Store,
+   showSideBar: true,
+   component: () => import('./tenants/Index.vue'),
+   label:"tenants",
+
+ }, 
+  { 
+    path: 'tenants/:id',  
+
+    component: () => import('./pages/TenantDetail.vue'), 
+  },
+
+ {
+    label: "Settings",
+    icon: SettingsIcon,
+    permissions:"settings-module-link-view",
+    showSideBar: true,
+    prifix:"central",
+    children: [
+       {
+        title: "General",
+        items: [
+          
+          {
+            path: "Permission",
+            label: "Permission",
+            component: () => import('./settings/General/Permisions/Index.vue'),
+            permissions:"settings-permission-view",
+
+          },
+           
+          {
+            path: "staffs-permission",
+            label: "staffs-permission",
+            component: () => import('./settings/PagesTrials/GeneralSettings.vue'),
+          },
+          {
+            path: "settings",
+            label: "settings",
+            component: () => import('./settings/PagesTrials/GeneralSettings.vue'),
+          },
+          
+        ],
+      },
+      {
+        title: "Notifications",
+        items: [
+          {
+            path: "notifications",
+            label: "notifications",
+            component: () => import('./settings/PagesTrials/Notifications.vue'),
+          },
+        ],
+      },
+      {
+        title: "System",
+        items: [
+          {
+            path: "system",
+            label: "system",
+            component: () => import('./settings/PagesTrials/SystemSettings.vue'),
+          },
+        ],
+      },
+     
+      
+    ]
+
+ }
 ]
-export const centralRoutes: RouteRecordRaw[] = routebuilder(routes)
-function routebuilder(routes: RouteRecordRaw[], prefix = 'central') {
-  return routes.map((route) => {
-    const routePath = `${prefix}/${route.path}`
-    return {
-      meta: { layout: 'central' },
-      name: routePath.replace(/\//g, '-'),
-      path: `/${routePath}`,
-      component: route.component,
-    }
-  })
+
+export const centralRoutes: RouteRecordRaw[] = routebuilder(centarRoutes,"central")
+console.log(centralRoutes);
+
+function RouteStructure(route:any,routePath:string){
+  return ({
+  
+      name: routePath.replaceAll("/","-"),
+  path: `/${routePath}`,
+  component: route.component,
+
+})
 }
+function routebuilder(routes=[],prifix="central",){
+  const collecction:any=[];
+  routes.forEach(route => {
+    if(!route?.children){
+      const routePath= `${prifix}/${route.path}`
+     collecction.push(RouteStructure(route,routePath))
+    }else if(Array.isArray(route.children)){
+      route.children.forEach(child => {
+         if(child?.items){ 
+           child.items.forEach(item => {
+             const childRoutePath= `${prifix}/${item.path}`
+             console.log(childRoutePath);
+             
+     collecction.push(RouteStructure(item,childRoutePath))
+
+           })
+         }
+      })
+    }
+    
+  });
+  return collecction
+
+}
+
+// prifix/title/path
+

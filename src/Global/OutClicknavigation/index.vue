@@ -1,0 +1,130 @@
+<template>
+  <div v-for="item in links" :key="item.path">
+     <SidebarGroupLabel v-if="links.type=='label' &&item?.showSideBar===true" class="px-3 text-[10px] font-bold uppercase tracking-widest text-[#9BB5A5]/40 mb-2 text-sm font-semibold">
+                    {{ item.label }}
+                </SidebarGroupLabel>
+    <!-- Item WITHOUT children -->
+    <RouteLink
+      v-else-if="!item?.children&&item?.showSideBar===true"
+      :item="item"
+      @click="showSubmenu = false"
+    />
+
+    <!-- Item WITH children -->
+    <div v-else class="relative" v-if="item?.showSideBar===true">
+        
+      <div
+        :to="item?.path"
+        @click="toggleSubmenu(item.label)"
+        class="w-full flex items-center gap-2 px-2.5 py-1 rounded-xl peer/menu-button flex w-full items-center gap-2 overflow-hidden p-2 text-left outline-hidden ring-sidebar-ring focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 h-8 text-sm   rounded-xl transition-all duration-200 text-[#9BB5A5]/60 hover:bg-white/5 hover:text-white   "
+      >
+        <div class="flex justify-between w-full items-center">
+          <div class="flex w-full items-center">
+            <component :is="item.icon" :size="20" />
+            <span class="px-2 text-sm font-medium capitalize">{{ item.label }}</span>
+          </div>
+
+          <div>
+            {{ showSubmenu === item?.label ? "▾" : "▸" }}
+          </div>
+        </div>
+    </div>
+    <div
+        v-if="showSubmenu === item?.label && item?.children"
+        class="max-w-[50em] flex absolute left-full top-0 mt-0 ml-6   rounded-xl py-2 shadow-md shadow-black/20 border  transition-all z-[9999] bg-white dark:bg-[#001e22]"
+      >
+      <template
+          v-for="(child, index) in item.children"
+          :key="index">
+         <div  v-auth="subItem?.permissions"
+          class="w-[40em] items-center gap-4 px-4 py-3"
+        >
+     
+          <div
+            class="w-full flex items-center my-1 gap-0 px-4 py-2 rounded-md bg-[#001e22]/90  dark:text-white"
+          >
+            {{ child.title }}
+          </div>
+          <RouteLink
+            :prifix="item.prifix"
+            :item="child.items"
+            :title="child.title"
+            @click="showSubmenu = false"
+          />
+        </div>
+      </template>
+      
+       
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref } from "vue"
+import RouteLink from "./RouteLink.vue";
+
+const showSubmenu = ref(null)
+const props=defineProps(['links']);
+
+const toggleSubmenu = (label) => {
+  showSubmenu.value =
+    showSubmenu.value === label ? null : label
+}
+
+// const  link= [
+  
+//   {
+//     label: "Fleet Mgmt",
+//     // icon: Bus,
+//     children: [
+//       {
+//         title: "Routes",
+//         items: [
+          
+//           {
+//             path: "/Routes",
+//             label: "routes List",
+//             // element: <SystemRoutesList />,
+//           },
+//           {
+//             path: "/Route-and-vechicles",
+//             label: "routes & Vechicles",
+//             // element: <RouteAndVehicleList />,
+//           },
+//         ],
+//       },
+//       {
+//         title: "Booking",
+//         items: [
+//           {
+//             path: "/Booking-Tickets",
+//             label: " Create  booking",
+//             // element: <BookingList />,
+//           },
+   
+//           {
+//             path: "/Fleet-Remarks",
+//             label: "fleet remarks",
+//             // element: <FleetMgmtList />,
+//           },
+//           { path: "/passenger-fleet-payments", label: "Passenger Payments",
+//         //   element: <FleetTransaction /> 
+//         },
+
+//         ],
+//       },
+//              {
+//             title: "Vehicles",
+//             items: [
+//               {
+//                 path: "/vehicles",
+//                 label: "Vehicle List",
+//                 // element: <VehiclestList />,
+//               },
+    
+//             ],
+//           },
+//     ],
+//   },]
+</script>

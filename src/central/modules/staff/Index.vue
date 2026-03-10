@@ -1,8 +1,14 @@
 <template>
 
-    <TableDrawer drawerWidth="w-1/2"  :url="tableUrl" state="staff"
-        :drawerTitle="drawerTitle" title="Central Staff" :columns="columns" @save="saveUser">
-        
+    <TableDrawer :permissions="{
+        create: 'staff-create',
+        delete: 'staff-delete',
+        view: 'staff-view-table-details',
+        edit: 'staff-update',
+    }" 
+    
+    drawerWidth="w-1/2" :url="tableUrl" state="staff" :drawerTitle="drawerTitle" title="Central Staff"
+        :columns="columns" @save="saveUser">
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
@@ -15,17 +21,17 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import StaffForm from './Create.vue'
-import {  StatusButtonsHorizontal, TableDrawer } from '@/Global'
+import { StatusButtonsHorizontal, TableDrawer } from '@/Global'
 import { staffsApi } from '../apis'
-import Show from './Show.vue' 
+import Show from './Show.vue'
 const formData = ref<Record<string, any>>({})
 const statusFilter = ref('all')
 const drawerTitle = ref('Create staff')
 const filters = ['all', 'active', 'suspended', 'trial']
-const { create, Erase } = staffsApi()
+const { create } = staffsApi()
 const tableUrl = computed(() => `/central/staff/list?status=${statusFilter.value}`)
 const triggerAction: Record<string, Function> = {
-    delete: Erase,
+    // delete: Erase,
     async create() {
         await create(formData.value)
         formData.value = {}
@@ -38,15 +44,15 @@ const title: Record<string, string> = {
 }
 function saveUser(type: string, data: any) {
     triggerAction[type]?.(data)
-    console.log(type);
+    console.log(type, data);
     if (title?.[type])
         drawerTitle.value = title?.[type]
 }
 
 const columns = [
-    { key: 'staff_fall_name', label: 'Name',  sticky: 'left' },
+    { key: 'staff_fall_name', label: 'Name', sticky: 'left' },
     { key: 'staff_email', label: 'Email' },
-    { key: 'system_role', label: 'Role',type:"status" },
+    { key: 'system_role', label: 'Role' },
     { key: 'status', label: 'Status', type: 'status' },
     { key: 'created_at', label: 'Created Date', type: 'date', },
     { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
