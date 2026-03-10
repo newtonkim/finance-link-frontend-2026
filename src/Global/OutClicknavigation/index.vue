@@ -7,7 +7,7 @@
     <RouteLink
       v-else-if="!item?.children&&item?.showSideBar===true"
       :item="item"
-      @click="showSubmenu = false"
+      @click="()=>toggleSubmenu(null)"
     />
 
     <!-- Item WITH children -->
@@ -25,12 +25,12 @@
           </div>
 
           <div>
-            {{ showSubmenu === item?.label ? "▾" : "▸" }}
+            {{ Store.showSubmenu === item?.label ? "▾" : "▸" }}
           </div>
         </div>
     </div>
     <div
-        v-if="showSubmenu === item?.label && item?.children"
+        v-if="Store.showSubmenu === item?.label && item?.children"
         class="max-w-[50em] flex absolute left-full top-0 mt-0 ml-6   rounded-xl py-2 shadow-md shadow-black/20 border  transition-all z-[9999] bg-white dark:bg-[#001e22]"
       >
       <template
@@ -49,7 +49,7 @@
             :prifix="item.prifix"
             :item="child.items"
             :title="child.title"
-            @click="showSubmenu = false"
+            @click="toggleSubmenu(false)"
           />
         </div>
       </template>
@@ -61,70 +61,18 @@
 </template>
 
 <script setup>
-import { ref } from "vue"
 import RouteLink from "./RouteLink.vue";
-
-const showSubmenu = ref(null)
+import { pomPinia } from 'septor-store';
 const props=defineProps(['links']);
+const Store = pomPinia();
 
 const toggleSubmenu = (label) => {
-  showSubmenu.value =
-    showSubmenu.value === label ? null : label
+    if(Store.showSubmenu === label){
+        Store.showSubmenu = null
+    }else{
+        Store.showSubmenu = label
+    }
 }
 
-// const  link= [
-  
-//   {
-//     label: "Fleet Mgmt",
-//     // icon: Bus,
-//     children: [
-//       {
-//         title: "Routes",
-//         items: [
-          
-//           {
-//             path: "/Routes",
-//             label: "routes List",
-//             // element: <SystemRoutesList />,
-//           },
-//           {
-//             path: "/Route-and-vechicles",
-//             label: "routes & Vechicles",
-//             // element: <RouteAndVehicleList />,
-//           },
-//         ],
-//       },
-//       {
-//         title: "Booking",
-//         items: [
-//           {
-//             path: "/Booking-Tickets",
-//             label: " Create  booking",
-//             // element: <BookingList />,
-//           },
-   
-//           {
-//             path: "/Fleet-Remarks",
-//             label: "fleet remarks",
-//             // element: <FleetMgmtList />,
-//           },
-//           { path: "/passenger-fleet-payments", label: "Passenger Payments",
-//         //   element: <FleetTransaction /> 
-//         },
-
-//         ],
-//       },
-//              {
-//             title: "Vehicles",
-//             items: [
-//               {
-//                 path: "/vehicles",
-//                 label: "Vehicle List",
-//                 // element: <VehiclestList />,
-//               },
-    
-//             ],
-//           },
-//     ],
-//   },]
+ 
 </script>
