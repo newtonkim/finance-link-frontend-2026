@@ -47,6 +47,32 @@ export const paymentMethods = {
   card: { label: "Card", className: "  font-bold px-2 py-1 rounded-full  text-blue-600" },
   mobile_money: { label: "Mobile Money", className: " font-bold px-0 py-1 rounded-full  text-blue-700" },
 }
+export const systemRoles = {
+  admin: { 
+    label: "admin", 
+    className: "font-bold px-2 py-1 rounded-full text-purple-700" 
+  },
+
+  "super-admin": { 
+    label: "supper admin", 
+    className: "font-bold px-2 py-1 rounded-full text-neutral-600/60" 
+  },
+
+  "ordinary": { 
+    label: "Ordinary", 
+    className: "font-bold px-2 py-1 rounded-full text-teal-600" 
+  },
+
+  "manager": { 
+    label: "Manager", 
+    className: "font-bold px-2 py-1 rounded-full text-red-600" 
+  },
+
+  "accountant": { 
+    label: "Accountant", 
+    className: "font-bold px-2 py-1 rounded-full text-indigo-600" 
+  },
+}
 
 
 
@@ -54,7 +80,8 @@ export const paymentMethods = {
 export const statusMap = {
   ...status,
   ...paymentStatus,
-  ...paymentMethods
+  ...paymentMethods,
+  ...systemRoles
 }
 
 // export default statusMap
