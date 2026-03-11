@@ -15,8 +15,6 @@ import SavingsProducts from './pages/SavingsProducts.vue'
 import SavingsProductForm from './pages/SavingsProductForm.vue'
 import StaffList from './pages/StaffList.vue'
 import StaffProfile from './pages/StaffProfile.vue'
-
-// Sub-pages (existing ones)
 import GeneralSettings from './pages/GeneralSettings.vue'
 import Notifications from './pages/Notifications.vue'
 import TransactionCharges from './pages/TransactionCharges.vue'
@@ -33,16 +31,14 @@ export const settingsRoutes: RouteRecordRaw[] = [
         component: SettingsDashboard,
       },
       {
+        path: 'general',
+        name: 'tenant-settings-general',
+        component: GeneralSettings,
+      },
+      {
         path: 'organisation',
         name: 'tenant-settings-organisation',
         component: OrganisationSettings,
-        children: [
-          {
-            path: 'general',
-            name: 'tenant-settings-organisation-general',
-            component: GeneralSettings,
-          },
-        ],
       },
       {
         path: 'members',
@@ -118,6 +114,11 @@ export const settingsRoutes: RouteRecordRaw[] = [
         path: 'transaction-charges',
         name: 'tenant-settings-transaction-charges',
         component: TransactionCharges,
+      },
+      {
+        path: 'old-notifications',
+        name: 'tenant-settings-old-notifications',
+        component: Notifications,
       },
     ],
   },

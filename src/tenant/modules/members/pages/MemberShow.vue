@@ -1038,68 +1038,58 @@ const handleAvatarUpload = async (event: Event) => {
                         <!-- Transactions Tab Content -->
                         <div v-show="activeTab === 'transactions'" class="flex flex-col">
                             <!-- Top Controls -->
-                            <div
-                                class="px-5 py-4 border-b border-border bg-card flex flex-col md:flex-row gap-4 justify-between items-center">
-                                <div class="flex items-center gap-3 w-full md:w-auto">
+                            <div class="py-4 bg-transparent flex flex-wrap gap-4 justify-between items-center px-4 md:px-6">
+                                <div class="flex items-center gap-3">
                                     <input v-model="txnStartDate" type="date"
-                                        class="py-2 px-3 rounded-lg border border-border bg-background text-[12px] focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30" />
+                                        class="h-10 px-4 rounded-full bg-[#f1f5f9] border-0 text-[13px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#cda434]/50 cursor-pointer min-w-[140px]" />
                                     <input v-model="txnEndDate" type="date"
-                                        class="py-2 px-3 rounded-lg border border-border bg-background text-[12px] focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30" />
+                                        class="h-10 px-4 rounded-full bg-[#f1f5f9] border-0 text-[13px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#cda434]/50 cursor-pointer min-w-[140px]" />
                                     <button @click="txnStartDate = ''; txnEndDate = ''"
-                                        class="px-4 py-2 text-[12px] font-semibold rounded-lg border border-border bg-background hover:bg-accent transition-all">
+                                        class="h-10 px-5 text-[13px] font-bold rounded-full bg-[#f1f5f9] text-gray-700 hover:bg-[#e2e8f0] transition-colors">
                                         Clear
                                     </button>
                                 </div>
-                                <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                                <div>
                                     <button
-                                        class="px-4 py-2 text-[12px] font-bold rounded-lg bg-[#334155] text-white hover:bg-[#1e293b] transition-all shadow-sm">
+                                        class="h-10 px-6 text-[13px] font-bold rounded-full bg-[#334155] text-white hover:bg-[#1e293b] transition-colors shadow-sm">
                                         Export
                                     </button>
                                 </div>
                             </div>
 
                             <!-- Table Filters -->
-                            <div class="px-5 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-                                <div class="flex items-center gap-2 text-[13px] text-muted-foreground">
+                            <div class="py-2 pb-5 flex flex-col sm:flex-row justify-between items-center gap-4 px-4 md:px-6">
+                                <div class="flex items-center gap-2 text-[13px] text-[#64748b]">
                                     Show
                                     <select v-model="txnsPerPage" @change="currentTxnPage = 1"
-                                        class="py-1 px-2 rounded border border-border bg-background focus:outline-none focus:border-[#c9a84c]/50">
+                                        class="h-8 px-2 rounded-md bg-[#f1f5f9] border-0 text-gray-700 text-[13px] focus:outline-none focus:ring-1 focus:ring-[#cda434]/50 cursor-pointer">
                                         <option :value="10">10</option>
                                         <option :value="25">25</option>
                                         <option :value="50">50</option>
                                     </select>
                                     entries
                                 </div>
-                                <div class="flex items-center gap-2 text-[13px] text-muted-foreground">
+                                <div class="flex items-center gap-2 text-[13px] text-[#64748b]">
                                     Search:
                                     <input v-model="txnSearchQuery" @input="currentTxnPage = 1" type="text"
-                                        class="py-1.5 px-3 rounded border border-border bg-background focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30"
+                                        class="h-9 w-[200px] sm:w-[250px] px-3 rounded-md bg-[#f1f5f9] border-0 text-gray-700 text-[13px] focus:outline-none focus:ring-1 focus:ring-[#cda434]/50"
                                         placeholder="Ref, Details, Added by..." />
                                 </div>
                             </div>
 
                             <!-- Transactions Table -->
-                            <div class="overflow-x-auto">
+                            <div class="overflow-x-auto border-y border-gray-100">
                                 <table class="w-full text-left min-w-[900px]">
                                     <thead>
-                                        <tr class="border-y border-border bg-accent/30 text-muted-foreground">
-                                            <th class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider">S/N
-                                            </th>
-                                            <th class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider">Trans
-                                                Type</th>
-                                            <th class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider">Amount
-                                            </th>
-                                            <th class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider">Details
-                                            </th>
-                                            <th class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider">Date
-                                            </th>
-                                            <th class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider">Receipt
-                                            </th>
-                                            <th class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider">Added
-                                                by</th>
-                                            <th
-                                                class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider text-center">
-                                                Action</th>
+                                        <tr class="border-b border-gray-100 bg-transparent text-[#64748b]">
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">S/N</th>
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Trans Type</th>
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Amount</th>
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Details</th>
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Date</th>
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Receipt</th>
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Added by</th>
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider text-center">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1108,8 +1098,7 @@ const handleAvatarUpload = async (event: Event) => {
                                                 No transactions found.</td>
                                         </tr>
                                         <tr v-for="(txn, index) in paginatedTransactions" :key="txn.id"
-                                            class="border-b border-border/40 hover:bg-accent/30 transition-colors"
-                                            :class="index % 2 === 0 ? 'bg-secondary/20' : ''">
+                                            class="border-b border-transparent hover:bg-accent/30 transition-colors">
                                             <td class="py-3.5 px-5 text-[13px] text-muted-foreground">{{ (currentTxnPage
                                                 - 1) * txnsPerPage + index + 1 }}.</td>
                                             <td class="py-3.5 px-5">
@@ -1159,20 +1148,20 @@ const handleAvatarUpload = async (event: Event) => {
 
                             <!-- Pagination -->
                             <div
-                                class="px-5 py-4 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4 text-[13px] text-muted-foreground">
+                                class="py-5 px-4 md:px-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-[13px] text-[#64748b]">
                                 <div>
                                     Showing {{ filteredTransactions.length ? (currentTxnPage - 1) * txnsPerPage + 1 : 0
                                     }} to {{ Math.min(currentTxnPage * txnsPerPage, filteredTransactions.length) }} of
                                     {{ filteredTransactions.length }} entries
                                 </div>
-                                <div class="flex items-center gap-1">
+                                <div class="flex items-center gap-2">
                                     <button @click="prevTxnPage" :disabled="currentTxnPage === 1"
-                                        class="w-8 h-8 rounded-full flex items-center justify-center border border-border hover:bg-accent transition-colors disabled:opacity-50">&lsaquo;</button>
+                                        class="w-8 h-8 rounded-full flex items-center justify-center border border-gray-200 text-gray-400 hover:text-gray-700 hover:border-gray-300 transition-colors disabled:opacity-50">&lsaquo;</button>
                                     <button
-                                        class="w-8 h-8 rounded-full flex items-center justify-center bg-[#c9a84c] text-white font-bold shadow-sm text-[12px]">{{
+                                        class="w-8 h-8 rounded-full flex items-center justify-center bg-[#cda434] text-white font-bold shadow-sm text-[12px]">{{
                                             currentTxnPage }}</button>
                                     <button @click="nextTxnPage" :disabled="currentTxnPage === totalTxnPages"
-                                        class="w-8 h-8 rounded-full flex items-center justify-center border border-border hover:bg-accent transition-colors disabled:opacity-50">&rsaquo;</button>
+                                        class="w-8 h-8 rounded-full flex items-center justify-center border border-gray-200 text-gray-400 hover:text-gray-700 hover:border-gray-300 transition-colors disabled:opacity-50">&rsaquo;</button>
                                 </div>
                             </div>
                         </div>

@@ -26,18 +26,32 @@ const router = createRouter({
     {
       path: '/',
       redirect: '/login',
-    }, 
+    },
+    // Central admin routes
     {
       path: '/',
       component: CentralLayout,
       children: [...centralRoutes],
-    }, 
-    // // Tenant app routes — wrapped in TenantLayout
-    // {
-    //   path: '',
-    //   component: TenantLayout,
-    //   children: [...Routes],
-    // },
+    },
+    // Tenant login (outside layout)
+    {
+      path: '/tenant/login',
+      name: 'tenant-login',
+      component: TenantLogin,
+    },
+    // Tenant app routes — wrapped in TenantLayout
+    {
+      path: '/tenant',
+      component: TenantLayout,
+      redirect: '/tenant/dashboard',
+      children: [
+        ...dashboardRoutes,
+        ...membersRoutes,
+        ...settingsRoutes,
+        ...savingsRoutes,
+        ...accountingRoutes,
+      ],
+    },
   ],
 })
 
