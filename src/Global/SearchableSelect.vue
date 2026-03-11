@@ -24,18 +24,19 @@ const props = defineProps<{
     disabled?: boolean;
     remote?: boolean;
     url?: string;
+    state: string
 }>();
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue','update:itemSelected']);
 const remoteUrl = debounce(async (url: string) => {
     if (!url) return;
     tryCatch(async () => {
-        const data = { }
-        if(searchQuery.value?.length >= 3)
-         data.search_keyword = searchQuery.value
-         const res = await fetchTableData({
-            data:data?.search_keyword?data:null,
-            props: { url, reload: false },
+        const data = {}
+        if (searchQuery.value?.length >= 3)
+            data.search_keyword = searchQuery.value
+        const res = await fetchTableData({
+            data: data?.search_keyword ? data : null,
+            props: { url, reload: false,state:props?.state },
             Store,
         });
         if (res.success !== false)
@@ -65,6 +66,7 @@ const filteredOptions = computed(() => {
 
 const selectOption = (option: Option) => {
     emit('update:modelValue', option.id);
+    emit('update:itemSelected', option);
     isOpen.value = false;
     searchQuery.value = '';
 };

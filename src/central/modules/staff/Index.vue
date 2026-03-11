@@ -5,9 +5,7 @@
         delete: 'staff-delete',
         view: 'staff-view-table-details',
         edit: 'staff-update',
-    }" 
-    
-    drawerWidth="w-1/2" :url="tableUrl" state="staff" :drawerTitle="drawerTitle" title="Central Staff"
+    }" drawerWidth="w-1/2" :url="tableUrl" state="staff" :drawerTitle="drawerTitle" title="Central Staff"
         :columns="columns" @save="saveUser">
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />

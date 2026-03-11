@@ -13,6 +13,8 @@ export {default as StatusButtonsHorizontal} from './StatusButtonsHorizontal/inde
 
 export { default as authDirective } from './authDirective';
 export * from './ui/button';
+export * from './OutClicknavigation';
+export * from './confirmationDialog';
 export * from "./StatusMap"
 export *  from './ui/checkbox';
 export *  from './ui/input';

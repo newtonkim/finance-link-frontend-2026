@@ -15,8 +15,9 @@
         dark:border-neutral-700 dark:bg-neutral-900 dark:text-white 
         dark:focus:border-white" />
             </div>
-            <button v-if="searchQuery" @click="() => {
-
+            <button
+            type="button"
+             v-if="searchQuery" @click="() => {
                 const v = Object.keys(searchBy ?? []);
                 const obj = { search_keyword: searchQuery, }
                 console.log(v);

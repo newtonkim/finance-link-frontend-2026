@@ -1,5 +1,6 @@
 <template>
-    <TableDrawer drawerWidth="w-1/2" :url="tableUrl" state="staff"
+    <TableDrawer drawerWidth="w-1/2" :url="tableUrl" state="tanents_list"
+    :drawerShowFooter="Store.showSaveButton"
         :drawerTitle="drawerTitle" title="Tenants" :columns="columns" @save="saveUser">
         <template #expiry="{ item }: { item: any }">
             <div v-if="item?.license_expires_at" class="flex items-center gap-1.5">
@@ -37,6 +38,10 @@ const statusFilter = ref('all')
 const drawerTitle = ref('Create Tenant')
 const filters = ['all', 'active', 'suspended', 'trial']
 const { create, Erase } = tenantsApi()
+import { pomPinia } from 'septor-store'
+
+const Store = pomPinia()
+
 const tableUrl = computed(() => `/central/tenants/list?status=${statusFilter.value}`)
 const triggerAction: Record<string, Function> = {
     delete: Erase,

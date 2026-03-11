@@ -17,7 +17,7 @@ import TopBar from '@/Global/TopBar.vue';
 import { pomPinia } from 'septor-store';
 const Store = pomPinia();
 
-const toggleSubmenu = (label) => {
+const toggleSubmenu = () => {
     Store.showSubmenu = null
     
 }

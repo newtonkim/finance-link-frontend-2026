@@ -69,7 +69,10 @@
     <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShowFooter" v-model:open="drawerOpen"
         :title="drawerTitle" @save="saveDrawerData">
         <template #body>
-            <slot :data="provideDataTotheParent" name="drawer" :action="buttonTypeClicked" :submit="submitChanges" />
+           <form @submit.prevent="$emit('submit')">
+
+                <slot :data="provideDataTotheParent" name="drawer" :action="buttonTypeClicked" :submit="submitChanges" />
+            </form>
         </template>
     </Drawer>
 
@@ -88,11 +91,11 @@ import Table from './Components/Table.vue';
 import { Download, Printer } from 'lucide-vue-next';
 import { pomPinia } from 'septor-store';
 import { ACTION_CONFIG, dataTabelFilter, fetchTableData } from './util';
-import { localStoragePicker } from '../Helpers';
 const drawerOpen = ref(false);
+const slotOpen = ref(false);
 const showDelete = ref(false);
 const searchQuery = ref('');
-const emit = defineEmits(['save']);
+const emit = defineEmits(['save','submit']);
 const selected = ref<Record<string, unknown> | null>(null);
 const Store = pomPinia();
 const buttonTypeClicked = ref<any>(null);
@@ -142,6 +145,7 @@ const toggleDrawer = () => {
     (drawerOpen.value = !drawerOpen.value)
 
 };
+ 
 const save = (data: unknown, type = 'save') => {
     if (type == 'search' && props?.state && props?.url) {
         fetchTableData({ data, props, Store })
@@ -152,9 +156,13 @@ const save = (data: unknown, type = 'save') => {
         fetchTableData({ data, props: newprosDta, Store })
         return
     }
-    if (type === 'save')
+    if (type === 'create'|| type === 'save') {
         submitChanges.value = true
-    console.log(data, "---==");
+        setTimeout(() => {
+        submitChanges.value = false
+        },1000)
+    }
+
 
     emit("save", type, data)
 
@@ -168,9 +176,14 @@ function createUrl(url: string, action: string) {
 
 function saveDrawerData(data: any) {
     save(data, 'create')
+    toggleDrawer()
     setTimeout(() => {
+      
         submitChanges.value = false
     }, 2000)
+    setTimeout(() => {
+          toggleDrawer()
+    },100)
 }
 
 const handleAction = async (item: any, action: keyof typeof ACTION_CONFIG) => {
@@ -246,7 +259,8 @@ defineExpose({
     toggleDrawer,
     callNewPage,
     changeThePage,
-    handleAction, handlePrint
+    handleAction,
+     handlePrint
 })
 
 function haspermission(permission = "") {

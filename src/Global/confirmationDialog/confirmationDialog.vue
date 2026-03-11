@@ -25,12 +25,12 @@
       </div>
 
       <div class="mt-6 flex justify-end gap-3">
-        <button @click="cancelDelete"
+        <button type="button" @click="cancelDelete"
           class="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800">
           Cancel
         </button>
 
-        <button @click="() => executeDelete(items)" :disabled="deleting"
+        <button type="button" @click="() => executeDelete(items)" :disabled="deleting"
           class="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-50">
           <span v-if="deleting"
             class="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white"></span>
@@ -65,6 +65,7 @@ function executeDelete(member) {
 defineExpose({
   memberToDelete,
   cancelDelete,
+  executeDelete
 });
 
 const props = defineProps({
