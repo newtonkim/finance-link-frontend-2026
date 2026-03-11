@@ -122,7 +122,7 @@ const paymentModeOptions = [
 ];
 
 const generateTransactionRef = () => {
-    const date = new Date().toISOString().split('T')[0].replace(/-/g, '');
+    const date = (new Date().toISOString().split('T')[0] ?? '').replace(/-/g, '');
     const rand = Math.floor(10000 + Math.random() * 90000);
     return `TXN-${date}-${rand}`;
 };
@@ -139,11 +139,36 @@ const accountOptions = computed(() =>
     }))
 );
 
+const selectedAccount = computed(() =>
+    (member.savings_accounts ?? []).find((a: any) => String(a.id) === String(depositForm.savings_account_id))
+);
+
+const withdrawableAmount = computed(() => {
+    const acc = selectedAccount.value as any;
+    if (!acc) return null;
+    if (!acc.consider_min_balance) return (acc.balance as number);
+    return acc.withdrawable_amount as number;
+});
+
+const withdrawalAmountError = computed(() => {
+    if (drawerOpen.value !== 'withdraw') return '';
+    const amt = Number(depositForm.amount);
+    if (!amt || amt <= 0) return '';
+    const max = withdrawableAmount.value;
+    if (max === null) return '';
+    if (amt > max) {
+        const acc = selectedAccount.value as any;
+        const minBal = acc?.minimum_balance ?? 0;
+        return `Exceeds withdrawable amount. Max: UGX ${Number(max).toLocaleString('en-US', { minimumFractionDigits: 2 })}${minBal > 0 ? ` (min balance: UGX ${Number(minBal).toLocaleString('en-US', { minimumFractionDigits: 2 })})` : ''}`;
+    }
+    return '';
+});
+
 const formattedAmount = computed({
     get: () => {
         if (depositForm.amount === null || depositForm.amount === undefined || depositForm.amount === '') return '';
         const parts = depositForm.amount.toString().split('.');
-        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        if (parts[0] !== undefined) parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         return parts.join('.');
     },
     set: (val: string) => {
@@ -159,7 +184,7 @@ const formattedInitialDeposit = computed({
     get: () => {
         if (newAccountForm.initial_deposit === null || newAccountForm.initial_deposit === undefined || newAccountForm.initial_deposit === '') return '';
         const parts = newAccountForm.initial_deposit.toString().split('.');
-        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        if (parts[0] !== undefined) parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         return parts.join('.');
     },
     set: (val: string) => {
@@ -174,7 +199,7 @@ const formattedOpeningBalance = computed({
     get: () => {
         if (newAccountForm.opening_balance === null || newAccountForm.opening_balance === undefined || newAccountForm.opening_balance === '') return '';
         const parts = newAccountForm.opening_balance.toString().split('.');
-        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        if (parts[0] !== undefined) parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         return parts.join('.');
     },
     set: (val: string) => {
@@ -297,6 +322,7 @@ const newAccountForm = reactive({
     account_type: '',
     is_new_account: true,
     initial_deposit: '' as string | number,
+    opening_balance: '' as string | number,
     consider_min_balance: false,
     credited_account_id: '' as string | number,
     charges: [] as number[],
@@ -313,6 +339,7 @@ const openNewAccountDrawer = () => {
         account_type: '',
         is_new_account: true,
         initial_deposit: '',
+        opening_balance: '',
         consider_min_balance: false,
         credited_account_id: '',
         charges: [],
@@ -404,9 +431,9 @@ const submitNewAccount = async () => {
     newAccountErrors.value = {};
     try {
         await tenantClient.post('/savings-accounts', newAccountForm);
-        toast.success('Savings account created successfully.');
         closeNewAccountDrawer();
-        // Ideally reload member data here
+        await fetchMember();
+        toast.success('Savings account created successfully.');
     } catch (error: any) {
         if (error.response?.status === 422) {
             newAccountErrors.value = error.response.data.errors || {};
@@ -418,11 +445,57 @@ const submitNewAccount = async () => {
     }
 };
 
+// Custom Fee Drawer (Overrides)
+const customFeeDrawerOpen = ref(false);
+const customFeeProcessing = ref(false);
+const customFeeErrors = ref<Record<string, any>>({});
+const customFeeForm = reactive({
+    account_id: 0,
+    custom_monthly_fee_enabled: false,
+    custom_monthly_fee_type: 'amount',
+    custom_monthly_fee_amount: null as number | string | null,
+});
+
+const openCustomFeeDrawer = (account: any) => {
+    Object.assign(customFeeForm, {
+        account_id: account.id,
+        custom_monthly_fee_enabled: account.custom_monthly_fee_enabled ?? false,
+        custom_monthly_fee_type: account.custom_monthly_fee_type ?? 'amount',
+        custom_monthly_fee_amount: account.custom_monthly_fee_amount,
+    });
+    customFeeErrors.value = {};
+    customFeeDrawerOpen.value = true;
+};
+
+const closeCustomFeeDrawer = () => {
+    customFeeDrawerOpen.value = false;
+};
+
+const submitCustomFee = async () => {
+    customFeeProcessing.value = true;
+    customFeeErrors.value = {};
+    try {
+        await tenantClient.put(`/savings-accounts/${customFeeForm.account_id}/custom-fees`, customFeeForm);
+        toast.success('Custom fee settings updated successfully.');
+        closeCustomFeeDrawer();
+        fetchMember(); // Reload the member details so the new fees reflect in state
+    } catch (error: any) {
+        if (error.response?.status === 422) {
+            customFeeErrors.value = error.response.data.errors || {};
+        } else {
+            toast.error('Failed to update custom fee settings.');
+        }
+    } finally {
+        customFeeProcessing.value = false;
+    }
+};
+
 const openDrawer = (type: 'deposit' | 'withdraw') => {
     drawerOpen.value = type;
+    const accounts = member.savings_accounts ?? [];
     Object.assign(depositForm, {
         deposit_date: new Date().toISOString().split('T')[0],
-        savings_account_id: member.savings_accounts?.length ? member.savings_accounts[0].id : '',
+        savings_account_id: accounts.length === 1 ? accounts[0]!.id : '',
         amount: '',
         deposited_by: member.name,
         transaction_reference: generateTransactionRef(),
@@ -440,8 +513,16 @@ const closeDrawer = () => {
 
 const submitTransaction = async () => {
     if (!drawerOpen.value) return;
-    depositProcessing.value = true;
     depositErrors.value = {};
+
+    if (drawerOpen.value === 'withdraw' && withdrawalAmountError.value) return;
+
+    if (!depositForm.deposited_by?.trim()) {
+        depositErrors.value.deposited_by = 'Deposited by is required.';
+        return;
+    }
+
+    depositProcessing.value = true;
     const url = drawerOpen.value === 'deposit'
         ? `/savings-accounts/${depositForm.savings_account_id}/deposit`
         : `/savings-accounts/${depositForm.savings_account_id}/withdraw`;
@@ -807,11 +888,19 @@ const handleAvatarUpload = async (event: Event) => {
                                                 today</span>
                                         </td>
                                         <td class="py-5 px-6">
-                                            <button
-                                                class="flex items-center gap-2 px-[14px] py-1.5 text-[12px] font-bold rounded-full border border-gray-200 text-[#546576] hover:bg-gray-50 transition-colors">
-                                                <Edit :size="12" />
-                                                Update Details
-                                            </button>
+                                            <div class="flex items-center gap-2">
+                                                <button
+                                                    class="flex items-center gap-2 px-[14px] py-1.5 text-[12px] font-bold rounded-full border border-gray-200 text-[#546576] hover:bg-gray-50 transition-colors">
+                                                    <Edit :size="12" />
+                                                    Update Details
+                                                </button>
+                                                <button @click="openCustomFeeDrawer(account)"
+                                                    class="flex items-center gap-2 px-[14px] py-1.5 text-[12px] font-bold rounded-full border border-amber-200 text-amber-700 bg-amber-50 hover:bg-amber-100 transition-colors"
+                                                    title="Adjust Compulsory Fees">
+                                                    <Star :size="12" />
+                                                    Custom Fees
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -1409,17 +1498,17 @@ const handleAvatarUpload = async (event: Event) => {
                     <!-- Drawer Panel -->
                     <Transition name="drawer-slide">
                         <div v-if="newAccountDrawerOpen"
-                            class="relative w-full max-w-[440px] h-full bg-card border-l border-border shadow-2xl flex flex-col">
+                            class="relative w-full max-w-[440px] h-full bg-white border-l border-gray-200 shadow-2xl flex flex-col">
                             <!-- Header -->
-                            <div class="flex items-center justify-between p-5 border-b border-border">
+                            <div class="flex items-center justify-between p-5 border-b border-gray-200">
                                 <div class="flex items-center gap-3">
                                     <div class="w-8 h-8 rounded-lg bg-[#c9a84c]/10 flex items-center justify-center">
                                         <Plus :size="16" class="text-[#c9a84c]" />
                                     </div>
-                                    <h3 class="text-[15px] font-bold text-foreground">Add Account</h3>
+                                    <h3 class="text-[15px] font-bold text-gray-900">Add Account</h3>
                                 </div>
                                 <button @click="closeNewAccountDrawer"
-                                    class="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-accent hover:text-foreground transition-all">
+                                    class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-all">
                                     <X :size="18" />
                                 </button>
                             </div>
@@ -1429,7 +1518,7 @@ const handleAvatarUpload = async (event: Event) => {
                                 <!-- Account Type (Savings Product) - Searchable -->
                                 <div>
                                     <label
-                                        class="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                                        class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
                                         Account Type
                                     </label>
                                     <SearchableSelect :modelValue="newAccountForm.savings_product_id"
@@ -1441,7 +1530,7 @@ const handleAvatarUpload = async (event: Event) => {
                                 <!-- Is New Account - Searchable -->
                                 <div>
                                     <label
-                                        class="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                                        class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
                                         Is New Account
                                     </label>
                                     <SearchableSelect :modelValue="isNewAccountValue"
@@ -1454,23 +1543,22 @@ const handleAvatarUpload = async (event: Event) => {
                                     <!-- Charges (Multi-select dropdown) -->
                                     <div>
                                         <label
-                                            class="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
-                                            Charges (to apply) <span class="text-[#dc2626]">*</span>
+                                            class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
+                                            Charges (to apply) <span class="text-red-600">*</span>
                                         </label>
                                         <div class="relative">
                                             <div @click="showChargeDropdown = !showChargeDropdown"
-                                                class="min-h-[46px] py-2.5 px-3 rounded-xl border bg-background cursor-pointer flex flex-wrap gap-1.5 items-center transition-all"
-                                                :class="showChargeDropdown ? 'border-[#c9a84c]/50 ring-1 ring-[#c9a84c]/30' : 'border-border hover:border-muted-foreground/30'">
+                                                class="min-h-[46px] py-2.5 px-3 rounded-xl border bg-gray-50 cursor-pointer flex flex-wrap gap-1.5 items-center transition-all"
+                                                :class="showChargeDropdown ? 'border-[#c9a84c]/50 ring-1 ring-[#c9a84c]/30' : 'border-gray-200 hover:border-gray-400'">
                                                 <template v-if="newAccountForm.charges.length > 0">
                                                     <span v-for="cid in newAccountForm.charges" :key="cid"
                                                         class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-[#c9a84c]/10 text-[#c9a84c] border border-[#c9a84c]/20">
                                                         {{ getChargeNameById(cid) }}
-                                                        <X :size="10" class="ml-0.5 cursor-pointer hover:text-[#dc2626]"
+                                                        <X :size="10" class="ml-0.5 cursor-pointer hover:text-red-600"
                                                             @click.stop="toggleCharge(cid)" />
                                                     </span>
                                                 </template>
-                                                <span v-else class="text-[12px] text-muted-foreground/50">Select
-                                                    charges</span>
+                                                <span v-else class="text-[12px] text-gray-400">Select charges</span>
                                             </div>
 
                                             <!-- Charge dropdown -->
@@ -1481,16 +1569,16 @@ const handleAvatarUpload = async (event: Event) => {
                                                 leave-from-class="transform scale-100 opacity-100"
                                                 leave-to-class="transform scale-95 opacity-0">
                                                 <div v-if="showChargeDropdown"
-                                                    class="absolute z-50 mt-1.5 w-full rounded-xl border border-border bg-card shadow-xl overflow-hidden">
+                                                    class="absolute z-50 mt-1.5 w-full rounded-xl border border-gray-200 bg-white shadow-xl overflow-hidden">
                                                     <ul class="max-h-48 overflow-auto py-1">
                                                         <li v-if="!selectedProductCharges.length"
-                                                            class="px-4 py-6 text-center text-[12px] text-muted-foreground">
+                                                            class="px-4 py-6 text-center text-[12px] text-gray-400">
                                                             Select an account type first
                                                         </li>
                                                         <li v-for="charge in selectedProductCharges" :key="charge.id"
                                                             @click="toggleCharge(charge.id)"
-                                                            class="flex items-center justify-between px-4 py-2.5 text-[13px] cursor-pointer transition-colors hover:bg-accent"
-                                                            :class="isChargeSelected(charge.id) ? 'text-foreground font-semibold bg-accent/50' : 'text-muted-foreground'">
+                                                            class="flex items-center justify-between px-4 py-2.5 text-[13px] cursor-pointer transition-colors hover:bg-gray-50"
+                                                            :class="isChargeSelected(charge.id) ? 'text-gray-900 font-semibold bg-gray-100' : 'text-gray-500'">
                                                             <span>{{ charge.type }}</span>
                                                             <Check v-if="isChargeSelected(charge.id)" :size="14"
                                                                 class="text-[#c9a84c]" />
@@ -1504,8 +1592,8 @@ const handleAvatarUpload = async (event: Event) => {
                                     <!-- Credited Account - Searchable -->
                                     <div>
                                         <label
-                                            class="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
-                                            Credited Account <span class="text-[#dc2626]">*</span>
+                                            class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
+                                            Credited Account <span class="text-red-600">*</span>
                                         </label>
                                         <SearchableSelect :modelValue="newAccountForm.credited_account_id"
                                             @update:modelValue="newAccountForm.credited_account_id = $event"
@@ -1516,17 +1604,17 @@ const handleAvatarUpload = async (event: Event) => {
                                     <!-- Initial Deposit -->
                                     <div>
                                         <label
-                                            class="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
-                                            Initial Deposit <span class="text-[#dc2626]">*</span>
+                                            class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
+                                            Initial Deposit <span class="text-red-600">*</span>
                                         </label>
                                         <div class="relative">
                                             <span
-                                                class="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-muted-foreground">UGX</span>
+                                                class="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-gray-500">UGX</span>
                                             <input v-model="formattedInitialDeposit" type="text" placeholder="0"
-                                                class="w-full py-3 pl-14 pr-4 rounded-xl bg-background border border-border text-foreground text-[14px] font-mono font-bold placeholder-muted-foreground/50 focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30 transition-all" />
+                                                class="w-full py-3 pl-14 pr-4 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-[14px] font-mono font-bold placeholder-gray-400 focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30 transition-all" />
                                         </div>
                                         <p v-if="newAccountErrors.initial_deposit"
-                                            class="mt-1 text-[11px] text-[#dc2626]">{{
+                                            class="mt-1 text-[11px] text-red-600">{{
                                                 newAccountErrors.initial_deposit }}</p>
                                     </div>
                                 </template>
@@ -1534,9 +1622,9 @@ const handleAvatarUpload = async (event: Event) => {
                                 <!-- ===== FIELDS WHEN IS NEW ACCOUNT = NO ===== -->
                                 <template v-else>
                                     <!-- Note -->
-                                    <div class="rounded-xl bg-secondary/60 border border-border p-4">
-                                        <p class="text-[12px] text-muted-foreground leading-relaxed">
-                                            <span class="font-bold text-foreground">Note:</span>
+                                    <div class="rounded-xl bg-gray-100 border border-gray-200 p-4">
+                                        <p class="text-[12px] text-gray-500 leading-relaxed">
+                                            <span class="font-bold text-gray-900">Note:</span>
                                             Opening reserves will be debited automatically with the opening
                                             balance as it is assumed this money is already in any of the asset
                                             accounts e.g Cash, Bank, mobile money etc
@@ -1546,17 +1634,17 @@ const handleAvatarUpload = async (event: Event) => {
                                     <!-- Opening Balance -->
                                     <div>
                                         <label
-                                            class="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
-                                            Opening balance <span class="text-[#dc2626]">*</span>
+                                            class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
+                                            Opening balance <span class="text-red-600">*</span>
                                         </label>
                                         <div class="relative">
                                             <span
-                                                class="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-muted-foreground">UGX</span>
+                                                class="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-gray-500">UGX</span>
                                             <input v-model="formattedOpeningBalance" type="text" placeholder="0"
-                                                class="w-full py-3 pl-14 pr-4 rounded-xl bg-background border border-border text-foreground text-[14px] font-mono font-bold placeholder-muted-foreground/50 focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30 transition-all" />
+                                                class="w-full py-3 pl-14 pr-4 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-[14px] font-mono font-bold placeholder-gray-400 focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30 transition-all" />
                                         </div>
                                         <p v-if="newAccountErrors.initial_deposit"
-                                            class="mt-1 text-[11px] text-[#dc2626]">{{ newAccountErrors.initial_deposit
+                                            class="mt-1 text-[11px] text-red-600">{{ newAccountErrors.initial_deposit
                                             }}</p>
                                     </div>
                                 </template>
@@ -1564,7 +1652,7 @@ const handleAvatarUpload = async (event: Event) => {
                                 <!-- Consider Minimum Balance - Searchable -->
                                 <div>
                                     <label
-                                        class="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                                        class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
                                         Consider account type minimum balance
                                     </label>
                                     <SearchableSelect :modelValue="minBalanceValue"
@@ -1574,9 +1662,9 @@ const handleAvatarUpload = async (event: Event) => {
                             </form>
 
                             <!-- Footer Buttons -->
-                            <div class="p-5 border-t border-border flex items-center justify-end gap-3">
+                            <div class="p-5 border-t border-gray-200 flex items-center justify-end gap-3">
                                 <button @click="closeNewAccountDrawer" type="button"
-                                    class="px-5 py-2.5 rounded-lg text-[12px] font-semibold text-muted-foreground border border-border hover:bg-accent hover:text-foreground transition-all">
+                                    class="px-5 py-2.5 rounded-lg text-[12px] font-semibold text-gray-500 border border-gray-200 hover:bg-gray-100 hover:text-gray-900 transition-all">
                                     Close
                                 </button>
                                 <button @click="submitNewAccount" :disabled="newAccountProcessing"
@@ -1585,6 +1673,89 @@ const handleAvatarUpload = async (event: Event) => {
                                         class="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white">
                                     </div>
                                     Save changes
+                                </button>
+                            </div>
+                        </div>
+                    </Transition>
+                </div>
+            </Transition>
+
+            <!-- ==================== CUSTOM FEE DRAWER (OVERRIDES) ==================== -->
+            <Transition name="drawer-fade">
+                <div v-if="customFeeDrawerOpen" class="fixed inset-0 z-50 flex justify-end">
+                    <!-- Backdrop -->
+                    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeCustomFeeDrawer"></div>
+
+                    <!-- Drawer Panel -->
+                    <Transition name="drawer-slide">
+                        <div v-if="customFeeDrawerOpen"
+                            class="relative w-full max-w-[440px] h-full bg-card border-l border-border shadow-2xl flex flex-col">
+                            <!-- Header -->
+                            <div class="flex items-center justify-between p-5 border-b border-border">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                                        <Star :size="16" class="text-amber-600 dark:text-amber-500" />
+                                    </div>
+                                    <h3 class="text-[15px] font-bold text-foreground">Custom Fees</h3>
+                                </div>
+                                <button @click="closeCustomFeeDrawer"
+                                    class="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-accent hover:text-foreground transition-all">
+                                    <X :size="18" />
+                                </button>
+                            </div>
+
+                            <form @submit.prevent="submitCustomFee"
+                                class="flex-1 p-5 flex flex-col gap-5 overflow-y-auto">
+                                <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/30 dark:bg-amber-900/10">
+                                    <h4 class="text-sm font-semibold text-amber-900 dark:text-amber-500 mb-1">Fee Overrides</h4>
+                                    <p class="text-xs text-amber-700 dark:text-amber-400">
+                                        Settings defined here will override the default periodic charges assigned to the savings product for this specific member account.
+                                    </p>
+                                </div>
+
+                                <!-- Enable Custom Fee -->
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-foreground">Enable Custom Fee</label>
+                                        <p class="text-xs text-muted-foreground mt-0.5">Override product defaults</p>
+                                    </div>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <div class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#c9a84c]" :class="customFeeForm.custom_monthly_fee_enabled ? 'bg-[#c9a84c]' : 'bg-secondary'">
+                                            <span class="inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out" :class="customFeeForm.custom_monthly_fee_enabled ? 'translate-x-6' : 'translate-x-1'"></span>
+                                            <input v-model="customFeeForm.custom_monthly_fee_enabled" type="checkbox" class="sr-only">
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <template v-if="customFeeForm.custom_monthly_fee_enabled">
+                                    <div class="grid gap-4 animate-in fade-in slide-in-from-top-2 duration-300 border-t border-border pt-4">
+                                        <div>
+                                            <label class="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Fee Format</label>
+                                            <select v-model="customFeeForm.custom_monthly_fee_type" class="w-full py-2.5 px-3 rounded-xl border border-border bg-background text-sm focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c]/50 transition-all">
+                                                <option value="amount">Fixed Amount</option>
+                                                <option value="percentage">Percentage (%)</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Amount / Rate</label>
+                                            <div class="relative">
+                                                <span v-if="customFeeForm.custom_monthly_fee_type === 'amount'" class="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-muted-foreground">UGX</span>
+                                                <span v-else class="absolute right-4 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-muted-foreground">%</span>
+                                                <input v-model="customFeeForm.custom_monthly_fee_amount" type="number" step="0.01" class="w-full py-2.5 border border-border bg-background rounded-xl text-sm focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c]/50 transition-all" :class="customFeeForm.custom_monthly_fee_type === 'amount' ? 'pl-12 pr-4' : 'pl-4 pr-10'" />
+                                            </div>
+                                            <p v-if="customFeeErrors.custom_monthly_fee_amount" class="mt-1 text-[11px] text-[#dc2626]">{{ customFeeErrors.custom_monthly_fee_amount[0] || customFeeErrors.custom_monthly_fee_amount }}</p>
+                                        </div>
+                                    </div>
+                                </template>
+                            </form>
+
+                            <div class="p-5 border-t border-border flex items-center justify-end gap-3">
+                                <button @click="closeCustomFeeDrawer" type="button" class="px-5 py-2.5 rounded-lg text-[12px] font-semibold text-muted-foreground border border-border hover:bg-accent hover:text-foreground transition-all">
+                                    Cancel
+                                </button>
+                                <button @click="submitCustomFee" :disabled="customFeeProcessing" class="px-5 py-2.5 rounded-lg text-[12px] font-bold bg-amber-600 text-white hover:bg-amber-700 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                                    <span v-if="customFeeProcessing" class="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
+                                    Apply Changes
                                 </button>
                             </div>
                         </div>
@@ -1653,14 +1824,25 @@ const handleAvatarUpload = async (event: Event) => {
                                         <div>
                                             <label
                                                 class="block text-[11px] font-bold text-gray-900 uppercase tracking-widest mb-2">
-                                                Account Number
+                                                Account <span v-if="(member.savings_accounts ?? []).length > 1" class="text-red-600 ml-0.5">*</span>
                                             </label>
                                             <SearchableSelect :modelValue="depositForm.savings_account_id"
                                                 @update:modelValue="depositForm.savings_account_id = $event"
-                                                :options="accountOptions" placeholder="Select Account"
+                                                :options="accountOptions"
+                                                :placeholder="(member.savings_accounts ?? []).length > 1 ? 'Select account' : 'Select Account'"
                                                 :error="depositErrors.savings_account_id"
                                                 class="[&_.vs__dropdown-toggle]:!bg-white [&_.vs__dropdown-toggle]:!py-2 [&_.vs__dropdown-toggle]:!rounded-xl [&_.vs__dropdown-toggle]:!border-white" />
+                                            <p v-if="(member.savings_accounts ?? []).length > 1 && !depositForm.savings_account_id" class="mt-1 text-[10px] text-amber-600 font-semibold">
+                                                This member has {{ (member.savings_accounts ?? []).length }} accounts — please select one
+                                            </p>
                                         </div>
+                                    </div>
+
+                                    <!-- Min balance info badge — withdrawal only, shown when min balance is enforced -->
+                                    <div v-if="drawerOpen === 'withdraw' && selectedAccount && (selectedAccount as any).consider_min_balance && Number((selectedAccount as any).minimum_balance) > 0" class="flex items-center gap-4 px-4 py-2.5 rounded-xl bg-amber-50 border border-amber-200 text-[12px] font-medium text-amber-800">
+                                        <span>Min Balance: <strong>UGX {{ Number((selectedAccount as any).minimum_balance).toLocaleString('en-US', { minimumFractionDigits: 2 }) }}</strong></span>
+                                        <span class="text-amber-400">|</span>
+                                        <span>Withdrawable: <strong>UGX {{ Number((selectedAccount as any).withdrawable_amount).toLocaleString('en-US', { minimumFractionDigits: 2 }) }}</strong></span>
                                     </div>
 
                                     <!-- Row 2: Amount + Deposited By -->
@@ -1674,9 +1856,10 @@ const handleAvatarUpload = async (event: Event) => {
                                                 <span
                                                     class="absolute left-4 top-1/2 -translate-y-1/2 text-[13px] font-black text-gray-900">UGX</span>
                                                 <input v-model="formattedAmount" type="text" placeholder="0.00"
-                                                    class="w-full py-3.5 pl-16 pr-4 rounded-xl bg-black/5 border border-gray-600/50 text-gray-900 text-[16px] font-mono font-bold placeholder-gray-600 focus:outline-none focus:bg-white focus:border-[#cda434] transition-all" />
+                                                    :class="['w-full py-3.5 pl-16 pr-4 rounded-xl bg-black/5 border text-gray-900 text-[16px] font-mono font-bold placeholder-gray-600 focus:outline-none focus:bg-white transition-all', withdrawalAmountError ? 'border-red-500 focus:border-red-500' : 'border-gray-600/50 focus:border-[#cda434]']" />
                                             </div>
-                                            <p v-if="depositErrors.amount"
+                                            <p v-if="withdrawalAmountError" class="mt-1 text-[11px] text-red-600 font-bold">{{ withdrawalAmountError }}</p>
+                                            <p v-else-if="depositErrors.amount"
                                                 class="mt-1 text-[11px] text-red-600 font-bold">{{
                                                     depositErrors.amount }}</p>
                                         </div>
@@ -1798,7 +1981,7 @@ const handleAvatarUpload = async (event: Event) => {
                                     Close
                                 </button>
                                 <button @click="submitTransaction"
-                                    :disabled="depositProcessing || !depositForm.amount || Number(depositForm.amount) <= 0"
+                                    :disabled="depositProcessing || !depositForm.savings_account_id || !depositForm.amount || Number(depositForm.amount) <= 0 || !!withdrawalAmountError"
                                     :class="[
                                         'px-7 py-2.5 rounded-lg text-[13px] font-bold transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2',
                                         drawerOpen === 'deposit'
