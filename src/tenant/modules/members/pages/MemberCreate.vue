@@ -1,14 +1,19 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { isAxiosError } from 'axios'
-import { ArrowLeft, UserCircle2 } from 'lucide-vue-next'
+import { ArrowLeft, UserCircle2, Share2, AlertCircle, TrendingUp } from 'lucide-vue-next'
 import { Label, InputError, Spinner } from '@/Global'
 import PhoneInput from '@/Global/PhoneInput.vue'
 import SearchableSelect from '@/Global/SearchableSelect.vue'
 import { membersApi } from '@/tenant/apis/members/membersApi'
+import { useSettingsStore } from '@/stores/settingsStore'
+
+const settingsStore = useSettingsStore()
 
 const router = useRouter()
+
+onMounted(() => settingsStore.fetchOnboardingSettings())
 
 // ─── Select options ───────────────────────────────────────────────────────────
 const memberTypeOptions   = [{ id: 'new_member', name: 'New Member' }, { id: 'existing_member', name: 'Existing Member' }]
@@ -53,6 +58,7 @@ const form = ref({
   is_shareholder: '',
   savings_product_id: '',
   opening_balance: '',
+  shares_quantity: '' as string | number,
 })
 
 const avatarFile    = ref<File | null>(null)
@@ -61,6 +67,28 @@ const processing    = ref(false)
 const errors        = ref<Record<string, string>>({})
 
 const isExisting = computed(() => form.value.member_type === 'existing_member')
+
+// ─── Shares onboarding ────────────────────────────────────────────────────────
+const sharesRequired = computed(() => {
+  if (!settingsStore.sharesCompulsory) return false
+  if (!isExisting.value) return true
+  return settingsStore.sharesCompulsoryAppliesToExisting
+})
+
+const sharesTotalAmount = computed(() => {
+  const qty = Number(form.value.shares_quantity) || 0
+  return qty * settingsStore.sharePrice
+})
+
+const sharesError = computed(() => {
+  if (!sharesRequired.value) return ''
+  const qty = Number(form.value.shares_quantity)
+  if (!qty || qty <= 0) return `At least ${settingsStore.minSharesOnOnboarding} share(s) required.`
+  if (qty < settingsStore.minSharesOnOnboarding) {
+    return `Minimum ${settingsStore.minSharesOnOnboarding} share(s) required (UGX ${(settingsStore.minSharesOnOnboarding * settingsStore.sharePrice).toLocaleString()}).`
+  }
+  return ''
+})
 
 // ─── Avatar ───────────────────────────────────────────────────────────────────
 function onAvatarChange(e: Event) {
@@ -71,6 +99,7 @@ function onAvatarChange(e: Event) {
 
 // ─── Submit ───────────────────────────────────────────────────────────────────
 async function submit() {
+  if (sharesRequired.value && sharesError.value) return
   processing.value = true
   errors.value = {}
   try {
@@ -90,7 +119,7 @@ async function submit() {
     if (isAxiosError(err)) {
       const data = err.response?.data as { message?: string; errors?: Record<string, string[]> }
       if (data?.errors) {
-        Object.entries(data.errors).forEach(([k, v]) => { errors.value[k] = v[0] })
+        Object.entries(data.errors).forEach(([k, v]) => { errors.value[k] = v[0] ?? '' })
       } else {
         errors.value.form = data?.message ?? 'Something went wrong.'
       }
@@ -151,7 +180,7 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
           </div>
 
           <!-- Existing Member: Is a Shareholder in col 2 of row 1 -->
-          <div v-else class="grid gap-1.5">
+          <div v-else-if="!settingsStore.hideIsShareholderField" class="grid gap-1.5">
             <Label>Is a shareholder <span class="text-red-500">*</span></Label>
             <SearchableSelect
               v-model="form.is_shareholder"
@@ -402,6 +431,72 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
 
         </div>
 
+        <!-- ── Share Purchase Section (shown when shares compulsory setting is ON) ── -->
+        <div v-if="sharesRequired" class="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50/60 overflow-hidden">
+          <!-- Section header -->
+          <div class="flex items-center gap-2.5 px-5 py-3 bg-emerald-100/80 border-b border-emerald-200">
+            <Share2 class="h-4 w-4 text-emerald-700" />
+            <span class="text-[12px] font-bold text-emerald-800 uppercase tracking-wider">Share Purchase</span>
+            <span class="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-600 text-white uppercase tracking-wide">
+              Required
+            </span>
+          </div>
+
+          <div class="p-5 space-y-4">
+            <!-- Policy info banner -->
+            <div class="flex items-start gap-3 px-4 py-3 rounded-xl bg-white border border-emerald-200">
+              <AlertCircle class="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+              <p class="text-[12px] text-emerald-800 leading-relaxed">
+                This SACCO requires a minimum of
+                <strong>{{ settingsStore.minSharesOnOnboarding }} share(s)</strong>
+                at <strong>UGX {{ settingsStore.sharePrice.toLocaleString() }}</strong> each
+                (total: <strong>UGX {{ (settingsStore.minSharesOnOnboarding * settingsStore.sharePrice).toLocaleString() }}</strong>)
+                to register a member.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <!-- Shares quantity input -->
+              <div class="grid gap-1.5">
+                <label class="text-sm font-semibold text-neutral-700">
+                  Number of Shares to Purchase <span class="text-red-500">*</span>
+                </label>
+                <div class="flex overflow-hidden rounded-xl border focus-within:ring-1 transition-all"
+                  :class="sharesError ? 'border-red-400 focus-within:ring-red-300' : 'border-neutral-200 focus-within:border-emerald-400 focus-within:ring-emerald-300'">
+                  <span class="flex items-center border-r border-neutral-200 bg-neutral-50 px-4 text-sm font-medium text-neutral-500">
+                    Shares
+                  </span>
+                  <input
+                    v-model.number="form.shares_quantity"
+                    type="number"
+                    :min="settingsStore.minSharesOnOnboarding"
+                    :placeholder="`Min. ${settingsStore.minSharesOnOnboarding}`"
+                    class="flex-1 bg-white px-4 py-3 text-sm font-mono font-bold text-neutral-800 outline-none placeholder:text-neutral-400"
+                  />
+                </div>
+                <p v-if="sharesError" class="text-[11px] text-red-600 font-medium">{{ sharesError }}</p>
+                <p v-else-if="errors.shares_quantity" class="text-[11px] text-red-600">{{ errors.shares_quantity }}</p>
+              </div>
+
+              <!-- Auto-computed total -->
+              <div class="grid gap-1.5">
+                <label class="text-sm font-semibold text-neutral-700">Total Share Investment</label>
+                <div class="flex items-center gap-3 rounded-xl border border-emerald-200 bg-white px-4 py-3 min-h-[48px]">
+                  <TrendingUp class="h-4 w-4 text-emerald-600 shrink-0" />
+                  <div>
+                    <p class="text-[11px] text-neutral-500 font-medium uppercase tracking-wide">
+                      {{ form.shares_quantity || 0 }} shares × UGX {{ settingsStore.sharePrice.toLocaleString() }}
+                    </p>
+                    <p class="text-[18px] font-black text-emerald-700 font-mono leading-tight">
+                      UGX {{ sharesTotalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 }) }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Footer -->
         <div class="mt-8 flex items-center justify-between border-t border-neutral-100 pt-6">
           <button
@@ -413,7 +508,7 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
           </button>
           <button
             type="submit"
-            :disabled="processing"
+            :disabled="processing || (sharesRequired && !!sharesError)"
             class="inline-flex items-center gap-2 rounded-full bg-[#001d22] px-8 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#001d22]/90 transition-colors disabled:opacity-60"
           >
             <Spinner v-if="processing" class="h-4 w-4" />
