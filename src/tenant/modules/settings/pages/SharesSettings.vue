@@ -18,6 +18,13 @@ import { PieChart } from 'lucide-vue-next'
         <div class="grid gap-5 lg:grid-cols-2">
             <div
                 class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+                <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Share Management</h3>
+                <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Manage share products and related account settings.</p>
+                <button class="text-sm font-medium text-[#001d22] dark:text-[#C9A84C] hover:underline">Manage Shares
+                    →</button>
+            </div>
+            <div
+                class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Share Capital</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Manage share capital structure and
                     limits.</p>
