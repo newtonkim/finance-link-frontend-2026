@@ -1169,68 +1169,65 @@ const handleAvatarUpload = async (event: Event) => {
                         <!-- Savings Tab Content -->
                         <div v-show="activeTab === 'savings'" class="flex flex-col">
                             <!-- Top Controls -->
-                            <div
-                                class="px-5 py-4 border-b border-border bg-card flex flex-col md:flex-row gap-4 justify-between items-center">
-                                <div class="flex items-center gap-3 w-full md:w-auto">
+                            <div class="py-4 bg-transparent flex flex-wrap gap-4 justify-between items-center px-4 md:px-6">
+                                <div class="flex items-center gap-3">
                                     <input v-model="txnStartDate" type="date"
-                                        class="py-2 px-3 rounded-lg border border-border bg-background text-[12px] focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30" />
+                                        class="h-10 px-4 rounded-full bg-[#f1f5f9] border-0 text-[13px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#cda434]/50 cursor-pointer min-w-[140px]" />
                                     <input v-model="txnEndDate" type="date"
-                                        class="py-2 px-3 rounded-lg border border-border bg-background text-[12px] focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30" />
+                                        class="h-10 px-4 rounded-full bg-[#f1f5f9] border-0 text-[13px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#cda434]/50 cursor-pointer min-w-[140px]" />
                                     <button @click="txnStartDate = ''; txnEndDate = ''"
-                                        class="px-4 py-2 text-[12px] font-semibold rounded-lg border border-border bg-background hover:bg-accent transition-all">
+                                        class="h-10 px-5 text-[13px] font-bold rounded-full bg-[#f1f5f9] text-gray-700 hover:bg-[#e2e8f0] transition-colors">
                                         Clear
                                     </button>
                                 </div>
-                                <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                                <div>
                                     <button @click="openDrawer('deposit')"
-                                        class="px-4 py-2 text-[12px] font-bold rounded-lg bg-[#16a34a] text-white hover:bg-[#15803d] transition-all shadow-sm">
+                                        class="h-10 px-6 text-[13px] font-bold rounded-full bg-[#16a34a] text-white hover:bg-[#15803d] transition-colors shadow-sm">
                                         Record Deposit
                                     </button>
                                 </div>
                             </div>
 
                             <!-- Table Filters -->
-                            <div class="px-5 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-                                <div class="flex items-center gap-2 text-[13px] text-muted-foreground">
+                            <div class="py-2 pb-5 flex flex-col sm:flex-row justify-between items-center gap-4 px-4 md:px-6">
+                                <div class="flex items-center gap-2 text-[13px] text-[#64748b]">
                                     Show
                                     <select v-model="txnsPerPage" @change="currentTxnPage = 1"
-                                        class="py-1 px-2 rounded border border-border bg-background focus:outline-none focus:border-[#c9a84c]/50">
+                                        class="h-8 px-2 rounded-md bg-[#f1f5f9] border-0 text-gray-700 text-[13px] focus:outline-none focus:ring-1 focus:ring-[#cda434]/50 cursor-pointer">
                                         <option :value="10">10</option>
                                         <option :value="25">25</option>
                                         <option :value="50">50</option>
                                     </select>
                                     entries
                                 </div>
-                                <div class="flex items-center gap-2 text-[13px] text-muted-foreground">
+                                <div class="flex items-center gap-2 text-[13px] text-[#64748b]">
                                     Search:
                                     <input v-model="txnSearchQuery" @input="currentTxnPage = 1" type="text"
-                                        class="py-1.5 px-3 rounded border border-border bg-background focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30"
+                                        class="h-9 w-[200px] sm:w-[250px] px-3 rounded-md bg-[#f1f5f9] border-0 text-gray-700 text-[13px] focus:outline-none focus:ring-1 focus:ring-[#cda434]/50"
                                         placeholder="Ref, Narration, Paid by..." />
                                 </div>
                             </div>
 
                             <!-- Savings Table (Original Transaction Table) -->
-                            <div class="overflow-x-auto">
+                            <div class="overflow-x-auto border-y border-gray-100">
                                 <table class="w-full text-left min-w-[900px]">
                                     <thead>
-                                        <tr class="border-y border-border bg-accent/30 text-muted-foreground">
-                                            <th class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider">S/N
+                                        <tr class="border-b border-gray-100 bg-transparent text-[#64748b]">
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">S/N
                                                 &#x21C5;</th>
-                                            <th class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider">Account
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Account
                                                 &#x21C5;</th>
-                                            <th
-                                                class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider bg-transparent">
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider bg-transparent">
                                                 Amount &#x21C5;</th>
-                                            <th class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider">
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">
                                                 Description &#x21C5;</th>
-                                            <th class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider">Paid by
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Paid by
                                                 &#x21C5;</th>
-                                            <th class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider">
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">
                                                 Transaction Date &#x21C5;</th>
-                                            <th class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider">Date
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Date
                                                 Added &#x21C5;</th>
-                                            <th
-                                                class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider text-center">
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider text-center">
                                                 Action &#x21C5;</th>
                                         </tr>
                                     </thead>
@@ -1240,8 +1237,7 @@ const handleAvatarUpload = async (event: Event) => {
                                                 No transactions found.</td>
                                         </tr>
                                         <tr v-for="(txn, index) in paginatedTransactions" :key="txn.id"
-                                            class="border-b border-border/40 hover:bg-accent/30 transition-colors"
-                                            :class="index % 2 === 0 ? 'bg-secondary/20' : ''">
+                                            class="border-b border-transparent hover:bg-accent/30 transition-colors">
                                             <td class="py-3.5 px-5 text-[13px] text-muted-foreground">{{ (currentTxnPage
                                                 - 1) * txnsPerPage + index + 1 }}.</td>
                                             <td class="py-3.5 px-5">
@@ -1292,20 +1288,20 @@ const handleAvatarUpload = async (event: Event) => {
 
                             <!-- Pagination -->
                             <div
-                                class="px-5 py-4 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4 text-[13px] text-muted-foreground">
+                                class="py-5 px-4 md:px-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-[13px] text-[#64748b]">
                                 <div>
                                     Showing {{ activeTransactions.length ? (currentTxnPage - 1) * txnsPerPage + 1 : 0 }}
                                     to {{ Math.min(currentTxnPage * txnsPerPage, activeTransactions.length) }} of {{
                                         activeTransactions.length }} entries
                                 </div>
-                                <div class="flex items-center gap-1">
+                                <div class="flex items-center gap-2">
                                     <button @click="prevTxnPage" :disabled="currentTxnPage === 1"
-                                        class="w-8 h-8 rounded-full flex items-center justify-center border border-border hover:bg-accent transition-colors disabled:opacity-50">&lsaquo;</button>
+                                        class="w-8 h-8 rounded-full flex items-center justify-center border border-gray-200 text-gray-400 hover:text-gray-700 hover:border-gray-300 transition-colors disabled:opacity-50">&lsaquo;</button>
                                     <button
                                         class="w-8 h-8 rounded-full flex items-center justify-center bg-[#16a34a] text-white font-bold shadow-sm text-[12px]">{{
                                             currentTxnPage }}</button>
                                     <button @click="nextTxnPage" :disabled="currentTxnPage === totalTxnPages"
-                                        class="w-8 h-8 rounded-full flex items-center justify-center border border-border hover:bg-accent transition-colors disabled:opacity-50">&rsaquo;</button>
+                                        class="w-8 h-8 rounded-full flex items-center justify-center border border-gray-200 text-gray-400 hover:text-gray-700 hover:border-gray-300 transition-colors disabled:opacity-50">&rsaquo;</button>
                                 </div>
                             </div>
                         </div>
@@ -1313,68 +1309,65 @@ const handleAvatarUpload = async (event: Event) => {
                         <!-- Withdrawal Tab Content -->
                         <div v-show="activeTab === 'withdrawal'" class="flex flex-col">
                             <!-- Top Controls -->
-                            <div
-                                class="px-5 py-4 border-b border-border bg-card flex flex-col md:flex-row gap-4 justify-between items-center">
-                                <div class="flex items-center gap-3 w-full md:w-auto">
+                            <div class="py-4 bg-transparent flex flex-wrap gap-4 justify-between items-center px-4 md:px-6">
+                                <div class="flex items-center gap-3">
                                     <input v-model="txnStartDate" type="date"
-                                        class="py-2 px-3 rounded-lg border border-border bg-background text-[12px] focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30" />
+                                        class="h-10 px-4 rounded-full bg-[#f1f5f9] border-0 text-[13px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#cda434]/50 cursor-pointer min-w-[140px]" />
                                     <input v-model="txnEndDate" type="date"
-                                        class="py-2 px-3 rounded-lg border border-border bg-background text-[12px] focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30" />
+                                        class="h-10 px-4 rounded-full bg-[#f1f5f9] border-0 text-[13px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#cda434]/50 cursor-pointer min-w-[140px]" />
                                     <button @click="txnStartDate = ''; txnEndDate = ''"
-                                        class="px-4 py-2 text-[12px] font-semibold rounded-lg border border-border bg-background hover:bg-accent transition-all">
+                                        class="h-10 px-5 text-[13px] font-bold rounded-full bg-[#f1f5f9] text-gray-700 hover:bg-[#e2e8f0] transition-colors">
                                         Clear
                                     </button>
                                 </div>
-                                <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                                <div>
                                     <button @click="openDrawer('withdraw')"
-                                        class="px-4 py-2 text-[12px] font-bold rounded-lg bg-[#ea580c] text-white hover:bg-[#c2410c] transition-all shadow-sm">
+                                        class="h-10 px-6 text-[13px] font-bold rounded-full bg-[#ea580c] text-white hover:bg-[#c2410c] transition-colors shadow-sm">
                                         Record Withdrawal
                                     </button>
                                 </div>
                             </div>
 
                             <!-- Table Filters -->
-                            <div class="px-5 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-                                <div class="flex items-center gap-2 text-[13px] text-muted-foreground">
+                            <div class="py-2 pb-5 flex flex-col sm:flex-row justify-between items-center gap-4 px-4 md:px-6">
+                                <div class="flex items-center gap-2 text-[13px] text-[#64748b]">
                                     Show
                                     <select v-model="txnsPerPage" @change="currentTxnPage = 1"
-                                        class="py-1 px-2 rounded border border-border bg-background focus:outline-none focus:border-[#c9a84c]/50">
+                                        class="h-8 px-2 rounded-md bg-[#f1f5f9] border-0 text-gray-700 text-[13px] focus:outline-none focus:ring-1 focus:ring-[#cda434]/50 cursor-pointer">
                                         <option :value="10">10</option>
                                         <option :value="25">25</option>
                                         <option :value="50">50</option>
                                     </select>
                                     entries
                                 </div>
-                                <div class="flex items-center gap-2 text-[13px] text-muted-foreground">
+                                <div class="flex items-center gap-2 text-[13px] text-[#64748b]">
                                     Search:
                                     <input v-model="txnSearchQuery" @input="currentTxnPage = 1" type="text"
-                                        class="py-1.5 px-3 rounded border border-border bg-background focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30"
+                                        class="h-9 w-[200px] sm:w-[250px] px-3 rounded-md bg-[#f1f5f9] border-0 text-gray-700 text-[13px] focus:outline-none focus:ring-1 focus:ring-[#cda434]/50"
                                         placeholder="Ref, Narration, Paid by..." />
                                 </div>
                             </div>
 
                             <!-- Withdrawal Table -->
-                            <div class="overflow-x-auto">
+                            <div class="overflow-x-auto border-y border-gray-100">
                                 <table class="w-full text-left min-w-[900px]">
                                     <thead>
-                                        <tr class="border-y border-border bg-accent/30 text-muted-foreground">
-                                            <th class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider">S/N
+                                        <tr class="border-b border-gray-100 bg-transparent text-[#64748b]">
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">S/N
                                                 &#x21C5;</th>
-                                            <th class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider">Account
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Account
                                                 &#x21C5;</th>
-                                            <th
-                                                class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider bg-transparent">
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider bg-transparent">
                                                 Amount &#x21C5;</th>
-                                            <th class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider">
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">
                                                 Description &#x21C5;</th>
-                                            <th class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider">
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">
                                                 Transaction Date &#x21C5;</th>
-                                            <th class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider">
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">
                                                 Reference &#x21C5;</th>
-                                            <th class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider">Date
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Date
                                                 Added &#x21C5;</th>
-                                            <th
-                                                class="py-3 px-5 text-[12px] font-bold uppercase tracking-wider text-center">
+                                            <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider text-center">
                                                 Action &#x21C5;</th>
                                         </tr>
                                     </thead>
@@ -1384,8 +1377,7 @@ const handleAvatarUpload = async (event: Event) => {
                                                 No withdrawals found.</td>
                                         </tr>
                                         <tr v-for="(txn, index) in paginatedTransactions" :key="txn.id"
-                                            class="border-b border-border/40 hover:bg-accent/30 transition-colors"
-                                            :class="index % 2 === 0 ? 'bg-secondary/20' : ''">
+                                            class="border-b border-transparent hover:bg-accent/30 transition-colors">
                                             <td class="py-3.5 px-5 text-[13px] text-muted-foreground">{{ (currentTxnPage
                                                 - 1) * txnsPerPage + index + 1 }}.</td>
                                             <td class="py-3.5 px-5">
@@ -1434,20 +1426,20 @@ const handleAvatarUpload = async (event: Event) => {
 
                             <!-- Pagination -->
                             <div
-                                class="px-5 py-4 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4 text-[13px] text-muted-foreground">
+                                class="py-5 px-4 md:px-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-[13px] text-[#64748b]">
                                 <div>
                                     Showing {{ activeTransactions.length ? (currentTxnPage - 1) * txnsPerPage + 1 : 0 }}
                                     to {{ Math.min(currentTxnPage * txnsPerPage, activeTransactions.length) }} of {{
                                         activeTransactions.length }} entries
                                 </div>
-                                <div class="flex items-center gap-1">
+                                <div class="flex items-center gap-2">
                                     <button @click="prevTxnPage" :disabled="currentTxnPage === 1"
-                                        class="w-8 h-8 rounded-full flex items-center justify-center border border-border hover:bg-accent transition-colors disabled:opacity-50">&lsaquo;</button>
+                                        class="w-8 h-8 rounded-full flex items-center justify-center border border-gray-200 text-gray-400 hover:text-gray-700 hover:border-gray-300 transition-colors disabled:opacity-50">&lsaquo;</button>
                                     <button
                                         class="w-8 h-8 rounded-full flex items-center justify-center bg-[#ea580c] text-white font-bold shadow-sm text-[12px]">{{
                                             currentTxnPage }}</button>
                                     <button @click="nextTxnPage" :disabled="currentTxnPage === totalTxnPages"
-                                        class="w-8 h-8 rounded-full flex items-center justify-center border border-border hover:bg-accent transition-colors disabled:opacity-50">&rsaquo;</button>
+                                        class="w-8 h-8 rounded-full flex items-center justify-center border border-gray-200 text-gray-400 hover:text-gray-700 hover:border-gray-300 transition-colors disabled:opacity-50">&rsaquo;</button>
                                 </div>
                             </div>
                         </div>
@@ -1455,22 +1447,22 @@ const handleAvatarUpload = async (event: Event) => {
                         <!-- Other Tabs Placeholder -->
                         <div v-show="activeTab === 'shares'" class="p-12 text-center">
                             <div
-                                class="w-12 h-12 rounded-full bg-secondary flex items-center justify-center mx-auto mb-3">
-                                <BarChart3 :size="20" class="text-muted-foreground" />
+                                class="w-12 h-12 rounded-full bg-[#f1f5f9] flex items-center justify-center mx-auto mb-3">
+                                <BarChart3 :size="20" class="text-[#64748b]" />
                             </div>
-                            <h4 class="text-[15px] font-bold text-foreground">Shares History</h4>
-                            <p class="text-[13px] text-muted-foreground mt-1 max-w-sm mx-auto">
+                            <h4 class="text-[15px] font-bold text-[#0f172a]">Shares History</h4>
+                            <p class="text-[13px] text-[#64748b] mt-1 max-w-sm mx-auto">
                                 Track and manage member shares, certificates, and dividends here.
                             </p>
                         </div>
 
                         <div v-show="activeTab === 'loans'" class="p-12 text-center">
                             <div
-                                class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mx-auto mb-3">
-                                <Wallet :size="20" class="text-blue-600 dark:text-blue-400" />
+                                class="w-12 h-12 rounded-full bg-[#eff6ff] flex items-center justify-center mx-auto mb-3">
+                                <Wallet :size="20" class="text-[#2563eb]" />
                             </div>
-                            <h4 class="text-[15px] font-bold text-foreground">Loans Management</h4>
-                            <p class="text-[13px] text-muted-foreground mt-1 max-w-sm mx-auto">
+                            <h4 class="text-[15px] font-bold text-[#0f172a]">Loans Management</h4>
+                            <p class="text-[13px] text-[#64748b] mt-1 max-w-sm mx-auto">
                                 Manage loan applications, disbursements, and repayments for this member.
                             </p>
                         </div>
