@@ -12,6 +12,7 @@ export * from './DetailsTable';
 export {default as StatusButtonsHorizontal} from './StatusButtonsHorizontal/index.vue';
 
 export { default as authDirective } from './authDirective';
+export * from './landingLayout/Components/index.ts';
 export * from './ui/button';
 export * from './OutClicknavigation';
 export * from './confirmationDialog';

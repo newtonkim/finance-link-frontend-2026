@@ -2,29 +2,6 @@
 import { reactive, ref, watch, computed } from 'vue';
 import { Form } from '@/Global';
 const emits = defineEmits(['update:form']);
-const planSearch = ref('');
-const planOptions = [
-    { name: 'Basic', id: 'basic' },
-    { name: 'Standard', id: 'standard' },
-    { name: 'Premium', id: 'premium' },
-];
-
-const filteredPlans = computed(() => {
-    if (!planSearch.value.trim()) return planOptions;
-    const q = planSearch.value.toLowerCase();
-    return planOptions.filter(o => o.label.toLowerCase().includes(q));
-});
-const form = reactive({
-    full_name: '',
-    plan: '',
-    date: { start: '', end: '' },
-    status: '',
-    payment_number: '',
-    phone: '',
-    errors: {},
-    processing: false,
-});
-
 const statusOptions = [
     { name: 'Active', id: 'active' },
     { name: 'Trial', id: 'trial' },
@@ -34,7 +11,7 @@ const statusOptions = [
 const fields = ref([
     {
         label: 'Select Tenant',
-        name: 'full_name',
+        name: 'tenant_id',
         type: 'select',
         required: true,
         placeholder: 'Search Full Name/ Email/ Phone Number',
@@ -46,7 +23,7 @@ const fields = ref([
         name: 'plan',
         type: 'select',
         required: true,
-        options: filteredPlans,
+        url: "central/global/plans-drop-down",
         props: { placeholder: 'Select a Plan' },
     },
     {
@@ -68,9 +45,10 @@ const fields = ref([
     },
 ]);
 watch(
-    form,
+    fields,
     (newVal) => {
         emits('update:form', newVal);
+
     },
     { deep: true }
 );

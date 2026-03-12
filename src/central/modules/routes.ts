@@ -80,6 +80,11 @@ export const  centarRoutes:any=[
             label: "roles",
             component: () => import('./settings/General/roles/Index.vue'),
           },
+          {
+            path: "Plan",
+            label: "Plan",
+            component: () => import('./settings/General/plans/Index.vue'),
+          },
           
         ],
       },

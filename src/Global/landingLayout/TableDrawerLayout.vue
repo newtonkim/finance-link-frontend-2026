@@ -50,9 +50,7 @@
 
 
                     <Table :handleAction="handleAction" :action_config="ACTION_CONFIG" :dataFilter="dataFilter"
-                        :data="data" :columns="columns"
-                        :permissions="permissions"
-                        >
+                        :data="data" :columns="columns" :permissions="permissions">
                         <template v-for="(_, name) in $slots" #[name]="slotProps">
                             <slot :name="name" v-bind="slotProps || {}" />
                         </template>
@@ -66,15 +64,17 @@
         </div>
         <!-- DRAWER -->
     </div>
-    <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShowFooter" v-model:open="drawerOpen"
-        :title="drawerTitle" @save="saveDrawerData">
-        <template #body>
-           <form @submit.prevent="$emit('submit')">
+    <div v-if="DrawerMounted">
+        <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShowFooter" v-model:open="drawerOpen"
+            :title="drawerTitle" @save="saveDrawerData">
+            <template #body>
 
-                <slot :data="provideDataTotheParent" name="drawer" :action="buttonTypeClicked" :submit="submitChanges" />
-            </form>
-        </template>
-    </Drawer>
+                <slot :data="provideDataTotheParent" name="drawer" :action="buttonTypeClicked"
+                    :submit="submitChanges" />
+
+            </template>
+        </Drawer>
+    </div>
 
     <ConfirmationDialog v-model:show="showDelete" items1="selectedItem"
         @confirm="() => save(selected ?? {}, 'delete')" />
@@ -92,18 +92,22 @@ import { Download, Printer } from 'lucide-vue-next';
 import { pomPinia } from 'septor-store';
 import { ACTION_CONFIG, dataTabelFilter, fetchTableData } from './util';
 const drawerOpen = ref(false);
-const slotOpen = ref(false);
 const showDelete = ref(false);
 const searchQuery = ref('');
-const emit = defineEmits(['save','submit']);
+const emit = defineEmits(['save', 'submit']);
 const selected = ref<Record<string, unknown> | null>(null);
 const Store = pomPinia();
 const buttonTypeClicked = ref<any>(null);
+const DrawerMounted = ref<boolean>(true);
 const submitChanges = ref<any>(null);
 const provideDataTotheParent = ref<any>([]);
-function createNewRecord() {
-    toggleDrawer(); save('create', 'add');
+async function createNewRecord() {
+    DrawerMounted.value = false
+    await toggleDrawer();
+    await save('create', 'add');
     buttonTypeClicked.value = 'add'
+    DrawerMounted.value = true
+
 }
 function handleExport() {
     // Your export logic here
@@ -145,7 +149,7 @@ const toggleDrawer = () => {
     (drawerOpen.value = !drawerOpen.value)
 
 };
- 
+
 const save = (data: unknown, type = 'save') => {
     if (type == 'search' && props?.state && props?.url) {
         fetchTableData({ data, props, Store })
@@ -156,11 +160,11 @@ const save = (data: unknown, type = 'save') => {
         fetchTableData({ data, props: newprosDta, Store })
         return
     }
-    if (type === 'create'|| type === 'save') {
+    if (type === 'create' || type === 'save') {
         submitChanges.value = true
         setTimeout(() => {
-        submitChanges.value = false
-        },1000)
+            submitChanges.value = false
+        }, 1000)
     }
 
 
@@ -178,12 +182,12 @@ function saveDrawerData(data: any) {
     save(data, 'create')
     toggleDrawer()
     setTimeout(() => {
-      
+
         submitChanges.value = false
     }, 2000)
     setTimeout(() => {
-          toggleDrawer()
-    },100)
+        toggleDrawer()
+    }, 100)
 }
 
 const handleAction = async (item: any, action: keyof typeof ACTION_CONFIG) => {
@@ -195,6 +199,8 @@ const handleAction = async (item: any, action: keyof typeof ACTION_CONFIG) => {
             return  // dont send the  action to the parent
         }
     } else if (["edit", "view"].includes(action)) {
+        DrawerMounted.value = false
+
         if (fn) fn(item);
         toggleDrawer()// open the drawer on this action clicked
         if (props?.state && props?.url && ['edit', 'view'].includes(action)) {
@@ -208,6 +214,8 @@ const handleAction = async (item: any, action: keyof typeof ACTION_CONFIG) => {
             });
             provideDataTotheParent.value = res?.payload ?? res
         }
+
+        DrawerMounted.value = true
     }
     else {
         if (fn) fn(item);
@@ -260,7 +268,7 @@ defineExpose({
     callNewPage,
     changeThePage,
     handleAction,
-     handlePrint
+    handlePrint
 })
 
 function haspermission(permission = "") {
