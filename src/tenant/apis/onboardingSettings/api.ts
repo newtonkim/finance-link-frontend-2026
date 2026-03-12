@@ -6,6 +6,8 @@ export interface OnboardingSettings {
     min_shares_on_onboarding: number
     share_price: number
     shares_compulsory_applies_to_existing: boolean
+    auto_create_savings_account: boolean
+    require_member_approval: boolean
 }
 
 export const onboardingSettingsApi = {

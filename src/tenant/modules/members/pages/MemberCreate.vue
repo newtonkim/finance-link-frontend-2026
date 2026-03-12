@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { isAxiosError } from 'axios'
-import { ArrowLeft, UserCircle2, Share2, AlertCircle, TrendingUp } from 'lucide-vue-next'
+import { ArrowLeft, UserCircle2, Share2, AlertCircle, TrendingUp, Wallet } from 'lucide-vue-next'
 import { Label, InputError, Spinner } from '@/Global'
 import PhoneInput from '@/Global/PhoneInput.vue'
 import SearchableSelect from '@/Global/SearchableSelect.vue'
@@ -169,7 +169,6 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
               placeholder="Select Member Type"
               :error="errors.member_type"
             />
-            <InputError :message="errors.member_type" />
           </div>
 
           <!-- New Member: Full Name in col 2 of row 1 -->
@@ -188,7 +187,6 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
               placeholder="Select"
               :error="errors.is_shareholder"
             />
-            <InputError :message="errors.is_shareholder" />
           </div>
 
           <!-- ── Existing Member: Full Name + Salutation in row 2 ─────────── -->
@@ -201,7 +199,6 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
             <div class="grid gap-1.5">
               <Label>Salutation</Label>
               <SearchableSelect v-model="form.salutation" :options="salutationOptions" placeholder="Select Salutation" :error="errors.salutation" />
-              <InputError :message="errors.salutation" />
             </div>
           </template>
 
@@ -210,12 +207,10 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
             <div class="grid gap-1.5">
               <Label>Salutation</Label>
               <SearchableSelect v-model="form.salutation" :options="salutationOptions" placeholder="Select Salutation" :error="errors.salutation" />
-              <InputError :message="errors.salutation" />
             </div>
             <div class="grid gap-1.5">
               <Label>Gender <span class="text-red-500">*</span></Label>
               <SearchableSelect v-model="form.gender" :options="genderOptions" placeholder="Select Gender" :error="errors.gender" />
-              <InputError :message="errors.gender" />
             </div>
           </template>
 
@@ -224,7 +219,6 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
             <div class="grid gap-1.5">
               <Label>Gender <span class="text-red-500">*</span></Label>
               <SearchableSelect v-model="form.gender" :options="genderOptions" placeholder="Select Gender" :error="errors.gender" />
-              <InputError :message="errors.gender" />
             </div>
             <div class="grid gap-1.5">
               <Label for="dob-ex">Date Of birth</Label>
@@ -310,7 +304,6 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
             <div class="grid gap-1.5">
               <Label>Marital Status <span class="text-red-500">*</span></Label>
               <SearchableSelect v-model="form.marital_status" :options="maritalOptions" placeholder="Select Marital Status" :error="errors.marital_status" />
-              <InputError :message="errors.marital_status" />
             </div>
           </template>
 
@@ -318,12 +311,10 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
             <div class="grid gap-1.5">
               <Label>Marital Status <span class="text-red-500">*</span></Label>
               <SearchableSelect v-model="form.marital_status" :options="maritalOptions" placeholder="Select Marital Status" :error="errors.marital_status" />
-              <InputError :message="errors.marital_status" />
             </div>
             <div class="grid gap-1.5">
               <Label>Nationality <span class="text-red-500">*</span></Label>
               <SearchableSelect v-model="form.nationality" :options="nationalityOptions" placeholder="Select Nationality" :error="errors.nationality" />
-              <InputError :message="errors.nationality" />
             </div>
           </template>
 
@@ -332,7 +323,6 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
             <div class="grid gap-1.5">
               <Label>Nationality <span class="text-red-500">*</span></Label>
               <SearchableSelect v-model="form.nationality" :options="nationalityOptions" placeholder="Select Nationality" :error="errors.nationality" />
-              <InputError :message="errors.nationality" />
             </div>
             <div class="grid gap-1.5">
               <Label for="address-ex">Address <span class="text-red-500">*</span></Label>
@@ -381,12 +371,13 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
             <InputError :message="errors.next_of_kin_contact" />
           </div>
 
-          <!-- ── Initial Deposit + Date Joined (same for both) ─────────────── -->
-          <div class="grid gap-1.5">
+          <!-- ── Initial Deposit + Date Joined ─────────────────────────────── -->
+          <!-- Initial deposit only shown when auto-create savings is ON -->
+          <div v-if="settingsStore.autoCreateSavingsAccount" class="grid gap-1.5">
             <Label for="initial_deposit">Initial deposit <span class="text-red-500">*</span></Label>
             <div class="flex overflow-hidden rounded-xl border border-neutral-200 bg-white focus-within:border-neutral-400 focus-within:ring-1 focus-within:ring-neutral-300">
               <span class="flex items-center border-r border-neutral-200 bg-neutral-50 px-4 text-sm font-medium text-neutral-500">UGX</span>
-              <input id="initial_deposit" v-model="form.initial_deposit" type="number" min="0" step="0.01" placeholder="Initial deposit" required class="flex-1 bg-white px-4 py-3 text-sm text-neutral-800 outline-none placeholder:text-neutral-400" />
+              <input id="initial_deposit" v-model="form.initial_deposit" type="number" min="0" step="0.01" placeholder="Initial deposit" class="flex-1 bg-white px-4 py-3 text-sm text-neutral-800 outline-none placeholder:text-neutral-400" />
             </div>
             <InputError :message="errors.initial_deposit" />
           </div>
@@ -399,7 +390,8 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
 
           <!-- ── Existing Member: Opening Balance + Avatar ──────────────────── -->
           <template v-if="isExisting">
-            <div class="grid gap-1.5">
+            <!-- Opening Balance only shown when auto-create savings is ON -->
+            <div v-if="settingsStore.autoCreateSavingsAccount" class="grid gap-1.5">
               <Label for="opening_balance">Opening Balance <span class="text-red-500">*</span></Label>
               <div class="flex overflow-hidden rounded-xl border border-neutral-200 bg-white focus-within:border-neutral-400 focus-within:ring-1 focus-within:ring-neutral-300">
                 <span class="flex items-center border-r border-neutral-200 bg-neutral-50 px-4 text-sm font-medium text-neutral-500">UGX</span>
@@ -429,6 +421,17 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
             </div>
           </template>
 
+        </div>
+
+        <!-- ── Savings Account Info banner (shown when auto-create is OFF) ── -->
+        <div v-if="!settingsStore.autoCreateSavingsAccount"
+            class="mt-6 flex items-start gap-3 px-4 py-3.5 rounded-2xl bg-blue-50 border border-blue-200">
+            <Wallet class="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
+            <p class="text-[12px] text-blue-800 leading-relaxed">
+                <strong class="font-semibold">No savings account will be created automatically.</strong>
+                After registering this member, go to their profile and click
+                <em>"New Account"</em> to add a savings account manually.
+            </p>
         </div>
 
         <!-- ── Share Purchase Section (shown when shares compulsory setting is ON) ── -->

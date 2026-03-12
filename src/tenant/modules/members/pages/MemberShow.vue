@@ -51,10 +51,10 @@ const savingsProducts = ref<Array<{ id: number; name: string; type: string; mini
 
 const pageLoading = ref(true);
 
-async function fetchMember() {
+async function fetchMember(silent = false) {
     const id = Number(route.params.id);
     if (!id) return;
-    pageLoading.value = true;
+    if (!silent) pageLoading.value = true;
     try {
         const res = await membersApi.show(id);
         // Backend returns: { success, message, data: { member: {...}, savingsProducts: [...] } }
@@ -70,13 +70,21 @@ async function fetchMember() {
             (member as any)[key] = memberData[key];
         }
 
+        // Normalize paginator-style transactions to a plain array
+        const rawTxns = (memberData as any)?.transactions;
+        if (Array.isArray(rawTxns)) {
+            member.transactions = rawTxns;
+        } else if (Array.isArray(rawTxns?.data)) {
+            member.transactions = rawTxns.data;
+        }
+
         const products = body?.data?.savingsProducts ?? body?.savingsProducts ?? [];
         if (Array.isArray(products)) savingsProducts.value = products;
 
     } catch (err: any) {
         toast.error(err?.response?.data?.message ?? 'Failed to load member data.');
     } finally {
-        pageLoading.value = false;
+        if (!silent) pageLoading.value = false;
     }
 }
 
@@ -85,11 +93,16 @@ onMounted(fetchMember);
 watch(() => route.params.id, (newId) => { if (newId) fetchMember(); });
 
 const activeTab = ref('profile');
+const isWithdrawal = (t: any) => {
+    const type = (t?.type || '').toLowerCase();
+    return type === 'withdrawal' || type === 'withdraw';
+};
+const isDeposit = (t: any) => (t?.type || '').toLowerCase() === 'deposit';
 const tabs = computed(() => [
     { id: 'profile', label: 'Profile', icon: 'UserCircle2', count: null },
     { id: 'transactions', label: 'Transactions', icon: 'FileText', count: member.transactions?.length || 0 },
-    { id: 'savings', label: 'Savings', icon: 'TrendingUp', count: member.transactions?.filter(t => t.type === 'deposit').length || 0 },
-    { id: 'withdrawal', label: 'Withdrawal', icon: 'MinusCircle', count: member.transactions?.filter(t => t.type === 'withdrawal').length || 0 },
+    { id: 'savings', label: 'Savings', icon: 'TrendingUp', count: member.transactions?.filter(isDeposit).length || 0 },
+    { id: 'withdrawal', label: 'Withdrawal', icon: 'MinusCircle', count: member.transactions?.filter(isWithdrawal).length || 0 },
     { id: 'loans', label: 'Loans', icon: 'Wallet', count: member.loans?.length || 0 },
     { id: 'shares', label: 'Shares', icon: 'BarChart3', count: null },
 ]);
@@ -235,10 +248,10 @@ const filteredTransactions = computed(() => {
 
     // Date filter
     if (txnStartDate.value) {
-        txns = txns.filter(t => (t.transaction_date || t.created_at) >= txnStartDate.value);
+        txns = txns.filter(t => (t.transaction_date || t.created_at || '').slice(0, 10) >= txnStartDate.value);
     }
     if (txnEndDate.value) {
-        txns = txns.filter(t => (t.transaction_date || t.created_at) <= txnEndDate.value);
+        txns = txns.filter(t => (t.transaction_date || t.created_at || '').slice(0, 10) <= txnEndDate.value);
     }
 
     return txns;
@@ -247,9 +260,9 @@ const filteredTransactions = computed(() => {
 const activeTransactions = computed(() => {
     const txns = filteredTransactions.value;
     if (activeTab.value === 'savings') {
-        return txns.filter(t => t.type === 'deposit');
+        return txns.filter(isDeposit);
     } else if (activeTab.value === 'withdrawal') {
-        return txns.filter(t => t.type === 'withdrawal');
+        return txns.filter(isWithdrawal);
     }
     return txns;
 });
@@ -432,7 +445,11 @@ const submitNewAccount = async () => {
     try {
         await tenantClient.post('/savings-accounts', newAccountForm);
         closeNewAccountDrawer();
-        await fetchMember();
+        await fetchMember(true);
+        currentTxnPage.value = 1;
+        txnSearchQuery.value = '';
+        txnStartDate.value = '';
+        txnEndDate.value = '';
         toast.success('Savings account created successfully.');
     } catch (error: any) {
         if (error.response?.status === 422) {
@@ -478,7 +495,7 @@ const submitCustomFee = async () => {
         await tenantClient.put(`/savings-accounts/${customFeeForm.account_id}/custom-fees`, customFeeForm);
         toast.success('Custom fee settings updated successfully.');
         closeCustomFeeDrawer();
-        fetchMember(); // Reload the member details so the new fees reflect in state
+        await fetchMember(true); // Reload the member details so the new fees reflect in state
     } catch (error: any) {
         if (error.response?.status === 422) {
             customFeeErrors.value = error.response.data.errors || {};
@@ -508,8 +525,36 @@ const openDrawer = (type: 'deposit' | 'withdraw') => {
 
 const closeDrawer = () => {
     drawerOpen.value = null;
-    depositForm.reset();
+    Object.assign(depositForm, {
+        deposit_date: new Date().toISOString().split('T')[0],
+        savings_account_id: '',
+        amount: '',
+        deposited_by: '',
+        transaction_reference: '',
+        payment_mode: '',
+        narration: '',
+        use_for_loan_repayment: 'no',
+    });
 };
+
+const systemNarration = computed(() => {
+    if (!drawerOpen.value) return '';
+    const amount = Number(depositForm.amount) || 0;
+    const formattedAmount = new Intl.NumberFormat('en-UG', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(amount);
+    // Use the date selected in the form (defaults to today, may be changed)
+    const dateStr = depositForm.deposit_date || new Date().toISOString().split('T')[0] || '';
+    const formattedDate = dateStr
+        ? new Date(dateStr + 'T00:00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+        : '—';
+    const person = depositForm.deposited_by?.trim() || 'Unknown';
+    if (drawerOpen.value === 'deposit') {
+        return `A deposit amount of UGX ${formattedAmount} deposited on ${formattedDate} by ${person}.`;
+    }
+    return `A withdrawal amount of UGX ${formattedAmount} withdrawn on ${formattedDate} by ${person}.`;
+});
 
 const submitTransaction = async () => {
     if (!drawerOpen.value) return;
@@ -528,10 +573,32 @@ const submitTransaction = async () => {
         : `/savings-accounts/${depositForm.savings_account_id}/withdraw`;
 
     try {
-        await tenantClient.post(url, depositForm);
-        toast.success(`${drawerOpen.value === 'deposit' ? 'Deposit' : 'Withdrawal'} successful.`);
+        const payload = { ...depositForm } as any;
+        const extra = depositForm.narration?.trim();
+        if (drawerOpen.value === 'deposit' || drawerOpen.value === 'withdraw') {
+            payload.narration = extra ? `${systemNarration.value} ${extra}` : systemNarration.value;
+        }
+        const res = await tenantClient.post(url, payload);
+        const actionLabel = drawerOpen.value === 'deposit' ? 'Deposit' : 'Withdrawal';
+        toast.success(`${actionLabel} successful.`);
         closeDrawer();
-        // Ideally reload member data here
+        await fetchMember(true);
+        // Fallback: append returned transaction if API includes it
+        const body = res?.data ?? {};
+        const returnedTxn =
+            body?.data?.transaction ??
+            body?.transaction ??
+            body?.data?.txn ??
+            body?.txn ??
+            null;
+        if (returnedTxn && Array.isArray(member.transactions)) {
+            const exists = member.transactions.some((t: any) => t?.id === returnedTxn?.id);
+            if (!exists) member.transactions = [returnedTxn, ...member.transactions];
+        }
+        currentTxnPage.value = 1;
+        txnSearchQuery.value = '';
+        txnStartDate.value = '';
+        txnEndDate.value = '';
     } catch (error: any) {
         if (error.response?.status === 422) {
             depositErrors.value = error.response.data.errors || {};
@@ -1894,7 +1961,7 @@ const handleAvatarUpload = async (event: Event) => {
 
                                     <!-- Row 4: Narration + Loan Repayment -->
                                     <div class="grid grid-cols-2 gap-5">
-                                        <div>
+                                        <div class="space-y-2">
                                             <label
                                                 class="block text-[11px] font-bold text-gray-900 uppercase tracking-widest mb-2">
                                                 <div class="flex items-center gap-1.5">
@@ -1902,8 +1969,12 @@ const handleAvatarUpload = async (event: Event) => {
                                                     {{ drawerOpen === 'deposit' ? 'Deposit' : 'Withdrawal' }} Narration
                                                 </div>
                                             </label>
+                                            <p v-if="drawerOpen === 'deposit' || drawerOpen === 'withdraw'"
+                                                class="rounded-lg border border-gray-200 bg-white/70 px-3 py-2 text-[12px] text-gray-700">
+                                                {{ systemNarration }}
+                                            </p>
                                             <textarea v-model="depositForm.narration"
-                                                :placeholder="drawerOpen === 'deposit' ? 'Savings deposit...' : 'Withdrawal reason...'"
+                                                :placeholder="drawerOpen === 'deposit' ? 'Additional narration (optional)...' : 'Withdrawal reason...'"
                                                 rows="2"
                                                 class="w-full py-3.5 px-4 rounded-xl bg-black/5 border border-gray-600/50 text-gray-900 text-[14px] font-bold placeholder-gray-600 focus:outline-none focus:bg-white focus:border-[#cda434] transition-all resize-none"></textarea>
                                             <p v-if="depositErrors.narration"
