@@ -74,6 +74,20 @@ const availableCharges = computed<Charge[]>(() => {
     return product?.charges || [];
 });
 
+const selectedProduct = computed(() =>
+    props.products.find((p) => String(p.id) === String(form.savings_product_id))
+);
+
+const productMinBalance = computed(() => Number(selectedProduct.value?.minimum_balance ?? 0));
+
+const initialDepositError = computed(() => {
+    if (!form.savings_product_id || !form.consider_min_balance) return '';
+    if (productMinBalance.value > 0 && Number(form.initial_deposit) < productMinBalance.value) {
+        return `Must be at least UGX ${productMinBalance.value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+    }
+    return '';
+});
+
 watch(
     () => props.open,
     (newVal) => {
@@ -220,15 +234,14 @@ const showChargeDropdown = ref(false);
                     <Label class="text-sm font-bold text-neutral-700 dark:text-neutral-300">Initial deposit <span
                             class="text-red-500">*</span></Label>
                     <Input v-model.number="form.initial_deposit" type="number" placeholder="Initial deposit"
-                        class="h-11 rounded-xl border-neutral-200 focus:ring-emerald-500/10 focus:border-emerald-500 dark:border-neutral-800" />
-                    <div v-if="form.initial_deposit"
-                        class="text-xs font-bold text-emerald-600 dark:text-emerald-400 px-1">
-                        {{ new Intl.NumberFormat('en-KE', {
-                            style: 'currency', currency: 'KES'
-                        }).format(form.initial_deposit) }}
+                        :class="['h-11 rounded-xl dark:border-neutral-800', initialDepositError ? 'border-red-500 focus:ring-red-500/10 focus:border-red-500' : 'border-neutral-200 focus:ring-emerald-500/10 focus:border-emerald-500']" />
+                    <div v-if="productMinBalance > 0 && form.consider_min_balance"
+                        class="text-xs text-amber-600 dark:text-amber-400 px-1 flex items-center gap-1">
+                        <span>Minimum balance for this product:</span>
+                        <strong>UGX {{ productMinBalance.toLocaleString('en-US', { minimumFractionDigits: 2 }) }}</strong>
                     </div>
-                    <p v-if="errors.initial_deposit" class="text-xs text-red-500">{{ errors.initial_deposit }}
-                    </p>
+                    <p v-if="initialDepositError" class="text-xs text-red-500 font-medium">{{ initialDepositError }}</p>
+                    <p v-else-if="errors.initial_deposit" class="text-xs text-red-500">{{ errors.initial_deposit }}</p>
                 </div>
 
                 <div class="space-y-2">

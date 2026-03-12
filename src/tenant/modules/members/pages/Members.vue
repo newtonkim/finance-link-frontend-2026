@@ -115,9 +115,10 @@ function formatDate(d: string | null) {
 }
 
 function statusClass(status: string) {
-  return status === 'active'
-    ? 'bg-green-100 text-green-700'
-    : 'bg-neutral-100 text-neutral-500'
+  if (status === 'active')   return 'bg-green-100 text-green-700'
+  if (status === 'pending')  return 'bg-amber-100 text-amber-700'
+  if (status === 'rejected') return 'bg-red-100 text-red-600'
+  return 'bg-neutral-100 text-neutral-500'
 }
 </script>
 

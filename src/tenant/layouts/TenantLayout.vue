@@ -2,6 +2,7 @@
 import { SidebarProvider, SidebarInset } from '@/Global/ui/sidebar'
 import TenantSidebar from './TenantSidebar.vue'
 import TopBar from '@/Global/TopBar.vue'
+import { Toaster } from 'vue-sonner'
 </script>
 
 <template>
@@ -13,5 +14,7 @@ import TopBar from '@/Global/TopBar.vue'
         <router-view />
       </main>
     </SidebarInset>
+    <Toaster position="top-right" richColors />
   </SidebarProvider>
 </template>
+

@@ -13,7 +13,7 @@ import {
   Sun,
   MapPin,
   Mail,
-  ChevronDown,
+  ArrowLeftRight,
 } from 'lucide-vue-next'
 import {
   Sidebar,
@@ -25,18 +25,10 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
   SidebarRail,
   useSidebar,
 } from '@/Global/ui/sidebar'
-import {
-  Collapsible,
-  CollapsibleTrigger,
-  CollapsibleContent,
-} from '@/Global/ui/collapsible'
-import NavUser from '@/Global/NavUser.vue'
+import TenantNavUser from './TenantNavUser.vue'
 import { useTenantContextStore } from '@/stores/tenantContext'
 import { membersApi } from '@/tenant/apis/members/membersApi'
 
@@ -59,18 +51,13 @@ const navItems = [
   { title: 'Members', href: '/tenant/members', icon: Users },
   { title: 'Members Account', href: '/tenant/savings-accounts', icon: Wallet },
   { title: 'Group Savings', href: '/tenant/savings-groups', icon: Users },
+  { title: 'Savings Transfer', href: '/tenant/savings-transfer', icon: ArrowLeftRight },
   { title: 'Loans', href: '/tenant/loans', icon: HandCoins },
   { title: 'Transactions', href: '/tenant/transactions', icon: ArrowUpDown },
   { title: 'Chart of Accounts', href: '/tenant/chart-of-accounts', icon: BookOpen },
 ]
 
-const settingsSubItems = [
-  { title: 'General Settings', href: '/tenant/settings/general' },
-  { title: 'Notifications', href: '/tenant/settings/notifications' },
-  { title: 'System Settings', href: '/tenant/settings/system' },
-  { title: 'Savings Products', href: '/tenant/settings/savings-products' },
-  { title: 'Transaction Charges', href: '/tenant/settings/transaction-charges' },
-]
+// Settings sub-items removed to avoid duplication with the Settings Workspace sidebar
 
 const tenant = tenantStore.currentTenant as any
 
@@ -158,36 +145,23 @@ onMounted(async () => {
           Configuration
         </SidebarGroupLabel>
         <SidebarMenu>
-          <Collapsible :default-open="isSettingsActive" class="group/collapsible">
-            <SidebarMenuItem>
-              <CollapsibleTrigger as-child>
-                <SidebarMenuButton :tooltip="'Settings'"
-                  class="px-0 py-2.5 hover:bg-white/5 transition-all duration-200 group">
-                  <div class="flex w-full items-center gap-3 pl-4 pr-3">
-                    <Settings class="h-4 w-4 transition-colors duration-200"
-                      :class="isSettingsActive ? 'text-[#C9A84C]' : 'text-[#9BB5A5] group-hover:text-[#C9A84C]'" />
-                    <span class="flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200"
-                      :class="isSettingsActive ? 'text-[#C9A84C]' : 'text-[#9BB5A5] group-hover:text-white'">
-                      Settings
-                    </span>
-                    <ChevronDown
-                      class="h-4 w-4 text-[#9BB5A5]/50 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
-                  </div>
-                </SidebarMenuButton>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <SidebarMenuSub class="border-[#9BB5A5]/10">
-                  <SidebarMenuSubItem v-for="sub in settingsSubItems" :key="sub.title">
-                    <SidebarMenuSubButton as="button" @click="router.push(sub.href)" :is-active="isActive(sub.href)"
-                      class="text-[#9BB5A5]/70 hover:text-white transition-colors duration-200 cursor-pointer"
-                      :class="isActive(sub.href) ? '!text-[#C9A84C] font-semibold' : ''">
-                      <span>{{ sub.title }}</span>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                </SidebarMenuSub>
-              </CollapsibleContent>
-            </SidebarMenuItem>
-          </Collapsible>
+          <SidebarMenuItem>
+            <SidebarMenuButton :tooltip="'Settings'" @click="router.push('/tenant/settings')" :class="[
+              'relative px-0 py-2.5 hover:bg-white/5 transition-all duration-200 group',
+              isSettingsActive ? 'bg-white/5' : ''
+            ]">
+              <div class="flex w-full items-center gap-3 pl-4 pr-3">
+                <Settings class="h-4 w-4 transition-colors duration-200"
+                  :class="isSettingsActive ? 'text-[#C9A84C]' : 'text-[#9BB5A5] group-hover:text-[#C9A84C]'" />
+                <span class="flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200"
+                  :class="isSettingsActive ? 'text-[#C9A84C]' : 'text-[#9BB5A5] group-hover:text-white'">
+                  Settings
+                </span>
+              </div>
+              <div v-if="isSettingsActive"
+                class="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-[3px] bg-[#C9A84C] rounded-r-full shadow-[0_0_10px_rgba(201,168,76,0.5)]" />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroup>
     </SidebarContent>
@@ -207,7 +181,7 @@ onMounted(async () => {
             :class="isDark ? 'translate-x-5' : 'translate-x-0.5'" />
         </button>
       </div>
-      <NavUser />
+      <TenantNavUser />
     </SidebarFooter>
     <SidebarRail />
   </Sidebar>
