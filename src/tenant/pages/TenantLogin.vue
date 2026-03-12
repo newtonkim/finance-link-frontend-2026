@@ -53,9 +53,15 @@ async function submit() {
       { headers },
     );
 
-    // Store token and redirect to tenant dashboard
+    // Store token, subdomain, and user profile for sidebar display
     if (data?.data?.access_token) {
       localStorage.setItem('tenant_token', data.data.access_token);
+    }
+    if (subdomain.value) {
+      localStorage.setItem('tenant_subdomain', subdomain.value);
+    }
+    if (data?.data?.user) {
+      localStorage.setItem('tenant_user', JSON.stringify(data.data.user));
     }
 
     const redirectUrl = data?.data?.redirect_url;

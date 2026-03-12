@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
-import { Building2, Search, Plus, Pencil, Trash2, X, Calendar, ArrowLeft } from 'lucide-vue-next'
+import { ref, computed, watch } from 'vue'
+import { Building2, Search, Plus, Pencil, Trash2, X, Calendar, ArrowLeft, Coins } from 'lucide-vue-next'
 import { Spinner, InputError, Label } from '@/Global'
 import ConfirmationDialog from '@/Global/confirmationDialog/confirmationDialog.vue'
 import { fiscalYearsApi } from '@/tenant/apis/fiscalYears/fiscalYearsApi'
+import { currenciesApi, type CurrencyOption, type CurrencySettings } from '@/tenant/apis/currencies/currenciesApi'
 import { toast } from 'vue-sonner'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -14,6 +15,159 @@ interface FiscalYear {
   end_date: string
 }
 interface Meta { current_page: number; last_page: number; total: number }
+
+const selectCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#001d22] focus:ring-2 focus:ring-[#001d22]/10 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white'
+const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-[#001d22] focus:ring-1 focus:ring-[#001d22] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white'
+
+// ─── Currency Settings Drawer ────────────────────────────────────────────────
+const DEFAULT_CURRENCIES: CurrencyOption[] = [
+  { code: 'UGX', name: 'Ugandan Shilling', symbol: 'UGX' },
+  { code: 'USD', name: 'US Dollar', symbol: '$' },
+  { code: 'EUR', name: 'Euro', symbol: '€' },
+  { code: 'GBP', name: 'British Pound', symbol: '£' },
+  { code: 'KES', name: 'Kenyan Shilling', symbol: 'KSh' },
+  { code: 'TZS', name: 'Tanzanian Shilling', symbol: 'TSh' },
+  { code: 'RWF', name: 'Rwandan Franc', symbol: 'FRw' },
+  { code: 'NGN', name: 'Nigerian Naira', symbol: '₦' },
+  { code: 'GHS', name: 'Ghanaian Cedi', symbol: '₵' },
+  { code: 'ZAR', name: 'South African Rand', symbol: 'R' },
+  { code: 'AED', name: 'UAE Dirham', symbol: 'AED' },
+  { code: 'SAR', name: 'Saudi Riyal', symbol: 'SAR' },
+  { code: 'INR', name: 'Indian Rupee', symbol: '₹' },
+  { code: 'CNY', name: 'Chinese Yuan', symbol: '¥' },
+  { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
+  { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
+  { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
+  { code: 'CHF', name: 'Swiss Franc', symbol: 'CHF' },
+  { code: 'SEK', name: 'Swedish Krona', symbol: 'SEK' },
+  { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$' },
+  { code: 'HKD', name: 'Hong Kong Dollar', symbol: 'HK$' },
+]
+
+const showCurrencyDrawer = ref(false)
+const currencyLoading = ref(false)
+const currencySaving = ref(false)
+const currencySearch = ref('')
+const multiCurrencyEnabled = ref(true)
+const currencyOptions = ref<CurrencyOption[]>([...DEFAULT_CURRENCIES])
+const currencyForm = ref<CurrencySettings>({
+  default_currency: 'UGX',
+  enabled_currencies: DEFAULT_CURRENCIES.map((c) => c.code),
+})
+
+function normalizeCurrency(raw: any): CurrencyOption | null {
+  const code = raw?.code ?? raw?.currency_code ?? raw?.currency ?? ''
+  if (!code) return null
+  const name = raw?.name ?? raw?.currency_name ?? code
+  const symbol = raw?.symbol ?? raw?.currency_symbol ?? undefined
+  return { code, name, symbol }
+}
+
+function ensureDefaultEnabled() {
+  const code = currencyForm.value.default_currency
+  if (!code) return
+  if (!currencyForm.value.enabled_currencies.includes(code)) {
+    currencyForm.value.enabled_currencies.push(code)
+  }
+}
+
+function applyMultiCurrencyFlag() {
+  if (!multiCurrencyEnabled.value) {
+    currencyForm.value.enabled_currencies = [currencyForm.value.default_currency]
+  }
+}
+
+const filteredCurrencies = computed(() => {
+  const q = currencySearch.value.trim().toLowerCase()
+  if (!q) return currencyOptions.value
+  const parts = q.split(/\s+/).filter(Boolean)
+  return currencyOptions.value.filter((c) => {
+    const hay = [c.code, c.name, c.symbol].filter(Boolean).join(' ').toLowerCase()
+    return parts.every((p) => hay.includes(p))
+  })
+})
+
+watch(() => currencyForm.value.default_currency, ensureDefaultEnabled)
+watch(multiCurrencyEnabled, applyMultiCurrencyFlag)
+
+function openCurrencyDrawer() {
+  showCurrencyDrawer.value = true
+  loadCurrencySettings()
+}
+
+function closeCurrencyDrawer() {
+  showCurrencyDrawer.value = false
+  currencySearch.value = ''
+}
+
+function toggleCurrency(code: string) {
+  if (code === currencyForm.value.default_currency) return
+  const idx = currencyForm.value.enabled_currencies.indexOf(code)
+  if (idx >= 0) {
+    currencyForm.value.enabled_currencies.splice(idx, 1)
+  } else {
+    currencyForm.value.enabled_currencies.push(code)
+  }
+}
+
+async function loadCurrencySettings() {
+  currencyLoading.value = true
+  try {
+    const [listRes, settingsRes] = await Promise.allSettled([
+      currenciesApi.list(),
+      currenciesApi.getSettings(),
+    ])
+
+    if (listRes.status === 'fulfilled') {
+      const listPayload = listRes.value.data?.data ?? listRes.value.data ?? []
+      if (Array.isArray(listPayload) && listPayload.length) {
+        const normalized = listPayload.map(normalizeCurrency).filter(Boolean) as CurrencyOption[]
+        if (normalized.length) {
+          currencyOptions.value = normalized
+        }
+      }
+    }
+
+    if (settingsRes.status === 'fulfilled') {
+      const settingsPayload = settingsRes.value.data?.data ?? settingsRes.value.data ?? null
+      if (settingsPayload) {
+        currencyForm.value = {
+          default_currency: settingsPayload.default_currency || 'UGX',
+          enabled_currencies: Array.isArray(settingsPayload.enabled_currencies) && settingsPayload.enabled_currencies.length
+            ? settingsPayload.enabled_currencies
+            : [settingsPayload.default_currency || 'UGX'],
+        }
+        multiCurrencyEnabled.value = currencyForm.value.enabled_currencies.length > 1
+      }
+    }
+
+    if (!currencyOptions.value.some((c) => c.code === currencyForm.value.default_currency)) {
+      const fallback = DEFAULT_CURRENCIES.find((c) => c.code === currencyForm.value.default_currency)
+      if (fallback) currencyOptions.value = [fallback, ...currencyOptions.value]
+    }
+
+    ensureDefaultEnabled()
+  } catch (err: any) {
+    toast.error(err?.response?.data?.message ?? 'Failed to load currency settings.')
+  } finally {
+    currencyLoading.value = false
+  }
+}
+
+async function saveCurrencySettings() {
+  currencySaving.value = true
+  try {
+    ensureDefaultEnabled()
+    applyMultiCurrencyFlag()
+    await currenciesApi.updateSettings(currencyForm.value)
+    closeCurrencyDrawer()
+    toast.success('Currency saved successfully.')
+  } catch (err: any) {
+    toast.error(err?.response?.data?.message ?? 'Currency did not save.')
+  } finally {
+    currencySaving.value = false
+  }
+}
 
 // ─── Fiscal Year List Drawer ─────────────────────────────────────────────────
 const showFiscalDrawer = ref(false)
@@ -201,7 +355,11 @@ async function confirmDelete() {
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">General Settings</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Configure basic organisation information
                     and settings.</p>
-                <button class="text-sm font-medium text-[#001d22] dark:text-[#C9A84C] hover:underline">Configure
+                <button
+                    @click="openCurrencyDrawer"
+                    class="text-sm font-medium text-[#001d22] dark:text-[#C9A84C] hover:underline"
+                >
+                    Configure
                     →</button>
             </div>
             <div
@@ -236,6 +394,158 @@ async function confirmDelete() {
             </div>
         </div>
     </div>
+
+    <!-- ═══ Currency Settings Drawer ══════════════════════════════════════ -->
+    <Transition name="drawer-fade">
+        <div v-if="showCurrencyDrawer" class="fixed inset-0 z-50">
+            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeCurrencyDrawer"></div>
+
+            <Transition name="drawer-slide">
+                <aside
+                    class="absolute right-0 top-0 h-full w-full max-w-[620px] bg-white shadow-2xl ring-1 ring-black/5 dark:bg-neutral-900"
+                    role="dialog"
+                    aria-label="Currency Settings"
+                >
+                    <div class="flex h-full flex-col">
+                        <!-- Header -->
+                        <div class="border-b border-neutral-200 px-6 py-5 dark:border-neutral-700">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/30">
+                                        <Coins class="h-4.5 w-4.5 text-[#001d22] dark:text-[#C9A84C]" />
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold tracking-tight text-neutral-900 uppercase dark:text-white">
+                                            Currency Settings
+                                        </h3>
+                                        <p class="text-xs text-neutral-500">Select system default and enabled currencies</p>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    @click="closeCurrencyDrawer"
+                                    class="flex h-8 w-8 items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 transition-colors dark:hover:bg-neutral-800 dark:hover:text-white"
+                                >
+                                    <X class="h-4 w-4" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+                            <div class="flex items-center gap-3">
+                                <div class="relative flex-1">
+                                    <Search class="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                                    <input
+                                        v-model="currencySearch"
+                                        type="text"
+                                        placeholder="Search currency by code or name"
+                                        :class="inputCls"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Default currency</Label>
+                                <select v-model="currencyForm.default_currency" :class="selectCls">
+                                    <option v-for="c in currencyOptions" :key="c.code" :value="c.code">
+                                        {{ c.code }} — {{ c.name }}<span v-if="c.symbol"> ({{ c.symbol }})</span>
+                                    </option>
+                                </select>
+                                <p class="text-xs text-neutral-500">UGX is preselected as the system default.</p>
+                            </div>
+
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 dark:border-neutral-700 dark:bg-neutral-800/60">
+                                    <div>
+                                        <p class="text-sm font-semibold text-neutral-900 dark:text-white">Multi-currency</p>
+                                        <p class="text-xs text-neutral-500">Allow transactions in more than one currency.</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        @click="multiCurrencyEnabled = !multiCurrencyEnabled"
+                                        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300"
+                                        :class="multiCurrencyEnabled ? 'bg-[#001d22] dark:bg-[#C9A84C]' : 'bg-neutral-200 dark:bg-neutral-700'"
+                                    >
+                                        <span
+                                            class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-300"
+                                            :class="multiCurrencyEnabled ? 'translate-x-6' : 'translate-x-1'"
+                                        />
+                                    </button>
+                                </div>
+
+                                <div class="flex items-center justify-between">
+                                    <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Enabled currencies</Label>
+                                    <span class="text-xs text-neutral-500">
+                                        {{ currencyForm.enabled_currencies.length }} selected
+                                    </span>
+                                </div>
+
+                                <div v-if="currencyLoading" class="space-y-3">
+                                    <div v-for="i in 6" :key="i" class="h-10 rounded-lg bg-neutral-100 animate-pulse dark:bg-neutral-800" />
+                                </div>
+
+                                <div v-else class="grid gap-3 sm:grid-cols-2" :class="!multiCurrencyEnabled ? 'opacity-50 pointer-events-none' : ''">
+                                    <button
+                                        v-for="c in filteredCurrencies"
+                                        :key="c.code"
+                                        type="button"
+                                        @click="toggleCurrency(c.code)"
+                                        :disabled="c.code === currencyForm.default_currency"
+                                        class="flex items-center justify-between rounded-xl border px-4 py-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-75"
+                                        :class="currencyForm.enabled_currencies.includes(c.code)
+                                            ? 'border-[#001d22] bg-[#001d22]/5 dark:border-[#C9A84C] dark:bg-[#C9A84C]/10'
+                                            : 'border-neutral-200 bg-white hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800'"
+                                    >
+                                        <div class="flex items-center gap-3">
+                                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-100 text-xs font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">
+                                                {{ c.code }}
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-semibold text-neutral-900 dark:text-white">{{ c.name }}</p>
+                                                <p class="text-xs text-neutral-500">{{ c.symbol || '—' }}</p>
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="h-5 w-5 rounded-full border-2 transition-colors"
+                                            :class="currencyForm.enabled_currencies.includes(c.code)
+                                                ? 'border-[#001d22] bg-[#001d22] dark:border-[#C9A84C] dark:bg-[#C9A84C]'
+                                                : 'border-neutral-300 dark:border-neutral-600'"
+                                        />
+                                    </button>
+                                </div>
+
+                                <p class="text-xs text-neutral-500">
+                                    The default currency cannot be disabled.
+                                    <span v-if="!multiCurrencyEnabled"> Multi-currency is off, so only the default is active.</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="flex items-center justify-end gap-3 border-t border-neutral-200 px-6 py-4 dark:border-neutral-700">
+                            <button
+                                type="button"
+                                @click="closeCurrencyDrawer"
+                                class="rounded-lg bg-neutral-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-neutral-600 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                @click="saveCurrencySettings"
+                                :disabled="currencySaving"
+                                class="inline-flex items-center gap-2 rounded-lg bg-[#001d22] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#002d32] transition-colors disabled:opacity-60 shadow-sm dark:bg-[#C9A84C] dark:text-[#001d22] dark:hover:bg-[#b8973b]"
+                            >
+                                <Spinner v-if="currencySaving" class="h-4 w-4" />
+                                Save currency settings
+                            </button>
+                        </div>
+                    </div>
+                </aside>
+            </Transition>
+        </div>
+    </Transition>
 
     <!-- ═══ Fiscal Year List Drawer ═════════════════════════════════════════ -->
     <Transition name="drawer-fade">
@@ -503,4 +813,3 @@ async function confirmDelete() {
     transform: translateX(100%);
 }
 </style>
-

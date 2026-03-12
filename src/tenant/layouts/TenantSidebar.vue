@@ -28,7 +28,7 @@ import {
   SidebarRail,
   useSidebar,
 } from '@/Global/ui/sidebar'
-import NavUser from '@/Global/NavUser.vue'
+import TenantNavUser from './TenantNavUser.vue'
 import { useTenantContextStore } from '@/stores/tenantContext'
 import { membersApi } from '@/tenant/apis/members/membersApi'
 
@@ -181,7 +181,7 @@ onMounted(async () => {
             :class="isDark ? 'translate-x-5' : 'translate-x-0.5'" />
         </button>
       </div>
-      <NavUser />
+      <TenantNavUser />
     </SidebarFooter>
     <SidebarRail />
   </Sidebar>
