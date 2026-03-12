@@ -44,6 +44,8 @@ export const useSettingsStore = defineStore('settings', () => {
     const minSharesOnOnboarding = ref<number>(1)
     const sharePrice = ref<number>(0)
     const sharesCompulsoryAppliesToExisting = ref<boolean>(false)
+    const autoCreateSavingsAccount = ref<boolean>(true)
+    const requireMemberApproval = ref<boolean>(false)
     const onboardingSettingsLoaded = ref<boolean>(false)
 
     async function fetchOnboardingSettings() {
@@ -54,6 +56,8 @@ export const useSettingsStore = defineStore('settings', () => {
             minSharesOnOnboarding.value = data.min_shares_on_onboarding
             sharePrice.value = Number(data.share_price)
             sharesCompulsoryAppliesToExisting.value = data.shares_compulsory_applies_to_existing
+            autoCreateSavingsAccount.value = data.auto_create_savings_account
+            requireMemberApproval.value = data.require_member_approval
             onboardingSettingsLoaded.value = true
         } catch {
             // silently fail — defaults remain
@@ -65,6 +69,8 @@ export const useSettingsStore = defineStore('settings', () => {
         min_shares_on_onboarding: number
         share_price: number
         shares_compulsory_applies_to_existing: boolean
+        auto_create_savings_account: boolean
+        require_member_approval: boolean
     }) {
         const res = await onboardingSettingsApi.update(payload)
         const data = res.data.data
@@ -72,6 +78,8 @@ export const useSettingsStore = defineStore('settings', () => {
         minSharesOnOnboarding.value = data.min_shares_on_onboarding
         sharePrice.value = Number(data.share_price)
         sharesCompulsoryAppliesToExisting.value = data.shares_compulsory_applies_to_existing
+        autoCreateSavingsAccount.value = data.auto_create_savings_account
+        requireMemberApproval.value = data.require_member_approval
     }
 
     return {
@@ -86,6 +94,8 @@ export const useSettingsStore = defineStore('settings', () => {
         minSharesOnOnboarding,
         sharePrice,
         sharesCompulsoryAppliesToExisting,
+        autoCreateSavingsAccount,
+        requireMemberApproval,
         onboardingSettingsLoaded,
         fetchOnboardingSettings,
         saveOnboardingSettings,

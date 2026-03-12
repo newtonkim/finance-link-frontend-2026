@@ -13,6 +13,7 @@ import {
   Sun,
   MapPin,
   Mail,
+  ArrowLeftRight,
 } from 'lucide-vue-next'
 import {
   Sidebar,
@@ -50,6 +51,7 @@ const navItems = [
   { title: 'Members', href: '/tenant/members', icon: Users },
   { title: 'Members Account', href: '/tenant/savings-accounts', icon: Wallet },
   { title: 'Group Savings', href: '/tenant/savings-groups', icon: Users },
+  { title: 'Savings Transfer', href: '/tenant/savings-transfer', icon: ArrowLeftRight },
   { title: 'Loans', href: '/tenant/loans', icon: HandCoins },
   { title: 'Transactions', href: '/tenant/transactions', icon: ArrowUpDown },
   { title: 'Chart of Accounts', href: '/tenant/chart-of-accounts', icon: BookOpen },
