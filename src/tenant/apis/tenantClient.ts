@@ -34,7 +34,9 @@ tenantClient.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`
   }
 
-  const subdomain = getTenantSubdomain()
+  // Prefer subdomain from hostname (production subdomain routing),
+  // fall back to value saved at login time (dev on localhost)
+  const subdomain = getTenantSubdomain() ?? localStorage.getItem('tenant_subdomain')
   if (subdomain) {
     config.headers['X-Tenant-Subdomain'] = subdomain
   }
