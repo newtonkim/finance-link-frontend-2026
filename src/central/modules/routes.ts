@@ -22,7 +22,7 @@ export const  centarRoutes:any=[
     path: 'dashboard',
     label:"dashboard",
     icon: LayoutGrid,
-    component: () => import('./pages/Dashboard.vue'),
+    component: () => import('./dashboard/index.vue'),
     showSideBar: true
   },
   {
@@ -46,7 +46,6 @@ export const  centarRoutes:any=[
    icon: Store,
    showSideBar: true,
     permissions:"tenants-module-link-view",
-
    component: () => import('./tenants/Index.vue'),
    label:"tenants",
 
@@ -71,40 +70,35 @@ export const  centarRoutes:any=[
           {
             path: "Permission",
             label: "Permission",
-            component: () => import('./settings/General/permisions/Index.vue'),
+            component: () => import('./settings/general/permisions/Index.vue'),
             permissions:"settings-permission-view",
 
           }, 
           {
             path: "roles",
             label: "roles",
-            component: () => import('./settings/General/roles/Index.vue'),
+            component: () => import('./settings/general/roles/Index.vue'),
           },
           {
             path: "Plan",
             label: "Plan",
-            component: () => import('./settings/General/plans/Index.vue'),
+            component: () => import('./settings/general/plans/Index.vue'),
           },
           
         ],
-      },
-      {
-        title: "Notifications",
-        items: [
-          {
-            path: "notifications",
-            label: "notifications",
-            component: () => import('./settings/PagesTrials/Notifications.vue'),
-          },
-        ],
-      },
+      }, 
       {
         title: "System",
         items: [
           {
             path: "system",
             label: "system",
-            component: () => import('./settings/PagesTrials/SystemSettings.vue'),
+            component: () => import('./settings/systems/developmentSettings/index.vue'),
+          },
+          {
+            path: "tenantssettings",
+            label: "tenantssettings",
+            component: () => import('./settings/systems/tenatsSettings/index.vue'),
           },
         ],
       },

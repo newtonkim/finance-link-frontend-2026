@@ -8,6 +8,7 @@ const statusOptions = [
     { name: 'Suspended', id: 'suspended' },
     { name: 'Expired', id: 'expired' },
 ];
+const loading = ref(true)
 const fields = ref([
     {
         label: 'Select Tenant',
@@ -27,6 +28,7 @@ const fields = ref([
         url: "central/global/plans-drop-down",
         placeholder: 'Select a Plan',
         dataOnMount: true,
+        state:"plans-drop-down"
     },
     {
         label: 'Starts At / Expires At',
@@ -64,34 +66,47 @@ const props = defineProps({
     }
 })
 function onFormResults() {
-    if (props?.data?.id) {
-        fields.value = [...fields.value, {
-            name: 'id',
-            type: 'hidden',
-            value: props.data.id,
-            required: true,
-        }]
-    }
+    
 }
-function promtValueOnUpdate() {
+async function promtValueOnUpdate() {
+    loading.value = true
     if (props.data.action == 'add') {
         fields.value = fields.value.map((f: any) => ({ value: null, ...f })) // remove the values of the fields
-        return // id is undefined let waste no time below
-    }
-    const data = { tenant_id: props.data.tenant_id, plan: props.data.plan_id, date: [props.data.starts, props.data.expires], status: props.data.status }
-    Object.entries(data).forEach(([key, value]) => {
-        const field = fields.value.find((f: any) => f.name === key)
-        if (field) {
-            field.value = value
+    }else{
+        const data = { tenant_id: props.data.tenant_id, plan: props.data.plan_id, date: [props.data.starts, props.data.expires], status: props.data.status }
+       await Object.entries(data).forEach(([key, value]) => {
+            const field = fields.value.find((f: any) => f.name === key)
+            console.log(field);
+            if (field) {
+                field.value = value
+                
+            }
+        });
+     if (props?.data?.id) {
+            fields.value = [...fields.value, {
+                name: 'id',
+                type: 'hidden',
+                value: props.data.id,
+                required: true,
+            }]
+            console.log( fields.value);
+            
         }
-    })
+
+    }
+     
+
+    loading.value = false
+
 }
 onMounted(() => {
     promtValueOnUpdate()
 })
 </script>
 <template>
+
     <div class="card shadow-md p-4 py-10 bg-white dark:bg-neutral-800 rounded-md">
-        <Form @results="onFormResults" parentStyle="grid  grid-cols-1 gap-4 md:gap-6" v-model:form="fields" />
+        <span v-if='loading'></span>
+        <Form v-else @results="onFormResults" parentStyle="grid  grid-cols-1 gap-4 md:gap-6" v-model:form="fields" />
     </div>
 </template>

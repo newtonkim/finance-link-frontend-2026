@@ -1,21 +1,21 @@
 <template>
-    <TableDrawer drawerWidth="w-1/2" :url="tableUrl" state="tanents_list"
-    :drawerShowFooter="Store.showSaveButton"
+    <TableDrawer drawerWidth="w-1/2" :url="tableUrl" state="tanents_list" :drawerShowFooter="Store.showSaveButton"
         :drawerTitle="drawerTitle" title="Tenants" :columns="columns" @save="saveUser">
         <template #expiry="{ item }: { item: any }">
             <div v-if="item?.license_expires_at" class="flex items-center gap-1.5">
                 <Clock class="size-3.5 text-neutral-400 dark:text-neutral-500 shrink-0" />
                 <div>
-                    <p class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    <p :class="[
+                        'text-sm font-medium',
+                        daysLeft(item.license_expires_at) === 0 ? 'text-red-500' : 'text-neutral-700 dark:text-neutral-300'
+                    ]">
                         {{ daysLeft(item?.license_expires_at) }}d left
                     </p>
-                    <p class="text-xs text-neutral-400 dark:text-neutral-500">{{
-                        formatDateUs(item?.license_expires_at) }}</p>
+                    <p class="text-xs text-neutral-400 dark:text-neutral-500">{{formatDateUs(item?.license_expires_at) }}</p>
                 </div>
             </div>
-            <span v-else class="text-sm  font-bold text-red-600/60">No active license</span>
+            <span v-else class="text-sm  font-bold text-red-600/60 px-4">No license</span>
         </template>
- 
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>

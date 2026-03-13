@@ -13,77 +13,22 @@ import { Card, CardContent } from '@/Global/ui/card';
 import { Button } from '@/Global/ui/button';
 import { pomPinia } from 'septor-store';
 import { fetchTableData } from '@/Global';
+import AnalysisTiles from './componets/analysisTiles.vue';
 const Store = pomPinia();
-const dataCollection = ref(Store?.dashboardAnalytics?.payload);
+const dataCollection = ref(Store?.dashboardAnalytics?.payload??{});
 
+async function intialize() {
+    await fetchTableData({
+         data: {}, props: {
+             url: '/central/dashboard/analytics',
+             state: 'dashboardAnalytics'
+         }, Store
+     });
+}
 onMounted(() => {
-   const res = fetchTableData({
-        data: {}, props: {
-            url: '/central/dashboard/analytics',
-            state: 'dashboardAnalytics'
-        }, Store
-    });
-    // dataCollection.value = res.payload
-
+intialize()
 });
-
-const stats = [
-    {
-        title: 'Total Tenants',
-        value: '7',
-        trend: '7 Active',
-        trendColor: 'text-emerald-500',
-        icon: Users,
-        bgColor: 'bg-[#f0f9f6]', // Light greenish/mint
-        iconColor: 'text-[#2d9d78]'
-    },
-    {
-        title: 'Monthly Revenue',
-        value: '$889.87',
-        trend: 'Monthly',
-        trendColor: 'text-neutral-400',
-        icon: DollarSign,
-        bgColor: 'bg-[#f0f9f6]',
-        iconColor: 'text-[#2d9d78]'
-    },
-    {
-        title: 'Annual Revenue',
-        value: '$10,678.44',
-        trend: 'ARR',
-        trendColor: 'text-neutral-400',
-        icon: TrendingUp,
-        bgColor: 'bg-[#f0f9f6]',
-        iconColor: 'text-[#2d9d78]'
-    },
-    {
-        title: 'Expiring (3d)',
-        value: '0',
-        trend: 'Action required',
-        trendColor: 'text-orange-500',
-        icon: AlertTriangle,
-        bgColor: 'bg-orange-50',
-        iconColor: 'text-orange-500'
-    },
-    {
-        title: 'Expired Licenses',
-        value: '0',
-        trend: 'Expired',
-        trendColor: 'text-rose-500',
-        icon: ShieldAlert,
-        bgColor: 'bg-rose-50',
-        iconColor: 'text-rose-500'
-    },
-    {
-        title: 'Suspended Users',
-        value: '0',
-        trend: 'Suspended',
-        trendColor: 'text-rose-500',
-        icon: CreditCard,
-        bgColor: 'bg-rose-50',
-        iconColor: 'text-rose-500'
-    },
-];
-
+ 
 const salesData = [
     { month: 'Jan', value: 45 },
     { month: 'Feb', value: 52 },
@@ -178,30 +123,7 @@ const topProducts = [
         <div class="flex items-center justify-between">
             <h2 class="text-lg font-bold text-neutral-800 dark:text-white tracking-tight">Platform Overview</h2>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            <Card v-for="stat in stats" :key="stat.title"
-                class="border-neutral-100 dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-xl overflow-hidden hover:shadow-md transition-shadow bg-white !border-none">
-                <CardContent class="p-4 flex gap-3 items-center">
-                    <div
-                        :class="['size-10 rounded-lg flex items-center justify-center dark:bg-white/10 shrink-0', stat.bgColor]">
-                        <component :is="stat.icon" :class="['size-4', stat.iconColor]" />
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="mb-0">
-                            <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400 truncate block">{{
-                                stat.title
-                            }}</span>
-                        </div>
-                        <div class="flex flex-col">
-                            <span class="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">{{
-                                stat.value }}</span>
-                            <span :class="['text-[10px] font-semibold mt-0', stat.trendColor]">{{ stat.trend }}</span>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
-
+       <AnalysisTiles :data="Store?.dashboardAnalytics?.payload"/>
         <!-- Charts Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Sales Revenue Chart -->
@@ -315,7 +237,7 @@ const topProducts = [
                             </div>
                             <div class="flex items-center gap-4">
                                 <span class="text-[13px] font-bold text-neutral-900 dark:text-white">{{ cat.amount
-                                }}</span>
+                                    }}</span>
                                 <span
                                     class="text-[13px] font-bold text-neutral-400 dark:text-neutral-500 w-8 text-right">{{
                                         cat.value
@@ -432,7 +354,7 @@ const topProducts = [
                                 </td>
                                 <td class="py-4 text-right text-[13px] font-bold text-neutral-900 dark:text-white">{{
                                     product.earnings
-                                }}</td>
+                                    }}</td>
                             </tr>
                         </tbody>
                     </table>

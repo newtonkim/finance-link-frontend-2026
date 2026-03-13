@@ -1,17 +1,15 @@
 <template>
     <TableDrawer drawerWidth=" sm:w-full xs:w-full md:w-1/2 lg:w-1/2" :url="tableUrl" state="Licesnes"
-   
         :drawerTitle="drawerTitle" " :columns="columns" @save="saveUser">
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
         <template #drawer="{ action, data }">
-            <StaffForm v-if="['add', 'edit'].includes(action)"  :data="{...data,action}" v-model:form="formData" />
+            <StaffForm v-if="['add', 'edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
             <Show v-if="['view'].includes(action)" :data="data" />
         </template>
     </TableDrawer>
 </template>
-
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import StaffForm from './Create.vue'
@@ -43,12 +41,12 @@ function saveUser(type: string, data: any) {
         drawerTitle.value = title?.[type]
 }
 const columns = [
-    { key: 'tenant_name', label: 'Tenant', sticky: 'left',width: '0', },
+    { key: 'tenant_name', label: 'Tenant', sticky: 'left', width: '0', },
     { key: 'starts', label: 'Starts', },
     { key: 'expires', label: 'Expires' },
     { key: 'grace_ends', label: 'grace ends' },
-    { key: 'plan', label: 'Plan', sticky: 'left',  },
+    { key: 'plan', label: 'Plan', sticky: 'left', },
     { key: 'status', label: 'Status', type: 'status' },
-    { key: 'actions', label: 'Actions', show: ['view','edit', 'delete'] }
+    { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 ]
 </script>
