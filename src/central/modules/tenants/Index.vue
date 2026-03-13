@@ -27,18 +27,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import StaffForm from './Create.vue'
 import { daysLeft, formatDateUs, StatusButtonsHorizontal, TableDrawer } from '@/Global'
 import { Clock } from 'lucide-vue-next';
 import { tenantsApi } from '../apis'
 import Show from './Show.vue'
+import { pomPinia } from 'septor-store'
+import { notify } from '@/Global/Toasters/ToastMsg'
 const formData = ref<Record<string, any>>({})
 const statusFilter = ref('all')
 const drawerTitle = ref('Create Tenant')
 const filters = ['all', 'active', 'suspended', 'trial']
 const { create, Erase } = tenantsApi()
-import { pomPinia } from 'septor-store'
+import { toast } from 'vue-sonner';
 
 const Store = pomPinia()
 
@@ -72,6 +74,6 @@ const columns = [
     { key: 'created_at', label: 'Created Date', type: 'dateTime', width: '200', },
     { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 ]
-
+ 
 
 </script>
