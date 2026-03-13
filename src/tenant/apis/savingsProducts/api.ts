@@ -24,6 +24,9 @@ export interface SavingsProduct {
   monthly_fee_type?: 'percentage' | 'amount' | null
   monthly_fee_amount?: number | string | null
   monthly_fee_deduction_day?: number | null
+  loyalty_fee_enabled?: boolean
+  loyalty_adjustment_type?: 'discount_percentage' | 'fixed_discount' | 'custom_fee' | null
+  loyalty_adjustment_value?: number | string | null
   charges?: Charge[]
 }
 

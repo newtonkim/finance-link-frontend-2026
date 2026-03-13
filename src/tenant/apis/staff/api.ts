@@ -27,7 +27,7 @@ export const staffApi = {
   delete(id: number) {
     return tenantClient.delete(`/staff/${id}`)
   },
-  getOnboardedMembers(id: number) {
-    return tenantClient.get(`/staff/${id}/onboarded-members`)
+  getReferredMembers(id: number) {
+    return tenantClient.get(`/staff/${id}/referred-members`)
   }
 }

@@ -6,7 +6,7 @@ import { toast } from 'vue-sonner'
 export const useStaffStore = defineStore('staff', () => {
     const staffList = ref<Staff[]>([])
     const currentStaff = ref<Staff | null>(null)
-    const onboardedMembers = ref<any[]>([])
+    const referredMembers = ref<any[]>([])
     const isLoading = ref(false)
     const isDrawerOpen = ref(false)
 
@@ -34,13 +34,13 @@ export const useStaffStore = defineStore('staff', () => {
         }
     }
 
-    async function fetchOnboardedMembers(id: number) {
+    async function fetchReferredMembers(id: number) {
         isLoading.value = true
         try {
-            const { data } = await staffApi.getOnboardedMembers(id)
-            onboardedMembers.value = data.data || data
+            const { data } = await staffApi.getReferredMembers(id)
+            referredMembers.value = data.data || data
         } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Failed to fetch onboarded members')
+            toast.error(error.response?.data?.message || 'Failed to fetch referred members')
         } finally {
             isLoading.value = false
         }
@@ -98,12 +98,12 @@ export const useStaffStore = defineStore('staff', () => {
     return {
         staffList,
         currentStaff,
-        onboardedMembers,
+        referredMembers,
         isLoading,
         isDrawerOpen,
         fetchStaffList,
         fetchStaffDetails,
-        fetchOnboardedMembers,
+        fetchReferredMembers,
         createStaff,
         updateStaff,
         deleteStaff
