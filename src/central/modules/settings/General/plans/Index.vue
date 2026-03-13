@@ -4,12 +4,15 @@
         view: 'settings-plans-details',
         edit: 'settings-plans-update',
         delete: 'settings-plans-delete'
+    }" 
+    :outerlinks="{ //  
+        edit: 'details',
     }" ref="drawer" :drawerShowFooter="hideFooterButtons" drawerWidth="w-1/2" url="/central/settings/plans/list"
         state="plans_list" drawerTitle="Add plans " title="plans list" :columns="columns" @save="saveUser">
-    
+
         <template #drawer="{ action, submit, data }">
-            <Create :data="data" v-if="['edit', 'add'].includes(action)" :watcher="{ action, submit }"
-                v-model:form="formData" />
+          
+            <Create :data="{...data,action}" v-if="['edit', 'add'].includes(action)" :action="action" v-model:form="formData" />
             <Details v-else-if="action === 'view'" :data="data" />
         </template>
     </TableDrawer>

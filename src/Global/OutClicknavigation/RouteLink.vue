@@ -1,8 +1,8 @@
 <template>
     <!-- If item is an array -->
     <template v-if="Array.isArray(item)">
-        <template v-for="subItem in item" :key="subItem.path" @click="handleClick">
-            <div v-auth="subItem.permissions">
+        <template v-for="subItem in item" :key="subItem.path">
+            <div v-auth="subItem.permissions"  @click="handleClick">
 
                 <RouterLink :to="getRoutePath(subItem)" v-slot="{ isActive }" v-auth="subItem?.permissions">
                     <div :class="[
@@ -53,6 +53,7 @@ const props = defineProps({
 
 const handleClick = () => {
     props.onClick && props.onClick()
+    // alert()
 }
 const isCurrentUrl = (path) => {
     return route.path === path;

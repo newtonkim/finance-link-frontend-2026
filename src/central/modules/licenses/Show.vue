@@ -60,7 +60,6 @@ async function prepareTheFeaturesData() {
         columns[1].list.push({ feature: key, accessbility: key })
     }
     loading.value = false
-
 }
 onMounted(async () => {
     await prepareTheFeaturesData()
@@ -70,6 +69,4 @@ onMounted(async () => {
 <template>
     <div v-if="loading">Loading...</div>
     <Details v-else :data="data" :columns="columns" />
-
-
 </template>

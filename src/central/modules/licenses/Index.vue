@@ -1,11 +1,12 @@
 <template>
     <TableDrawer drawerWidth=" sm:w-full xs:w-full md:w-1/2 lg:w-1/2" :url="tableUrl" state="Licesnes"
+   
         :drawerTitle="drawerTitle" " :columns="columns" @save="saveUser">
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
         <template #drawer="{ action, data }">
-            <StaffForm v-if="['add', 'edit'].includes(action)" :watcher="{ action, data }" v-model:form="formData" />
+            <StaffForm v-if="['add', 'edit'].includes(action)"  :data="{...data,action}" v-model:form="formData" />
             <Show v-if="['view'].includes(action)" :data="data" />
         </template>
     </TableDrawer>

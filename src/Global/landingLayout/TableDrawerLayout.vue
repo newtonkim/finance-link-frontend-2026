@@ -47,8 +47,6 @@
             <div
                 class="rounded-2xl  border-neutral-100 bg-white py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] dark:border-neutral-800 dark:bg-neutral-900">
                 <div class="overflow-x-auto flex-grow custom-scrollbar h-[64vh]">
-
-
                     <Table :handleAction="handleAction" :action_config="ACTION_CONFIG" :dataFilter="dataFilter"
                         :data="data" :columns="columns" :permissions="permissions">
                         <template v-for="(_, name) in $slots" #[name]="slotProps">
@@ -140,6 +138,19 @@ const props = defineProps({
     url: { type: String, required: false },
     module: { type: String, required: false },
     permissions: { type: Object, required: false },
+    /**
+ * By default the system uses standard route names: edit, view, delete.
+ * If you want to override those routes, you can provide `outerlinks`
+ * to specify custom paths.
+ *
+ * Example:
+ * outerlinks: {
+ *   edit: 'edit-details',
+ *   view: 'view-details',
+ *   delete: 'delete-item'
+ * }
+ */
+    outerlinks: { type: Object, required: false },
 });
 
 
@@ -204,12 +215,20 @@ const handleAction = async (item: any, action: keyof typeof ACTION_CONFIG) => {
         if (fn) fn(item);
         toggleDrawer()// open the drawer on this action clicked
         if (props?.state && props?.url && ['edit', 'view'].includes(action)) {
-
+            let outerlinks = "details"
+            // const outerlinks = props?.outerlinks[action]?(props?.outerlinks[action]?props?.outerlinks[action]):"details";
+            if(props?.outerlinks?.[action]){
+                outerlinks = props?.outerlinks[action]
+            }else{
+                 if(action=='edit'){
+                    outerlinks = "edit-details"
+                }
+            }
             const res = await fetchTableData({
                 data: item, props: {
                     ...props,
-                    state: props?.state + "_details",
-                    url: createUrl(props?.url, "details")
+                    state: props?.state + "_"+outerlinks,
+                    url: createUrl(props?.url, outerlinks)
                 }, Store
             });
             provideDataTotheParent.value = res?.payload ?? res
