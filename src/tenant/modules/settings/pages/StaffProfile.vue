@@ -16,23 +16,30 @@ onMounted(async () => {
     if (staffId.value) {
         await Promise.all([
             staffStore.fetchStaffDetails(staffId.value),
-            staffStore.fetchOnboardedMembers(staffId.value)
+            staffStore.fetchReferredMembers(staffId.value)
         ])
     }
 })
 
 const staff = computed(() => staffStore.currentStaff)
-const onboardedMembers = computed(() => staffStore.onboardedMembers)
+const referredMembers = computed(() => staffStore.referredMembers)
+
+// Safely parse any date string — handles null, undefined, and space-separated datetime
+const formatDate = (value?: string | null): string => {
+    if (!value) return '—'
+    const d = new Date(value.replace(' ', 'T'))
+    if (isNaN(d.getTime())) return '—'
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+}
 
 const exportData = () => {
-    // Basic CSV Export implementation
-    if (!onboardedMembers.value.length) return
+    if (!referredMembers.value.length) return
 
     const headers = ['Member Number', 'Name', 'Email', 'Joined At', 'Status']
     const csvContent = [
         headers.join(','),
-        ...onboardedMembers.value.map(m =>
-            `"${m.member_number}","${m.name}","${m.email || 'N/A'}","${new Date(m.joined_at || m.created_at).toLocaleDateString()}","${m.status}"`
+        ...referredMembers.value.map(m =>
+            `"${m.member_number}","${m.name}","${m.email || 'N/A'}","${formatDate(m.joined_at || m.created_at)}","${m.status}"`
         )
     ].join('\n')
 
@@ -40,7 +47,7 @@ const exportData = () => {
     const link = document.createElement('a')
     const url = URL.createObjectURL(blob)
     link.setAttribute('href', url)
-    link.setAttribute('download', `${staff.value?.name.replace(/\s+/g, '_')}_onboarded_members.csv`)
+    link.setAttribute('download', `${staff.value?.name.replace(/\s+/g, '_')}_referred_members.csv`)
     link.style.visibility = 'hidden'
     document.body.appendChild(link)
     link.click()
@@ -99,7 +106,7 @@ const exportData = () => {
                         </div>
                         <div class="flex items-center gap-3 text-neutral-600 dark:text-neutral-400">
                             <Users class="h-4 w-4 opacity-70" />
-                            <span>Joined {{ new Date(staff.created_at || '').toLocaleDateString() }}</span>
+                            <span>Joined {{ formatDate(staff.created_at) }}</span>
                         </div>
                     </div>
                 </div>
@@ -130,7 +137,7 @@ const exportData = () => {
                         ]"
                     >
                         Onboarded Members
-                        <span class="bg-neutral-100 dark:bg-neutral-800 text-xs px-2 py-0.5 rounded-full">{{ onboardedMembers.length }}</span>
+                        <span class="bg-neutral-100 dark:bg-neutral-800 text-xs px-2 py-0.5 rounded-full">{{ referredMembers.length }}</span>
                     </button>
                 </div>
 
@@ -140,7 +147,7 @@ const exportData = () => {
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="rounded-xl border border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900 p-5">
                                 <div class="text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-1">Total Members Onboarded</div>
-                                <div class="text-3xl font-bold text-[#001d22] dark:text-[#C9A84C]">{{ onboardedMembers.length }}</div>
+                                <div class="text-3xl font-bold text-[#001d22] dark:text-[#C9A84C]">{{ referredMembers.length }}</div>
                                 <p class="text-xs text-emerald-600 dark:text-emerald-400 mt-2 flex items-center gap-1">
                                     All-time KPI metric
                                 </p>
@@ -176,10 +183,10 @@ const exportData = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-if="!onboardedMembers.length">
+                                        <tr v-if="!referredMembers.length">
                                             <td colspan="4" class="px-6 py-8 text-center text-neutral-500">No members onboarded by this staff yet.</td>
                                         </tr>
-                                        <tr v-for="member in onboardedMembers" :key="member.id" class="border-b border-neutral-100 last:border-0 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-800/50">
+                                        <tr v-for="member in referredMembers" :key="member.id" class="border-b border-neutral-100 last:border-0 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-800/50">
                                             <td class="whitespace-nowrap px-6 py-3 font-medium text-[#001d22] dark:text-[#C9A84C]">
                                                 <RouterLink :to="`/tenant/members/${member.id}`" class="hover:underline">
                                                     {{ member.member_number }}
@@ -189,7 +196,7 @@ const exportData = () => {
                                                 {{ member.name }}
                                             </td>
                                             <td class="whitespace-nowrap px-6 py-3 text-neutral-500">
-                                                {{ new Date(member.joined_at || member.created_at).toLocaleDateString() }}
+                                                {{ formatDate(member.joined_at || member.created_at) }}
                                             </td>
                                             <td class="whitespace-nowrap px-6 py-3 text-center">
                                                 <span :class="[
