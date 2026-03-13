@@ -1,4 +1,5 @@
 // import { notify } from '../../Global/Toasters';
+import { formDataFormat, scopeValues } from '@/Global';
 import { notify } from '@/Global/Toasters/ToastMsg';
 import { pomPinia } from 'septor-store';
 
@@ -6,6 +7,8 @@ export function lisenseApi() {
     const Store = pomPinia();
 
     function create(data: any) {
+              const formDataScoping:any=  formDataFormat(scopeValues(data));
+        
         const collection: any = {
             reload: 1,
             StateStore: 'createLicesense',
@@ -13,7 +16,7 @@ export function lisenseApi() {
             reqs: {
                 url: 'central/licenses/create',
                 method: 'post',
-                data,
+                data:formDataScoping,
             },
         };
         const res: any = Store.stateGenaratorApi(collection);

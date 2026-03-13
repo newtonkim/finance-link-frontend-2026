@@ -50,7 +50,10 @@ export function notify({
         case 'success':
         case 'info':
         case 'warning':
-        case 'error':
+        case 'error':{
+        toast?.[typeCheck]?.('Event has been created')
+        return
+    }
         case 'promise': {
             const toastMethod = typeMap[typeCheck as keyof typeof typeMap];
             if (toastMethod) {

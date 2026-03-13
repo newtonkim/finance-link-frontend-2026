@@ -14,7 +14,7 @@
                     Select Plan <span class="text-rose-500">*</span>
                 </label>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <button v-for="plan in plans" :key="plan.value" @click="form.plan = plan.value"
+                    <button type='button' v-for="plan in plans" :key="plan.value" @click="form.plan = plan.value"
                         class="p-5 rounded-xl border-2 text-left transition-all duration-200" :class="form.plan === plan.value
                             ? 'border-[#001d22] dark:border-white bg-[#001d22]/[0.02] dark:bg-white/5'
                             : 'border-neutral-100 dark:border-white/10 hover:border-neutral-200 dark:hover:border-white/20'
@@ -43,7 +43,7 @@
                     License Duration <span class="text-rose-500">*</span>
                 </label>
                 <div class="flex flex-wrap gap-3">
-                    <button v-for="dur in licenseDurations" :key="dur.value" @click="form.license_months = dur.value"
+                    <button type='button' v-for="dur in licenseDurations" :key="dur.value" @click="form.license_months = dur.value"
                         class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200" :class="form.license_months === dur.value
                             ? 'bg-[#001d22] dark:bg-white text-white dark:text-[#001d22] shadow-sm'
                             : 'bg-neutral-100 dark:bg-white/5 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-white/10'
@@ -64,8 +64,8 @@ const emits = defineEmits(['update:form', "change"]);
 
 const plans = [
     { value: 'basic', label: 'Basic', price: '$29/mo', description: 'For small SACCOs with up to 100 members' },
-    { value: 'professional', label: 'Standard', price: '$79/mo', description: 'For growing SACCOs with up to 500 members' },
-    { value: 'enterprise', label: 'Premium', price: '$149/mo', description: 'For large SACCOs with unlimited members' },
+    { value: 'Standard', label: 'Standard', price: '$79/mo', description: 'For growing SACCOs with up to 500 members' },
+    { value: 'Premium', label: 'Premium', price: '$149/mo', description: 'For large SACCOs with unlimited members' },
 ];
 
 const licenseDurations = [

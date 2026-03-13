@@ -20,7 +20,7 @@
             <span v-else>{{ col.label }}</span>
            
           </th>
-          <th v-if="$slots.actions" class="
+          <!-- <th v-if="$slots.actions" class="
             
     text-sm font-semibold
     text-gray-700 dark:text-white
@@ -29,7 +29,8 @@
     sticky right-0 z-30
     bg-white dark:bg-neutral-900
        ">Actions</th>
-        </tr>
+       -->
+    </tr> 
       </thead>
 
       <!-- BODY -->
@@ -56,15 +57,18 @@
           >
             <!-- ACTION SLOT -->
             <div v-if="col.key === 'actions'" class="flex justify-center gap-2 capitalize-table-action">
-                <template   v-for="action in col?.show ?? []" :key="action" @click="handleAction(item, action)">
-                    <button
+                <template   v-for="action in col?.show ?? []" :key="action">
+                    <button type="button" @click="handleAction(item, action)"
                     v-auth="permissions?.[action]"
                     :class="action_config?.[action]?.class">
                     <component :is="action_config?.[action]?.icon" class="h-3.5 w-3.5" />
                     <span v-if="action !== 'delete'">{{ action }}</span>
                   </button>
-
+                  
                 </template>
+                <div v-if="$slots.actions" class="text-right">
+             <slot name="actions" :item="item" />
+           </div> 
             </div>
             <!-- permissions -->
 
@@ -76,9 +80,9 @@
           </td>
 
           <!-- EXTRA ACTIONS -->
-          <td v-if="$slots.actions" class="text-right">
+          <!-- <td v-if="$slots.actions" class="text-right">
             <slot name="actions" :item="item" />
-          </td>
+          </td> -->
         </tr>
       </tbody>
     </table>

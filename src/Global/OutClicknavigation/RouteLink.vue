@@ -1,15 +1,15 @@
 <template>
     <!-- If item is an array -->
     <template v-if="Array.isArray(item)">
-        <template v-for="subItem in item" :key="subItem.path" @click="handleClick">
-            <div v-auth="subItem.permissions">
+        <template v-for="subItem in item" :key="subItem.path">
+            <div v-auth="subItem.permissions"  @click="handleClick">
 
                 <RouterLink :to="getRoutePath(subItem)" v-slot="{ isActive }" v-auth="subItem?.permissions">
                     <div :class="[
-                        'capitalize p-2   transition-all duration-200  text-black/70  hover:text-neutral-800 hover:font-bold hover:bg-white/80 rounded-md hover:font-semibold hover:text-neutral-500    hover:border-b-0',
+                        'capitalize p-2   transition-all duration-200  text-black/70  hover:text-neutral-800 hover:font-bold  rounded-md hover:font-semibold hover:text-neutral-500    hover:border-b-0',
                         isCurrentUrl(getRoutePath(subItem))
-                            ? 'font-bo font-semibold text-neutral-500 dark:text-neutral-500 bg-ugYellow border-b-1 border-gray-100'
-                            : '  '
+                            ? 'font-bo font-semibold text-neutral-500 dark:text-white  border-r-1 border-l-1 border-gray-100'
+                            : ' dark:text-neutral-400 dark:hover:text-white'
                     ]">
 
                         <component v-if="subItem?.icon" :is="subItem.icon" :size="20" class="size-5" />
@@ -53,6 +53,7 @@ const props = defineProps({
 
 const handleClick = () => {
     props.onClick && props.onClick()
+    // alert()
 }
 const isCurrentUrl = (path) => {
     return route.path === path;

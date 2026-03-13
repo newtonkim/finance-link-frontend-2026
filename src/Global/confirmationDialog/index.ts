@@ -1,10 +1,9 @@
 import { h, ref, watch, render } from 'vue'
 import ConfirmationDialog from './ConfirmationDialog.vue'
 
-export function showConfirmationDialog({ items, show = true }) {
-  return new Promise((resolve) => {
+export function Confirm({ items, show = true ,confirm, cancel}) {
+      const dialogRef = ref(null)
     const showDialog = ref(show)
-
     let container = document.getElementById('dialog-root')
     if (!container) {
       container = document.createElement('div')
@@ -16,12 +15,11 @@ export function showConfirmationDialog({ items, show = true }) {
       items,
       show: showDialog.value,
       'onUpdate:show': (val) => (showDialog.value = val),
-      cancel: () => {
-        resolve(false)
+      onCancel: () => {
         showDialog.value = false
       },
-      confirm: (member) => {
-        resolve(member)
+      onConfirm: (member) => {
+        confirm(member)
         showDialog.value = false
       }
     })
@@ -31,5 +29,4 @@ export function showConfirmationDialog({ items, show = true }) {
     })
 
     render(vnode, container)
-  })
 }

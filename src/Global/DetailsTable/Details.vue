@@ -10,9 +10,8 @@
                     {{ t(section.header) }}
                 </h3>
             </header>
-
             <Table v-if="section.type === 'Table'" :handleAction="handleAction" :action_config="ACTION_CONFIG"
-                :dataFilter="data" :data="data" :columns="columns" />
+                :dataFilter="section?.list" :data="section?.list" :columns="section.column" />
 
             <div v-if="section.type === 'Descriptions'" class="grid gap-[1px] bg-neutral-200 dark:bg-neutral-700"
                 :style="gridStyle(section.column)">

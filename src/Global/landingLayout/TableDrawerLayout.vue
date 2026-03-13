@@ -47,12 +47,8 @@
             <div
                 class="rounded-2xl  border-neutral-100 bg-white py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] dark:border-neutral-800 dark:bg-neutral-900">
                 <div class="overflow-x-auto flex-grow custom-scrollbar h-[64vh]">
-
-
                     <Table :handleAction="handleAction" :action_config="ACTION_CONFIG" :dataFilter="dataFilter"
-                        :data="data" :columns="columns"
-                        :permissions="permissions"
-                        >
+                        :data="data" :columns="columns" :permissions="permissions">
                         <template v-for="(_, name) in $slots" #[name]="slotProps">
                             <slot :name="name" v-bind="slotProps || {}" />
                         </template>
@@ -66,12 +62,17 @@
         </div>
         <!-- DRAWER -->
     </div>
-    <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShowFooter" v-model:open="drawerOpen"
-        :title="drawerTitle" @save="saveDrawerData">
-        <template #body>
-            <slot :data="provideDataTotheParent" name="drawer" :action="buttonTypeClicked" :submit="submitChanges" />
-        </template>
-    </Drawer>
+    <div v-if="DrawerMounted">
+        <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShowFooter" v-model:open="drawerOpen"
+            :title="drawerTitle" @save="saveDrawerData">
+            <template #body>
+
+                <slot :data="provideDataTotheParent" name="drawer" :action="buttonTypeClicked"
+                    :submit="submitChanges" />
+
+            </template>
+        </Drawer>
+    </div>
 
     <ConfirmationDialog v-model:show="showDelete" items1="selectedItem"
         @confirm="() => save(selected ?? {}, 'delete')" />
@@ -88,19 +89,23 @@ import Table from './Components/Table.vue';
 import { Download, Printer } from 'lucide-vue-next';
 import { pomPinia } from 'septor-store';
 import { ACTION_CONFIG, dataTabelFilter, fetchTableData } from './util';
-import { localStoragePicker } from '../Helpers';
 const drawerOpen = ref(false);
 const showDelete = ref(false);
 const searchQuery = ref('');
-const emit = defineEmits(['save']);
+const emit = defineEmits(['save', 'submit']);
 const selected = ref<Record<string, unknown> | null>(null);
 const Store = pomPinia();
 const buttonTypeClicked = ref<any>(null);
+const DrawerMounted = ref<boolean>(true);
 const submitChanges = ref<any>(null);
 const provideDataTotheParent = ref<any>([]);
-function createNewRecord() {
-    toggleDrawer(); save('create', 'add');
+async function createNewRecord() {
+    DrawerMounted.value = false
+    await toggleDrawer();
+    await save('create', 'add');
     buttonTypeClicked.value = 'add'
+    DrawerMounted.value = true
+
 }
 function handleExport() {
     // Your export logic here
@@ -133,6 +138,19 @@ const props = defineProps({
     url: { type: String, required: false },
     module: { type: String, required: false },
     permissions: { type: Object, required: false },
+    /**
+ * By default the system uses standard route names: edit, view, delete.
+ * If you want to override those routes, you can provide `outerlinks`
+ * to specify custom paths.
+ *
+ * Example:
+ * outerlinks: {
+ *   edit: 'edit-details',
+ *   view: 'view-details',
+ *   delete: 'delete-item'
+ * }
+ */
+    outerlinks: { type: Object, required: false },
 });
 
 
@@ -142,6 +160,7 @@ const toggleDrawer = () => {
     (drawerOpen.value = !drawerOpen.value)
 
 };
+
 const save = (data: unknown, type = 'save') => {
     if (type == 'search' && props?.state && props?.url) {
         fetchTableData({ data, props, Store })
@@ -152,9 +171,13 @@ const save = (data: unknown, type = 'save') => {
         fetchTableData({ data, props: newprosDta, Store })
         return
     }
-    if (type === 'save')
+    if (type === 'create' || type === 'save') {
         submitChanges.value = true
-    console.log(data, "---==");
+        setTimeout(() => {
+            submitChanges.value = false
+        }, 1000)
+    }
+
 
     emit("save", type, data)
 
@@ -168,9 +191,14 @@ function createUrl(url: string, action: string) {
 
 function saveDrawerData(data: any) {
     save(data, 'create')
+    toggleDrawer()
     setTimeout(() => {
+
         submitChanges.value = false
     }, 2000)
+    setTimeout(() => {
+        toggleDrawer()
+    }, 100)
 }
 
 const handleAction = async (item: any, action: keyof typeof ACTION_CONFIG) => {
@@ -182,19 +210,31 @@ const handleAction = async (item: any, action: keyof typeof ACTION_CONFIG) => {
             return  // dont send the  action to the parent
         }
     } else if (["edit", "view"].includes(action)) {
+        DrawerMounted.value = false
+
         if (fn) fn(item);
         toggleDrawer()// open the drawer on this action clicked
         if (props?.state && props?.url && ['edit', 'view'].includes(action)) {
-
+            let outerlinks = "details"
+            // const outerlinks = props?.outerlinks[action]?(props?.outerlinks[action]?props?.outerlinks[action]):"details";
+            if(props?.outerlinks?.[action]){
+                outerlinks = props?.outerlinks[action]
+            }else{
+                 if(action=='edit'){
+                    outerlinks = "edit-details"
+                }
+            }
             const res = await fetchTableData({
                 data: item, props: {
                     ...props,
-                    state: props?.state + "_details",
-                    url: createUrl(props?.url, "details")
+                    state: props?.state + "_"+outerlinks,
+                    url: createUrl(props?.url, outerlinks)
                 }, Store
             });
             provideDataTotheParent.value = res?.payload ?? res
         }
+
+        DrawerMounted.value = true
     }
     else {
         if (fn) fn(item);
@@ -246,7 +286,8 @@ defineExpose({
     toggleDrawer,
     callNewPage,
     changeThePage,
-    handleAction, handlePrint
+    handleAction,
+    handlePrint
 })
 
 function haspermission(permission = "") {

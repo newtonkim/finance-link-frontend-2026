@@ -28,6 +28,7 @@ export const  centarRoutes:any=[
   {
     path: 'licenses',
     label:"licenses",
+    permissions:"licenses-module-link-view",
     icon: CreditCard,
     showSideBar: true,
     component: () => import('./licenses/Index.vue'),
@@ -35,6 +36,7 @@ export const  centarRoutes:any=[
   { 
     path: 'platform-users',
     label:"platform-users",
+    permissions:"staff-module-link-view",
     icon: Users, 
     showSideBar: true,
     component: () => import('./staff/Index.vue'),
@@ -43,6 +45,8 @@ export const  centarRoutes:any=[
    path: 'tenants',
    icon: Store,
    showSideBar: true,
+    permissions:"tenants-module-link-view",
+
    component: () => import('./tenants/Index.vue'),
    label:"tenants",
 
@@ -67,20 +71,19 @@ export const  centarRoutes:any=[
           {
             path: "Permission",
             label: "Permission",
-            component: () => import('./settings/General/Permisions/Index.vue'),
+            component: () => import('./settings/General/permisions/Index.vue'),
             permissions:"settings-permission-view",
 
-          },
-           
+          }, 
           {
-            path: "staffs-permission",
-            label: "staffs-permission",
-            component: () => import('./settings/PagesTrials/GeneralSettings.vue'),
+            path: "roles",
+            label: "roles",
+            component: () => import('./settings/General/roles/Index.vue'),
           },
           {
-            path: "settings",
-            label: "settings",
-            component: () => import('./settings/PagesTrials/GeneralSettings.vue'),
+            path: "Plan",
+            label: "Plan",
+            component: () => import('./settings/General/plans/Index.vue'),
           },
           
         ],

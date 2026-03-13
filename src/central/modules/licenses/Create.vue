@@ -1,30 +1,7 @@
 <script setup lang="ts">
-import { reactive, ref, watch, computed } from 'vue';
-import { Form } from '@/Global';
+import { reactive, ref, watch, computed, onMounted } from 'vue';
+import { date, Form } from '@/Global';
 const emits = defineEmits(['update:form']);
-const planSearch = ref('');
-const planOptions = [
-    { name: 'Basic', id: 'basic' },
-    { name: 'Standard', id: 'standard' },
-    { name: 'Premium', id: 'premium' },
-];
-
-const filteredPlans = computed(() => {
-    if (!planSearch.value.trim()) return planOptions;
-    const q = planSearch.value.toLowerCase();
-    return planOptions.filter(o => o.label.toLowerCase().includes(q));
-});
-const form = reactive({
-    full_name: '',
-    plan: '',
-    date: { start: '', end: '' },
-    status: '',
-    payment_number: '',
-    phone: '',
-    errors: {},
-    processing: false,
-});
-
 const statusOptions = [
     { name: 'Active', id: 'active' },
     { name: 'Trial', id: 'trial' },
@@ -34,11 +11,14 @@ const statusOptions = [
 const fields = ref([
     {
         label: 'Select Tenant',
-        name: 'full_name',
+        name: 'tenant_id',
         type: 'select',
         required: true,
         placeholder: 'Search Full Name/ Email/ Phone Number',
         remote: true,
+        landingData: true,
+
+
         url: "central/licenses/licenses-drop-down",
     },
     {
@@ -46,8 +26,10 @@ const fields = ref([
         name: 'plan',
         type: 'select',
         required: true,
-        options: filteredPlans,
-        props: { placeholder: 'Select a Plan' },
+        url: "central/global/plans-drop-down",
+        placeholder: 'Select a Plan',
+        landingData: true,
+
     },
     {
         label: 'Starts At / Expires At',
@@ -68,17 +50,55 @@ const fields = ref([
     },
 ]);
 watch(
-    form,
+    fields,
     (newVal) => {
         emits('update:form', newVal);
     },
     { deep: true }
 );
+const props = defineProps({
+    data: {
+        type: Object,
+        default: {},
+    },
+    action: {
+        type: String,
+        default: {},
+    }
+})
+function onFormResults() {
+    if (props?.data?.id) {
+        fields.value = [...fields.value, {
+            name: 'id',
+            type: 'hidden',
+            value: props.data.id,
+            required: true,
+        }]
+    }
+}
+
+function promtValueOnUpdate() {
+    if (props.data.action == 'add') {
+        fields.value = fields.value.map((f: any) => ({ value: null, ...f })) // remove the values of the fields
+        return // id is undefined let waste no time below
+    }
+    const data = { tenant_id: props.data.tenant_id, plan: props.data.plan_id, date: [props.data.starts, props.data.expires], status: props.data.status }
+    Object.entries(data).forEach(([key, value]) => {
+        const field = fields.value.find((f: any) => f.name === key)
+        if (field) {
+            field.value = value
+        }
+    })
+
+}
+onMounted(() => {
+    promtValueOnUpdate()
+})
 </script>
 
 <template>
     <div class="card shadow-md p-4 py-10 bg-white dark:bg-neutral-800 rounded-md">
-        <Form parentStyle="grid  grid-cols-1 gap-4 md:gap-6" v-model:form="fields" />
+        <Form @results="onFormResults" parentStyle="grid  grid-cols-1 gap-4 md:gap-6" v-model:form="fields" />
 
     </div>
 </template>

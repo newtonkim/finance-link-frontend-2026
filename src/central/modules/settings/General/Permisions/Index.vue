@@ -13,7 +13,7 @@
                 </button>
             </div>
         </template>
-        <template #drawer="{}">
+        <template #drawer="{ }">
             <Details :data="data" />
         </template>
     </TableDrawer>
@@ -24,7 +24,7 @@ import { ref } from 'vue'
 import { TableDrawer } from '@/Global'
 import { permissionsApi } from '@/central/modules/apis';
 import { UserPlus } from 'lucide-vue-next';
-import { Details } from './';
+import { Details } from '.';
 const formData = ref<Record<string, any>>({})
 const drawer = ref(null)
 const data = ref(null)

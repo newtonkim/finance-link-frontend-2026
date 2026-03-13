@@ -2,7 +2,7 @@ import { formDataFormat, scopeValues } from '@/Global';
 import { notify } from '@/Global/Toasters';
 import { pomPinia } from 'septor-store';
 
-export function permissionsApi() {
+export function rolesApi() {
     const Store = pomPinia();
     function feedback(collection:any,success:string,fail:string) {
              const res: any = Store.stateGenaratorApi(collection);
@@ -24,68 +24,51 @@ export function permissionsApi() {
       const formDataScoping:any=  formDataFormat(scopeValues(data));
         const collection: any = {
             reload: 1,
-            StateStore: 'createpemissions',
+            StateStore: 'roles_list',
             time: 0,
             reqs: {
-                url: 'central/Permisions/pemissions',
+                url: '/central/settings/roles/create',
                 method: 'post',
                 data:formDataScoping,
             },
         };
-        feedback(collection,"pemissions created successfully","Failed to create pemissions")
+        feedback(collection,"roles created successfully","Failed to create roles")
     }
   
+    
+    function EraseRolesFromUser(data: any) {
+        // central/settings/roles/list
+        const collection: any = {
+            reload: 1,
+            StateStore: 'staff-attached-roles',
+            time: 0,
+            reqs: {
+                url: '/central/settings/roles/remove_ability',
+                method: 'post',
+                data,
+            },
+            mStore: { mUse: true },
+        };
+              return feedback(collection,"Roles removed"," Failed to remove Roles")
+    }
+     function AttachRolesToUser(data: any) {
+        const collection: any = {
+            reload: 1,
+            StateStore: 'staff-attached-roles',
+            time: 0,
+            reqs: {
+                url: '/central/settings/roles/add_ability',
+                method: 'post',
+                data,
+            },
+            mStore: { mUse: true },
+        };
+             return feedback(collection," Roles attached "," Failed to attach Roles")
+
+    }
    
-    function Erase(data: any) {
-        const collection: any = {
-            reload: 1,
-            StateStore: 'fetchPositions',
-            time: 0,
-            reqs: {
-                url: '/pemissions/list',
-                method: 'post',
-                data,
-            },
-            mStore: { mUse: true },
-        };
-       return feedback(collection,"","")
-
-    }
-    function ErasePermissionFromUser(data: any) {
-        // central/settings/permisions/list
-        const collection: any = {
-            reload: 1,
-            StateStore: 'staff-attached-permission',
-            time: 0,
-            reqs: {
-                url: '/central/settings/permisions/remove_ability',
-                method: 'post',
-                data,
-            },
-            mStore: { mUse: true },
-        };
-              return feedback(collection,"Permission removed"," Failed to remove Permission")
-
-
-    }
-    function AttachPermissionToUser(data: any) {
-        const collection: any = {
-            reload: 1,
-            StateStore: 'staff-attached-permission',
-            time: 0,
-            reqs: {
-                url: '/central/settings/permisions/add_ability',
-                method: 'post',
-                data,
-            },
-            mStore: { mUse: true },
-        };
-             return feedback(collection," Permission attached "," Failed to attach Permission")
-
-    }
- 
 
     return {
-        create,Erase, ErasePermissionFromUser,AttachPermissionToUser
+        create, EraseRolesFromUser,AttachRolesToUser
     };
 }

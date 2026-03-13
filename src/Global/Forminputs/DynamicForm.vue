@@ -98,7 +98,7 @@ const handleAvatarChange = (field: any, index: number, event: Event) => {
                 <!-- Select -->
                 <template v-else-if="field.type === 'select'">
                     <SearchableSelect v-model="field.value" :options="field.options || []"
-                        :placeholder="field.props?.placeholder || ''"
+                        :placeholder="field.props?.placeholder || ''" v-model:item-selected="field.selected"
                         @update:modelValue="() => handleChange(field, index)" v-bind="field" />
                 </template>
 
