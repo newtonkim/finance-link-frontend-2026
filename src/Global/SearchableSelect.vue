@@ -24,7 +24,7 @@ const props = defineProps<{
     remote?: boolean;
     url?: string;
     state: string
-    landingData?: boolean
+    dataOnMount?: boolean
 }>();
 
 const emit = defineEmits(['update:modelValue', 'update:itemSelected']);
@@ -95,7 +95,7 @@ onUnmounted(() => {
 });
 
 watch(props, async(newVal) => {
-    if (newVal?.landingData) { 
+    if (newVal?.dataOnMount) { 
         searchQuery.value = props.modelValue ?? '';
         await toggleDropdown();
         await toggleDropdown();

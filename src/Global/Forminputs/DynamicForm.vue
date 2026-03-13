@@ -72,6 +72,7 @@ const handleAvatarChange = (field: any, index: number, event: Event) => {
 
 <template>
     <div :class="(parentStyle || '') + ' space-y-2'">
+        
         <div v-for="(field, index) in prfields" :key="index">
             <FormField class="capitalize" :label="field.label.toLocaleLowerCase()" :required="field.required"
                 :html-for="field.name" :error="field.error">
