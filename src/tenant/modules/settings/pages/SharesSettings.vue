@@ -139,7 +139,7 @@ function openDrawer() {
         <!-- Page Header -->
         <div class="flex items-center gap-3">
             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-100 dark:bg-neutral-800">
-                <PieChart class="h-5 w-5 text-[#001d22] dark:text-[#C9A84C]" />
+                <PieChart class="h-5 w-5  text-nfuko-primary dark:text-bg-nfuko-yellow" />
             </div>
             <div>
                 <h1 class="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">Shares & Dividends</h1>
@@ -164,7 +164,7 @@ function openDrawer() {
                     </span>
                 </div>
                 <button @click="openSharesDrawer"
-                    class="text-sm font-medium text-[#001d22] dark:text-[#C9A84C] hover:underline">
+                    class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">
                     Manage Shares →
                 </button>
             </div>
@@ -173,7 +173,7 @@ function openDrawer() {
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Share Capital</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Manage share capital structure and
                     limits.</p>
-                <button class="text-sm font-medium text-[#001d22] dark:text-[#C9A84C] hover:underline">Manage Capital
+                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Manage Capital
                     →</button>
             </div>
             <div
@@ -181,7 +181,7 @@ function openDrawer() {
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Share Pricing</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Set and update share prices over time.
                 </p>
-                <button class="text-sm font-medium text-[#001d22] dark:text-[#C9A84C] hover:underline">Configure
+                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Configure
                     Pricing →</button>
             </div>
             <div
@@ -189,7 +189,7 @@ function openDrawer() {
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Share Transfers</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Define rules for transferring shares
                     between members.</p>
-                <button class="text-sm font-medium text-[#001d22] dark:text-[#C9A84C] hover:underline">Manage
+                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Manage
                     Transfers →</button>
             </div>
 
@@ -228,7 +228,7 @@ function openDrawer() {
                 </div>
 
                 <button @click="openDrawer"
-                    class="text-sm font-medium text-[#001d22] dark:text-[#C9A84C] hover:underline">
+                    class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">
                     Configure Dividends →
                 </button>
             </div>
@@ -248,8 +248,8 @@ function openDrawer() {
                         class="flex items-center justify-between px-6 py-4 border-b border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-900">
                         <div class="flex items-center gap-3">
                             <div
-                                class="w-9 h-9 rounded-xl bg-[#001d22]/10 dark:bg-[#C9A84C]/10 flex items-center justify-center">
-                                <Share2 class="h-4 w-4 text-[#001d22] dark:text-[#C9A84C]" />
+                                class="w-9 h-9 rounded-xl  bg-nfuko-primary/10 dark:bg-bg-nfuko-yellow/10 flex items-center justify-center">
+                                <Share2 class="h-4 w-4  text-nfuko-primary dark:text-bg-nfuko-yellow" />
                             </div>
                             <div>
                                 <h2 class="text-[15px] font-bold text-neutral-900 dark:text-white tracking-tight">
@@ -276,7 +276,7 @@ function openDrawer() {
                             <div class="rounded-2xl border border-neutral-100 dark:border-neutral-800 overflow-hidden">
                                 <div
                                     class="flex items-center gap-2.5 px-4 py-3 bg-neutral-50 dark:bg-neutral-900 border-b border-neutral-100 dark:border-neutral-800">
-                                    <ShieldCheck class="h-4 w-4 text-[#001d22] dark:text-[#C9A84C]" />
+                                    <ShieldCheck class="h-4 w-4  text-nfuko-primary dark:text-bg-nfuko-yellow" />
                                     <span
                                         class="text-[11px] font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">
                                         Share Onboarding Rules
@@ -295,7 +295,7 @@ function openDrawer() {
                                         </div>
                                         <button @click="tempSharesCompulsory = !tempSharesCompulsory" :class="[
                                             'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-all duration-300',
-                                            tempSharesCompulsory ? 'bg-[#001d22] dark:bg-[#C9A84C]' : 'bg-neutral-200 dark:bg-neutral-700'
+                                            tempSharesCompulsory ? ' bg-nfuko-primary dark:bg-bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'
                                         ]">
                                             <span :class="[
                                                 'inline-flex h-4 w-4 rounded-full bg-white shadow transition-transform duration-300',
@@ -315,7 +315,7 @@ function openDrawer() {
                                                 </label>
                                                 <input v-model.number="tempMinShares" type="number" min="1"
                                                     placeholder="e.g. 5"
-                                                    class="w-full px-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] font-mono font-bold text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:focus:ring-[#C9A84C] transition-all" />
+                                                    class="w-full px-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] font-mono font-bold text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:focus:ring-bg-nfuko-yellow transition-all" />
                                             </div>
                                             <!-- Share price -->
                                             <div>
@@ -328,7 +328,7 @@ function openDrawer() {
                                                         class="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-neutral-400">UGX</span>
                                                     <input v-model.number="tempSharePrice" type="number" min="0"
                                                         step="100" placeholder="0"
-                                                        class="w-full pl-11 pr-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] font-mono font-bold text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:focus:ring-[#C9A84C] transition-all" />
+                                                        class="w-full pl-11 pr-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] font-mono font-bold text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:focus:ring-bg-nfuko-yellow transition-all" />
                                                 </div>
                                             </div>
                                         </div>
@@ -360,7 +360,7 @@ function openDrawer() {
                                             </div>
                                             <button @click="tempAppliesToExisting = !tempAppliesToExisting" :class="[
                                                 'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-all duration-300',
-                                                tempAppliesToExisting ? 'bg-[#001d22] dark:bg-[#C9A84C]' : 'bg-neutral-200 dark:bg-neutral-700'
+                                                tempAppliesToExisting ? ' bg-nfuko-primary dark:bg-bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'
                                             ]">
                                                 <span :class="[
                                                     'inline-flex h-4 w-4 rounded-full bg-white shadow transition-transform duration-300',
@@ -388,7 +388,7 @@ function openDrawer() {
                             <div class="rounded-2xl border border-neutral-100 dark:border-neutral-800 overflow-hidden">
                                 <div
                                     class="flex items-center gap-2.5 px-4 py-3 bg-neutral-50 dark:bg-neutral-900 border-b border-neutral-100 dark:border-neutral-800">
-                                    <Users class="h-4 w-4 text-[#001d22] dark:text-[#C9A84C]" />
+                                    <Users class="h-4 w-4  text-nfuko-primary dark:text-bg-nfuko-yellow" />
                                     <span
                                         class="text-[11px] font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">
                                         Member Registration Fields
@@ -403,7 +403,7 @@ function openDrawer() {
                                         class="flex items-start gap-3 p-4 rounded-xl border border-neutral-100 dark:border-neutral-800 bg-neutral-50/60 dark:bg-neutral-900/50">
                                         <input id="hide-is-shareholder" type="checkbox"
                                             v-model="tempHideIsShareholderField"
-                                            class="mt-0.5 h-4 w-4 rounded border-neutral-300 accent-[#001d22] dark:accent-[#C9A84C] cursor-pointer shrink-0" />
+                                            class="mt-0.5 h-4 w-4 rounded border-neutral-300 accent-[ bg-nfuko-primary] dark:accent-bg-nfuko-yellow cursor-pointer shrink-0" />
                                         <div class="grid gap-1 leading-none">
                                             <label for="hide-is-shareholder"
                                                 class="text-[13px] font-semibold text-neutral-900 dark:text-white cursor-pointer">
@@ -442,7 +442,7 @@ function openDrawer() {
                             'flex items-center gap-2 px-6 py-2.5 rounded-xl text-[13px] font-bold transition-all shadow-sm',
                             sharesDrawerSaving
                                 ? 'bg-neutral-300 dark:bg-neutral-700 text-neutral-500 cursor-not-allowed'
-                                : 'bg-[#001d22] hover:bg-[#003030] text-white dark:bg-[#C9A84C] dark:hover:bg-[#b8973e] dark:text-[#001d22]'
+                                : ' bg-nfuko-primary hover:bg-[#003030] text-white dark:bg-bg-nfuko-yellow dark:hover:bg-[#b8973e] dark: text-nfuko-primary'
                         ]">
                             <Loader2 v-if="sharesDrawerSaving" class="h-3.5 w-3.5 animate-spin" />
                             {{ sharesDrawerSaving ? 'Saving...' : 'Save Settings' }}
@@ -469,8 +469,8 @@ function openDrawer() {
                         class="flex items-center justify-between px-6 py-4 border-b border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-900">
                         <div class="flex items-center gap-3">
                             <div
-                                class="w-9 h-9 rounded-xl bg-[#001d22]/10 dark:bg-[#C9A84C]/10 flex items-center justify-center">
-                                <Settings2 class="h-4 w-4 text-[#001d22] dark:text-[#C9A84C]" />
+                                class="w-9 h-9 rounded-xl  bg-nfuko-primary/10 dark:bg-bg-nfuko-yellow/10 flex items-center justify-center">
+                                <Settings2 class="h-4 w-4  text-nfuko-primary dark:text-bg-nfuko-yellow" />
                             </div>
                             <div>
                                 <h2 class="text-[15px] font-bold text-neutral-900 dark:text-white tracking-tight">
@@ -492,7 +492,7 @@ function openDrawer() {
                         <div class="rounded-2xl border border-neutral-100 dark:border-neutral-800 overflow-hidden">
                             <div
                                 class="flex items-center gap-2.5 px-4 py-3 bg-neutral-50 dark:bg-neutral-900 border-b border-neutral-100 dark:border-neutral-800">
-                                <Users class="h-4 w-4 text-[#001d22] dark:text-[#C9A84C]" />
+                                <Users class="h-4 w-4  text-nfuko-primary dark:text-bg-nfuko-yellow" />
                                 <span
                                     class="text-[11px] font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">Dividend
                                     Sharing Settings</span>
@@ -509,7 +509,7 @@ function openDrawer() {
                                             @click="form.distribution_account_type = opt.value as any" :class="[
                                                 'flex items-center gap-2 px-3 py-2.5 rounded-xl border text-[13px] font-medium transition-all text-left',
                                                 form.distribution_account_type === opt.value
-                                                    ? 'bg-[#001d22] border-[#001d22] text-white dark:bg-[#C9A84C] dark:border-[#C9A84C] dark:text-[#001d22]'
+                                                    ? ' bg-nfuko-primary  border-nfuko-primary text-white dark:bg-bg-nfuko-yellow dark:border-bg-nfuko-yellow dark: text-nfuko-primary'
                                                     : 'bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300'
                                             ]">
                                             <span class="flex-1">{{ opt.label }}</span>
@@ -527,7 +527,7 @@ function openDrawer() {
                                     </label>
                                     <div class="relative">
                                         <select v-model="form.distribution_basis"
-                                            class="w-full appearance-none pl-3 pr-10 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:focus:ring-[#C9A84C] transition-all">
+                                            class="w-full appearance-none pl-3 pr-10 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:focus:ring-bg-nfuko-yellow transition-all">
                                             <option v-for="opt in basisOptions" :key="opt.value" :value="opt.value">
                                                 {{ opt.label }}
                                             </option>
@@ -543,7 +543,7 @@ function openDrawer() {
                         <div class="rounded-2xl border border-neutral-100 dark:border-neutral-800 overflow-hidden">
                             <div
                                 class="flex items-center gap-2.5 px-4 py-3 bg-neutral-50 dark:bg-neutral-900 border-b border-neutral-100 dark:border-neutral-800">
-                                <Calendar class="h-4 w-4 text-[#001d22] dark:text-[#C9A84C]" />
+                                <Calendar class="h-4 w-4  text-nfuko-primary dark:text-bg-nfuko-yellow" />
                                 <span
                                     class="text-[11px] font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">Distribution
                                     Schedule</span>
@@ -560,7 +560,7 @@ function openDrawer() {
                                             @click="form.frequency = opt.value as any" :class="[
                                                 'px-3 py-2 rounded-xl border text-[13px] font-medium transition-all',
                                                 form.frequency === opt.value
-                                                    ? 'bg-[#001d22] border-[#001d22] text-white dark:bg-[#C9A84C] dark:border-[#C9A84C] dark:text-[#001d22]'
+                                                    ? ' bg-nfuko-primary  border-nfuko-primary text-white dark:bg-bg-nfuko-yellow dark:border-bg-nfuko-yellow dark: text-nfuko-primary'
                                                     : 'bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300'
                                             ]">
                                             {{ opt.label }}
@@ -577,7 +577,7 @@ function openDrawer() {
                                         </label>
                                         <input v-model.number="form.distribution_day" type="number" min="1" max="28"
                                             placeholder="e.g. 1"
-                                            class="w-full px-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:focus:ring-[#C9A84C] transition-all" />
+                                            class="w-full px-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:focus:ring-bg-nfuko-yellow transition-all" />
                                     </div>
                                     <div>
                                         <label
@@ -586,7 +586,7 @@ function openDrawer() {
                                         </label>
                                         <div class="relative">
                                             <select v-model.number="form.distribution_month"
-                                                class="w-full appearance-none pl-3 pr-10 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:focus:ring-[#C9A84C] transition-all">
+                                                class="w-full appearance-none pl-3 pr-10 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:focus:ring-bg-nfuko-yellow transition-all">
                                                 <option v-for="(m, i) in months" :key="i" :value="i + 1">{{ m }}
                                                 </option>
                                             </select>
@@ -602,7 +602,7 @@ function openDrawer() {
                         <div class="rounded-2xl border border-neutral-100 dark:border-neutral-800 overflow-hidden">
                             <div
                                 class="flex items-center gap-2.5 px-4 py-3 bg-neutral-50 dark:bg-neutral-900 border-b border-neutral-100 dark:border-neutral-800">
-                                <Percent class="h-4 w-4 text-[#001d22] dark:text-[#C9A84C]" />
+                                <Percent class="h-4 w-4  text-nfuko-primary dark:text-bg-nfuko-yellow" />
                                 <span
                                     class="text-[11px] font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">Rate
                                     & Qualification</span>
@@ -617,7 +617,7 @@ function openDrawer() {
                                     <div class="relative">
                                         <input v-model="form.dividend_rate" type="number" min="0" max="100"
                                             step="0.01" placeholder="e.g. 12.5"
-                                            class="w-full pl-3 pr-10 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] font-mono font-bold text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:focus:ring-[#C9A84C] transition-all" />
+                                            class="w-full pl-3 pr-10 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] font-mono font-bold text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:focus:ring-bg-nfuko-yellow transition-all" />
                                         <span
                                             class="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] font-bold text-neutral-400">%</span>
                                     </div>
@@ -631,7 +631,7 @@ function openDrawer() {
                                             Min. Shares to Qualify
                                         </label>
                                         <input v-model="form.minimum_shares" type="number" min="0" placeholder="e.g. 1"
-                                            class="w-full px-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] font-mono text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:focus:ring-[#C9A84C] transition-all" />
+                                            class="w-full px-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] font-mono text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:focus:ring-bg-nfuko-yellow transition-all" />
                                     </div>
 
                                     <!-- Minimum Dividend -->
@@ -645,7 +645,7 @@ function openDrawer() {
                                                 class="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-neutral-400">UGX</span>
                                             <input v-model="form.minimum_dividend_amount" type="number" min="0"
                                                 placeholder="0"
-                                                class="w-full pl-12 pr-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] font-mono text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:focus:ring-[#C9A84C] transition-all" />
+                                                class="w-full pl-12 pr-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] font-mono text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:focus:ring-bg-nfuko-yellow transition-all" />
                                         </div>
                                     </div>
                                 </div>
@@ -656,7 +656,7 @@ function openDrawer() {
                         <div class="rounded-2xl border border-neutral-100 dark:border-neutral-800 overflow-hidden">
                             <div
                                 class="flex items-center gap-2.5 px-4 py-3 bg-neutral-50 dark:bg-neutral-900 border-b border-neutral-100 dark:border-neutral-800">
-                                <TrendingUp class="h-4 w-4 text-[#001d22] dark:text-[#C9A84C]" />
+                                <TrendingUp class="h-4 w-4  text-nfuko-primary dark:text-bg-nfuko-yellow" />
                                 <span
                                     class="text-[11px] font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">Advanced
                                     Settings</span>
@@ -670,7 +670,7 @@ function openDrawer() {
                                     </label>
                                     <div class="relative">
                                         <select v-model="form.rounding"
-                                            class="w-full appearance-none pl-3 pr-10 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:focus:ring-[#C9A84C] transition-all">
+                                            class="w-full appearance-none pl-3 pr-10 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:focus:ring-bg-nfuko-yellow transition-all">
                                             <option v-for="opt in roundingOptions" :key="opt.value" :value="opt.value">
                                                 {{ opt.label }}
                                             </option>
@@ -696,7 +696,7 @@ function openDrawer() {
                                         </div>
                                         <button @click="form.auto_distribute = !form.auto_distribute" :class="[
                                             'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-all duration-300',
-                                            form.auto_distribute ? 'bg-[#001d22] dark:bg-[#C9A84C]' : 'bg-neutral-200 dark:bg-neutral-700'
+                                            form.auto_distribute ? ' bg-nfuko-primary dark:bg-bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'
                                         ]">
                                             <span :class="[
                                                 'inline-flex h-4 w-4 rounded-full bg-white shadow transition-transform duration-300',
@@ -720,7 +720,7 @@ function openDrawer() {
                                         <button @click="form.carry_forward_remainder = !form.carry_forward_remainder"
                                             :class="[
                                                 'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-all duration-300',
-                                                form.carry_forward_remainder ? 'bg-[#001d22] dark:bg-[#C9A84C]' : 'bg-neutral-200 dark:bg-neutral-700'
+                                                form.carry_forward_remainder ? ' bg-nfuko-primary dark:bg-bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'
                                             ]">
                                             <span :class="[
                                                 'inline-flex h-4 w-4 rounded-full bg-white shadow transition-transform duration-300',
@@ -745,7 +745,7 @@ function openDrawer() {
                             'flex items-center gap-2 px-6 py-2.5 rounded-xl text-[13px] font-bold transition-all shadow-sm',
                             saving
                                 ? 'bg-neutral-300 dark:bg-neutral-700 text-neutral-500 cursor-not-allowed'
-                                : 'bg-[#001d22] hover:bg-[#003030] text-white dark:bg-[#C9A84C] dark:hover:bg-[#b8973e] dark:text-[#001d22]'
+                                : ' bg-nfuko-primary hover:bg-[#003030] text-white dark:bg-bg-nfuko-yellow dark:hover:bg-[#b8973e] dark: text-nfuko-primary'
                         ]">
                             <Loader2 v-if="saving" class="h-3.5 w-3.5 animate-spin" />
                             {{ saving ? 'Saving...' : 'Update dividend sharing' }}

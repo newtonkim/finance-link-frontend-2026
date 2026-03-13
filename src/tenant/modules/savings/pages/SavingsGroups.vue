@@ -129,7 +129,7 @@ function statusClass(s: any) {
       </div>
 
       <button
-        class="inline-flex items-center gap-2.5 rounded-2xl bg-[#0A2318] px-8 py-4 text-sm font-bold text-white hover:bg-[#124b30] transition-all shadow-xl shadow-[#0A2318]/10 active:scale-95 group"
+        class="inline-flex items-center gap-2.5 rounded-2xl bg-nfuko-primary px-8 py-4 text-sm font-bold text-white hover:bg-[#124b30] transition-all shadow-xl shadow-[#0A2318]/10 active:scale-95 group"
         @click="openCreate"
       >
         <Plus class="h-5 w-5 transition-transform group-hover:rotate-90" />

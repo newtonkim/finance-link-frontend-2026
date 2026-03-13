@@ -126,15 +126,17 @@ defineExpose({
 });
 
 
+const inputClass =
+    'w-full rounded-lg border focus:border-nfuko-primary focus:ring-1 focus:ring- bg-nfuko-[#FCDC04]   bg-white px-3 py-2.5 text-sm outline-none transition  border-nfuko-primary/10 focus:ring-1 focus:ring-[ bg-nfuko-primary]/90 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#8ba8a2]/90 dark:focus:ring-[#8ba8a2]/90';
 
 </script>
 
 <template>
     <div ref="containerRef" class="relative w-full">
         <div @click="toggleDropdown"
-            class="relative w-full cursor-pointer rounded-xl border bg-white px-3.5 py-2.5 text-left text-sm transition-all duration-200 focus-within:ring-2 focus-within:ring-[#001d22]/10 focus-within:border-[#001d22] dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
             :class="[
-                error ? 'border-red-500 focus-within:ring-red-500/10' : 'border-neutral-200 focus-within:border-[#001d22]',
+                inputClass,
+                error ? 'border-red-500 focus-within:ring-red-500/10' : 'border-neutral-200 focus-within: border-nfuko-primary',
                 disabled ? 'opacity-50 cursor-not-allowed bg-neutral-50 dark:bg-neutral-950' : 'hover:border-neutral-300 dark:hover:border-neutral-700'
             ]">
             <div class="flex items-center justify-between gap-2">
@@ -175,7 +177,7 @@ defineExpose({
                             option.id === modelValue ? 'bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white font-semibold' : 'text-neutral-600 dark:text-neutral-400'
                         ]">
                         <span class="block truncate">{{ option.name }}</span>
-                        <Check v-if="option.id === modelValue" class="h-4 w-4 text-[#001d22] dark:text-[#8ba8a2]" />
+                        <Check v-if="option.id === modelValue" class="h-4 w-4  text-nfuko-primary dark:text-[#8ba8a2]" />
                     </li>
                     <li v-if="filteredOptions.length === 0" class="px-4 py-8 text-center text-sm text-neutral-400">
                         No results found

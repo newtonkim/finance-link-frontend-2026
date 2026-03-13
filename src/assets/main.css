@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @config "../../tailwind.config.js";
 
+@layer components {
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -12,4 +13,52 @@
 }
 * {
   scrollbar-width: none;
+}
+}
+
+@theme {
+  /* Custom colors */
+--color-nfuko-primary: #0A2318;      /* Deep Forest Green (Sidebar background) */
+  --color-nfuko-accent: #FCDC04;       /* Primary Yellow (Active icon/Logo) */
+  --color-nfuko-action: #39B588;       /* Mint Green (Buttons & Progress bars) */
+  --color-nfuko-nav-text: #9BB5A5;       /* Mint Green (Buttons & Progress bars) */
+  
+  /* Chart & Data Visualization */
+  --color-nfuko-chart-main: #06211C;   /* Dark Teal/Black (Primary bar in chart) */
+  --color-nfuko-chart-sub: #A8C2B8;    /* Muted Sage (Secondary bar in chart) */
+  --color-nfuko-chart-pie-1: #0A2318;  /* Personal Loans (68%) */
+  --color-nfuko-chart-pie-2: #739387;  /* Business Loans (20%) */
+  --color-nfuko-chart-pie-3: #A8C2B8;  /* Emergency Loans (8%) */
+  --color-nfuko-chart-pie-4: #D3E0DB;  /* Others (4%) */
+
+  /* Semantic UI Colors */
+  --color-nfuko-success: #10B981;      /* Positive growth (+12.5%) */
+  --color-nfuko-danger: #EF4444;       /* Negative growth (-2.4%) */
+  --color-nfuko-border: #E5E7EB;       /* Light Gray (Input borders & Dividers) */
+  --color-nfuko-surface: #F9FAFB;      /* Off-white (Dashboard background) */
+  --color-nfuko-text-muted: #6B7280;   /* Gray (Labels and secondary text) */
+
+  /* Aliases for backward compatibility */
+  --color-nfukoBlack: #000000;
+  --color-nfuko-yellow: #C9A84C;
+  --color-nfukoRed: #D90000;
+  --color-nfukoBlue: #0047AB;
+  --color-nfukoGreen: #00A86B;
+  --color-nfukoGray: #6B7280;
+  /* Monochromatic Scale (Lighter to Darker) */
+  --color-nfuko-primary-50:  #F2F6F4; /* Ultra-light background for cards/inputs */
+  --color-nfuko-primary-100: #E2EBE7; /* Subtle borders */
+  --color-nfuko-primary-200: #C5D7CF; /* Disabled states or secondary icons */
+  --color-nfuko-primary-300: #9DBBB0; /* Muted text/placeholders */
+  --color-nfuko-primary-400: #739387; /* Secondary chart elements */
+  --color-nfuko-primary-500: #4B6B5F; /* Medium-tone UI elements */
+  --color-nfuko-primary-600: #355046; /* Hover state for deep greens */
+  --color-nfuko-primary-700: #243B33; /* Darker accents */
+  --color-nfuko-primary-800: #162E25; /* Very deep green */
+  --color-nfuko-primary-900: #0A2318; /* YOUR ORIGINAL PRIMARY (Sidebar/Headers) */
+  --color-nfuko-primary-950: #05120C; /* Near-black for extreme contrast text */
+
+  /* Functional Alpha Variants (Great for "Active" Sidebar links) */
+  --color-nfuko-primary-10: rgba(10, 35, 24, 0.1); /* Soft highlight */
+  --color-nfuko-primary-20: rgba(10, 35, 24, 0.2); /* Subtle overlay */
 }

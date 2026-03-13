@@ -8,7 +8,7 @@ import { Settings } from 'lucide-vue-next'
         <div class="flex flex-col gap-1">
             <div class="flex items-center gap-3">
                 <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-100 dark:bg-neutral-800">
-                    <Settings class="h-5 w-5 text-[#001d22] dark:text-[#C9A84C]" />
+                    <Settings class="h-5 w-5  text-nfuko-primary dark:text-bg-nfuko-yellow" />
                 </div>
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">General Settings</h1>
@@ -30,19 +30,19 @@ import { Settings } from 'lucide-vue-next'
                             class="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-1">Organization
                             Name</label>
                         <input type="text" placeholder="Enter organization name"
-                            class="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-[#001d22] focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
+                            class="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-1">Email
                             Address</label>
                         <input type="email" placeholder="admin@sacco.co.ke"
-                            class="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-[#001d22] focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
+                            class="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-1">Phone
                             Number</label>
                         <input type="tel" placeholder="+254 7XX XXX XXX"
-                            class="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-[#001d22] focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
+                            class="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
                     </div>
                 </div>
             </div>
@@ -56,20 +56,20 @@ import { Settings } from 'lucide-vue-next'
                         <label class="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-1">Physical
                             Address</label>
                         <input type="text" placeholder="Enter physical address"
-                            class="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-[#001d22] focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
+                            class="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label
                                 class="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-1">County</label>
                             <input type="text" placeholder="County"
-                                class="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-[#001d22] focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
+                                class="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-1">Postal
                                 Code</label>
                             <input type="text" placeholder="00100"
-                                class="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-[#001d22] focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
+                                class="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
                         </div>
                     </div>
                     <div>
@@ -85,7 +85,7 @@ import { Settings } from 'lucide-vue-next'
         <!-- Save Button -->
         <div class="flex justify-end">
             <button
-                class="rounded-xl bg-[#001d22] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#002e35] active:scale-[0.98] dark:bg-[#C9A84C] dark:text-[#0A2318] dark:hover:bg-[#b8973f]">
+                class="rounded-xl  bg-nfuko-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#002e35] active:scale-[0.98] dark:bg-bg-nfuko-yellow dark:text-[#0A2318] dark:hover:bg-[#b8973f]">
                 Save Changes
             </button>
         </div>

@@ -11,7 +11,8 @@
                     ]">
                         {{ daysLeft(item?.license_expires_at) }}d left
                     </p>
-                    <p class="text-xs text-neutral-400 dark:text-neutral-500">{{formatDateUs(item?.license_expires_at) }}</p>
+                    <p class="text-xs text-neutral-400 dark:text-neutral-500">{{ formatDateUs(item?.license_expires_at)
+                        }}</p>
                 </div>
             </div>
             <span v-else class="text-sm  font-bold text-red-600/60 px-4">No license</span>
@@ -74,6 +75,6 @@ const columns = [
     { key: 'created_at', label: 'Created Date', type: 'dateTime', width: '200', },
     { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 ]
- 
+
 
 </script>

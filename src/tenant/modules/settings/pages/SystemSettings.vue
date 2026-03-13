@@ -14,7 +14,7 @@ const dividendOptions = ['Annually', 'Semi-Annually', 'Quarterly', 'Monthly']
 const timezones       = ['Africa/Nairobi (EAT)', 'Africa/Kampala (EAT)', 'Africa/Dar_es_Salaam (EAT)', 'Africa/Kigali (EAT)', 'UTC']
 const languages       = ['English', 'Swahili', 'French']
 
-const selectCls = 'w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 focus:border-[#001d22] focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white'
+const selectCls = 'w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white'
 </script>
 
 <template>
@@ -23,7 +23,7 @@ const selectCls = 'w-full rounded-lg border border-neutral-200 bg-neutral-50 px-
     <div class="flex flex-col gap-1">
       <div class="flex items-center gap-3">
         <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-100 dark:bg-neutral-800">
-          <Monitor class="h-5 w-5 text-[#001d22] dark:text-[#C9A84C]" />
+          <Monitor class="h-5 w-5  text-nfuko-primary dark:text-bg-nfuko-yellow" />
         </div>
         <div>
           <h1 class="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">System Settings</h1>
@@ -85,7 +85,7 @@ const selectCls = 'w-full rounded-lg border border-neutral-200 bg-neutral-50 px-
               type="button"
               @click="maintenance = !maintenance"
               class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300"
-              :class="maintenance ? 'bg-[#001d22] dark:bg-[#C9A84C]' : 'bg-neutral-200 dark:bg-neutral-700'"
+              :class="maintenance ? ' bg-nfuko-primary dark:bg-bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'"
             >
               <span
                 class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-300"
@@ -104,7 +104,7 @@ const selectCls = 'w-full rounded-lg border border-neutral-200 bg-neutral-50 px-
               type="button"
               @click="debugLog = !debugLog"
               class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300"
-              :class="debugLog ? 'bg-[#001d22] dark:bg-[#C9A84C]' : 'bg-neutral-200 dark:bg-neutral-700'"
+              :class="debugLog ? ' bg-nfuko-primary dark:bg-bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'"
             >
               <span
                 class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-300"
@@ -118,7 +118,7 @@ const selectCls = 'w-full rounded-lg border border-neutral-200 bg-neutral-50 px-
 
     <!-- Save -->
     <div class="flex justify-end">
-      <button class="rounded-xl bg-[#001d22] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#002e35] active:scale-[0.98] dark:bg-[#C9A84C] dark:text-[#0A2318] dark:hover:bg-[#b8973f]">
+      <button class="rounded-xl  bg-nfuko-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#002e35] active:scale-[0.98] dark:bg-bg-nfuko-yellow dark:text-[#0A2318] dark:hover:bg-[#b8973f]">
         Save Changes
       </button>
     </div>

@@ -50,7 +50,7 @@ const logout = () => {
                         class="data-[state=open]:bg-white/10 hover:bg-white/5 transition-all duration-200 py-6">
                         <!-- Avatar -->
                         <div
-                            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#C9A84C] text-[#0A2318] text-[11px] font-black shadow">
+                            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-bg-nfuko-yellow text-[#0A2318] text-[11px] font-black shadow">
                             {{ initials }}
                         </div>
                         <!-- Name + email (hidden when sidebar is collapsed) -->
@@ -58,16 +58,16 @@ const logout = () => {
                             <span class="truncate text-[13px] font-bold text-white">
                                 {{ user?.name ?? 'Staff User' }}
                             </span>
-                            <span class="truncate text-[10px] font-medium text-[#9BB5A5]/60">
+                            <span class="truncate text-[10px] font-medium text-nfuko-nav-text/60">
                                 {{ user?.email ?? '' }}
                             </span>
                         </div>
-                        <ChevronsUpDown v-if="state === 'expanded'" class="ml-auto h-3 w-3 text-[#9BB5A5]/40 shrink-0" />
+                        <ChevronsUpDown v-if="state === 'expanded'" class="ml-auto h-3 w-3 text-nfuko-nav-text/40 shrink-0" />
                     </SidebarMenuButton>
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent
-                    class="min-w-56 rounded-xl bg-[#001d22] text-white border border-white/10 shadow-2xl p-1"
+                    class="min-w-56 rounded-xl  bg-nfuko-primary text-white border border-white/10 shadow-2xl p-1"
                     :side="isMobile ? 'bottom' : state === 'collapsed' ? 'right' : 'bottom'"
                     align="end"
                     :side-offset="6">
@@ -75,14 +75,14 @@ const logout = () => {
                     <!-- User info header -->
                     <DropdownMenuLabel class="flex items-center gap-3 px-3 py-3">
                         <div
-                            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#C9A84C] text-[#0A2318] text-[12px] font-black">
+                            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-bg-nfuko-yellow text-[#0A2318] text-[12px] font-black">
                             {{ initials }}
                         </div>
                         <div class="grid min-w-0">
                             <span class="truncate text-[13px] font-bold text-white">
                                 {{ user?.name ?? 'Staff User' }}
                             </span>
-                            <span class="truncate text-[11px] text-[#9BB5A5]/60">
+                            <span class="truncate text-[11px] text-nfuko-nav-text/60">
                                 {{ user?.email ?? '' }}
                             </span>
                         </div>
@@ -92,7 +92,7 @@ const logout = () => {
 
                     <!-- Profile -->
                     <DropdownMenuItem
-                        class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] text-[#9BB5A5] hover:bg-white/5 hover:text-white cursor-pointer focus:bg-white/5 focus:text-white"
+                        class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] text-nfuko-nav-text hover:bg-white/5 hover:text-white cursor-pointer focus:bg-white/5 focus:text-white"
                         @click="router.push('/tenant/settings')">
                         <User class="h-4 w-4" />
                         Profile &amp; Settings

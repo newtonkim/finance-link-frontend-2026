@@ -1,5 +1,5 @@
 <template>
-    <div class="flex h-full flex-1 flex-col gap-4 p-6 ">
+    <div class="flex h-full flex-1 flex-col gap-4 p-6 px8 ">
 
         <!-- HEADER -->
         <div class="flex items-center justify-between">
@@ -10,11 +10,8 @@
             </div>
             <span v-else>
                 <span v-auth="haspermission('create')">
-
-
-
                     <button v-if="showAddButton" @click="createNewRecord"
-                        class="justify-center bg-[#001d22] hover:bg-[#001d22]/90 whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive  h-9 has-[>svg]:px-3 flex items-center gap-2 rounded-xl  px-4 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90 shadow-sm ">
+                        class="justify-center  bg-nfuko-primary hover: bg-nfuko-primary/90 whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive  h-9 has-[>svg]:px-3 flex items-center gap-2 rounded-xl  px-4 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90 shadow-sm ">
                         <component :is="addButtonText.icon" :size="16" />
                         {{ addButtonText.text }}
                     </button>
@@ -24,8 +21,8 @@
 
         <!-- SEARCH -->
         <div
-            class="rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 shadow-sm overflow-hidden p-4">
-            <div class="flex  justify-between">
+            class="rounded-xl border-0 border-neutral-200 b g-white dark:border-neutral-800 dark:bg-neutral-900  overflow-hidden ">
+            <div class="flex p-2  my-3 justify-between rounded-xl border border-neutral-100 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"">
                 <Searchbar v-if="showSearchbar" @search="onSearch" :removeInSearch="removeInSearch" :columns="columns"
                     @filter="(v) => filterDataByString(v)" />
                 <slot name="searchSideAction" />
@@ -45,8 +42,8 @@
             </div>
             <!-- TABLE -->
             <div
-                class="rounded-2xl  border-neutral-100 bg-white py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] dark:border-neutral-800 dark:bg-neutral-900">
-                <div class="overflow-x-auto flex-grow custom-scrollbar h-[64vh]">
+                class="rounded-2xl    bg-white pt-0 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]   dark:bg-neutral-900">
+                <div class="overflow-x-auto   custom-scrollbar h-[64vh] border-neutral-100 bg-white dark:bg-neutral-900 shadow-sm dark:border-neutral-800 rounded-2xl">
                     <Table :handleAction="handleAction" :action_config="ACTION_CONFIG" :dataFilter="dataFilter"
                         :data="data" :columns="columns" :permissions="permissions">
                         <template v-for="(_, name) in $slots" #[name]="slotProps">
@@ -216,7 +213,6 @@ const handleAction = async (item: any, action: keyof typeof ACTION_CONFIG) => {
         toggleDrawer()// open the drawer on this action clicked
         if (props?.state && props?.url && ['edit', 'view'].includes(action)) {
             let outerlinks = "details"
-            // const outerlinks = props?.outerlinks[action]?(props?.outerlinks[action]?props?.outerlinks[action]):"details";
             if(props?.outerlinks?.[action]){
                 outerlinks = props?.outerlinks[action]
             }else{

@@ -35,7 +35,7 @@ const formatCurrency = (value: number) => {
         <!-- Total Tenants -->
         <div class="flex items-center gap-4 rounded-2xl border border-border bg-card px-5 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] dark:border-neutral-800 dark:bg-neutral-900">
             <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#e2edea]">
-                <Users :size="20" :stroke-width="2" class="text-[#001d22]" />
+                <Users :size="20" :stroke-width="2" class=" text-nfuko-primary" />
             </div>
             <div class="min-w-0">
                 <p class="truncate text-[13px] text-neutral-500 dark:text-neutral-400">Total Tenants</p>
@@ -51,7 +51,7 @@ const formatCurrency = (value: number) => {
         <!-- Monthly Revenue -->
         <div class="flex items-center gap-4 rounded-2xl border border-border bg-card px-5 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] dark:border-neutral-800 dark:bg-neutral-900">
             <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#e2edea]">
-                <DollarSign :size="20" :stroke-width="2" class="text-[#001d22]" />
+                <DollarSign :size="20" :stroke-width="2" class=" text-nfuko-primary" />
             </div>
             <div class="min-w-0">
                 <p class="truncate text-[13px] text-neutral-500 dark:text-neutral-400">Monthly Revenue</p>

@@ -23,7 +23,7 @@ defineProps<{
         </div>
 
         <!-- Right Panel: Decorative/Features (exact 50/50 split) -->
-        <div class="relative hidden w-1/2 lg:block bg-[#001d22]">
+        <div class="relative hidden w-1/2 lg:block  bg-nfuko-primary">
             <slot name="right-panel" />
         </div>
     </div>

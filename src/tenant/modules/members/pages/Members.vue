@@ -128,7 +128,7 @@ function statusClass(status: string) {
     <div class="flex items-center justify-between">
       <h1 class="text-2xl font-bold text-neutral-900 dark:text-white">Members</h1>
       <button @click="openCreate"
-        class="inline-flex items-center gap-2 rounded-full bg-[#001d22] px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#001d22]/90 transition-colors">
+        class="inline-flex items-center gap-2 rounded-full  bg-nfuko-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover: bg-nfuko-primary/90 transition-colors">
         <Plus class="h-4 w-4" />
         Add New Member
       </button>
@@ -138,7 +138,7 @@ function statusClass(status: string) {
     <div class="relative max-w-lg">
       <Search class="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
       <input v-model="searchQuery" type="text" placeholder="Search by name, member number, phone, or email..."
-        class="w-full rounded-full border border-neutral-200 bg-white py-2.5 pl-11 pr-4 text-sm outline-none transition focus:border-[#001d22] focus:ring-1 focus:ring-[#001d22] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
+        class="w-full rounded-full border border-neutral-200 bg-white py-2.5 pl-11 pr-4 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
     </div>
 
     <!-- Table card -->
@@ -182,10 +182,10 @@ function statusClass(status: string) {
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
                   <!-- Avatar -->
-                  <div class="h-9 w-9 shrink-0 overflow-hidden rounded-full bg-[#001d22]/10">
+                  <div class="h-9 w-9 shrink-0 overflow-hidden rounded-full  bg-nfuko-primary/10">
                     <img v-if="member.avatar_url" :src="member.avatar_url" :alt="member.name"
                       class="h-full w-full object-cover" />
-                    <div v-else class="flex h-full w-full items-center justify-center text-sm font-bold text-[#001d22]">
+                    <div v-else class="flex h-full w-full items-center justify-center text-sm font-bold  text-nfuko-primary">
                       {{ member.name.charAt(0).toUpperCase() }}
                     </div>
                   </div>
@@ -237,7 +237,7 @@ function statusClass(status: string) {
         <div class="flex gap-1">
           <button v-for="page in pages" :key="page" @click="fetchMembers(page)"
             class="h-8 w-8 rounded-lg text-xs font-medium transition-colors" :class="page === meta.current_page
-              ? 'bg-[#001d22] text-white'
+              ? ' bg-nfuko-primary text-white'
               : 'text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800'">
             {{ page }}
           </button>

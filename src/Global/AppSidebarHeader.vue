@@ -47,9 +47,9 @@ const teamMembers = [
                     </Avatar>
                 </div>
                 <div class="flex items-center gap-2">
-                    <span class="text-xs font-medium text-[#001d22]/50">+2</span>
+                    <span class="text-xs font-medium  text-nfuko-primary/50">+2</span>
                     <Button variant="ghost" size="icon"
-                        class="h-8 w-8 rounded-full border border-[#d1dfdb] bg-white text-[#001d22]">
+                        class="h-8 w-8 rounded-full border border-[#d1dfdb] bg-white  text-nfuko-primary">
                         <Plus class="h-4 w-4" />
                     </Button>
                 </div>
@@ -58,10 +58,10 @@ const teamMembers = [
             <div class="h-6 w-px bg-[#d1dfdb] hidden md:block"></div>
 
             <!-- Notification Bell -->
-            <button class="relative rounded-full p-2 text-[#001d22] hover:bg-[#e2edea]">
+            <button class="relative rounded-full p-2  text-nfuko-primary hover:bg-[#e2edea]">
                 <Bell class="h-5 w-5" />
                 <span
-                    class="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#001d22] text-[10px] font-bold text-white border-2 border-white">
+                    class="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full  bg-nfuko-primary text-[10px] font-bold text-white border-2 border-white">
                     24
                 </span>
             </button>
@@ -69,13 +69,13 @@ const teamMembers = [
             <!-- Search Bar -->
             <div class="relative hidden lg:block">
                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <Search class="h-4 w-4 text-[#001d22]/40" />
+                    <Search class="h-4 w-4  text-nfuko-primary/40" />
                 </div>
                 <input type="text" placeholder="Search anything"
-                    class="h-10 w-64 rounded-xl border border-[#d1dfdb] bg-white pl-10 pr-12 text-sm focus:border-[#001d22] focus:outline-none" />
+                    class="h-10 w-64 rounded-xl border border-[#d1dfdb] bg-white pl-10 pr-12 text-sm focus: border-nfuko-primary focus:outline-none" />
                 <div class="absolute inset-y-0 right-0 flex items-center pr-3">
                     <kbd
-                        class="pointer-events-none rounded border border-[#d1dfdb] bg-[#f0f7f5] px-1.5 py-0.5 text-[10px] font-medium text-[#001d22]/40">
+                        class="pointer-events-none rounded border border-[#d1dfdb] bg-[#f0f7f5] px-1.5 py-0.5 text-[10px] font-medium  text-nfuko-primary/40">
                         ⌘ K
                     </kbd>
                 </div>
@@ -89,7 +89,7 @@ const teamMembers = [
                             <AvatarImage v-if="user?.avatar" :src="user.avatar" :alt="user.name" />
                             <AvatarFallback class="rounded-lg">{{ getInitials(user?.name) }}</AvatarFallback>
                         </Avatar>
-                        <ChevronDown class="h-4 w-4 text-[#001d22]/40" />
+                        <ChevronDown class="h-4 w-4  text-nfuko-primary/40" />
                     </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" class="w-56 mt-1">

@@ -11,7 +11,7 @@
                 </div>
                 <button type="button" @click="maintenance = !maintenance"
                     class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300"
-                    :class="maintenance ? 'bg-[#001d22] dark:bg-[#C9A84C]' : 'bg-neutral-200 dark:bg-neutral-700'">
+                    :class="maintenance ? ' bg-nfuko-primary dark:bg-bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'">
                     <span
                         class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-300"
                         :class="maintenance ? 'translate-x-6' : 'translate-x-1'" />
@@ -26,7 +26,7 @@
                 </div>
                 <button type="button" @click="debugLog = !debugLog"
                     class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300"
-                    :class="debugLog ? 'bg-[#001d22] dark:bg-[#C9A84C]' : 'bg-neutral-200 dark:bg-neutral-700'">
+                    :class="debugLog ? ' bg-nfuko-primary dark:bg-bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'">
                     <span
                         class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-300"
                         :class="debugLog ? 'translate-x-6' : 'translate-x-1'" />

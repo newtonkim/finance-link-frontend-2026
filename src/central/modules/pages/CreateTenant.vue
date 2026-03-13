@@ -152,7 +152,7 @@ function onNameInput() {
                 <div class="flex flex-col items-center gap-2 z-10">
                     <div class="size-12 rounded-full flex items-center justify-center transition-all duration-300 overflow-hidden p-2"
                         :class="index <= currentStep
-                            ? 'bg-white dark:bg-white text-[#001d22] shadow-lg shadow-[#001d22]/20 dark:shadow-white/20'
+                            ? 'bg-white dark:bg-white  text-nfuko-primary shadow-lg shadow-[ bg-nfuko-primary]/20 dark:shadow-white/20'
                             : 'bg-neutral-100 dark:bg-white/5 text-neutral-400 dark:text-neutral-500'
                             ">
                         <img v-if="index === 0" src="/images/mfuko_plus_logo.webp" alt="Logo"
@@ -170,7 +170,7 @@ function onNameInput() {
                 <!-- Connector line -->
                 <div v-if="index < steps.length - 1" class="flex-1 h-px mx-3 -mt-6 transition-colors duration-300"
                     :class="index < currentStep
-                        ? 'bg-[#001d22] dark:bg-white'
+                        ? ' bg-nfuko-primary dark:bg-white'
                         : 'bg-neutral-200 dark:bg-white/10'
                         "></div>
             </template>
@@ -195,7 +195,7 @@ function onNameInput() {
                         </label>
                         <Input v-model="form.saccoName" @input="onNameInput" type="text"
                             placeholder="e.g. Nairobi Savings & Credit"
-                            class="h-12 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-[#001d22]/10 dark:focus:ring-white/10" />
+                            class="h-12 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-[ bg-nfuko-primary]/10 dark:focus:ring-white/10" />
                     </div>
 
                     <!-- Subdomain -->
@@ -205,7 +205,7 @@ function onNameInput() {
                         </label>
                         <div class="flex">
                             <Input v-model="form.subdomain" type="text" placeholder="nairobi-sacco"
-                                class="h-12 rounded-xl rounded-r-none border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-[#001d22]/10 dark:focus:ring-white/10 flex-1" />
+                                class="h-12 rounded-xl rounded-r-none border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-[ bg-nfuko-primary]/10 dark:focus:ring-white/10 flex-1" />
                             <div
                                 class="h-12 px-4 flex items-center bg-neutral-50 dark:bg-white/5 border border-l-0 border-neutral-200 dark:border-white/10 rounded-xl rounded-l-none text-sm text-neutral-500 dark:text-neutral-400 font-medium">
                                 .mfukopro.com
@@ -231,7 +231,7 @@ function onNameInput() {
                             Full Name <span class="text-rose-500">*</span>
                         </label>
                         <Input v-model="form.adminName" type="text" placeholder="e.g. John Kamau"
-                            class="h-12 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-[#001d22]/10 dark:focus:ring-white/10" />
+                            class="h-12 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-[ bg-nfuko-primary]/10 dark:focus:ring-white/10" />
                     </div>
 
                     <!-- Admin Email -->
@@ -240,7 +240,7 @@ function onNameInput() {
                             Email Address <span class="text-rose-500">*</span>
                         </label>
                         <Input v-model="form.adminEmail" type="email" placeholder="admin@example.com"
-                            class="h-12 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-[#001d22]/10 dark:focus:ring-white/10" />
+                            class="h-12 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-[ bg-nfuko-primary]/10 dark:focus:ring-white/10" />
                     </div>
 
                     <!-- Admin Phone -->
@@ -249,7 +249,7 @@ function onNameInput() {
                             Phone Number
                         </label>
                         <Input v-model="form.adminPhone" type="tel" placeholder="+254 712 345 678"
-                            class="h-12 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-[#001d22]/10 dark:focus:ring-white/10" />
+                            class="h-12 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-[ bg-nfuko-primary]/10 dark:focus:ring-white/10" />
                     </div>
 
                     <!-- Password -->
@@ -261,7 +261,7 @@ function onNameInput() {
                             <div class="relative">
                                 <Input v-model="form.adminPassword" :type="showPassword ? 'text' : 'password'"
                                     placeholder="••••••••"
-                                    class="h-12 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-[#001d22]/10 dark:focus:ring-white/10 pr-11" />
+                                    class="h-12 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-[ bg-nfuko-primary]/10 dark:focus:ring-white/10 pr-11" />
                                 <button type="button" @click="showPassword = !showPassword"
                                     class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
                                     <EyeOff v-if="showPassword" class="size-4" />
@@ -276,7 +276,7 @@ function onNameInput() {
                             <div class="relative">
                                 <Input v-model="form.adminPasswordConfirmation"
                                     :type="showConfirmPassword ? 'text' : 'password'" placeholder="••••••••"
-                                    class="h-12 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-[#001d22]/10 dark:focus:ring-white/10 pr-11" />
+                                    class="h-12 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-[ bg-nfuko-primary]/10 dark:focus:ring-white/10 pr-11" />
                                 <button type="button" @click="showConfirmPassword = !showConfirmPassword"
                                     class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
                                     <EyeOff v-if="showConfirmPassword" class="size-4" />
@@ -306,7 +306,7 @@ function onNameInput() {
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <button v-for="plan in plans" :key="plan.value" @click="form.plan = plan.value"
                                 class="p-5 rounded-xl border-2 text-left transition-all duration-200" :class="form.plan === plan.value
-                                    ? 'border-[#001d22] dark:border-white bg-[#001d22]/[0.02] dark:bg-white/5'
+                                    ? ' border-nfuko-primary dark:border-white  bg-nfuko-primary/[0.02] dark:bg-white/5'
                                     : 'border-neutral-100 dark:border-white/10 hover:border-neutral-200 dark:hover:border-white/20'
                                     ">
                                 <div class="flex items-center justify-between mb-2">
@@ -314,14 +314,14 @@ function onNameInput() {
                                         }}</span>
                                     <div class="size-5 rounded-full border-2 flex items-center justify-center transition-all"
                                         :class="form.plan === plan.value
-                                            ? 'border-[#001d22] dark:border-white'
+                                            ? ' border-nfuko-primary dark:border-white'
                                             : 'border-neutral-300 dark:border-white/20'
                                             ">
                                         <div v-if="form.plan === plan.value"
-                                            class="size-2.5 rounded-full bg-[#001d22] dark:bg-white"></div>
+                                            class="size-2.5 rounded-full  bg-nfuko-primary dark:bg-white"></div>
                                     </div>
                                 </div>
-                                <p class="text-lg font-bold text-[#001d22] dark:text-white mb-1">{{ plan.price }}</p>
+                                <p class="text-lg font-bold  text-nfuko-primary dark:text-white mb-1">{{ plan.price }}</p>
                                 <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ plan.description }}</p>
                             </button>
                         </div>
@@ -336,7 +336,7 @@ function onNameInput() {
                             <button v-for="dur in licenseDurations" :key="dur.value"
                                 @click="form.licenseMonths = dur.value"
                                 class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200" :class="form.licenseMonths === dur.value
-                                    ? 'bg-[#001d22] dark:bg-white text-white dark:text-[#001d22] shadow-sm'
+                                    ? ' bg-nfuko-primary dark:bg-white text-white dark: text-nfuko-primary shadow-sm'
                                     : 'bg-neutral-100 dark:bg-white/5 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-white/10'
                                     ">
                                 {{ dur.label }}
@@ -438,7 +438,7 @@ function onNameInput() {
                 <Button v-if="currentStep < steps.length - 1" @click="nextStep" :disabled="!canProceed"
                     class="font-semibold rounded-xl px-6 py-2.5 shadow-sm transition-all duration-200 flex items-center gap-1.5"
                     :class="canProceed
-                        ? 'bg-[#001d22] hover:bg-[#002e35] dark:bg-white dark:text-[#001d22] dark:hover:bg-neutral-200 text-white cursor-pointer'
+                        ? ' bg-nfuko-primary hover:bg-[#002e35] dark:bg-white dark: text-nfuko-primary dark:hover:bg-neutral-200 text-white cursor-pointer'
                         : 'bg-neutral-200 dark:bg-white/10 text-neutral-400 dark:text-neutral-500 cursor-not-allowed'">
                     Next
                     <ChevronRight class="size-4" />
@@ -446,7 +446,7 @@ function onNameInput() {
                 <Button v-else @click="submitForm" :disabled="!canProceed || isSubmitting"
                     class="font-semibold rounded-xl px-6 py-2.5 shadow-sm transition-all duration-200 flex items-center gap-1.5"
                     :class="canProceed && !isSubmitting
-                        ? 'bg-[#001d22] hover:bg-[#002e35] dark:bg-white dark:text-[#001d22] dark:hover:bg-neutral-200 text-white cursor-pointer'
+                        ? ' bg-nfuko-primary hover:bg-[#002e35] dark:bg-white dark: text-nfuko-primary dark:hover:bg-neutral-200 text-white cursor-pointer'
                         : 'bg-neutral-200 dark:bg-white/10 text-neutral-400 dark:text-neutral-500 cursor-not-allowed'">
                     {{ isSubmitting ? 'Creating...' : 'Create Tenant' }}
                     <ChevronRight class="size-4" />

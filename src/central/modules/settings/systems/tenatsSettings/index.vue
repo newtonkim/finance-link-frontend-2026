@@ -18,7 +18,7 @@ onMounted(() => {
     <div class="flex flex-col gap-1">
       <div class="flex items-center gap-3">
         <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-100 dark:bg-neutral-800">
-          <Monitor class="h-5 w-5 text-[#001d22] dark:text-[#C9A84C]" />
+          <Monitor class="h-5 w-5  text-nfuko-primary dark:text-bg-nfuko-yellow" />
         </div>
         <div>
           <h1 class="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">

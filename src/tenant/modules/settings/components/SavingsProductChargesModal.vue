@@ -65,7 +65,7 @@ const formatValue = (charge: Charge) => {
                 <ul v-else class="space-y-4">
                     <li v-for="(charge, index) in product?.charges" :key="index" class="flex items-start gap-4 rounded-xl border border-neutral-100 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-800/50">
                         <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-white shadow-sm dark:bg-neutral-900">
-                            <component :is="getChargeIcon(charge.type)" class="h-5 w-5 text-[#001d22] dark:text-[#C9A84C]" />
+                            <component :is="getChargeIcon(charge.type)" class="h-5 w-5  text-nfuko-primary dark:text-bg-nfuko-yellow" />
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-semibold capitalize text-neutral-900 dark:text-white">
@@ -85,7 +85,7 @@ const formatValue = (charge: Charge) => {
             </div>
 
             <div class="bg-neutral-50 px-6 py-4 dark:bg-neutral-800/50 justify-end flex">
-                <button @click="emit('close')" class="rounded-lg bg-[#001d22] px-4 py-2 bg-neutral-800 text-sm font-medium text-white transition-colors hover:bg-neutral-700 dark:bg-neutral-200 dark:text-neutral-900 dark:hover:bg-white shadow">
+                <button @click="emit('close')" class="rounded-lg  bg-nfuko-primary px-4 py-2 bg-neutral-800 text-sm font-medium text-white transition-colors hover:bg-neutral-700 dark:bg-neutral-200 dark:text-neutral-900 dark:hover:bg-white shadow">
                     Close
                 </button>
             </div>

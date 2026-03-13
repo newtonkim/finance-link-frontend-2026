@@ -104,7 +104,7 @@ const formatLabel = (label: string) => {
                     !link.label.includes('Next')
                 " @click="goToPage(Number(link.label))"
                     class="min-w-[32px] h-8 px-2 text-sm font-medium rounded-lg transition" :class="link.active
-                            ? 'bg-[#001d22]/80 text-white'
+                            ? ' bg-nfuko-primary/80 text-white'
                             : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800'
                         ">
                     {{ formatLabel(link.label) }}

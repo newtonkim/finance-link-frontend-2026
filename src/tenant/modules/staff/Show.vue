@@ -586,7 +586,7 @@ const handleAvatarUpload = async (event: Event) => {
                     <!-- Member Card -->
                     <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
                         <!-- Banner with gold pattern -->
-                        <div class="relative h-16 bg-gradient-to-r from-[#001d22] via-[#003d3d] to-[#001d22] overflow-hidden">
+                        <div class="relative h-16 bg-gradient-to-r from-[ bg-nfuko-primary] via-[#003d3d] to-[ bg-nfuko-primary] overflow-hidden">
                             <!-- Subtle diagonal pattern -->
                             <div class="absolute inset-0 opacity-20"
                                 style="background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(201,168,76,0.15) 10px, rgba(201,168,76,0.15) 11px);">
@@ -594,7 +594,7 @@ const handleAvatarUpload = async (event: Event) => {
                             <!-- Status badge -->
                             <div class="absolute top-3 left-1/2 -translate-x-1/2">
                                 <span
-                                    class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#c9a84c]/20 text-[#c9a84c] border border-[#c9a84c]/30">
+                                    class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-bg-nfuko-yellow/20 text-bg-nfuko-yellow border border-bg-nfuko-yellow/30">
                                     <Star :size="10" fill="currentColor" />
                                     STANDARD
                                 </span>
@@ -604,11 +604,11 @@ const handleAvatarUpload = async (event: Event) => {
                         <!-- Avatar overlapping banner -->
                         <div class="flex justify-center -mt-10 relative z-10">
                             <div @click="triggerAvatarUpload"
-                                class="w-[72px] h-[72px] rounded-full border-[3px] border-[#c9a84c] bg-card flex items-center justify-center overflow-hidden cursor-pointer group relative shadow-lg shadow-[#c9a84c]/10">
+                                class="w-[72px] h-[72px] rounded-full border-[3px] border-bg-nfuko-yellow bg-card flex items-center justify-center overflow-hidden cursor-pointer group relative shadow-lg shadow-bg-nfuko-yellow/10">
                                 <img v-if="member.avatar_url" :src="member.avatar_url" alt="Avatar"
                                     class="w-full h-full object-cover" />
                                 <span v-else
-                                    class="text-xl font-bold text-[#c9a84c]">{{ memberInitials }}</span>
+                                    class="text-xl font-bold text-bg-nfuko-yellow">{{ memberInitials }}</span>
                                 <div v-if="uploadProcessing"
                                     class="absolute inset-0 bg-black/60 flex items-center justify-center">
                                     <div class="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white">
@@ -751,8 +751,8 @@ const handleAvatarUpload = async (event: Event) => {
                                         class="border-b border-border/50 hover:bg-accent/50 transition-colors">
                                         <td class="py-4 px-5">
                                             <div class="flex items-center gap-3">
-                                                <div class="w-8 h-8 rounded-lg bg-[#c9a84c]/10 flex items-center justify-center">
-                                                    <Wallet :size="14" class="text-[#c9a84c]" />
+                                                <div class="w-8 h-8 rounded-lg bg-bg-nfuko-yellow/10 flex items-center justify-center">
+                                                    <Wallet :size="14" class="text-bg-nfuko-yellow" />
                                                 </div>
                                                 <span class="text-[13px] font-semibold text-foreground font-mono">{{ account.account_no }}</span>
                                             </div>
@@ -786,7 +786,7 @@ const handleAvatarUpload = async (event: Event) => {
                             <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" :class="[
                                 'relative flex items-center gap-2 px-5 py-3.5 text-[12px] font-semibold transition-colors whitespace-nowrap',
                                 activeTab === tab.id
-                                    ? 'text-[#c9a84c]'
+                                    ? 'text-bg-nfuko-yellow'
                                     : 'text-muted-foreground hover:text-foreground'
                             ]">
                                 <component :is="{
@@ -804,7 +804,7 @@ const handleAvatarUpload = async (event: Event) => {
                                 </span>
                                 <!-- Gold active indicator -->
                                 <div v-if="activeTab === tab.id"
-                                    class="absolute bottom-0 left-2 right-2 h-[2px] bg-[#c9a84c] rounded-t-full"></div>
+                                    class="absolute bottom-0 left-2 right-2 h-[2px] bg-bg-nfuko-yellow rounded-t-full"></div>
                             </button>
                         </div>
 
@@ -869,8 +869,8 @@ const handleAvatarUpload = async (event: Event) => {
                             <!-- Top Controls -->
                             <div class="px-5 py-4 border-b border-border bg-card flex flex-col md:flex-row gap-4 justify-between items-center">
                                 <div class="flex items-center gap-3 w-full md:w-auto">
-                                    <input v-model="txnStartDate" type="date" class="py-2 px-3 rounded-lg border border-border bg-background text-[12px] focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30" />
-                                    <input v-model="txnEndDate" type="date" class="py-2 px-3 rounded-lg border border-border bg-background text-[12px] focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30" />
+                                    <input v-model="txnStartDate" type="date" class="py-2 px-3 rounded-lg border border-border bg-background text-[12px] focus:outline-none focus:border-bg-nfuko-yellow/50 focus:ring-1 focus:ring-bg-nfuko-yellow/30" />
+                                    <input v-model="txnEndDate" type="date" class="py-2 px-3 rounded-lg border border-border bg-background text-[12px] focus:outline-none focus:border-bg-nfuko-yellow/50 focus:ring-1 focus:ring-bg-nfuko-yellow/30" />
                                     <button @click="txnStartDate = ''; txnEndDate = ''" class="px-4 py-2 text-[12px] font-semibold rounded-lg border border-border bg-background hover:bg-accent transition-all">
                                         Clear
                                     </button>
@@ -886,7 +886,7 @@ const handleAvatarUpload = async (event: Event) => {
                             <div class="px-5 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
                                 <div class="flex items-center gap-2 text-[13px] text-muted-foreground">
                                     Show
-                                    <select v-model="txnsPerPage" @change="currentTxnPage = 1" class="py-1 px-2 rounded border border-border bg-background focus:outline-none focus:border-[#c9a84c]/50">
+                                    <select v-model="txnsPerPage" @change="currentTxnPage = 1" class="py-1 px-2 rounded border border-border bg-background focus:outline-none focus:border-bg-nfuko-yellow/50">
                                         <option :value="10">10</option>
                                         <option :value="25">25</option>
                                         <option :value="50">50</option>
@@ -895,7 +895,7 @@ const handleAvatarUpload = async (event: Event) => {
                                 </div>
                                 <div class="flex items-center gap-2 text-[13px] text-muted-foreground">
                                     Search:
-                                    <input v-model="txnSearchQuery" @input="currentTxnPage = 1" type="text" class="py-1.5 px-3 rounded border border-border bg-background focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30" placeholder="Ref, Details, Added by..." />
+                                    <input v-model="txnSearchQuery" @input="currentTxnPage = 1" type="text" class="py-1.5 px-3 rounded border border-border bg-background focus:outline-none focus:border-bg-nfuko-yellow/50 focus:ring-1 focus:ring-bg-nfuko-yellow/30" placeholder="Ref, Details, Added by..." />
                                 </div>
                             </div>
 
@@ -968,7 +968,7 @@ const handleAvatarUpload = async (event: Event) => {
                                 </div>
                                 <div class="flex items-center gap-1">
                                     <button @click="prevTxnPage" :disabled="currentTxnPage === 1" class="w-8 h-8 rounded-full flex items-center justify-center border border-border hover:bg-accent transition-colors disabled:opacity-50">&lsaquo;</button>
-                                    <button class="w-8 h-8 rounded-full flex items-center justify-center bg-[#c9a84c] text-white font-bold shadow-sm text-[12px]">{{ currentTxnPage }}</button>
+                                    <button class="w-8 h-8 rounded-full flex items-center justify-center bg-bg-nfuko-yellow text-white font-bold shadow-sm text-[12px]">{{ currentTxnPage }}</button>
                                     <button @click="nextTxnPage" :disabled="currentTxnPage === totalTxnPages" class="w-8 h-8 rounded-full flex items-center justify-center border border-border hover:bg-accent transition-colors disabled:opacity-50">&rsaquo;</button>
                                 </div>
                             </div>
@@ -979,8 +979,8 @@ const handleAvatarUpload = async (event: Event) => {
                             <!-- Top Controls -->
                             <div class="px-5 py-4 border-b border-border bg-card flex flex-col md:flex-row gap-4 justify-between items-center">
                                 <div class="flex items-center gap-3 w-full md:w-auto">
-                                    <input v-model="txnStartDate" type="date" class="py-2 px-3 rounded-lg border border-border bg-background text-[12px] focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30" />
-                                    <input v-model="txnEndDate" type="date" class="py-2 px-3 rounded-lg border border-border bg-background text-[12px] focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30" />
+                                    <input v-model="txnStartDate" type="date" class="py-2 px-3 rounded-lg border border-border bg-background text-[12px] focus:outline-none focus:border-bg-nfuko-yellow/50 focus:ring-1 focus:ring-bg-nfuko-yellow/30" />
+                                    <input v-model="txnEndDate" type="date" class="py-2 px-3 rounded-lg border border-border bg-background text-[12px] focus:outline-none focus:border-bg-nfuko-yellow/50 focus:ring-1 focus:ring-bg-nfuko-yellow/30" />
                                     <button @click="txnStartDate = ''; txnEndDate = ''" class="px-4 py-2 text-[12px] font-semibold rounded-lg border border-border bg-background hover:bg-accent transition-all">
                                         Clear
                                     </button>
@@ -996,7 +996,7 @@ const handleAvatarUpload = async (event: Event) => {
                             <div class="px-5 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
                                 <div class="flex items-center gap-2 text-[13px] text-muted-foreground">
                                     Show
-                                    <select v-model="txnsPerPage" @change="currentTxnPage = 1" class="py-1 px-2 rounded border border-border bg-background focus:outline-none focus:border-[#c9a84c]/50">
+                                    <select v-model="txnsPerPage" @change="currentTxnPage = 1" class="py-1 px-2 rounded border border-border bg-background focus:outline-none focus:border-bg-nfuko-yellow/50">
                                         <option :value="10">10</option>
                                         <option :value="25">25</option>
                                         <option :value="50">50</option>
@@ -1005,7 +1005,7 @@ const handleAvatarUpload = async (event: Event) => {
                                 </div>
                                 <div class="flex items-center gap-2 text-[13px] text-muted-foreground">
                                     Search:
-                                    <input v-model="txnSearchQuery" @input="currentTxnPage = 1" type="text" class="py-1.5 px-3 rounded border border-border bg-background focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30" placeholder="Ref, Narration, Paid by..." />
+                                    <input v-model="txnSearchQuery" @input="currentTxnPage = 1" type="text" class="py-1.5 px-3 rounded border border-border bg-background focus:outline-none focus:border-bg-nfuko-yellow/50 focus:ring-1 focus:ring-bg-nfuko-yellow/30" placeholder="Ref, Narration, Paid by..." />
                                 </div>
                             </div>
 
@@ -1089,8 +1089,8 @@ const handleAvatarUpload = async (event: Event) => {
                             <!-- Top Controls -->
                             <div class="px-5 py-4 border-b border-border bg-card flex flex-col md:flex-row gap-4 justify-between items-center">
                                 <div class="flex items-center gap-3 w-full md:w-auto">
-                                    <input v-model="txnStartDate" type="date" class="py-2 px-3 rounded-lg border border-border bg-background text-[12px] focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30" />
-                                    <input v-model="txnEndDate" type="date" class="py-2 px-3 rounded-lg border border-border bg-background text-[12px] focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30" />
+                                    <input v-model="txnStartDate" type="date" class="py-2 px-3 rounded-lg border border-border bg-background text-[12px] focus:outline-none focus:border-bg-nfuko-yellow/50 focus:ring-1 focus:ring-bg-nfuko-yellow/30" />
+                                    <input v-model="txnEndDate" type="date" class="py-2 px-3 rounded-lg border border-border bg-background text-[12px] focus:outline-none focus:border-bg-nfuko-yellow/50 focus:ring-1 focus:ring-bg-nfuko-yellow/30" />
                                     <button @click="txnStartDate = ''; txnEndDate = ''" class="px-4 py-2 text-[12px] font-semibold rounded-lg border border-border bg-background hover:bg-accent transition-all">
                                         Clear
                                     </button>
@@ -1106,7 +1106,7 @@ const handleAvatarUpload = async (event: Event) => {
                             <div class="px-5 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
                                 <div class="flex items-center gap-2 text-[13px] text-muted-foreground">
                                     Show
-                                    <select v-model="txnsPerPage" @change="currentTxnPage = 1" class="py-1 px-2 rounded border border-border bg-background focus:outline-none focus:border-[#c9a84c]/50">
+                                    <select v-model="txnsPerPage" @change="currentTxnPage = 1" class="py-1 px-2 rounded border border-border bg-background focus:outline-none focus:border-bg-nfuko-yellow/50">
                                         <option :value="10">10</option>
                                         <option :value="25">25</option>
                                         <option :value="50">50</option>
@@ -1115,7 +1115,7 @@ const handleAvatarUpload = async (event: Event) => {
                                 </div>
                                 <div class="flex items-center gap-2 text-[13px] text-muted-foreground">
                                     Search:
-                                    <input v-model="txnSearchQuery" @input="currentTxnPage = 1" type="text" class="py-1.5 px-3 rounded border border-border bg-background focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30" placeholder="Ref, Narration, Paid by..." />
+                                    <input v-model="txnSearchQuery" @input="currentTxnPage = 1" type="text" class="py-1.5 px-3 rounded border border-border bg-background focus:outline-none focus:border-bg-nfuko-yellow/50 focus:ring-1 focus:ring-bg-nfuko-yellow/30" placeholder="Ref, Narration, Paid by..." />
                                 </div>
                             </div>
 
@@ -1230,8 +1230,8 @@ const handleAvatarUpload = async (event: Event) => {
                             <!-- Header -->
                             <div class="flex items-center justify-between p-5 border-b border-border">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-lg bg-[#c9a84c]/10 flex items-center justify-center">
-                                        <Plus :size="16" class="text-[#c9a84c]" />
+                                    <div class="w-8 h-8 rounded-lg bg-bg-nfuko-yellow/10 flex items-center justify-center">
+                                        <Plus :size="16" class="text-bg-nfuko-yellow" />
                                     </div>
                                     <h3 class="text-[15px] font-bold text-foreground">Add Account</h3>
                                 </div>
@@ -1279,10 +1279,10 @@ const handleAvatarUpload = async (event: Event) => {
                                         <div class="relative">
                                             <div @click="showChargeDropdown = !showChargeDropdown"
                                                 class="min-h-[46px] py-2.5 px-3 rounded-xl border bg-background cursor-pointer flex flex-wrap gap-1.5 items-center transition-all"
-                                                :class="showChargeDropdown ? 'border-[#c9a84c]/50 ring-1 ring-[#c9a84c]/30' : 'border-border hover:border-muted-foreground/30'">
+                                                :class="showChargeDropdown ? 'border-bg-nfuko-yellow/50 ring-1 ring-bg-nfuko-yellow/30' : 'border-border hover:border-muted-foreground/30'">
                                                 <template v-if="newAccountForm.charges.length > 0">
                                                     <span v-for="cid in newAccountForm.charges" :key="cid"
-                                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-[#c9a84c]/10 text-[#c9a84c] border border-[#c9a84c]/20">
+                                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-bg-nfuko-yellow/10 text-bg-nfuko-yellow border border-bg-nfuko-yellow/20">
                                                         {{ getChargeNameById(cid) }}
                                                         <X :size="10" class="ml-0.5 cursor-pointer hover:text-[#dc2626]" @click.stop="toggleCharge(cid)" />
                                                     </span>
@@ -1310,7 +1310,7 @@ const handleAvatarUpload = async (event: Event) => {
                                                             class="flex items-center justify-between px-4 py-2.5 text-[13px] cursor-pointer transition-colors hover:bg-accent"
                                                             :class="isChargeSelected(charge.id) ? 'text-foreground font-semibold bg-accent/50' : 'text-muted-foreground'">
                                                             <span>{{ charge.type }}</span>
-                                                            <Check v-if="isChargeSelected(charge.id)" :size="14" class="text-[#c9a84c]" />
+                                                            <Check v-if="isChargeSelected(charge.id)" :size="14" class="text-bg-nfuko-yellow" />
                                                         </li>
                                                     </ul>
                                                 </div>
@@ -1340,7 +1340,7 @@ const handleAvatarUpload = async (event: Event) => {
                                         <div class="relative">
                                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-muted-foreground">UGX</span>
                                             <input v-model="formattedInitialDeposit" type="text" placeholder="0"
-                                                class="w-full py-3 pl-14 pr-4 rounded-xl bg-background border border-border text-foreground text-[14px] font-mono font-bold placeholder-muted-foreground/50 focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30 transition-all" />
+                                                class="w-full py-3 pl-14 pr-4 rounded-xl bg-background border border-border text-foreground text-[14px] font-mono font-bold placeholder-muted-foreground/50 focus:outline-none focus:border-bg-nfuko-yellow/50 focus:ring-1 focus:ring-bg-nfuko-yellow/30 transition-all" />
                                         </div>
                                         <p v-if="newAccountErrors.initial_deposit" class="mt-1 text-[11px] text-[#dc2626]">{{ newAccountErrors.initial_deposit }}</p>
                                     </div>
@@ -1366,7 +1366,7 @@ const handleAvatarUpload = async (event: Event) => {
                                         <div class="relative">
                                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-muted-foreground">UGX</span>
                                             <input v-model="formattedOpeningBalance" type="text" placeholder="0"
-                                                class="w-full py-3 pl-14 pr-4 rounded-xl bg-background border border-border text-foreground text-[14px] font-mono font-bold placeholder-muted-foreground/50 focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30 transition-all" />
+                                                class="w-full py-3 pl-14 pr-4 rounded-xl bg-background border border-border text-foreground text-[14px] font-mono font-bold placeholder-muted-foreground/50 focus:outline-none focus:border-bg-nfuko-yellow/50 focus:ring-1 focus:ring-bg-nfuko-yellow/30 transition-all" />
                                         </div>
                                         <p v-if="newAccountErrors.initial_deposit" class="mt-1 text-[11px] text-[#dc2626]">{{ newAccountErrors.initial_deposit }}</p>
                                     </div>
@@ -1393,7 +1393,7 @@ const handleAvatarUpload = async (event: Event) => {
                                     Close
                                 </button>
                                 <button @click="submitNewAccount" :disabled="newAccountProcessing"
-                                    class="px-5 py-2.5 rounded-lg text-[12px] font-bold bg-[#c9a84c] text-white hover:bg-[#b8973e] transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                                    class="px-5 py-2.5 rounded-lg text-[12px] font-bold bg-bg-nfuko-yellow text-white hover:bg-[#b8973e] transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
                                     <div v-if="newAccountProcessing" class="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
                                     Save changes
                                 </button>
@@ -1449,7 +1449,7 @@ const handleAvatarUpload = async (event: Event) => {
                                             <div class="relative">
                                                 <Calendar :size="14" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
                                                 <input v-model="depositForm.deposit_date" type="date"
-                                                    class="w-full py-3 pl-10 pr-4 rounded-xl bg-background border border-border text-foreground text-[13px] font-medium focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30 transition-all" />
+                                                    class="w-full py-3 pl-10 pr-4 rounded-xl bg-background border border-border text-foreground text-[13px] font-medium focus:outline-none focus:border-bg-nfuko-yellow/50 focus:ring-1 focus:ring-bg-nfuko-yellow/30 transition-all" />
                                             </div>
                                             <p v-if="depositErrors.deposit_date" class="mt-1 text-[11px] text-red-500">{{ depositErrors.deposit_date }}</p>
                                         </div>
@@ -1482,7 +1482,7 @@ const handleAvatarUpload = async (event: Event) => {
                                                             ? (drawerOpen === 'deposit'
                                                                 ? 'border-emerald-400/50 ring-1 ring-emerald-400/20 text-emerald-700 dark:text-emerald-400'
                                                                 : 'border-orange-400/50 ring-1 ring-orange-400/20 text-orange-700 dark:text-orange-400')
-                                                            : 'border-border text-foreground focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30'
+                                                            : 'border-border text-foreground focus:border-bg-nfuko-yellow/50 focus:ring-1 focus:ring-bg-nfuko-yellow/30'
                                                     ]" />
                                             </div>
                                             <p v-if="depositErrors.amount" class="mt-1 text-[11px] text-red-500">{{ depositErrors.amount }}</p>
@@ -1494,7 +1494,7 @@ const handleAvatarUpload = async (event: Event) => {
                                             <div class="relative">
                                                 <UserCircle2 :size="14" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
                                                 <input v-model="depositForm.deposited_by" type="text" :placeholder="member.name"
-                                                    class="w-full py-3 pl-10 pr-4 rounded-xl bg-background border border-border text-foreground text-[13px] font-medium placeholder-muted-foreground/40 focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30 transition-all" />
+                                                    class="w-full py-3 pl-10 pr-4 rounded-xl bg-background border border-border text-foreground text-[13px] font-medium placeholder-muted-foreground/40 focus:outline-none focus:border-bg-nfuko-yellow/50 focus:ring-1 focus:ring-bg-nfuko-yellow/30 transition-all" />
                                             </div>
                                             <p v-if="depositErrors.deposited_by" class="mt-1 text-[11px] text-red-500">{{ depositErrors.deposited_by }}</p>
                                         </div>
@@ -1539,7 +1539,7 @@ const handleAvatarUpload = async (event: Event) => {
                                             <textarea v-model="depositForm.narration"
                                                 :placeholder="drawerOpen === 'deposit' ? 'Savings deposit...' : 'Withdrawal reason...'"
                                                 rows="2"
-                                                class="w-full py-3 px-4 rounded-xl bg-background border border-border text-foreground text-[13px] font-medium placeholder-muted-foreground/40 focus:outline-none focus:border-[#c9a84c]/50 focus:ring-1 focus:ring-[#c9a84c]/30 transition-all resize-none"></textarea>
+                                                class="w-full py-3 px-4 rounded-xl bg-background border border-border text-foreground text-[13px] font-medium placeholder-muted-foreground/40 focus:outline-none focus:border-bg-nfuko-yellow/50 focus:ring-1 focus:ring-bg-nfuko-yellow/30 transition-all resize-none"></textarea>
                                             <p v-if="depositErrors.narration" class="mt-1 text-[11px] text-red-500">{{ depositErrors.narration }}</p>
                                         </div>
                                         <div>

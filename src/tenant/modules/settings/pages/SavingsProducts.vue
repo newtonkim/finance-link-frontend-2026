@@ -52,7 +52,7 @@ const openChargesModal = (product: SavingsProduct) => {
                 <ChevronLeft class="h-5 w-5 text-neutral-600 dark:text-neutral-400" />
             </RouterLink>
             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-100 dark:bg-neutral-800">
-                <Landmark class="h-5 w-5 text-[#001d22] dark:text-[#C9A84C]" />
+                <Landmark class="h-5 w-5  text-nfuko-primary dark:text-bg-nfuko-yellow" />
             </div>
             <div class="flex-1">
                 <h1 class="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">Savings Products List</h1>
@@ -60,7 +60,7 @@ const openChargesModal = (product: SavingsProduct) => {
             </div>
 
             <RouterLink to="/tenant/settings/savings-products/create"
-                class="flex items-center gap-2 rounded-lg bg-[#001d22] dark:bg-[#C9A84C] px-4 py-2 text-sm font-medium text-white dark:text-[#001d22] hover:bg-[#001d22]/90 dark:hover:bg-[#C9A84C]/90 transition-colors shadow-sm">
+                class="flex items-center gap-2 rounded-lg  bg-nfuko-primary dark:bg-bg-nfuko-yellow px-4 py-2 text-sm font-medium text-white dark: text-nfuko-primary hover: bg-nfuko-primary/90 dark:hover:bg-bg-nfuko-yellow/90 transition-colors shadow-sm">
                 <Plus class="h-4 w-4" />
                 <span>Create Product</span>
             </RouterLink>
@@ -114,7 +114,7 @@ const openChargesModal = (product: SavingsProduct) => {
                             </td>
                             <td class="whitespace-nowrap px-6 py-4 text-right">
                                 <div class="flex items-center justify-end gap-2">
-                                    <RouterLink :to="`/tenant/settings/savings-products/${product.id}/edit`" class="p-1.5 text-neutral-500 hover:text-[#001d22] dark:hover:text-[#C9A84C] transition-colors rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800">
+                                    <RouterLink :to="`/tenant/settings/savings-products/${product.id}/edit`" class="p-1.5 text-neutral-500 hover: text-nfuko-primary dark:hover:text-bg-nfuko-yellow transition-colors rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800">
                                         <Edit class="h-4 w-4" />
                                     </RouterLink>
                                     <button @click="deleteProduct(product.id!)" class="p-1.5 text-neutral-500 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20">

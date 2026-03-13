@@ -145,6 +145,5 @@ function routebuilder(routes=[],prifix="central",){
   return collecction
 
 }
-
-// prifix/title/path
+ 
 

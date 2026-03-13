@@ -6,7 +6,7 @@ import { CreditCard } from 'lucide-vue-next'
     <div class="flex h-full flex-1 flex-col gap-6 p-4 md:p-6 bg-[#f8faf9] dark:bg-[#0a0a0a]">
         <div class="flex items-center gap-3">
             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-100 dark:bg-neutral-800">
-                <CreditCard class="h-5 w-5 text-[#001d22] dark:text-[#C9A84C]" />
+                <CreditCard class="h-5 w-5  text-nfuko-primary dark:text-bg-nfuko-yellow" />
             </div>
             <div>
                 <h1 class="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">Loan Products</h1>
@@ -21,7 +21,7 @@ import { CreditCard } from 'lucide-vue-next'
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Loan Types</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Define different categories of loan
                     products.</p>
-                <button class="text-sm font-medium text-[#001d22] dark:text-[#C9A84C] hover:underline">Manage Types
+                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Manage Types
                     →</button>
             </div>
             <div
@@ -29,7 +29,7 @@ import { CreditCard } from 'lucide-vue-next'
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Interest Settings</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Setup interest rates and calculation
                     methods.</p>
-                <button class="text-sm font-medium text-[#001d22] dark:text-[#C9A84C] hover:underline">Configure
+                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Configure
                     Interest →</button>
             </div>
             <div
@@ -37,7 +37,7 @@ import { CreditCard } from 'lucide-vue-next'
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Repayment Rules</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Define schedules and rules for loan
                     repayments.</p>
-                <button class="text-sm font-medium text-[#001d22] dark:text-[#C9A84C] hover:underline">Setup Rules
+                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Setup Rules
                     →</button>
             </div>
             <div
@@ -45,7 +45,7 @@ import { CreditCard } from 'lucide-vue-next'
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Penalties</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Configure late payment fees and
                     penalties.</p>
-                <button class="text-sm font-medium text-[#001d22] dark:text-[#C9A84C] hover:underline">Manage Penalties
+                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Manage Penalties
                     →</button>
             </div>
         </div>

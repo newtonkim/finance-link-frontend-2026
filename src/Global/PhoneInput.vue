@@ -220,7 +220,7 @@ onUnmounted(() => window.removeEventListener('click', closeDropdown));
                             <span class="text-base">{{ country.flag }}</span>
                             <span class="flex-1 truncate">{{ country.name }}</span>
                             <span class="text-xs text-neutral-400">{{ country.dial }}</span>
-                            <Check v-if="country.code === selectedCountry.code" class="h-4 w-4 text-[#001d22] dark:text-[#8ba8a2]" />
+                            <Check v-if="country.code === selectedCountry.code" class="h-4 w-4  text-nfuko-primary dark:text-[#8ba8a2]" />
                         </li>
                         <li v-if="filteredCountries.length === 0" class="px-4 py-6 text-center text-sm text-neutral-400">
                             No countries found

@@ -22,7 +22,7 @@ import {
     shareholderOptions,
 } from '@/constants/memberOptions';
 
-const inputClass = 'w-full rounded-lg border border-neutral-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#001d22] focus:ring-1 focus:ring-[#001d22] dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#8ba8a2]';
+const inputClass = 'w-full rounded-lg border border-neutral-200 bg-white px-3 py-2.5 text-sm outline-none focus: border-nfuko-primary focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#8ba8a2]';
 
 const props = defineProps<{
     form: any;
@@ -332,7 +332,7 @@ const handleAvatarChange = (event: Event) => {
                 <button
                     type="submit"
                     :disabled="form.processing"
-                    class="rounded-lg bg-[#0A2318] px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0A2318]/90 flex items-center gap-2"
+                    class="rounded-lg bg-nfuko-primary px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0A2318]/90 flex items-center gap-2"
                 >
                     <span v-if="form.processing" class="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white"></span>
                     Submit

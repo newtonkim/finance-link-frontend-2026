@@ -63,7 +63,7 @@ const exportData = () => {
                 <ChevronLeft class="h-5 w-5 text-neutral-600 dark:text-neutral-400" />
             </RouterLink>
             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-100 dark:bg-neutral-800">
-                <UserCog class="h-5 w-5 text-[#001d22] dark:text-[#C9A84C]" />
+                <UserCog class="h-5 w-5  text-nfuko-primary dark:text-bg-nfuko-yellow" />
             </div>
             <div class="flex-1">
                 <h1 class="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">Staff Profile</h1>
@@ -79,7 +79,7 @@ const exportData = () => {
             <!-- Sidebar: Staff Info -->
             <div class="w-full lg:w-80 flex-shrink-0 flex flex-col gap-5">
                 <div class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900 text-center">
-                    <div class="h-24 w-24 mx-auto rounded-full bg-neutral-100 dark:bg-neutral-800 border-4 border-[#001d22]/5 dark:border-[#C9A84C]/5 flex items-center justify-center text-3xl font-bold text-neutral-700 dark:text-neutral-200 mb-4">
+                    <div class="h-24 w-24 mx-auto rounded-full bg-neutral-100 dark:bg-neutral-800 border-4  border-nfuko-primary/5 dark:border-bg-nfuko-yellow/5 flex items-center justify-center text-3xl font-bold text-neutral-700 dark:text-neutral-200 mb-4">
                         {{ staff.name.charAt(0).toUpperCase() }}
                     </div>
                     <h2 class="text-lg font-bold text-neutral-900 dark:text-white flex items-center justify-center gap-2">
@@ -121,8 +121,8 @@ const exportData = () => {
                         :class="[
                             'px-2 py-3 font-medium transition-colors border-b-2',
                             activeTab === 'overview'
-                                ? 'border-[#001d22] dark:border-[#C9A84C] text-[#001d22] dark:text-[#C9A84C]'
-                                : 'border-transparent text-neutral-500 hover:text-[#001d22] dark:hover:text-[#C9A84C]'
+                                ? ' border-nfuko-primary dark:border-bg-nfuko-yellow  text-nfuko-primary dark:text-bg-nfuko-yellow'
+                                : 'border-transparent text-neutral-500 hover: text-nfuko-primary dark:hover:text-bg-nfuko-yellow'
                         ]"
                     >
                         Overview & KPI
@@ -132,8 +132,8 @@ const exportData = () => {
                         :class="[
                             'flex items-center gap-2 px-2 py-3 font-medium transition-colors border-b-2',
                             activeTab === 'onboarded'
-                                ? 'border-[#001d22] dark:border-[#C9A84C] text-[#001d22] dark:text-[#C9A84C]'
-                                : 'border-transparent text-neutral-500 hover:text-[#001d22] dark:hover:text-[#C9A84C]'
+                                ? ' border-nfuko-primary dark:border-bg-nfuko-yellow  text-nfuko-primary dark:text-bg-nfuko-yellow'
+                                : 'border-transparent text-neutral-500 hover: text-nfuko-primary dark:hover:text-bg-nfuko-yellow'
                         ]"
                     >
                         Onboarded Members
@@ -147,7 +147,7 @@ const exportData = () => {
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="rounded-xl border border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900 p-5">
                                 <div class="text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-1">Total Members Onboarded</div>
-                                <div class="text-3xl font-bold text-[#001d22] dark:text-[#C9A84C]">{{ referredMembers.length }}</div>
+                                <div class="text-3xl font-bold  text-nfuko-primary dark:text-bg-nfuko-yellow">{{ referredMembers.length }}</div>
                                 <p class="text-xs text-emerald-600 dark:text-emerald-400 mt-2 flex items-center gap-1">
                                     All-time KPI metric
                                 </p>
@@ -187,7 +187,7 @@ const exportData = () => {
                                             <td colspan="4" class="px-6 py-8 text-center text-neutral-500">No members onboarded by this staff yet.</td>
                                         </tr>
                                         <tr v-for="member in referredMembers" :key="member.id" class="border-b border-neutral-100 last:border-0 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-800/50">
-                                            <td class="whitespace-nowrap px-6 py-3 font-medium text-[#001d22] dark:text-[#C9A84C]">
+                                            <td class="whitespace-nowrap px-6 py-3 font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow">
                                                 <RouterLink :to="`/tenant/members/${member.id}`" class="hover:underline">
                                                     {{ member.member_number }}
                                                 </RouterLink>

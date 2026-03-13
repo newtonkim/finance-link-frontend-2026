@@ -15,7 +15,7 @@ const products = [
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-100 dark:bg-neutral-800">
-                    <Wallet class="h-5 w-5 text-[#001d22] dark:text-[#C9A84C]" />
+                    <Wallet class="h-5 w-5  text-nfuko-primary dark:text-bg-nfuko-yellow" />
                 </div>
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">Savings Products</h1>
@@ -24,7 +24,7 @@ const products = [
                 </div>
             </div>
             <button
-                class="flex items-center gap-2 rounded-xl bg-[#001d22] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#002e35] active:scale-[0.98] dark:bg-[#C9A84C] dark:text-[#0A2318] dark:hover:bg-[#b8973f]">
+                class="flex items-center gap-2 rounded-xl  bg-nfuko-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#002e35] active:scale-[0.98] dark:bg-bg-nfuko-yellow dark:text-[#0A2318] dark:hover:bg-[#b8973f]">
                 <Plus class="h-4 w-4" />
                 Add Product
             </button>

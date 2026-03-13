@@ -30,11 +30,11 @@ const { isMobile, state } = useSidebar();
                         class="data-[state=open]:bg-white/10 data-[state=open]:text-white hover:bg-white/5 transition-all duration-200 py-6"
                         data-test="sidebar-menu-button">
                         <UserInfo v-if="user" :user="user" :show-email="true" />
-                        <ChevronsUpDown class="ml-auto size-3 text-[#9BB5A5]/40" />
+                        <ChevronsUpDown class="ml-auto size-3 text-nfuko-nav-text/40" />
                     </SidebarMenuButton>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                    class="w-(--reka-dropdown-menu-trigger-width) min-w-56 rounded-lg bg-[#001d22] text-white border-white/10"
+                    class="w-(--reka-dropdown-menu-trigger-width) min-w-56 rounded-lg  bg-nfuko-primary text-white border-white/10"
                     :side="isMobile
                         ? 'bottom'
                         : state === 'collapsed'

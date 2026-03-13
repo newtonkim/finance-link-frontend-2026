@@ -179,8 +179,8 @@ function accountLabel(a: Account) {
 
         <!-- Page header -->
         <div class="mb-6 flex items-center gap-3">
-            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#001d22]/10">
-                <ArrowLeftRight class="h-5 w-5 text-[#001d22]" />
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl  bg-nfuko-primary/10">
+                <ArrowLeftRight class="h-5 w-5  text-nfuko-primary" />
             </div>
             <div>
                 <h1 class="text-xl font-bold text-neutral-900">Fund Transfer</h1>
@@ -200,7 +200,7 @@ function accountLabel(a: Account) {
 
                 <!-- Card header -->
                 <div class="px-6 py-4 border-b border-neutral-100 flex items-center gap-3">
-                    <ArrowLeftRight class="h-4 w-4 text-[#001d22]" />
+                    <ArrowLeftRight class="h-4 w-4  text-nfuko-primary" />
                     <h2 class="text-[15px] font-bold text-neutral-900">Transfer Details</h2>
                 </div>
 
@@ -219,7 +219,7 @@ function accountLabel(a: Account) {
                             Transfer Date <span class="text-red-500">*</span>
                         </label>
                         <input v-model="form.transfer_date" type="date"
-                            class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-[14px] text-neutral-800 focus:outline-none focus:border-[#001d22] focus:ring-1 focus:ring-[#001d22]/20 transition-all" />
+                            class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-[14px] text-neutral-800 focus:outline-none focus: border-nfuko-primary focus:ring-1 focus:ring-[ bg-nfuko-primary]/20 transition-all" />
                         <p v-if="errors.transfer_date" class="text-[11px] text-red-600">{{ errors.transfer_date }}</p>
                     </div>
 
@@ -269,7 +269,7 @@ function accountLabel(a: Account) {
                             'flex overflow-hidden rounded-xl border focus-within:ring-1 transition-all',
                             amountError || errors.amount
                                 ? 'border-red-400 focus-within:ring-red-300'
-                                : 'border-neutral-200 focus-within:border-[#001d22] focus-within:ring-[#001d22]/20'
+                                : 'border-neutral-200 focus-within: border-nfuko-primary focus-within:ring-[ bg-nfuko-primary]/20'
                         ]">
                             <span class="flex items-center border-r border-neutral-200 bg-neutral-50 px-4 text-[13px] font-semibold text-neutral-500">
                                 UGX
@@ -288,7 +288,7 @@ function accountLabel(a: Account) {
                             Narration <span class="text-[12px] font-normal text-neutral-400">(Optional)</span>
                         </label>
                         <input v-model="form.narration" type="text" placeholder="Reason for transfer..."
-                            class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-[14px] text-neutral-800 focus:outline-none focus:border-[#001d22] focus:ring-1 focus:ring-[#001d22]/20 transition-all" />
+                            class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-[14px] text-neutral-800 focus:outline-none focus: border-nfuko-primary focus:ring-1 focus:ring-[ bg-nfuko-primary]/20 transition-all" />
                     </div>
 
                     <!-- Submit -->
@@ -296,7 +296,7 @@ function accountLabel(a: Account) {
                         <button @click="submit" :disabled="!canSubmit || processing" :class="[
                             'w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-[14px] font-bold transition-all',
                             canSubmit && !processing
-                                ? 'bg-[#001d22] hover:bg-[#003030] text-white shadow-sm'
+                                ? ' bg-nfuko-primary hover:bg-[#003030] text-white shadow-sm'
                                 : 'bg-neutral-200 text-neutral-400 cursor-not-allowed'
                         ]">
                             <Loader2 v-if="processing" class="h-4 w-4 animate-spin" />
@@ -315,15 +315,15 @@ function accountLabel(a: Account) {
                     <h3 class="text-[13px] font-bold text-neutral-700 uppercase tracking-wider">How it works</h3>
                     <div class="space-y-3">
                         <div class="flex items-start gap-3">
-                            <div class="w-6 h-6 rounded-full bg-[#001d22] text-white text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</div>
+                            <div class="w-6 h-6 rounded-full  bg-nfuko-primary text-white text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</div>
                             <p class="text-[12px] text-neutral-500 leading-relaxed">Select the source account to transfer <strong class="text-neutral-700">from</strong>.</p>
                         </div>
                         <div class="flex items-start gap-3">
-                            <div class="w-6 h-6 rounded-full bg-[#001d22] text-white text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</div>
+                            <div class="w-6 h-6 rounded-full  bg-nfuko-primary text-white text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</div>
                             <p class="text-[12px] text-neutral-500 leading-relaxed">Select the destination account to transfer <strong class="text-neutral-700">to</strong>.</p>
                         </div>
                         <div class="flex items-start gap-3">
-                            <div class="w-6 h-6 rounded-full bg-[#001d22] text-white text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</div>
+                            <div class="w-6 h-6 rounded-full  bg-nfuko-primary text-white text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</div>
                             <p class="text-[12px] text-neutral-500 leading-relaxed">Enter the amount and submit. Both accounts update instantly.</p>
                         </div>
                     </div>

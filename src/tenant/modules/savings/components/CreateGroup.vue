@@ -376,7 +376,7 @@ const inputCls = 'w-full rounded-2xl border border-neutral-200 bg-[#f4f7f6] px-4
               <button 
                 @click="handleSubmit"
                 :disabled="processing"
-                class="flex items-center gap-3 px-10 py-3.5 text-sm font-bold text-white bg-[#0A2318] rounded-2xl hover:bg-[#0A2318]/90 transition-all shadow-xl shadow-[#0A2318]/10 active:scale-95 disabled:opacity-70"
+                class="flex items-center gap-3 px-10 py-3.5 text-sm font-bold text-white bg-nfuko-primary rounded-2xl hover:bg-[#0A2318]/90 transition-all shadow-xl shadow-[#0A2318]/10 active:scale-95 disabled:opacity-70"
               >
                 <Spinner v-if="processing" class="h-4 w-4" />
                 <span v-else>Register Group</span>
