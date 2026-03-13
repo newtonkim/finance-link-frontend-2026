@@ -42,6 +42,10 @@ const member = reactive({
     joined_at: '',
     created_at: '',
     avatar_url: null as string | null,
+    referred_by: null as number | null,
+    referred_by_name: null as string | null,
+    registered_by: null as number | null,
+    registered_by_name: null as string | null,
     savings_accounts: [] as Array<{ id: number; account_no: string; account_type: string; balance: string }>,
     loans: [] as Array<any>,
     transactions: [] as Array<any>,
@@ -914,6 +918,16 @@ const handleAvatarUpload = async (event: Event) => {
                                     </template>
                                 </span>
                             </div>
+                            <div class="flex justify-between items-center pt-1 border-t border-gray-100 mt-1">
+                                <span class="text-[13px] text-[#788896]">Referred By</span>
+                                <span class="text-[13px] font-bold text-gray-900 font-mono tracking-tight">{{
+                                    member.referred_by_name || '—' }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[13px] text-[#788896]">Registered By</span>
+                                <span class="text-[13px] font-bold text-gray-900 font-mono tracking-tight">{{
+                                    member.registered_by_name || '—' }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1134,6 +1148,25 @@ const handleAvatarUpload = async (event: Event) => {
                                             formatDate(member.joined_at ||
                                                 member.created_at) }}</p>
                                     </div>
+                                    <!-- Referred By -->
+                                    <div class="p-5 border-r border-b border-gray-100">
+                                        <span
+                                            class="block text-[11px] font-bold text-[#788896] uppercase tracking-wider mb-2">Referred
+                                            By</span>
+                                        <p class="text-[15px] font-bold text-gray-900 tracking-tight">
+                                            {{ member.referred_by_name || '—' }}
+                                        </p>
+                                    </div>
+                                    <!-- Registered By -->
+                                    <div class="p-5 border-b border-gray-100">
+                                        <span
+                                            class="block text-[11px] font-bold text-[#788896] uppercase tracking-wider mb-2">Registered
+                                            By</span>
+                                        <p class="text-[15px] font-bold text-gray-900 tracking-tight">
+                                            {{ member.registered_by_name || '—' }}
+                                        </p>
+                                    </div>
+
                                     <!-- Member Type -->
                                     <div class="p-5 border-r border-b border-gray-100">
                                         <span

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { Landmark, ArrowLeft, Plus, Trash2, Save } from 'lucide-vue-next'
+import { Landmark, ArrowLeft, Plus, Trash2, Save, X } from 'lucide-vue-next'
 import { savingsProductsApi, type SavingsProduct, type Charge } from '../../../apis/savingsProducts/api'
 import { toast } from 'vue-sonner'
 import { useRoute, useRouter } from 'vue-router'
@@ -11,6 +11,7 @@ const router = useRouter()
 const isEditing = computed(() => route.params.id !== undefined)
 const loading = ref(false)
 const saving = ref(false)
+const selectedChargeTab = ref<Charge['type']>('deposit')
 
 const form = ref<SavingsProduct>({
     name: '',
@@ -26,6 +27,9 @@ const form = ref<SavingsProduct>({
     monthly_fee_type: 'amount',
     monthly_fee_amount: null,
     monthly_fee_deduction_day: 1,
+    loyalty_fee_enabled: false,
+    loyalty_adjustment_type: 'discount_percentage',
+    loyalty_adjustment_value: null,
     charges: []
 })
 
@@ -38,6 +42,7 @@ const loadProduct = async () => {
         const response = await savingsProductsApi.get(id)
         const product = response.data.data
         form.value = {
+            ...form.value,
             ...product,
             charges: product.charges || []
         }
@@ -53,14 +58,41 @@ onMounted(() => {
     loadProduct()
 })
 
+const normalizeNumberInput = (value: number | string | null | undefined) => {
+    if (value === null || value === undefined) return ''
+    return String(value).replace(/,/g, '')
+}
+
+const formatNumberInput = (value: number | string | null | undefined) => {
+    const normalized = normalizeNumberInput(value)
+    if (normalized === '') return ''
+    const parsed = Number(normalized)
+    if (Number.isNaN(parsed)) return normalized
+    return new Intl.NumberFormat('en-US').format(parsed)
+}
+
+const getNextMinimum = (type: Charge['type'], excludeIndex?: number) => {
+    const charges = form.value.charges ?? []
+    const maxValues = charges
+        .filter((charge, index) => charge.type === type && index !== excludeIndex)
+        .map((charge) => Number(normalizeNumberInput(charge.maximum_amount)))
+        .filter((value) => Number.isFinite(value))
+
+    if (maxValues.length === 0) return 0
+    return Math.max(...maxValues) + 1
+}
+
 const addCharge = () => {
     if (!form.value.charges) form.value.charges = []
 
+    const nextMinimum = getNextMinimum(selectedChargeTab.value)
+
     form.value.charges.push({
-        type: 'withdraw',
+        type: selectedChargeTab.value,
         charge_type: 'amount',
         amount: 0,
-        minimum_amount: 0,
+        minimum_amount: nextMinimum,
+        maximum_amount: null,
     })
 }
 
@@ -68,6 +100,13 @@ const removeCharge = (index: number) => {
     if (!form.value.charges) return
     form.value.charges.splice(index, 1)
 }
+
+const chargeRows = computed(() => {
+    const charges = form.value.charges ?? []
+    return charges
+        .map((charge, index) => ({ charge, index }))
+        .filter((row) => row.charge.type === selectedChargeTab.value)
+})
 
 const saveProduct = async () => {
     saving.value = true
@@ -86,6 +125,41 @@ const saveProduct = async () => {
         saving.value = false
     }
 }
+
+const formatFee = (value: number | string | null | undefined, type: 'percentage' | 'amount' | null | undefined) => {
+    if (value === null || value === undefined || value === '') return '—'
+    const parsed = Number(value)
+    if (Number.isNaN(parsed)) return '—'
+    if (type === 'percentage') return `${parsed}%`
+    return `KSh ${parsed}`
+}
+
+const monthlyFeeSummary = computed(() => {
+    if (!form.value.monthly_fee_enabled) return ''
+
+    const baseType = form.value.monthly_fee_type ?? 'amount'
+    const base = formatFee(form.value.monthly_fee_amount, baseType)
+    let summary = `All members: ${base} monthly fee.`
+
+    if (!form.value.loyalty_fee_enabled) return summary
+
+    const adjustmentType = form.value.loyalty_adjustment_type
+    const adjustmentValue = form.value.loyalty_adjustment_value
+
+    if (adjustmentType === 'discount_percentage') {
+        const discount = formatFee(adjustmentValue, 'percentage')
+        summary += ` Loyal members: ${discount} discount.`
+    } else if (adjustmentType === 'fixed_discount') {
+        const discount = formatFee(adjustmentValue, 'amount')
+        summary += ` Loyal members: ${discount} off the base fee.`
+    } else if (adjustmentType === 'custom_fee') {
+        const custom = formatFee(adjustmentValue, baseType)
+        summary += ` Loyal members: ${custom} custom fee.`
+    }
+
+    return summary
+})
+
 </script>
 
 <template>
@@ -154,11 +228,11 @@ const saveProduct = async () => {
                     </div>
                 </div>
 
-                <!-- Periodic Charges (Monthly fees) -->
+                <!-- Monthly fees -->
                 <div class="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
                     <div class="flex items-center justify-between mb-4">
                         <div>
-                            <h2 class="text-lg font-semibold text-neutral-900 dark:text-white">Periodic Charges</h2>
+                            <h2 class="text-lg font-semibold text-neutral-900 dark:text-white">Monthly fees</h2>
                             <p class="text-xs text-neutral-500 dark:text-neutral-400">Configure compulsory monthly or maintenance fees.</p>
                         </div>
                         <label class="flex items-center gap-2 cursor-pointer">
@@ -170,82 +244,228 @@ const saveProduct = async () => {
                         </label>
                     </div>
 
-                    <div v-if="form.monthly_fee_enabled" class="grid gap-4 sm:grid-cols-3 mt-4 animate-in fade-in slide-in-from-top-2 duration-300 border-t border-neutral-100 dark:border-neutral-800 pt-4">
-                        <div>
-                            <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Fee Format</label>
-                            <select v-model="form.monthly_fee_type" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus:border-[#001d22] focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:border-neutral-700 dark:text-white dark:focus:border-[#C9A84C]">
-                                <option value="amount">Fixed Amount</option>
-                                <option value="percentage">Percentage (%)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Default Amount / Rate</label>
-                            <input v-model="form.monthly_fee_amount" type="number" step="0.01" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus:border-[#001d22] focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:border-neutral-700 dark:text-white dark:focus:border-[#C9A84C]">
-                            <p v-if="form.monthly_fee_type === 'percentage'" class="mt-1 text-xs text-neutral-500">Calculated on end-of-month balance.</p>
-                        </div>
-                        <div>
-                            <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Deduction Day</label>
-                            <select v-model="form.monthly_fee_deduction_day" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus:border-[#001d22] focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:border-neutral-700 dark:text-white dark:focus:border-[#C9A84C]">
-                                <option :value="1">1st of the month</option>
-                                <option :value="15">15th of the month</option>
-                                <option :value="28">28th of the month</option>
-                                <option :value="31">End of month</option>
-                            </select>
+                    <div v-if="form.monthly_fee_enabled" class="mt-4 animate-in fade-in slide-in-from-top-2 duration-300 border-t border-neutral-100 dark:border-neutral-800 pt-4">
+                        <div class="grid gap-4">
+                            <div class="rounded-lg border border-neutral-100 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-800/40">
+                                <div class="mb-3 flex items-center gap-2">
+                                    <span class="rounded-full bg-[#001d22] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white dark:bg-[#C9A84C] dark:text-neutral-900">Step 1</span>
+                                    <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">Choose fee type</h3>
+                                </div>
+                                <div class="grid gap-3 sm:grid-cols-2">
+                                    <div>
+                                        <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Fee type</label>
+                                        <select v-model="form.monthly_fee_type" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus:border-[#001d22] focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:border-neutral-700 dark:text-white dark:focus:border-[#C9A84C]">
+                                            <option value="amount">Fixed amount</option>
+                                            <option value="percentage">Percentage (%)</option>
+                                        </select>
+                                    </div>
+                                    <div class="text-xs text-neutral-500 dark:text-neutral-400 sm:pt-7">
+                                        Fixed amount charges a flat fee. Percentage charges a rate on end-of-month balance.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rounded-lg border border-neutral-100 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+                                <div class="mb-3 flex items-center gap-2">
+                                    <span class="rounded-full bg-[#001d22] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white dark:bg-[#C9A84C] dark:text-neutral-900">Step 2</span>
+                                    <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">Set base fee (all members)</h3>
+                                </div>
+                                <div class="grid gap-3 sm:grid-cols-2">
+                                    <div>
+                                        <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Base fee amount</label>
+                                        <input v-model="form.monthly_fee_amount" type="number" step="0.01" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus:border-[#001d22] focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:border-neutral-700 dark:text-white dark:focus:border-[#C9A84C]">
+                                        <p v-if="form.monthly_fee_type === 'percentage'" class="mt-1 text-xs text-neutral-500">Calculated on end-of-month balance.</p>
+                                    </div>
+                                    <div class="rounded-lg border border-dashed border-neutral-200 p-3 text-xs text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">
+                                        This fee is compulsory for all members using this product.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rounded-lg border border-neutral-100 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+                                <div class="mb-3 flex items-center gap-2">
+                                    <span class="rounded-full bg-[#001d22] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white dark:bg-[#C9A84C] dark:text-neutral-900">Step 3</span>
+                                    <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">Select deduction timing</h3>
+                                </div>
+                                <div class="grid gap-3 sm:grid-cols-2">
+                                    <div>
+                                        <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Deduction day</label>
+                                        <select v-model="form.monthly_fee_deduction_day" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus:border-[#001d22] focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:border-neutral-700 dark:text-white dark:focus:border-[#C9A84C]">
+                                            <option :value="1">1st of the month</option>
+                                            <option :value="15">15th of the month</option>
+                                            <option :value="28">28th of the month</option>
+                                            <option :value="31">End of month</option>
+                                        </select>
+                                    </div>
+                                    <div class="text-xs text-neutral-500 dark:text-neutral-400 sm:pt-7">
+                                        Fees are deducted once per month on the selected day.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rounded-lg border border-neutral-100 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+                                <div class="mb-3 flex items-center gap-2">
+                                    <span class="rounded-full bg-[#001d22] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white dark:bg-[#C9A84C] dark:text-neutral-900">Step 4</span>
+                                    <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">Adjust fee for loyal members</h3>
+                                </div>
+
+                                <div class="flex items-center justify-between gap-4">
+                                    <div>
+                                        <p class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Enable loyalty adjustment</p>
+                                        <p class="text-xs text-neutral-500 dark:text-neutral-400">Offer a reduced or custom fee for loyal members.</p>
+                                    </div>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Enable</span>
+                                        <div class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#001d22] focus:ring-offset-2 dark:focus:ring-offset-neutral-900" :class="form.loyalty_fee_enabled ? 'bg-[#001d22] dark:bg-[#C9A84C]' : 'bg-neutral-200 dark:bg-neutral-700'">
+                                            <span class="inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out" :class="form.loyalty_fee_enabled ? 'translate-x-6' : 'translate-x-1'"></span>
+                                            <input v-model="form.loyalty_fee_enabled" type="checkbox" class="sr-only">
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <div class="mt-4 rounded-lg border border-dashed border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-600 dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-neutral-400">
+                                    <span class="font-medium text-neutral-700 dark:text-neutral-300">Loyal member criteria:</span>
+                                    Defined in Members settings (e.g., tenure or activity).
+                                </div>
+
+                                <div v-if="form.loyalty_fee_enabled" class="mt-4 grid gap-3 sm:grid-cols-2">
+                                    <div>
+                                        <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Adjustment type</label>
+                                        <select v-model="form.loyalty_adjustment_type" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus:border-[#001d22] focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:border-neutral-700 dark:text-white dark:focus:border-[#C9A84C]">
+                                            <option value="discount_percentage">Reduced by percentage</option>
+                                            <option value="fixed_discount">Fixed discount</option>
+                                            <option value="custom_fee">Custom fee</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                            <span v-if="form.loyalty_adjustment_type === 'discount_percentage'">Discount (%)</span>
+                                            <span v-else-if="form.loyalty_adjustment_type === 'fixed_discount'">Discount amount</span>
+                                            <span v-else>Custom fee amount</span>
+                                        </label>
+                                        <input v-model="form.loyalty_adjustment_value" type="number" step="0.01" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus:border-[#001d22] focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:border-neutral-700 dark:text-white dark:focus:border-[#C9A84C]">
+                                        <p v-if="form.loyalty_adjustment_type === 'custom_fee' && form.monthly_fee_type === 'percentage'" class="mt-1 text-xs text-neutral-500">Uses the base fee format (percentage).</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rounded-lg border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-700 dark:border-neutral-800 dark:bg-neutral-800/50 dark:text-neutral-300">
+                                <div class="mb-1 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Summary</div>
+                                <div>{{ monthlyFeeSummary || 'Complete the steps above to see a summary.' }}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Attached Charges -->
                 <div class="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg font-semibold text-neutral-900 dark:text-white">Attached Charges</h2>
-                        <button @click="addCharge" type="button" class="flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 shadow-sm transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800">
+                    <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h2 class="text-lg font-semibold text-neutral-900 dark:text-white">Attached Charges</h2>
+                            <p class="text-xs text-neutral-500 dark:text-neutral-400">Define charge ranges per transaction type.</p>
+                        </div>
+                        <button @click="addCharge" type="button" class="flex items-center justify-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 shadow-sm transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800">
                             <Plus class="h-3.5 w-3.5" />
                             Add Charge
                         </button>
                     </div>
 
-                    <div v-if="!form.charges || form.charges.length === 0" class="text-sm text-neutral-500 py-6 text-center border-2 border-dashed border-neutral-100 dark:border-neutral-800 rounded-xl">
+                    <div class="mb-4 inline-flex rounded-lg border border-neutral-200 bg-neutral-50 p-1 text-xs font-medium text-neutral-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+                        <button
+                            type="button"
+                            class="rounded-md px-3 py-1.5 transition"
+                            :class="selectedChargeTab === 'deposit' ? 'bg-white text-neutral-900 shadow-sm dark:bg-neutral-900 dark:text-white' : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'"
+                            @click="selectedChargeTab = 'deposit'"
+                        >
+                            Deposit charges
+                        </button>
+                        <button
+                            type="button"
+                            class="rounded-md px-3 py-1.5 transition"
+                            :class="selectedChargeTab === 'withdraw' ? 'bg-white text-neutral-900 shadow-sm dark:bg-neutral-900 dark:text-white' : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'"
+                            @click="selectedChargeTab = 'withdraw'"
+                        >
+                            Withdraw charges
+                        </button>
+                        <button
+                            type="button"
+                            class="rounded-md px-3 py-1.5 transition"
+                            :class="selectedChargeTab === 'transfer' ? 'bg-white text-neutral-900 shadow-sm dark:bg-neutral-900 dark:text-white' : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'"
+                            @click="selectedChargeTab = 'transfer'"
+                        >
+                            Transfer charges
+                        </button>
+                    </div>
+
+                    <div v-if="chargeRows.length === 0" class="text-sm text-neutral-500 py-6 text-center border-2 border-dashed border-neutral-100 dark:border-neutral-800 rounded-xl">
                         No charges added yet.
                     </div>
 
-                    <div v-else class="space-y-4">
-                        <div v-for="(charge, index) in form.charges" :key="index" class="relative rounded-xl border border-neutral-100 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-800/50">
-                            <button @click="removeCharge(index)" type="button" class="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full border border-neutral-200 bg-white text-xs text-neutral-500 shadow-sm transition hover:text-red-600 hover:border-red-200 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400 dark:hover:text-red-400">
-                                <X class="h-3 w-3" />
-                            </button>
-
-                            <div class="grid gap-3 sm:grid-cols-2">
-                                <div>
-                                    <label class="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-400">Transaction Event</label>
-                                    <select v-model="charge.type" class="w-full rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-sm focus:border-[#001d22] focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#C9A84C]">
-                                        <option value="deposit">When Depositing</option>
-                                        <option value="withdraw">When Withdrawing</option>
-                                        <option value="transfer">When Transferring</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-400">Charge Format</label>
-                                    <select v-model="charge.charge_type" class="w-full rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-sm focus:border-[#001d22] focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#C9A84C]">
-                                        <option value="percentage">Percentage (%)</option>
-                                        <option value="amount">Fixed Amount</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-400">Amount / Rate</label>
-                                    <input v-model="charge.amount" type="number" step="0.01" class="w-full rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-sm focus:border-[#001d22] focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#C9A84C]">
-                                </div>
-                                <div>
-                                    <label class="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-400">Min Deduction App. (KSh)</label>
-                                    <input v-model="charge.minimum_amount" type="number" step="0.01" class="w-full rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-sm focus:border-[#001d22] focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#C9A84C]">
-                                </div>
-                                <div>
-                                    <label class="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-400">Max Deduction App. (Optional)</label>
-                                    <input v-model="charge.maximum_amount" type="number" step="0.01" placeholder="None" class="w-full rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-sm focus:border-[#001d22] focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#C9A84C]">
-                                </div>
-                            </div>
-                        </div>
+                    <div v-else class="overflow-x-auto rounded-xl border border-neutral-100 dark:border-neutral-800">
+                        <table class="min-w-full text-sm">
+                            <thead class="bg-neutral-50 text-xs uppercase tracking-wide text-neutral-500 dark:bg-neutral-900 dark:text-neutral-400">
+                                <tr>
+                                    <th class="px-4 py-3 text-left font-semibold">S/N</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Minimum</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Maximum</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Charge</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Charge measure</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+                                <tr v-for="(row, index) in chargeRows" :key="row.index" class="bg-white dark:bg-neutral-900">
+                                    <td class="px-4 py-3 text-neutral-500">{{ index + 1 }}</td>
+                                    <td class="px-4 py-3">
+                                        <input
+                                            v-model="row.charge.minimum_amount"
+                                            type="text"
+                                            inputmode="decimal"
+                                            class="w-full rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-sm focus:border-[#001d22] focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#C9A84C]"
+                                            @focus="row.charge.minimum_amount = normalizeNumberInput(row.charge.minimum_amount)"
+                                            @blur="row.charge.minimum_amount = formatNumberInput(row.charge.minimum_amount)"
+                                        >
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <input
+                                            v-model="row.charge.maximum_amount"
+                                            type="text"
+                                            inputmode="decimal"
+                                            class="w-full rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-sm focus:border-[#001d22] focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#C9A84C]"
+                                            @focus="row.charge.maximum_amount = normalizeNumberInput(row.charge.maximum_amount)"
+                                            @blur="row.charge.maximum_amount = formatNumberInput(row.charge.maximum_amount)"
+                                        >
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <input
+                                            v-model="row.charge.amount"
+                                            type="text"
+                                            inputmode="decimal"
+                                            class="w-full rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-sm focus:border-[#001d22] focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#C9A84C]"
+                                            @focus="row.charge.amount = normalizeNumberInput(row.charge.amount)"
+                                            @blur="row.charge.amount = formatNumberInput(row.charge.amount)"
+                                        >
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <select v-model="row.charge.charge_type" class="w-full rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-sm focus:border-[#001d22] focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#C9A84C]">
+                                            <option value="amount">Fixed amount</option>
+                                            <option value="percentage">Percentage (%)</option>
+                                        </select>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <button @click="removeCharge(row.index)" type="button" class="inline-flex items-center gap-1 rounded-md border border-neutral-200 px-2 py-1 text-xs font-medium text-neutral-600 transition hover:border-red-200 hover:text-red-600 dark:border-neutral-700 dark:text-neutral-300 dark:hover:text-red-400">
+                                            <X class="h-3 w-3" />
+                                            Remove
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
+
+                    <p v-if="chargeRows.length > 0" class="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
+                        Next minimum auto-fills as previous maximum + 1 for the same transaction type.
+                    </p>
                 </div>
             </div>
 

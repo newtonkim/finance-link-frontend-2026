@@ -7,13 +7,24 @@ import { Label, InputError, Spinner } from '@/Global'
 import PhoneInput from '@/Global/PhoneInput.vue'
 import SearchableSelect from '@/Global/SearchableSelect.vue'
 import { membersApi } from '@/tenant/apis/members/membersApi'
+import { tenantClient } from '@/tenant/apis/tenantClient'
 import { useSettingsStore } from '@/stores/settingsStore'
 
 const settingsStore = useSettingsStore()
 
 const router = useRouter()
 
-onMounted(() => settingsStore.fetchOnboardingSettings())
+const staffList = ref<Array<{ id: number; name: string; role: string }>>([])
+
+onMounted(async () => {
+  settingsStore.fetchOnboardingSettings()
+  try {
+    const res = await tenantClient.get('/members/create')
+    staffList.value = res.data?.data?.staff ?? []
+  } catch {
+    // non-critical, staff list will just be empty
+  }
+})
 
 // ─── Select options ───────────────────────────────────────────────────────────
 const memberTypeOptions   = [{ id: 'new_member', name: 'New Member' }, { id: 'existing_member', name: 'Existing Member' }]
@@ -59,6 +70,7 @@ const form = ref({
   savings_product_id: '',
   opening_balance: '',
   shares_quantity: '' as string | number,
+  referred_by: '' as string | number,
 })
 
 const avatarFile    = ref<File | null>(null)
@@ -386,6 +398,17 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
             <Label for="joined_at">Date Joined <span class="text-neutral-400 font-normal">(Optional)</span></Label>
             <input id="joined_at" v-model="form.joined_at" type="date" :class="inputCls" />
             <InputError :message="errors.joined_at" />
+          </div>
+
+          <!-- ── Referred By (Staff who recruited the member) ───────────────── -->
+          <div class="sm:col-span-2 grid gap-1.5">
+            <Label>Referred By <span class="text-neutral-400 font-normal">(Staff who brought this member)</span></Label>
+            <SearchableSelect
+              v-model="form.referred_by"
+              :options="staffList.map(s => ({ id: s.id, name: s.name + (s.role ? ' · ' + s.role : '') }))"
+              placeholder="Select referring staff (optional)"
+              :error="errors.referred_by"
+            />
           </div>
 
           <!-- ── Existing Member: Opening Balance + Avatar ──────────────────── -->
