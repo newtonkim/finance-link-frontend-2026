@@ -62,7 +62,7 @@ function statusClasses(status: string) {
                 Tenant Licenses
             </h1>
             <Button @click="router.push('/central/licenses/create')"
-                class="bg-[#001d22] hover:bg-[#002e35] dark:bg-white dark:text-[#001d22] dark:hover:bg-neutral-200 text-white font-semibold rounded-xl px-5 py-2.5 shadow-sm transition-all duration-200 flex items-center gap-2">
+                class=" bg-nfuko-primary hover:bg-[#002e35] dark:bg-white dark: text-nfuko-primary dark:hover:bg-neutral-200 text-white font-semibold rounded-xl px-5 py-2.5 shadow-sm transition-all duration-200 flex items-center gap-2">
                 <Plus class="size-4" />
                 Create License
             </Button>

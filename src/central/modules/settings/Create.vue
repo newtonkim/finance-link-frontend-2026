@@ -93,7 +93,7 @@ function storeStep3Data(data: any) {
     formValues.value = [...formValues.value, ...(data)]
 }
 onMounted(() => {
-  
+
     setTimeout(() => {
         Store.showSaveButton = false
         if (['edit', 'view'].includes(props.watcher.action)) {
@@ -130,7 +130,7 @@ watch(() => formValues.value, (value) => {
 
                     <div class="size-10 rounded-full flex items-center justify-center transition-all duration-300"
                         :class="index <= currentStep
-                            ? 'bg-[#001d22] dark:bg-white text-white dark:text-[#001d22]'
+                            ? ' bg-nfuko-primary dark:bg-white text-white dark: text-nfuko-primary'
                             : 'bg-neutral-100 dark:bg-white/5 text-neutral-400'">
 
                         <component :is="step.icon" class="size-5" />
@@ -149,7 +149,7 @@ watch(() => formValues.value, (value) => {
 
 
                 <div v-if="index < steps.length - 1" class="flex-1 h-px mx-3 -mt-6" :class="index < currentStep
-                    ? 'bg-[#001d22] dark:bg-white'
+                    ? ' bg-nfuko-primary dark:bg-white'
                     : 'bg-neutral-200 dark:bg-white/10'"></div>
 
             </template>

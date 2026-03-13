@@ -98,7 +98,7 @@ const typeLabel: Record<string, string> = {
         </p>
       </div>
       <button
-        class="inline-flex items-center gap-2 rounded-full bg-[#001d22] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#001d22]/90 transition-colors shadow-sm"
+        class="inline-flex items-center gap-2 rounded-full  bg-nfuko-primary px-5 py-2.5 text-sm font-semibold text-white hover: bg-nfuko-primary/90 transition-colors shadow-sm"
       >
         <Plus class="h-4 w-4" />
         Add Account
@@ -112,13 +112,13 @@ const typeLabel: Record<string, string> = {
         v-model="search"
         type="text"
         placeholder="Search by code or name..."
-        class="w-full rounded-full border border-neutral-200 bg-white py-2.5 pl-11 pr-4 text-sm outline-none transition focus:border-[#001d22] focus:ring-1 focus:ring-[#001d22] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+        class="w-full rounded-full border border-neutral-200 bg-white py-2.5 pl-11 pr-4 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
       />
     </div>
 
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center py-16">
-      <Spinner class="h-6 w-6 text-[#001d22]" />
+      <Spinner class="h-6 w-6  text-nfuko-primary" />
     </div>
 
     <!-- Empty -->
@@ -244,7 +244,7 @@ const typeLabel: Record<string, string> = {
             :key="page"
             @click="fetchAccounts(page)"
             class="h-8 w-8 rounded-lg text-xs font-medium transition-colors"
-            :class="page === meta.current_page ? 'bg-[#001d22] text-white' : 'text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800'"
+            :class="page === meta.current_page ? ' bg-nfuko-primary text-white' : 'text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800'"
           >
             {{ page }}
           </button>

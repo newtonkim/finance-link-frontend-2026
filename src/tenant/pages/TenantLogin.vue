@@ -93,13 +93,13 @@ async function submit() {
 <template>
   <AuthBase :title="`Sign in to ${saccoName}`" description="Enter your admin credentials to access the portal">
     <!-- SACCO badge -->
-    <div class="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl bg-[#001d22]/5 border border-[#001d22]/10">
+    <div class="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl  bg-nfuko-primary/5 border  border-nfuko-primary/10">
       <div class="size-8 rounded-lg bg-white flex items-center justify-center shrink-0 overflow-hidden">
         <img src="/images/mfuko_plus_logo.webp" alt="Logo" class="size-full object-contain p-1" />
       </div>
       <div>
         <p class="text-xs text-neutral-500 font-medium">Tenant Portal</p>
-        <p class="text-sm font-bold text-[#001d22]">{{ saccoName }}</p>
+        <p class="text-sm font-bold  text-nfuko-primary">{{ saccoName }}</p>
       </div>
     </div>
 
@@ -113,22 +113,22 @@ async function submit() {
       <div class="grid gap-6">
         <!-- Email -->
         <div class="grid gap-2">
-          <Label for="email" class="text-sm font-semibold text-[#001d22]">Email address</Label>
+          <Label for="email" class="text-sm font-semibold  text-nfuko-primary">Email address</Label>
           <Input id="email" type="email" v-model="email" required autofocus :tabindex="1" autocomplete="email"
             placeholder="Enter your email"
-            class="h-12 border-[#d1dfdb] focus:border-[#001d22] focus:ring-[#001d22]/10" />
+            class="h-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-[ bg-nfuko-primary]/10" />
           <InputError :message="errors.email" />
         </div>
 
         <!-- Password -->
         <div class="grid gap-2">
-          <Label for="password" class="text-sm font-semibold text-[#001d22]">Password</Label>
+          <Label for="password" class="text-sm font-semibold  text-nfuko-primary">Password</Label>
           <div class="relative">
             <Input id="password" :type="showPassword ? 'text' : 'password'" v-model="password" required :tabindex="2"
               autocomplete="current-password" placeholder="Enter your password"
-              class="h-12 w-full pr-12 border-[#d1dfdb] focus:border-[#001d22] focus:ring-[#001d22]/10" />
+              class="h-12 w-full pr-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-[ bg-nfuko-primary]/10" />
             <button type="button" @click="showPassword = !showPassword"
-              class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-neutral-400 hover:text-[#001d22] transition-colors"
+              class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-neutral-400 hover: text-nfuko-primary transition-colors"
               tabindex="-1">
               <component :is="showPassword ? EyeOff : Eye" :size="20" />
             </button>
@@ -138,7 +138,7 @@ async function submit() {
 
         <!-- Submit -->
         <Button type="submit"
-          class="h-12 w-full bg-[#001d22] hover:bg-[#001d22]/90 text-white font-semibold rounded-xl transition-all shadow-lg shadow-[#001d22]/10"
+          class="h-12 w-full  bg-nfuko-primary hover: bg-nfuko-primary/90 text-white font-semibold rounded-xl transition-all shadow-lg shadow-[ bg-nfuko-primary]/10"
           :tabindex="3" :disabled="processing">
           <Spinner v-if="processing" class="mr-2" />
           Sign in

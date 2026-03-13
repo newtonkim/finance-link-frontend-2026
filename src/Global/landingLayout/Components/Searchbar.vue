@@ -1,5 +1,5 @@
 <template>
-    <div class="relative w-full md:w-80 sm:w-full group">
+    <div class="relative w-full max-w-[600px] lg:w-1/3 md:w-80 sm:w-full group">
 
         <!-- Search Section -->
         <div class="flex items-center gap-2 mb-2">
@@ -10,10 +10,7 @@
                 <input v-model="searchQuery"
                  @input="(e)=>inputValue(e.target.value)"
                 type="search" autocomplete="off"
-                    placeholder="Search by name, member number, phone, or email..." class="w-full rounded-lg border border-neutral-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none 
-        focus:border-neutral-300 border
-        dark:border-neutral-700 dark:bg-neutral-900 dark:text-white 
-        dark:focus:border-white" />
+                    placeholder="Search by name, member number, phone, or email..." class="w-full rounded-full border border-neutral-200 bg-white py-2.5 pl-11 pr-4 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
             </div>
             <button
             type="button"
@@ -28,7 +25,7 @@
                 
             
 
-            }" class="flex items-center justify-center rounded-lg bg-[#001d22] px-2.5 py-2.5 text-white 
+            }" class="flex items-center justify-center rounded-lg  bg-nfuko-primary px-2.5 py-2.5 text-white 
            hover:bg-[#00343d] transition-colors">
                 <Search size="16" />
             </button>
@@ -52,7 +49,7 @@
         <!-- Pills -->
         <div v-if="Object.keys(searchBy)?.length" class="flex flex-wrap gap-1 my-1">
             <div v-for="(value, index) in Object.keys(searchBy)" :key="index"
-                class="flex items-center gap-2 px-2 py-1    text-xs font-medium    bg-white    text-neutral-600   dark:bg-[#001d22] hover:bg-[#001d22]/90 dark:text-white   rounded-full capitalize   transition-all duration-200">
+                class="flex items-center gap-2 px-2 py-1    text-xs font-medium    bg-white    text-neutral-600   dark: bg-nfuko-primary hover: bg-nfuko-primary/90 dark:text-white   rounded-full capitalize   transition-all duration-200">
                 <span>{{ value }}</span>
 
                 <button @click.stop="removeColumn(value)"

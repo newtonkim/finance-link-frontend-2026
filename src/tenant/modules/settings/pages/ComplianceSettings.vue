@@ -6,7 +6,7 @@ import { ShieldCheck } from 'lucide-vue-next'
     <div class="flex h-full flex-1 flex-col gap-6 p-4 md:p-6 bg-[#f8faf9] dark:bg-[#0a0a0a]">
         <div class="flex items-center gap-3">
             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-100 dark:bg-neutral-800">
-                <ShieldCheck class="h-5 w-5 text-[#001d22] dark:text-[#C9A84C]" />
+                <ShieldCheck class="h-5 w-5  text-nfuko-primary dark:text-bg-nfuko-yellow" />
             </div>
             <div>
                 <h1 class="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">Compliance & Audit</h1>
@@ -21,7 +21,7 @@ import { ShieldCheck } from 'lucide-vue-next'
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">AML / CTF Rules</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Define anti-money laundering and
                     terrorism financing rules.</p>
-                <button class="text-sm font-medium text-[#001d22] dark:text-[#C9A84C] hover:underline">Manage Rules
+                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Manage Rules
                     →</button>
             </div>
             <div
@@ -29,7 +29,7 @@ import { ShieldCheck } from 'lucide-vue-next'
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Audit Logs</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Review system activity and administrative
                     changes.</p>
-                <button class="text-sm font-medium text-[#001d22] dark:text-[#C9A84C] hover:underline">View Logs
+                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">View Logs
                     →</button>
             </div>
             <div
@@ -37,7 +37,7 @@ import { ShieldCheck } from 'lucide-vue-next'
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Regulatory Reports</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Setup and generate mandatory regulatory
                     reports.</p>
-                <button class="text-sm font-medium text-[#001d22] dark:text-[#C9A84C] hover:underline">Manage Reports
+                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Manage Reports
                     →</button>
             </div>
         </div>

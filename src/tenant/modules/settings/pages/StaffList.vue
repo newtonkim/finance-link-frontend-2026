@@ -102,7 +102,7 @@ const deleteStaff = async (id: number) => {
                 <ChevronLeft class="h-5 w-5 text-neutral-600 dark:text-neutral-400" />
             </RouterLink>
             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-100 dark:bg-neutral-800">
-                <UserCog class="h-5 w-5 text-[#001d22] dark:text-[#C9A84C]" />
+                <UserCog class="h-5 w-5  text-nfuko-primary dark:text-bg-nfuko-yellow" />
             </div>
             <div class="flex-1">
                 <h1 class="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">Staff Management</h1>
@@ -110,7 +110,7 @@ const deleteStaff = async (id: number) => {
             </div>
 
             <button @click="openAddDrawer"
-                class="flex items-center gap-2 rounded-lg bg-[#001d22] dark:bg-[#C9A84C] px-4 py-2 text-sm font-medium text-white dark:text-[#001d22] hover:bg-[#001d22]/90 dark:hover:bg-[#C9A84C]/90 transition-colors shadow-sm">
+                class="flex items-center gap-2 rounded-lg  bg-nfuko-primary dark:bg-bg-nfuko-yellow px-4 py-2 text-sm font-medium text-white dark: text-nfuko-primary hover: bg-nfuko-primary/90 dark:hover:bg-bg-nfuko-yellow/90 transition-colors shadow-sm">
                 <Plus class="h-4 w-4" />
                 <span>Add Staff</span>
             </button>
@@ -164,7 +164,7 @@ const deleteStaff = async (id: number) => {
                                     <RouterLink :to="`/tenant/settings/staff/${staff.id}`" class="p-1.5 text-neutral-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20" title="View Profile & KPI">
                                         <Eye class="h-4 w-4" />
                                     </RouterLink>
-                                    <button @click="openEditDrawer(staff)" class="p-1.5 text-neutral-500 hover:text-[#001d22] dark:hover:text-[#C9A84C] transition-colors rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800" title="Edit Staff">
+                                    <button @click="openEditDrawer(staff)" class="p-1.5 text-neutral-500 hover: text-nfuko-primary dark:hover:text-bg-nfuko-yellow transition-colors rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800" title="Edit Staff">
                                         <Edit class="h-4 w-4" />
                                     </button>
                                     <button @click="deleteStaff(staff.id!)" class="p-1.5 text-neutral-500 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20" title="Deactivate">
@@ -193,22 +193,22 @@ const deleteStaff = async (id: number) => {
                 <div class="flex-1 overflow-y-auto px-6 py-6 space-y-5">
                     <div class="space-y-1.5">
                         <Label class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Name</Label>
-                        <input type="text" v-model="formData.name" class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-[#001d22] focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-[#C9A84C] dark:focus:ring-[#C9A84C]" placeholder="e.g. John Doe" />
+                        <input type="text" v-model="formData.name" class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow" placeholder="e.g. John Doe" />
                     </div>
 
                     <div class="space-y-1.5">
                         <Label class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Email Address</Label>
-                        <input type="email" v-model="formData.email" class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-[#001d22] focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-[#C9A84C] dark:focus:ring-[#C9A84C]" placeholder="john@sacco.com" />
+                        <input type="email" v-model="formData.email" class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow" placeholder="john@sacco.com" />
                     </div>
 
                     <div class="space-y-1.5">
                         <Label class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Password <span v-if="isEditing" class="text-xs text-neutral-400 font-normal">(Leave blank to keep current)</span></Label>
-                        <input type="password" v-model="formData.password" class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-[#001d22] focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-[#C9A84C] dark:focus:ring-[#C9A84C]" placeholder="••••••••" />
+                        <input type="password" v-model="formData.password" class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow" placeholder="••••••••" />
                     </div>
 
                     <div class="space-y-1.5">
                         <Label class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Role</Label>
-                        <select v-model="formData.role" class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-[#001d22] focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-[#C9A84C] dark:focus:ring-[#C9A84C]">
+                        <select v-model="formData.role" class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow">
                             <option value="Staff">Regular Staff</option>
                             <option value="Manager">Manager</option>
                             <option value="Teller">Teller</option>
@@ -217,14 +217,14 @@ const deleteStaff = async (id: number) => {
 
                     <div class="space-y-1.5">
                         <Label class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Account Status</Label>
-                        <select v-model="formData.status" class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-[#001d22] focus:outline-none focus:ring-1 focus:ring-[#001d22] dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-[#C9A84C] dark:focus:ring-[#C9A84C]">
+                        <select v-model="formData.status" class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow">
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                         </select>
                     </div>
 
                     <div class="flex items-start space-x-3 p-4 rounded-xl border border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 mt-4">
-                        <input id="is-tenant-admin" type="checkbox" v-model="formData.is_tenant_admin" class="mt-1 h-4 w-4 rounded border-neutral-300 accent-[#001d22] cursor-pointer" />
+                        <input id="is-tenant-admin" type="checkbox" v-model="formData.is_tenant_admin" class="mt-1 h-4 w-4 rounded border-neutral-300 accent-[ bg-nfuko-primary] cursor-pointer" />
                         <div class="grid gap-1.5 leading-none">
                             <Label for="is-tenant-admin" class="text-sm font-semibold leading-none text-neutral-900 dark:text-white cursor-pointer">
                                 System Administrator

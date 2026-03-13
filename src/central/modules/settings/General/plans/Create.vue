@@ -4,7 +4,7 @@ import { Form, Card, Table } from '@/Global'
 import { ACTION_CONFIG } from '@/Global/landingLayout/util';
 const emits = defineEmits(['update:form']);
 const featuresSelected = ref([]);
-const counter = {
+const loading = ref(true), counter = {
     type: 'select',
     options: Array.from({ length: 10 }, (_, index) => ({ name: (index + 1).toString(), id: index + 1 })),
 }
@@ -80,48 +80,47 @@ const actions: any = {
 function handleAction(item: any, action: string) {
     actions?.[action]?.(item)
 }
-function promtValueOnUpdate() {
-        if(!props.data) return // id is undefined let wast no time below
-    const data = { ...props.data, name: props.data.slug }
-    Object.entries(data).forEach(([key, value]) => {
-        if (key === 'features') {
-            Object.entries(value || {}).forEach(([fKey, fValue]) => {
-                if (fValue) {
-                    featuresSelected.value.push({ name: fKey, id: fKey })
-                }
-            })
-            return
+async function promtValueOnUpdate() {
+    loading.value = true
+    if (!props.data) {
+    } // id is undefined let wast no time below
+    else {
+        const data = { ...props.data, name: props.data.slug }
+        await Object.entries(data).forEach(([key, value]) => {
+            if (key === 'features') {
+                Object.entries(value || {}).forEach(([fKey, fValue]) => {
+                    if (fValue)
+                        featuresSelected.value.push({ name: fKey, id: fKey })
+                })
+                return
+            }
+            const field = form.value.find((f: any) => f.name === key)
+            if (field)
+                field.value = value
+        })
+        if (props?.data?.id) {
+            form.value = [...form.value, {
+                name: 'id',
+                type: 'hidden',
+                value: props.data.id,
+                required: true,
+            }]
         }
-        const field = form.value.find((f: any) => f.name === key)
-        if (field) 
-            field.value = value
-    })    
-}
-function onFormResults(plan: any) {
-    if (props?.data?.id) {
-        form.value=[...form.value,{
-        name: 'id',
-        type: 'hidden',
-        value: props.data.id,
-        required: true,
-    }]
     }
-    
+    loading.value = false
 }
 onMounted(() => {
     promtValueOnUpdate()
 })
 </script>
 <template>
-    <div class="">
-      
-        <Card class="border-neutral-100 dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-2xl ">
-            <Form v-model:form="form" @results="onFormResults" parentStyle="grid grid-cols-2 sm:grid-cols-1  md:gap-6 px-4 py-0" />
+        <div v-if="loading"> </div>
+        <Card v-else class="border-neutral-100 dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-2xl ">
+            <Form v-model:form="form" parentStyle="grid grid-cols-2 sm:grid-cols-1  md:gap-6 px-4 py-0" />
             <div class="h-[40vh] overflow-auto">
                 <Table :action_config="ACTION_CONFIG" :handleAction="handleAction" :dataFilter="featuresSelected"
                     :columns="columns">
                 </Table>
             </div>
         </Card>
-    </div>
 </template>

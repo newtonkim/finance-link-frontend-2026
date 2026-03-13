@@ -159,29 +159,29 @@ const loginPath = '/login';
     <form @submit.prevent="submit" class="flex flex-col gap-6">
       <div class="grid gap-6">
         <div class="grid gap-2">
-          <Label for="name" class="text-sm font-semibold text-[#001d22]">Name</Label>
+          <Label for="name" class="text-sm font-semibold  text-nfuko-primary">Name</Label>
           <Input id="name" v-model="name" type="text" required autofocus :tabindex="1" autocomplete="name" name="name"
             placeholder="Your full name"
-            class="h-12 border-[#d1dfdb] focus:border-[#001d22] focus:ring-[#001d22]/10 transition-all duration-300" />
+            class="h-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-[ bg-nfuko-primary]/10 transition-all duration-300" />
           <InputError :message="errors.name" />
         </div>
 
         <div class="grid gap-2">
-          <Label for="email" class="text-sm font-semibold text-[#001d22]">Email address</Label>
+          <Label for="email" class="text-sm font-semibold  text-nfuko-primary">Email address</Label>
           <Input id="email" v-model="email" type="email" required :tabindex="2" autocomplete="email" name="email"
             placeholder="m@example.com"
-            class="h-12 border-[#d1dfdb] focus:border-[#001d22] focus:ring-[#001d22]/10 transition-all duration-300" />
+            class="h-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-[ bg-nfuko-primary]/10 transition-all duration-300" />
           <InputError :message="errors.email" />
         </div>
 
         <div class="grid gap-2">
-          <Label for="password" class="text-sm font-semibold text-[#001d22]">Password</Label>
+          <Label for="password" class="text-sm font-semibold  text-nfuko-primary">Password</Label>
           <div class="relative">
             <Input id="password" v-model="password" :type="showPassword ? 'text' : 'password'" required :tabindex="3"
               autocomplete="new-password" name="password" placeholder="Create a secure password"
-              class="h-12 pr-12 border-[#d1dfdb] focus:border-[#001d22] focus:ring-[#001d22]/10 transition-all duration-300" />
+              class="h-12 pr-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-[ bg-nfuko-primary]/10 transition-all duration-300" />
             <button type="button" @click="showPassword = !showPassword"
-              class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-neutral-400 hover:text-[#001d22] transition-colors"
+              class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-neutral-400 hover: text-nfuko-primary transition-colors"
               tabindex="-1">
               <component :is="showPassword ? EyeOff : Eye" :size="20" />
             </button>
@@ -190,14 +190,14 @@ const loginPath = '/login';
         </div>
 
         <div class="grid gap-2">
-          <Label for="password_confirmation" class="text-sm font-semibold text-[#001d22]">Confirm password</Label>
+          <Label for="password_confirmation" class="text-sm font-semibold  text-nfuko-primary">Confirm password</Label>
           <div class="relative">
             <Input id="password_confirmation" v-model="password_confirmation"
               :type="showConfirmPassword ? 'text' : 'password'" required :tabindex="4" autocomplete="new-password"
               name="password_confirmation" placeholder="Re-enter password"
-              class="h-12 pr-12 border-[#d1dfdb] focus:border-[#001d22] focus:ring-[#001d22]/10 transition-all duration-300" />
+              class="h-12 pr-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-[ bg-nfuko-primary]/10 transition-all duration-300" />
             <button type="button" @click="showConfirmPassword = !showConfirmPassword"
-              class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-neutral-400 hover:text-[#001d22] transition-colors"
+              class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-neutral-400 hover: text-nfuko-primary transition-colors"
               tabindex="-1">
               <component :is="showConfirmPassword ? EyeOff : Eye" :size="20" />
             </button>
@@ -206,7 +206,7 @@ const loginPath = '/login';
         </div>
 
         <Button type="submit"
-          class="h-12 w-full bg-[#001d22] hover:bg-[#001d22]/90 text-white font-semibold rounded-xl transition-all shadow-lg shadow-[#001d22]/10 mt-2"
+          class="h-12 w-full  bg-nfuko-primary hover: bg-nfuko-primary/90 text-white font-semibold rounded-xl transition-all shadow-lg shadow-[ bg-nfuko-primary]/10 mt-2"
           tabindex="5" :disabled="processing" data-test="register-user-button">
           <Spinner v-if="processing" class="mr-2" />
           Create account
@@ -215,7 +215,7 @@ const loginPath = '/login';
 
       <div class="text-center text-sm text-muted-foreground">
         Already have an account?
-        <TextLink :to="loginPath" class="font-semibold text-[#001d22] hover:underline" :tabindex="6">Log in</TextLink>
+        <TextLink :to="loginPath" class="font-semibold  text-nfuko-primary hover:underline" :tabindex="6">Log in</TextLink>
       </div>
     </form>
 

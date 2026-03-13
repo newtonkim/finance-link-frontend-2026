@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import {
     Users,
     DollarSign,
@@ -11,6 +11,21 @@ import {
 } from 'lucide-vue-next';
 import { Card, CardContent } from '@/Global/ui/card';
 import { Button } from '@/Global/ui/button';
+import { pomPinia } from 'septor-store';
+import { fetchTableData } from '@/Global';
+const Store = pomPinia();
+const dataCollection = ref(Store?.dashboardAnalytics?.payload);
+
+onMounted(() => {
+   const res = fetchTableData({
+        data: {}, props: {
+            url: '/central/dashboard/analytics',
+            state: 'dashboardAnalytics'
+        }, Store
+    });
+    // dataCollection.value = res.payload
+
+});
 
 const stats = [
     {
@@ -85,7 +100,7 @@ const salesData = [
 ];
 
 const categoryData = [
-    { name: 'Electronics', color: '#001d22', value: 68, amount: '$85,000' },
+    { name: 'Electronics', color: ' bg-nfuko-primary', value: 68, amount: '$85,000' },
     { name: 'Fashion', color: '#2d9d78', value: 20, amount: '$25,000' },
     { name: 'Health & Wellness', color: '#9bb5a5', value: 8, amount: '$10,000' },
     { name: 'Home & Living', color: '#d1dfdb', value: 4, amount: '$5,000' },
@@ -163,8 +178,6 @@ const topProducts = [
         <div class="flex items-center justify-between">
             <h2 class="text-lg font-bold text-neutral-800 dark:text-white tracking-tight">Platform Overview</h2>
         </div>
-
-        <!-- Stats Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             <Card v-for="stat in stats" :key="stat.title"
                 class="border-neutral-100 dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-xl overflow-hidden hover:shadow-md transition-shadow bg-white !border-none">
@@ -217,11 +230,11 @@ const topProducts = [
 
                 <div class="flex items-center gap-4 mb-10 text-[10px] font-bold uppercase tracking-widest">
                     <div class="flex items-center gap-2">
-                        <div class="size-2 rounded-full bg-[#001D22] dark:bg-white"></div>
+                        <div class="size-2 rounded-full  bg-nfuko-primary dark:bg-white"></div>
                         <span class="text-neutral-400 dark:text-neutral-500">One-Time Revenue</span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <div class="size-2 rounded-full bg-[#9BB5A5]"></div>
+                        <div class="size-2 rounded-full bg-nfuko-nav-text"></div>
                         <span class="text-neutral-400 dark:text-neutral-500">Recurring Revenue</span>
                     </div>
                 </div>
@@ -247,9 +260,9 @@ const topProducts = [
                     <div v-for="bar in salesData" :key="bar.month"
                         class="group relative flex-1 flex flex-col items-center gap-2">
                         <div class="w-full flex flex-col items-center gap-1">
-                            <div class="w-2 md:w-5 bg-[#001D22] dark:bg-white/80 rounded-t-[2px] transition-all duration-500 group-hover:bg-neutral-900 dark:group-hover:bg-white"
+                            <div class="w-2 md:w-5  bg-nfuko-primary dark:bg-white/80 rounded-t-[2px] transition-all duration-500 group-hover:bg-neutral-900 dark:group-hover:bg-white"
                                 :style="{ height: `${bar.value * 1.2}px` }"></div>
-                            <div class="w-2 md:w-5 bg-[#9BB5A5] rounded-t-[2px] transition-all duration-500 group-hover:bg-[#8aa394]"
+                            <div class="w-2 md:w-5 bg-nfuko-nav-text rounded-t-[2px] transition-all duration-500 group-hover:bg-[#8aa394]"
                                 :style="{ height: `${bar.value * 0.7}px` }"></div>
                         </div>
                         <span
@@ -275,7 +288,7 @@ const topProducts = [
                         <svg viewBox="0 0 100 100" class="rotate-[-90deg]">
                             <circle cx="50" cy="50" r="40" fill="transparent" stroke="#d1dfdb" stroke-width="12"
                                 class="dark:opacity-30" />
-                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#001d22" stroke-width="12"
+                            <circle cx="50" cy="50" r="40" fill="transparent" stroke=" bg-nfuko-primary" stroke-width="12"
                                 stroke-dasharray="251.2" stroke-dashoffset="80" class="dark:stroke-white/80" />
                             <circle cx="50" cy="50" r="40" fill="transparent" stroke="#2d9d78" stroke-width="12"
                                 stroke-dasharray="251.2" stroke-dashoffset="185" />

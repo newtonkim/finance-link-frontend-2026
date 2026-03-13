@@ -79,17 +79,18 @@ export const dataTabelFilter = (collection: any,searchQuery:any) => {
     })
 
 }
-export function fetchTableData({data, props,Store}:{data:any,props:any,Store:any}) {
+export async function fetchTableData({data, props,Store,saveData}:{data:any,props:any,Store:any,saveData?:boolean}) {
     const collection = {
         reload: !!props.reload?0:1, // dont think am stupid i know that
         StateStore: props?.state,
         time: props?.time??1,
         reqs: {
+            ...props,
             url: props?.url,
             method: 'post',
             data
         },
-        mStore: { mUse: true },
+        mStore: { mUse: saveData??true },
     };
-    return Store.stateGenaratorApi(collection);
+    return await Store.stateGenaratorApi(collection);
 }

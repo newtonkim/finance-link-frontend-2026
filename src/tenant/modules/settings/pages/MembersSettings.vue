@@ -64,7 +64,7 @@ async function handleSave() {
     <div class="flex h-full flex-1 flex-col gap-6 p-4 md:p-6 bg-[#f8faf9] dark:bg-[#0a0a0a]">
         <div class="flex items-center gap-3">
             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-100 dark:bg-neutral-800">
-                <Users class="h-5 w-5 text-[#001d22] dark:text-[#C9A84C]" />
+                <Users class="h-5 w-5  text-nfuko-primary dark:text-bg-nfuko-yellow" />
             </div>
             <div>
                 <h1 class="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">Members & Roles</h1>
@@ -79,7 +79,7 @@ async function handleSave() {
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Staff Management</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Add and manage system users and staff.
                 </p>
-                <RouterLink :to="{ name: 'tenant-settings-staff' }" class="text-sm font-medium text-[#001d22] dark:text-[#C9A84C] hover:underline">Manage Staff
+                <RouterLink :to="{ name: 'tenant-settings-staff' }" class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Manage Staff
                     →</RouterLink>
             </div>
             <div
@@ -87,7 +87,7 @@ async function handleSave() {
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Roles & Permissions</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Define access levels and functional
                     permissions.</p>
-                <button class="text-sm font-medium text-[#001d22] dark:text-[#C9A84C] hover:underline">Configure Roles
+                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Configure Roles
                     →</button>
             </div>
             <div
@@ -96,12 +96,12 @@ async function handleSave() {
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Setup onboarding requirements and KYC
                     documents.</p>
                 <div class="flex flex-col gap-2 items-start">
-                    <button class="text-sm font-medium text-[#001d22] dark:text-[#C9A84C] hover:underline">Setup KYC
+                    <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Setup KYC
                         →</button>
 
                     <Sheet v-model:open="isDrawerOpen">
                         <SheetTrigger as-child>
-                            <button class="text-sm font-medium text-[#001d22] dark:text-[#C9A84C] hover:underline">
+                            <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">
                                 Member Onboarding →
                             </button>
                         </SheetTrigger>
@@ -121,7 +121,7 @@ async function handleSave() {
                                 <!-- ── Approval Policy ── -->
                                 <div class="rounded-2xl border border-neutral-100 dark:border-neutral-800 overflow-hidden">
                                     <div class="flex items-center gap-2.5 px-4 py-3 bg-neutral-50 dark:bg-neutral-900 border-b border-neutral-100 dark:border-neutral-800">
-                                        <ShieldCheck class="h-4 w-4 text-[#001d22] dark:text-[#C9A84C]" />
+                                        <ShieldCheck class="h-4 w-4  text-nfuko-primary dark:text-bg-nfuko-yellow" />
                                         <span class="text-[11px] font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">
                                             Approval Policy
                                         </span>
@@ -141,7 +141,7 @@ async function handleSave() {
                                                 @click="tempRequireMemberApproval = !tempRequireMemberApproval"
                                                 :class="[
                                                     'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-all duration-300 ml-4',
-                                                    tempRequireMemberApproval ? 'bg-[#001d22] dark:bg-[#C9A84C]' : 'bg-neutral-200 dark:bg-neutral-700'
+                                                    tempRequireMemberApproval ? ' bg-nfuko-primary dark:bg-bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'
                                                 ]">
                                                 <span :class="[
                                                     'inline-flex h-4 w-4 rounded-full bg-white shadow transition-transform duration-300',
@@ -173,7 +173,7 @@ async function handleSave() {
                                 <!-- ── Savings Account Generation ── -->
                                 <div class="rounded-2xl border border-neutral-100 dark:border-neutral-800 overflow-hidden">
                                     <div class="flex items-center gap-2.5 px-4 py-3 bg-neutral-50 dark:bg-neutral-900 border-b border-neutral-100 dark:border-neutral-800">
-                                        <Wallet class="h-4 w-4 text-[#001d22] dark:text-[#C9A84C]" />
+                                        <Wallet class="h-4 w-4  text-nfuko-primary dark:text-bg-nfuko-yellow" />
                                         <span class="text-[11px] font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">
                                             Savings Account
                                         </span>
@@ -193,7 +193,7 @@ async function handleSave() {
                                                 @click="tempAutoCreateSavingsAccount = !tempAutoCreateSavingsAccount"
                                                 :class="[
                                                     'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-all duration-300 ml-4',
-                                                    tempAutoCreateSavingsAccount ? 'bg-[#001d22] dark:bg-[#C9A84C]' : 'bg-neutral-200 dark:bg-neutral-700'
+                                                    tempAutoCreateSavingsAccount ? ' bg-nfuko-primary dark:bg-bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'
                                                 ]">
                                                 <span :class="[
                                                     'inline-flex h-4 w-4 rounded-full bg-white shadow transition-transform duration-300',
@@ -227,7 +227,7 @@ async function handleSave() {
                                 <!-- ── Form Field Visibility ── -->
                                 <div class="rounded-2xl border border-neutral-100 dark:border-neutral-800 overflow-hidden">
                                     <div class="flex items-center gap-2.5 px-4 py-3 bg-neutral-50 dark:bg-neutral-900 border-b border-neutral-100 dark:border-neutral-800">
-                                        <Users class="h-4 w-4 text-[#001d22] dark:text-[#C9A84C]" />
+                                        <Users class="h-4 w-4  text-nfuko-primary dark:text-bg-nfuko-yellow" />
                                         <span class="text-[11px] font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">
                                             Form Field Visibility
                                         </span>
@@ -239,7 +239,7 @@ async function handleSave() {
                                                 id="hide-deposit"
                                                 type="checkbox"
                                                 v-model="tempHideInitialDeposit"
-                                                class="mt-1 h-4 w-4 rounded border-neutral-300 accent-[#001d22] cursor-pointer" />
+                                                class="mt-1 h-4 w-4 rounded border-neutral-300 accent-[ bg-nfuko-primary] cursor-pointer" />
                                             <div class="grid gap-1.5 leading-none">
                                                 <Label for="hide-deposit"
                                                     class="text-sm font-semibold leading-none text-neutral-900 dark:text-white cursor-pointer">
@@ -257,7 +257,7 @@ async function handleSave() {
                                                 id="hide-opening-balance"
                                                 type="checkbox"
                                                 v-model="tempHideOpeningBalance"
-                                                class="mt-1 h-4 w-4 rounded border-neutral-300 accent-[#001d22] cursor-pointer" />
+                                                class="mt-1 h-4 w-4 rounded border-neutral-300 accent-[ bg-nfuko-primary] cursor-pointer" />
                                             <div class="grid gap-1.5 leading-none">
                                                 <Label for="hide-opening-balance"
                                                     class="text-sm font-semibold leading-none text-neutral-900 dark:text-white cursor-pointer">
@@ -295,7 +295,7 @@ async function handleSave() {
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Membership Tiers</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Create and manage different levels of
                     membership.</p>
-                <button class="text-sm font-medium text-[#001d22] dark:text-[#C9A84C] hover:underline">Manage Tiers
+                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Manage Tiers
                     →</button>
             </div>
         </div>

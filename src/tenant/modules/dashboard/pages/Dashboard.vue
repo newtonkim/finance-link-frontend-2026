@@ -95,7 +95,7 @@ const barChartData = computed(() => ({
     {
       label: 'Interest Earned',
       data: [55000, 62000, 72000, 80000, 68000, 45000, 30000, 22000],
-      backgroundColor: '#001d22',
+      backgroundColor: ' bg-nfuko-primary',
       borderRadius: { topLeft: 4, topRight: 4 },
       barPercentage: 0.55,
       categoryPercentage: 0.65,
@@ -116,7 +116,7 @@ const barChartOptions = {
   maintainAspectRatio: false,
   plugins: {
     legend: { display: false },
-    tooltip: { backgroundColor: '#001d22', padding: 12, cornerRadius: 10 },
+    tooltip: { backgroundColor: ' bg-nfuko-primary', padding: 12, cornerRadius: 10 },
   },
   scales: {
     x: { grid: { display: false } },
@@ -139,7 +139,7 @@ const doughnutData = {
   datasets: [
     {
       data: [85000, 25000, 10000, 5000],
-      backgroundColor: ['#001d22', '#4a6361', '#8ba8a2', '#c2d6d1'],
+      backgroundColor: [' bg-nfuko-primary', '#4a6361', '#8ba8a2', '#c2d6d1'],
       borderWidth: 0,
       cutout: '72%',
       spacing: 2,
@@ -148,7 +148,7 @@ const doughnutData = {
 }
 
 const categories = [
-  { name: 'Personal Loans',   amount: 'KES 85,000', pct: '68%', color: '#001d22' },
+  { name: 'Personal Loans',   amount: 'KES 85,000', pct: '68%', color: ' bg-nfuko-primary' },
   { name: 'Business Loans',   amount: 'KES 25,000', pct: '20%', color: '#4a6361' },
   { name: 'Emergency Loans',  amount: 'KES 10,000', pct: '8%',  color: '#8ba8a2' },
   { name: 'Others',           amount: 'KES 5,000',  pct: '4%',  color: '#c2d6d1' },
@@ -161,7 +161,7 @@ const activities = [
     title: 'New Member Registered',
     subtitle: 'John Kamau  •  2 hours ago',
     badge: 'Member',
-    badgeColor: '#001d22',
+    badgeColor: ' bg-nfuko-primary',
     badgeBg: '#e2edea',
   },
   {
@@ -169,7 +169,7 @@ const activities = [
     title: 'Loan Application #1048',
     subtitle: 'Sarah Wambui  •  5 hours ago',
     badge: 'Pending',
-    badgeColor: '#001d22',
+    badgeColor: ' bg-nfuko-primary',
     badgeBg: '#e2edea',
   },
   {
@@ -178,7 +178,7 @@ const activities = [
     subtitle: 'David Mutua  •  1 day ago',
     badge: 'Savings',
     badgeColor: '#ffffff',
-    badgeBg: '#001d22',
+    badgeBg: ' bg-nfuko-primary',
   },
 ]
 
@@ -220,7 +220,7 @@ const products = [
           class="group relative overflow-hidden rounded-2xl border border-neutral-100 bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all hover:shadow-md dark:border-neutral-800 dark:bg-neutral-900">
           <div class="flex items-start justify-between">
             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-50 dark:bg-neutral-800">
-              <component :is="stat.icon" class="h-5 w-5 text-[#001d22]" />
+              <component :is="stat.icon" class="h-5 w-5  text-nfuko-primary" />
             </div>
             <div v-if="stat.trendUp !== null"
               :class="stat.trendUp ? 'text-green-600' : 'text-red-600'"
@@ -248,7 +248,7 @@ const products = [
               </h3>
               <div class="mt-2 flex items-center gap-4 text-xs text-neutral-500">
                 <span class="flex items-center gap-1.5">
-                  <span class="inline-block h-2 w-2 rounded-[3px]" style="background:#001d22"></span>
+                  <span class="inline-block h-2 w-2 rounded-[3px]" style="background: bg-nfuko-primary"></span>
                   Interest Earned
                 </span>
                 <span class="flex items-center gap-1.5">
