@@ -19,7 +19,7 @@ const dataCollection = ref(Store?.dashboardAnalytics?.payload);
 onMounted(() => {
    const res = fetchTableData({
         data: {}, props: {
-            url: '/central/dashboard/analytics',
+            url: 'central/dashboard/analytics',
             state: 'dashboardAnalytics'
         }, Store
     });

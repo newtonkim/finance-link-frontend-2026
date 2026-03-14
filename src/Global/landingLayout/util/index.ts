@@ -1,7 +1,10 @@
 
-import { statusMap } from '@/Global/StatusMap';
+import { statusMap,getSubdomainName } from '@/Global';
 import { dateTime, date } from '../../Helpers';
 import { Eye, Edit, Trash, UserCircle2, X } from 'lucide-vue-next';
+import { setUpAxiosToUse } from 'septor-store'
+import { tenantClient } from '@/tenant/apis/tenantClient';
+import { apiClient } from '@/central/api/client';
 
 function  splitTheLink(link:string){
     if(!link) return
@@ -80,6 +83,9 @@ export const dataTabelFilter = (collection: any,searchQuery:any) => {
 
 }
 export async function fetchTableData({data, props,Store,saveData}:{data:any,props:any,Store:any,saveData?:boolean}) {
+
+ const subdomain = getSubdomainName() 
+setUpAxiosToUse(subdomain?tenantClient:apiClient)
     const collection = {
         reload: !!props.reload?0:1, // dont think am stupid i know that
         StateStore: props?.state,

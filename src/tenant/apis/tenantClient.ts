@@ -3,7 +3,7 @@ import axios from 'axios'
 
 
 function getBaseURL():string{
-  const backendUrl = import.meta.env.VITE_BACKEND_URL ?? 'http://127.0.0.1:8000/api/v41'
+  const backendUrl = import.meta.env.VITE_BACKEND_URL ?? 'http://127.0.0.1:8000/api/v1'
   return backendUrl.replace(/\/+$/, '').replace(/\/tenant\/?$/, '') + '/tenant'
 }
 console.log(getBaseURL(),"getBaseURL()");
