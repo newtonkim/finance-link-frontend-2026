@@ -1,6 +1,6 @@
 <template>
 
-    <TableDrawer :permissions="{
+    <TableDrawer ref="tableRef" :permissions="{
         create: 'staff-create',
         delete: 'staff-delete',
         view: 'staff-view-table-details',
@@ -20,6 +20,7 @@
 import { ref, computed } from 'vue'
 import StaffForm from './Create.vue'
 import { StatusButtonsHorizontal, TableDrawer } from '@/Global'
+const tableRef = ref<InstanceType<typeof TableDrawer> | null>(null)
 import { staffsApi } from '../apis'
 import Show from './Show.vue'
 const formData = ref<Record<string, any>>({})
@@ -33,6 +34,7 @@ const triggerAction: Record<string, Function> = {
     async create() {
         await create(formData.value)
         formData.value = {}
+        tableRef.value?.refresh()
     }
 }
 const title: Record<string, string> = {

@@ -1,4 +1,5 @@
 <template>
+    <div v-bind="$attrs">
     <div v-for="item in links" :key="item.path" class="">
         <SidebarGroupLabel v-if="links.type == 'label' && item?.showSideBar === true"
             class="px-3 text-[10px] font-bold uppercase tracking-widest text-nfuko-nav-text/40 mb-1 text-sm font-semibold">
@@ -46,10 +47,13 @@
             </div>
         </div>
     </div>
+    </div>
 </template>
 
 <script setup>
+defineOptions({ inheritAttrs: false })
 import RouteLink from "./RouteLink.vue";
+import { SidebarGroupLabel } from '@/Global';
 import { pomPinia } from 'septor-store';
 const props = defineProps(['links']);
 const Store = pomPinia();
