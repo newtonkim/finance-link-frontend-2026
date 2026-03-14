@@ -274,12 +274,18 @@ function callOnmount() {
         fetchTableData({ data: null, props, Store });
 }
 
+function refresh() {
+    if (props?.state && props?.url)
+        fetchTableData({ data: null, props: { ...props, reload: false, time: 0 }, Store })
+}
+
 defineExpose({
     toggleDrawer,
     callNewPage,
     changeThePage,
     handleAction,
-    handlePrint
+    handlePrint,
+    refresh,
 })
 
 function haspermission(permission = "") {

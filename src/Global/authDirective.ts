@@ -1,23 +1,20 @@
 import { localStoragePicker } from "./Helpers";
 
 export default {
- async mounted(el:any, binding:any) {
+  async mounted(el: any, binding: any) {
     const permission = binding.value;
- const list=await localStoragePicker('userPermissions');
- 
- const userPermissions =Array.isArray(list) ? list : JSON.parse(list||'[]');
- 
- if(list){
-   if(!permission){
-  
-  }else{
-    if (!userPermissions.includes(permission)|| userPermissions?.[permission]) {
+
+    // No permission required — always show
+    if (!permission) return;
+
+    const list = await localStoragePicker('userPermissions');
+    const userPermissions = Array.isArray(list) ? list : JSON.parse(list || '[]');
+
+    // No permissions configured (e.g. superadmin) — show everything
+    if (!userPermissions.length) return;
+
+    if (!userPermissions.includes(permission)) {
       el.parentNode && el.parentNode.removeChild(el);
-      return
     }
-    
-  }
-  
-  }
   }
 }

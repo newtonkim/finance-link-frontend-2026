@@ -41,7 +41,7 @@ const { isMobile, state } = useSidebar();
                             ? 'left'
                             : 'bottom'
                         " align="end" :side-offset="4">
-                    <UserMenuContent v-if="user" :user="user" />
+                    <UserMenuContent :user="user" />
                 </DropdownMenuContent>
             </DropdownMenu>
         </SidebarMenuItem>

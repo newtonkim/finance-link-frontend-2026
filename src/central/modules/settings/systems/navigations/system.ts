@@ -13,4 +13,10 @@ export const settingSystemsRoutes = {
     title: 'Notification settings',
     description: 'Configure how you receive alerts and updates',
   },
+  branding: {
+    path: 'logoBranding',
+    component: defineAsyncComponent(() => import('../branding/LogoBranding.vue')),
+    title: 'Logo & Details',
+    description: 'Change platform logo and name',
+  },
 }

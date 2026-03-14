@@ -17,13 +17,24 @@ const router = createRouter({
     // Default redirect — resolved by beforeEach guard below
     {
       path: '/',
-      redirect: '/login',
+      redirect: '/central/login',
     },
     // Central admin routes
     {
       path: '/',
       component: CentralLayout,
       children: [...centralRoutes],
+    },
+    // Central auth routes (outside layout)
+    {
+      path: '/central/login',
+      name: 'central-login',
+      component: () => import('../central/modules/pages/Login.vue'),
+    },
+    {
+      path: '/central/register',
+      name: 'central-register',
+      component: () => import('../central/modules/pages/Register.vue'),
     },
     // Tenant login (outside layout)
     {
