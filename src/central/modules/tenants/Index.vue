@@ -1,5 +1,5 @@
 <template>
-    <TableDrawer drawerWidth="w-1/2" :url="tableUrl" state="tanents_list" :drawerShowFooter="Store.showSaveButton"
+    <TableDrawer ref="tableRef" drawerWidth="w-1/2" :url="tableUrl" state="tanents_list" :drawerShowFooter="Store.showSaveButton"
         :drawerTitle="drawerTitle" title="Tenants" :columns="columns" @save="saveUser">
         <template #expiry="{ item }: { item: any }">
             <div v-if="item?.license_expires_at" class="flex items-center gap-1.5">
@@ -31,6 +31,7 @@
 import { ref, computed, onMounted } from 'vue'
 import StaffForm from './Create.vue'
 import { daysLeft, formatDateUs, StatusButtonsHorizontal, TableDrawer } from '@/Global'
+const tableRef = ref<InstanceType<typeof TableDrawer> | null>(null)
 import { Clock } from 'lucide-vue-next';
 import { tenantsApi } from '../apis'
 import Show from './Show.vue'
@@ -51,6 +52,7 @@ const triggerAction: Record<string, Function> = {
     async create() {
         await create(formData.value)
         formData.value = {}
+        tableRef.value?.refresh()
     }
 }
 const title: Record<string, string> = {

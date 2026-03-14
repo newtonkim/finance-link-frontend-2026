@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import {
     Sidebar,
     SidebarContent,
@@ -10,32 +10,53 @@ import {
 } from '@/Global';
 import { centarRoutes } from '@/central/modules/routes';
 import { OutClickNav } from './OutClicknavigation';
+import { brandingApi } from '@/central/modules/apis';
+import { pomPinia } from 'septor-store';
+
 const { state } = useSidebar();
+const Store = pomPinia();
+const { getBranding } = brandingApi();
+
+onMounted(() => {
+    if (!(Store as any).central_branding) getBranding();
+});
+
+const branding = computed(() => (Store as any).central_branding?.payload);
+const sidebarName = computed(() => branding.value?.platform_name || 'Boss Portal');
+const sidebarTagline = computed(() => branding.value?.tagline || '');
+const sidebarLogo = computed(() => branding.value?.logo_url || null);
+
 // Dark mode toggle
 const isDark = ref(document.documentElement.classList.contains('dark'));
 function toggleDarkMode() {
     isDark.value = !isDark.value;
     document.documentElement.classList.toggle('dark', isDark.value);
-} 
+}
 </script>
 
 <template>
     <Sidebar collapsible="icon" variant="inset"
         class=" bg-nfuko-primary text-white border-r-0 flex-grow px-4 space-y-2 overflow-y-a uto custom-scrollbar">
-        <SidebarHeader class="px ">
+        <SidebarHeader class="px">
             <div class="flex items-center gap-2 truncate">
-                <div
-                    class="flex shrink-0 items-center justify-center rounded-2xl bg-nfuko-yellow/20 text-[#0A2318] shadow-xl transition-all duration-500 h-14 w-14">
-                    <img src="/images/mfuko_plus_logo.webp" alt="Mfuko Pro" class="h-8 w-auto transition-all"
-                    :class="state === 'collapsed' ? 'scale-125' : ''" /></div>
-                <div class="flex flex-col min-w-0"><span
-                        class="text-lg font-bold leading-tight tracking-tight text-white italic"> Boss Portal</span><!--v-if--></div>
-            </div> 
-
+                <div class="flex shrink-0 items-center justify-center h-14 w-14">
+                    <img :src="sidebarLogo || '/images/mfuko_plus_logo.webp'" alt="Logo"
+                        class="h-12 w-12 transition-all object-contain"
+                        :class="state === 'collapsed' ? 'scale-125' : ''" />
+                </div>
+                <div v-if="state !== 'collapsed'" class="flex flex-col min-w-0">
+                    <span class="text-lg font-bold leading-tight tracking-tight text-white italic truncate">
+                        {{ sidebarName }}
+                    </span>
+                    <span v-if="sidebarTagline" class="text-[11px] text-white/50 truncate">
+                        {{ sidebarTagline }}
+                    </span>
+                </div>
+            </div>
         </SidebarHeader>
 
-        <SidebarContent class="px-3">
-            <OutClickNav class="mt-2" :links="centarRoutes" />
+        <SidebarContent class="px-3 flex flex-col flex-1">
+            <OutClickNav class="flex-1 h-full" :links="centarRoutes" />
         </SidebarContent>
 
         <SidebarFooter class="p-4 mt-auto">

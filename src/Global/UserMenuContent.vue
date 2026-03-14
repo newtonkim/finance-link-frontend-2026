@@ -14,7 +14,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 defineProps<{
-  user: Record<string, any>
+  user?: Record<string, any> | null
 }>()
 
 const menuItems = [
@@ -34,7 +34,7 @@ const navigate = (path: string) => router.push(path)
 
 const handleLogout = async () => {
   await authStore.logout()
-  router.push('/login')
+  router.push('/central/login')
 }
 </script>
 

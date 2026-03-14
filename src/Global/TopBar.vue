@@ -99,18 +99,14 @@ const userName = computed(() => String(user.value?.name ?? 'User'));
             </Button>
 
             <DropdownMenu>
-                <DropdownMenuTrigger :as-child="true">
-                    <Avatar class="size-8 overflow-hidden rounded-full">
-
-                        <AvatarFallback
-                            class="size-10 rounded-xl bg-[#F1F5F9] dark:bg-white/10 flex items-center justify-center font-bold text-xs text-neutral-600 dark:text-neutral-300 border border-neutral-200/50 dark:border-white/10 cursor-pointer hover:bg-neutral-200 dark:hover:bg-white/20 transition-all shadow-sm">
-
-                            {{ getInitials(userName) }}
-                        </AvatarFallback>
-                    </Avatar>
+                <DropdownMenuTrigger>
+                    <div
+                        class="size-8 rounded-full bg-[#F1F5F9] dark:bg-white/10 flex items-center justify-center font-bold text-xs text-neutral-600 dark:text-neutral-300 border border-neutral-200/50 dark:border-white/10 cursor-pointer hover:bg-neutral-200 dark:hover:bg-white/20 transition-all shadow-sm">
+                        {{ getInitials(userName) }}
+                    </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" class="w-56">
-                    <UserMenuContent v-if="user" :user="user" />
+                    <UserMenuContent :user="user" />
                 </DropdownMenuContent>
             </DropdownMenu>
 
