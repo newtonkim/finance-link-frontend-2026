@@ -8,16 +8,8 @@ import { membersRoutes } from '../tenant/modules/members/routes'
 import { settingsRoutes } from '../tenant/modules/settings/routes'
 import { savingsRoutes } from '../tenant/modules/savings/routes'
 import { accountingRoutes } from '../tenant/modules/accounting/routes'
+import { getTenantSubdomain } from '@/Global'
 
-/** Returns the subdomain if running on a tenant subdomain (e.g. naivasha-sacco.localhost) */
-function getTenantSubdomain(): string | null {
-  const hostname = window.location.hostname
-  if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) return null // plain IP
-  const parts = hostname.split('.')
-  const subdomain = parts.length >= 2 ? parts[0] : null
-  if (!subdomain || ['admin', 'www', 'localhost'].includes(subdomain)) return null
-  return subdomain
-}
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

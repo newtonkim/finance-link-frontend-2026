@@ -350,3 +350,16 @@ export function useInitials(): UseInitialsReturn {
     return { getInitials };
 }
 
+export function getTenantSubdomain(): string | null {
+  const hostname = window.location.hostname
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) return null
+  const parts = hostname.split('.')
+  const subdomain = parts.length >= 2 ? parts[0] : null
+  if (!subdomain || ['admin', 'www', 'localhost'].includes(subdomain)) return null
+  return subdomain
+}
+
+export function getSubdomainName(){
+    const subdomain = getTenantSubdomain() ?? localStorage.getItem('tenant_subdomain')
+    return subdomain
+}

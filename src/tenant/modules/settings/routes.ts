@@ -1,23 +1,25 @@
 import type { RouteRecordRaw } from 'vue-router'
-import Settings from './pages/Settings.vue'
-import SettingsDashboard from './pages/SettingsDashboard.vue'
-import OrganisationSettings from './pages/OrganisationSettings.vue'
-import MembersSettings from './pages/MembersSettings.vue'
-import LoansSettings from './pages/LoansSettings.vue'
-import SavingsSettings from './pages/SavingsSettings.vue'
-import SharesSettings from './pages/SharesSettings.vue'
-import TransactionsSettings from './pages/TransactionsSettings.vue'
-import AccountingSettings from './pages/AccountingSettings.vue'
-import ComplianceSettings from './pages/ComplianceSettings.vue'
-import NotificationsSettings from './pages/NotificationsSettings.vue'
-import SystemSettings from './pages/SystemSettings.vue'
-import SavingsProducts from './pages/SavingsProducts.vue'
-import SavingsProductForm from './pages/SavingsProductForm.vue'
-import StaffList from './pages/StaffList.vue'
-import StaffProfile from './pages/StaffProfile.vue'
-import GeneralSettings from './pages/GeneralSettings.vue'
-import Notifications from './pages/Notifications.vue'
-import TransactionCharges from './pages/TransactionCharges.vue'
+import { memberspermissions } from './members-settings'
+
+const Settings = () => import('./pages/Settings.vue')
+const SettingsDashboard = () => import('./pages/SettingsDashboard.vue')
+const OrganisationSettings = () => import('./pages/OrganisationSettings.vue')
+const MembersSettings = () => import('./pages/MembersSettings.vue')
+const LoansSettings = () => import('./pages/LoansSettings.vue')
+const SavingsSettings = () => import('./pages/SavingsSettings.vue')
+const SharesSettings = () => import('./pages/SharesSettings.vue')
+const TransactionsSettings = () => import('./pages/TransactionsSettings.vue')
+const AccountingSettings = () => import('./pages/AccountingSettings.vue')
+const ComplianceSettings = () => import('./pages/ComplianceSettings.vue')
+const NotificationsSettings = () => import('./pages/NotificationsSettings.vue')
+const SystemSettings = () => import('./pages/SystemSettings.vue')
+const SavingsProducts = () => import('./pages/SavingsProducts.vue')
+const SavingsProductForm = () => import('./pages/SavingsProductForm.vue')
+const StaffList = () => import('./pages/StaffList.vue')
+const StaffProfile = () => import('./pages/StaffProfile.vue')
+const GeneralSettings = () => import('./pages/GeneralSettings.vue')
+const Notifications = () => import('./pages/Notifications.vue')
+const TransactionCharges = () => import('./pages/TransactionCharges.vue')
 
 export const settingsRoutes: RouteRecordRaw[] = [
   {
@@ -54,6 +56,11 @@ export const settingsRoutes: RouteRecordRaw[] = [
         path: 'staff/:id',
         name: 'tenant-settings-staff-profile',
         component: StaffProfile,
+      },
+      {
+        path: 'members-roles-permission',
+        name: 'tenant-settings-members-roles-permission',
+        component: memberspermissions,
       },
       {
         path: 'loans',
