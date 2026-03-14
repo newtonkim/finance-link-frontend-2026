@@ -1,1 +1,2 @@
-export * from './roles-permissions'
+export * from './tenantRolesApi'
+export * from './tenantpermissionsApi'

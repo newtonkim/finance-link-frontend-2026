@@ -1,12 +1,14 @@
-import { getSubdomainName, getTenantSubdomain } from '@/Global'
+import { getSubdomainName, getTenantSubdomain, getUserToken } from '@/Global'
 import axios from 'axios'
+import { getBearerToken } from 'septor-store';
+// import { getBearerToken } from 'septor-store';
 
 
 function getBaseURL():string{
   const backendUrl = import.meta.env.VITE_BACKEND_URL ?? 'http://127.0.0.1:8000/api/v1'
   return backendUrl.replace(/\/+$/, '').replace(/\/tenant\/?$/, '') + '/tenant'
 }
-console.log(getBaseURL(),"getBaseURL()");
+
 
 
 export const tenantClient = axios.create({
@@ -18,12 +20,11 @@ export const tenantClient = axios.create({
 })
 
 tenantClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('tenant_token')
+  // console.log("=====tenants2",getBaseURL());
+  const token=getBearerToken().token;
   if (token) { // can be remved 
-    config.headers.Authorization = `Bearer `
-    // config.headers.Authorization = `Bearer ${token}`
+    config.headers.Authorization = `Bearer ${token}`
   }
-
   // Prefer subdomain from hostname (production subdomain routing),
   // fall back to value saved at login time (dev on localhost)
   const subdomain = getSubdomainName()

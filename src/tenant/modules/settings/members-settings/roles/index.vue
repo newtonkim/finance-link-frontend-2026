@@ -1,11 +1,17 @@
 <template>
-    <TableDrawer ref="drawer" drawerWidth="w-1/2" url="/tenant/settings/roles/list" state="tenant_settings_roles_list"
-        drawerTitle="Add roles to staff" title="roles list" :columns="columns" @save="saveUser">
-        <template #drawer="{ action, submit, data }">
 
-            <Details v-if="injectingData" :data="injectingData" />
-            <Create :data="data" v-else-if="['edit', 'add'].includes(action)" :watcher="{ action, submit }"
+    <TableDrawer ref="drawer" drawerWidth="w-1/2" url="/settings/roles/list" state="tenant_settings_roles_list"
+        :outerlinks="{
+            edit: 'details'
+        }" drawerTitle="Add New roles" title="roles list" :columns="columns" @save="saveUser">
+        <template #drawer="{ action, submit, data }">
+            <EditUserRole v-if="dispalyAlterUserRole.show" :data="dispalyAlterUserRole.data" />
+            <Details v-else-if="action == 'view'" :data="data" />
+            <Create :data="{...data,action}" v-else-if="['edit', 'add'].includes(action)" :watcher="{ action, submit }"
                 v-model:form="formData" />
+        </template>
+        <template #searchSideAction>
+            <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
         <template #actions="{ item }">
             <span type="span"
@@ -13,21 +19,27 @@
                 @click="() => toggleDrawer(item)">
                 <UserCog2 class="size-3.5" />
             </span>
-
         </template>
     </TableDrawer>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { TableDrawer } from '@/Global'
-import { rolesApi } from '@/central/modules/apis';
-// import { Details, Create } from '.';
+import { ref, watch, reactive } from 'vue'
+import { TableDrawer, StatusButtonsHorizontal } from '@/Global'
 import { UserCog2 } from 'lucide-vue-next';
 const formData = ref<Record<string, any>>({})
-const injectingData = ref()
 const drawer = ref(null)
-const { create, } = rolesApi()
+const statusFilter = ref('roles');
+const filters = ['roles', 'permissions',]
+import { Details, Create, EditUserRole } from '.';
+import { tenantRolesApi } from '../../../../apis/onboardingSettings';
+const { create, } = tenantRolesApi()
+let dispalyAlterUserRole = reactive({ show: false })
+const emit = defineEmits(['update:modelValue',]);
+watch(() => statusFilter.value, (filter) => {
+    if (filter)
+        emit('update:modelValue', filter)
+})
 const triggerAction: Record<string, Function> = {
     async create() {
         const selectedpermission = formData.value.selectedpermission
@@ -42,26 +54,21 @@ const triggerAction: Record<string, Function> = {
         formData.value = {}
     }
 }
-
 function toggleDrawer(item: any) {
-    injectingData.value = item
+    dispalyAlterUserRole = { show: true, data: item }
     setTimeout(() => {
         drawer.value.toggleDrawer()
     }, 100)
 }
-
 function saveUser(type: string, data: any) {
-    injectingData.value = null
     triggerAction[type]?.(data)
+    dispalyAlterUserRole.show = false
+
 }
 
 const columns = [
     { key: 'name', label: 'Name' },
     { key: 'created_at', label: 'Created Date', },
-    { key: 'actions', label: 'action', show: ['edit', 'delete'] },
-
+    { key: 'actions', label: 'action', show: ['view', 'edit', 'delete'] },
 ]
-
-
-
 </script>

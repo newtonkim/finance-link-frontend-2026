@@ -1,5 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router'
-import { memberspermissions } from './members-settings'
+import memberspermissions  from './members-settings/index.vue'
 
 const Settings = () => import('./pages/Settings.vue')
 const SettingsDashboard = () => import('./pages/SettingsDashboard.vue')
