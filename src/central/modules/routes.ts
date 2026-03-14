@@ -3,16 +3,6 @@ import { CreditCard, LayoutGrid, SettingsIcon, Store, Users } from 'lucide-vue-n
  
 export const  centarRoutes:any=[
   {
-    path: 'login',
-    label:"login",
-    component: () => import('./pages/Login.vue'),
-  },
-  {
-    path: 'register',
-    label:"register",
-    component: () => import('./pages/Register.vue'),
-  },
-  {
     path: 'Main',
     label:"Main",
     type:"label",
