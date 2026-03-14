@@ -47,6 +47,7 @@ const columns = [
     { key: 'name', label: 'Name' },
     { key: 'module', label: 'Module', },
     { key: 'created_at', label: 'Created Date', },
+    { key: 'actions', label: 'actions', },
 
 ]
 

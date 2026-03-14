@@ -119,6 +119,8 @@ export function getUserData() {
 export function getUserToken() {
   try {
     const userData = getUserData();
+    console.log(userData);
+    
     return userData?.token ?? null;
   } catch (error) {
     console.error(error, '009');
