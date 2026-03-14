@@ -1,12 +1,13 @@
 <template>
-    <div class="space-y-4 capitalize">
+    <div class="space-y-4  capitalize ">
 
-        <section v-for="(section, sIndex) in columns" :key="sIndex"
-            class="overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-sm transition-all">
+        <section v-for="(section, sIndex) in columns" :key="sIndex" class="overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-sm transition-all
+            rounded-2xl border border-neutral-100 bg-white  shadow-sm pb-5 dark:border-neutral-800 dark:bg-neutral-900
+            ">
 
             <header v-if="section.header"
-                class="flex items-center justify-between px-4 py-3 bg-neutral-50 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700">
-                <h3 class="text-sm font-semibold tracking-wide text-neutral-700 dark:text-white">
+                class="flex items-center justify-between px-4  bg-neutral-50 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700">
+                <h3 class="text-sm font-semibold py-3 tracking-wide text-neutral-700 dark:text-white">
                     {{ t(section.header) }}
                 </h3>
             </header>

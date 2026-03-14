@@ -7,6 +7,7 @@ import MoneyInput from '@/Global/MoneyInput.vue';
 import { UserCircle2 } from 'lucide-vue-next';
 
 const props = defineProps<{
+    action: string,
     form: Array<{
         label: string;
         name: string;
@@ -29,6 +30,8 @@ const prfields = ref<any>([]);
 onMounted(() => {
     if (Array.isArray(props.form))
         prfields.value = [...(props.form)];
+    if(props.action == 'add')
+          prfields.value = prfields.value.map((f: any) => ({ value: null, ...f }))
 })
 const avatarPreviews = ref<Record<number, string>>({});
 
@@ -67,6 +70,8 @@ const handleAvatarChange = (field: any, index: number, event: Event) => {
 
     emits('field-changed', { field, index });
 };
+
+
 
 </script>
 

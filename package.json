@@ -29,7 +29,6 @@
     "lucide-vue-next": "^0.577.0",
     "pinia": "^3.0.4",
     "reka-ui": "^2.9.0",
-    "septor-store": "^1.2.4",
     "tailwind-merge": "^3.5.0",
     "vue": "^3.5.29",
     "vue-chartjs": "^5.3.3",
@@ -41,6 +40,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.1",
     "@tsconfig/node24": "^24.0.4",
+    "@types/axios": "^0.14.4",
     "@types/jsdom": "^28.0.0",
     "@types/node": "^24.11.0",
     "@vitejs/plugin-vue": "^6.0.4",
@@ -70,5 +70,5 @@
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
   },
-  "packageManager": "pnpm@10.27.0+sha512.72d699da16b1179c14ba9e64dc71c9a40988cbdc65c264cb0e489db7de917f20dcf4d64d8723625f2969ba52d4b7e2a1170682d9ac2a5dcaeaab732b7e16f04a"
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

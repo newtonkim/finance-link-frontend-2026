@@ -11,6 +11,7 @@ export interface CreateTenantPayload {
   license_months: number
 }
 
+
 export function createTenant(payload: CreateTenantPayload) {
   return apiClient.post('/central/tenants', payload)
 }

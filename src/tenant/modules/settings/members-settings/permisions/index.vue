@@ -1,7 +1,10 @@
 <template>
-    <TableDrawer ref="drawer" drawerWidth="w-1/2" :showAddButton="false" url="/central/settings/permisions/list"
+    <TableDrawer ref="drawer" drawerWidth="w-1/2" :showAddButton="false" url="/settings/permisions/list"
         state="Permisions_list" drawerTitle="Add permisions to staff" title="Permisions list" :columns="columns"
         @save="saveUser">
+        <template #searchSideAction>
+            <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
+        </template>
         <template #name="{ item }: { item: any }">
             {{ `${item?.name}`.replace(/[-_]/gi, ' ') }}
         </template>
@@ -20,15 +23,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { TableDrawer } from '@/Global'
-import { permissionsApi } from '@/central/modules/apis';
+import { ref, watch } from 'vue'
+import { TableDrawer, StatusButtonsHorizontal } from '@/Global'
 import { UserPlus } from 'lucide-vue-next';
 import { Details } from '.';
+import { tenantpermissionsApi } from '../../../../apis/onboardingSettings';
+
 const formData = ref<Record<string, any>>({})
 const drawer = ref(null)
 const data = ref(null)
-const { create, Erase } = permissionsApi()
+const { create, Erase } = tenantpermissionsApi()
+const statusFilter = ref('Permission');
+const filters = ['Permission', 'Roles',]
+const emit = defineEmits(['update:modelValue',]);
+
+watch(() => statusFilter.value, (filter) => {
+    if (filter)
+        emit('update:modelValue', filter)
+})
+
 const triggerAction: Record<string, Function> = {
     delete: Erase,
     async create() {
@@ -39,7 +52,6 @@ const triggerAction: Record<string, Function> = {
 
 function saveUser(type: string, data: any) {
     triggerAction[type]?.(data)
-    console.log(type);
 
 }
 
@@ -47,7 +59,7 @@ const columns = [
     { key: 'name', label: 'Name' },
     { key: 'module', label: 'Module', },
     { key: 'created_at', label: 'Created Date', },
-    { key: 'actions', label: 'actions', },
+    { key: 'actions', label: 'permit  user', },
 
 ]
 

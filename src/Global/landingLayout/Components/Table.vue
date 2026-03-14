@@ -1,14 +1,14 @@
 <template>
-  <div class=" p-4 rounded-2xl   dark:bg-neutral-900 bg- nfuko-50">
+  <div class="  rounded-2xl p-2  dark:bg-neutral-900 bg- nfuko-50">
     <table class="w-full table-auto text-left border-collapse  ">
       <!-- HEAD -->
-      <thead v-once class="sticky top-0 z-40 bg-white s hadow-sm dark:bg-neutral-900 rounded-sm">
+      <thead v-once class="sticky top-0  z-40 bg-white s hadow-sm dark:bg-neutral-900 rounded-sm">
         <tr class=" border-b border-neutral-100  dark:border-neutral-800">
           <th
             v-for="col in columns"
             :key="col.key"
             :class="[
-           'p-2  py-4 text-xs font-semibold font-weight-[900]  tracking-wide text-neutral-700  x] capitalize ',
+           'bg-neutral-50  p-2 px-3  py-4 text-xs font-semibold font-weight-[900]  tracking-wide text-neutral-700   capitalize ',
                         col.key === 'actions' ? 'text-center' : '',
                         col.sticky ? `sticky z-30 ${col.sticky}-0 dark:bg-neutral-900 bg-white w-fit` : '',
                         col.key.toLowerCase() === 'actions' ? 'text-center sticky z-30 right-0 dark:bg-neutral-900 bg-white' : '',
@@ -61,7 +61,7 @@
                     <button type="button" @click="handleAction(item, action)"
                     v-auth="permissions?.[action]"
                     :class="action_config?.[action]?.class">
-                    <component :is="action_config?.[action]?.icon" class="h-3.5 w-3.5" />
+                    <component :is="action_config?.[action]?.icon" class="h-2.5 w-2.5" />
                     <span v-if="action !== 'delete'">{{ action }}</span>
                   </button>
                   

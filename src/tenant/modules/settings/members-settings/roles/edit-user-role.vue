@@ -1,8 +1,10 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { permissionsApi } from '@/central/modules/apis'
 import { Form, TableDrawer } from '@/Global'
+import {tenantRolesApi } from '@/tenant/apis/onboardingSettings/index.ts'
 import ConfirmationDialog from '@/Global/confirmationDialog/confirmationDialog.vue'
+const { EraseRolesFromUser, AttachRolesToUser } = tenantRolesApi()
+
 const props = defineProps({
   data: {
     type: Object,
@@ -11,20 +13,19 @@ const props = defineProps({
 })
 const showDelete = ref(false)
 
-const { ErasePermissionFromUser,AttachPermissionToUser } = permissionsApi()
 const action = {
   close: () => {
-      ErasePermissionFromUser(showDelete.value.data)
-
+    EraseRolesFromUser(showDelete.value.data)
   },
   attach: () => {
-    AttachPermissionToUser(showDelete.value.data)
+   
+    AttachRolesToUser(showDelete.value.data)
 
   }
 }
 
 function saveUser(type, payload) {
-    showDelete.value = { data: { id: props.data?.id, pu: payload?.staff_id }, action: type }
+  showDelete.value = { data: { id: props.data?.id, pu: payload?.staff_id }, action: type }
 }
 
 const columns = [
@@ -34,34 +35,33 @@ const columns = [
 ]
 
 const form = ref([{
-  // label: 'user Name',
+  label: 'user Name',
   name: 'user',
   type: 'select',
-  url: 'central/staff/users-drop-down',
+  url: '/staff/users-drop-down',
   required: true,
   props: { placeholder: 'Enter  User Name' },
 },
 ])
 function onFormResults(user) {
-  if (user?.[0]?.['value']){
+  if (user?.[0]?.['value']) {
     showDelete.value = { data: { id: props.data?.id, pu: user?.[0]?.['value'] }, action: "attach" }
   }
-
 }
 
-
-const urlShaffle = computed(() => `/central/settings/permisions/holders_list?id=${props.data?.id}`)
+const urlShaffle = computed(() => {
+  return `settings/roles/holders_list?id=${props.data?.id}`
+})
 </script>
 
 <template>
+
   <div>
-  
-    <label class="px-5">Attach User Permission</label>
-    <Form v-model:form="form" parentStyle="grid grid-cols-2 sm:grid-cols-1 gap-4 md:gap-6 px-5"
+    <Form v-model:form="form" parentStyle="grid grid-cols-2 sm:grid-cols-1 gap-4 md:gap-6 px-2"
       @results="onFormResults" />
   </div>
-  <TableDrawer ref="drawer" drawerWidth="w-1/2" :showAddButton="false" :url="urlShaffle"
-    state="staff-attached-permission" :columns="columns" @save="saveUser">
+  <TableDrawer ref="drawer" :showSearchbar="false" drawerWidth="w-1/2" :showAddButton="false" :url="urlShaffle"
+    state="staff-attached-roles" :columns="columns" @save="saveUser">
   </TableDrawer>
   <ConfirmationDialog v-model:show="showDelete" @confirm="() => {
     action[showDelete?.action]?.(showDelete?.data)

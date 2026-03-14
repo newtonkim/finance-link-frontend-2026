@@ -18,11 +18,10 @@
                 </span>
             </span>
         </div>
-
         <!-- SEARCH -->
         <div
             class="rounded-xl border-0 border-neutral-200 b g-white dark:border-neutral-800 dark:bg-neutral-900  overflow-hidden ">
-            <div class="flex p-2  my-3 justify-between rounded-xl border border-neutral-100 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"">
+            <div v-if="showSearchbar||showTableAction" class="flex p-2  my-3 justify-between rounded-xl border border-neutral-100 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"">
                 <Searchbar v-if="showSearchbar" @search="onSearch" :removeInSearch="removeInSearch" :columns="columns"
                     @filter="(v) => filterDataByString(v)" />
                 <slot name="searchSideAction" />
@@ -60,12 +59,11 @@
         <!-- DRAWER -->
     </div>
     <div v-if="DrawerMounted">
-        <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShowFooter" v-model:open="drawerOpen"
+        <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShooter2" v-model:open="drawerOpen"
             :title="drawerTitle" @save="saveDrawerData">
             <template #body>
 
-                <slot :data="provideDataTotheParent" name="drawer" :action="buttonTypeClicked"
-                    :submit="submitChanges" />
+                <slot :data="provideDataTotheParent" name="drawer" :action="buttonTypeClicked" :submit="submitChanges" />
 
             </template>
         </Drawer>
@@ -98,9 +96,10 @@ const submitChanges = ref<any>(null);
 const provideDataTotheParent = ref<any>([]);
 async function createNewRecord() {
     DrawerMounted.value = false
-    await toggleDrawer();
     await save('create', 'add');
     buttonTypeClicked.value = 'add'
+    await toggleDrawer();
+    provideDataTotheParent.value = null
     DrawerMounted.value = true
 
 }
@@ -150,8 +149,7 @@ const props = defineProps({
     outerlinks: { type: Object, required: false },
 });
 
-
-
+const drawerShooter2=ref(props.drawerShowFooter)
 
 const toggleDrawer = () => {
     (drawerOpen.value = !drawerOpen.value)
@@ -174,10 +172,8 @@ const save = (data: unknown, type = 'save') => {
             submitChanges.value = false
         }, 1000)
     }
-
-
+    drawerShooter2.value=type!=='view'
     emit("save", type, data)
-
 };
 
 function createUrl(url: string, action: string) {

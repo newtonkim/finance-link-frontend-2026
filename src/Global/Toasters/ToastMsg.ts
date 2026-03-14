@@ -26,7 +26,7 @@ export function notify({
     callback,
     pos = 'tl',
     msg = 'Action was successful',
-    type = 'Default',
+    type = 'success',
 }: INotify) {
     const definePosition: Record<string, string> = {
         tl: 'top-left',

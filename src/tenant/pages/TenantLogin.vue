@@ -9,9 +9,10 @@ import {
   Label,
   InputError,
   Spinner,
-  AuthBase,
+  AuthBase,storeUserLogedinData, storeUserPermissions
 } from '@/Global';
 import { tenantClient } from '@/tenant/apis/tenantClient';
+import { setBearerToken } from 'septor-store';
 
 const router = useRouter();
 
@@ -48,7 +49,7 @@ async function submit() {
     }
 
     const { data } = await tenantClient.post(
-      '/auth/login',
+      '/auth/login', 
       { email: email.value, password: password.value, type: 'tenant' },
       { headers },
     );
@@ -63,6 +64,12 @@ async function submit() {
     if (data?.data?.user) {
       localStorage.setItem('tenant_user', JSON.stringify(data.data.user));
     }
+    console.log(data);
+    
+    setBearerToken({token: data.data.access_token,...data.data.user})
+    storeUserLogedinData(data.data.user)
+    storeUserPermissions({data:data.data?.permissions})
+
 
     const redirectUrl = data?.data?.redirect_url;
     if (typeof redirectUrl === 'string' && redirectUrl.trim()) {
