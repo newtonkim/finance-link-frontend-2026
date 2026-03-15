@@ -14,6 +14,7 @@ import {
   MapPin,
   Mail,
   ArrowLeftRight,
+  DatabaseZap,
 } from 'lucide-vue-next'
 import {
   Sidebar,
@@ -152,6 +153,30 @@ onMounted(async () => {
               </div>
               <!-- Active left indicator -->
               <div v-if="isActive(item.href)"
+                class="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-[3px] bg-bg-nfuko-yellow rounded-r-full shadow-[0_0_10px_rgba(201,168,76,0.5)]" />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarGroup>
+
+      <!-- DATA MIGRATION -->
+      <SidebarGroup class="mt-2">
+        <SidebarGroupLabel class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
+          Data Migration
+        </SidebarGroupLabel>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton :tooltip="'Migration Hub'" @click="router.push('/tenant/migration')"
+              class="relative px-0 py-2.5 hover:bg-white/5 transition-all duration-200 group">
+              <div class="flex w-full items-center gap-3 pl-4 pr-3">
+                <DatabaseZap class="h-4 w-4 transition-colors duration-200"
+                  :class="route.path.startsWith('/tenant/migration') ? 'text-bg-nfuko-yellow' : 'text-nfuko-nav-text group-hover:text-bg-nfuko-yellow'" />
+                <span class="flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200"
+                  :class="route.path.startsWith('/tenant/migration') ? 'text-bg-nfuko-yellow' : 'text-nfuko-nav-text group-hover:text-white'">
+                  Migration
+                </span>
+              </div>
+              <div v-if="route.path.startsWith('/tenant/migration')"
                 class="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-[3px] bg-bg-nfuko-yellow rounded-r-full shadow-[0_0_10px_rgba(201,168,76,0.5)]" />
             </SidebarMenuButton>
           </SidebarMenuItem>
