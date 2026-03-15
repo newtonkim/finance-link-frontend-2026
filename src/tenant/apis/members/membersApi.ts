@@ -14,6 +14,9 @@ export const membersApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
   },
+  importJson(rows: Record<string, string>[]) {
+    return tenantClient.post('/members/import-json', { rows })
+  },
   store(data: Record<string, any>) {
     return tenantClient.post('/members', data)
   },

@@ -31,6 +31,7 @@ import {
 import TenantNavUser from './TenantNavUser.vue'
 import { useTenantContextStore } from '@/stores/tenantContext'
 import { membersApi } from '@/tenant/apis/members/membersApi'
+import { saccoBrandingApi, saccoBrandingState } from '@/tenant/apis/saccobranding/saccoBrandingApi'
 
 const route = useRoute()
 const router = useRouter()
@@ -61,14 +62,20 @@ const navItems = [
 
 const tenant = tenantStore.currentTenant as any
 
-const memberCount = ref<number | null>(null)
+const memberCount = computed(() => tenantStore.memberCount)
 
 onMounted(async () => {
-  try {
-    const res = await membersApi.list({ page: 1 })
-    memberCount.value = res.data?.meta?.total ?? res.data?.total ?? null
-  } catch {
-    // silently ignore — badge just won't show
+  const [membersRes] = await Promise.allSettled([
+    membersApi.list({ page: 1 }),
+    (async () => {
+      if (!saccoBrandingState.loaded) {
+        try { await saccoBrandingApi.get() } catch { /* silently ignore */ }
+      }
+    })(),
+  ])
+  if (membersRes.status === 'fulfilled') {
+    const total = membersRes.value.data?.meta?.total ?? membersRes.value.data?.total ?? null
+    if (total !== null) tenantStore.setMemberCount(total)
   }
 })
 </script>
@@ -78,19 +85,29 @@ onMounted(async () => {
     <!-- Header: SACCO brand -->
     <SidebarHeader class="p-4">
       <div class="flex items-center gap-3">
+        <!-- Logo: show uploaded logo or fallback icon -->
         <div
-          class="flex shrink-0 items-center justify-center rounded-2xl bg-bg-nfuko-yellow text-[#0A2318] shadow-xl transition-all duration-500"
+          class="flex shrink-0 items-center justify-center overflow-hidden transition-all duration-500"
           :class="state === 'expanded' ? 'h-14 w-14' : 'h-8 w-8'">
-          <LayoutGrid :class="state === 'expanded' ? 'h-7 w-7' : 'h-5 w-5'" />
+          <img
+            v-if="saccoBrandingState.logo_url"
+            :src="saccoBrandingState.logo_url"
+            alt="Sacco logo"
+            class="h-full w-full object-contain"
+          />
+          <div v-else
+            class="flex h-full w-full items-center justify-center rounded-2xl bg-bg-nfuko-yellow text-[#0A2318] shadow-xl">
+            <LayoutGrid :class="state === 'expanded' ? 'h-7 w-7' : 'h-5 w-5'" />
+          </div>
         </div>
 
         <div v-if="state === 'expanded'" class="flex flex-col min-w-0">
-          <span class="text-lg font-bold leading-tight tracking-tight text-white italic">
-            {{ tenant?.name ?? 'SACCO Portal' }}
+          <span class="text-lg font-bold leading-tight tracking-tight text-white italic truncate">
+            {{ saccoBrandingState.sacco_name || tenant?.name || 'SACCO Portal' }}
           </span>
-          <span v-if="tenant?.settings?.slogan"
-            class="mt-0.5 text-[10px] font-semibold uppercase tracking-widest text-nfuko-nav-text/80">
-            {{ tenant.settings.slogan }}
+          <span v-if="saccoBrandingState.tagline || tenant?.settings?.slogan"
+            class="mt-0.5 text-[10px] font-semibold uppercase tracking-widest text-nfuko-nav-text/80 truncate">
+            {{ saccoBrandingState.tagline || tenant?.settings?.slogan }}
           </span>
         </div>
       </div>
@@ -126,9 +143,11 @@ onMounted(async () => {
                   :class="isActive(item.href) ? 'text-bg-nfuko-yellow' : 'text-nfuko-nav-text group-hover:text-white'">
                   {{ item.title }}
                 </span>
-                <span v-if="item.href === '/tenant/members' && memberCount !== null"
-                  class="min-w-[20px] rounded-full bg-bg-nfuko-yellow px-1.5 py-0.5 text-center text-[11px] font-bold leading-none text-[#0A2318]">
-                  {{ memberCount }}
+                <span
+                  v-if="item.href === '/tenant/members' && memberCount !== null && state === 'expanded'"
+                  class="inline-flex items-center justify-center rounded-full bg-nfuko-accent px-1.5 min-w-[20px] h-5 text-[10px] font-bold leading-none text-[#0A2318]"
+                >
+                  {{ memberCount > 9999 ? '9999+' : memberCount }}
                 </span>
               </div>
               <!-- Active left indicator -->
