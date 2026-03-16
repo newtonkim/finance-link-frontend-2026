@@ -7,11 +7,15 @@ import {
 } from 'lucide-vue-next';
 import { ref, computed, watch, reactive } from 'vue';
 import { toast } from 'vue-sonner';
+import { storeToRefs } from 'pinia';
 import SearchableSelect from '@/Global/SearchableSelect.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { apiClient } from '@/central/api/client';
+import { useCurrencyStore } from '@/stores/currency';
 
 const router = useRouter();
+const currencyStore = useCurrencyStore();
+const { currencyCode } = storeToRefs(currencyStore);
 
 const props = defineProps<{
     member: {
@@ -248,8 +252,10 @@ const printingTxn = ref<any>(null);
 const printReceipt = (txn: any) => {
     printingTxn.value = txn;
     setTimeout(() => {
+        document.body.classList.add('receipt-print');
         window.print();
         printingTxn.value = null;
+        document.body.classList.remove('receipt-print');
     }, 100);
 };
 const prevTxnPage = () => { if (currentTxnPage.value > 1) currentTxnPage.value--; };
@@ -739,7 +745,7 @@ const handleAvatarUpload = async (event: Event) => {
                                     <tr class="border-t border-b border-border">
                                         <th class="py-3 px-5 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Account Number</th>
                                         <th class="py-3 px-5 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Account Type</th>
-                                        <th class="py-3 px-5 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Balance (UGX)</th>
+                                        <th class="py-3 px-5 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Balance ({{ currencyCode }})</th>
                                         <th class="py-3 px-5 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
@@ -1338,7 +1344,7 @@ const handleAvatarUpload = async (event: Event) => {
                                             Initial Deposit <span class="text-[#dc2626]">*</span>
                                         </label>
                                         <div class="relative">
-                                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-muted-foreground">UGX</span>
+                                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-muted-foreground">{{ currencyCode }}</span>
                                             <input v-model="formattedInitialDeposit" type="text" placeholder="0"
                                                 class="w-full py-3 pl-14 pr-4 rounded-xl bg-background border border-border text-foreground text-[14px] font-mono font-bold placeholder-muted-foreground/50 focus:outline-none focus:border-bg-nfuko-yellow/50 focus:ring-1 focus:ring-bg-nfuko-yellow/30 transition-all" />
                                         </div>
@@ -1364,7 +1370,7 @@ const handleAvatarUpload = async (event: Event) => {
                                             Opening balance <span class="text-[#dc2626]">*</span>
                                         </label>
                                         <div class="relative">
-                                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-muted-foreground">UGX</span>
+                                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-muted-foreground">{{ currencyCode }}</span>
                                             <input v-model="formattedOpeningBalance" type="text" placeholder="0"
                                                 class="w-full py-3 pl-14 pr-4 rounded-xl bg-background border border-border text-foreground text-[14px] font-mono font-bold placeholder-muted-foreground/50 focus:outline-none focus:border-bg-nfuko-yellow/50 focus:ring-1 focus:ring-bg-nfuko-yellow/30 transition-all" />
                                         </div>
@@ -1474,7 +1480,7 @@ const handleAvatarUpload = async (event: Event) => {
                                                 Amount to {{ drawerOpen === 'deposit' ? 'deposit' : 'withdraw' }}
                                             </label>
                                             <div class="relative">
-                                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-bold text-muted-foreground">UGX</span>
+                                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-bold text-muted-foreground">{{ currencyCode }}</span>
                                                 <input v-model="formattedAmount" type="text" placeholder="0.00"
                                                     :class="[
                                                         'w-full py-3 pl-14 pr-4 rounded-xl bg-background border text-[15px] font-mono font-bold placeholder-muted-foreground/40 focus:outline-none transition-all',
@@ -1564,7 +1570,7 @@ const handleAvatarUpload = async (event: Event) => {
                                     ]">
                                         <div class="flex items-center justify-between mb-2">
                                             <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Current Balance</span>
-                                            <span class="text-[13px] font-bold text-foreground font-mono">UGX {{ formatCurrency(currentBalance) }}</span>
+                                            <span class="text-[13px] font-bold text-foreground font-mono">{{ currencyCode }} {{ formatCurrency(currentBalance) }}</span>
                                         </div>
                                         <div class="flex items-center justify-between pt-2 border-t" :class="drawerOpen === 'deposit' ? 'border-emerald-200/50 dark:border-emerald-800/30' : 'border-orange-200/50 dark:border-orange-800/30'">
                                             <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
@@ -1574,7 +1580,7 @@ const handleAvatarUpload = async (event: Event) => {
                                                 'text-[15px] font-bold font-mono',
                                                 drawerOpen === 'deposit' ? 'text-emerald-600 dark:text-emerald-400' : 'text-orange-600 dark:text-orange-400'
                                             ]">
-                                                UGX {{ formatCurrency(previewBalance) }}
+                                                {{ currencyCode }} {{ formatCurrency(previewBalance) }}
                                             </span>
                                         </div>
                                     </div>
@@ -1719,11 +1725,11 @@ const handleAvatarUpload = async (event: Event) => {
                 </div>
                 <div class="flex justify-between border-b border-dashed border-gray-300 pb-2">
                     <span class="font-semibold text-gray-600">Total Amount:</span>
-                    <span class="font-bold">{{ formatCurrency(printingTxn.amount) }} UGX</span>
+                    <span class="font-bold">{{ formatCurrency(printingTxn.amount) }} {{ currencyCode }}</span>
                 </div>
                 <div class="flex justify-between border-b border-dashed border-gray-300 pb-2">
                     <span class="font-semibold text-gray-600">Trans Charge:</span>
-                    <span class="font-bold">{{ formatCurrency(printingTxn.charge || 0) }}.0 UGX</span>
+                    <span class="font-bold">{{ formatCurrency(printingTxn.charge || 0) }}.0 {{ currencyCode }}</span>
                 </div>
             </div>
 
@@ -1752,13 +1758,13 @@ const handleAvatarUpload = async (event: Event) => {
 
 <style>
 @media print {
-    body * {
+    body.receipt-print * {
         visibility: hidden !important;
     }
-    .print-only, .print-only * {
+    body.receipt-print .print-only, body.receipt-print .print-only * {
         visibility: visible !important;
     }
-    .print-only {
+    body.receipt-print .print-only {
         position: absolute !important;
         left: 0 !important;
         top: 0 !important;
@@ -1767,7 +1773,7 @@ const handleAvatarUpload = async (event: Event) => {
         padding: 0 !important;
         display: block !important;
     }
-    .no-print {
+    body.receipt-print .no-print {
         display: none !important;
     }
     @page {

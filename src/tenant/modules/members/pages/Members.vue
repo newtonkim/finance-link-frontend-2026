@@ -15,6 +15,7 @@ import { membersApi } from '@/tenant/apis/members/membersApi'
 import { saccoBrandingApi, saccoBrandingState } from '@/tenant/apis/saccobranding/saccoBrandingApi'
 import * as XLSX from 'xlsx'
 import { useTenantContextStore } from '@/stores/tenantContext'
+import { useSettingsStore } from '@/stores/settingsStore'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface Member {
@@ -81,6 +82,16 @@ const PREVIEW_COLS: { key: keyof ImportRow; label: string; required: boolean; wi
 
 const router = useRouter()
 const tenantStore = useTenantContextStore()
+const settingsStore = useSettingsStore()
+
+function isLoyal(member: Member): boolean {
+  const date = member.joined_at
+  if (!date) return false
+  const joined = new Date(date)
+  const now = new Date()
+  const months = (now.getFullYear() - joined.getFullYear()) * 12 + (now.getMonth() - joined.getMonth())
+  return months >= settingsStore.loyalMemberMinTenureMonths
+}
 const tenant = computed(() => tenantStore.currentTenant as any)
 const tenantPhone = computed(() =>
   tenant.value?.settings?.phone ||
@@ -146,6 +157,9 @@ onMounted(() => fetchMembers(1))
 onMounted(async () => {
   if (!saccoBrandingState.loaded) {
     try { await saccoBrandingApi.get() } catch { /* ignore */ }
+  }
+  if (!settingsStore.onboardingSettingsLoaded) {
+    settingsStore.fetchOnboardingSettings()
   }
 })
 
@@ -520,7 +534,13 @@ function statusClass(status: string) {
                       {{ member.name.charAt(0).toUpperCase() }}
                     </div>
                   </div>
-                  <span class="font-medium text-neutral-900 dark:text-white">{{ member.name }}</span>
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-medium text-neutral-900 dark:text-white">{{ member.name }}</span>
+                    <span v-if="isLoyal(member)" title="Loyal member — qualifies for reduced monthly fee"
+                      class="inline-flex items-center gap-0.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                      ★ Loyal
+                    </span>
+                  </div>
                 </div>
               </td>
               <td class="px-6 py-4 text-neutral-600 dark:text-neutral-400 col-phone">{{ member.phone }}</td>

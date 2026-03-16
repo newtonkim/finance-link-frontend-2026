@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, computed, reactive } from 'vue';
+import { storeToRefs } from 'pinia';
 import {
     Sheet,
     SheetContent,
@@ -14,6 +15,7 @@ import { Badge } from '@/Global/ui/badge';
 import { X, Check } from 'lucide-vue-next';
 import SearchableSelect from '@/Global/SearchableSelect.vue';
 import { apiClient } from '@/central/api/client';
+import { useCurrencyStore } from '@/stores/currency';
 
 type Charge = {
     id: number;
@@ -30,6 +32,8 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(['update:open', 'success']);
+const currencyStore = useCurrencyStore();
+const { currencyCode } = storeToRefs(currencyStore);
 
 const initialState = {
     member_id: '',
@@ -83,7 +87,7 @@ const productMinBalance = computed(() => Number(selectedProduct.value?.minimum_b
 const initialDepositError = computed(() => {
     if (!form.savings_product_id || !form.consider_min_balance) return '';
     if (productMinBalance.value > 0 && Number(form.initial_deposit) < productMinBalance.value) {
-        return `Must be at least UGX ${productMinBalance.value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+        return `Must be at least ${currencyCode.value} ${productMinBalance.value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
     }
     return '';
 });
@@ -238,7 +242,7 @@ const showChargeDropdown = ref(false);
                     <div v-if="productMinBalance > 0 && form.consider_min_balance"
                         class="text-xs text-amber-600 dark:text-amber-400 px-1 flex items-center gap-1">
                         <span>Minimum balance for this product:</span>
-                        <strong>UGX {{ productMinBalance.toLocaleString('en-US', { minimumFractionDigits: 2 }) }}</strong>
+                        <strong>{{ currencyCode }} {{ productMinBalance.toLocaleString('en-US', { minimumFractionDigits: 2 }) }}</strong>
                     </div>
                     <p v-if="initialDepositError" class="text-xs text-red-500 font-medium">{{ initialDepositError }}</p>
                     <p v-else-if="errors.initial_deposit" class="text-xs text-red-500">{{ errors.initial_deposit }}</p>

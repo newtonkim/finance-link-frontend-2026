@@ -1,8 +1,16 @@
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { SidebarProvider, SidebarInset } from '@/Global/ui/sidebar'
 import TenantSidebar from './TenantSidebar.vue'
 import TopBar from '@/Global/TopBar.vue'
 import { Toaster } from 'vue-sonner'
+import { useCurrencyStore } from '@/stores/currency'
+
+const currencyStore = useCurrencyStore()
+
+onMounted(() => {
+  currencyStore.load()
+})
 </script>
 
 <template>
@@ -17,4 +25,3 @@ import { Toaster } from 'vue-sonner'
     <Toaster position="top-right" richColors />
   </SidebarProvider>
 </template>
-

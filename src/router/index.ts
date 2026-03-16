@@ -8,8 +8,8 @@ import { membersRoutes } from '../tenant/modules/members/routes'
 import { settingsRoutes } from '../tenant/modules/settings/routes'
 import { savingsRoutes } from '../tenant/modules/savings/routes'
 import { accountingRoutes } from '../tenant/modules/accounting/routes'
+import { migrationRoutes } from '../tenant/modules/migration/routes'
 import { getTenantSubdomain } from '@/Global'
-
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -53,6 +53,7 @@ const router = createRouter({
         ...settingsRoutes,
         ...savingsRoutes,
         ...accountingRoutes,
+        ...migrationRoutes,
       ],
     },
   ],

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
+import { storeToRefs } from 'pinia';
+import { useCurrencyStore } from '@/stores/currency';
 
 const props = defineProps<{
     modelValue: string | number | null;
@@ -9,6 +11,8 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(['update:modelValue']);
+const currencyStore = useCurrencyStore();
+const { currencyCode } = storeToRefs(currencyStore);
 
 // The formatted string shown in the input (e.g. "1,000,000")
 const displayValue = ref('');
@@ -76,7 +80,7 @@ watch(() => props.modelValue, (newVal) => {
 <template>
     <div class="relative w-full">
         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500 font-medium text-sm">
-            UGX
+            {{ currencyCode }}
         </span>
         <input
             :value="displayValue"

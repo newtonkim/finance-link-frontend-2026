@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
 import {
     PieChart, X, Users, Calendar, Percent, ChevronDown,
     Settings2, TrendingUp, AlertCircle, ToggleRight, Loader2, Share2, ShieldCheck
 } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { useSettingsStore } from '@/stores/settingsStore'
+import { useCurrencyStore } from '@/stores/currency'
 
 const settingsStore = useSettingsStore()
+const currencyStore = useCurrencyStore()
+const { currencyCode } = storeToRefs(currencyStore)
 
 // ── Manage Shares Drawer ─────────────────────────────────────────────────────
 const sharesDrawerOpen = ref(false)
@@ -321,11 +325,11 @@ function openDrawer() {
                                             <div>
                                                 <label
                                                     class="block text-[11px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-2">
-                                                    Share Price (UGX)
+                                                    Share Price ({{ currencyCode }})
                                                 </label>
                                                 <div class="relative">
                                                     <span
-                                                        class="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-neutral-400">UGX</span>
+                                                        class="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-neutral-400">{{ currencyCode }}</span>
                                                     <input v-model.number="tempSharePrice" type="number" min="0"
                                                         step="100" placeholder="0"
                                                         class="w-full pl-11 pr-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] font-mono font-bold text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:focus:ring-bg-nfuko-yellow transition-all" />
@@ -341,10 +345,10 @@ function openDrawer() {
                                                 <p class="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
                                                     Minimum Investment to Join</p>
                                                 <p class="text-[15px] font-black text-emerald-800 dark:text-emerald-300 font-mono mt-0.5">
-                                                    UGX {{ minInvestment.toLocaleString('en-US', { minimumFractionDigits: 2 }) }}
+                                                    {{ currencyCode }} {{ minInvestment.toLocaleString('en-US', { minimumFractionDigits: 2 }) }}
                                                 </p>
                                                 <p class="text-[10px] text-emerald-600/70 dark:text-emerald-400/70 mt-0.5">
-                                                    {{ tempMinShares }} shares × UGX {{ Number(tempSharePrice).toLocaleString() }}
+                                                    {{ tempMinShares }} shares × {{ currencyCode }} {{ Number(tempSharePrice).toLocaleString() }}
                                                 </p>
                                             </div>
                                         </div>
@@ -376,7 +380,7 @@ function openDrawer() {
                                             <span>
                                                 New members must purchase at least
                                                 <strong>{{ tempMinShares }} share(s)</strong>
-                                                (UGX {{ minInvestment.toLocaleString() }}) to complete registration.
+                                                ({{ currencyCode }} {{ minInvestment.toLocaleString() }}) to complete registration.
                                                 <template v-if="tempAppliesToExisting">This also applies to existing members.</template>
                                             </span>
                                         </div>
@@ -638,11 +642,11 @@ function openDrawer() {
                                     <div>
                                         <label
                                             class="block text-[11px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-2">
-                                            Min. Dividend (UGX)
+                                            Min. Dividend ({{ currencyCode }})
                                         </label>
                                         <div class="relative">
                                             <span
-                                                class="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-neutral-400">UGX</span>
+                                                class="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-neutral-400">{{ currencyCode }}</span>
                                             <input v-model="form.minimum_dividend_amount" type="number" min="0"
                                                 placeholder="0"
                                                 class="w-full pl-12 pr-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] font-mono text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:focus:ring-bg-nfuko-yellow transition-all" />

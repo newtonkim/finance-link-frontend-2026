@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { isAxiosError } from 'axios'
 import { ArrowLeft, UserCircle2, Share2, AlertCircle, TrendingUp, Wallet } from 'lucide-vue-next'
@@ -9,8 +10,11 @@ import SearchableSelect from '@/Global/SearchableSelect.vue'
 import { membersApi } from '@/tenant/apis/members/membersApi'
 import { tenantClient } from '@/tenant/apis/tenantClient'
 import { useSettingsStore } from '@/stores/settingsStore'
+import { useCurrencyStore } from '@/stores/currency'
 
 const settingsStore = useSettingsStore()
+const currencyStore = useCurrencyStore()
+const { currencyCode } = storeToRefs(currencyStore)
 
 const router = useRouter()
 
@@ -97,7 +101,7 @@ const sharesError = computed(() => {
   const qty = Number(form.value.shares_quantity)
   if (!qty || qty <= 0) return `At least ${settingsStore.minSharesOnOnboarding} share(s) required.`
   if (qty < settingsStore.minSharesOnOnboarding) {
-    return `Minimum ${settingsStore.minSharesOnOnboarding} share(s) required (UGX ${(settingsStore.minSharesOnOnboarding * settingsStore.sharePrice).toLocaleString()}).`
+    return `Minimum ${settingsStore.minSharesOnOnboarding} share(s) required (${currencyCode.value} ${(settingsStore.minSharesOnOnboarding * settingsStore.sharePrice).toLocaleString()}).`
   }
   return ''
 })
@@ -384,11 +388,11 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
           </div>
 
           <!-- ── Initial Deposit + Date Joined ─────────────────────────────── -->
-          <!-- Initial deposit only shown when auto-create savings is ON -->
-          <div v-if="settingsStore.autoCreateSavingsAccount" class="grid gap-1.5">
+          <!-- Initial deposit only shown when auto-create savings is ON and field is not hidden -->
+          <div v-if="settingsStore.autoCreateSavingsAccount && !settingsStore.hideInitialDeposit" class="grid gap-1.5">
             <Label for="initial_deposit">Initial deposit <span class="text-red-500">*</span></Label>
             <div class="flex overflow-hidden rounded-xl border border-neutral-200 bg-white focus-within:border-neutral-400 focus-within:ring-1 focus-within:ring-neutral-300">
-              <span class="flex items-center border-r border-neutral-200 bg-neutral-50 px-4 text-sm font-medium text-neutral-500">UGX</span>
+              <span class="flex items-center border-r border-neutral-200 bg-neutral-50 px-4 text-sm font-medium text-neutral-500">{{ currencyCode }}</span>
               <input id="initial_deposit" v-model="form.initial_deposit" type="number" min="0" step="0.01" placeholder="Initial deposit" class="flex-1 bg-white px-4 py-3 text-sm text-neutral-800 outline-none placeholder:text-neutral-400" />
             </div>
             <InputError :message="errors.initial_deposit" />
@@ -413,11 +417,11 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
 
           <!-- ── Existing Member: Opening Balance + Avatar ──────────────────── -->
           <template v-if="isExisting">
-            <!-- Opening Balance only shown when auto-create savings is ON -->
-            <div v-if="settingsStore.autoCreateSavingsAccount" class="grid gap-1.5">
+            <!-- Opening Balance only shown when auto-create savings is ON and field is not hidden -->
+            <div v-if="settingsStore.autoCreateSavingsAccount && !settingsStore.hideOpeningBalance" class="grid gap-1.5">
               <Label for="opening_balance">Opening Balance <span class="text-red-500">*</span></Label>
               <div class="flex overflow-hidden rounded-xl border border-neutral-200 bg-white focus-within:border-neutral-400 focus-within:ring-1 focus-within:ring-neutral-300">
-                <span class="flex items-center border-r border-neutral-200 bg-neutral-50 px-4 text-sm font-medium text-neutral-500">UGX</span>
+                <span class="flex items-center border-r border-neutral-200 bg-neutral-50 px-4 text-sm font-medium text-neutral-500">{{ currencyCode }}</span>
                 <input id="opening_balance" v-model="form.opening_balance" type="number" min="0" step="0.01" placeholder="Opening balance" class="flex-1 bg-white px-4 py-3 text-sm text-neutral-800 outline-none placeholder:text-neutral-400" />
               </div>
               <InputError :message="errors.opening_balance" />
@@ -475,8 +479,8 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
               <p class="text-[12px] text-emerald-800 leading-relaxed">
                 This SACCO requires a minimum of
                 <strong>{{ settingsStore.minSharesOnOnboarding }} share(s)</strong>
-                at <strong>UGX {{ settingsStore.sharePrice.toLocaleString() }}</strong> each
-                (total: <strong>UGX {{ (settingsStore.minSharesOnOnboarding * settingsStore.sharePrice).toLocaleString() }}</strong>)
+                at <strong>{{ currencyCode }} {{ settingsStore.sharePrice.toLocaleString() }}</strong> each
+                (total: <strong>{{ currencyCode }} {{ (settingsStore.minSharesOnOnboarding * settingsStore.sharePrice).toLocaleString() }}</strong>)
                 to register a member.
               </p>
             </div>
@@ -511,10 +515,10 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
                   <TrendingUp class="h-4 w-4 text-emerald-600 shrink-0" />
                   <div>
                     <p class="text-[11px] text-neutral-500 font-medium uppercase tracking-wide">
-                      {{ form.shares_quantity || 0 }} shares × UGX {{ settingsStore.sharePrice.toLocaleString() }}
+                      {{ form.shares_quantity || 0 }} shares × {{ currencyCode }} {{ settingsStore.sharePrice.toLocaleString() }}
                     </p>
                     <p class="text-[18px] font-black text-emerald-700 font-mono leading-tight">
-                      UGX {{ sharesTotalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 }) }}
+                      {{ currencyCode }} {{ sharesTotalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 }) }}
                     </p>
                   </div>
                 </div>

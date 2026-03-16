@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import { ArrowLeftRight, Loader2, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { tenantClient } from '@/tenant/apis/tenantClient'
 import SearchableSelect from '@/Global/SearchableSelect.vue'
+import { useCurrencyStore } from '@/stores/currency'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface Account {
@@ -30,6 +32,8 @@ const form = ref({
     transaction_reference: generateRef(),
     narration:             '',
 })
+const currencyStore = useCurrencyStore()
+const { currencyCode } = storeToRefs(currencyStore)
 
 function generateRef() {
     const date = (new Date().toISOString().split('T')[0] ?? '').replace(/-/g, '')
@@ -64,10 +68,10 @@ const toAccountOptions = computed(() =>
 
 // SearchableSelect expects { id, name } shape
 const fromSelectOptions = computed(() =>
-    accounts.value.map(a => ({ id: a.id, name: `${accountLabel(a)} — UGX ${fmtUGX(a.balance)}` }))
+    accounts.value.map(a => ({ id: a.id, name: `${accountLabel(a)} — ${currencyCode.value} ${fmtCurrency(a.balance)}` }))
 )
 const toSelectOptions = computed(() =>
-    toAccountOptions.value.map(a => ({ id: a.id, name: `${accountLabel(a)} — UGX ${fmtUGX(a.balance)}` }))
+    toAccountOptions.value.map(a => ({ id: a.id, name: `${accountLabel(a)} — ${currencyCode.value} ${fmtCurrency(a.balance)}` }))
 )
 
 // Reset "To" when "From" changes
@@ -90,7 +94,7 @@ const amountError = computed(() => {
     const amt = Number(form.value.amount)
     if (!amt || amt <= 0) return ''
     if (maxTransferable.value !== null && amt > maxTransferable.value) {
-        return `Exceeds available balance (UGX ${maxTransferable.value.toLocaleString('en-US', { minimumFractionDigits: 2 })})`
+        return `Exceeds available balance (${currencyCode.value} ${maxTransferable.value.toLocaleString('en-US', { minimumFractionDigits: 2 })})`
     }
     return ''
 })
@@ -165,7 +169,7 @@ function resetForm() {
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function fmtUGX(n: number) {
+function fmtCurrency(n: number) {
     return n.toLocaleString('en-US', { minimumFractionDigits: 2 })
 }
 
@@ -239,7 +243,7 @@ function accountLabel(a: Account) {
                         <div v-if="fromAccount"
                             class="flex items-center gap-3 px-3 py-2 rounded-lg bg-neutral-50 border border-neutral-100 text-[12px] text-neutral-500">
                             <span>Balance:</span>
-                            <strong class="text-neutral-800 font-mono">UGX {{ fmtUGX(fromAccount.balance) }}</strong>
+                            <strong class="text-neutral-800 font-mono">{{ currencyCode }} {{ fmtCurrency(fromAccount.balance) }}</strong>
                         </div>
                     </div>
 
@@ -272,7 +276,7 @@ function accountLabel(a: Account) {
                                 : 'border-neutral-200 focus-within: border-nfuko-primary focus-within:ring-[ bg-nfuko-primary]/20'
                         ]">
                             <span class="flex items-center border-r border-neutral-200 bg-neutral-50 px-4 text-[13px] font-semibold text-neutral-500">
-                                UGX
+                                {{ currencyCode }}
                             </span>
                             <input v-model="formattedAmount" type="text" inputmode="decimal"
                                 placeholder="0.00"
@@ -347,7 +351,7 @@ function accountLabel(a: Account) {
                         </div>
                         <div class="border-t border-neutral-100 pt-2 flex justify-between">
                             <span class="text-neutral-500">Amount</span>
-                            <span class="font-black text-[15px] text-emerald-700 font-mono">UGX {{ fmtUGX(Number(form.amount)) }}</span>
+                            <span class="font-black text-[15px] text-emerald-700 font-mono">{{ currencyCode }} {{ fmtCurrency(Number(form.amount)) }}</span>
                         </div>
                     </div>
                 </div>

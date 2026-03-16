@@ -199,7 +199,7 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
           <div class="grid gap-1.5">
             <Label>Salutation</Label>
             <SearchableSelect v-model="form.salutation" :options="salutationOptions" placeholder="Select Salutation"
-              :error="errors.salutation" />
+              state="member-edit-salutation" :error="errors.salutation" />
             <InputError :message="errors.salutation" />
           </div>
 
@@ -207,7 +207,7 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
           <div class="grid gap-1.5">
             <Label>Gender <span class="text-red-500">*</span></Label>
             <SearchableSelect v-model="form.gender" :options="genderOptions" placeholder="Select Gender"
-              :error="errors.gender" />
+              state="member-edit-gender" :error="errors.gender" />
             <InputError :message="errors.gender" />
           </div>
 
@@ -260,7 +260,7 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
           <div class="grid gap-1.5">
             <Label>Marital Status <span class="text-red-500">*</span></Label>
             <SearchableSelect v-model="form.marital_status" :options="maritalOptions"
-              placeholder="Select Marital Status" :error="errors.marital_status" />
+              placeholder="Select Marital Status" state="member-edit-marital-status" :error="errors.marital_status" />
             <InputError :message="errors.marital_status" />
           </div>
 
@@ -268,7 +268,7 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
           <div class="grid gap-1.5">
             <Label>Nationality <span class="text-red-500">*</span></Label>
             <SearchableSelect v-model="form.nationality" :options="nationalityOptions" placeholder="Select Nationality"
-              :error="errors.nationality" />
+              state="member-edit-nationality" :error="errors.nationality" />
             <InputError :message="errors.nationality" />
           </div>
 
