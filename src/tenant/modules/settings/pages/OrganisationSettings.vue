@@ -16,8 +16,8 @@ interface FiscalYear {
 }
 interface Meta { current_page: number; last_page: number; total: number }
 
-const selectCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none transition focus: border-nfuko-primary focus:ring-2 focus:ring-[ bg-nfuko-primary]/10 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white'
-const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white'
+const selectCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none transition focus: border-nfuko-primary focus:ring-2 focus:ring-bg-nfuko-primary/10 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white'
+const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white'
 
 // ─── Currency Settings Drawer ────────────────────────────────────────────────
 const DEFAULT_CURRENCIES: CurrencyOption[] = [
@@ -590,7 +590,7 @@ async function confirmDelete() {
                                         v-model="fiscalSearch"
                                         type="text"
                                         placeholder="Search for financial year"
-                                        class="w-full rounded-xl border border-neutral-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                                        class="w-full rounded-xl border border-neutral-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
                                     />
                                 </div>
                                 <button
@@ -733,7 +733,7 @@ async function confirmDelete() {
                                     v-model="fiscalForm.name"
                                     type="text"
                                     placeholder="e.g. 2026"
-                                    class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none transition focus: border-nfuko-primary focus:ring-2 focus:ring-[ bg-nfuko-primary]/10 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                                    class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none transition focus: border-nfuko-primary focus:ring-2 focus:ring-bg-nfuko-primary/10 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
                                 />
                                 <InputError v-if="fiscalErrors.name" :message="fiscalErrors.name?.[0] ?? fiscalErrors.name" />
                             </div>
@@ -744,7 +744,7 @@ async function confirmDelete() {
                                 <input
                                     v-model="fiscalForm.start_date"
                                     type="date"
-                                    class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none transition focus: border-nfuko-primary focus:ring-2 focus:ring-[ bg-nfuko-primary]/10 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                                    class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none transition focus: border-nfuko-primary focus:ring-2 focus:ring-bg-nfuko-primary/10 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
                                 />
                                 <InputError v-if="fiscalErrors.start_date" :message="fiscalErrors.start_date?.[0] ?? fiscalErrors.start_date" />
                             </div>
@@ -755,7 +755,7 @@ async function confirmDelete() {
                                 <input
                                     v-model="fiscalForm.end_date"
                                     type="date"
-                                    class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none transition focus: border-nfuko-primary focus:ring-2 focus:ring-[ bg-nfuko-primary]/10 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                                    class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none transition focus: border-nfuko-primary focus:ring-2 focus:ring-bg-nfuko-primary/10 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
                                 />
                                 <InputError v-if="fiscalErrors.end_date" :message="fiscalErrors.end_date?.[0] ?? fiscalErrors.end_date" />
                             </div>

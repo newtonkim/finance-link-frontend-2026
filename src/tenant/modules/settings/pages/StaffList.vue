@@ -193,22 +193,22 @@ const deleteStaff = async (id: number) => {
                 <div class="flex-1 overflow-y-auto px-6 py-6 space-y-5">
                     <div class="space-y-1.5">
                         <Label class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Name</Label>
-                        <input type="text" v-model="formData.name" class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow" placeholder="e.g. John Doe" />
+                        <input type="text" v-model="formData.name" class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow" placeholder="e.g. John Doe" />
                     </div>
 
                     <div class="space-y-1.5">
                         <Label class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Email Address</Label>
-                        <input type="email" v-model="formData.email" class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow" placeholder="john@sacco.com" />
+                        <input type="email" v-model="formData.email" class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow" placeholder="john@sacco.com" />
                     </div>
 
                     <div class="space-y-1.5">
                         <Label class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Password <span v-if="isEditing" class="text-xs text-neutral-400 font-normal">(Leave blank to keep current)</span></Label>
-                        <input type="password" v-model="formData.password" class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow" placeholder="••••••••" />
+                        <input type="password" v-model="formData.password" class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow" placeholder="••••••••" />
                     </div>
 
                     <div class="space-y-1.5">
                         <Label class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Role</Label>
-                        <select v-model="formData.role" class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow">
+                        <select v-model="formData.role" class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow">
                             <option value="Staff">Regular Staff</option>
                             <option value="Manager">Manager</option>
                             <option value="Teller">Teller</option>
@@ -217,14 +217,14 @@ const deleteStaff = async (id: number) => {
 
                     <div class="space-y-1.5">
                         <Label class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Account Status</Label>
-                        <select v-model="formData.status" class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow">
+                        <select v-model="formData.status" class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow">
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                         </select>
                     </div>
 
                     <div class="flex items-start space-x-3 p-4 rounded-xl border border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 mt-4">
-                        <input id="is-tenant-admin" type="checkbox" v-model="formData.is_tenant_admin" class="mt-1 h-4 w-4 rounded border-neutral-300 accent-[ bg-nfuko-primary] cursor-pointer" />
+                        <input id="is-tenant-admin" type="checkbox" v-model="formData.is_tenant_admin" class="mt-1 h-4 w-4 rounded border-neutral-300 accent-bg-nfuko-primary cursor-pointer" />
                         <div class="grid gap-1.5 leading-none">
                             <Label for="is-tenant-admin" class="text-sm font-semibold leading-none text-neutral-900 dark:text-white cursor-pointer">
                                 System Administrator

@@ -458,7 +458,7 @@ const submitCreate = async () => {
           v-model="search"
           type="text"
           placeholder="Search by account no or member..."
-          class="w-full rounded-full border border-neutral-200 bg-white py-2.5 pl-11 pr-4 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+          class="w-full rounded-full border border-neutral-200 bg-white py-2.5 pl-11 pr-4 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
         />
       </div>
       <button class="inline-flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm font-medium text-neutral-600 hover:bg-neutral-50 transition-colors dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
@@ -818,7 +818,7 @@ const submitCreate = async () => {
                   <Label>Status</Label>
                   <select
                     v-model="editForm.status"
-                    class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                    class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
                   >
                     <option value="active">Active</option>
                     <option value="dormant">Dormant</option>
@@ -835,7 +835,7 @@ const submitCreate = async () => {
                     type="number"
                     step="0.01"
                     min="0"
-                    class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                    class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
                   />
                   <InputError v-if="editErrors.initial_deposit" :message="editErrors.initial_deposit?.[0] ?? editErrors.initial_deposit" />
                 </div>
@@ -848,7 +848,7 @@ const submitCreate = async () => {
                     type="number"
                     step="0.01"
                     min="0"
-                    class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                    class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
                   />
                   <InputError v-if="editErrors.opening_balance" :message="editErrors.opening_balance?.[0] ?? editErrors.opening_balance" />
                 </div>
@@ -858,7 +858,7 @@ const submitCreate = async () => {
                   <Label>Consider Minimum Balance</Label>
                   <select
                     v-model="editForm.consider_min_balance"
-                    class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                    class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
                   >
                     <option :value="true">Yes</option>
                     <option :value="false">No</option>
@@ -1015,7 +1015,7 @@ const submitCreate = async () => {
                       type="number"
                       step="0.01"
                       min="0"
-                      class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-[ bg-nfuko-primary]"
+                      class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-bg-nfuko-primary"
                     />
                   </div>
                 </div>
@@ -1052,7 +1052,7 @@ const submitCreate = async () => {
                 <Label>Status</Label>
                 <select
                   v-model="newAccountForm.status"
-                  class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-[ bg-nfuko-primary]"
+                  class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-bg-nfuko-primary"
                 >
                   <option value="active">Active</option>
                   <option value="dormant">Dormant</option>

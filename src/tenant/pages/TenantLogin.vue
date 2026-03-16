@@ -78,6 +78,7 @@ async function submit() {
       await router.push('/tenant/dashboard');
     }
   } catch (error) {
+     console.log(error)
     if (isAxiosError(error)) {
       const payload = error.response?.data as {
         message?: string;
@@ -86,10 +87,10 @@ async function submit() {
       if (payload?.errors?.email?.[0]) errors.value.email = payload.errors.email[0];
       if (payload?.errors?.password?.[0]) errors.value.password = payload.errors.password[0];
       if (!errors.value.email && !errors.value.password) {
-        errors.value.form = payload?.message ?? 'Login failed. Please try again.';
+        errors.value.form = payload?.message ?? 'Login failed. Please try again.1';
       }
     } else {
-      errors.value.form = 'Login failed. Please try again.';
+      errors.value.form = 'Login failed. Please try again.2';
     }
   } finally {
     processing.value = false;
@@ -123,7 +124,7 @@ async function submit() {
           <Label for="email" class="text-sm font-semibold  text-nfuko-primary">Email address</Label>
           <Input id="email" type="email" v-model="email" required autofocus :tabindex="1" autocomplete="email"
             placeholder="Enter your email"
-            class="h-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-[ bg-nfuko-primary]/10" />
+            class="h-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-bg-nfuko-primary/10" />
           <InputError :message="errors.email" />
         </div>
 
@@ -133,7 +134,7 @@ async function submit() {
           <div class="relative">
             <Input id="password" :type="showPassword ? 'text' : 'password'" v-model="password" required :tabindex="2"
               autocomplete="current-password" placeholder="Enter your password"
-              class="h-12 w-full pr-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-[ bg-nfuko-primary]/10" />
+              class="h-12 w-full pr-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-bg-nfuko-primary/10" />
             <button type="button" @click="showPassword = !showPassword"
               class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-neutral-400 hover: text-nfuko-primary transition-colors"
               tabindex="-1">
@@ -145,7 +146,7 @@ async function submit() {
 
         <!-- Submit -->
         <Button type="submit"
-          class="h-12 w-full  bg-nfuko-primary hover: bg-nfuko-primary/90 text-white font-semibold rounded-xl transition-all shadow-lg shadow-[ bg-nfuko-primary]/10"
+          class="h-12 w-full  bg-nfuko-primary hover:bg-nfuko-primary/90 text-white font-semibold rounded-xl transition-all shadow-lg shadow-bg-nfuko-primary/10"
           :tabindex="3" :disabled="processing">
           <Spinner v-if="processing" class="mr-2" />
           Sign in

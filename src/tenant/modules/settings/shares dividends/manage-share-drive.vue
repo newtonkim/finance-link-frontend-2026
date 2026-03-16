@@ -78,7 +78,7 @@
                                                 </label>
                                                 <input v-model.number="tempMinShares" type="number" min="1"
                                                     placeholder="e.g. 5"
-                                                    class="w-full px-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] font-mono font-bold text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:focus:ring-bg-nfuko-yellow transition-all" />
+                                                    class="w-full px-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] font-mono font-bold text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:focus:ring-bg-nfuko-yellow transition-all" />
                                             </div>
                                             <!-- Share price -->
                                             <div>
@@ -91,7 +91,7 @@
                                                         class="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-neutral-400">UGX</span>
                                                     <input v-model.number="tempSharePrice" type="number" min="0"
                                                         step="100" placeholder="0"
-                                                        class="w-full pl-11 pr-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] font-mono font-bold text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:focus:ring-bg-nfuko-yellow transition-all" />
+                                                        class="w-full pl-11 pr-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] font-mono font-bold text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:focus:ring-bg-nfuko-yellow transition-all" />
                                                 </div>
                                             </div>
                                         </div>
@@ -166,7 +166,7 @@
                                         class="flex items-start gap-3 p-4 rounded-xl border border-neutral-100 dark:border-neutral-800 bg-neutral-50/60 dark:bg-neutral-900/50">
                                         <input id="hide-is-shareholder" type="checkbox"
                                             v-model="tempHideIsShareholderField"
-                                            class="mt-0.5 h-4 w-4 rounded border-neutral-300 accent-[ bg-nfuko-primary] dark:accent-bg-nfuko-yellow cursor-pointer shrink-0" />
+                                            class="mt-0.5 h-4 w-4 rounded border-neutral-300 accent-bg-nfuko-primary dark:accent-bg-nfuko-yellow cursor-pointer shrink-0" />
                                         <div class="grid gap-1 leading-none">
                                             <label for="hide-is-shareholder"
                                                 class="text-[13px] font-semibold text-neutral-900 dark:text-white cursor-pointer">

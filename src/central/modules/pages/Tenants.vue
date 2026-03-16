@@ -123,7 +123,7 @@ function formatDate(dateStr?: string): string {
                 <Search
                     class="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-neutral-400 dark:text-neutral-500 pointer-events-none" />
                 <Input v-model="searchQuery" type="text" placeholder="Search tenants by name or subdomain..."
-                    class="pl-10 h-11 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#151515] dark:text-white bg-white shadow-sm text-sm focus:ring-2 focus:ring-[ bg-nfuko-primary]/10 dark:focus:ring-white/10 transition-shadow" />
+                    class="pl-10 h-11 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#151515] dark:text-white bg-white shadow-sm text-sm focus:ring-2 focus:ring-bg-nfuko-primary/10 dark:focus:ring-white/10 transition-shadow" />
             </div>
 
             <!-- Filter Tabs -->

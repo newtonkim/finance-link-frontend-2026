@@ -129,7 +129,7 @@ defineExpose({
 
 
 const inputClass =
-    'w-full rounded-lg border focus:border-nfuko-primary focus:ring-1 focus:ring- bg-nfuko-[#FCDC04]   bg-white px-3 py-2.5 text-sm outline-none transition  border-nfuko-primary/10 focus:ring-1 focus:ring-[ bg-nfuko-primary]/90 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#8ba8a2]/90 dark:focus:ring-[#8ba8a2]/90';
+    'w-full rounded-lg border focus:border-nfuko-primary focus:ring-1 focus:ring- bg-nfuko-[#FCDC04]   bg-white px-3 py-2.5 text-sm outline-none transition  border-nfuko-primary/10 focus:ring-1 focus:ring-bg-nfuko-primary/90 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#8ba8a2]/90 dark:focus:ring-[#8ba8a2]/90';
 
 </script>
 

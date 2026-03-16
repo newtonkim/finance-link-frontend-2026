@@ -10,7 +10,7 @@
                 <input v-model="searchQuery"
                  @input="(e)=>inputValue(e.target.value)"
                 type="search" autocomplete="off"
-                    placeholder="Search by name, member number, phone, or email..." class="w-full rounded-full border border-neutral-200 bg-white py-2.5 pl-11 pr-4 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
+                    placeholder="Search by name, member number, phone, or email..." class="w-full rounded-full border border-neutral-200 bg-white py-2.5 pl-11 pr-4 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
             </div>
             <button
             type="button"
