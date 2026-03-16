@@ -127,7 +127,7 @@ onMounted(async () => {
       </div>
     </SidebarHeader>
 
-    <SidebarContent class="px-2 overflow-y-auto">
+    <SidebarContent class="px-2 flex-1 min-h-0 overflow-y-auto">
       <!-- NAVIGATION -->
       <SidebarGroup>
         <SidebarGroupLabel class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
@@ -210,19 +210,24 @@ onMounted(async () => {
       </SidebarGroup>
     </SidebarContent>
 
-    <SidebarFooter class="p-4 space-y-3">
-      <!-- Dark mode toggle -->
+    <SidebarFooter class="shrink-0 p-4 space-y-3">
+      <!-- Dark mode toggle — hide label when sidebar is collapsed -->
       <div class="flex items-center justify-between px-2 bg-white/5 rounded-xl p-3 border border-white/5">
         <div class="flex items-center gap-2.5">
-          <Moon v-if="isDark" :size="16" class="text-bg-nfuko-yellow" />
-          <Sun v-else :size="16" class="text-bg-nfuko-yellow" />
-          <span class="text-xs font-semibold text-nfuko-nav-text tracking-wide">Dark Mode</span>
+          <Moon v-if="isDark" :size="16" class="text-bg-nfuko-yellow shrink-0" />
+          <Sun v-else :size="16" class="text-bg-nfuko-yellow shrink-0" />
+          <span v-if="state === 'expanded'" class="text-xs font-semibold text-nfuko-nav-text tracking-wide">Dark Mode</span>
         </div>
-        <button @click="toggleDarkMode"
+        <button v-if="state === 'expanded'" @click="toggleDarkMode"
           class="relative inline-flex h-5 w-10 items-center rounded-full transition-all duration-300"
           :class="isDark ? 'bg-bg-nfuko-yellow' : 'bg-white/10'">
           <span class="inline-flex h-4 w-4 rounded-full bg-white transition-transform duration-300 shadow-xl"
             :class="isDark ? 'translate-x-5' : 'translate-x-0.5'" />
+        </button>
+        <!-- Collapsed: icon-only toggle -->
+        <button v-else @click="toggleDarkMode" class="ml-1 rounded-lg p-1 hover:bg-white/10 transition-colors">
+          <Moon v-if="!isDark" :size="14" class="text-nfuko-nav-text" />
+          <Sun v-else :size="14" class="text-bg-nfuko-yellow" />
         </button>
       </div>
       <TenantNavUser />

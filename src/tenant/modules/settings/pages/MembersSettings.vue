@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, nextTick } from 'vue'
-import { Users, Save, Wallet, AlertCircle, Loader2, ShieldCheck } from 'lucide-vue-next'
+import { Users, Save, Wallet, AlertCircle, Loader2, ShieldCheck, Star } from 'lucide-vue-next'
 import {
     Sheet,
     SheetContent,
@@ -25,6 +25,7 @@ const tempHideInitialDeposit = ref<boolean>(Boolean(settingsStore.hideInitialDep
 const tempHideOpeningBalance = ref<boolean>(Boolean(settingsStore.hideOpeningBalance))
 const tempAutoCreateSavingsAccount = ref<boolean>(true)
 const tempRequireMemberApproval = ref<boolean>(false)
+const tempLoyalMemberMinTenureMonths = ref<number>(12)
 
 // Sync local state when drawer opens — also fetch backend settings
 watch(isDrawerOpen, async (isOpen) => {
@@ -34,6 +35,7 @@ watch(isDrawerOpen, async (isOpen) => {
         await settingsStore.fetchOnboardingSettings()
         tempAutoCreateSavingsAccount.value = settingsStore.autoCreateSavingsAccount
         tempRequireMemberApproval.value = settingsStore.requireMemberApproval
+        tempLoyalMemberMinTenureMonths.value = settingsStore.loyalMemberMinTenureMonths
     }
 })
 
@@ -49,6 +51,7 @@ async function handleSave() {
             shares_compulsory_applies_to_existing: settingsStore.sharesCompulsoryAppliesToExisting,
             auto_create_savings_account: tempAutoCreateSavingsAccount.value,
             require_member_approval: tempRequireMemberApproval.value,
+            loyal_member_min_tenure_months: tempLoyalMemberMinTenureMonths.value,
         })
         isDrawerOpen.value = false
         nextTick(() => toast.success('Member onboarding settings saved.'))
@@ -220,6 +223,36 @@ async function handleSave() {
                                                 A savings account using the <strong>General Savings Account</strong> product will be
                                                 automatically created for every new member on registration.
                                             </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- ── Loyal Member Criteria ── -->
+                                <div class="rounded-2xl border border-neutral-100 dark:border-neutral-800 overflow-hidden">
+                                    <div class="flex items-center gap-2.5 px-4 py-3 bg-neutral-50 dark:bg-neutral-900 border-b border-neutral-100 dark:border-neutral-800">
+                                        <Star class="h-4 w-4 text-amber-500" />
+                                        <span class="text-[11px] font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">
+                                            Loyal Member Criteria
+                                        </span>
+                                    </div>
+                                    <div class="p-4 space-y-3">
+                                        <p class="text-[12px] text-neutral-500 dark:text-neutral-400">
+                                            A member is considered <strong class="text-amber-600 dark:text-amber-400">loyal</strong> when their membership tenure reaches the threshold below. Loyal members can receive reduced or custom monthly fees on savings products.
+                                        </p>
+                                        <div class="flex items-center justify-between gap-4 p-3 rounded-xl bg-neutral-50 dark:bg-neutral-800 border border-neutral-100 dark:border-neutral-700">
+                                            <div>
+                                                <p class="text-[13px] font-semibold text-neutral-800 dark:text-neutral-200">Minimum tenure (months)</p>
+                                                <p class="text-[11px] text-neutral-400 mt-0.5">Members with at least this many months of membership qualify as loyal</p>
+                                            </div>
+                                            <input
+                                                v-model.number="tempLoyalMemberMinTenureMonths"
+                                                type="number" min="1" max="120"
+                                                class="w-20 rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm text-center font-semibold text-neutral-900 focus:border-nfuko-primary focus:outline-none dark:border-neutral-600 dark:bg-neutral-900 dark:text-white"
+                                            />
+                                        </div>
+                                        <div class="flex items-start gap-2 px-3 py-2 rounded-lg bg-amber-50 border border-amber-100 text-[11px] text-amber-700 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-400">
+                                            <Star class="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                                            <span>Currently set to <strong>{{ tempLoyalMemberMinTenureMonths }} month{{ tempLoyalMemberMinTenureMonths === 1 ? '' : 's' }}</strong>. Members who joined more than {{ tempLoyalMemberMinTenureMonths }} months ago will receive loyalty fee adjustments.</span>
                                         </div>
                                     </div>
                                 </div>

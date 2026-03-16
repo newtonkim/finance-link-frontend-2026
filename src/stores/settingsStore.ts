@@ -46,6 +46,7 @@ export const useSettingsStore = defineStore('settings', () => {
     const sharesCompulsoryAppliesToExisting = ref<boolean>(false)
     const autoCreateSavingsAccount = ref<boolean>(true)
     const requireMemberApproval = ref<boolean>(false)
+    const loyalMemberMinTenureMonths = ref<number>(12)
     const onboardingSettingsLoaded = ref<boolean>(false)
 
     async function fetchOnboardingSettings() {
@@ -58,6 +59,7 @@ export const useSettingsStore = defineStore('settings', () => {
             sharesCompulsoryAppliesToExisting.value = data.shares_compulsory_applies_to_existing
             autoCreateSavingsAccount.value = data.auto_create_savings_account
             requireMemberApproval.value = data.require_member_approval
+            loyalMemberMinTenureMonths.value = data.loyal_member_min_tenure_months ?? 12
             onboardingSettingsLoaded.value = true
         } catch {
             // silently fail — defaults remain
@@ -71,6 +73,7 @@ export const useSettingsStore = defineStore('settings', () => {
         shares_compulsory_applies_to_existing: boolean
         auto_create_savings_account: boolean
         require_member_approval: boolean
+        loyal_member_min_tenure_months: number
     }) {
         const res = await onboardingSettingsApi.update(payload)
         const data = res.data.data
@@ -80,6 +83,7 @@ export const useSettingsStore = defineStore('settings', () => {
         sharesCompulsoryAppliesToExisting.value = data.shares_compulsory_applies_to_existing
         autoCreateSavingsAccount.value = data.auto_create_savings_account
         requireMemberApproval.value = data.require_member_approval
+        loyalMemberMinTenureMonths.value = data.loyal_member_min_tenure_months ?? 12
     }
 
     return {
@@ -96,6 +100,7 @@ export const useSettingsStore = defineStore('settings', () => {
         sharesCompulsoryAppliesToExisting,
         autoCreateSavingsAccount,
         requireMemberApproval,
+        loyalMemberMinTenureMonths,
         onboardingSettingsLoaded,
         fetchOnboardingSettings,
         saveOnboardingSettings,

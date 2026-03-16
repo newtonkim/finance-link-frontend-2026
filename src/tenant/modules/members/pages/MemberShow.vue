@@ -1,19 +1,23 @@
 <script setup lang="ts">
 import { RouterLink, useRouter, useRoute } from 'vue-router';
 import {
-    Edit, MinusCircle, PlusCircle, Trash2, Plus, UserCircle2,
+    Edit, MinusCircle, PlusCircle, Trash2, RotateCcw, Plus, UserCircle2,
     Users, Wallet, FileText, BarChart3, Star, X, TrendingUp, Check,
     Calendar, MessageSquare, ArrowDownLeft, ArrowUpRight, AlertTriangle,
     Printer, ShieldCheck, ShieldX, Clock
 } from 'lucide-vue-next';
 import { ref, computed, watch, reactive, onMounted } from 'vue';
 import { toast } from 'vue-sonner';
+import { storeToRefs } from 'pinia';
 import SearchableSelect from '@/Global/SearchableSelect.vue';
 import { membersApi } from '@/tenant/apis/members/membersApi';
 import { tenantClient } from '@/tenant/apis/tenantClient';
+import { useCurrencyStore } from '@/stores/currency';
 
 const router = useRouter();
 const route = useRoute();
+const currencyStore = useCurrencyStore();
+const { currencyCode } = storeToRefs(currencyStore);
 
 // Reactive member data fetched from API
 const member = reactive({
@@ -176,7 +180,7 @@ const withdrawalAmountError = computed(() => {
     if (amt > max) {
         const acc = selectedAccount.value as any;
         const minBal = acc?.minimum_balance ?? 0;
-        return `Exceeds withdrawable amount. Max: UGX ${Number(max).toLocaleString('en-US', { minimumFractionDigits: 2 })}${minBal > 0 ? ` (min balance: UGX ${Number(minBal).toLocaleString('en-US', { minimumFractionDigits: 2 })})` : ''}`;
+        return `Exceeds withdrawable amount. Max: ${currencyCode.value} ${Number(max).toLocaleString('en-US', { minimumFractionDigits: 2 })}${minBal > 0 ? ` (min balance: ${currencyCode.value} ${Number(minBal).toLocaleString('en-US', { minimumFractionDigits: 2 })})` : ''}`;
     }
     return '';
 });
@@ -296,8 +300,10 @@ const printingTxn = ref<any>(null);
 const printReceipt = (txn: any) => {
     printingTxn.value = txn;
     setTimeout(() => {
+        document.body.classList.add('receipt-print');
         window.print();
         printingTxn.value = null;
+        document.body.classList.remove('receipt-print');
     }, 100);
 };
 const prevTxnPage = () => { if (currentTxnPage.value > 1) currentTxnPage.value--; };
@@ -308,6 +314,7 @@ const txnToDelete = ref<any>(null);
 const isDeletingTxn = ref(false);
 
 const confirmDeleteTxn = (txn: any) => {
+    if (txn.is_reversed || txn.type === 'reversal') return;
     txnToDelete.value = txn;
     showTxnDeleteDialog.value = true;
 };
@@ -321,13 +328,16 @@ const executeDeleteTxn = async () => {
     if (!txnToDelete.value) return;
     isDeletingTxn.value = true;
     try {
-        await tenantClient.delete(`/transactions/${txnToDelete.value.id}`);
-        toast.success('Transaction deleted successfully.');
-        member.transactions = (member.transactions || []).filter(t => t.id !== txnToDelete.value.id);
+        const res = await tenantClient.post(`/transactions/${txnToDelete.value.id}/reverse`);
+        toast.success('Transaction reversed successfully.');
+        // Mark original as reversed and append the reversal entry
+        const idx = (member.transactions || []).findIndex((t: any) => t.id === txnToDelete.value.id);
+        if (idx !== -1) member.transactions[idx].is_reversed = true;
+        if (res.data?.reversal) member.transactions.push(res.data.reversal);
         showTxnDeleteDialog.value = false;
         txnToDelete.value = null;
-    } catch (error) {
-        toast.error('Failed to delete transaction.');
+    } catch (error: any) {
+        toast.error(error?.response?.data?.message || 'Failed to reverse transaction.');
     } finally {
         isDeletingTxn.value = false;
     }
@@ -555,9 +565,9 @@ const systemNarration = computed(() => {
         : '—';
     const person = depositForm.deposited_by?.trim() || 'Unknown';
     if (drawerOpen.value === 'deposit') {
-        return `A deposit amount of UGX ${formattedAmount} deposited on ${formattedDate} by ${person}.`;
+        return `A deposit amount of ${currencyCode.value} ${formattedAmount} deposited on ${formattedDate} by ${person}.`;
     }
-    return `A withdrawal amount of UGX ${formattedAmount} withdrawn on ${formattedDate} by ${person}.`;
+    return `A withdrawal amount of ${currencyCode.value} ${formattedAmount} withdrawn on ${formattedDate} by ${person}.`;
 });
 
 const submitTransaction = async () => {
@@ -768,7 +778,16 @@ const handleAvatarUpload = async (event: Event) => {
 
 <template>
     <div v-if="pageLoading" class="flex items-center justify-center min-h-[60vh]">
-        <div class="h-8 w-8 animate-spin rounded-full border-4 border-bg-nfuko-yellow/30 border-t-bg-nfuko-yellow"></div>
+        <div class="flex flex-col items-center gap-3">
+            <div class="relative h-12 w-12">
+                <div class="absolute inset-0 rounded-full border-4 border-[#cda434]/20"></div>
+                <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-[#cda434] border-r-[#cda434] animate-spin"></div>
+                <div class="absolute inset-2 rounded-full bg-[#cda434]/10"></div>
+            </div>
+            <div class="text-[12px] font-bold uppercase tracking-widest text-[#cda434]">
+                Loading Member Data
+            </div>
+        </div>
     </div>
     <template v-else>
 
@@ -1048,7 +1067,7 @@ const handleAvatarUpload = async (event: Event) => {
                                         <th
                                             class="py-4 px-6 text-[12px] font-bold text-[#788896] uppercase tracking-wider">
                                             Balance
-                                            (UGX)</th>
+                                            ({{ currencyCode }})</th>
                                         <th
                                             class="py-4 px-6 text-[12px] font-bold text-[#788896] uppercase tracking-wider">
                                             Actions</th>
@@ -1315,14 +1334,20 @@ const handleAvatarUpload = async (event: Event) => {
                                                 No transactions found.</td>
                                         </tr>
                                         <tr v-for="(txn, index) in paginatedTransactions" :key="txn.id"
-                                            class="border-b border-transparent hover:bg-accent/30 transition-colors">
+                                            :class="[
+                                                'border-b border-transparent transition-colors',
+                                                txn.is_reversed ? 'opacity-50 line-through-row' : txn.type === 'reversal' ? 'bg-amber-50/50 dark:bg-amber-900/10' : 'hover:bg-accent/30'
+                                            ]">
                                             <td class="py-3.5 px-5 text-[13px] text-muted-foreground">{{ (currentTxnPage
                                                 - 1) * txnsPerPage + index + 1 }}.</td>
                                             <td class="py-3.5 px-5">
-                                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase"
-                                                    :class="txn.type === 'deposit' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400'">
-                                                    {{ txn.type }}
-                                                </span>
+                                                <div class="flex flex-col gap-0.5">
+                                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase w-fit"
+                                                        :class="txn.type === 'deposit' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400' : txn.type === 'reversal' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400' : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400'">
+                                                        {{ txn.type }}
+                                                    </span>
+                                                    <span v-if="txn.is_reversed" class="text-[9px] text-neutral-400 italic">reversed</span>
+                                                </div>
                                             </td>
                                             <td class="py-3.5 px-5">
                                                 <span class="text-[14px] font-mono font-bold"
@@ -1353,9 +1378,9 @@ const handleAvatarUpload = async (event: Event) => {
                                             </td>
                                             <td class="py-3.5 px-5 text-center">
                                                 <button @click="confirmDeleteTxn(txn)"
-                                                    class="flex mx-auto h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-600 transition-colors hover:bg-red-100 dark:bg-red-900/40 dark:text-red-400 dark:hover:bg-red-900/60"
-                                                    title="Delete Transaction">
-                                                    <Trash2 :size="14" stroke-width="2.5" />
+                                                    class="flex mx-auto h-8 w-8 items-center justify-center rounded-full bg-amber-50 text-amber-700 transition-colors hover:bg-amber-100 dark:bg-amber-900/40 dark:text-amber-400 dark:hover:bg-amber-900/60"
+                                                    title="Reverse Transaction">
+                                                    <RotateCcw :size="14" stroke-width="2.5" />
                                                 </button>
                                             </td>
                                         </tr>
@@ -1454,7 +1479,10 @@ const handleAvatarUpload = async (event: Event) => {
                                                 No transactions found.</td>
                                         </tr>
                                         <tr v-for="(txn, index) in paginatedTransactions" :key="txn.id"
-                                            class="border-b border-transparent hover:bg-accent/30 transition-colors">
+                                            :class="[
+                                                'border-b border-transparent transition-colors',
+                                                txn.is_reversed ? 'opacity-50 line-through-row' : txn.type === 'reversal' ? 'bg-amber-50/50 dark:bg-amber-900/10' : 'hover:bg-accent/30'
+                                            ]">
                                             <td class="py-3.5 px-5 text-[13px] text-muted-foreground">{{ (currentTxnPage
                                                 - 1) * txnsPerPage + index + 1 }}.</td>
                                             <td class="py-3.5 px-5">
@@ -1493,9 +1521,15 @@ const handleAvatarUpload = async (event: Event) => {
                                             </td>
                                             <td class="py-3.5 px-5 text-center">
                                                 <button @click="confirmDeleteTxn(txn)"
-                                                    class="flex mx-auto h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-600 transition-colors hover:bg-red-100 dark:bg-red-900/40 dark:text-red-400 dark:hover:bg-red-900/60"
-                                                    title="Delete Transaction">
-                                                    <Trash2 :size="14" stroke-width="2.5" />
+                                                    :disabled="txn.is_reversed || txn.type === 'reversal'"
+                                                    :title="txn.is_reversed ? 'Already reversed' : txn.type === 'reversal' ? 'Reversal entry' : 'Reverse Transaction'"
+                                                    :class="[
+                                                        'flex mx-auto h-8 w-8 items-center justify-center rounded-full transition-colors',
+                                                        (txn.is_reversed || txn.type === 'reversal')
+                                                            ? 'bg-neutral-100 text-neutral-300 cursor-not-allowed dark:bg-neutral-800 dark:text-neutral-600'
+                                                            : 'bg-amber-50 text-amber-700 hover:bg-amber-100 dark:bg-amber-900/40 dark:text-amber-400 dark:hover:bg-amber-900/60'
+                                                    ]">
+                                                    <RotateCcw :size="14" stroke-width="2.5" />
                                                 </button>
                                             </td>
                                         </tr>
@@ -1594,7 +1628,10 @@ const handleAvatarUpload = async (event: Event) => {
                                                 No withdrawals found.</td>
                                         </tr>
                                         <tr v-for="(txn, index) in paginatedTransactions" :key="txn.id"
-                                            class="border-b border-transparent hover:bg-accent/30 transition-colors">
+                                            :class="[
+                                                'border-b border-transparent transition-colors',
+                                                txn.is_reversed ? 'opacity-50 line-through-row' : txn.type === 'reversal' ? 'bg-amber-50/50 dark:bg-amber-900/10' : 'hover:bg-accent/30'
+                                            ]">
                                             <td class="py-3.5 px-5 text-[13px] text-muted-foreground">{{ (currentTxnPage
                                                 - 1) * txnsPerPage + index + 1 }}.</td>
                                             <td class="py-3.5 px-5">
@@ -1631,9 +1668,15 @@ const handleAvatarUpload = async (event: Event) => {
                                             </td>
                                             <td class="py-3.5 px-5 text-center">
                                                 <button @click="confirmDeleteTxn(txn)"
-                                                    class="flex mx-auto h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-600 transition-colors hover:bg-red-100 dark:bg-red-900/40 dark:text-red-400 dark:hover:bg-red-900/60"
-                                                    title="Delete Transaction">
-                                                    <Trash2 :size="14" stroke-width="2.5" />
+                                                    :disabled="txn.is_reversed || txn.type === 'reversal'"
+                                                    :title="txn.is_reversed ? 'Already reversed' : txn.type === 'reversal' ? 'Reversal entry' : 'Reverse Transaction'"
+                                                    :class="[
+                                                        'flex mx-auto h-8 w-8 items-center justify-center rounded-full transition-colors',
+                                                        (txn.is_reversed || txn.type === 'reversal')
+                                                            ? 'bg-neutral-100 text-neutral-300 cursor-not-allowed dark:bg-neutral-800 dark:text-neutral-600'
+                                                            : 'bg-amber-50 text-amber-700 hover:bg-amber-100 dark:bg-amber-900/40 dark:text-amber-400 dark:hover:bg-amber-900/60'
+                                                    ]">
+                                                    <RotateCcw :size="14" stroke-width="2.5" />
                                                 </button>
                                             </td>
                                         </tr>
@@ -1791,7 +1834,7 @@ const handleAvatarUpload = async (event: Event) => {
                                     <div>
                                         <label
                                             class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
-                                            Credited Account <span class="text-red-600">*</span>
+                                            Debit Account <span class="text-red-600">*</span>
                                         </label>
                                         <SearchableSelect :modelValue="newAccountForm.credited_account_id"
                                             @update:modelValue="newAccountForm.credited_account_id = $event"
@@ -1807,7 +1850,7 @@ const handleAvatarUpload = async (event: Event) => {
                                         </label>
                                         <div class="relative">
                                             <span
-                                                class="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-gray-500">UGX</span>
+                                                class="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-gray-500">{{ currencyCode }}</span>
                                             <input v-model="formattedInitialDeposit" type="text" placeholder="0"
                                                 class="w-full py-3 pl-14 pr-4 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-[14px] font-mono font-bold placeholder-gray-400 focus:outline-none focus:border-bg-nfuko-yellow/50 focus:ring-1 focus:ring-bg-nfuko-yellow/30 transition-all" />
                                         </div>
@@ -1837,7 +1880,7 @@ const handleAvatarUpload = async (event: Event) => {
                                         </label>
                                         <div class="relative">
                                             <span
-                                                class="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-gray-500">UGX</span>
+                                                class="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-gray-500">{{ currencyCode }}</span>
                                             <input v-model="formattedOpeningBalance" type="text" placeholder="0"
                                                 class="w-full py-3 pl-14 pr-4 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-[14px] font-mono font-bold placeholder-gray-400 focus:outline-none focus:border-bg-nfuko-yellow/50 focus:ring-1 focus:ring-bg-nfuko-yellow/30 transition-all" />
                                         </div>
@@ -1937,7 +1980,7 @@ const handleAvatarUpload = async (event: Event) => {
                                         <div>
                                             <label class="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Amount / Rate</label>
                                             <div class="relative">
-                                                <span v-if="customFeeForm.custom_monthly_fee_type === 'amount'" class="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-muted-foreground">UGX</span>
+                                                <span v-if="customFeeForm.custom_monthly_fee_type === 'amount'" class="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-muted-foreground">{{ currencyCode }}</span>
                                                 <span v-else class="absolute right-4 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-muted-foreground">%</span>
                                                 <input v-model="customFeeForm.custom_monthly_fee_amount" type="number" step="0.01" class="w-full py-2.5 border border-border bg-background rounded-xl text-sm focus:border-bg-nfuko-yellow focus:ring-1 focus:ring-bg-nfuko-yellow/50 transition-all" :class="customFeeForm.custom_monthly_fee_type === 'amount' ? 'pl-12 pr-4' : 'pl-4 pr-10'" />
                                             </div>
@@ -2038,9 +2081,9 @@ const handleAvatarUpload = async (event: Event) => {
 
                                     <!-- Min balance info badge — withdrawal only, shown when min balance is enforced -->
                                     <div v-if="drawerOpen === 'withdraw' && selectedAccount && (selectedAccount as any).consider_min_balance && Number((selectedAccount as any).minimum_balance) > 0" class="flex items-center gap-4 px-4 py-2.5 rounded-xl bg-amber-50 border border-amber-200 text-[12px] font-medium text-amber-800">
-                                        <span>Min Balance: <strong>UGX {{ Number((selectedAccount as any).minimum_balance).toLocaleString('en-US', { minimumFractionDigits: 2 }) }}</strong></span>
+                                        <span>Min Balance: <strong>{{ currencyCode }} {{ Number((selectedAccount as any).minimum_balance).toLocaleString('en-US', { minimumFractionDigits: 2 }) }}</strong></span>
                                         <span class="text-amber-400">|</span>
-                                        <span>Withdrawable: <strong>UGX {{ Number((selectedAccount as any).withdrawable_amount).toLocaleString('en-US', { minimumFractionDigits: 2 }) }}</strong></span>
+                                        <span>Withdrawable: <strong>{{ currencyCode }} {{ Number((selectedAccount as any).withdrawable_amount).toLocaleString('en-US', { minimumFractionDigits: 2 }) }}</strong></span>
                                     </div>
 
                                     <!-- Row 2: Amount + Deposited By -->
@@ -2052,7 +2095,7 @@ const handleAvatarUpload = async (event: Event) => {
                                             </label>
                                             <div class="relative">
                                                 <span
-                                                    class="absolute left-4 top-1/2 -translate-y-1/2 text-[13px] font-black text-gray-900">UGX</span>
+                                                    class="absolute left-4 top-1/2 -translate-y-1/2 text-[13px] font-black text-gray-900">{{ currencyCode }}</span>
                                                 <input v-model="formattedAmount" type="text" placeholder="0.00"
                                                     :class="['w-full py-3.5 pl-16 pr-4 rounded-xl bg-black/5 border text-gray-900 text-[16px] font-mono font-bold placeholder-gray-600 focus:outline-none focus:bg-white transition-all', withdrawalAmountError ? 'border-red-500 focus:border-red-500' : 'border-gray-600/50 focus:border-[#cda434]']" />
                                             </div>
@@ -2119,14 +2162,25 @@ const handleAvatarUpload = async (event: Event) => {
                                                     {{ drawerOpen === 'deposit' ? 'Deposit' : 'Withdrawal' }} Narration
                                                 </div>
                                             </label>
-                                            <p v-if="drawerOpen === 'deposit' || drawerOpen === 'withdraw'"
-                                                class="rounded-lg border border-gray-200 bg-white/70 px-3 py-2 text-[12px] text-gray-700">
-                                                {{ systemNarration }}
-                                            </p>
-                                            <textarea v-model="depositForm.narration"
-                                                :placeholder="drawerOpen === 'deposit' ? 'Additional narration (optional)...' : 'Withdrawal reason...'"
-                                                rows="2"
-                                                class="w-full py-3.5 px-4 rounded-xl bg-black/5 border border-gray-600/50 text-gray-900 text-[14px] font-bold placeholder-gray-600 focus:outline-none focus:bg-white focus:border-[#cda434] transition-all resize-none"></textarea>
+                                            <template v-if="drawerOpen === 'withdraw'">
+                                                <textarea v-model="depositForm.narration"
+                                                    placeholder="Withdrawal reason..."
+                                                    rows="2"
+                                                    class="w-full py-3.5 px-4 rounded-xl bg-black/5 border border-gray-600/50 text-gray-900 text-[14px] font-bold placeholder-gray-600 focus:outline-none focus:bg-white focus:border-[#cda434] transition-all resize-none"></textarea>
+                                                <p class="rounded-lg border border-gray-200 bg-white/70 px-3 py-2 text-[12px] text-gray-700">
+                                                    {{ systemNarration }}
+                                                </p>
+                                            </template>
+                                            <template v-else>
+                                                <textarea v-model="depositForm.narration"
+                                                    placeholder="Additional narration (optional)..."
+                                                    rows="2"
+                                                    class="w-full py-3.5 px-4 rounded-xl bg-black/5 border border-gray-600/50 text-gray-900 text-[14px] font-bold placeholder-gray-600 focus:outline-none focus:bg-white focus:border-[#cda434] transition-all resize-none"></textarea>
+                                                <p v-if="drawerOpen === 'deposit'"
+                                                    class="rounded-lg border border-gray-200 bg-white/70 px-3 py-2 text-[12px] text-gray-700">
+                                                    {{ systemNarration }}
+                                                </p>
+                                            </template>
                                             <p v-if="depositErrors.narration"
                                                 class="mt-1 text-[11px] text-red-600 font-bold">{{
                                                     depositErrors.narration }}</p>
@@ -2155,7 +2209,7 @@ const handleAvatarUpload = async (event: Event) => {
                                                 class="text-[11px] font-bold text-gray-900 uppercase tracking-widest">Current
                                                 Balance</span>
                                             <span
-                                                class="text-[14px] font-black text-gray-900 font-mono tracking-tight">UGX
+                                                class="text-[14px] font-black text-gray-900 font-mono tracking-tight">{{ currencyCode }}
                                                 {{
                                                     formatCurrency(currentBalance) }}</span>
                                         </div>
@@ -2167,7 +2221,7 @@ const handleAvatarUpload = async (event: Event) => {
                                                 'text-[16px] font-black font-mono tracking-tight',
                                                 drawerOpen === 'deposit' ? 'text-[#00a86b]' : 'text-[#ea580c]'
                                             ]">
-                                                UGX {{ formatCurrency(previewBalance) }}
+                                                {{ currencyCode }} {{ formatCurrency(previewBalance) }}
                                             </span>
                                         </div>
                                     </div>
@@ -2202,7 +2256,7 @@ const handleAvatarUpload = async (event: Event) => {
             </Transition>
         </div>
 
-        <!-- Transaction Deletion Dialog -->
+        <!-- Transaction Reversal Dialog -->
         <Teleport to="body">
             <Transition name="fade">
                 <div v-if="showTxnDeleteDialog" class="fixed inset-0 z-50 flex items-center justify-center">
@@ -2211,20 +2265,16 @@ const handleAvatarUpload = async (event: Event) => {
                         class="relative z-10 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-neutral-900 dark:border dark:border-neutral-800">
                         <div class="flex items-start gap-4">
                             <div
-                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
-                                <AlertTriangle :size="20" class="text-red-600 dark:text-red-400" />
+                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
+                                <RotateCcw :size="20" class="text-amber-600 dark:text-amber-400" />
                             </div>
                             <div>
-                                <h3 class="text-base font-semibold text-neutral-900 dark:text-white">Delete Transaction
-                                </h3>
+                                <h3 class="text-base font-semibold text-neutral-900 dark:text-white">Reverse Transaction</h3>
                                 <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-                                    Are you sure you want to delete transaction <strong
-                                        class="text-neutral-700 dark:text-neutral-200">{{ txnToDelete?.reference
-                                        }}</strong>?
-                                    <br><br>
-                                    <span class="text-amber-600 font-semibold italic">Warning: This will reverse the
-                                        account
-                                        balance!</span>
+                                    Reverse transaction <strong class="text-neutral-700 dark:text-neutral-200">{{ txnToDelete?.reference }}</strong>?
+                                </p>
+                                <p class="mt-2 text-[12px] text-neutral-400 dark:text-neutral-500">
+                                    A counter-transaction will be created to undo this entry. The original transaction remains in the audit trail marked as <em>reversed</em>.
                                 </p>
                             </div>
                         </div>
@@ -2234,10 +2284,11 @@ const handleAvatarUpload = async (event: Event) => {
                                 Cancel
                             </button>
                             <button @click="executeDeleteTxn" :disabled="isDeletingTxn"
-                                class="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-50">
+                                class="flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 transition-colors disabled:opacity-50">
                                 <span v-if="isDeletingTxn"
                                     class="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white"></span>
-                                Reverse & Delete
+                                <RotateCcw v-else :size="14" />
+                                Confirm Reversal
                             </button>
                         </div>
                     </div>
@@ -2330,11 +2381,11 @@ const handleAvatarUpload = async (event: Event) => {
                 </div>
                 <div class="flex justify-between border-b border-dashed border-gray-300 pb-2">
                     <span class="font-semibold text-gray-600">Total Amount:</span>
-                    <span class="font-bold">{{ formatCurrency(printingTxn.amount) }} UGX</span>
+                    <span class="font-bold">{{ formatCurrency(printingTxn.amount) }} {{ currencyCode }}</span>
                 </div>
                 <div class="flex justify-between border-b border-dashed border-gray-300 pb-2">
                     <span class="font-semibold text-gray-600">Trans Charge:</span>
-                    <span class="font-bold">{{ formatCurrency(printingTxn.charge || 0) }}.0 UGX</span>
+                    <span class="font-bold">{{ formatCurrency(printingTxn.charge || 0) }}.0 {{ currencyCode }}</span>
                 </div>
             </div>
 
@@ -2365,16 +2416,16 @@ const handleAvatarUpload = async (event: Event) => {
 
 <style>
 @media print {
-    body * {
+    body.receipt-print * {
         visibility: hidden !important;
     }
 
-    .print-only,
-    .print-only * {
+    body.receipt-print .print-only,
+    body.receipt-print .print-only * {
         visibility: visible !important;
     }
 
-    .print-only {
+    body.receipt-print .print-only {
         position: absolute !important;
         left: 0 !important;
         top: 0 !important;
@@ -2384,7 +2435,7 @@ const handleAvatarUpload = async (event: Event) => {
         display: block !important;
     }
 
-    .no-print {
+    body.receipt-print .no-print {
         display: none !important;
     }
 
