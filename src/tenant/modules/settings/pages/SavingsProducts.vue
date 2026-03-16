@@ -60,7 +60,7 @@ const openChargesModal = (product: SavingsProduct) => {
             </div>
 
             <RouterLink to="/tenant/settings/savings-products/create"
-                class="flex items-center gap-2 rounded-lg  bg-nfuko-primary dark:bg-bg-nfuko-yellow px-4 py-2 text-sm font-medium text-white dark: text-nfuko-primary hover: bg-nfuko-primary/90 dark:hover:bg-bg-nfuko-yellow/90 transition-colors shadow-sm">
+                class="flex items-center gap-2 rounded-lg  bg-nfuko-primary dark:bg-nfuko-yellow px-4 py-2 text-sm font-medium text-white dark: text-nfuko-primary hover: bg-nfuko-primary/90 dark:hover:bg-nfuko-yellow/90 transition-colors shadow-sm">
                 <Plus class="h-4 w-4" />
                 <span>Create Product</span>
             </RouterLink>

@@ -21,49 +21,51 @@
         <!-- SEARCH -->
         <div
             class="rounded-xl border-0 border-neutral-200 b g-white dark:border-neutral-800 dark:bg-neutral-900  overflow-hidden ">
-            <div v-if="showSearchbar||showTableAction" class="flex p-2  my-3 justify-between rounded-xl border border-neutral-100 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"">
+            <div v-if="showSearchbar || showTableAction"
+                class="flex p-2  my-3 justify-between rounded-xl border border-neutral-100 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"">
                 <Searchbar v-if="showSearchbar" @search="onSearch" :removeInSearch="removeInSearch" :columns="columns"
-                    @filter="(v) => filterDataByString(v)" />
-                <slot name="searchSideAction" />
-                <div class="flex items-center gap-2" v-if="showTableAction">
-                    <button @click="handleExport"
-                        class="p-2 bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
-                        <Download :size="18" />
-                    </button>
-                    <!-- Print Button -->
-                    <button @click="handlePrint"
-                        class="p-2 bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
-                        <Printer :size="18" />
-                    </button>
-                    <!-- Divider -->
-                    <div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2"></div>
-                </div>
-            </div>
-            <!-- TABLE -->
-            <div
-                class="rounded-2xl    bg-white pt-0 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]   dark:bg-neutral-900">
-                <div class="overflow-x-auto   custom-scrollbar h-[64vh] border-neutral-100 bg-white dark:bg-neutral-900 shadow-sm dark:border-neutral-800 rounded-2xl">
-                    <Table :handleAction="handleAction" :action_config="ACTION_CONFIG" :dataFilter="dataFilter"
-                        :data="data" :columns="columns" :permissions="permissions">
-                        <template v-for="(_, name) in $slots" #[name]="slotProps">
-                            <slot :name="name" v-bind="slotProps || {}" />
-                        </template>
-                    </Table>
-
-                </div>
-                <Pagination @change="callNewPage" v-if="dataPageLinks?.links && dataPageLinks?.total"
-                    :links="dataPageLinks?.links" :from="dataPageLinks?.from" :to="dataPageLinks?.to"
-                    :total="dataPageLinks?.total" />
+                @filter="(v) => filterDataByString(v)" />
+            <slot name="searchSideAction" />
+            <div class="flex items-center gap-2" v-if="showTableAction">
+                <button @click="handleExport"
+                    class="p-2 bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
+                    <Download :size="18" />
+                </button>
+                <!-- Print Button -->
+                <button @click="handlePrint"
+                    class="p-2 bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
+                    <Printer :size="18" />
+                </button>
+                <!-- Divider -->
+                <div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2"></div>
             </div>
         </div>
-        <!-- DRAWER -->
+        <!-- TABLE -->
+        <div class="rounded-2xl    bg-white pt-0 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]   dark:bg-neutral-900">
+            <div
+                class="overflow-x-auto   custom-scrollbar h-[64vh] border-neutral-100 bg-white dark:bg-neutral-900 shadow-sm dark:border-neutral-800 rounded-2xl">
+                <Table :handleAction="handleAction" :action_config="ACTION_CONFIG" :dataFilter="dataFilter" :data="data"
+                    :columns="columns" :permissions="permissions">
+                    <template v-for="(_, name) in $slots" #[name]="slotProps">
+                        <slot :name="name" v-bind="slotProps || {}" />
+                    </template>
+                </Table>
+
+            </div>
+            <Pagination @change="callNewPage" v-if="dataPageLinks?.links && dataPageLinks?.total"
+                :links="dataPageLinks?.links" :from="dataPageLinks?.from" :to="dataPageLinks?.to"
+                :total="dataPageLinks?.total" />
+        </div>
+    </div>
+    <!-- DRAWER -->
     </div>
     <div v-if="DrawerMounted">
         <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShooter2" v-model:open="drawerOpen"
             :title="drawerTitle" @save="saveDrawerData">
             <template #body>
 
-                <slot :data="provideDataTotheParent" name="drawer" :action="buttonTypeClicked" :submit="submitChanges" />
+                <slot :data="provideDataTotheParent" name="drawer" :action="buttonTypeClicked"
+                    :submit="submitChanges" />
 
             </template>
         </Drawer>
@@ -80,6 +82,7 @@ import Drawer from '../Drawer/Drawer.vue';
 import { Plus } from 'lucide-vue-next';
 import ConfirmationDialog from '../confirmationDialog/confirmationDialog.vue';
 import Searchbar from './Components/Searchbar.vue';
+import { formDataFormatV2, feedback, scopeValues } from '@/Global';
 import Table from './Components/Table.vue';
 import { Download, Printer } from 'lucide-vue-next';
 import { pomPinia } from 'septor-store';
@@ -94,6 +97,8 @@ const buttonTypeClicked = ref<any>(null);
 const DrawerMounted = ref<boolean>(true);
 const submitChanges = ref<any>(null);
 const provideDataTotheParent = ref<any>([]);
+import { notify } from '@/Global/Toasters';
+
 async function createNewRecord() {
     DrawerMounted.value = false
     await save('create', 'add');
@@ -121,6 +126,12 @@ const props = defineProps({
     drawerTitle: { type: String, default: 'Drawer Title' },
     drawerWidth: { type: String, default: '30rem' },
     title: { type: String, required: false },
+    /**
+     * if  u want the drawer to make the create request   automaticly 
+     * set automaticCreate to true
+     * 
+     * ***/
+    automaticCreate: { type: Boolean, required: false, default: true },
     data: {
         type: Object,
         required: false,
@@ -149,7 +160,7 @@ const props = defineProps({
     outerlinks: { type: Object, required: false },
 });
 
-const drawerShooter2=ref(props.drawerShowFooter)
+const drawerShooter2 = ref(props.drawerShowFooter)
 
 const toggleDrawer = () => {
     (drawerOpen.value = !drawerOpen.value)
@@ -172,7 +183,7 @@ const save = (data: unknown, type = 'save') => {
             submitChanges.value = false
         }, 1000)
     }
-    drawerShooter2.value=type!=='view'
+    drawerShooter2.value = type !== 'view'
     emit("save", type, data)
 };
 
@@ -182,11 +193,46 @@ function createUrl(url: string, action: string) {
     return url2.join("/") + `/${action}`
 }
 
-function saveDrawerData(data: any) {
+async function automaticCreateFun() {
+    if (props.automaticCreate) {
+        const data = Store.currentFormValues;
+        const customeUrl = props?.outerlinks?.['create'] ?? "create";
+        const formDataScoping: any = formDataFormatV2((data))
+        const res = await fetchTableData({
+            data: formDataScoping,
+            props: {
+                ...props,
+                state: props?.state + "_" + customeUrl,
+                url: createUrl(props?.url, customeUrl)
+            }, Store
+        });
+        const response = feedback(res);
+        if (response.success) {
+            Store[props?.state] = res
+            toggleDrawer()
+            setTimeout(() => {
+                submitChanges.value = false
+            }, 2000)
+            setTimeout(() => {
+                toggleDrawer()
+            }, 100) //  to make sure the drawer is cleaned 
+            Store.currentFormValues={};
+            return true
+        }
+        return false
+    }
+}
+async function saveDrawerData(data: any) {
+   
+    const checker= await automaticCreateFun('create')
+    
+    if (!checker) {
+        return
+    }
+
     save(data, 'create')
     toggleDrawer()
     setTimeout(() => {
-
         submitChanges.value = false
     }, 2000)
     setTimeout(() => {
@@ -204,22 +250,21 @@ const handleAction = async (item: any, action: keyof typeof ACTION_CONFIG) => {
         }
     } else if (["edit", "view"].includes(action)) {
         DrawerMounted.value = false
-
         if (fn) fn(item);
         toggleDrawer()// open the drawer on this action clicked
         if (props?.state && props?.url && ['edit', 'view'].includes(action)) {
             let outerlinks = "details"
-            if(props?.outerlinks?.[action]){
+            if (props?.outerlinks?.[action]) {
                 outerlinks = props?.outerlinks[action]
-            }else{
-                 if(action=='edit'){
+            } else {
+                if (action == 'edit') {
                     outerlinks = "edit-details"
                 }
             }
             const res = await fetchTableData({
                 data: item, props: {
                     ...props,
-                    state: props?.state + "_"+outerlinks,
+                    state: props?.state + "_" + outerlinks,
                     url: createUrl(props?.url, outerlinks)
                 }, Store
             });

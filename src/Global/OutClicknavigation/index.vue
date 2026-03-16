@@ -2,10 +2,12 @@
     <div v-bind="$attrs" class="flex flex-col h-full py-2">
 
         <!-- Main nav items -->
-        <div class="flex flex-col gap-1 flex-1">
+        <div clas s="flex flex-col gap-1 flex-1">
             <template v-for="item in mainLinks" :key="item.path ?? item.label">
-                <SidebarGroupLabel v-if="item.type == 'label' && item?.showSideBar === true"
-                    class="px-3 text-[10px] font-bold uppercase tracking-widest text-nfuko-nav-text/40 mb-1">
+                <SidebarGroupLabel
+                
+                v-if="item.type == 'label' && item?.showSideBar === true"
+                    class="px-3 text-[10px] font-bold uppercase tracking-widest text-nfuko-nav-text/40 mb-1 ring-sidebar-ring flex h-8 shrink-0 items-center rounded-md outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0 group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
                     {{ item.label }}
                 </SidebarGroupLabel>
 
@@ -15,18 +17,18 @@
         </div>
 
         <!-- Footer: Settings and items with children, pinned to bottom -->
-        <div class="flex flex-col gap-1 pt-3 border-t border-white/10">
+        <div class="flex flex-col  pt-1 border-t border-white/10">
             <template v-for="item in footerLinks" :key="item.path ?? item.label">
                 <!-- Item WITH children -->
                 <div class="relative" v-if="item?.showSideBar === true">
                     <div :to="item?.path" @click="toggleSubmenu(item.label)"
-                        class="w-full flex items-center gap-3 px-3 py-2.5 h-12 rounded-xl transition-all duration-200 text-nfuko-nav-text/60 hover:bg-white/5 hover:text-white cursor-pointer">
+                        class="w-full hover:px-2 flex items-center gap-3  py-2.5 h-12 rounded-xl transition-all duration-200 text-nfuko-nav-text/60 hover:bg-white/5 hover:text-white cursor-pointer">
                         <div class="flex justify-between w-full items-center">
                             <div class="flex w-full items-center gap-3">
                                 <component :is="item.icon" :size="20" />
                                 <span class="text-sm font-medium capitalize">{{ item.label }}</span>
                             </div>
-                            <div class="text-xs opacity-60">
+                            <div class="text-xl opacity-60 flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200 text-nfuko-nav-text group-hover:text-white">
                                 {{ Store.showSubmenu === item?.label ? "▾" : "▸" }}
                             </div>
                         </div>
@@ -36,7 +38,7 @@
                         <template v-for="(child, index) in item.children" :key="index">
                             <div v-auth="child?.permissions" class="w-[40em] items-center gap-4 px-6 py-1">
                                 <div
-                                    class="w-full flex items-center my-1 gap-0 px-4 py-2 rounded-md bg-nfuko-primary/90 dark:text-white">
+                                    class="w-full flex items-center my-1 gap-0 px-4 py-2 rounded-md bg-nfuko-primary/90 dark:text-white flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200 text-nfuko-nav-text group-hover:text-white">
                                     {{ child.title }}
                                 </div>
                                 <RouteLink :prifix="item.prifix" :item="child.items" :title="child.title"

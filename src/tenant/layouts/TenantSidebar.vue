@@ -27,11 +27,13 @@ import {
   SidebarMenuItem,
   SidebarRail,
   useSidebar,
-} from '@/Global/ui/sidebar'
+
+} from '@/Global'
 import TenantNavUser from './TenantNavUser.vue'
 import { useTenantContextStore } from '@/stores/tenantContext'
 import { membersApi } from '@/tenant/apis/members/membersApi'
-
+import { tenantRoutes } from "@/tenant/layouts/routes.ts";
+import { OutClickNav } from '@/Global/OutClicknavigation';
 const route = useRoute()
 const router = useRouter()
 const { state } = useSidebar()
@@ -46,16 +48,7 @@ function toggleDarkMode() {
 const isActive = (path: string) => route.path === path
 const isSettingsActive = computed(() => route.path.startsWith('/tenant/settings'))
 
-const navItems = [
-  { title: 'Dashboard', href: '/tenant/dashboard', icon: LayoutGrid },
-  { title: 'Members', href: '/tenant/members', icon: Users },
-  { title: 'Members Account', href: '/tenant/savings-accounts', icon: Wallet },
-  { title: 'Group Savings', href: '/tenant/savings-groups', icon: Users },
-  { title: 'Savings Transfer', href: '/tenant/savings-transfer', icon: ArrowLeftRight },
-  { title: 'Loans', href: '/tenant/loans', icon: HandCoins },
-  { title: 'Transactions', href: '/tenant/transactions', icon: ArrowUpDown },
-  { title: 'Chart of Accounts', href: '/tenant/chart-of-accounts', icon: BookOpen },
-]
+
 
 // Settings sub-items removed to avoid duplication with the Settings Workspace sidebar
 
@@ -79,7 +72,7 @@ onMounted(async () => {
     <SidebarHeader class="p-4">
       <div class="flex items-center gap-3">
         <div
-          class="flex shrink-0 items-center justify-center rounded-2xl bg-bg-nfuko-yellow text-[#0A2318] shadow-xl transition-all duration-500"
+          class="flex shrink-0 items-center justify-center rounded-2xl bg-nfuko-yellow text-[#0A2318] shadow-xl transition-all duration-500"
           :class="state === 'expanded' ? 'h-14 w-14' : 'h-8 w-8'">
           <LayoutGrid :class="state === 'expanded' ? 'h-7 w-7' : 'h-5 w-5'" />
         </div>
@@ -109,34 +102,13 @@ onMounted(async () => {
       </div>
     </SidebarHeader>
 
+    <!-- NAVIGATION -->
     <SidebarContent class="px-2 overflow-y-auto">
-      <!-- NAVIGATION -->
       <SidebarGroup>
         <SidebarGroupLabel class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
           Navigation
         </SidebarGroupLabel>
-        <SidebarMenu>
-          <SidebarMenuItem v-for="item in navItems" :key="item.title">
-            <SidebarMenuButton :tooltip="item.title" @click="router.push(item.href)"
-              class="relative px-0 py-2.5 hover:bg-white/5 transition-all duration-200 group">
-              <div class="flex w-full items-center gap-3 pl-4 pr-3">
-                <component :is="item.icon" class="h-4 w-4 transition-colors duration-200"
-                  :class="isActive(item.href) ? 'text-bg-nfuko-yellow' : 'text-nfuko-nav-text group-hover:text-bg-nfuko-yellow'" />
-                <span class="flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200"
-                  :class="isActive(item.href) ? 'text-bg-nfuko-yellow' : 'text-nfuko-nav-text group-hover:text-white'">
-                  {{ item.title }}
-                </span>
-                <span v-if="item.href === '/tenant/members' && memberCount !== null"
-                  class="min-w-[20px] rounded-full bg-bg-nfuko-yellow px-1.5 py-0.5 text-center text-[11px] font-bold leading-none text-[#0A2318]">
-                  {{ memberCount }}
-                </span>
-              </div>
-              <!-- Active left indicator -->
-              <div v-if="isActive(item.href)"
-                class="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-[3px] bg-bg-nfuko-yellow rounded-r-full shadow-[0_0_10px_rgba(201,168,76,0.5)]" />
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <OutClickNav class="flex-1 h-full" :links="tenantRoutes" />
       </SidebarGroup>
 
       <!-- CONFIGURATION -->
@@ -159,7 +131,7 @@ onMounted(async () => {
                 </span>
               </div>
               <div v-if="isSettingsActive"
-                class="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-[3px] bg-bg-nfuko-yellow rounded-r-full shadow-[0_0_10px_rgba(201,168,76,0.5)]" />
+                class="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-[3px] bg-nfuko-yellow rounded-r-full shadow-[0_0_10px_rgba(201,168,76,0.5)]" />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -176,7 +148,7 @@ onMounted(async () => {
         </div>
         <button @click="toggleDarkMode"
           class="relative inline-flex h-5 w-10 items-center rounded-full transition-all duration-300"
-          :class="isDark ? 'bg-bg-nfuko-yellow' : 'bg-white/10'">
+          :class="isDark ? 'bg-nfuko-yellow' : 'bg-white/10'">
           <span class="inline-flex h-4 w-4 rounded-full bg-white transition-transform duration-300 shadow-xl"
             :class="isDark ? 'translate-x-5' : 'translate-x-0.5'" />
         </button>

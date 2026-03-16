@@ -237,7 +237,7 @@ const monthlyFeeSummary = computed(() => {
                         </div>
                         <label class="flex items-center gap-2 cursor-pointer">
                             <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Enable</span>
-                            <div class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[ bg-nfuko-primary] focus:ring-offset-2 dark:focus:ring-offset-neutral-900" :class="form.monthly_fee_enabled ? ' bg-nfuko-primary dark:bg-bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'">
+                            <div class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[ bg-nfuko-primary] focus:ring-offset-2 dark:focus:ring-offset-neutral-900" :class="form.monthly_fee_enabled ? ' bg-nfuko-primary dark:bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'">
                                 <span class="inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out" :class="form.monthly_fee_enabled ? 'translate-x-6' : 'translate-x-1'"></span>
                                 <input v-model="form.monthly_fee_enabled" type="checkbox" class="sr-only">
                             </div>
@@ -248,7 +248,7 @@ const monthlyFeeSummary = computed(() => {
                         <div class="grid gap-4">
                             <div class="rounded-lg border border-neutral-100 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-800/40">
                                 <div class="mb-3 flex items-center gap-2">
-                                    <span class="rounded-full  bg-nfuko-primary px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white dark:bg-bg-nfuko-yellow dark:text-neutral-900">Step 1</span>
+                                    <span class="rounded-full  bg-nfuko-primary px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white dark:bg-nfuko-yellow dark:text-neutral-900">Step 1</span>
                                     <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">Choose fee type</h3>
                                 </div>
                                 <div class="grid gap-3 sm:grid-cols-2">
@@ -267,7 +267,7 @@ const monthlyFeeSummary = computed(() => {
 
                             <div class="rounded-lg border border-neutral-100 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
                                 <div class="mb-3 flex items-center gap-2">
-                                    <span class="rounded-full  bg-nfuko-primary px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white dark:bg-bg-nfuko-yellow dark:text-neutral-900">Step 2</span>
+                                    <span class="rounded-full  bg-nfuko-primary px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white dark:bg-nfuko-yellow dark:text-neutral-900">Step 2</span>
                                     <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">Set base fee (all members)</h3>
                                 </div>
                                 <div class="grid gap-3 sm:grid-cols-2">
@@ -284,7 +284,7 @@ const monthlyFeeSummary = computed(() => {
 
                             <div class="rounded-lg border border-neutral-100 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
                                 <div class="mb-3 flex items-center gap-2">
-                                    <span class="rounded-full  bg-nfuko-primary px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white dark:bg-bg-nfuko-yellow dark:text-neutral-900">Step 3</span>
+                                    <span class="rounded-full  bg-nfuko-primary px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white dark:bg-nfuko-yellow dark:text-neutral-900">Step 3</span>
                                     <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">Select deduction timing</h3>
                                 </div>
                                 <div class="grid gap-3 sm:grid-cols-2">
@@ -305,7 +305,7 @@ const monthlyFeeSummary = computed(() => {
 
                             <div class="rounded-lg border border-neutral-100 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
                                 <div class="mb-3 flex items-center gap-2">
-                                    <span class="rounded-full  bg-nfuko-primary px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white dark:bg-bg-nfuko-yellow dark:text-neutral-900">Step 4</span>
+                                    <span class="rounded-full  bg-nfuko-primary px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white dark:bg-nfuko-yellow dark:text-neutral-900">Step 4</span>
                                     <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">Adjust fee for loyal members</h3>
                                 </div>
 
@@ -316,7 +316,7 @@ const monthlyFeeSummary = computed(() => {
                                     </div>
                                     <label class="flex items-center gap-2 cursor-pointer">
                                         <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Enable</span>
-                                        <div class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[ bg-nfuko-primary] focus:ring-offset-2 dark:focus:ring-offset-neutral-900" :class="form.loyalty_fee_enabled ? ' bg-nfuko-primary dark:bg-bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'">
+                                        <div class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[ bg-nfuko-primary] focus:ring-offset-2 dark:focus:ring-offset-neutral-900" :class="form.loyalty_fee_enabled ? ' bg-nfuko-primary dark:bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'">
                                             <span class="inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out" :class="form.loyalty_fee_enabled ? 'translate-x-6' : 'translate-x-1'"></span>
                                             <input v-model="form.loyalty_fee_enabled" type="checkbox" class="sr-only">
                                         </div>
@@ -476,15 +476,15 @@ const monthlyFeeSummary = computed(() => {
                     <h3 class="mb-4 text-sm font-semibold text-neutral-900 dark:text-white">Applies To Activity</h3>
                     <div class="space-y-3">
                         <label class="flex items-center gap-3">
-                            <input v-model="form.charge_on_deposit" type="checkbox" class="h-4 w-4 rounded border-neutral-300  text-nfuko-primary focus:ring-[ bg-nfuko-primary] dark:border-neutral-600 dark:bg-neutral-700 dark:ring-offset-neutral-900 dark:checked:bg-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow focus:outline-none cursor-pointer">
+                            <input v-model="form.charge_on_deposit" type="checkbox" class="h-4 w-4 rounded border-neutral-300  text-nfuko-primary focus:ring-[ bg-nfuko-primary] dark:border-neutral-600 dark:bg-neutral-700 dark:ring-offset-neutral-900 dark:checked:bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow focus:outline-none cursor-pointer">
                             <span class="text-sm text-neutral-700 dark:text-neutral-300">Evaluate events on Deposit</span>
                         </label>
                         <label class="flex items-center gap-3">
-                            <input v-model="form.charge_on_withdraw" type="checkbox" class="h-4 w-4 rounded border-neutral-300  text-nfuko-primary focus:ring-[ bg-nfuko-primary] dark:border-neutral-600 dark:bg-neutral-700 dark:ring-offset-neutral-900 dark:checked:bg-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow focus:outline-none cursor-pointer">
+                            <input v-model="form.charge_on_withdraw" type="checkbox" class="h-4 w-4 rounded border-neutral-300  text-nfuko-primary focus:ring-[ bg-nfuko-primary] dark:border-neutral-600 dark:bg-neutral-700 dark:ring-offset-neutral-900 dark:checked:bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow focus:outline-none cursor-pointer">
                             <span class="text-sm text-neutral-700 dark:text-neutral-300">Evaluate events on Withdraw</span>
                         </label>
                         <label class="flex items-center gap-3">
-                            <input v-model="form.charge_on_transfer" type="checkbox" class="h-4 w-4 rounded border-neutral-300  text-nfuko-primary focus:ring-[ bg-nfuko-primary] dark:border-neutral-600 dark:bg-neutral-700 dark:ring-offset-neutral-900 dark:checked:bg-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow focus:outline-none cursor-pointer">
+                            <input v-model="form.charge_on_transfer" type="checkbox" class="h-4 w-4 rounded border-neutral-300  text-nfuko-primary focus:ring-[ bg-nfuko-primary] dark:border-neutral-600 dark:bg-neutral-700 dark:ring-offset-neutral-900 dark:checked:bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow focus:outline-none cursor-pointer">
                             <span class="text-sm text-neutral-700 dark:text-neutral-300">Evaluate events on Transfer</span>
                         </label>
                     </div>
@@ -492,7 +492,7 @@ const monthlyFeeSummary = computed(() => {
 
                 <!-- Submit Button -->
                 <div class="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                    <button @click="saveProduct" :disabled="saving" class="flex w-full items-center justify-center gap-2 rounded-xl  bg-nfuko-primary dark:bg-bg-nfuko-yellow px-4 py-3 text-sm font-medium text-white dark: text-nfuko-primary hover: bg-nfuko-primary/90 dark:hover:bg-bg-nfuko-yellow/90 shadow-lg disabled:opacity-50 transition-colors">
+                    <button @click="saveProduct" :disabled="saving" class="flex w-full items-center justify-center gap-2 rounded-xl  bg-nfuko-primary dark:bg-nfuko-yellow px-4 py-3 text-sm font-medium text-white dark: text-nfuko-primary hover: bg-nfuko-primary/90 dark:hover:bg-nfuko-yellow/90 shadow-lg disabled:opacity-50 transition-colors">
                         <Save v-if="!saving" class="h-4 w-4" />
                         <span>{{ saving ? 'Saving Product...' : (isEditing ? 'Update Savings Product' : 'Create Savings Product') }}</span>
                     </button>

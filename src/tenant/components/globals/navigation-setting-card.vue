@@ -12,25 +12,23 @@
             <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
                 {{ card.description }}
             </p>
-
             <!-- Primary link -->
             <RouterLink
                 v-if="card.type === 'link'"
-                :to="card.route"
+                :to="card.route" 
+                v-bind="card.route"
                 class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline"
             >
                 {{ card.action }}
             </RouterLink>
-
             <!-- Secondary actions -->
             <template v-if="card?.outClicks">
                 <span
-                    v-for="(value, key) in card.outClicks"
-                    :key="key"
-                >
+                    v-for="(value, key) in card.outClicks" :key="key" >
                     <RouterLink
                         v-if="value.type === 'link'"
                         :to="value.route"
+                        v-bind="value"
                         class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline"
                     >
                         {{ value.label }}

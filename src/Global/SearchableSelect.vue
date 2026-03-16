@@ -32,11 +32,13 @@ const remoteUrl = debounce(async (url: string) => {
     if (!url) return;
     tryCatch(async () => {
         const data = {}
+
         if (searchQuery.value?.length >= 3)
             data.search_keyword = searchQuery.value
+        const  generateAstate=props?.state??`${url}`.replace(/[^a-zA-Z0-9]/g, "-");
         const res = await fetchTableData({
             data: data?.search_keyword ? data : null,
-            props: { url, reload: false, state: props?.state },
+            props: { url, reload: false, state:generateAstate },
             Store,
         });
         if (res.success !== false)
@@ -74,9 +76,9 @@ const selectOption = (option: Option) => {
 const toggleDropdown = () => {
     if (props.disabled) return;
     isOpen.value = !isOpen.value;
-    if (isOpen.value) 
+    if (isOpen.value)
         searchQuery.value = '';
-    if (props.url) 
+    if (props.url)
         remoteUrl(props.url)
 };
 
@@ -94,14 +96,14 @@ onUnmounted(() => {
     window.removeEventListener('click', closeDropdown);
 });
 
-watch(props, async(newVal) => {
-    if (newVal?.dataOnMount) { 
+watch(props, async (newVal) => {
+    if (newVal?.dataOnMount) {
         searchQuery.value = props.modelValue ?? '';
         await toggleDropdown();
         await toggleDropdown();
-      
-        
-       
+
+
+
     }
 }, { immediate: true, deep: true });
 watch(isOpen, (newVal) => {
@@ -133,12 +135,11 @@ const inputClass =
 
 <template>
     <div ref="containerRef" class="relative w-full">
-        <div @click="toggleDropdown"
-            :class="[
-                inputClass,
-                error ? 'border-red-500 focus-within:ring-red-500/10' : 'border-neutral-200 focus-within: border-nfuko-primary',
-                disabled ? 'opacity-50 cursor-not-allowed bg-neutral-50 dark:bg-neutral-950' : 'hover:border-neutral-300 dark:hover:border-neutral-700'
-            ]">
+        <div @click="toggleDropdown" :class="[
+            inputClass,
+            error ? 'border-red-500 focus-within:ring-red-500/10' : 'border-neutral-200 focus-within: border-nfuko-primary',
+            disabled ? 'opacity-50 cursor-not-allowed bg-neutral-50 dark:bg-neutral-950' : 'hover:border-neutral-300 dark:hover:border-neutral-700'
+        ]">
             <div class="flex items-center justify-between gap-2">
                 <span v-if="selectedOption" class="block truncate text-neutral-900 dark:text-neutral-100 font-medium">
                     {{ selectedOption.name }}
@@ -155,8 +156,10 @@ const inputClass =
             enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100"
             leave-active-class="transition duration-75 ease-in" leave-from-class="transform scale-100 opacity-100"
             leave-to-class="transform scale-95 opacity-0">
-            <div v-if="isOpen"
-                class="absolute z-50 mt-2 w-full overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xl dark:border-neutral-800 dark:bg-neutral-900">
+            <div
+            style="z-index:9999"
+            v-if="isOpen"
+                class="absolute   mt-2 w-full overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xl dark:border-neutral-800 dark:bg-neutral-900">
                 <div class="p-2 border-b border-neutral-100 dark:border-neutral-800">
                     <div class="relative flex items-center">
                         <Search class="absolute left-3.5 h-4 w-4 text-neutral-400" />
@@ -177,7 +180,8 @@ const inputClass =
                             option.id === modelValue ? 'bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white font-semibold' : 'text-neutral-600 dark:text-neutral-400'
                         ]">
                         <span class="block truncate">{{ option.name }}</span>
-                        <Check v-if="option.id === modelValue" class="h-4 w-4  text-nfuko-primary dark:text-[#8ba8a2]" />
+                        <Check v-if="option.id === modelValue"
+                            class="h-4 w-4  text-nfuko-primary dark:text-[#8ba8a2]" />
                     </li>
                     <li v-if="filteredOptions.length === 0" class="px-4 py-8 text-center text-sm text-neutral-400">
                         No results found

@@ -1700,7 +1700,7 @@ const handleAvatarUpload = async (event: Event) => {
                             <!-- Header -->
                             <div class="flex items-center justify-between p-5 border-b border-gray-200">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-lg bg-bg-nfuko-yellow/10 flex items-center justify-center">
+                                    <div class="w-8 h-8 rounded-lg bg-nfuko-yellow/10 flex items-center justify-center">
                                         <Plus :size="16" class="text-bg-nfuko-yellow" />
                                     </div>
                                     <h3 class="text-[15px] font-bold text-gray-900">Add Account</h3>
@@ -1750,7 +1750,7 @@ const handleAvatarUpload = async (event: Event) => {
                                                 :class="showChargeDropdown ? 'border-bg-nfuko-yellow/50 ring-1 ring-bg-nfuko-yellow/30' : 'border-gray-200 hover:border-gray-400'">
                                                 <template v-if="newAccountForm.charges.length > 0">
                                                     <span v-for="cid in newAccountForm.charges" :key="cid"
-                                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-bg-nfuko-yellow/10 text-bg-nfuko-yellow border border-bg-nfuko-yellow/20">
+                                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-nfuko-yellow/10 text-bg-nfuko-yellow border border-bg-nfuko-yellow/20">
                                                         {{ getChargeNameById(cid) }}
                                                         <X :size="10" class="ml-0.5 cursor-pointer hover:text-red-600"
                                                             @click.stop="toggleCharge(cid)" />
@@ -1866,7 +1866,7 @@ const handleAvatarUpload = async (event: Event) => {
                                     Close
                                 </button>
                                 <button @click="submitNewAccount" :disabled="newAccountProcessing"
-                                    class="px-5 py-2.5 rounded-lg text-[12px] font-bold bg-bg-nfuko-yellow text-white hover:bg-[#b8973e] transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                                    class="px-5 py-2.5 rounded-lg text-[12px] font-bold bg-nfuko-yellow text-white hover:bg-[#b8973e] transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
                                     <div v-if="newAccountProcessing"
                                         class="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white">
                                     </div>
@@ -1918,7 +1918,7 @@ const handleAvatarUpload = async (event: Event) => {
                                         <p class="text-xs text-muted-foreground mt-0.5">Override product defaults</p>
                                     </div>
                                     <label class="flex items-center gap-2 cursor-pointer">
-                                        <div class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-bg-nfuko-yellow" :class="customFeeForm.custom_monthly_fee_enabled ? 'bg-bg-nfuko-yellow' : 'bg-secondary'">
+                                        <div class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-bg-nfuko-yellow" :class="customFeeForm.custom_monthly_fee_enabled ? 'bg-nfuko-yellow' : 'bg-secondary'">
                                             <span class="inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out" :class="customFeeForm.custom_monthly_fee_enabled ? 'translate-x-6' : 'translate-x-1'"></span>
                                             <input v-model="customFeeForm.custom_monthly_fee_enabled" type="checkbox" class="sr-only">
                                         </div>

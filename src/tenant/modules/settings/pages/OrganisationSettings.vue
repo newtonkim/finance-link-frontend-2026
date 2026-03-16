@@ -465,7 +465,7 @@ async function confirmDelete() {
                                         type="button"
                                         @click="multiCurrencyEnabled = !multiCurrencyEnabled"
                                         class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300"
-                                        :class="multiCurrencyEnabled ? ' bg-nfuko-primary dark:bg-bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'"
+                                        :class="multiCurrencyEnabled ? ' bg-nfuko-primary dark:bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'"
                                     >
                                         <span
                                             class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-300"
@@ -494,7 +494,7 @@ async function confirmDelete() {
                                         :disabled="c.code === currencyForm.default_currency"
                                         class="flex items-center justify-between rounded-xl border px-4 py-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-75"
                                         :class="currencyForm.enabled_currencies.includes(c.code)
-                                            ? ' border-nfuko-primary  bg-nfuko-primary/5 dark:border-bg-nfuko-yellow dark:bg-bg-nfuko-yellow/10'
+                                            ? ' border-nfuko-primary  bg-nfuko-primary/5 dark:border-bg-nfuko-yellow dark:bg-nfuko-yellow/10'
                                             : 'border-neutral-200 bg-white hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800'"
                                     >
                                         <div class="flex items-center gap-3">
@@ -509,7 +509,7 @@ async function confirmDelete() {
                                         <div
                                             class="h-5 w-5 rounded-full border-2 transition-colors"
                                             :class="currencyForm.enabled_currencies.includes(c.code)
-                                                ? ' border-nfuko-primary  bg-nfuko-primary dark:border-bg-nfuko-yellow dark:bg-bg-nfuko-yellow'
+                                                ? ' border-nfuko-primary  bg-nfuko-primary dark:border-bg-nfuko-yellow dark:bg-nfuko-yellow'
                                                 : 'border-neutral-300 dark:border-neutral-600'"
                                         />
                                     </button>
@@ -535,7 +535,7 @@ async function confirmDelete() {
                                 type="button"
                                 @click="saveCurrencySettings"
                                 :disabled="currencySaving"
-                                class="inline-flex items-center gap-2 rounded-lg  bg-nfuko-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#002d32] transition-colors disabled:opacity-60 shadow-sm dark:bg-bg-nfuko-yellow dark: text-nfuko-primary dark:hover:bg-[#b8973b]"
+                                class="inline-flex items-center gap-2 rounded-lg  bg-nfuko-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#002d32] transition-colors disabled:opacity-60 shadow-sm dark:bg-nfuko-yellow dark: text-nfuko-primary dark:hover:bg-[#b8973b]"
                             >
                                 <Spinner v-if="currencySaving" class="h-4 w-4" />
                                 Save currency settings
@@ -595,7 +595,7 @@ async function confirmDelete() {
                                 </div>
                                 <button
                                     @click="openAddFiscal"
-                                    class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl  bg-nfuko-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#002d32] transition-colors shadow-sm dark:bg-bg-nfuko-yellow dark: text-nfuko-primary dark:hover:bg-[#b8973b]"
+                                    class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl  bg-nfuko-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#002d32] transition-colors shadow-sm dark:bg-nfuko-yellow dark: text-nfuko-primary dark:hover:bg-[#b8973b]"
                                 >
                                     <Plus class="h-4 w-4" />
                                     Add financial year
@@ -647,7 +647,7 @@ async function confirmDelete() {
                                             <div class="flex items-center gap-2">
                                                 <button
                                                     @click="openEditFiscal(fy)"
-                                                    class="inline-flex items-center gap-1.5 rounded-lg  bg-nfuko-primary px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#002d32] transition-colors shadow-sm dark:bg-bg-nfuko-yellow dark: text-nfuko-primary dark:hover:bg-[#b8973b]"
+                                                    class="inline-flex items-center gap-1.5 rounded-lg  bg-nfuko-primary px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#002d32] transition-colors shadow-sm dark:bg-nfuko-yellow dark: text-nfuko-primary dark:hover:bg-[#b8973b]"
                                                 >
                                                     <Pencil class="h-3 w-3" />
                                                     Edit
@@ -774,7 +774,7 @@ async function confirmDelete() {
                                 type="button"
                                 @click="submitFiscalForm"
                                 :disabled="fiscalProcessing"
-                                class="inline-flex items-center gap-2 rounded-lg  bg-nfuko-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#002d32] transition-colors disabled:opacity-60 shadow-sm dark:bg-bg-nfuko-yellow dark: text-nfuko-primary dark:hover:bg-[#b8973b]"
+                                class="inline-flex items-center gap-2 rounded-lg  bg-nfuko-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#002d32] transition-colors disabled:opacity-60 shadow-sm dark:bg-nfuko-yellow dark: text-nfuko-primary dark:hover:bg-[#b8973b]"
                             >
                                 <Spinner v-if="fiscalProcessing" class="h-4 w-4" />
                                 {{ fiscalFormMode === 'edit' ? 'Update financial year' : 'Save financial year' }}

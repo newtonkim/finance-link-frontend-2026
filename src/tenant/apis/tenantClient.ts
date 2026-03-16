@@ -14,8 +14,8 @@ function getBaseURL():string{
 export const tenantClient = axios.create({
   baseURL: getBaseURL(),
   headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
+    // Accept: 'application/json',
+    // 'Content-Type': 'application/json',
   },
 })
 
@@ -28,7 +28,7 @@ tenantClient.interceptors.request.use((config) => {
   // Prefer subdomain from hostname (production subdomain routing),
   // fall back to value saved at login time (dev on localhost)
   const subdomain = getSubdomainName()
-  console.log(subdomain,"subdomainsubdomaininsepto");
+  // console.log(subdomain,"subdomainsubdomaininsepto");
   
   if (subdomain) {
     config.headers['X-Tenant-Subdomain'] = subdomain

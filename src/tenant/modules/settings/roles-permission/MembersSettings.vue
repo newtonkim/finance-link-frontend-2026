@@ -44,17 +44,6 @@ const settingsCards = [
         </div>
         <SettingCard :settingsCards="settingsCards">
             <template #kyc-member-onboarding="{ card }">
-                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Setup
-                    KYC →</button>
-            </template>
-        </SettingCard>
-        <div class="grid gap-5 lg:grid-cols-2">
-            <div
-                class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">KYC / Member Onboarding</h3>
-                <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Setup onboarding requirements and KYC
-                    >documents.
-                </p>
                 <div class="flex flex-col gap-2 items-start">
                     <button
                         class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Setup
@@ -62,7 +51,8 @@ const settingsCards = [
                         →</button>
                     <kycMembersModel />
                 </div>
-            </div>
-        </div>
+
+            </template>
+        </SettingCard>
     </div>
 </template>

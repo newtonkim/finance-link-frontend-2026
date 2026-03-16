@@ -1,10 +1,10 @@
 import type { RouteRecordRaw } from 'vue-router'
-import memberspermissions  from './members-settings/index.vue'
-
+// /Users/nazil/Desktop/Nugu soft/mfukopro-be-fe/Frontend/src/tenant/modules/settings/routes.ts
+const memberspermissions = () => import('./roles-permission/index.vue')
 const Settings = () => import('./pages/Settings.vue')
 const SettingsDashboard = () => import('./pages/SettingsDashboard.vue')
 const OrganisationSettings = () => import('./pages/OrganisationSettings.vue')
-const MembersSettings = () => import('./pages/MembersSettings.vue')
+const MembersSettings = () => import('./roles-permission/MembersSettings.vue')
 const LoansSettings = () => import('./pages/LoansSettings.vue')
 const SavingsSettings = () => import('./pages/SavingsSettings.vue')
 const SharesSettings = () => import('./pages/SharesSettings.vue')

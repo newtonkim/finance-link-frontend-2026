@@ -594,7 +594,7 @@ const handleAvatarUpload = async (event: Event) => {
                             <!-- Status badge -->
                             <div class="absolute top-3 left-1/2 -translate-x-1/2">
                                 <span
-                                    class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-bg-nfuko-yellow/20 text-bg-nfuko-yellow border border-bg-nfuko-yellow/30">
+                                    class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-nfuko-yellow/20 text-bg-nfuko-yellow border border-bg-nfuko-yellow/30">
                                     <Star :size="10" fill="currentColor" />
                                     STANDARD
                                 </span>
@@ -751,7 +751,7 @@ const handleAvatarUpload = async (event: Event) => {
                                         class="border-b border-border/50 hover:bg-accent/50 transition-colors">
                                         <td class="py-4 px-5">
                                             <div class="flex items-center gap-3">
-                                                <div class="w-8 h-8 rounded-lg bg-bg-nfuko-yellow/10 flex items-center justify-center">
+                                                <div class="w-8 h-8 rounded-lg bg-nfuko-yellow/10 flex items-center justify-center">
                                                     <Wallet :size="14" class="text-bg-nfuko-yellow" />
                                                 </div>
                                                 <span class="text-[13px] font-semibold text-foreground font-mono">{{ account.account_no }}</span>
@@ -804,7 +804,7 @@ const handleAvatarUpload = async (event: Event) => {
                                 </span>
                                 <!-- Gold active indicator -->
                                 <div v-if="activeTab === tab.id"
-                                    class="absolute bottom-0 left-2 right-2 h-[2px] bg-bg-nfuko-yellow rounded-t-full"></div>
+                                    class="absolute bottom-0 left-2 right-2 h-[2px] bg-nfuko-yellow rounded-t-full"></div>
                             </button>
                         </div>
 
@@ -968,7 +968,7 @@ const handleAvatarUpload = async (event: Event) => {
                                 </div>
                                 <div class="flex items-center gap-1">
                                     <button @click="prevTxnPage" :disabled="currentTxnPage === 1" class="w-8 h-8 rounded-full flex items-center justify-center border border-border hover:bg-accent transition-colors disabled:opacity-50">&lsaquo;</button>
-                                    <button class="w-8 h-8 rounded-full flex items-center justify-center bg-bg-nfuko-yellow text-white font-bold shadow-sm text-[12px]">{{ currentTxnPage }}</button>
+                                    <button class="w-8 h-8 rounded-full flex items-center justify-center bg-nfuko-yellow text-white font-bold shadow-sm text-[12px]">{{ currentTxnPage }}</button>
                                     <button @click="nextTxnPage" :disabled="currentTxnPage === totalTxnPages" class="w-8 h-8 rounded-full flex items-center justify-center border border-border hover:bg-accent transition-colors disabled:opacity-50">&rsaquo;</button>
                                 </div>
                             </div>
@@ -1230,7 +1230,7 @@ const handleAvatarUpload = async (event: Event) => {
                             <!-- Header -->
                             <div class="flex items-center justify-between p-5 border-b border-border">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-lg bg-bg-nfuko-yellow/10 flex items-center justify-center">
+                                    <div class="w-8 h-8 rounded-lg bg-nfuko-yellow/10 flex items-center justify-center">
                                         <Plus :size="16" class="text-bg-nfuko-yellow" />
                                     </div>
                                     <h3 class="text-[15px] font-bold text-foreground">Add Account</h3>
@@ -1282,7 +1282,7 @@ const handleAvatarUpload = async (event: Event) => {
                                                 :class="showChargeDropdown ? 'border-bg-nfuko-yellow/50 ring-1 ring-bg-nfuko-yellow/30' : 'border-border hover:border-muted-foreground/30'">
                                                 <template v-if="newAccountForm.charges.length > 0">
                                                     <span v-for="cid in newAccountForm.charges" :key="cid"
-                                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-bg-nfuko-yellow/10 text-bg-nfuko-yellow border border-bg-nfuko-yellow/20">
+                                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-nfuko-yellow/10 text-bg-nfuko-yellow border border-bg-nfuko-yellow/20">
                                                         {{ getChargeNameById(cid) }}
                                                         <X :size="10" class="ml-0.5 cursor-pointer hover:text-[#dc2626]" @click.stop="toggleCharge(cid)" />
                                                     </span>
@@ -1393,7 +1393,7 @@ const handleAvatarUpload = async (event: Event) => {
                                     Close
                                 </button>
                                 <button @click="submitNewAccount" :disabled="newAccountProcessing"
-                                    class="px-5 py-2.5 rounded-lg text-[12px] font-bold bg-bg-nfuko-yellow text-white hover:bg-[#b8973e] transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                                    class="px-5 py-2.5 rounded-lg text-[12px] font-bold bg-nfuko-yellow text-white hover:bg-[#b8973e] transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
                                     <div v-if="newAccountProcessing" class="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
                                     Save changes
                                 </button>

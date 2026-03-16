@@ -978,7 +978,7 @@ const submitCreate = async () => {
                         <span
                           v-for="cid in newAccountForm.charges"
                           :key="cid"
-                          class="mr-1 inline-flex items-center gap-1 rounded-md border border-bg-nfuko-yellow/20 bg-bg-nfuko-yellow/10 px-2.5 py-1 text-[11px] font-semibold text-bg-nfuko-yellow"
+                          class="mr-1 inline-flex items-center gap-1 rounded-md border border-bg-nfuko-yellow/20 bg-nfuko-yellow/10 px-2.5 py-1 text-[11px] font-semibold text-bg-nfuko-yellow"
                         >
                           {{ getChargeNameById(cid) }}
                         </span>
