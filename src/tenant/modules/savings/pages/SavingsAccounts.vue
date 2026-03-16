@@ -10,6 +10,10 @@ import { savingsProductsApi, type SavingsProduct } from '@/tenant/apis/savingsPr
 import { membersApi } from '@/tenant/apis/members/membersApi'
 import SearchableSelect from '@/Global/SearchableSelect.vue'
 import { toast } from 'vue-sonner'
+import { useCurrencyStore } from '@/stores/currency'
+
+const currencyStore = useCurrencyStore()
+const currency = computed(() => currencyStore.currencyCode)
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface SavingsAccount {
@@ -527,7 +531,7 @@ const submitCreate = async () => {
 
               <!-- Balance -->
               <td class="px-6 py-4 text-right font-semibold text-[#3ab88a]">
-                Ksh {{ formatBalance(account.balance) }}
+                {{ currency }} {{ formatBalance(account.balance) }}
               </td>
 
               <!-- Status -->
@@ -682,7 +686,7 @@ const submitCreate = async () => {
                   </div>
                   <div class="mt-4 flex items-baseline gap-1">
                     <span class="text-sm text-neutral-500">Balance</span>
-                    <span class="text-2xl font-bold text-[#3ab88a]">Ksh {{ formatBalance(viewAccount.balance ?? 0) }}</span>
+                    <span class="text-2xl font-bold text-[#3ab88a]">{{ currency }} {{ formatBalance(viewAccount.balance ?? 0) }}</span>
                   </div>
                 </div>
 
@@ -708,11 +712,11 @@ const submitCreate = async () => {
                   </div>
                   <div class="flex items-center justify-between px-5 py-3.5">
                     <span class="text-sm text-neutral-500">Initial Deposit</span>
-                    <span class="text-sm font-semibold text-neutral-900 dark:text-white">Ksh {{ formatBalance(viewAccount.initial_deposit ?? 0) }}</span>
+                    <span class="text-sm font-semibold text-neutral-900 dark:text-white">{{ currency }} {{ formatBalance(viewAccount.initial_deposit ?? 0) }}</span>
                   </div>
                   <div class="flex items-center justify-between px-5 py-3.5">
                     <span class="text-sm text-neutral-500">Opening Balance</span>
-                    <span class="text-sm font-semibold text-neutral-900 dark:text-white">Ksh {{ formatBalance(viewAccount.opening_balance ?? 0) }}</span>
+                    <span class="text-sm font-semibold text-neutral-900 dark:text-white">{{ currency }} {{ formatBalance(viewAccount.opening_balance ?? 0) }}</span>
                   </div>
                   <div class="flex items-center justify-between px-5 py-3.5">
                     <span class="text-sm text-neutral-500">Min Balance Enforced</span>

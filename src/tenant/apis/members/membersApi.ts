@@ -4,6 +4,19 @@ export const membersApi = {
   list(params?: { search?: string; page?: number }) {
     return tenantClient.get('/members', { params })
   },
+  downloadTemplate() {
+    return tenantClient.get('/members/template', { responseType: 'blob' })
+  },
+  importMembers(file: File) {
+    const formData = new FormData()
+    formData.append('file', file)
+    return tenantClient.post('/members/import', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
+  importJson(rows: Record<string, string>[]) {
+    return tenantClient.post('/members/import-json', { rows })
+  },
   store(data: Record<string, any>) {
     return tenantClient.post('/members', data)
   },

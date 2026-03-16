@@ -7,11 +7,6 @@ import {
   Wallet,
   HandCoins,
   ArrowUpDown,
-  BookOpen,
-  Settings,
-  Moon,
-  Sun,
-  MapPin,
   Mail,
   ArrowLeftRight,
 } from 'lucide-vue-next'
@@ -34,6 +29,8 @@ import { useTenantContextStore } from '@/stores/tenantContext'
 import { membersApi } from '@/tenant/apis/members/membersApi'
 import { tenantRoutes } from "@/tenant/layouts/routes.ts";
 import { OutClickNav } from '@/Global/OutClicknavigation';
+import { saccoBrandingApi, saccoBrandingState } from '@/tenant/apis/saccobranding/saccoBrandingApi'
+
 const route = useRoute()
 const router = useRouter()
 const { state } = useSidebar()
@@ -54,14 +51,20 @@ const isSettingsActive = computed(() => route.path.startsWith('/tenant/settings'
 
 const tenant = tenantStore.currentTenant as any
 
-const memberCount = ref<number | null>(null)
+const memberCount = computed(() => tenantStore.memberCount)
 
 onMounted(async () => {
-  try {
-    const res = await membersApi.list({ page: 1 })
-    memberCount.value = res.data?.meta?.total ?? res.data?.total ?? null
-  } catch {
-    // silently ignore — badge just won't show
+  const [membersRes] = await Promise.allSettled([
+    membersApi.list({ page: 1 }),
+    (async () => {
+      if (!saccoBrandingState.loaded) {
+        try { await saccoBrandingApi.get() } catch { /* silently ignore */ }
+      }
+    })(),
+  ])
+  if (membersRes.status === 'fulfilled') {
+    const total = membersRes.value.data?.meta?.total ?? membersRes.value.data?.total ?? null
+    if (total !== null) tenantStore.setMemberCount(total)
   }
 })
 </script>
@@ -71,19 +74,29 @@ onMounted(async () => {
     <!-- Header: SACCO brand -->
     <SidebarHeader class="p-4">
       <div class="flex items-center gap-3">
+        <!-- Logo: show uploaded logo or fallback icon -->
         <div
           class="flex shrink-0 items-center justify-center rounded-2xl bg-nfuko-yellow text-[#0A2318] shadow-xl transition-all duration-500"
           :class="state === 'expanded' ? 'h-14 w-14' : 'h-8 w-8'">
-          <LayoutGrid :class="state === 'expanded' ? 'h-7 w-7' : 'h-5 w-5'" />
+          <img
+            v-if="saccoBrandingState.logo_url"
+            :src="saccoBrandingState.logo_url"
+            alt="Sacco logo"
+            class="h-full w-full object-contain"
+          />
+          <div v-else
+            class="flex h-full w-full items-center justify-center rounded-2xl bg-bg-nfuko-yellow text-[#0A2318] shadow-xl">
+            <LayoutGrid :class="state === 'expanded' ? 'h-7 w-7' : 'h-5 w-5'" />
+          </div>
         </div>
 
         <div v-if="state === 'expanded'" class="flex flex-col min-w-0">
-          <span class="text-lg font-bold leading-tight tracking-tight text-white italic">
-            {{ tenant?.name ?? 'SACCO Portal' }}
+          <span class="text-lg font-bold leading-tight tracking-tight text-white italic truncate">
+            {{ saccoBrandingState.sacco_name || tenant?.name || 'SACCO Portal' }}
           </span>
-          <span v-if="tenant?.settings?.slogan"
-            class="mt-0.5 text-[10px] font-semibold uppercase tracking-widest text-nfuko-nav-text/80">
-            {{ tenant.settings.slogan }}
+          <span v-if="saccoBrandingState.tagline || tenant?.settings?.slogan"
+            class="mt-0.5 text-[10px] font-semibold uppercase tracking-widest text-nfuko-nav-text/80 truncate">
+            {{ saccoBrandingState.tagline || tenant?.settings?.slogan }}
           </span>
         </div>
       </div>
