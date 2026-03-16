@@ -28,7 +28,6 @@ const tempHideOpeningBalance = ref<boolean>(Boolean(settingsStore.hideOpeningBal
 const tempAutoCreateSavingsAccount = ref<boolean>(true)
 const tempRequireMemberApproval = ref<boolean>(false)
 const tempLoyalMemberMinTenureMonths = ref<number>(12)
-
 const settingsCards = [
     {
         title: "Staff Management",
@@ -92,7 +91,6 @@ async function handleSave() {
     }
 }
 </script>
-
 <template>
     <div class="flex h-full flex-1 flex-col gap-6 p-4 md:p-6 bg-[#f8faf9] dark:bg-[#0a0a0a]">
         <div class="flex items-center gap-3">
@@ -105,9 +103,8 @@ async function handleSave() {
                     onboarding</p>
             </div>
         </div>
-
         <SettingCard :settingsCards="settingsCards">
-            <template #kyc-member-onboarding="{ card }">
+            <template #kyc-member-onboarding>
                 <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Setup
                     KYC →</button>
 
@@ -326,7 +323,6 @@ async function handleSave() {
                 </Sheet>
             </template>
         </SettingCard>
-
         <div class="grid gap-5 lg:grid-cols-2">
             <div
                 class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">

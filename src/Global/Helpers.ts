@@ -119,6 +119,8 @@ export function getUserData() {
 export function getUserToken() {
   try {
     const userData = getUserData();
+    console.log(userData);
+    
     return userData?.token ?? null;
   } catch (error) {
     console.error(error, '009');
@@ -362,4 +364,3 @@ export function getTenantSubdomain(): string | null {
 export function getSubdomainName(): string | null {
     return getTenantSubdomain() ?? localStorage.getItem('tenant_subdomain')
 }
-

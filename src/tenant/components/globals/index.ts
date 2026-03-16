@@ -1,0 +1,1 @@
+export {default as SettingCard} from "./navigation-setting-card.vue"

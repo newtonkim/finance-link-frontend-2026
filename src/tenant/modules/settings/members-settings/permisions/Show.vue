@@ -1,8 +1,8 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { permissionsApi } from '@/central/modules/apis'
 import { Form, TableDrawer } from '@/Global'
 import ConfirmationDialog from '@/Global/confirmationDialog/confirmationDialog.vue'
+import { tenantpermissionsApi } from '@/tenant/apis/onboardingSettings'
 const props = defineProps({
   data: {
     type: Object,
@@ -11,13 +11,13 @@ const props = defineProps({
 })
 const showDelete = ref(false)
 
-const { ErasePermissionFromUser,AttachPermissionToUser } = permissionsApi()
+const { ErasePermissionFromUser,AttachPermissionToUser } = tenantpermissionsApi()
 const action = {
   close: () => {
       ErasePermissionFromUser(showDelete.value.data)
 
   },
-  attach: () => {
+  attach: () => { 
     AttachPermissionToUser(showDelete.value.data)
 
   }
@@ -37,7 +37,7 @@ const form = ref([{
   // label: 'user Name',
   name: 'user',
   type: 'select',
-  url: 'central/staff/users-drop-down',
+  url: 'staff/users-drop-down',
   required: true,
   props: { placeholder: 'Enter  User Name' },
 },
@@ -50,7 +50,7 @@ function onFormResults(user) {
 }
 
 
-const urlShaffle = computed(() => `/central/settings/permisions/holders_list?id=${props.data?.id}`)
+const urlShaffle = computed(() => `/settings/permisions/holders_list?id=${props.data?.id}`)
 </script>
 
 <template>
