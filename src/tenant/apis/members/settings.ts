@@ -21,9 +21,8 @@ export function memmberSettingApi() {
     }
 
     function settingsList(data?: Object) {
-      const formDataScoping:any=  formDataFormat(scopeValues(data));
     fetchTableData({
-        data: formDataScoping,
+        data: data,
         props: { url: '/settings/member/onboarding/settings-list', state: 'member-onboarding-settings-list' },
         Store,
         saveData: false,
