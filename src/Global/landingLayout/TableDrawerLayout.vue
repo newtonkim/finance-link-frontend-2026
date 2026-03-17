@@ -43,7 +43,7 @@
         <!-- TABLE -->
         <div class="rounded-2xl    bg-white pt-0 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]   dark:bg-neutral-900">
             <div
-                class="overflow-x-auto   custom-scrollbar h-[64vh] border-neutral-100 bg-white dark:bg-neutral-900 shadow-sm dark:border-neutral-800 rounded-2xl">
+                class="overflow-x-auto w-[81vw]  custom-scrollbar h-[64vh] border-neutral-100 bg-white dark:bg-neutral-900 shadow-sm dark:border-neutral-800 rounded-2xl">
                 <Table :handleAction="handleAction" :action_config="ACTION_CONFIG" :dataFilter="dataFilter" :data="data"
                     :columns="columns" :permissions="permissions">
                     <template v-for="(_, name) in $slots" #[name]="slotProps">
@@ -216,16 +216,16 @@ async function automaticCreateFun() {
             setTimeout(() => {
                 toggleDrawer()
             }, 100) //  to make sure the drawer is cleaned 
-            Store.currentFormValues={};
+            Store.currentFormValues = {};
             return true
         }
         return false
     }
 }
 async function saveDrawerData(data: any) {
-   
-    const checker= await automaticCreateFun('create')
-    
+
+    const checker = await automaticCreateFun('create')
+
     if (!checker) {
         return
     }

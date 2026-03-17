@@ -104,11 +104,7 @@ export async function fetchTableData({
   props: any
   Store: any
   saveData?: boolean
-}) {
-//     console.log(data,"datadatadata");
-//     for (const pair of data.entries()) {
-//   console.log(pair[0], pair[1], pair[1] instanceof File)
-// }
+}) { 
   const subdomain = getSubdomainName()
   const interceptor = subdomain ? tenantClient : apiClient
   const collection = {

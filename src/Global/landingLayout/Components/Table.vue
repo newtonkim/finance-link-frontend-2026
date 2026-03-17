@@ -1,5 +1,7 @@
 <template>
-  <div class="  rounded-2xl p-2  dark:bg-neutral-900 bg- nfuko-50">
+  <div class="w-full    dark:bg-neutral-900 bg- nfuko-50" style="
+        /* width: 2em; */
+">
     <table class="w-full table-auto text-left border-collapse  ">
       <!-- HEAD -->
       <thead v-once class="sticky top-0  z-40 bg-white s hadow-sm dark:bg-neutral-900 rounded-sm">
@@ -34,7 +36,7 @@
       </thead>
 
       <!-- BODY -->
-      <tbody>
+      <tbody class="overflow-auto">
         <tr v-if="!dataFilter?.length">
           <td :colspan="columns.length + ($slots.actions ? 1 : 0)"
               class="py-8 text-center text-sm text-neutral-500">
@@ -43,7 +45,9 @@
         </tr>
 
         <tr v-for="(item, idx) in dataFilter" :key="item?.id ?? idx"
-            :class="Number(idx) < dataFilter.length - 1 ? 'border-b border-neutral-50 dark:border-neutral-800' : ''">
+            :class="Number(idx) < dataFilter.length - 1 ? 'border-b border-neutral-50 dark:border-neutral-800' : ''"
+            class="truncate"
+            >
           <td
             v-for="col in columns"
             :key="col.key"

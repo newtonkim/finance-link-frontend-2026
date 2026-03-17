@@ -37,13 +37,7 @@ const form = ref([
         name: 'system_role',
         type: 'select',
         required: true,
-        url: 'central/staff/roles-drop-down',
-        // options: [
-        //     { name: 'Supper Admin', id: 'super-admin' },
-        //     { name: 'Manager', id: 'manager' },
-        //     { name: 'Accountant', id: 'accountant' },
-        //     { name: 'Ordinally', id: 'ordinally' },
-        // ],
+        url: 'central/staff/roles-drop-down', 
         props: { placeholder: 'Select Status' },
     },
     {
