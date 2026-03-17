@@ -22,21 +22,9 @@ export function memmberSettingApi() {
 
     function settingsList(data?: Object) {
       const formDataScoping:any=  formDataFormat(scopeValues(data));
-    //     const collection: any = {
-    //         reload: 1,
-    //         StateStore: 'memberSettingsCreate',
-    //         time: 0,
-    //         reqs: {
-    //             url: '/members/settings-list',
-    //             method: 'post',
-    //             data:formDataScoping,
-    //         },
-    //     };
-    // }
- 
     fetchTableData({
         data: formDataScoping,
-        props: { url: '/settings/member/onboarding/settings-list', state: 'memberSettingsCreate' },
+        props: { url: '/settings/member/onboarding/settings-list', state: 'member-onboarding-settings-list' },
         Store,
         saveData: false,
       })
