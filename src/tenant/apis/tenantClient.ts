@@ -21,7 +21,7 @@ export const tenantClient = axios.create({
 
 tenantClient.interceptors.request.use((config) => {
   // console.log("=====tenants2",getBaseURL());
-  const token=getBearerToken().token;
+  const token=getBearerToken()?.token;
   if (token) { // can be remved 
     config.headers.Authorization = `Bearer ${token}`
   }
