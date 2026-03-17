@@ -22,25 +22,10 @@ member-onboarding-settings-list
             </div>
         </template>
 
-        <template #body>
-<div v-for="field in list" :key="field.name" class="mb-4">
-  <label :for="field.name" class="block font-medium">{{ field.label }}</label>
-  <input 
-    v-if="field.type === 'text' || field.type === 'number'" 
-    :type="field.type" 
-    v-model="field.value" 
-    :id="field.name"
-    :placeholder="field.description"
-    class="border rounded p-2 w-full"
-  />
-  <input 
-    v-else-if="field.type === 'switch'" 
-    type="checkbox" 
-    v-model="field.value" 
-    :id="field.name"
-  />
-  <p class="text-sm text-gray-500">{{ field.description }}</p>
-</div>
+        <template #body> 
+<settingsForm  
+ :fields="fields"
+ />
 
         </template>
     </Drawer>
@@ -68,14 +53,15 @@ import { pomPinia } from 'septor-store';
 
 import { useSettingsStore } from '@/stores/settingsStore'
 import { toast } from 'vue-sonner'
-import { Drawer } from '@/Global'
+import { Drawer,settingsForm } from '@/Global'
 import { memmberSettingApi } from '../../../apis/members'
+const inputClass = 'w-full rounded-lg border focus:border-nfuko-primary/50 focus:ring-1    bg-white px-3 py-2.5 text-sm outline-none transition  border-nfuko-primary/10 focus:ring-1 focus:ring-bg-nfuko-primary/90 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#8ba8a2]/90 dark:focus:ring-[#8ba8a2]/90';
 
     const Store = pomPinia();
 const {settingsList}=memmberSettingApi()
 
 const settingsStore = useSettingsStore()
-const list = ref([])
+const fields = ref([])
 
 const isDrawerOpen = ref(false)
 
@@ -97,11 +83,9 @@ function identifyTheFields(settings) {
     settings.settings_action[attr]
 
 }
-const $field={
- 
-}
+
 
 onMounted(async () => {
-   list.value=Object.values(Store['member-onboarding-settings-list']?.payload??{})
+   fields.value=Object.values(Store['member-onboarding-settings-list']?.payload??{})
 })
 </script>

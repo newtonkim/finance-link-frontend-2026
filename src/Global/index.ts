@@ -8,6 +8,7 @@ export {default as AuthBase} from '@/layouts/auth/AuthSplitLayout.vue';
 export {default as AppLogo} from './AppLogo.vue'; 
 export {default as InputError} from './InputError.vue';
 export {default as TextLink} from './TextLink.vue';
+export {default as settingsForm} from './settings/Form.vue';
 export * from './DetailsTable';
 export {default as StatusButtonsHorizontal} from './StatusButtonsHorizontal/index.vue';
 
