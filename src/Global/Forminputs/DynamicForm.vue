@@ -9,6 +9,7 @@ import { pomPinia } from 'septor-store';
 const Store = pomPinia();
 const props = defineProps<{
     action: string,
+    remount: boolean,
     form: Array<{
         label: string;
         name: string;
@@ -27,12 +28,15 @@ const props = defineProps<{
 const emits = defineEmits(['update:form', 'field-changed', 'results']);
 
 const prfields = ref<any>([]);
+const remountComponent = ref<any>(true);
 
 onMounted(() => {
+
     if (Array.isArray(props.form))
         prfields.value = [...(props.form)];
     if (props.action == 'add')
         prfields.value = prfields.value.map((f: any) => ({ value: null, ...f }))
+        remountComponent.value=false
 })
 const avatarPreviews = ref<Record<number, string>>({});
 
@@ -89,7 +93,7 @@ const nationalityOptions  = [
 </script>
 
 <template>
-    <div :class="(parentStyle || '') + ' space-y-2'">
+    <div  :class="(parentStyle || '') + ' space-y-2'">
 
         <div v-for="(field, index) in prfields" :key="index">
             

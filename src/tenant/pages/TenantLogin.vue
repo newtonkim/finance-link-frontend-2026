@@ -64,7 +64,7 @@ async function submit() {
     if (data?.data?.user) {
       localStorage.setItem('tenant_user', JSON.stringify(data.data.user));
     }
-    console.log(data);
+    //console.log(data);
     
     setBearerToken({token: data.data.access_token,...data.data.user})
     storeUserLogedinData(data.data.user)

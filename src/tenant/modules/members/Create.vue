@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted, reactive ,computed} from 'vue';
 import { Form } from '@/Global';
 const emits = defineEmits(['update:form']);
 const OptionList = reactive({
@@ -16,6 +16,25 @@ const fields = ref([
         type: 'select',
         required: true,
         placeholder: 'Search member type',
+       change: (value: any, field: any, index: number) => {
+    const existsIndex = fields.value.findIndex(f => f.name === 'member_id')
+    if (value === 'existing_member') {
+        if (existsIndex === -1) {
+            fields.value.splice(index + 1, 0, {
+               label: 'products',
+        name: 'product_id',
+        type: 'select',
+        required: true,
+        placeholder: 'Search products',
+        url:"global/savings-products",
+            });
+        }
+    } else {
+        if (existsIndex !== -1) {
+            fields.value.splice(existsIndex, 1);
+        }
+    }
+},
 
         options: OptionList.memberTypeOptions
     },
@@ -82,9 +101,9 @@ const fields = ref([
     {
         label: 'NATIONAL ID (NIN)',
         name: 'national_id',
-        type: 'phone',
+        type: 'text',
         required: true,
-        placeholder: 'Enter Primary Contact',
+        placeholder: 'Enter national id (NIN)',
     },
     {
         label: 'Marital Status',
@@ -159,15 +178,7 @@ const fields = ref([
         placeholder: 'Referred by',
         dataOnMount: true,
     },
-      {
-        label: 'Role',
-        name: 'system_role',
-        type: 'select',
-        required: true,
-        url: 'staff/roles-drop-down', 
-        dataOnMount: true,
-        props: { placeholder: 'Select Status' },
-    },
+    
 ]);
 const props = defineProps({
     data: {
@@ -183,24 +194,26 @@ async function promtValueOnUpdate() {
             const field = fields.value.find((f: any) => f.name === key)
             if (field) field.value = value
         });
-        if (props?.data?.id) {
-            fields.value = [...fields.value, {
-                name: 'id',
-                type: 'hidden',
-                value: props.data.id,
-                required: true,
-            }]
-        }
+     
     }
     loading.value = false
 }
+
+function validateChanges(e) {
+console.log(213)
+}
+const loadingMount = computed(()=>loading.value)
+
 onMounted(() => {
     promtValueOnUpdate()
 })
 </script>
 <template>
+{{loading}}
     <div class="card shadow-md p-4 py-10 bg-white dark:bg-neutral-800 rounded-md">
-        <span v-if='loading'></span>
-        <Form :action="data?.action" v-else parentStyle="grid  grid-cols-2 gap-4 md:gap-6" v-model:form="fields" />
+        <span v-if='loadingMount'></span>
+        <Form
+        @results="validateChanges"
+         :action="data?.action" v-else parentStyle="grid  grid-cols-2 gap-4 md:gap-6" v-model:form="fields" />
     </div>
 </template>

@@ -13,7 +13,7 @@ function splitTheLink(link: string) {
   return { url: url.href, name: url2[name] }
 }
 export const dataFomater = (data: any, type: string) => {
-  console.log(data)
+  //console.log(data)
 
   const filter = {
     date: () => date(data),

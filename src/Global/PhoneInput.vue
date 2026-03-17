@@ -48,10 +48,10 @@ const countries: Country[] = [
 ];
 const DEFAULT_COUNTRY: Country = { code: 'UG', name: 'Uganda', dial: '+256', flag: '🇺🇬' };
 
-const selectedCountry = ref(DEFAULT_COUNTRY);
-// const selectedCountry = computed(() => {
-//     return countries.find(c => c.code === (props.countryCode || 'UG')) || countries[0] || DEFAULT_COUNTRY;
-// });
+//const selectedCountry = ref(DEFAULT_COUNTRY);
+ const selectedCountry = computed(() => {
+    return countries.find(c => c.code === (props.countryCode || 'UG')) || countries[0] || DEFAULT_COUNTRY;
+ });
 
 const filteredCountries = computed(() => {
     if (!searchQuery.value) return countries;
@@ -67,7 +67,7 @@ const selectCountry = (country: Country) => {
     emit('update:countryCode', country.code);
     isOpen.value = false;
     searchQuery.value = '';
-    selectedCountry.value = country;
+   // selectedCountry.value = country;
 };
 
 const toggleDropdown = () => {
@@ -124,8 +124,8 @@ const handleInput = (e: Event) => {
         }
         digits = digits.substring(0, 15);
     }
-
-    emit('update:modelValue', selectedCountry.value.dial + digits);
+ //console.log(selectedCountry.value.dial)
+   // emit('update:modelValue', selectedCountry.value.dial + digits);
 
     // Force the native input to update its value instantly so the user literally cannot type past the limit
     let formatted = digits;
@@ -145,6 +145,10 @@ const handleInput = (e: Event) => {
 
     // Explicitly update the DOM element's value to chop off trailing inputs immediately
     target.value = formatted;
+  const CCode=selectedCountry.value.dial
+  
+      emit('update:modelValue', CCode + digits);
+     // emit('update:modelValue',  digits);
 };
 
 const maxLength = computed(() => {
@@ -215,7 +219,7 @@ onUnmounted(() => window.removeEventListener('click', closeDropdown));
         </div>
 
         <!-- Phone Number Input -->
-        <input :value="displayValue" @input="handleInput" :maxlength="maxLength" type="text"
+        <input :value="displayValue" @change="handleInput" :maxlength="maxLength" type="text"
             :placeholder="placeholder || 'Phone number'" :disabled="disabled" :class="[
                 'flex-1 rounded-xl w-1/3 border py-2 px-4 text-sm outline-none transition-all placeholder:text-neutral-400 disabled:opacity-50 dark:text-white dark:placeholder:text-neutral-500',
                 error

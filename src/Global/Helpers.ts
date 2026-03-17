@@ -289,7 +289,7 @@ export function formDataFormatV2(fields: any[]) {
 export function formDataFormat(data: any) { // first version
   let formData = new FormData()
 
-  // console.log(data)
+  // //console.log(data)
   for (let key in data) {
     let value = data[key]
 
@@ -397,14 +397,14 @@ export function feedback(res: any, success: string, fail: string) {
   let msg: Record<string, string> = {
     msg: success,
     type: 'Error',
-    success: false,
+    success: successStatus,
   }
   if (!res || res.code == 200) {
-     success=true
+     successStatus=true
     msg = {
       msg: fail,
       type: 'Success',
-      success: true,
+      success: successStatus,
     }
   }
   notify(msg)

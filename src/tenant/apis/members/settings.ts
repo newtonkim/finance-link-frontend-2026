@@ -36,7 +36,7 @@ export function memmberSettingApi() {
  
     fetchTableData({
         data: formDataScoping,
-        props: { url: '/members/settings-list', state: 'memberSettingsCreate' },
+        props: { url: '/settings/member/onboarding/settings-list', state: 'memberSettingsCreate' },
         Store,
         saveData: false,
       })
