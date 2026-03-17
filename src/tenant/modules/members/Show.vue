@@ -3,20 +3,6 @@ import Details from '@/Global/DetailsTable/Details.vue';
 import { onMounted, ref } from 'vue'
 const loading = ref(true)
 
-//  "id": "019ce19b-6f46-7243-bec7-c2cc655fd9ce",
-//             "tenant_name": "Melissa Clayton",
-//             "starts": "2026-03-12",
-//             "expires": "2028-03-12",
-//             "grace_ends": null,
-//             "status": "active",
-//             "created_at": "2026-03-12 10:33:06",
-//             
-//             "billing_type": null,
-//             "features": null,
-//             "plan_slug": null,
-//             "cost": null,
-//             "plan_name": "premium"
-
 const props = defineProps({
     data: {
         type: Object,
@@ -24,31 +10,51 @@ const props = defineProps({
     }
 })
 const columns = [
+   {
+    header: 'Plan Details',
+    type: 'Descriptions',
+    column: 3,
+    list: [
+        { key: 'salutation_name', label: 'Salutation Name' },
+        { key: 'id', label: 'ID' },
+        { key: 'memeber_code', label: 'Member Code' },
+        { key: 'member_type', label: 'Member Type' },
+        { key: 'full_name', label: 'Full Name' },
+        { key: 'profile', label: 'Profile' },
+        { key: 'NIN', label: 'NIN' },
+        { key: 'joined_date', label: 'Joined Date' },
+        { key: 'email', label: 'Email' },
+        { key: 'sex', label: 'Sex' },
+        { key: 'primary_contact', label: 'Primary Contact' },
+        { key: 'other_contacts', label: 'Other Contacts' },
+        { key: 'marital_status', label: 'Marital Status' },
+        { key: 'created_at', label: 'Created At' },
+        { key: 'initial_deposit', label: 'Initial Deposit' },
+        { key: 'updated_at', label: 'Updated At' },
+        { key: 'salutation', label: 'Salutation' },
+        { key: 'gender', label: 'Gender' },
+        { key: 'o_contact', label: 'Other Contact' },
+        { key: 'MM_number', label: 'Mobile Money Number' },
+        { key: 'dob', label: 'Date of Birth' },
+        { key: 'address', label: 'Address' },
+        { key: 'nokin', label: 'Next of Kin' },
+        { key: 'next_contact', label: 'Next Contact' },
+        { key: 'inital_deposit', label: 'Initial Deposit (Duplicate)' },
+        { key: 'shareholder', label: 'Shareholder' },
+        { key: 'opb', label: 'OPB' },
+        { key: 'status', label: 'Status' },
+        { key: 'from ', label: 'From' },
+        { key: 'referred_by', label: 'Referred By' },
+        { key: 'created_by', label: 'Created By' },
+        { key: 'role_name', label: 'Role Name' }
+    ]
+},
     {
-        header: 'Plan Details',
-        type: 'Descriptions',
-        column: 3,
-        list: [
-            { key: 'status', label: 'status' },
-            { key: 'plan_name', label: 'name' },
-            { key: 'tenant_name', label: 'Tenant Name' },
-            { key: 'plan_slug', label: 'slug' },
-            { key: 'billing_type', label: 'type' },
-            { key: 'cost', label: 'cost' },
-            { key: 'mx_mbrs', label: 'members' },
-            { key: 'mxusrs', label: 'users' },
-            { key: 'starts', label: 'starts' },
-            { key: 'expires', label: 'expires' },
-            { key: 'grace_ends', label: 'grace ends' },
-            { key: 'created_at', label: 'Created Date', },
-        ]
-    },
-    {
-        header: 'Features Details',
+        header: 'Transaction List Details',
         type: 'Table',
         column: [
-            { key: 'feature', label: 'feature' },
-            { key: 'accessbility', label: 'accessbility' },
+            // { key: 'feature', label: 'feature' },
+          
         ],
         list: []
     }

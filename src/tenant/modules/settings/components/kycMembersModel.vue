@@ -5,8 +5,8 @@
         Member Onboarding →
     </button>
 
-    <Drawer v-if="isDrawerOpen" width=" w-1/2" :showFooter="drawerShooter2" v-model:open="isDrawerOpen"
-        @save="saveDrawerData">
+    <Drawer v-if="isDrawerOpen" width=" w-1/2" :showFooter="false" v-model:open="isDrawerOpen"
+        >
         <template #drawer-title>
             <div class=" text-sm  border-b border-neutral-100 dark:border-neutral-800">
                 <SheetHeader>
@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, onMounted } from 'vue'
 import { Users, Save, Wallet, AlertCircle, Loader2, ShieldCheck } from 'lucide-vue-next'
 import {
     Sheet,
@@ -45,57 +45,29 @@ import {
 import { useSettingsStore } from '@/stores/settingsStore'
 import { toast } from 'vue-sonner'
 import { Drawer } from '@/Global'
+import { memmberSettingApi } from '../../../apis/members'
+
+const {settingsList}=memmberSettingApi()
 
 const settingsStore = useSettingsStore()
 
 const isDrawerOpen = ref(false)
-const savingOnboarding = ref(false)
 
-const tempHideInitialDeposit = ref<boolean>(Boolean(settingsStore.hideInitialDeposit))
-const tempHideOpeningBalance = ref<boolean>(Boolean(settingsStore.hideOpeningBalance))
-const tempAutoCreateSavingsAccount = ref<boolean>(true)
-const tempRequireMemberApproval = ref<boolean>(false)
-
-// Sync local state when drawer opens — also fetch backend settings
-watch(isDrawerOpen, async (isOpen) => {
-    if (isOpen) {
-        tempHideInitialDeposit.value = Boolean(settingsStore.hideInitialDeposit)
-        tempHideOpeningBalance.value = Boolean(settingsStore.hideOpeningBalance)
-        await settingsStore.fetchOnboardingSettings()
-        tempAutoCreateSavingsAccount.value = settingsStore.autoCreateSavingsAccount
-        tempRequireMemberApproval.value = settingsStore.requireMemberApproval
-    }
-})
-
-
-
-
-
-async function handleSave() {
-    savingOnboarding.value = true
-    try {
-        settingsStore.setHideInitialDeposit(Boolean(tempHideInitialDeposit.value))
-        settingsStore.setHideOpeningBalance(Boolean(tempHideOpeningBalance.value))
-        await settingsStore.saveOnboardingSettings({
-            shares_compulsory: settingsStore.sharesCompulsory,
-            min_shares_on_onboarding: settingsStore.minSharesOnOnboarding,
-            share_price: settingsStore.sharePrice,
-            shares_compulsory_applies_to_existing: settingsStore.sharesCompulsoryAppliesToExisting,
-            auto_create_savings_account: tempAutoCreateSavingsAccount.value,
-            require_member_approval: tempRequireMemberApproval.value,
-        })
-        isDrawerOpen.value = false
-        nextTick(() => toast.success('Member onboarding settings saved.'))
-    } catch {
-        toast.error('Failed to save settings.')
-    } finally {
-        savingOnboarding.value = false
-    }
-}
 defineProps({
     isDrawerOpen: {
         type: Boolean,
         default: false
     }
+})
+watch(() => isDrawerOpen.value, (val) => {
+    /// let call appon request not 
+    if (val) {
+        nextTick(() => {
+            settingsList()
+        })
+    }
+})
+onMounted(async () => {
+   
 })
 </script>

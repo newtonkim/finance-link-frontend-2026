@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, reactive } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
 import { Form } from '@/Global';
 const emits = defineEmits(['update:form']);
 const OptionList = reactive({
@@ -7,7 +7,6 @@ const OptionList = reactive({
     salutationOptions: [{ id: 'Mr', name: 'Mr' }, { id: 'Mrs', name: 'Mrs' }, { id: 'Ms', name: 'Ms' }, { id: 'Dr', name: 'Dr' }, { id: 'Prof', name: 'Prof' }],
     genderOptions: [{ id: 'male', name: 'Male' }, { id: 'female', name: 'Female' }, { id: 'other', name: 'Other' }],
     maritalOptions: [{ id: 'single', name: 'Single' }, { id: 'married', name: 'Married' }, { id: 'divorced', name: 'Divorced' }, { id: 'widowed', name: 'Widowed' }]
-
 })
 const loading = ref(true)
 const fields = ref([
@@ -17,8 +16,7 @@ const fields = ref([
         type: 'select',
         required: true,
         placeholder: 'Search member type',
-        remote: true,
-        dataOnMount: true,
+
         options: OptionList.memberTypeOptions
     },
     {
@@ -34,8 +32,7 @@ const fields = ref([
         type: 'select',
         required: true,
         placeholder: 'Search Salutation',
-        remote: true,
-        dataOnMount: true,
+
         options: OptionList.salutationOptions
     },
     {
@@ -44,8 +41,7 @@ const fields = ref([
         type: 'select',
         required: true,
         placeholder: 'Search gender',
-        remote: true,
-        dataOnMount: true,
+
         options: OptionList.genderOptions
     },
     {
@@ -143,7 +139,7 @@ const fields = ref([
     {
         label: 'inital deposit',
         name: 'inital_deposit',
-        type: 'text',
+        type: 'number',
         required: true,
         placeholder: 'Select Status',
     },
@@ -161,7 +157,17 @@ const fields = ref([
         required: true,
         url: 'staff/users-drop-down',
         placeholder: 'Referred by',
-    }
+        dataOnMount: true,
+    },
+      {
+        label: 'Role',
+        name: 'system_role',
+        type: 'select',
+        required: true,
+        url: 'staff/roles-drop-down', 
+        dataOnMount: true,
+        props: { placeholder: 'Select Status' },
+    },
 ]);
 const props = defineProps({
     data: {
@@ -175,8 +181,7 @@ async function promtValueOnUpdate() {
         const data = { tenant_id: props.data.tenant_id, plan: props.data.plan_id, date: [props.data.starts, props.data.expires], status: props.data.status }
         await Object.entries(data).forEach(([key, value]) => {
             const field = fields.value.find((f: any) => f.name === key)
-            if (field)
-                field.value = value
+            if (field) field.value = value
         });
         if (props?.data?.id) {
             fields.value = [...fields.value, {

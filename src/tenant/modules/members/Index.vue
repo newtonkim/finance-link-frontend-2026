@@ -1,6 +1,6 @@
 <template>
-    <TableDrawer drawerWidth=" w-2/3" :url="tableUrl" state="Licesnes"
-        :drawerTitle="drawerTitle" " :columns="columns" @save="saveUser">
+    <TableDrawer drawerWidth=" w-2/3" :url="tableUrl" state="memberList" :drawerTitle="drawerTitle" " :columns="
+        columns" @save="saveUser">
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
@@ -12,39 +12,30 @@
 </template>
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import {Create,Details} from '.'
+import { Create, Details } from '.'
 import { TableDrawer, StatusButtonsHorizontal } from '@/Global'
-import { lisenseApi } from '../apis' 
-const formData = ref<Record<string, any>>({})
-const statusFilter = ref('all')
-const drawerTitle = ref('Create Tenant')
-const filters = ['all', 'active', 'suspended', 'expired', 'trial'] 
-const tableUrl = computed(() => `/members/list?status=${statusFilter.value}`)
-const triggerAction: Record<string, Function> = {
-    delete:()=> {Erase(formData.value.id) },
-    async create() {
-        // await create(formData.value)
-        // formData.value = {}
-    }
-}
-const title: Record<string, string> = {
-    "view": "View Liceses",
-    "edit": "Edit Liceses",
+const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
+ drawerTitle = ref('Create Tenant'), filters = ['all', 'active', 'suspended', 'expired', 'trial'], 
+ tableUrl = computed(() => `/members/list?status=${statusFilter.value}`), 
+ title: Record<string, string> = {
+    "view": "View Member Details",
+    "edit": "Edit member",
     "add": "Create a sacco member",
 }
 function saveUser(type: string, data: any) {
-    triggerAction[type]?.(data)
-    if (title?.[type])
-        drawerTitle.value = title?.[type]
+    if (title?.[type]) drawerTitle.value = title?.[type]
 }
 const columns = [
-    { key: 'Member', label: 'Member', sticky: 'left', width: '0', },
-    { key: 'memember_name', label: 'Full Name', },
-    { key: 'Phone', label: 'Phone' },
-    { key: 'Email', label: 'Email' },
-    { key: 'Gender', label: 'Gender', sticky: 'left', },
-    { key: 'Status', label: 'Status', type: 'status' },
-    { key: 'Joined', label: 'Joined', type: 'date' },
+    { key: 'salutation_name', label: 'Member', sticky: 'left', width: '14em ', },
+    { key: 'member_type', label: 'Member Type' },
+    { key: 'memeber_code', label: 'code', },
+    { key: 'NIN', label: 'national_id', },
+    { key: 'email', label: 'email', },
+    { key: 'primary_contact', label: 'phone', width: '14em ', },
+    { key: 'other_contacts', label: 'Other Contacts', width: '14em ', },
+    { key: 'joined_date', label: 'Joined Date', width: '9em ', },
+    { key: 'sex', label: 'Gender', type: 'status' },
+    { key: 'marital_status', label: 'Status', type: 'status' },
     { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 ]
 </script>
