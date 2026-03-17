@@ -86,7 +86,7 @@ watch(() => props.modelValue, (newVal) => {
             :placeholder="placeholder"
             :disabled="disabled"
             :class="[
-                'pl-12 w-full rounded-lg border border-neutral-200 bg-white py-2.5 pr-3 text-sm outline-none focus: border-nfuko-primary focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#8ba8a2]',
+                'pl-12 w-full rounded-lg border border-neutral-200 bg-white py-2.5 pr-3 text-sm outline-none focus: border-nfuko-primary focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#8ba8a2]',
                 props.class
             ]"
         />

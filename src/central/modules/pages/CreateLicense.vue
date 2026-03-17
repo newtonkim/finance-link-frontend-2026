@@ -116,7 +116,7 @@ function submitForm() {
                     <div class="relative" @click.stop>
                         <button @click="tenantOpen = !tenantOpen; planOpen = false" type="button"
                             class="w-full h-12 px-4 rounded-xl border border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] bg-white text-left text-sm flex items-center justify-between transition-shadow"
-                            :class="tenantOpen ? 'ring-2 ring-[ bg-nfuko-primary]/10 dark:ring-white/10' : ''">
+                            :class="tenantOpen ? 'ring-2 ring-bg-nfuko-primary/10 dark:ring-white/10' : ''">
                             <span
                                 :class="tenantSelectedLabel ? 'text-neutral-900 dark:text-white' : 'text-neutral-400 dark:text-neutral-500'">
                                 {{ tenantSelectedLabel || 'Select a Tenant' }}
@@ -141,7 +141,7 @@ function submitForm() {
                                         <Search
                                             class="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-neutral-400 dark:text-neutral-500 pointer-events-none" />
                                         <input v-model="tenantSearch" type="text" placeholder="Search tenants..."
-                                            class="w-full h-9 pl-9 pr-3 rounded-lg border-0 bg-neutral-50 dark:bg-white/5 text-sm text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary]/20 dark:focus:ring-white/20"
+                                            class="w-full h-9 pl-9 pr-3 rounded-lg border-0 bg-neutral-50 dark:bg-white/5 text-sm text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary/20 dark:focus:ring-white/20"
                                             @click.stop />
                                     </div>
                                 </div>
@@ -172,7 +172,7 @@ function submitForm() {
                     <div class="relative" @click.stop>
                         <button @click="planOpen = !planOpen; tenantOpen = false" type="button"
                             class="w-full h-12 px-4 rounded-xl border border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] bg-white text-left text-sm flex items-center justify-between transition-shadow"
-                            :class="planOpen ? 'ring-2 ring-[ bg-nfuko-primary]/10 dark:ring-white/10' : ''">
+                            :class="planOpen ? 'ring-2 ring-bg-nfuko-primary/10 dark:ring-white/10' : ''">
                             <span
                                 :class="planSelectedLabel ? 'text-neutral-900 dark:text-white' : 'text-neutral-400 dark:text-neutral-500'">
                                 {{ planSelectedLabel || 'Select a Plan' }}
@@ -197,7 +197,7 @@ function submitForm() {
                                         <Search
                                             class="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-neutral-400 dark:text-neutral-500 pointer-events-none" />
                                         <input v-model="planSearch" type="text" placeholder="Search plans..."
-                                            class="w-full h-9 pl-9 pr-3 rounded-lg border-0 bg-neutral-50 dark:bg-white/5 text-sm text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary]/20 dark:focus:ring-white/20"
+                                            class="w-full h-9 pl-9 pr-3 rounded-lg border-0 bg-neutral-50 dark:bg-white/5 text-sm text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary/20 dark:focus:ring-white/20"
                                             @click.stop />
                                     </div>
                                 </div>
@@ -227,14 +227,14 @@ function submitForm() {
                             Starts At
                         </label>
                         <Input v-model="form.startsAt" type="date"
-                            class="h-12 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-[ bg-nfuko-primary]/10 dark:focus:ring-white/10" />
+                            class="h-12 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-bg-nfuko-primary/10 dark:focus:ring-white/10" />
                     </div>
                     <div class="space-y-2">
                         <label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
                             Expires At
                         </label>
                         <Input v-model="form.expiresAt" type="date"
-                            class="h-12 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-[ bg-nfuko-primary]/10 dark:focus:ring-white/10" />
+                            class="h-12 rounded-xl border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm focus:ring-2 focus:ring-bg-nfuko-primary/10 dark:focus:ring-white/10" />
                     </div>
                 </div>
 
@@ -245,7 +245,7 @@ function submitForm() {
                     </label>
                     <div class="relative">
                         <select v-model="form.status"
-                            class="w-full h-12 px-4 rounded-xl border border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[ bg-nfuko-primary]/10 dark:focus:ring-white/10 transition-shadow">
+                            class="w-full h-12 px-4 rounded-xl border border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white bg-white text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-bg-nfuko-primary/10 dark:focus:ring-white/10 transition-shadow">
                             <option v-for="opt in statusOptions" :key="opt.value" :value="opt.value">
                                 {{ opt.label }}
                             </option>

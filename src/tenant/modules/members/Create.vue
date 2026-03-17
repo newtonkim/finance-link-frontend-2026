@@ -130,11 +130,11 @@ const fields = ref([
         placeholder: 'Enter Next of Kin Contact',
     },
     {
-        label: 'Primary Contact',
-        name: 'primary_contact',
+        label: 'opening balance',
+        name: 'opening_balance',
         type: 'phone',
         required: true,
-        placeholder: 'Enter Primary Contact',
+        placeholder: 'Enter opening balance',
     },
     {
         label: 'inital deposit',

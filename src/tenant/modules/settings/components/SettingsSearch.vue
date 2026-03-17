@@ -11,6 +11,6 @@ const searchQuery = ref('')
             <Search class="w-4 h-4 text-neutral-400" />
         </div>
         <input v-model="searchQuery" type="text" placeholder="Search settings..."
-            class="block w-full pl-10 pr-3 py-2 text-sm border border-neutral-200 rounded-xl bg-neutral-50 focus:ring-1 focus:ring-[ bg-nfuko-primary] focus: border-nfuko-primary outline-none transition-all dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:focus:ring-bg-nfuko-yellow dark:focus:border-bg-nfuko-yellow" />
+            class="block w-full pl-10 pr-3 py-2 text-sm border border-neutral-200 rounded-xl bg-neutral-50 focus:ring-1 focus:ring-bg-nfuko-primary focus: border-nfuko-primary outline-none transition-all dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:focus:ring-bg-nfuko-yellow dark:focus:border-bg-nfuko-yellow" />
     </div>
 </template>

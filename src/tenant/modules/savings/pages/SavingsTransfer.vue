@@ -219,7 +219,7 @@ function accountLabel(a: Account) {
                             Transfer Date <span class="text-red-500">*</span>
                         </label>
                         <input v-model="form.transfer_date" type="date"
-                            class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-[14px] text-neutral-800 focus:outline-none focus: border-nfuko-primary focus:ring-1 focus:ring-[ bg-nfuko-primary]/20 transition-all" />
+                            class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-[14px] text-neutral-800 focus:outline-none focus: border-nfuko-primary focus:ring-1 focus:ring-bg-nfuko-primary/20 transition-all" />
                         <p v-if="errors.transfer_date" class="text-[11px] text-red-600">{{ errors.transfer_date }}</p>
                     </div>
 
@@ -269,7 +269,7 @@ function accountLabel(a: Account) {
                             'flex overflow-hidden rounded-xl border focus-within:ring-1 transition-all',
                             amountError || errors.amount
                                 ? 'border-red-400 focus-within:ring-red-300'
-                                : 'border-neutral-200 focus-within: border-nfuko-primary focus-within:ring-[ bg-nfuko-primary]/20'
+                                : 'border-neutral-200 focus-within: border-nfuko-primary focus-within:ring-bg-nfuko-primary/20'
                         ]">
                             <span class="flex items-center border-r border-neutral-200 bg-neutral-50 px-4 text-[13px] font-semibold text-neutral-500">
                                 UGX
@@ -288,7 +288,7 @@ function accountLabel(a: Account) {
                             Narration <span class="text-[12px] font-normal text-neutral-400">(Optional)</span>
                         </label>
                         <input v-model="form.narration" type="text" placeholder="Reason for transfer..."
-                            class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-[14px] text-neutral-800 focus:outline-none focus: border-nfuko-primary focus:ring-1 focus:ring-[ bg-nfuko-primary]/20 transition-all" />
+                            class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-[14px] text-neutral-800 focus:outline-none focus: border-nfuko-primary focus:ring-1 focus:ring-bg-nfuko-primary/20 transition-all" />
                     </div>
 
                     <!-- Submit -->

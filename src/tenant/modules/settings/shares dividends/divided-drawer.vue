@@ -73,7 +73,7 @@
                                     </label>
                                     <div class="relative">
                                         <select v-model="form.distribution_basis"
-                                            class="w-full appearance-none pl-3 pr-10 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:focus:ring-bg-nfuko-yellow transition-all">
+                                            class="w-full appearance-none pl-3 pr-10 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:focus:ring-bg-nfuko-yellow transition-all">
                                             <option v-for="opt in basisOptions" :key="opt.value" :value="opt.value">
                                                 {{ opt.label }}
                                             </option>
@@ -123,7 +123,7 @@
                                         </label>
                                         <input v-model.number="form.distribution_day" type="number" min="1" max="28"
                                             placeholder="e.g. 1"
-                                            class="w-full px-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:focus:ring-bg-nfuko-yellow transition-all" />
+                                            class="w-full px-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:focus:ring-bg-nfuko-yellow transition-all" />
                                     </div>
                                     <div>
                                         <label
@@ -132,7 +132,7 @@
                                         </label>
                                         <div class="relative">
                                             <select v-model.number="form.distribution_month"
-                                                class="w-full appearance-none pl-3 pr-10 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:focus:ring-bg-nfuko-yellow transition-all">
+                                                class="w-full appearance-none pl-3 pr-10 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:focus:ring-bg-nfuko-yellow transition-all">
                                                 <option v-for="(m, i) in months" :key="i" :value="i + 1">{{ m }}
                                                 </option>
                                             </select>
@@ -163,7 +163,7 @@
                                     <div class="relative">
                                         <input v-model="form.dividend_rate" type="number" min="0" max="100"
                                             step="0.01" placeholder="e.g. 12.5"
-                                            class="w-full pl-3 pr-10 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] font-mono font-bold text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:focus:ring-bg-nfuko-yellow transition-all" />
+                                            class="w-full pl-3 pr-10 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] font-mono font-bold text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:focus:ring-bg-nfuko-yellow transition-all" />
                                         <span
                                             class="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] font-bold text-neutral-400">%</span>
                                     </div>
@@ -177,7 +177,7 @@
                                             Min. Shares to Qualify
                                         </label>
                                         <input v-model="form.minimum_shares" type="number" min="0" placeholder="e.g. 1"
-                                            class="w-full px-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] font-mono text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:focus:ring-bg-nfuko-yellow transition-all" />
+                                            class="w-full px-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] font-mono text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:focus:ring-bg-nfuko-yellow transition-all" />
                                     </div>
 
                                     <!-- Minimum Dividend -->
@@ -191,7 +191,7 @@
                                                 class="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-neutral-400">UGX</span>
                                             <input v-model="form.minimum_dividend_amount" type="number" min="0"
                                                 placeholder="0"
-                                                class="w-full pl-12 pr-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] font-mono text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:focus:ring-bg-nfuko-yellow transition-all" />
+                                                class="w-full pl-12 pr-3 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] font-mono text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:focus:ring-bg-nfuko-yellow transition-all" />
                                         </div>
                                     </div>
                                 </div>
@@ -216,7 +216,7 @@
                                     </label>
                                     <div class="relative">
                                         <select v-model="form.rounding"
-                                            class="w-full appearance-none pl-3 pr-10 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:focus:ring-bg-nfuko-yellow transition-all">
+                                            class="w-full appearance-none pl-3 pr-10 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[13px] text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:focus:ring-bg-nfuko-yellow transition-all">
                                             <option v-for="opt in roundingOptions" :key="opt.value" :value="opt.value">
                                                 {{ opt.label }}
                                             </option>

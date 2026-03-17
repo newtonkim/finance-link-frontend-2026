@@ -586,7 +586,7 @@ const handleAvatarUpload = async (event: Event) => {
                     <!-- Member Card -->
                     <div class="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
                         <!-- Banner with gold pattern -->
-                        <div class="relative h-16 bg-gradient-to-r from-[ bg-nfuko-primary] via-[#003d3d] to-[ bg-nfuko-primary] overflow-hidden">
+                        <div class="relative h-16 bg-gradient-to-r from-bg-nfuko-primary via-[#003d3d] to-bg-nfuko-primary overflow-hidden">
                             <!-- Subtle diagonal pattern -->
                             <div class="absolute inset-0 opacity-20"
                                 style="background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(201,168,76,0.15) 10px, rgba(201,168,76,0.15) 11px);">

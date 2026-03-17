@@ -14,7 +14,7 @@ const dividendOptions = ['Annually', 'Semi-Annually', 'Quarterly', 'Monthly']
 const timezones       = ['Africa/Nairobi (EAT)', 'Africa/Kampala (EAT)', 'Africa/Dar_es_Salaam (EAT)', 'Africa/Kigali (EAT)', 'UTC']
 const languages       = ['English', 'Swahili', 'French']
 
-const selectCls = 'w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white'
+const selectCls = 'w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white'
 </script>
 
 <template>

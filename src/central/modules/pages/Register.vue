@@ -162,7 +162,7 @@ const loginPath = '/login';
           <Label for="name" class="text-sm font-semibold  text-nfuko-primary">Name</Label>
           <Input id="name" v-model="name" type="text" required autofocus :tabindex="1" autocomplete="name" name="name"
             placeholder="Your full name"
-            class="h-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-[ bg-nfuko-primary]/10 transition-all duration-300" />
+            class="h-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-bg-nfuko-primary/10 transition-all duration-300" />
           <InputError :message="errors.name" />
         </div>
 
@@ -170,7 +170,7 @@ const loginPath = '/login';
           <Label for="email" class="text-sm font-semibold  text-nfuko-primary">Email address</Label>
           <Input id="email" v-model="email" type="email" required :tabindex="2" autocomplete="email" name="email"
             placeholder="m@example.com"
-            class="h-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-[ bg-nfuko-primary]/10 transition-all duration-300" />
+            class="h-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-bg-nfuko-primary/10 transition-all duration-300" />
           <InputError :message="errors.email" />
         </div>
 
@@ -179,7 +179,7 @@ const loginPath = '/login';
           <div class="relative">
             <Input id="password" v-model="password" :type="showPassword ? 'text' : 'password'" required :tabindex="3"
               autocomplete="new-password" name="password" placeholder="Create a secure password"
-              class="h-12 pr-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-[ bg-nfuko-primary]/10 transition-all duration-300" />
+              class="h-12 pr-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-bg-nfuko-primary/10 transition-all duration-300" />
             <button type="button" @click="showPassword = !showPassword"
               class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-neutral-400 hover: text-nfuko-primary transition-colors"
               tabindex="-1">
@@ -195,7 +195,7 @@ const loginPath = '/login';
             <Input id="password_confirmation" v-model="password_confirmation"
               :type="showConfirmPassword ? 'text' : 'password'" required :tabindex="4" autocomplete="new-password"
               name="password_confirmation" placeholder="Re-enter password"
-              class="h-12 pr-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-[ bg-nfuko-primary]/10 transition-all duration-300" />
+              class="h-12 pr-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-bg-nfuko-primary/10 transition-all duration-300" />
             <button type="button" @click="showConfirmPassword = !showConfirmPassword"
               class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-neutral-400 hover: text-nfuko-primary transition-colors"
               tabindex="-1">
@@ -206,7 +206,7 @@ const loginPath = '/login';
         </div>
 
         <Button type="submit"
-          class="h-12 w-full  bg-nfuko-primary hover: bg-nfuko-primary/90 text-white font-semibold rounded-xl transition-all shadow-lg shadow-[ bg-nfuko-primary]/10 mt-2"
+          class="h-12 w-full  bg-nfuko-primary hover: bg-nfuko-primary/90 text-white font-semibold rounded-xl transition-all shadow-lg shadow-bg-nfuko-primary/10 mt-2"
           tabindex="5" :disabled="processing" data-test="register-user-button">
           <Spinner v-if="processing" class="mr-2" />
           Create account

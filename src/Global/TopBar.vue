@@ -48,7 +48,7 @@ const userName = computed(() => String(user.value?.name ?? 'User'));
                 <Search
                     class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-neutral-400 dark:text-neutral-500" />
                 <Input placeholder="Search anything"
-                    class="pl-10 h-10 bg-[#F1F5F9] dark:bg-white/10 border-none rounded-[14px] focus-visible:ring-1 focus-visible:ring-[ bg-nfuko-primary]/5 dark:focus-visible:ring-white/10 text-sm dark:text-white dark:placeholder-neutral-500" />
+                    class="pl-10 h-10 bg-[#F1F5F9] dark:bg-white/10 border-none rounded-[14px] focus-visible:ring-1 focus-visible:ring-bg-nfuko-primary/5 dark:focus-visible:ring-white/10 text-sm dark:text-white dark:placeholder-neutral-500" />
                 <div
                     class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-[2px] text-[10px] font-bold text-neutral-400 dark:text-neutral-500">
                     <span

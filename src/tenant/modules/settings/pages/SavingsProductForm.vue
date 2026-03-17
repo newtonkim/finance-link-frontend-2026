@@ -192,12 +192,12 @@ const monthlyFeeSummary = computed(() => {
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div class="col-span-2">
                             <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Name</label>
-                            <input v-model="form.name" type="text" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow" placeholder="e.g. Fixed Deposit 6 Months">
+                            <input v-model="form.name" type="text" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow" placeholder="e.g. Fixed Deposit 6 Months">
                         </div>
 
                         <div>
                             <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Type</label>
-                            <select v-model="form.type" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow">
+                            <select v-model="form.type" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow">
                                 <option value="fixed">Fixed</option>
                                 <option value="standard">Standard</option>
                             </select>
@@ -205,7 +205,7 @@ const monthlyFeeSummary = computed(() => {
 
                         <div>
                             <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Status</label>
-                            <select v-model="form.status" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow">
+                            <select v-model="form.status" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow">
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
                             </select>
@@ -213,17 +213,17 @@ const monthlyFeeSummary = computed(() => {
 
                         <div>
                             <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Minimum Balance (KSh)</label>
-                            <input v-model="form.minimum_balance" type="number" step="0.01" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow">
+                            <input v-model="form.minimum_balance" type="number" step="0.01" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow">
                         </div>
 
                         <div>
                             <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Min Maturity (Months)</label>
-                            <input v-model="form.minimum_maturity_months" type="number" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow">
+                            <input v-model="form.minimum_maturity_months" type="number" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow">
                         </div>
 
                         <div>
                             <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Dormancy Period (Months)</label>
-                            <input v-model="form.dormancy_period_months" type="number" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow">
+                            <input v-model="form.dormancy_period_months" type="number" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow">
                         </div>
                     </div>
                 </div>
@@ -237,7 +237,7 @@ const monthlyFeeSummary = computed(() => {
                         </div>
                         <label class="flex items-center gap-2 cursor-pointer">
                             <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Enable</span>
-                            <div class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[ bg-nfuko-primary] focus:ring-offset-2 dark:focus:ring-offset-neutral-900" :class="form.monthly_fee_enabled ? ' bg-nfuko-primary dark:bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'">
+                            <div class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-bg-nfuko-primary focus:ring-offset-2 dark:focus:ring-offset-neutral-900" :class="form.monthly_fee_enabled ? ' bg-nfuko-primary dark:bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'">
                                 <span class="inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out" :class="form.monthly_fee_enabled ? 'translate-x-6' : 'translate-x-1'"></span>
                                 <input v-model="form.monthly_fee_enabled" type="checkbox" class="sr-only">
                             </div>
@@ -254,7 +254,7 @@ const monthlyFeeSummary = computed(() => {
                                 <div class="grid gap-3 sm:grid-cols-2">
                                     <div>
                                         <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Fee type</label>
-                                        <select v-model="form.monthly_fee_type" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow">
+                                        <select v-model="form.monthly_fee_type" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow">
                                             <option value="amount">Fixed amount</option>
                                             <option value="percentage">Percentage (%)</option>
                                         </select>
@@ -273,7 +273,7 @@ const monthlyFeeSummary = computed(() => {
                                 <div class="grid gap-3 sm:grid-cols-2">
                                     <div>
                                         <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Base fee amount</label>
-                                        <input v-model="form.monthly_fee_amount" type="number" step="0.01" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow">
+                                        <input v-model="form.monthly_fee_amount" type="number" step="0.01" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow">
                                         <p v-if="form.monthly_fee_type === 'percentage'" class="mt-1 text-xs text-neutral-500">Calculated on end-of-month balance.</p>
                                     </div>
                                     <div class="rounded-lg border border-dashed border-neutral-200 p-3 text-xs text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">
@@ -290,7 +290,7 @@ const monthlyFeeSummary = computed(() => {
                                 <div class="grid gap-3 sm:grid-cols-2">
                                     <div>
                                         <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Deduction day</label>
-                                        <select v-model="form.monthly_fee_deduction_day" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow">
+                                        <select v-model="form.monthly_fee_deduction_day" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow">
                                             <option :value="1">1st of the month</option>
                                             <option :value="15">15th of the month</option>
                                             <option :value="28">28th of the month</option>
@@ -316,7 +316,7 @@ const monthlyFeeSummary = computed(() => {
                                     </div>
                                     <label class="flex items-center gap-2 cursor-pointer">
                                         <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Enable</span>
-                                        <div class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[ bg-nfuko-primary] focus:ring-offset-2 dark:focus:ring-offset-neutral-900" :class="form.loyalty_fee_enabled ? ' bg-nfuko-primary dark:bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'">
+                                        <div class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-bg-nfuko-primary focus:ring-offset-2 dark:focus:ring-offset-neutral-900" :class="form.loyalty_fee_enabled ? ' bg-nfuko-primary dark:bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'">
                                             <span class="inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out" :class="form.loyalty_fee_enabled ? 'translate-x-6' : 'translate-x-1'"></span>
                                             <input v-model="form.loyalty_fee_enabled" type="checkbox" class="sr-only">
                                         </div>
@@ -331,7 +331,7 @@ const monthlyFeeSummary = computed(() => {
                                 <div v-if="form.loyalty_fee_enabled" class="mt-4 grid gap-3 sm:grid-cols-2">
                                     <div>
                                         <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Adjustment type</label>
-                                        <select v-model="form.loyalty_adjustment_type" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow">
+                                        <select v-model="form.loyalty_adjustment_type" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow">
                                             <option value="discount_percentage">Reduced by percentage</option>
                                             <option value="fixed_discount">Fixed discount</option>
                                             <option value="custom_fee">Custom fee</option>
@@ -343,7 +343,7 @@ const monthlyFeeSummary = computed(() => {
                                             <span v-else-if="form.loyalty_adjustment_type === 'fixed_discount'">Discount amount</span>
                                             <span v-else>Custom fee amount</span>
                                         </label>
-                                        <input v-model="form.loyalty_adjustment_value" type="number" step="0.01" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow">
+                                        <input v-model="form.loyalty_adjustment_value" type="number" step="0.01" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow">
                                         <p v-if="form.loyalty_adjustment_type === 'custom_fee' && form.monthly_fee_type === 'percentage'" class="mt-1 text-xs text-neutral-500">Uses the base fee format (percentage).</p>
                                     </div>
                                 </div>
@@ -476,15 +476,15 @@ const monthlyFeeSummary = computed(() => {
                     <h3 class="mb-4 text-sm font-semibold text-neutral-900 dark:text-white">Applies To Activity</h3>
                     <div class="space-y-3">
                         <label class="flex items-center gap-3">
-                            <input v-model="form.charge_on_deposit" type="checkbox" class="h-4 w-4 rounded border-neutral-300  text-nfuko-primary focus:ring-[ bg-nfuko-primary] dark:border-neutral-600 dark:bg-neutral-700 dark:ring-offset-neutral-900 dark:checked:bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow focus:outline-none cursor-pointer">
+                            <input v-model="form.charge_on_deposit" type="checkbox" class="h-4 w-4 rounded border-neutral-300  text-nfuko-primary focus:ring-bg-nfuko-primary dark:border-neutral-600 dark:bg-neutral-700 dark:ring-offset-neutral-900 dark:checked:bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow focus:outline-none cursor-pointer">
                             <span class="text-sm text-neutral-700 dark:text-neutral-300">Evaluate events on Deposit</span>
                         </label>
                         <label class="flex items-center gap-3">
-                            <input v-model="form.charge_on_withdraw" type="checkbox" class="h-4 w-4 rounded border-neutral-300  text-nfuko-primary focus:ring-[ bg-nfuko-primary] dark:border-neutral-600 dark:bg-neutral-700 dark:ring-offset-neutral-900 dark:checked:bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow focus:outline-none cursor-pointer">
+                            <input v-model="form.charge_on_withdraw" type="checkbox" class="h-4 w-4 rounded border-neutral-300  text-nfuko-primary focus:ring-bg-nfuko-primary dark:border-neutral-600 dark:bg-neutral-700 dark:ring-offset-neutral-900 dark:checked:bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow focus:outline-none cursor-pointer">
                             <span class="text-sm text-neutral-700 dark:text-neutral-300">Evaluate events on Withdraw</span>
                         </label>
                         <label class="flex items-center gap-3">
-                            <input v-model="form.charge_on_transfer" type="checkbox" class="h-4 w-4 rounded border-neutral-300  text-nfuko-primary focus:ring-[ bg-nfuko-primary] dark:border-neutral-600 dark:bg-neutral-700 dark:ring-offset-neutral-900 dark:checked:bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow focus:outline-none cursor-pointer">
+                            <input v-model="form.charge_on_transfer" type="checkbox" class="h-4 w-4 rounded border-neutral-300  text-nfuko-primary focus:ring-bg-nfuko-primary dark:border-neutral-600 dark:bg-neutral-700 dark:ring-offset-neutral-900 dark:checked:bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow focus:outline-none cursor-pointer">
                             <span class="text-sm text-neutral-700 dark:text-neutral-300">Evaluate events on Transfer</span>
                         </label>
                     </div>
