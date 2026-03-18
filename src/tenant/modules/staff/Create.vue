@@ -36,7 +36,7 @@ const fields = ref([
         label: 'roles',
         name: 'system_role',
         type: 'select',
-        required: false,
+        required: true,
         url: 'staff/roles-drop-down',
         placeholder: 'Select roles',
         dataOnMount: true,
@@ -69,7 +69,7 @@ const loadingMount = computed(()=>loading.value)
 
 function checkForSettings(){
 const  checkForVaailableSetting= getSystemSetting()
-console.log(checkForVaailableSetting)
+// console.log(checkForVaailableSetting)
  settingList.value={
 "sacco-members-require-approval-before-members-becomes-active": parseFloat(checkForVaailableSetting?.['sacco-members-require-approval-before-members-becomes-active']??0),
  }

@@ -26,8 +26,15 @@ const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
 function saveUser(type: string, data: any) {
     if (title?.[type]) drawerTitle.value = title?.[type]
 }
+ 
 const columns = [
-    { key: 'salutation_name', label: 'Member', sticky: 'left', width: '14em ', },
+    { key: 'staff_fall_name', label: 'Member', sticky: 'left', width: '14em ', },
+    { key: 'staff_email', label: 'Member Type' },
+    { key: 'staff_code', label: 'code', },
+    { key: 'system_role', label: 'role', },
+    { key: 'status', label: 'status', type: 'status' },
+    { key: 'created_at', label: 'created_at', width: '14em ', },
+    { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 
 ]
 </script>
