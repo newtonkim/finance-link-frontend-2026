@@ -54,6 +54,7 @@ const collection = shallowRef<any[]>([]);
 const containerRef = ref<HTMLElement | null>(null);
 const selectedOption = computed(() => {
     const options = props?.url ? collection.value : props.options
+    if(options?.length===0) return []
     return options.find(opt => opt.id === props.modelValue);
 });
 
@@ -80,9 +81,11 @@ const toggleDropdown = () => {
         searchQuery.value = null;
             const  generateAstate=props?.state??`${props?.url}`.replace(/[^a-zA-Z0-9]/g, "-");
             const DataAlreadyCollected=Store[generateAstate]?.payload?.data??Store[generateAstate]?.payload
-    if (props.url&&DataAlreadyCollected?.length===0){
+
+    if (props.url&&!DataAlreadyCollected?.length){
         remoteUrl(props.url)
         }else{
+     
             collection.value=DataAlreadyCollected
         }
 };

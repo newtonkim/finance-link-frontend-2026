@@ -11,19 +11,19 @@ const props = defineProps({
     },
 })
 const fields = ref([
-  
     {
         label: 'name',
-        name: 'name',
+        name: 'staff_fall_name',
         type: 'text',
         required: true,
     },
     
     {
         label: 'Email adress',
-        name: 'Email',
+        name: 'staff_email',
         type: 'email',
         required: true,
+        value: '',
         props: { placeholder: 'Select Start & End Dates' },
     },
     {
@@ -34,7 +34,7 @@ const fields = ref([
     }, 
     {
         label: 'roles',
-        name: 'roles',
+        name: 'system_role',
         type: 'select',
         required: false,
         url: 'staff/roles-drop-down',
