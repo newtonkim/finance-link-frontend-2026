@@ -24,7 +24,8 @@ export function date(time: string) {
 
 // ============================================================
 
-const keysToUse = {
+export const keysToUse = {
+  systemSettings: 'systemSettings',
   userPermissions: 'userPermissions',
   loginUserData: 'loginUserData',
   loggedInAsStudentOrStaff: 'loggedInAsStudentOrStaff',
@@ -138,6 +139,13 @@ export function storeUserCretiria(data = null) {
     console.error('Error storing user permissions:', error)
   }
 }
+export function getSystemSetting(data = null) {
+  try {
+   return encryptStorage.getItem(keysToUse.systemSettings)
+  } catch (error) {
+    console.error('Error storing user permissions:', error)
+  }
+}
 export function storeUserPermissions(props: { data: any } = { data: null }) {
   const { data } = props
 
@@ -145,6 +153,18 @@ export function storeUserPermissions(props: { data: any } = { data: null }) {
     encryptStorage.setItem('userPermissions', JSON.stringify(data))
   } catch (error) {
     console.error('Error storing user permissions:', error)
+  }
+}
+export function appendOnAjsonStore(props: { data: any ,key:string} = { data: {},key:"" }) {
+  const { data,key } = props
+
+  try {
+   const prevDta=encryptStorage.getItem(key)
+    const collection=isJSON(prevDta)
+    const newDateSet={...collection,...data}
+   encryptStorage.setItem(key, JSON.stringify(newDateSet))
+  } catch (error) {
+    console.error('Error storing user '+key+':', error)
   }
 }
 export async function localStoragePicker(key = '') {
@@ -413,4 +433,10 @@ export function feedback(res: any, success: string, fail: string) {
     msg,
     res,
   }
+}
+
+export function createUrl(url: string, action: string) {
+    const url2 = url.split("/")
+    url2.length = url2.length - 1
+    return url2.join("/") + `/${action}`
 }

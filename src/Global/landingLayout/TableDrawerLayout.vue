@@ -82,7 +82,7 @@ import Drawer from '../Drawer/Drawer.vue';
 import { Plus } from 'lucide-vue-next';
 import ConfirmationDialog from '../confirmationDialog/confirmationDialog.vue';
 import Searchbar from './Components/Searchbar.vue';
-import { formDataFormatV2, feedback, scopeValues } from '@/Global';
+import { formDataFormatV2, feedbac, createUrl } from '@/Global';
 import Table from './Components/Table.vue';
 import { Download, Printer } from 'lucide-vue-next';
 import { pomPinia } from 'septor-store';
@@ -97,7 +97,6 @@ const buttonTypeClicked = ref<any>(null);
 const DrawerMounted = ref<boolean>(true);
 const submitChanges = ref<any>(null);
 const provideDataTotheParent = ref<any>([]);
-import { notify } from '@/Global/Toasters';
 
 async function createNewRecord() {
     DrawerMounted.value = false
@@ -187,11 +186,7 @@ const save = (data: unknown, type = 'save') => {
     emit("save", type, data)
 };
 
-function createUrl(url: string, action: string) {
-    const url2 = url.split("/")
-    url2.length = url2.length - 1
-    return url2.join("/") + `/${action}`
-}
+
 
 async function automaticCreateFun() {
     if (props.automaticCreate) {
