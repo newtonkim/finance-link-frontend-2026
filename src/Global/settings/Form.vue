@@ -53,10 +53,11 @@
   </ConfirmDialog>
 </template>
 <script setup lang="ts">
-import { ref, watch, computed } from "vue";
+import { ref, watch, computed,onMounted ,nextTick} from "vue";
 import { appendOnAjsonStore, ConfirmDialog, createUrl, fetchTableData, keysToUse } from "..";
 import { pomPinia } from 'septor-store';
 import SystemSettings from "@/tenant/modules/settings/pages/SystemSettings.vue";
+// const { settingsList } = memmberSettingApi()
 const Store = pomPinia();
 
 const props = defineProps({
@@ -78,7 +79,10 @@ const props = defineProps({
   },
 });
 
-const fields = computed(() => Object.values(Store['member-onboarding-settings-list']?.payload ?? {}))
+const fields = computed(() => {
+const theListData=stateGenerator(props?.outerlinks?.['list'] ?? "settings-list");
+return Object.values(Store[theListData]?.payload ?? {}) 
+})
 const emit = defineEmits(["update:modelValue"]);
 const internalValue = ref(props.modelValue);
 const showDelete = ref({ show: false, warning: "" });
@@ -106,16 +110,45 @@ async function confirmAndSaveChanges(data: any) {
       url: createUrl(props?.url, customeUrl)
     }, Store
   });
-  const newsettings = {
-    name: collectedData.value.name
-    , settings_action: collectedData.value.settings_action
-  }
-  appendOnAjsonStore({ data: newsettings, key: keysToUse.systemSettings })
+  if(res.payload)
+storeSettings(Object.values(res.payload))
 }
 
+function storeSettings(useStoreAlltheGotSettings){
+const newsettings = {}
+useStoreAlltheGotSettings.forEach((value: any, index: number) => {
+  newsettings[value.name] = value?.['settings_action']?.['action']??value;
+})
+  appendOnAjsonStore({ data: newsettings, key: keysToUse.systemSettings })
+  }
 
 function formatName(name: string) {
   return name.replace(/-/g, " ");
 }
+function stateGenerator(name: string) {
+  return name.replace(/\W+/g, "-");
+}
+async function intializetheData(){
+  const customeUrl = props?.outerlinks?.['list'] ?? "settings-list";
+  const state=createUrl(props?.url, customeUrl);
+const theListData=stateGenerator(props?.outerlinks?.['list'] ?? "settings-list");
+  const res = await fetchTableData({
+    data: {},
+    props: {
+      ...props,
+      state:theListData,
+      url: state
+    }, Store
+  });
+  if(res.payload)
+storeSettings(Object.values(res.payload))
+}
+onMounted(() => {
+     nextTick(() => {
+      intializetheData()
+        })
+
+});
+
 
 </script>

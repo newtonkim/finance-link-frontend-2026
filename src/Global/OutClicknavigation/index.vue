@@ -2,8 +2,9 @@
     <div v-bind="$attrs" class="flex flex-col h-full py-2">
 
         <!-- Main nav items -->
-        <div clas s="flex flex-col gap-1 flex-1">
+        <div class="flex flex-col gap-1 flex-1">
             <template v-for="item in mainLinks" :key="item.path ?? item.label">
+            <span v-if='!item?.children && item?.showSideBar === true' class='item'>
                 <SidebarGroupLabel
                 
                 v-if="item.type == 'label' && item?.showSideBar === true"
@@ -13,22 +14,18 @@
 
                 <RouteLink v-else-if="!item?.children && item?.showSideBar === true" :item="item"
                     @click="() => toggleSubmenu(null)" />
-            </template>
-        </div>
+            </span>
+        <div v-else  >
 
-        <!-- Footer: Settings and items with children, pinned to bottom -->
-        <div class="flex flex-col  pt-1 border-t border-white/10">
-            <template v-for="item in footerLinks" :key="item.path ?? item.label">
-                <!-- Item WITH children -->
                 <div class="relative" v-if="item?.showSideBar === true">
                     <div :to="item?.path" @click="toggleSubmenu(item.label)"
-                        class="w-full hover:px-2 flex items-center gap-3  py-2.5 h-12 rounded-xl transition-all duration-200 text-nfuko-nav-text/60 hover:bg-white/5 hover:text-white cursor-pointer">
+                        class="w-full hover:px-2 flex items-center   py-2 rounded-xl transition-all duration-200 text-nfuko-nav-text/60 hover:bg-white/5 hover:text-white cursor-pointer">
                         <div class="flex justify-between w-full items-center">
                             <div class="flex w-full items-center gap-3">
                                 <component :is="item.icon" :size="20" />
                                 <span class="text-sm font-medium capitalize">{{ item.label }}</span>
                             </div>
-                            <div class="text-xl opacity-60 flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200 text-nfuko-nav-text group-hover:text-white">
+                            <div class="hover:px-2 l items-center gap-2 overflow-hidden  text-left outline-hidden ring-sidebar-ring focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50   aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground     [&>span:last-child]:truncate   text-sm rounded-xl transition-all duration-200 text-nfuko-nav-text/60 hover:bg-white/5 hover:text-white capitalize font-medium tracking-wide text-nfuko-nav-text group-hover:text-white ">
                                 {{ Store.showSubmenu === item?.label ? "▾" : "▸" }}
                             </div>
                         </div>
@@ -47,8 +44,11 @@
                         </template>
                     </div>
                 </div>
+        
+        </div>
             </template>
         </div>
+
 
     </div>
 </template>
@@ -62,8 +62,9 @@ import { pomPinia } from 'septor-store';
 const props = defineProps(['links']);
 const Store = pomPinia();
 
-const mainLinks = computed(() => props.links?.filter(item => !item?.children) ?? [])
-const footerLinks = computed(() => props.links?.filter(item => item?.children) ?? [])
+const mainLinks = computed(() => props.links)
+//const mainLinks = computed(() => props.links?.filter(item => !item?.children) ?? [])
+// const footerLinks = computed(() => props.links?.filter(item => item?.children) ?? [])
 
 const toggleSubmenu = (label) => {
     if (Store.showSubmenu === label) {

@@ -17,7 +17,7 @@
             </div>
         </template>
         <template #body>
-            <div>
+            <div v-if='isDrawerOpen'>
                 <settingsForm url="settings/member/onboarding/settings-list" />
             </div>
         </template>
@@ -26,8 +26,7 @@
 <script setup lang="ts">
 import { ref, watch, nextTick, } from 'vue'
 import { Drawer, settingsForm } from '@/Global'
-import { memmberSettingApi } from '../../../apis/members'
-const { settingsList } = memmberSettingApi()
+
 const isDrawerOpen = ref(false)
 defineProps({
     isDrawerOpen: {
@@ -36,13 +35,7 @@ defineProps({
     }
 })
 
-watch(() => isDrawerOpen.value, (val) => {
-    if (val) {
-        nextTick(() => {
-            settingsList()
-        })
-    }
-})
+
 
 
 </script>

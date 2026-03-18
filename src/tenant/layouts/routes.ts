@@ -29,13 +29,39 @@ export const tenantRoutes: any = [
     component: () => import('@/tenant/modules/members/pages/MemberCreate.vue'),
     showSideBar: true,
   },
-  {
-    path: 'members',
+     {
     label: 'Members',
     icon: Users,
-    component: () => import('@/tenant/modules/members/index.vue'),
+    // permissions: 'settings-module-link-view',
     showSideBar: true,
+    prifix: 'tenant',
+    children: [
+      {
+        title: 'SACCO MEMBERS',
+        items: [
+          {
+            path: 'member',
+            label: 'member',
+            component: () => import('@/tenant/modules/members/index.vue'),
+            //  permissions: 'settings-permission-view',
+          },
+          
+          
+        ],
+      },
+      {
+        title: 'STAFF MEMBERS',
+        items: [
+          {
+            path: 'Staff',
+            label: 'Staff',
+          component: () => import('@/tenant/modules/staff/index.vue'), },
+         
+        ],
+      },
+    ],
   },
+
 
   {
     path: 'members-account',
@@ -83,55 +109,9 @@ export const tenantRoutes: any = [
     component: () => import('@/tenant/modules/accounting/pages/ChartOfAccounts.vue'),
   },
 
- 
-
-  //   {
-  //     label: 'Settings',
-  //     icon: SettingsIcon,
-  //     permissions: 'settings-module-link-view',
-  //     showSideBar: true,
-  //     prifix: 'central',
-  //     children: [
-  //       {
-  //         title: 'General',
-  //         items: [
-  //           {
-  //             path: '/tenant/Permission',
-  //             label: 'Permission',
-  //             component: () => import('./settings/general/permisions/Index.vue'),
-  //             permissions: 'settings-permission-view',
-  //           },
-  //           {
-  //             path: '/tenant/roles',
-  //             label: 'roles',
-  //             component: () => import('./settings/general/roles/Index.vue'),
-  //           },
-  //           {
-  //             path: '/tenant/Plan',
-  //             label: 'Plan',
-  //             component: () => import('./settings/general/plans/Index.vue'),
-  //           },
-  //         ],
-  //       },
-  //       {
-  //         title: 'System',
-  //         items: [
-  //           {
-  //             path: '/tenant/system',
-  //             label: 'system',
-  //             component: () => import('./settings/systems/developmentSettings/index.vue'),
-  //           },
-  //           {
-  //             path: '/tenant/tenantssettings',
-  //             label: 'tenantssettings',
-  //             component: () => import('./settings/systems/tenatsSettings/index.vue'),
-  //           },
-  //         ],
-  //       },
-  //     ],
-  //   },
+  
 ]
 
-export const centralRoutes: RouteRecordRaw[] = routebuilder(tenantRoutes, 'tenant')
+export const tenantRoutesList: RouteRecordRaw[] = routebuilder(tenantRoutes, 'tenant')
 
  

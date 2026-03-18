@@ -1,4 +1,4 @@
-import { localStoragePicker } from "./Helpers";
+import { localStoragePicker } from "../Helpers";
 
 export default {
   async mounted(el: any, binding: any) {

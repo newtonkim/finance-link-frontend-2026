@@ -99,7 +99,8 @@ const nationalityOptions  = [
             
             <FormField class="capitalize" :label="field?.label?.toLowerCase().replace(/^./, c => c.toUpperCase())"
                 :required="field.required" :html-for="field.name" :error="field.error">
-
+                <slot name='field.name' v-if='$slots[field.name]'/>
+                <span v-else>
                 <!-- Text/Email/Date/Tel -->
                 <template v-if="['text', 'email', 'date', 'tel'].includes(field.type)">
                     <div class="flex">
@@ -171,6 +172,9 @@ const nationalityOptions  = [
                     <input type="text" v-model="field.value" :class="inputClass" v-bind="field.props ?? field"
                         @input="() => field?.change && handleChange(field, index)" />
                 </template>
+
+                </span>
+
 
             </FormField>
         </div>

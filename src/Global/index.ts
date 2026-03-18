@@ -9,10 +9,11 @@ export {default as AppLogo} from './AppLogo.vue';
 export {default as InputError} from './InputError.vue';
 export {default as TextLink} from './TextLink.vue';
 export {default as settingsForm} from './settings/Form.vue';
+export * from './Directives/index.ts';
 export * from './DetailsTable';
 export {default as StatusButtonsHorizontal} from './StatusButtonsHorizontal/index.vue';
 
-export { default as authDirective } from './authDirective';
+export { default as authDirective } from './Directives/authDirective.ts';
 export * from './landingLayout/Components/index.ts';
 export * from './ui/button';
 export * from './landingLayout/util';

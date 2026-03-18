@@ -82,7 +82,7 @@ import Drawer from '../Drawer/Drawer.vue';
 import { Plus } from 'lucide-vue-next';
 import ConfirmationDialog from '../confirmationDialog/confirmationDialog.vue';
 import Searchbar from './Components/Searchbar.vue';
-import { formDataFormatV2, feedbac, createUrl } from '@/Global';
+import { formDataFormatV2, feedbac, createUrl,feedback } from '@/Global';
 import Table from './Components/Table.vue';
 import { Download, Printer } from 'lucide-vue-next';
 import { pomPinia } from 'septor-store';
@@ -191,6 +191,7 @@ const save = (data: unknown, type = 'save') => {
 async function automaticCreateFun() {
     if (props.automaticCreate) {
         const data = Store.currentFormValues;
+      
         const customeUrl = props?.outerlinks?.['create'] ?? "create";
         const formDataScoping: any = formDataFormatV2((data))
         const res = await fetchTableData({

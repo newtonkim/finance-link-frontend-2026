@@ -139,11 +139,19 @@ export function storeUserCretiria(data = null) {
     console.error('Error storing user permissions:', error)
   }
 }
-export function getSystemSetting(data = null) {
+export function getSystemSetting() {
   try {
    return encryptStorage.getItem(keysToUse.systemSettings)
   } catch (error) {
     console.error('Error storing user permissions:', error)
+  }
+}
+export function pickAsettingKeyValue(key:string) {
+  try {
+   const data= encryptStorage.getItem(keysToUse.systemSettings);
+   return data[key];
+  } catch (error) {
+    console.error('failed to get this  key:', error)
   }
 }
 export function storeUserPermissions(props: { data: any } = { data: null }) {

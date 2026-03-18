@@ -110,7 +110,7 @@ export async function fetchTableData({
   const collection = {
     reload: !!props.reload ? 0 : 1, // dont think am stupid i know that
     StateStore: props?.state,
-    time: props?.time ?? 1,
+    time: props?.time ?? 0,
     reqs: {
       ...props,
       url: props?.url,
