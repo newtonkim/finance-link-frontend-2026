@@ -233,9 +233,9 @@ const loadingMount = computed(()=>loading.value)
 function checkForSettings(){
 const  checkForVaailableSetting= getSystemSetting()
  settingList.value={
-"sacco-members-free-input-code": (checkForVaailableSetting['sacco-members-free-input-code']),
-"sacco-share-price-value": parseFloat(checkForVaailableSetting['sacco-share-price-value']),
-"sacco-share-on-member-creation-create-share-minimum-value": parseFloat(checkForVaailableSetting['sacco-share-on-member-creation-create-share-minimum-value'])
+"sacco-members-free-input-code": (checkForVaailableSetting['sacco-members-free-input-code']??0),
+"sacco-share-price-value": parseFloat(checkForVaailableSetting['sacco-share-price-value']??0),
+"sacco-share-on-member-creation-create-share-minimum-value": parseFloat(checkForVaailableSetting['sacco-share-on-member-creation-create-share-minimum-value']??0)
  }
 }
 

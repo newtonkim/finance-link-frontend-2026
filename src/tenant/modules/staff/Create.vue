@@ -71,7 +71,7 @@ function checkForSettings(){
 const  checkForVaailableSetting= getSystemSetting()
 console.log(checkForVaailableSetting)
  settingList.value={
-"sacco-members-require-approval-before-members-becomes-active": parseFloat(checkForVaailableSetting['sacco-members-require-approval-before-members-becomes-active']),
+"sacco-members-require-approval-before-members-becomes-active": parseFloat(checkForVaailableSetting?.['sacco-members-require-approval-before-members-becomes-active']??0),
  }
 }
 
@@ -81,7 +81,7 @@ watch(
     const statusIndex = val.findIndex(f => f.name === 'status')
     const fullNameIndex = val.findIndex(f => f.name === 'full_name')
 
-    if (settingList.value['sacco-members-require-approval-before-members-becomes-active']) {
+    if (settingList.value?.['sacco-members-require-approval-before-members-becomes-active']) {
       if (statusIndex === -1 && fullNameIndex !== -1) {
         fields.value.splice(fullNameIndex + 1, 0, {
           label: 'free input code',
