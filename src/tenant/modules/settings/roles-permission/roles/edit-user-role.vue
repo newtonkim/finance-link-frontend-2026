@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { Form, TableDrawer } from '@/Global'
 import {tenantRolesApi } from '@/tenant/apis/onboardingSettings/index.ts'
-import ConfirmationDialog from '@/Global/confirmationDialog/confirmationDialog.vue'
+import {ConfirmDialog} from '@/Global'
 const { EraseRolesFromUser, AttachRolesToUser } = tenantRolesApi()
 
 const props = defineProps({
@@ -56,14 +56,18 @@ const urlShaffle = computed(() => {
 
 <template>
 
-  <div>
+  <div class='my-5'>
     <Form v-model:form="form" parentStyle="grid grid-cols-2 sm:grid-cols-1 gap-4 md:gap-6 px-2"
       @results="onFormResults" />
   </div>
+ 
+ <div class='my-8'>
+ <h1 class='text-2xl text-left mx-3 text-gray-700 font-bold dark:text-white'> Memebers  attached on the role</h1>
   <TableDrawer ref="drawer" :showSearchbar="false" drawerWidth="w-1/2" :showAddButton="false" :url="urlShaffle"
     state="staff-attached-roles" :columns="columns" @save="saveUser">
   </TableDrawer>
-  <ConfirmationDialog v-model:show="showDelete" @confirm="() => {
+ </div>
+  <ConfirmDialog v-model:show="showDelete" @confirm="() => {
     action[showDelete?.action]?.(showDelete?.data)
     showDelete = false
   }" />

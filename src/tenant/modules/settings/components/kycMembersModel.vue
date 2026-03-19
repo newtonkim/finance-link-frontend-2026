@@ -7,8 +7,8 @@
         <template #drawer-title>
             <div class=" text-sm   border-neutral-100  ">
                 <div>
-                    <h4>Member Onboarding Settings</h4>
-                    <div>
+                    <h2 class="text-lg text-neutral-800 dark:text-neutral-400">Member Onboarding Settings</h2>
+                    <div class="text-md text-neutral-800 dark:text-neutral-400">
                         Configure how new members are onboarded and what information is required.
                     </div>
                 </div>

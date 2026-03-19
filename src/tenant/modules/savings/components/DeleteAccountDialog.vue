@@ -36,10 +36,10 @@ const emit = defineEmits<{
         <button
           @click="emit('confirm')"
           :disabled="deleting"
-          class="inline-flex items-center gap-2 rounded-full bg-red-600 px-5 py-2 text-sm font-semibold text-white hover:bg-red-700 transition-colors disabled:opacity-60"
+          class="inline-flex items-center gap-2 rounded-full bg -red-600 px-5 py-2 text-sm font-semibold text-white hover:bg-red-700 transition-colors disabled:opacity-60"
         >
           <Spinner v-if="deleting" class="h-4 w-4" />
-          Delete
+          Delete2
         </button>
       </DialogFooter>
     </DialogContent>

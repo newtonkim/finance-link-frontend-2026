@@ -1,6 +1,6 @@
 <template>
     <div
-        class="h-[5vh] flex rounded-lg border border-neutral-200 bg-neutral-50 p-[4px] dark:border-neutral-700 dark:bg-neutral-800">
+        class=" flex rounded-lg border border-neutral-200 bg-neutral-50 p-[4px] dark:border-neutral-700 dark:bg-neutral-800">
         <button v-for="filter in filters" :key="filter"
             class="rounded-md px-3.5 py-1 text-xs font-medium capitalize transition-all"
             :class="filter === modelValue ? activeFilterClass : inactiveFilterClass"
