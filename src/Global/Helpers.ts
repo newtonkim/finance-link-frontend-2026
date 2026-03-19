@@ -432,13 +432,14 @@ export function routebuilder(routes = [], prifix = 'central') {
       console.log(route);
       
       const routePath = route.path?`${prifix}/${route.path}`:null
-       if(hasPermission(route?.permissions))
+      //  if(hasPermission(route?.permissions))
       collecction.push(RouteStructure(route, routePath))
     } else if (Array.isArray(route.children)) {
       route.children.forEach((child) => {
         if (child?.items) {
           child.items.forEach((item) => {
-            const childRoutePath = `${prifix}/${item.path}`
+            // const childRoutePath = `${prifix}/${item.path}`
+             const childRoutePath = item.path?`${prifix}/${item.path}`:null
               // if (hasPermission(route?.permissions))
             collecction.push(RouteStructure(item, childRoutePath))
           })
