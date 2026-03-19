@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { Building2, Search, Plus, Pencil, Trash2, X, Calendar, ArrowLeft, Coins, ImageIcon, Loader2 } from 'lucide-vue-next'
+import { ref, computed, watch, onMounted } from 'vue'
+import { Building2, Search, Plus, Pencil, Trash2, X, Calendar, ArrowLeft, Coins, ImageIcon, Loader2, Receipt } from 'lucide-vue-next'
 import { Spinner, InputError, Label } from '@/Global'
 import SearchableSelect from '@/Global/SearchableSelect.vue'
+import MultiSearchableSelect from '@/Global/MultiSearchableSelect.vue'
 import ConfirmationDialog from '@/Global/confirmationDialog/confirmationDialog.vue'
 import { fiscalYearsApi } from '@/tenant/apis/fiscalYears/fiscalYearsApi'
 import { currenciesApi, type CurrencyOption, type CurrencySettings } from '@/tenant/apis/currencies/currenciesApi'
 import { saccoBrandingApi } from '@/tenant/apis/saccobranding/saccoBrandingApi'
+import { savingsProductsApi } from '@/tenant/apis/savingsProducts/api'
+import { chartOfAccountsApi } from '@/tenant/apis/chartOfAccounts/chartOfAccountsApi'
+import { tenantClient } from '@/tenant/apis/tenantClient'
 import { useTenantContextStore } from '@/stores/tenantContext'
 import { useCurrencyStore } from '@/stores/currency'
 import { toast } from 'vue-sonner'
@@ -289,6 +293,259 @@ async function saveCurrencySettings() {
   }
 }
 
+// ─── General Charges Drawer ──────────────────────────────────────────────────
+const showGeneralChargesDrawer = ref(false)
+
+const generalChargeForm = ref({
+  is_revenue: '',
+  name: '',
+  application: '',
+  saving_product_ids: [] as string[],
+  loan_product_ids: [] as string[],
+  charge_type: '',
+  amount: 0,
+  credit_account_id: '',
+  where_to_apply: 'loans',
+  is_fine: '',
+  interval_type: '',
+  interval: 1 as string | number,
+})
+
+const isRevenueOptions = [
+  { id: 'yes', name: 'Yes' },
+  { id: 'no', name: 'No' },
+]
+
+const applicationOptions = [
+  { id: 'on_shares', name: 'On Shares' },
+  { id: 'on_registration', name: 'On Registration' },
+  { id: 'on_loan_application', name: 'On Loan Application' },
+  { id: 'other', name: 'Other' },
+]
+
+const chargeTypeOptions = [
+  { id: 'percentage', name: 'Percentage' },
+  { id: 'amount', name: 'Amount' },
+]
+
+const whereToApplyOptions = [
+  { id: 'loans', name: 'Loans' },
+  { id: 'savings', name: 'Saving products' },
+  { id: 'shares', name: 'Shares' },
+]
+
+const intervalTypeOptions = [
+  { id: 'days', name: 'Days' },
+  { id: 'weeks', name: 'Weeks' },
+  { id: 'months', name: 'Months' },
+  { id: 'years', name: 'Years' },
+]
+
+const isFineOptions = [
+  { id: 'yes', name: 'Yes' },
+  { id: 'no', name: 'No' },
+]
+
+const savingProductOptions = ref<any[]>([])
+const loanProductOptions = ref<any[]>([])
+const creditAccountOptions = ref<any[]>([])
+
+async function fetchGeneralChargesOptions() {
+  try {
+    const [savRes, coaRes, loanRes] = await Promise.allSettled([
+      savingsProductsApi.list(),
+      tenantClient.get('/chart-of-accounts', { params: { list: true, account_type: 'INCOME' } }),
+      tenantClient.get('/loan-products')
+    ])
+    
+    if (savRes.status === 'fulfilled') {
+      const sp = savRes.value.data?.data ?? savRes.value.data ?? []
+      savingProductOptions.value = Array.isArray(sp) ? sp.map((p: any) => ({ id: p.id, name: p.name ?? 'Product ' + p.id })) : []
+    }
+    
+    if (coaRes.status === 'fulfilled') {
+      const coa = coaRes.value.data?.data ?? coaRes.value.data ?? []
+      creditAccountOptions.value = Array.isArray(coa) 
+        ? coa.filter((a: any) => a.account_type && a.account_type.toString().toLowerCase() === 'income')
+             .map((a: any) => ({ id: a.id, name: a.name ?? 'Account ' + a.id })) 
+        : []
+    }
+    
+    if (loanRes.status === 'fulfilled') {
+      const lp = loanRes.value.data?.data ?? loanRes.value.data ?? []
+      loanProductOptions.value = Array.isArray(lp) ? lp.map((p: any) => ({ id: p.id, name: p.name ?? 'Loan ' + p.id })) : []
+    }
+  } catch (err) {
+    console.error('Error fetching options:', err)
+  }
+}
+
+onMounted(() => {
+  fetchGeneralChargesOptions()
+  fetchGeneralCharges()
+})
+
+function openGeneralChargesDrawer() {
+  editingCharge.value = null
+  generalChargeForm.value = {
+    is_revenue: '',
+    name: '',
+    application: '',
+    saving_product_ids: [],
+    loan_product_ids: [],
+    charge_type: '',
+    amount: 0,
+    credit_account_id: '',
+    where_to_apply: 'loans',
+    is_fine: '',
+    interval_type: '',
+    interval: 1,
+  }
+  showGeneralChargesDrawer.value = true
+}
+
+function openEditChargeDrawer(charge: GeneralCharge) {
+  editingCharge.value = charge
+  generalChargeForm.value = {
+    is_revenue: (charge as any).is_revenue ? 'yes' : 'no',
+    name: charge.name,
+    application: charge.application,
+    saving_product_ids: (charge as any).saving_product_ids ?? [],
+    loan_product_ids: (charge as any).loan_product_ids ?? [],
+    charge_type: charge.charge_type ?? '',
+    amount: Number(charge.amount),
+    credit_account_id: (charge as any).credit_account_id ?? '',
+    where_to_apply: charge.where_to_apply ?? 'loans',
+    is_fine: (charge as any).is_fine ? 'yes' : 'no',
+    interval_type: (charge as any).interval_type ?? '',
+    interval: (charge as any).interval ?? 1,
+  }
+  showGeneralChargesDrawer.value = true
+}
+
+function closeGeneralChargesDrawer() {
+  editingCharge.value = null
+  showGeneralChargesDrawer.value = false
+}
+
+// ─── General Charges List ────────────────────────────────────────────────────
+interface GeneralCharge {
+  id: number
+  name: string
+  application: string
+  where_to_apply: string | null
+  charge_type: string | null
+  amount: string
+  is_active: boolean
+  is_reversible: boolean
+  is_revenue: boolean
+}
+
+const generalCharges = ref<GeneralCharge[]>([])
+const generalChargesLoading = ref(false)
+const generalChargeToggling = ref<number | null>(null)
+const generalChargeReversibleToggling = ref<number | null>(null)
+const generalChargeDeleting = ref<number | null>(null)
+const editingCharge = ref<GeneralCharge | null>(null)
+
+async function fetchGeneralCharges() {
+  generalChargesLoading.value = true
+  try {
+    const res = await tenantClient.get('/general-charges')
+    generalCharges.value = res.data?.data ?? []
+  } catch {
+    toast.error('Failed to load charges.')
+  } finally {
+    generalChargesLoading.value = false
+  }
+}
+
+async function toggleGeneralCharge(charge: GeneralCharge) {
+  generalChargeToggling.value = charge.id
+  try {
+    const res = await tenantClient.patch(`/general-charges/${charge.id}/toggle`)
+    const updated = res.data?.data
+    const idx = generalCharges.value.findIndex(c => c.id === charge.id)
+    if (idx !== -1) generalCharges.value[idx] = updated
+  } catch {
+    toast.error('Failed to toggle charge.')
+  } finally {
+    generalChargeToggling.value = null
+  }
+}
+
+async function toggleGeneralChargeReversible(charge: GeneralCharge) {
+  generalChargeReversibleToggling.value = charge.id
+  try {
+    const res = await tenantClient.patch(`/general-charges/${charge.id}/toggle-reversible`)
+    const updated = res.data?.data
+    const idx = generalCharges.value.findIndex(c => c.id === charge.id)
+    if (idx !== -1) generalCharges.value[idx] = updated
+  } catch {
+    toast.error('Failed to toggle reversible.')
+  } finally {
+    generalChargeReversibleToggling.value = null
+  }
+}
+
+async function deleteGeneralCharge(charge: GeneralCharge) {
+  if (!confirm(`Delete charge "${charge.name}"? This cannot be undone.`)) return
+  generalChargeDeleting.value = charge.id
+  try {
+    await tenantClient.delete(`/general-charges/${charge.id}`)
+    generalCharges.value = generalCharges.value.filter(c => c.id !== charge.id)
+    toast.success('Charge deleted.')
+  } catch {
+    toast.error('Failed to delete charge.')
+  } finally {
+    generalChargeDeleting.value = null
+  }
+}
+
+function applicationLabel(app: string): string {
+  const map: Record<string, string> = {
+    on_registration: 'On Registration',
+    on_shares: 'On Shares',
+    on_loan_application: 'On Loan Application',
+    other: 'Other',
+  }
+  return map[app] ?? app
+}
+
+const generalChargeProcessing = ref(false)
+const generalChargeErrors = ref<Record<string, string>>({})
+
+async function submitGeneralCharge() {
+  generalChargeErrors.value = {}
+  generalChargeProcessing.value = true
+  try {
+    if (editingCharge.value) {
+      const res = await tenantClient.put(`/general-charges/${editingCharge.value.id}`, generalChargeForm.value)
+      const updated = res.data?.data
+      const idx = generalCharges.value.findIndex(c => c.id === editingCharge.value!.id)
+      if (idx !== -1) generalCharges.value[idx] = updated
+      toast.success('Charge updated successfully.')
+    } else {
+      await tenantClient.post('/general-charges', generalChargeForm.value)
+      toast.success('Charge added successfully.')
+      fetchGeneralCharges()
+    }
+    closeGeneralChargesDrawer()
+  } catch (err: any) {
+    const data = err?.response?.data
+    if (data?.errors) {
+      generalChargeErrors.value = Object.fromEntries(
+        Object.entries(data.errors as Record<string, string[]>).map(([k, v]) => [k, v[0] ?? ''])
+      )
+      toast.error('Please fix the errors below.')
+    } else {
+      toast.error(data?.message ?? 'Failed to save charge.')
+    }
+  } finally {
+    generalChargeProcessing.value = false
+  }
+}
+
 // ─── Fiscal Year List Drawer ─────────────────────────────────────────────────
 const showFiscalDrawer = ref(false)
 const fiscalYears = ref<FiscalYear[]>([])
@@ -479,7 +736,7 @@ async function confirmDelete() {
                     @click="openBrandingDrawer"
                     class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline"
                 >
-                    Configure →
+                    Sacco Branding Config →
                 </button>
                 <button
                     @click="openCurrencyDrawer"
@@ -518,6 +775,166 @@ async function confirmDelete() {
                 <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Configure
                     Workflows →</button>
             </div>
+        </div>
+
+        <!-- ═══ General Charges ══════════════════════════════════════════════ -->
+        <div class="rounded-2xl border border-neutral-100 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+          <!-- Header -->
+          <div class="flex items-center justify-between px-6 py-4 border-b border-neutral-100 dark:border-neutral-800">
+            <div>
+              <h3 class="text-base font-semibold text-neutral-900 dark:text-white">General Charges</h3>
+              <p class="text-xs text-neutral-500 mt-0.5">Charges applied on registration, shares, loan applications and more.</p>
+            </div>
+            <button
+              @click="openGeneralChargesDrawer"
+              class="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition-colors"
+              style="background-color: var(--color-nfuko-primary);"
+            >
+              <Plus class="h-4 w-4" />
+              Add New Charge
+            </button>
+          </div>
+
+          <!-- Loading skeleton -->
+          <div v-if="generalChargesLoading" class="divide-y divide-neutral-100 dark:divide-neutral-800">
+            <div v-for="i in 3" :key="i" class="flex items-center gap-4 px-6 py-4 animate-pulse">
+              <div class="h-4 w-40 rounded bg-neutral-100 dark:bg-neutral-800" />
+              <div class="h-4 w-24 rounded bg-neutral-100 dark:bg-neutral-800" />
+              <div class="ml-auto h-6 w-12 rounded-full bg-neutral-100 dark:bg-neutral-800" />
+            </div>
+          </div>
+
+          <!-- Empty state -->
+          <div v-else-if="generalCharges.length === 0" class="flex flex-col items-center gap-2 py-12 text-center">
+            <Receipt class="h-8 w-8 text-neutral-300" />
+            <p class="text-sm font-semibold text-neutral-600 dark:text-neutral-300">No charges configured</p>
+            <p class="text-xs text-neutral-400">Click "Add New Charge" to create your first charge.</p>
+          </div>
+
+          <!-- Table -->
+          <div v-else class="overflow-x-auto">
+            <table class="w-full text-sm border-collapse">
+              <thead>
+                <tr class="bg-neutral-50/60 dark:bg-neutral-800/40">
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-neutral-500">Charge Name</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-neutral-500">Applies On</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-neutral-500">Applies To</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-neutral-500">Amount</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-neutral-500">Reversible</th>
+                  <th class="px-6 py-3 text-center text-xs font-semibold text-neutral-500">Active</th>
+                  <th class="px-6 py-3 text-right text-xs font-semibold text-neutral-500">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+                <tr
+                  v-for="charge in generalCharges"
+                  :key="charge.id"
+                  class="hover:bg-neutral-50/50 dark:hover:bg-neutral-800/30 transition-colors"
+                  :class="{ 'opacity-50': !charge.is_active }"
+                >
+                  <!-- Name -->
+                  <td class="px-6 py-4">
+                    <span class="font-semibold text-neutral-900 dark:text-white">{{ charge.name }}</span>
+                  </td>
+
+                  <!-- Application -->
+                  <td class="px-6 py-4">
+                    <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold"
+                      :class="{
+                        'bg-blue-50 text-blue-700': charge.application === 'on_registration',
+                        'bg-purple-50 text-purple-700': charge.application === 'on_shares',
+                        'bg-amber-50 text-amber-700': charge.application === 'on_loan_application',
+                        'bg-neutral-100 text-neutral-600': charge.application === 'other',
+                      }"
+                    >
+                      {{ applicationLabel(charge.application) }}
+                    </span>
+                  </td>
+
+                  <!-- Applies To (where_to_apply) -->
+                  <td class="px-6 py-4">
+                    <span v-if="charge.where_to_apply" class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold capitalize"
+                      :class="{
+                        'bg-sky-50 text-sky-700': charge.where_to_apply === 'loans',
+                        'bg-emerald-50 text-emerald-700': charge.where_to_apply === 'savings',
+                        'bg-violet-50 text-violet-700': charge.where_to_apply === 'shares',
+                      }"
+                    >
+                      {{ charge.where_to_apply === 'savings' ? 'Savings Products' : charge.where_to_apply }}
+                    </span>
+                    <span v-else class="text-neutral-400">—</span>
+                  </td>
+
+                  <!-- Amount -->
+                  <td class="px-6 py-4">
+                    <div class="flex flex-col gap-1">
+                      <span class="font-mono font-semibold text-neutral-900 dark:text-white">
+                        {{ charge.charge_type === 'percentage' ? charge.amount + '%' : Number(charge.amount).toLocaleString() }}
+                      </span>
+                      <span class="inline-flex w-fit rounded px-1.5 py-0.5 text-xs font-medium capitalize"
+                        :class="charge.charge_type === 'percentage' ? 'bg-amber-50 text-amber-700' : 'bg-neutral-100 text-neutral-600'"
+                      >
+                        {{ charge.charge_type ?? 'flat amount' }}
+                      </span>
+                    </div>
+                  </td>
+
+                  <!-- Reversible toggle -->
+                  <td class="px-6 py-4 text-center">
+                    <button
+                      type="button"
+                      @click="toggleGeneralChargeReversible(charge)"
+                      :disabled="generalChargeReversibleToggling === charge.id"
+                      class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                      :style="charge.is_reversible ? 'background-color: var(--color-nfuko-primary)' : 'background-color: #d1d5db'"
+                    >
+                      <span
+                        class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200"
+                        :class="charge.is_reversible ? 'translate-x-4' : 'translate-x-0'"
+                      />
+                    </button>
+                  </td>
+
+                  <!-- Active toggle -->
+                  <td class="px-6 py-4 text-center">
+                    <button
+                      type="button"
+                      @click="toggleGeneralCharge(charge)"
+                      :disabled="generalChargeToggling === charge.id"
+                      class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                      :style="charge.is_active ? 'background-color: var(--color-nfuko-primary)' : 'background-color: #d1d5db'"
+                    >
+                      <span
+                        class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200"
+                        :class="charge.is_active ? 'translate-x-4' : 'translate-x-0'"
+                      />
+                    </button>
+                  </td>
+
+                  <!-- Actions: Edit + Delete -->
+                  <td class="px-6 py-4 text-right">
+                    <div class="inline-flex items-center gap-2">
+                      <button
+                        @click="openEditChargeDrawer(charge)"
+                        class="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 p-1.5 text-neutral-600 hover:bg-neutral-100 transition-colors"
+                        title="Edit charge"
+                      >
+                        <Pencil class="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        @click="deleteGeneralCharge(charge)"
+                        :disabled="generalChargeDeleting === charge.id"
+                        class="inline-flex items-center justify-center rounded-lg border border-rose-200 bg-rose-50 p-1.5 text-rose-500 hover:bg-rose-100 transition-colors disabled:opacity-50"
+                        title="Delete charge"
+                      >
+                        <Trash2 class="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
     </div>
 
@@ -1064,6 +1481,262 @@ async function confirmDelete() {
                             >
                                 <Spinner v-if="fiscalProcessing" class="h-4 w-4" />
                                 {{ fiscalFormMode === 'edit' ? 'Update financial year' : 'Save financial year' }}
+                            </button>
+                        </div>
+                    </div>
+                </aside>
+            </Transition>
+        </div>
+    </Transition>
+
+    <!-- ═══ General Charges Drawer ══════════════════════════════════════════ -->
+    <Transition name="drawer-fade">
+        <div v-if="showGeneralChargesDrawer" class="fixed inset-0 z-50">
+            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeGeneralChargesDrawer"></div>
+
+            <Transition name="drawer-slide">
+                <aside
+                    class="absolute right-0 top-0 h-full w-full max-w-[620px] bg-white shadow-2xl ring-1 ring-black/5 dark:bg-neutral-900"
+                    role="dialog"
+                    aria-label="General Charges"
+                >
+                    <div class="flex h-full flex-col">
+                        <!-- Header -->
+                        <div class="border-b border-neutral-200 px-6 py-5 dark:border-neutral-700">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-nfuko-primary-50 dark:bg-nfuko-primary-900/30">
+                                        <Receipt class="h-4.5 w-4.5 text-nfuko-primary dark:text-bg-nfuko-yellow" />
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold tracking-tight text-neutral-900 dark:text-white">
+                                            {{ editingCharge ? 'Edit Charge' : 'Add New Charge' }}
+                                        </h3>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    @click="closeGeneralChargesDrawer"
+                                    class="flex h-8 w-8 items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 transition-colors dark:hover:bg-neutral-800 dark:hover:text-white"
+                                >
+                                    <X class="h-4 w-4" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="flex-1 overflow-y-auto px-6 py-6 space-y-5">
+                            <!-- Is it a revenue -->
+                            <div class="space-y-2">
+                                <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Is it a revenue</Label>
+                                <SearchableSelect
+                                    v-model="generalChargeForm.is_revenue"
+                                    :options="isRevenueOptions"
+                                    placeholder="Please Select option"
+                                    state="revenue-select"
+                                />
+                            </div>
+
+                            <!-- Charge name* -->
+                            <div class="space-y-2">
+                                <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Charge name<span class="text-red-500">*</span></Label>
+                                <input
+                                    v-model="generalChargeForm.name"
+                                    type="text"
+                                    placeholder="Charge name"
+                                    class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-nfuko-primary focus:ring-2 focus:ring-nfuko-primary/10 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                                />
+                                <p v-if="generalChargeErrors.name" class="text-xs text-red-500">{{ generalChargeErrors.name }}</p>
+                            </div>
+
+                            <!-- Application* -->
+                            <div class="space-y-2">
+                                <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Application<span class="text-red-500">*</span></Label>
+                                <SearchableSelect
+                                    v-model="generalChargeForm.application"
+                                    :options="applicationOptions"
+                                    placeholder="Please Select option"
+                                    state="application-select"
+                                />
+                            </div>
+
+                            <!-- Applies To (where_to_apply) — always visible -->
+                            <div class="space-y-2">
+                                <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Applies To</Label>
+                                <SearchableSelect
+                                    v-model="generalChargeForm.where_to_apply"
+                                    :options="whereToApplyOptions"
+                                    placeholder="Select where to apply"
+                                    state="where-to-apply-select-main"
+                                />
+                            </div>
+
+                            <!-- Saving products* (Only if on_registration) -->
+                            <div v-if="generalChargeForm.application === 'on_registration'" class="space-y-2">
+                                <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Saving products<span class="text-red-500">*</span></Label>
+                                <MultiSearchableSelect
+                                    v-model="generalChargeForm.saving_product_ids"
+                                    :options="savingProductOptions"
+                                    placeholder="Choose saving products ..."
+                                    state="saving-product-select"
+                                />
+                            </div>
+
+                            <!-- Loan products* (Only if on_loan_application) -->
+                            <div v-if="generalChargeForm.application === 'on_loan_application'" class="space-y-2">
+                                <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Loan types<span class="text-red-500">*</span></Label>
+                                <MultiSearchableSelect
+                                    v-model="generalChargeForm.loan_product_ids"
+                                    :options="loanProductOptions"
+                                    placeholder="Choose loan products ..."
+                                    state="loan-product-select"
+                                />
+                            </div>
+
+                            <!-- Percentage/Amount* (Only if on_loan_application) -->
+                            <div v-if="generalChargeForm.application === 'on_loan_application'" class="space-y-2">
+                                <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Percentage/Amount<span class="text-red-500">*</span></Label>
+                                <SearchableSelect
+                                    v-model="generalChargeForm.charge_type"
+                                    :options="chargeTypeOptions"
+                                    placeholder="Select charge type"
+                                    state="charge-type-select"
+                                />
+                            </div>
+
+                            <!-- Other application logic -->
+                            <template v-if="generalChargeForm.application === 'other'">
+                                <template v-if="generalChargeForm.where_to_apply === 'loans'">
+                                    <!-- Loan types* -->
+                                    <div class="space-y-2">
+                                        <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Loan types<span class="text-red-500">*</span></Label>
+                                        <MultiSearchableSelect
+                                            v-model="generalChargeForm.loan_product_ids"
+                                            :options="loanProductOptions"
+                                            placeholder="Choose loan products ..."
+                                            state="other-loan-product-select"
+                                        />
+                                    </div>
+
+                                    <!-- Is it a fine to be applied on loan mishandling ?* -->
+                                    <div class="space-y-2">
+                                        <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Is it a fine to be applied on loan mishandling ?<span class="text-red-500">*</span></Label>
+                                        <SearchableSelect
+                                            v-model="generalChargeForm.is_fine"
+                                            :options="isFineOptions"
+                                            placeholder="Select yes or no"
+                                            state="is-fine-select"
+                                        />
+                                    </div>
+                                    
+                                    <!-- Interval type* -->
+                                    <div class="space-y-2">
+                                        <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Interval type<span class="text-red-500">*</span></Label>
+                                        <SearchableSelect
+                                            v-model="generalChargeForm.interval_type"
+                                            :options="intervalTypeOptions"
+                                            placeholder="select the interval type"
+                                            state="interval-type-select"
+                                        />
+                                    </div>
+                                    
+                                    <!-- Interval* -->
+                                    <div class="space-y-2">
+                                        <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Interval<span class="text-red-500">*</span></Label>
+                                        <input
+                                            v-model="generalChargeForm.interval"
+                                            type="number"
+                                            min="1"
+                                            class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-nfuko-primary focus:ring-2 focus:ring-nfuko-primary/10 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                                        />
+                                    </div>
+                                    
+                                    <!-- Percentage/Amount* -->
+                                    <div class="space-y-2">
+                                        <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Percentage/Amount<span class="text-red-500">*</span></Label>
+                                        <SearchableSelect
+                                            v-model="generalChargeForm.charge_type"
+                                            :options="chargeTypeOptions"
+                                            placeholder="select amount/percentage"
+                                            state="other-charge-type-select"
+                                        />
+                                    </div>
+                                </template>
+
+                                <template v-if="generalChargeForm.where_to_apply === 'savings'">
+                                    <!-- Saving products* -->
+                                    <div class="space-y-2">
+                                        <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Saving products<span class="text-red-500">*</span></Label>
+                                        <MultiSearchableSelect
+                                            v-model="generalChargeForm.saving_product_ids"
+                                            :options="savingProductOptions"
+                                            placeholder="Choose saving products ..."
+                                            state="other-saving-product-select"
+                                        />
+                                    </div>
+                                    
+                                    <!-- Interval type* -->
+                                    <div class="space-y-2">
+                                        <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Interval type<span class="text-red-500">*</span></Label>
+                                        <SearchableSelect
+                                            v-model="generalChargeForm.interval_type"
+                                            :options="intervalTypeOptions"
+                                            placeholder="select the interval type"
+                                            state="interval-type-select-savings"
+                                        />
+                                    </div>
+                                    
+                                    <!-- Interval* -->
+                                    <div class="space-y-2">
+                                        <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Interval<span class="text-red-500">*</span></Label>
+                                        <input
+                                            v-model="generalChargeForm.interval"
+                                            type="number"
+                                            min="1"
+                                            class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-nfuko-primary focus:ring-2 focus:ring-nfuko-primary/10 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                                        />
+                                    </div>
+                                </template>
+                            </template>
+
+                            <!-- Amount* (Shown generally or when strictly required by user) -->
+                            <div v-if="['on_shares', 'on_loan_application', 'on_registration', 'other'].includes(generalChargeForm.application)" class="space-y-2">
+                                <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Amount<span class="text-red-500">*</span></Label>
+                                <input
+                                    v-model="generalChargeForm.amount"
+                                    type="number"
+                                    class="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-nfuko-primary focus:ring-2 focus:ring-nfuko-primary/10 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                                />
+                            </div>
+
+                            <!-- Credit account (optional) -->
+                            <div v-if="['on_registration', 'on_loan_application'].includes(generalChargeForm.application)" class="space-y-2">
+                                <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Credit account (optional)</Label>
+                                <SearchableSelect
+                                    v-model="generalChargeForm.credit_account_id"
+                                    :options="creditAccountOptions"
+                                    placeholder="Select option"
+                                    state="credit-account-select"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="flex items-center justify-end gap-3 border-t border-neutral-200 px-6 py-4 dark:border-neutral-700">
+                            <button
+                                type="button"
+                                @click="closeGeneralChargesDrawer"
+                                class="rounded-lg bg-neutral-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-neutral-600 transition-colors"
+                            >
+                                Close
+                            </button>
+                            <button
+                                type="button"
+                                @click="submitGeneralCharge"
+                                :disabled="generalChargeProcessing"
+                                class="rounded-lg bg-nfuko-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-nfuko-primary/90 transition-colors shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-nfuko-primary disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                {{ generalChargeProcessing ? 'Saving...' : editingCharge ? 'Save Changes' : 'Add New Charge' }}
                             </button>
                         </div>
                     </div>

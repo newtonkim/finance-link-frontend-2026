@@ -7,6 +7,7 @@ import { ArrowLeft, UserCircle2, Share2, AlertCircle, TrendingUp, Wallet } from 
 import { Label, InputError, Spinner } from '@/Global'
 import PhoneInput from '@/Global/PhoneInput.vue'
 import SearchableSelect from '@/Global/SearchableSelect.vue'
+import { toast } from 'vue-sonner'
 import { membersApi } from '@/tenant/apis/members/membersApi'
 import { tenantClient } from '@/tenant/apis/tenantClient'
 import { useSettingsStore } from '@/stores/settingsStore'
@@ -121,6 +122,10 @@ async function submit() {
   try {
     const payload: Record<string, any> = { ...form.value }
     Object.keys(payload).forEach((k) => { if (payload[k] === '') payload[k] = null })
+    // When initial deposit field is hidden, default to 0 (not null) to avoid DB NOT NULL constraint
+    if (payload.initial_deposit === null || payload.initial_deposit === undefined) {
+      payload.initial_deposit = 0
+    }
 
     if (avatarFile.value) {
       const fd = new FormData()
@@ -130,6 +135,7 @@ async function submit() {
     } else {
       await membersApi.store(payload)
     }
+    toast.success('Member registered successfully.')
     router.push('/tenant/members')
   } catch (err) {
     if (isAxiosError(err)) {

@@ -53,7 +53,7 @@ const txnToDelete = ref<any>(null);
 const isDeletingTxn = ref(false);
 
 const confirmDeleteTxn = (txn: any) => {
-    if (txn.is_reversed || txn.type === 'reversal') return;
+    if (txn.is_reversed || txn.type === 'reversal' || txn.is_reversible === false) return;
     txnToDelete.value = txn;
     showTxnDeleteDialog.value = true;
 };
