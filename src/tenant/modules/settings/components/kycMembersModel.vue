@@ -1,6 +1,6 @@
 <template>
     <button @click="isDrawerOpen = !isDrawerOpen"
-        class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">
+        class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline cursor-point">
         Member Onboarding →
     </button>
     <Drawer v-if="isDrawerOpen" width=" w-1/2" :showFooter="false" v-model:open="isDrawerOpen">

@@ -1,9 +1,13 @@
 <template>
-    <div class="flex h-full flex-1 flex-col gap-4 p-6 px8 ">
+    <div class="flex h-full fle x-1 flex-col  p-4 ">
+    <!-- <div class="flex h-full flex-1 flex-col gap-4 p-6 px8 "> -->
 
         <!-- HEADER -->
         <div class="flex items-center justify-between">
-            <h3 class="text-lg font-bold text-neutral-900 dark:text-white capitalize" v-once>{{ title }}</h3>
+            <div class="text-lg font-bold text-neutral-900 dark:text-white capitalize" v-once>
+
+                <h3 v-html="title"></h3>
+            </div>
 
             <div v-if="$slots['header-action']">
                 <slot name="header-action" />
@@ -22,23 +26,25 @@
         <div
             class="rounded-xl border-0 border-neutral-200 b g-white dark:border-neutral-800 dark:bg-neutral-900  overflow-hidden ">
             <div v-if="showSearchbar || showTableAction"
-                class="flex p-2  my-3 justify-between rounded-xl border border-neutral-100 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"">
+                class="flex p-2  my-3 justify-between rounded-xl border border-neutral-100 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
                 <Searchbar v-if="showSearchbar" @search="onSearch" :removeInSearch="removeInSearch" :columns="columns"
                 @filter="(v) => filterDataByString(v)" />
-            <slot name="searchSideAction" />
-            <div class="flex items-center gap-2" v-if="showTableAction">
-                <button @click="handleExport"
-                    class="p-2 bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
-                    <Download :size="18" />
-                </button>
-                <!-- Print Button -->
-                <button @click="handlePrint"
-                    class="p-2 bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
-                    <Printer :size="18" />
-                </button>
-                <!-- Divider -->
-                <div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2"></div>
-            </div>
+                <div class="flex">
+                    <div class="flex items-center gap-2 board-r-1 mx-2" v-if="showTableAction">
+                        <button @click="handleExport"
+                            class="p-2 bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
+                            <Download :size="18" />
+                        </button>
+                        <!-- Print Button -->
+                        <button @click="handlePrint"
+                            class="p-2 bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
+                            <Printer :size="18" />
+                        </button>
+                        <!-- Divider -->
+                        <div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2"></div>
+                    </div>
+                <slot name="searchSideAction" />
+                </div>
         </div>
         <!-- TABLE -->
         <div class="rounded-2xl    bg-white pt-0 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]   dark:bg-neutral-900">
@@ -82,7 +88,7 @@ import Drawer from '../Drawer/Drawer.vue';
 import { Plus } from 'lucide-vue-next';
 import ConfirmationDialog from '../confirmationDialog/confirmationDialog.vue';
 import Searchbar from './Components/Searchbar.vue';
-import { formDataFormatV2, feedbac, createUrl,feedback } from '@/Global';
+import { formDataFormatV2, createUrl, feedback } from '@/Global';
 import Table from './Components/Table.vue';
 import { Download, Printer } from 'lucide-vue-next';
 import { pomPinia } from 'septor-store';
@@ -143,6 +149,17 @@ const props = defineProps({
     state: { type: String, required: false },
     url: { type: String, required: false },
     module: { type: String, required: false },
+    /**
+     * {
+     *  *@enum[create,edit,view,delete] Example:
+ * @param
+     * create:"permission",  * @param
+     * edit:"permission",  * @param
+     * view:"permision"  * @param
+     delete:"permision"  * @param
+     * }
+     * 
+     * **/
     permissions: { type: Object, required: false },
     /**
  * By default the system uses standard route names: edit, view, delete.
@@ -150,6 +167,8 @@ const props = defineProps({
  * to specify custom paths.
  *
  * Example:
+ * @@@param
+ * @@argument
  * outerlinks: {
  *   edit: 'edit-details',
  *   view: 'view-details',
@@ -191,7 +210,7 @@ const save = (data: unknown, type = 'save') => {
 async function automaticCreateFun() {
     if (props.automaticCreate) {
         const data = Store.currentFormValues;
-      
+
         const customeUrl = props?.outerlinks?.['create'] ?? "create";
         const formDataScoping: any = formDataFormatV2((data))
         const res = await fetchTableData({

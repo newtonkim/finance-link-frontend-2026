@@ -146,7 +146,8 @@ async function submit() {
 
         <!-- Submit -->
         <Button type="submit"
-          class="h-12 w-full  bg-nfuko-primary hover:bg-nfuko-primary/90 text-white font-semibold rounded-xl transition-all shadow-lg shadow-bg-nfuko-primary/10"
+          style="background-color: var(--color-nfuko-primary);"
+          class="h-12 w-full hover:opacity-90 text-nfuko-accent font-semibold rounded-xl transition-all shadow-lg"
           :tabindex="3" :disabled="processing">
           <Spinner v-if="processing" class="mr-2" />
           Sign in

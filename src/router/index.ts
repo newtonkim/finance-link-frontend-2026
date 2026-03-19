@@ -8,6 +8,7 @@ import { dashboardRoutes } from '../tenant/modules/dashboard/routes'
 import { settingsRoutes } from '../tenant/modules/settings/routes'
 import { savingsRoutes } from '../tenant/modules/savings/routes'
 import { accountingRoutes } from '../tenant/modules/accounting/routes'
+import { migrationRoutes } from '../tenant/modules/migration/routes'
 import { getTenantSubdomain } from '@/Global'
 import { tenantRoutes, tenantRoutesList } from "@/tenant/layouts/routes.ts";
 
@@ -54,6 +55,7 @@ const router = createRouter({
         ...settingsRoutes,
         ...savingsRoutes,
         ...accountingRoutes,
+        ...migrationRoutes,
       ],
     },
   ],

@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { Landmark, ArrowLeft, Plus, Trash2, Save, X } from 'lucide-vue-next'
+import { ref, onMounted, computed, watch } from 'vue'
+import { Landmark, ArrowLeft, Plus, Save, X } from 'lucide-vue-next'
 import { savingsProductsApi, type SavingsProduct, type Charge } from '../../../apis/savingsProducts/api'
 import { toast } from 'vue-sonner'
 import { useRoute, useRouter } from 'vue-router'
+import { useCurrencyStore } from '@/stores/currency'
 
 const route = useRoute()
 const router = useRouter()
+const currencyStore = useCurrencyStore()
+const currency = computed(() => currencyStore.currencyCode)
 
 const isEditing = computed(() => route.params.id !== undefined)
 const loading = ref(false)
@@ -108,14 +111,41 @@ const chargeRows = computed(() => {
         .filter((row) => row.charge.type === selectedChargeTab.value)
 })
 
+// Auto-check activity when a charge of that type is added
+watch(() => form.value.charges, (charges) => {
+    if (!charges) return
+    if (charges.some(c => c.type === 'deposit'))  form.value.charge_on_deposit = true
+    if (charges.some(c => c.type === 'withdraw')) form.value.charge_on_withdraw = true
+    if (charges.some(c => c.type === 'transfer')) form.value.charge_on_transfer = true
+}, { deep: true })
+
+// Warn when charges exist but the activity toggle is off
+const activityWarnings = computed(() => {
+    const charges = form.value.charges ?? []
+    const warnings: string[] = []
+    if (charges.some(c => c.type === 'deposit')  && !form.value.charge_on_deposit)  warnings.push('Deposit')
+    if (charges.some(c => c.type === 'withdraw') && !form.value.charge_on_withdraw) warnings.push('Withdraw')
+    if (charges.some(c => c.type === 'transfer') && !form.value.charge_on_transfer) warnings.push('Transfer')
+    return warnings
+})
+
 const saveProduct = async () => {
     saving.value = true
     try {
+        const payload: SavingsProduct = {
+            ...form.value,
+            charges: (form.value.charges ?? []).map(c => ({
+                ...c,
+                minimum_amount: Number(normalizeNumberInput(c.minimum_amount)) || 0,
+                maximum_amount: c.maximum_amount !== null && c.maximum_amount !== undefined && String(c.maximum_amount).trim() !== '' ? Number(normalizeNumberInput(c.maximum_amount)) : null,
+                amount: Number(normalizeNumberInput(c.amount)) || 0,
+            }))
+        }
         if (isEditing.value) {
-            await savingsProductsApi.update(Number(route.params.id), form.value)
+            await savingsProductsApi.update(Number(route.params.id), payload)
             toast.success('Savings product updated successfully')
         } else {
-            await savingsProductsApi.create(form.value)
+            await savingsProductsApi.create(payload)
             toast.success('Savings product created successfully')
         }
         router.push('/tenant/settings/savings-products')
@@ -131,7 +161,7 @@ const formatFee = (value: number | string | null | undefined, type: 'percentage'
     const parsed = Number(value)
     if (Number.isNaN(parsed)) return '—'
     if (type === 'percentage') return `${parsed}%`
-    return `KSh ${parsed}`
+    return `${currency.value} ${parsed}`
 }
 
 const monthlyFeeSummary = computed(() => {
@@ -179,8 +209,12 @@ const monthlyFeeSummary = computed(() => {
             </div>
         </div>
 
-        <div v-if="loading" class="flex justify-center py-12">
-            <span class="text-neutral-500">Loading details...</span>
+        <div v-if="loading" class="flex flex-col items-center justify-center gap-3 py-24">
+            <svg class="h-8 w-8 animate-spin text-nfuko-primary dark:text-bg-nfuko-yellow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            <span class="text-sm font-medium text-neutral-500 dark:text-neutral-400">Loading details...</span>
         </div>
 
         <div v-else class="grid gap-6 lg:grid-cols-[1fr_400px]">
@@ -325,7 +359,9 @@ const monthlyFeeSummary = computed(() => {
 
                                 <div class="mt-4 rounded-lg border border-dashed border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-600 dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-neutral-400">
                                     <span class="font-medium text-neutral-700 dark:text-neutral-300">Loyal member criteria:</span>
-                                    Defined in Members settings (e.g., tenure or activity).
+                                    Configured in
+                                    <RouterLink to="/tenant/settings/members" class="underline text-nfuko-primary dark:text-bg-nfuko-yellow hover:opacity-80">Members &amp; Roles → Member Onboarding</RouterLink>
+                                    (minimum tenure months).
                                 </div>
 
                                 <div v-if="form.loyalty_fee_enabled" class="mt-4 grid gap-3 sm:grid-cols-2">
@@ -421,9 +457,8 @@ const monthlyFeeSummary = computed(() => {
                                             v-model="row.charge.minimum_amount"
                                             type="text"
                                             inputmode="decimal"
-                                            class="w-full rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-sm focus: border-nfuko-primary focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-bg-nfuko-yellow"
-                                            @focus="row.charge.minimum_amount = normalizeNumberInput(row.charge.minimum_amount)"
-                                            @blur="row.charge.minimum_amount = formatNumberInput(row.charge.minimum_amount)"
+                                            readonly
+                                            class="w-full rounded-md border border-neutral-200 bg-neutral-50 px-2.5 py-1.5 text-sm text-neutral-700 cursor-not-allowed dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
                                         >
                                     </td>
                                     <td class="px-4 py-3">
@@ -474,6 +509,12 @@ const monthlyFeeSummary = computed(() => {
                 <!-- Event Triggers Helper -->
                 <div class="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
                     <h3 class="mb-4 text-sm font-semibold text-neutral-900 dark:text-white">Applies To Activity</h3>
+
+                    <div v-if="activityWarnings.length" class="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-400">
+                        <span class="font-semibold">Warning:</span>
+                        {{ activityWarnings.join(', ') }} {{ activityWarnings.length === 1 ? 'charge is' : 'charges are' }} attached but the activity toggle is off — those fees will never apply.
+                    </div>
+
                     <div class="space-y-3">
                         <label class="flex items-center gap-3">
                             <input v-model="form.charge_on_deposit" type="checkbox" class="h-4 w-4 rounded border-neutral-300  text-nfuko-primary focus:ring-bg-nfuko-primary dark:border-neutral-600 dark:bg-neutral-700 dark:ring-offset-neutral-900 dark:checked:bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow focus:outline-none cursor-pointer">

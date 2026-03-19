@@ -9,6 +9,7 @@ import {
   ArrowUpDown,
   Mail,
   ArrowLeftRight,
+  DatabaseZap,
 } from 'lucide-vue-next'
 import {
   Sidebar,
@@ -124,6 +125,30 @@ onMounted(async () => {
         <OutClickNav class="flex-1 h-full" :links="tenantRoutes" />
       </SidebarGroup>
 
+      <!-- DATA MIGRATION -->
+      <SidebarGroup class="mt-2">
+        <SidebarGroupLabel class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
+          Data Migration
+        </SidebarGroupLabel>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton :tooltip="'Migration Hub'" @click="router.push('/tenant/migration')"
+              class="relative px-0 py-2.5 hover:bg-white/5 transition-all duration-200 group">
+              <div class="flex w-full items-center gap-3 pl-4 pr-3">
+                <DatabaseZap class="h-4 w-4 transition-colors duration-200"
+                  :class="route.path.startsWith('/tenant/migration') ? 'text-bg-nfuko-yellow' : 'text-nfuko-nav-text group-hover:text-bg-nfuko-yellow'" />
+                <span class="flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200"
+                  :class="route.path.startsWith('/tenant/migration') ? 'text-bg-nfuko-yellow' : 'text-nfuko-nav-text group-hover:text-white'">
+                  Migration
+                </span>
+              </div>
+              <div v-if="route.path.startsWith('/tenant/migration')"
+                class="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-[3px] bg-bg-nfuko-yellow rounded-r-full shadow-[0_0_10px_rgba(201,168,76,0.5)]" />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarGroup>
+
       <!-- CONFIGURATION -->
       <SidebarGroup class="mt-2">
         <SidebarGroupLabel class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
@@ -151,19 +176,24 @@ onMounted(async () => {
       </SidebarGroup>
     </SidebarContent>
 
-    <SidebarFooter class="p-4 space-y-3">
-      <!-- Dark mode toggle -->
+    <SidebarFooter class="shrink-0 p-4 space-y-3">
+      <!-- Dark mode toggle — hide label when sidebar is collapsed -->
       <div class="flex items-center justify-between px-2 bg-white/5 rounded-xl p-3 border border-white/5">
         <div class="flex items-center gap-2.5">
-          <Moon v-if="isDark" :size="16" class="text-bg-nfuko-yellow" />
-          <Sun v-else :size="16" class="text-bg-nfuko-yellow" />
-          <span class="text-xs font-semibold text-nfuko-nav-text tracking-wide">Dark Mode</span>
+          <Moon v-if="isDark" :size="16" class="text-bg-nfuko-yellow shrink-0" />
+          <Sun v-else :size="16" class="text-bg-nfuko-yellow shrink-0" />
+          <span v-if="state === 'expanded'" class="text-xs font-semibold text-nfuko-nav-text tracking-wide">Dark Mode</span>
         </div>
-        <button @click="toggleDarkMode"
+        <button v-if="state === 'expanded'" @click="toggleDarkMode"
           class="relative inline-flex h-5 w-10 items-center rounded-full transition-all duration-300"
           :class="isDark ? 'bg-nfuko-yellow' : 'bg-white/10'">
           <span class="inline-flex h-4 w-4 rounded-full bg-white transition-transform duration-300 shadow-xl"
             :class="isDark ? 'translate-x-5' : 'translate-x-0.5'" />
+        </button>
+        <!-- Collapsed: icon-only toggle -->
+        <button v-else @click="toggleDarkMode" class="ml-1 rounded-lg p-1 hover:bg-white/10 transition-colors">
+          <Moon v-if="!isDark" :size="14" class="text-nfuko-nav-text" />
+          <Sun v-else :size="14" class="text-bg-nfuko-yellow" />
         </button>
       </div>
       <TenantNavUser />

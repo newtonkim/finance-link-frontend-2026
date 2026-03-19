@@ -7,11 +7,6 @@ import {
   HandCoins,
   ArrowUpDown,
   BookOpen,
-  Settings,
-  Moon,
-  Sun,
-  MapPin,
-  Mail,
   ArrowLeftRight,
 } from 'lucide-vue-next'
 
@@ -21,18 +16,12 @@ export const tenantRoutes: any = [
     label: 'dashboard',
     showSideBar: true,
     icon: LayoutGrid,
+    permissions: 'dashboard-module-link-view',
   },
   {
-    path: 'members cerate',
-    label: 'Members cerate',
-    icon: Users,
-    component: () => import('@/tenant/modules/members/pages/MemberCreate.vue'),
-    showSideBar: true,
-  },
-     {
     label: 'Members',
     icon: Users,
-    // permissions: 'settings-module-link-view',
+    permissions: 'members-module-link-view',
     showSideBar: true,
     prifix: 'tenant',
     children: [
@@ -43,30 +32,29 @@ export const tenantRoutes: any = [
             path: 'member',
             label: 'member',
             component: () => import('@/tenant/modules/members/index.vue'),
-            //  permissions: 'settings-permission-view',
+            // permissions: 'members-list',
           },
-          
-          
         ],
       },
       {
         title: 'STAFF MEMBERS',
         items: [
           {
+            permissions: 'staff-list',
+
             path: 'Staff',
             label: 'Staff',
-          component: () => import('@/tenant/modules/staff/index.vue'), },
-         
+            component: () => import('@/tenant/modules/staff/index.vue'),
+          },
         ],
       },
     ],
   },
 
-
   {
     path: 'members-account',
     label: 'Members Account',
-    //   permissions: 'tenant-savings-accounts-view',
+    permissions: 'members-account-module-link-view',
     icon: Wallet,
     showSideBar: true,
     component: () => import('@/tenant/modules/savings/pages/SavingsAccounts.vue'),
@@ -74,7 +62,7 @@ export const tenantRoutes: any = [
   {
     path: 'group-savings',
     label: 'Group Savings',
-      // permissions: 'tenant-savings-accounts-view',
+    // permissions: 'tenant-savings-accounts-view',
     icon: Users,
     showSideBar: true,
     component: () => import('@/tenant/modules/savings/pages/SavingsGroups.vue'),
@@ -108,10 +96,6 @@ export const tenantRoutes: any = [
     showSideBar: true,
     component: () => import('@/tenant/modules/accounting/pages/ChartOfAccounts.vue'),
   },
-
-  
 ]
 
 export const tenantRoutesList: RouteRecordRaw[] = routebuilder(tenantRoutes, 'tenant')
-
- 

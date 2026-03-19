@@ -14,7 +14,7 @@ const props = withDefaults(defineProps<{
     width?: string;
     showFooter?: boolean;
 }>(), {
-    width: 'w-2/3 sm:full'
+    width: 'w-2/3 sm:w-screen'
 });
 
 const emit = defineEmits(['update:open', 'save', 'cancel', 'submit']);
@@ -35,7 +35,7 @@ const handleCancel = () => {
 <template>
     <div class="fixed inset-0 z-50 bg-white/40 backdrop-blur-sm">
         <Sheet :open="props.open" @update:open="emit('update:open', $event)">
-            <SheetContent side="right" :class="props.width + ' sm:max-w-none bg-white dark:bg-neutral-900'" class="">
+            <SheetContent side="right" :class="props.width + '  bg-white dark:bg-neutral-900'" >
                 <SheetHeader class="p-6 border-b border-neutral-100 dark:border-neutral-800">
                     <SheetTitle class="text-xl font-bold text-neutral-900 dark:text-white capitalize">
                         <!-- {{ props.title.toLocaleLowerCase() }} -->

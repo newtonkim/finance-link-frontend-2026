@@ -4,6 +4,7 @@ import { Landmark, Plus, Trash2, Edit, ChevronLeft, Eye } from 'lucide-vue-next'
 import { savingsProductsApi, type SavingsProduct } from '../../../apis/savingsProducts/api'
 import SavingsProductChargesModal from '../components/SavingsProductChargesModal.vue'
 import { toast } from 'vue-sonner'
+import { Spinner } from '@/Global'
 
 const products = ref<SavingsProduct[]>([])
 const loading = ref(true)
@@ -81,7 +82,12 @@ const openChargesModal = (product: SavingsProduct) => {
                     </thead>
                     <tbody>
                         <tr v-if="loading">
-                            <td colspan="6" class="px-6 py-8 text-center text-neutral-500">Loading savings products...</td>
+                            <td colspan="6" class="px-6 py-10 text-center">
+                                <div class="flex items-center justify-center gap-2 text-sm text-neutral-500">
+                                    <Spinner class="h-4 w-4" />
+                                    Loading savings products...
+                                </div>
+                            </td>
                         </tr>
                         <tr v-else-if="products.length === 0">
                             <td colspan="6" class="px-6 py-8 text-center text-neutral-500">No savings products found. Click "Create Product" to add one.</td>
@@ -109,7 +115,7 @@ const openChargesModal = (product: SavingsProduct) => {
                             <td class="whitespace-nowrap px-6 py-4 text-center">
                                 <button @click="openChargesModal(product)" class="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 hover:underline">
                                     <Eye class="h-3.5 w-3.5" />
-                                    <span>View ({{ product.charges?.length || 0 }})</span>
+                                    <span>View ({{ (product.charges?.length || 0) + (product.monthly_fee_enabled ? 1 : 0) }})</span>
                                 </button>
                             </td>
                             <td class="whitespace-nowrap px-6 py-4 text-right">

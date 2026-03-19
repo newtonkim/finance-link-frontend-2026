@@ -40,7 +40,7 @@ const navigate = (path: string) => {
 
 <template>
     <aside
-        class="w-64 border-r border-neutral-100 bg-white dark:border-neutral-800 dark:bg-neutral-900 flex flex-col h-full overflow-y-auto">
+        class=" border-r border-neutral-100 bg-white dark:border-neutral-800 dark:bg-neutral-900 flex flex-col h-full overflow-y-auto">
         <div class="p-4 border-b border-neutral-100 dark:border-neutral-800">
             <h2 class="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Settings
                 Modules</h2>

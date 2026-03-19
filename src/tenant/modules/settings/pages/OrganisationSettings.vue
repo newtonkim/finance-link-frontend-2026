@@ -1,11 +1,18 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { Building2, Search, Plus, Pencil, Trash2, X, Calendar, ArrowLeft, Coins } from 'lucide-vue-next'
+import { Building2, Search, Plus, Pencil, Trash2, X, Calendar, ArrowLeft, Coins, ImageIcon, Loader2 } from 'lucide-vue-next'
 import { Spinner, InputError, Label } from '@/Global'
+import SearchableSelect from '@/Global/SearchableSelect.vue'
 import ConfirmationDialog from '@/Global/confirmationDialog/confirmationDialog.vue'
 import { fiscalYearsApi } from '@/tenant/apis/fiscalYears/fiscalYearsApi'
 import { currenciesApi, type CurrencyOption, type CurrencySettings } from '@/tenant/apis/currencies/currenciesApi'
+import { saccoBrandingApi } from '@/tenant/apis/saccobranding/saccoBrandingApi'
+import { useTenantContextStore } from '@/stores/tenantContext'
+import { useCurrencyStore } from '@/stores/currency'
 import { toast } from 'vue-sonner'
+
+const tenantContextStore = useTenantContextStore()
+const currencyStore = useCurrencyStore()
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface FiscalYear {
@@ -19,29 +26,129 @@ interface Meta { current_page: number; last_page: number; total: number }
 const selectCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none transition focus: border-nfuko-primary focus:ring-2 focus:ring-bg-nfuko-primary/10 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white'
 const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white'
 
+// ─── Sacco Branding Drawer ────────────────────────────────────────────────────
+const showBrandingDrawer = ref(false)
+const brandingLoading = ref(false)
+const brandingSaving = ref(false)
+const brandingName = ref('')
+const brandingTagline = ref('')
+const brandingLogoFile = ref<File | null>(null)
+const brandingLogoPreview = ref<string | null>(null)
+const brandingExistingLogoUrl = ref<string | null>(null)
+const brandingIsDragging = ref(false)
+const brandingFileInput = ref<HTMLInputElement | null>(null)
+
+async function openBrandingDrawer() {
+    showBrandingDrawer.value = true
+    brandingLoading.value = true
+    try {
+        const res = await saccoBrandingApi.get()
+        const data = res.data?.data ?? res.data ?? null
+        if (data) {
+            brandingName.value = data.sacco_name ?? ''
+            brandingTagline.value = data.tagline ?? ''
+            brandingExistingLogoUrl.value = data.logo_url ?? null
+        }
+    } catch (err: any) {
+        toast.error(err?.response?.data?.message ?? 'Failed to load branding.')
+    } finally {
+        brandingLoading.value = false
+    }
+}
+
+function closeBrandingDrawer() {
+    showBrandingDrawer.value = false
+    brandingLogoFile.value = null
+    brandingLogoPreview.value = null
+}
+
+function brandingCurrentLogo() {
+    return brandingLogoPreview.value ?? brandingExistingLogoUrl.value
+}
+
+function onBrandingFileChange(e: Event) {
+    const file = (e.target as HTMLInputElement).files?.[0]
+    if (file) applyBrandingFile(file)
+}
+
+function onBrandingDrop(e: DragEvent) {
+    brandingIsDragging.value = false
+    const file = e.dataTransfer?.files?.[0]
+    if (file && file.type.startsWith('image/')) applyBrandingFile(file)
+}
+
+function applyBrandingFile(file: File) {
+    brandingLogoFile.value = file
+    const reader = new FileReader()
+    reader.onload = (ev) => { brandingLogoPreview.value = ev.target?.result as string }
+    reader.readAsDataURL(file)
+}
+
+function removeBrandingLogo() {
+    brandingLogoFile.value = null
+    brandingLogoPreview.value = null
+    if (brandingFileInput.value) brandingFileInput.value.value = ''
+}
+
+async function saveBranding() {
+    brandingSaving.value = true
+    try {
+        const res = await saccoBrandingApi.update({
+            sacco_name: brandingName.value,
+            tagline: brandingTagline.value,
+            logo: brandingLogoFile.value,
+        })
+        const data = res.data?.data ?? res.data ?? null
+        if (data) {
+            brandingExistingLogoUrl.value = data.logo_url ?? null
+            brandingLogoFile.value = null
+            brandingLogoPreview.value = null
+            // saccoBrandingState is already updated inside saccoBrandingApi.update()
+            // so the sidebar reacts immediately
+        }
+        toast.success('Branding saved successfully.')
+        closeBrandingDrawer()
+    } catch (err: any) {
+        toast.error(err?.response?.data?.message ?? 'Failed to save branding.')
+    } finally {
+        brandingSaving.value = false
+    }
+}
+
 // ─── Currency Settings Drawer ────────────────────────────────────────────────
 const DEFAULT_CURRENCIES: CurrencyOption[] = [
   { code: 'UGX', name: 'Ugandan Shilling', symbol: 'UGX' },
   { code: 'USD', name: 'US Dollar', symbol: '$' },
   { code: 'EUR', name: 'Euro', symbol: '€' },
   { code: 'GBP', name: 'British Pound', symbol: '£' },
+  { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
+  { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
+  { code: 'NZD', name: 'New Zealand Dollar', symbol: 'NZ$' },
+  { code: 'CHF', name: 'Swiss Franc', symbol: 'CHF' },
+  { code: 'SEK', name: 'Swedish Krona', symbol: 'SEK' },
+  { code: 'NOK', name: 'Norwegian Krone', symbol: 'NOK' },
+  { code: 'DKK', name: 'Danish Krone', symbol: 'DKK' },
+  { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$' },
+  { code: 'HKD', name: 'Hong Kong Dollar', symbol: 'HK$' },
+  { code: 'CNY', name: 'Chinese Yuan', symbol: '¥' },
+  { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
+  { code: 'INR', name: 'Indian Rupee', symbol: '₹' },
+  { code: 'AED', name: 'UAE Dirham', symbol: 'AED' },
+  { code: 'SAR', name: 'Saudi Riyal', symbol: 'SAR' },
   { code: 'KES', name: 'Kenyan Shilling', symbol: 'KSh' },
   { code: 'TZS', name: 'Tanzanian Shilling', symbol: 'TSh' },
   { code: 'RWF', name: 'Rwandan Franc', symbol: 'FRw' },
   { code: 'NGN', name: 'Nigerian Naira', symbol: '₦' },
   { code: 'GHS', name: 'Ghanaian Cedi', symbol: '₵' },
   { code: 'ZAR', name: 'South African Rand', symbol: 'R' },
-  { code: 'AED', name: 'UAE Dirham', symbol: 'AED' },
-  { code: 'SAR', name: 'Saudi Riyal', symbol: 'SAR' },
-  { code: 'INR', name: 'Indian Rupee', symbol: '₹' },
-  { code: 'CNY', name: 'Chinese Yuan', symbol: '¥' },
-  { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
-  { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
-  { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
-  { code: 'CHF', name: 'Swiss Franc', symbol: 'CHF' },
-  { code: 'SEK', name: 'Swedish Krona', symbol: 'SEK' },
-  { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$' },
-  { code: 'HKD', name: 'Hong Kong Dollar', symbol: 'HK$' },
+  { code: 'ETB', name: 'Ethiopian Birr', symbol: 'Br' },
+  { code: 'XOF', name: 'West African CFA Franc', symbol: 'CFA' },
+  { code: 'XAF', name: 'Central African CFA Franc', symbol: 'CFA' },
+  { code: 'MAD', name: 'Moroccan Dirham', symbol: 'MAD' },
+  { code: 'EGP', name: 'Egyptian Pound', symbol: 'E£' },
+  { code: 'BWP', name: 'Botswana Pula', symbol: 'P' },
+  { code: 'ZMW', name: 'Zambian Kwacha', symbol: 'ZK' },
+  { code: 'MUR', name: 'Mauritian Rupee', symbol: '₨' },
 ]
 
 const showCurrencyDrawer = ref(false)
@@ -66,6 +173,10 @@ function normalizeCurrency(raw: any): CurrencyOption | null {
 function ensureDefaultEnabled() {
   const code = currencyForm.value.default_currency
   if (!code) return
+  if (!multiCurrencyEnabled.value) {
+    currencyForm.value.enabled_currencies = [code]
+    return
+  }
   if (!currencyForm.value.enabled_currencies.includes(code)) {
     currencyForm.value.enabled_currencies.push(code)
   }
@@ -86,6 +197,13 @@ const filteredCurrencies = computed(() => {
     return parts.every((p) => hay.includes(p))
   })
 })
+
+const defaultCurrencyOptions = computed(() =>
+  currencyOptions.value.map((c) => ({
+    id: c.code,
+    name: `${c.code} — ${c.name}${c.symbol ? ` (${c.symbol})` : ''}`,
+  }))
+)
 
 watch(() => currencyForm.value.default_currency, ensureDefaultEnabled)
 watch(multiCurrencyEnabled, applyMultiCurrencyFlag)
@@ -138,6 +256,7 @@ async function loadCurrencySettings() {
             : [settingsPayload.default_currency || 'UGX'],
         }
         multiCurrencyEnabled.value = currencyForm.value.enabled_currencies.length > 1
+        currencyStore.setSettings(currencyForm.value)
       }
     }
 
@@ -160,6 +279,7 @@ async function saveCurrencySettings() {
     ensureDefaultEnabled()
     applyMultiCurrencyFlag()
     await currenciesApi.updateSettings(currencyForm.value)
+    currencyStore.setSettings(currencyForm.value)
     closeCurrencyDrawer()
     toast.success('Currency saved successfully.')
   } catch (err: any) {
@@ -356,11 +476,17 @@ async function confirmDelete() {
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Configure basic organisation information
                     and settings.</p>
                 <button
-                    @click="openCurrencyDrawer"
-                    class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline"
+                    @click="openBrandingDrawer"
+                    class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline"
                 >
-                    Configure
-                    →</button>
+                    Configure →
+                </button>
+                <button
+                    @click="openCurrencyDrawer"
+                    class="mt-2 block w-fit text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline"
+                >
+                    Currency configuration →
+                </button>
             </div>
             <div
                 class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
@@ -394,6 +520,165 @@ async function confirmDelete() {
             </div>
         </div>
     </div>
+
+    <!-- ═══ Sacco Branding Drawer ══════════════════════════════════════════ -->
+    <Transition name="drawer-fade">
+        <div v-if="showBrandingDrawer" class="fixed inset-0 z-50">
+            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeBrandingDrawer"></div>
+            <Transition name="drawer-slide">
+                <aside
+                    class="absolute right-0 top-0 h-full w-full max-w-[560px] bg-white shadow-2xl ring-1 ring-black/5 dark:bg-neutral-900"
+                    role="dialog" aria-label="Sacco Branding">
+                    <div class="flex h-full flex-col">
+                        <!-- Header -->
+                        <div class="border-b border-neutral-200 px-6 py-5 dark:border-neutral-700">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/30">
+                                        <ImageIcon class="h-4 w-4 text-nfuko-primary dark:text-bg-nfuko-yellow" />
+                                    </div>
+                                    <div>
+                                        <h3
+                                            class="text-lg font-bold tracking-tight text-neutral-900 uppercase dark:text-white">
+                                            Sacco Branding
+                                        </h3>
+                                        <p class="text-xs text-neutral-500">Update your sacco logo, name and tagline</p>
+                                    </div>
+                                </div>
+                                <button type="button" @click="closeBrandingDrawer"
+                                    class="flex h-8 w-8 items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 transition-colors dark:hover:bg-neutral-800 dark:hover:text-white">
+                                    <X class="h-4 w-4" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+                            <!-- Loading skeleton -->
+                            <div v-if="brandingLoading" class="space-y-5">
+                                <div v-for="i in 3" :key="i"
+                                    class="h-24 rounded-2xl bg-neutral-100 animate-pulse dark:bg-neutral-800" />
+                            </div>
+
+                            <template v-else>
+                                <!-- Logo Upload -->
+                                <div class="space-y-3">
+                                    <label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+                                        Sacco Logo
+                                    </label>
+                                    <p class="text-xs text-neutral-400">PNG, JPG or SVG · max 2 MB · recommended 256×256 px</p>
+
+                                    <div class="flex items-start gap-4">
+                                        <!-- Preview -->
+                                        <div
+                                            class="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border-2 border-dashed border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 overflow-hidden">
+                                            <img v-if="brandingCurrentLogo()" :src="brandingCurrentLogo()!"
+                                                class="h-full w-full object-contain p-2" alt="Logo preview" />
+                                            <ImageIcon v-else class="h-7 w-7 text-neutral-300" />
+                                        </div>
+
+                                        <!-- Drop zone -->
+                                        <div class="flex-1">
+                                            <div @click="brandingFileInput?.click()"
+                                                @dragover.prevent="brandingIsDragging = true"
+                                                @dragleave="brandingIsDragging = false" @drop.prevent="onBrandingDrop"
+                                                :class="[
+                                                    'flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-5 cursor-pointer transition-all duration-200',
+                                                    brandingIsDragging
+                                                        ? 'border-nfuko-primary bg-nfuko-primary/5'
+                                                        : 'border-neutral-200 dark:border-neutral-700 hover:border-nfuko-primary/50 hover:bg-neutral-50 dark:hover:bg-neutral-800'
+                                                ]">
+                                                <input ref="brandingFileInput" type="file" accept="image/*"
+                                                    class="hidden" @change="onBrandingFileChange" />
+                                                <p class="text-sm font-medium text-neutral-600 dark:text-neutral-300">
+                                                    Drop here or <span class="text-nfuko-primary">browse</span>
+                                                </p>
+                                            </div>
+                                            <!-- Selected file chip -->
+                                            <div v-if="brandingLogoFile"
+                                                class="mt-2 flex items-center justify-between rounded-lg border border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800 px-3 py-2">
+                                                <div class="flex items-center gap-2">
+                                                    <ImageIcon class="h-4 w-4 text-nfuko-primary shrink-0" />
+                                                    <span
+                                                        class="text-xs font-medium text-neutral-700 dark:text-neutral-300 truncate max-w-[160px]">
+                                                        {{ brandingLogoFile.name }}
+                                                    </span>
+                                                    <span class="text-[11px] text-neutral-400">
+                                                        ({{ (brandingLogoFile.size / 1024).toFixed(1) }} KB)
+                                                    </span>
+                                                </div>
+                                                <button @click="removeBrandingLogo"
+                                                    class="flex h-6 w-6 items-center justify-center rounded hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors">
+                                                    <X class="h-3.5 w-3.5 text-neutral-400" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Sacco Name -->
+                                <div class="space-y-2">
+                                    <label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+                                        Sacco Name
+                                    </label>
+                                    <input v-model="brandingName" type="text" placeholder="e.g. Nakuru Sacco"
+                                        class="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4 py-2.5 text-sm text-neutral-900 dark:text-white placeholder:text-neutral-400 outline-none focus:border-nfuko-primary focus:ring-2 focus:ring-nfuko-primary/20 transition-all" />
+                                    <p class="text-xs text-neutral-400">Displayed in the sidebar and on printed documents.</p>
+                                </div>
+
+                                <!-- Tagline -->
+                                <div class="space-y-2">
+                                    <label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+                                        Tagline <span class="text-neutral-400 font-normal">(optional)</span>
+                                    </label>
+                                    <input v-model="brandingTagline" type="text"
+                                        placeholder="e.g. Empowering members since 2005"
+                                        class="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4 py-2.5 text-sm text-neutral-900 dark:text-white placeholder:text-neutral-400 outline-none focus:border-nfuko-primary focus:ring-2 focus:ring-nfuko-primary/20 transition-all" />
+                                    <p class="text-xs text-neutral-400">Short motto shown below the sacco name.</p>
+                                </div>
+
+                                <!-- Live Preview -->
+                                <div class="space-y-2">
+                                    <label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Preview</label>
+                                    <div class="flex items-center gap-3 rounded-xl bg-nfuko-primary px-4 py-3 w-fit min-w-[200px]">
+                                        <div
+                                            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 overflow-hidden">
+                                            <img v-if="brandingCurrentLogo()" :src="brandingCurrentLogo()!"
+                                                class="h-8 w-auto object-contain" alt="Preview" />
+                                            <ImageIcon v-else class="h-5 w-5 text-white/50" />
+                                        </div>
+                                        <div class="flex flex-col min-w-0">
+                                            <span class="text-sm font-bold text-white truncate">
+                                                {{ brandingName || 'Sacco Name' }}
+                                            </span>
+                                            <span v-if="brandingTagline" class="text-[11px] text-white/50 truncate">
+                                                {{ brandingTagline }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Footer -->
+                        <div
+                            class="flex items-center justify-end gap-3 border-t border-neutral-200 px-6 py-4 dark:border-neutral-700">
+                            <button type="button" @click="closeBrandingDrawer"
+                                class="rounded-lg bg-neutral-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-neutral-600 transition-colors">
+                                Cancel
+                            </button>
+                            <button type="button" @click="saveBranding" :disabled="brandingSaving || brandingLoading"
+                                class="inline-flex items-center gap-2 rounded-lg bg-nfuko-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#002d32] transition-colors disabled:opacity-60 shadow-sm dark:bg-bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-[#b8973b]">
+                                <Loader2 v-if="brandingSaving" class="h-4 w-4 animate-spin" />
+                                {{ brandingSaving ? 'Saving…' : 'Save Branding' }}
+                            </button>
+                        </div>
+                    </div>
+                </aside>
+            </Transition>
+        </div>
+    </Transition>
 
     <!-- ═══ Currency Settings Drawer ══════════════════════════════════════ -->
     <Transition name="drawer-fade">
@@ -447,12 +732,13 @@ async function confirmDelete() {
 
                             <div class="space-y-2">
                                 <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Default currency</Label>
-                                <select v-model="currencyForm.default_currency" :class="selectCls">
-                                    <option v-for="c in currencyOptions" :key="c.code" :value="c.code">
-                                        {{ c.code }} — {{ c.name }}<span v-if="c.symbol"> ({{ c.symbol }})</span>
-                                    </option>
-                                </select>
-                                <p class="text-xs text-neutral-500">UGX is preselected as the system default.</p>
+                                <SearchableSelect
+                                    v-model="currencyForm.default_currency"
+                                    :options="defaultCurrencyOptions"
+                                    placeholder="Search default currency"
+                                    state="currency-default"
+                                />
+                                <p class="text-xs text-neutral-500">Default is {{ currencyForm.default_currency || 'UGX' }}.</p>
                             </div>
 
                             <div class="space-y-3">
