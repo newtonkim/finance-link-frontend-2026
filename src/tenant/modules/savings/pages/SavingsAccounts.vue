@@ -44,6 +44,7 @@ const viewDrawer = ref<InstanceType<typeof ViewAccountDrawer> | null>(null)
 const editDrawer = ref<InstanceType<typeof EditAccountDrawer> | null>(null)
 const createDrawer = ref<InstanceType<typeof CreateAccountDrawer> | null>(null)
 
+
 async function fetchAccounts(page = 1) {
   loading.value = true
   try {
@@ -149,6 +150,7 @@ function statusClass(s: string) {
       @view="viewDrawer?.openDrawer($event)"
       @edit="editDrawer?.openDrawer($event)"
       @delete="confirmDelete"
+
       @page="fetchAccounts"
     />
   </div>
@@ -180,4 +182,6 @@ function statusClass(s: string) {
     :savings-products="savingsProducts"
     @success="fetchAccounts(meta.current_page)"
   />
+
+
 </template>

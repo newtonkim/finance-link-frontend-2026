@@ -107,6 +107,7 @@ const pages = () => Array.from({ length: props.meta.last_page }, (_, i) => i + 1
                   <Pencil class="h-3.5 w-3.5" />
                   Edit
                 </button>
+
                 <button
                   @click="emit('delete', account)"
                   class="flex items-center justify-center rounded-lg border border-red-100 bg-red-50 p-1.5 text-red-500 hover:bg-red-100 transition-colors"

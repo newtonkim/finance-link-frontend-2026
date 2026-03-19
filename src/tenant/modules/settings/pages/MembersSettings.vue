@@ -84,8 +84,12 @@ async function handleSave() {
         })
         isDrawerOpen.value = false
         nextTick(() => toast.success('Member onboarding settings saved.'))
-    } catch {
-        toast.error('Failed to save settings.')
+    } catch (err: any) {
+        const data = err?.response?.data
+        const msg = data?.message
+            ?? Object.values(data?.errors ?? {}).flat()[0]
+            ?? 'Failed to save settings.'
+        toast.error(String(msg))
     } finally {
         savingOnboarding.value = false
     }

@@ -16,4 +16,13 @@ export const savingsAccountsApi = {
   destroy(id: number) {
     return tenantClient.delete(`/savings-accounts/${id}`)
   },
+  deposit(id: number, data: Record<string, any>) {
+    return tenantClient.post(`/savings-accounts/${id}/deposit`, data)
+  },
+  withdraw(id: number, data: Record<string, any>) {
+    return tenantClient.post(`/savings-accounts/${id}/withdraw`, data)
+  },
+  charge(id: number, data: Record<string, any>) {
+    return tenantClient.post(`/savings-accounts/${id}/charge`, data)
+  },
 }
