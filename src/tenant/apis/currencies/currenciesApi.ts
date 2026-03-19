@@ -16,9 +16,9 @@ export const currenciesApi = {
     return tenantClient.get('/currencies')
   },
   getSettings() {
-    return tenantClient.get('/currency-settings')
+    // return tenantClient.get('/currency-settings')
   },
   updateSettings(data: CurrencySettings) {
-    return tenantClient.put('/currency-settings', data)
+    // return tenantClient.put('/currency-settings', data)
   },
 }

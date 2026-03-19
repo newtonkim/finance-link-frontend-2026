@@ -154,7 +154,7 @@ onMounted(async () => {
         <SidebarGroupLabel class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
           Configuration
         </SidebarGroupLabel>
-        <SidebarMenu>
+        <SidebarMenu v-auth='"settings-module-link-view"'>
           <SidebarMenuItem>
             <SidebarMenuButton :tooltip="'Settings'" @click="router.push('/tenant/settings')" :class="[
               'relative px-0 py-2.5 hover:bg-white/5 transition-all duration-200 group',

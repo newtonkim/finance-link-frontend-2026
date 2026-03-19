@@ -24,7 +24,7 @@ export const useCurrencyStore = defineStore('currency', () => {
     loading.value = true
     try {
       const res = await currenciesApi.getSettings()
-      const payload = res.data?.data ?? res.data ?? null
+      const payload = res?.data?.data ?? res?.data ?? null
       setSettings(payload)
     } finally {
       loading.value = false

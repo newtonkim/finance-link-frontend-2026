@@ -8,7 +8,7 @@ defineProps<{
 <template>
     <div class="flex min-h-screen bg-white">
         <!-- Left Panel: Auth Form -->
-        <div class="flex w-1/2 flex-col justify-center px-8 py-12 lg:px-20 xl:px-28">
+        <div class="flex md:w-1/2 w-full flex-col justify-center px-8 py-12 lg:px-20 xl:px-28">
             <div class="mx-auto w-full max-w-md">
                 <div>
                     <img class="h-16 w-auto object-contain" src="/images/mfuko_plus_logo.webp" alt="Mfuko Plus Logo" />

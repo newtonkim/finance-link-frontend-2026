@@ -9,7 +9,7 @@ import {
   Label,
   InputError,
   Spinner,
-  AuthBase,storeUserLogedinData, storeUserPermissions
+  AuthBase,storeUserLogedinData, storeUserPermissions,setSystemBranding
 } from '@/Global';
 import { tenantClient } from '@/tenant/apis/tenantClient';
 import { setBearerToken } from 'septor-store';
@@ -48,15 +48,19 @@ async function submit() {
       headers['X-Tenant-Subdomain'] = subdomain.value;
     }
 
-    const { data } = await tenantClient.post(
+    const res = await tenantClient.post(
       '/auth/login', 
       { email: email.value, password: password.value, type: 'tenant' },
       { headers },
     );
+    const data=JSON.parse(atob(res?.data)) 
+
+    setSystemBranding(data.data.branding)
 
     // Store token, subdomain, and user profile for sidebar display
     if (data?.data?.access_token) {
       localStorage.setItem('tenant_token', data.data.access_token);
+   
     }
     if (subdomain.value) {
       localStorage.setItem('tenant_subdomain', subdomain.value);

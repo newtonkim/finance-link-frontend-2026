@@ -4,6 +4,14 @@ import { apiClient as customAxios } from '@/central/api/client'
 const encryptStorage = new EncryptStorage(import.meta.env.VITE_ENCRYPT_STORAGE)
 import { notify } from '@/Global/Toasters'
 
+export const keysToUse = {
+  systemSettings: 'systemSettings',
+  userPermissions: 'userPermissions',
+  loginUserData: 'loginUserData',
+  loggedInAsStudentOrStaff: 'loggedInAsStudentOrStaff',
+  IpEverLoged: 'IpEverLoged',
+  SystemBranding: "SystemBranding" + getSubdomainName()
+}
 export function dateTime(time: string) {
   return tryCatch(() => {
     if (`${time}`.trim()?.length < 9) return ''
@@ -24,13 +32,6 @@ export function date(time: string) {
 
 // ============================================================
 
-export const keysToUse = {
-  systemSettings: 'systemSettings',
-  userPermissions: 'userPermissions',
-  loginUserData: 'loginUserData',
-  loggedInAsStudentOrStaff: 'loggedInAsStudentOrStaff',
-  IpEverLoged: 'IpEverLoged',
-}
 /***
  * ****/
 export function tryCatch<T>(callback: () => Promise<T> | T) {
@@ -141,41 +142,67 @@ export function storeUserCretiria(data = null) {
 }
 export function getSystemSetting() {
   try {
-   return encryptStorage.getItem(keysToUse.systemSettings)
+    return encryptStorage.getItem(keysToUse.systemSettings)
   } catch (error) {
     console.error('Error storing user permissions:', error)
   }
 }
-export function pickAsettingKeyValue(key:string) {
+export function setSystemBranding(data = null) {
   try {
-   const data= encryptStorage.getItem(keysToUse.systemSettings);
-   return data[key];
+    return encryptStorage.setItem(keysToUse.SystemBranding, data)
+  } catch (error) {
+    console.error('Error storing systemBranding', error)
+  }
+}
+export function getetSystemBranding() {
+  try {
+    return encryptStorage.getItem(keysToUse.SystemBranding)
+  } catch (error) {
+    console.error('Error storing systemBranding', error)
+  }
+}
+
+export function pickAsettingKeyValue(key: string) {
+  try {
+    const data = encryptStorage.getItem(keysToUse.systemSettings);
+    return data[key];
   } catch (error) {
     console.error('failed to get this  key:', error)
   }
 }
 export function storeUserPermissions(props: { data: any } = { data: null }) {
   const { data } = props
-
   try {
-    encryptStorage.setItem('userPermissions', JSON.stringify(data))
+    encryptStorage.setItem(keysToUse.userPermissions, JSON.stringify(data))
   } catch (error) {
     console.error('Error storing user permissions:', error)
   }
 }
-export function appendOnAjsonStore(props: { data: any ,key:string} = { data: {},key:"" }) {
-  const { data,key } = props
-
+export  function hasPermission(permission: string) {
   try {
-   const prevDta=encryptStorage.getItem(key)
-    const collection=isJSON(prevDta)
-    const newDateSet={...collection,...data}
-   encryptStorage.setItem(key, JSON.stringify(newDateSet))
+    if(!`${permission}`.trim()?.length){
+      return true /// means its a global permission to be accessed 
+    }
+    const list =  localStoragePicker(keysToUse.userPermissions);
+    const userPermissions = Array.isArray(list) ? list : JSON.parse(list || '[]');
+    return !userPermissions.includes(permission)
   } catch (error) {
-    console.error('Error storing user '+key+':', error)
+    console.error('Error :', error)
   }
 }
-export async function localStoragePicker(key = '') {
+export function appendOnAjsonStore(props: { data: any, key: string } = { data: {}, key: "" }) {
+  const { data, key } = props
+
+  try {
+    const prevDta = encryptStorage.getItem(key)
+    const collection = isJSON(prevDta)
+    const newDateSet = { ...collection, ...data }
+    encryptStorage.setItem(key, JSON.stringify(newDateSet))
+  } catch (error) {
+    console.error('Error storing user ' + key + ':', error)
+  }
+}
+export  function localStoragePicker(key = '') {
   try {
     const data = encryptStorage.getItem(key)
     return data || []
@@ -281,7 +308,7 @@ export function scopeValues(data: any) {
 export function isJSON(jsonString: string) {
   try {
     return JSON.parse(jsonString)
-  } catch (e) {}
+  } catch (e) { }
   return jsonString
 }
 export function formDataFormatV2(fields: any[]) {
@@ -341,14 +368,14 @@ export function formDataFormat(data: any) { // first version
         }
       })
     } else if (typeof value === 'object' && !(value instanceof File)) {
-        const lowerCaseKeys = `${key}`.toLocaleLowerCase().replace('\+S', '_')
+      const lowerCaseKeys = `${key}`.toLocaleLowerCase().replace('\+S', '_')
       formData.append(`${lowerCaseKeys}`.toLocaleLowerCase(), JSON.stringify(value))
-      
+
     } else {
-        const lowerCaseKeys = `${key}`.toLocaleLowerCase().replace('\+S', '_')
+      const lowerCaseKeys = `${key}`.toLocaleLowerCase().replace('\+S', '_')
       // Handle primitive values and Files
-    
-      
+
+
       formData.append(lowerCaseKeys, value)
     }
   }
@@ -402,13 +429,17 @@ export function routebuilder(routes = [], prifix = 'central') {
   const collecction: any = []
   routes.forEach((route) => {
     if (!route?.children) {
-      const routePath = `${prifix}/${route.path}`
+      console.log(route);
+      
+      const routePath = route.path?`${prifix}/${route.path}`:null
+       if(hasPermission(route?.permissions))
       collecction.push(RouteStructure(route, routePath))
     } else if (Array.isArray(route.children)) {
       route.children.forEach((child) => {
         if (child?.items) {
           child.items.forEach((item) => {
             const childRoutePath = `${prifix}/${item.path}`
+              // if (hasPermission(route?.permissions))
             collecction.push(RouteStructure(item, childRoutePath))
           })
         }
@@ -419,16 +450,16 @@ export function routebuilder(routes = [], prifix = 'central') {
 }
 
 export function feedback(res: any, success: string, fail: string) {
-  let successStatus=false
+  let successStatus = false
   console.log(res);
-  
+
   let msg: Record<string, string> = {
     msg: success,
     type: 'Error',
     success: successStatus,
   }
   if (!res || res.code == 200) {
-     successStatus=true
+    successStatus = true
     msg = {
       msg: fail,
       type: 'Success',
@@ -437,14 +468,14 @@ export function feedback(res: any, success: string, fail: string) {
   }
   notify(msg)
   return {
-    success:successStatus,
+    success: successStatus,
     msg,
     res,
   }
 }
 
 export function createUrl(url: string, action: string) {
-    const url2 = url.split("/")
-    url2.length = url2.length - 1
-    return url2.join("/") + `/${action}`
+  const url2 = url.split("/")
+  url2.length = url2.length - 1
+  return url2.join("/") + `/${action}`
 }

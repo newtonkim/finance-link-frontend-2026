@@ -8,7 +8,7 @@
                 <SidebarGroupLabel
                 
                 v-if="item.type == 'label' && item?.showSideBar === true"
-                    class="px-3 text-[10px] font-bold uppercase tracking-widest text-nfuko-nav-text/40 mb-1 ring-sidebar-ring flex h-8 shrink-0 items-center rounded-md outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0 group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
+                    class="ring-sidebar-ring flex h-8 shrink-0 items-center rounded-md outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0 group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
                     {{ item.label }}
                 </SidebarGroupLabel>
 
@@ -16,10 +16,11 @@
                     @click="() => toggleSubmenu(null)" />
             </span>
         <div v-else  >
+        
 
                 <div class="relative" v-if="item?.showSideBar === true">
                     
-                    <div :to="item?.path" @click="toggleSubmenu(item.label)"
+                    <div v-auth="item?.permissions" :to="item?.path" @click="toggleSubmenu(item.label)"
                         class="w-full hover:px-2 flex items-center   py-2 rounded-xl transition-all duration-200 text-nfuko-nav-text/60 hover:bg-white/5 hover:text-white cursor-pointer">
                         <div class="flex justify-between w-full items-center">
                             <div class="flex w-full items-center gap-3">

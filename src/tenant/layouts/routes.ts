@@ -8,9 +8,12 @@ import {
   ArrowUpDown,
   BookOpen,
   ArrowLeftRight,
+  CogIcon,
 } from 'lucide-vue-next'
+import type { MenuRoutes } from '@/Global/types/helpers'
 
-export const tenantRoutes: any = [
+
+export const tenantRoutes: MenuRoutes[] = [
   {
     path: 'Dashboard',
     label: 'dashboard',
@@ -32,7 +35,15 @@ export const tenantRoutes: any = [
             path: 'member',
             label: 'member',
             component: () => import('@/tenant/modules/members/index.vue'),
-            // permissions: 'members-list',
+            permissions: 'members-list',
+          },
+          {
+            path: 'members-account',
+            label: 'Members Account',
+            permissions: 'members-account-module-link-view',
+            // icon: Wallet,
+            showSideBar: true,
+            component: () => import('@/tenant/modules/savings/pages/SavingsAccounts.vue'),
           },
         ],
       },
@@ -41,28 +52,28 @@ export const tenantRoutes: any = [
         items: [
           {
             permissions: 'staff-list',
-
             path: 'Staff',
             label: 'Staff',
             component: () => import('@/tenant/modules/staff/index.vue'),
           },
+
         ],
       },
     ],
   },
 
-  {
-    path: 'members-account',
-    label: 'Members Account',
-    permissions: 'members-account-module-link-view',
-    icon: Wallet,
-    showSideBar: true,
-    component: () => import('@/tenant/modules/savings/pages/SavingsAccounts.vue'),
-  },
+  // {
+  //   path: 'members-account',
+  //   label: 'Members Account',
+  //   permissions: 'members-account-module-link-view',
+  //   icon: Wallet,
+  //   showSideBar: true,
+  //   component: () => import('@/tenant/modules/savings/pages/SavingsAccounts.vue'),
+  // },
   {
     path: 'group-savings',
     label: 'Group Savings',
-    // permissions: 'tenant-savings-accounts-view',
+    permissions: 'group-savings-module-link-view',
     icon: Users,
     showSideBar: true,
     component: () => import('@/tenant/modules/savings/pages/SavingsGroups.vue'),
@@ -71,6 +82,7 @@ export const tenantRoutes: any = [
   {
     path: 'savings-transfer',
     label: 'savings transfer',
+    permissions: 'savings-transfer-module-link-view',
     showSideBar: true,
     icon: ArrowLeftRight,
     component: () => import('@/tenant/modules/savings/pages/SavingsTransfer.vue'),
@@ -80,6 +92,7 @@ export const tenantRoutes: any = [
     label: 'loans',
     icon: HandCoins,
     showSideBar: true,
+    permissions: 'loans-module-link-view',
     component: () => import('@/tenant/modules/savings/pages/SavingsGroups.vue'),
   },
   {
@@ -87,15 +100,32 @@ export const tenantRoutes: any = [
     label: 'transfer',
     icon: ArrowUpDown,
     showSideBar: true,
+    permissions: 'transfer-module-link-view',
     component: () => import('@/tenant/modules/savings/pages/SavingsGroups.vue'),
   },
   {
     path: 'chart-of-accounts',
     label: 'chart of accounts',
     icon: BookOpen,
+    permissions: 'chart-of-accounts-module-link-view',
     showSideBar: true,
     component: () => import('@/tenant/modules/accounting/pages/ChartOfAccounts.vue'),
   },
+  // {
+  //   type: 'label',
+  //   label: "configration",
+  //   showSideBar: true,
+  // },
+  //   {
+  //   path: 'Settings',
+  //   label: 'Settings',
+  //   icon: CogIcon,
+  //     // permissions: 'settings-module-link-view',
+
+  //   showSideBar: true,
+  //   component: () => import('@/tenant/modules/settings/pages/SettingsDashboard.vue'),
+  // },
 ]
 
-export const tenantRoutesList: RouteRecordRaw[] = routebuilder(tenantRoutes, 'tenant')
+// export const tenantRoutesList: RouteRecordRaw[] = routebuilder(tenantRoutes, 'tenant')
+export const tenantRoutesList = routebuilder(tenantRoutes, 'tenant') as RouteRecordRaw[]

@@ -40,7 +40,7 @@ const form = ref([{
   type: 'select',
   url: '/staff/users-drop-down',
   required: true,
-  props: { placeholder: 'Enter  User Name' },
+ placeholder: 'Enter  User Name'
 },
 ])
 function onFormResults(user) {
@@ -67,8 +67,28 @@ const urlShaffle = computed(() => {
     state="staff-attached-roles" :columns="columns" @save="saveUser">
   </TableDrawer>
  </div>
-  <ConfirmDialog v-model:show="showDelete" @confirm="() => {
+  <ConfirmDialog
+  type='delete'
+   v-model:show="showDelete" @confirm="() => {
     action[showDelete?.action]?.(showDelete?.data)
     showDelete = false
-  }" />
+  }" >
+  <template #body>
+  <div class='bg-amber-100 dark:bg-amber-900'>
+<div class="flex items-start gap-3 p-3 rounded-lg border border-neutral-200 dark:border-neutral-700">
+  <input
+    id="reset-permissions"
+    type="checkbox"
+    @change="showDelete.data.reset = $event.target.checked"
+    class="mt-1 h-4 w-4 rounded border-neutral-300 text-primary focus:ring-primary"
+  />
+
+  <label for="reset-permissions" class="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed cursor-pointer">
+    Remove the user from this role and reset them to default permissions.
+  </label>
+</div>
+</div>
+  
+  </template>
+  </ConfirmDialog>
 </template>

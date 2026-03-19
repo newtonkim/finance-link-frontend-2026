@@ -1,10 +1,10 @@
 <template>
     <TableDrawer :permissions="{
-        // create: 'members-create',
-        // view: 'members-details',
-        // edit: 'members-update',
-        // delete: 'members-delete'
-    }" drawerWidth=" w-2/4"  :url="tableUrl" state="memberList" :drawerTitle="drawerTitle" " :columns="columns"
+        // create: 'staff-create',
+        // view: 'staff-details',
+        // edit: 'staff-update',
+        // delete: 'staff-delete'
+    }" drawerWidth=" w-2/4"  :url="tableUrl" state="staffList" :drawerTitle="drawerTitle" " :columns="columns"
         @save="saveUser">
     
         <template #searchSideAction>
