@@ -4,15 +4,18 @@
 
         <!-- HEADER -->
         <div class="flex items-center justify-between">
-            <div class="text-lg font-bold text-neutral-900 dark:text-white capitalize" v-once>
-
-                <h3 v-html="title"></h3>
-            </div>
+           
 
             <div v-if="$slots['header-action']">
                 <slot name="header-action" />
             </div>
-            <span v-else>
+            <div v-else>
+             <div v-if='title' class="text-lg font-bold text-neutral-900 dark:text-white capitalize" v-once>
+
+                <h3 v-html="title"></h3>
+            </div>
+            </div>
+            <span >
                 <span v-auth="haspermission('create')">
                     <button v-if="showAddButton" @click="createNewRecord"
                         class="justify-center  bg-nfuko-primary hover: bg-nfuko-primary/90 whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive  h-9 has-[>svg]:px-3 flex items-center gap-2 rounded-xl  px-4 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90 shadow-sm ">
@@ -27,7 +30,9 @@
             class="rounded-xl border-0 border-neutral-200 b g-white dark:border-neutral-800 dark:bg-neutral-900  overflow-hidden ">
             <div v-if="showSearchbar || showTableAction"
                 class="flex p-1  my-2 justify-between rounded-xl border border-neutral-100 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                <Searchbar v-if="showSearchbar" @search="onSearch" :removeInSearch="removeInSearch" :columns="columns"
+                <Searchbar 
+              
+                v-if="showSearchbar" @search="onSearch" :removeInSearch="removeInSearch" :columns="columns"
                 @filter="(v) => filterDataByString(v)" />
                 <div class="flex">
                     <div class="flex items-center gap-2 board-r-1 mx-2" v-if="showTableAction">
@@ -185,7 +190,9 @@ const toggleDrawer = () => {
 
 };
 
-const save = (data: unknown, type = 'save') => {
+
+
+ function save  (data: unknown, type = 'save')  {
     if (type == 'search' && props?.state && props?.url) {
         fetchTableData({ data, props, Store })
         return
@@ -207,9 +214,12 @@ const save = (data: unknown, type = 'save') => {
 
 
 
+
 async function automaticCreateFun() {
+
     if (props.automaticCreate) {
         const data = Store.currentFormValues;
+ 
 
         const customeUrl = props?.outerlinks?.['create'] ?? "create";
         const formDataScoping: any = formDataFormatV2((data))
@@ -239,9 +249,13 @@ async function automaticCreateFun() {
     }
 }
 async function saveDrawerData(data: any) {
-
+       Store.isFormSubmitted=true;
+       const AnyErrorsFoundInTheFOrm = Store.AnyErrorsFoundInTheFOrm;
+       console.log(Store.isFormSubmitted)
+       if(AnyErrorsFoundInTheFOrm){
+       
+       }else{
     const checker = await automaticCreateFun('create')
-
     if (!checker) {
         return
     }
@@ -254,6 +268,10 @@ async function saveDrawerData(data: any) {
     setTimeout(() => {
         toggleDrawer()
     }, 100)
+       // if all it ok
+      //Store.isSubmitted==false;
+       }
+
 }
 
 const handleAction = async (item: any, action: keyof typeof ACTION_CONFIG) => {

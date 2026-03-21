@@ -45,6 +45,7 @@ export const paymentStatus = {
 export const paymentMethods = {
   cash: { label: "Cash", className: " font-bold px-2 py-1 rounded-full     text-green-700" },
   card: { label: "Card", className: "  font-bold px-2 py-1 rounded-full  text-blue-600" },
+  bank: { label: "Bank", className: "  font-bold px-2 py-1 rounded-full  text-blue-600" },
   mobile_money: { label: "Mobile Money", className: " font-bold px-0 py-1 rounded-full  text-blue-700" },
 }
 export const systemRoles = {

@@ -122,7 +122,7 @@ function statusClass(s: any) {
         <nav class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-neutral-400">
           <RouterLink to="/tenant/dashboard" class="hover:text-[#0A2318] transition-colors">Dashboard</RouterLink>
           <ChevronRight class="h-3 w-3" />
-          <span class="text-[#0A2318]">Group Savings</span>
+          <span class="text-[#0A2318]">Group Savings -</span>
         </nav>
         <h1 class="text-4xl font-black text-[#0A2318] dark:text-white tracking-tight">Group Savings</h1>
         <p class="text-sm text-neutral-500 max-w-lg">Manage and monitor institutional savings groups, their membership tiers, and overall performance.</p>

@@ -13,7 +13,6 @@ function splitTheLink(link: string) {
   return { url: url.href, name: url2[name] }
 }
 export const dataFomater = (data: any, type: string) => {
-  //console.log(data)
 
   const filter = {
     date: () => date(data),
@@ -50,6 +49,12 @@ export const dataFomater = (data: any, type: string) => {
         statusMap?.[`${data}`?.toUpperCase()]
       return `<span class="${verifyTheStatus?.className}">${verifyTheStatus?.label}</span>`
     },
+   money: () => {
+  return `<span>${new Intl.NumberFormat('en-UG', {
+    style: 'currency',
+    currency: 'UGX',
+  }).format(data)}</span>`
+}
   }
   return filter?.[type]?.() ?? data
 }

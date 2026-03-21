@@ -186,7 +186,8 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
 
                         <!-- Description -->
                         <td class="py-3.5 px-5 text-[13px] text-foreground">
-                            {{ txn.narration || (txn.type === 'deposit' ? 'Deposit' : 'Withdrawal') }}
+                            <div>{{ txn.narration || (txn.type === 'deposit' ? 'Deposit' : 'Withdrawal') }}</div>
+                            <div v-if="txn.charge_name" class="text-[11px] text-purple-600 font-semibold mt-0.5">{{ txn.charge_name }}</div>
                         </td>
 
                         <!-- Paid by (savings/withdrawal tabs) -->
@@ -228,10 +229,10 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
                         <!-- Action -->
                         <td class="py-3.5 px-5 text-center">
                             <button @click="emit('reverse', txn)"
-                                :disabled="txn.is_reversed || txn.type === 'reversal'"
-                                :title="txn.is_reversed ? 'Already reversed' : txn.type === 'reversal' ? 'Reversal entry' : 'Reverse Transaction'"
+                                :disabled="txn.is_reversed || txn.type === 'reversal' || txn.is_reversible === false"
+                                :title="txn.is_reversed ? 'Already reversed' : txn.type === 'reversal' ? 'Reversal entry' : txn.is_reversible === false ? 'Non-reversible charge' : 'Reverse Transaction'"
                                 :class="['flex mx-auto h-8 w-8 items-center justify-center rounded-full transition-colors',
-                                    (txn.is_reversed || txn.type === 'reversal')
+                                    (txn.is_reversed || txn.type === 'reversal' || txn.is_reversible === false)
                                         ? 'bg-neutral-100 text-neutral-300 cursor-not-allowed'
                                         : 'bg-amber-50 text-amber-700 hover:bg-amber-100']">
                                 <RotateCcw :size="14" stroke-width="2.5" />

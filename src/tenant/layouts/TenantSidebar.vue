@@ -117,14 +117,14 @@ onMounted(async () => {
     </SidebarHeader>
 
     <!-- NAVIGATION -->
-    <SidebarContent class="px-2 overflow-y-auto">
-      <SidebarGroup>
+     <div class='flex   flex-col h-full py-2 px-3'>
+    <SidebarContent class="flex-1 h-full flex flex-col h-full   overflow-y-auto min-h-0 gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden px-3 flex flex-col flex-1">
+      <SidebarGroup >
         <SidebarGroupLabel class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
           Navigation
         </SidebarGroupLabel>
         <OutClickNav class="flex-1 h-full" :links="tenantRoutes" />
       </SidebarGroup>
-
       <!-- DATA MIGRATION -->
       <SidebarGroup class="mt-2">
         <SidebarGroupLabel class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
@@ -148,7 +148,6 @@ onMounted(async () => {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroup>
-
       <!-- CONFIGURATION -->
       <SidebarGroup class="mt-2">
         <SidebarGroupLabel class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
@@ -174,9 +173,11 @@ onMounted(async () => {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroup>
-    </SidebarContent>
 
-    <SidebarFooter class="shrink-0 p-4 space-y-3">
+    </SidebarContent>
+     </div>
+
+    <SidebarFooter class="shrink-0 flex-1 p-4 space-y-3">
       <!-- Dark mode toggle — hide label when sidebar is collapsed -->
       <div class="flex items-center justify-between px-2 bg-white/5 rounded-xl p-3 border border-white/5">
         <div class="flex items-center gap-2.5">
@@ -193,10 +194,10 @@ onMounted(async () => {
         <!-- Collapsed: icon-only toggle -->
         <button v-else @click="toggleDarkMode" class="ml-1 rounded-lg p-1 hover:bg-white/10 transition-colors">
           <Moon v-if="!isDark" :size="14" class="text-nfuko-nav-text" />
-          <Sun v-else :size="14" class="text-bg-nfuko-yellow" />
+          <Sun v-else :size="14" class="text-bg-nfuko-yellow" /> you heard
         </button>
       </div>
-      <TenantNavUser />
+      <!--<TenantNavUser />-->
     </SidebarFooter>
     <SidebarRail />
   </Sidebar>

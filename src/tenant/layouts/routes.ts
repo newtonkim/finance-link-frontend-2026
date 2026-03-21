@@ -43,7 +43,8 @@ export const tenantRoutes: MenuRoutes[] = [
             permissions: 'members-account-module-link-view',
             // icon: Wallet,
             showSideBar: true,
-            component: () => import('@/tenant/modules/savings/pages/SavingsAccounts.vue'),
+            component: () => import('@/tenant/modules/savings/member-account/Index.vue'),
+            // component: () => import('@/tenant/modules/savings/pages/SavingsAccountsOriginal.vue'),
           },
         ],
       },
@@ -56,7 +57,6 @@ export const tenantRoutes: MenuRoutes[] = [
             label: 'Staff',
             component: () => import('@/tenant/modules/staff/index.vue'),
           },
-
         ],
       },
     ],
@@ -111,20 +111,6 @@ export const tenantRoutes: MenuRoutes[] = [
     showSideBar: true,
     component: () => import('@/tenant/modules/accounting/pages/ChartOfAccounts.vue'),
   },
-  // {
-  //   type: 'label',
-  //   label: "configration",
-  //   showSideBar: true,
-  // },
-  //   {
-  //   path: 'Settings',
-  //   label: 'Settings',
-  //   icon: CogIcon,
-  //     // permissions: 'settings-module-link-view',
-
-  //   showSideBar: true,
-  //   component: () => import('@/tenant/modules/settings/pages/SettingsDashboard.vue'),
-  // },
 ]
 
 // export const tenantRoutesList: RouteRecordRaw[] = routebuilder(tenantRoutes, 'tenant')

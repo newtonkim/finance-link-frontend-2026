@@ -9,6 +9,7 @@ import { pomPinia } from 'septor-store';
 const Store = pomPinia();
 const props = defineProps<{
     action: string,
+    isSubmitted: boolean,
     remount: boolean,
     form: Array<{
         label: string;
@@ -37,6 +38,7 @@ onMounted(() => {
     if (props.action == 'add')
         prfields.value = prfields.value.map((f: any) => ({ value: null, ...f }))
         remountComponent.value=false
+Store.isFormSubmitted=false
 })
 const avatarPreviews = ref<Record<number, string>>({});
 
@@ -45,20 +47,49 @@ function DatawhistleBlower(newFields){
         emits('update:form', newFields);
         emits('results', newFields);
         Store.currentFormValues = newFields
+      
 }
 
 watch(
     prfields,
     (newFields) => {
-
       DatawhistleBlower(newFields)
     },
     { deep: true }
 );
+const isTriggered = computed(() => props.isSubmitted || Store.isFormSubmitted)
+
+watch(isTriggered, (val) => {
+if(val)
+  Store.AnyErrorsFoundInTheFOrm = FormValidate()
+})
 
 const handleChange = (field: any, index: number) => {
     field.change?.(field.value, field, index);
 };
+function FormValidate() {
+console.log(isTriggered)
+  const data = prfields.value || [];
+if(isTriggered){
+  data.forEach((field: any) => {
+    field.error = null;
+    if (field.required) {
+      const isEmpty =
+        field.value === null ||
+        field.value === undefined ||
+        field.value === '';
+field.error =null
+      if (isEmpty) {
+        field.error =field?.error ||  'This field is required *';
+      }
+    }
+  });
+
+  const results= data.some((field: any) => field.error);
+
+}
+  Store.isFormSubmitted=false
+}
 
 const handleAvatarChange = (field: any, index: number, event: Event) => {
     const target = event.target as HTMLInputElement;
@@ -88,11 +119,15 @@ const nationalityOptions  = [
   { id: 'Indian', name: 'India' }, { id: 'Other', name: 'Other' },
 ]
 
+defineExpose({
+    FormValidate,
+  
+})
 
 
 </script>
 
-<template>
+<template> 
     <div  :class="(parentStyle || '') + ' space-y-2'">
 
         <div v-for="(field, index) in prfields" :key="index">
@@ -123,7 +158,7 @@ const nationalityOptions  = [
                 <!-- Select -->
                 <template v-else-if="field.type === 'select'">
                     <SearchableSelect v-model="field.value" :options="field.options || []"
-                        :placeholder="field.props?.placeholder || ''" v-model:item-selected="field.selected"
+                        :placeholder="field?.placeholder || ''" v-model:item-selected="field.selected"
                         @update:modelValue="() => handleChange(field, index)" v-bind="field" />
                 </template>
                 <template v-else-if="field.type === 'nationality'">
@@ -140,7 +175,7 @@ const nationalityOptions  = [
 
                 <!-- Money -->
                 <template v-else-if="field.type === 'money'">
-                    <MoneyInput :id="field.name" v-model="field.value" :placeholder="field.props?.placeholder || ''"
+                    <MoneyInput :id="field.name" v-model="field.value" :placeholder="field?.placeholder || ''"
                         @input="() => field?.change && handleChange(field, index)" />
                 </template>
                 <!-- date -->

@@ -10,7 +10,12 @@
                 <input v-model="searchQuery"
                  @input="(e)=>inputValue(e.target.value)"
                 type="search" autocomplete="off"
-                    placeholder="Search by name, member number, phone, or email..." class="w-full rounded-full border border-neutral-200 bg-white py-2.5 pl-11 pr-4 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
+                    placeholder="Search by name, member number, phone, or email..."
+                    :class='[
+                    searchClass,
+                    "w-full focus:rounded-full focus:border  border-b border-gray-100   bg-white py-2.5 pl-11 pr-4 text-sm outline-none transition focus:   focus:ring-1 focus:ring-bg-nfuko-primary  dark:bg-neutral-800 dark:text-white"
+                    ]'
+                     />
             </div>
             <button
             type="button"
@@ -71,7 +76,8 @@ const emit = defineEmits(['search','filter']);
 
 const props = defineProps({
     columns: { type: Array, required: true },
-    removeInSearch: { type: Array, default: ["action"] }
+    removeInSearch: { type: Array, default: ["action"] },
+    searchClass:' rounded-2xl      transition-all placeholder:text-neutral-400   dark:text-white'
 });
 
 const removeActionInSupperseach = props.columns.filter(col => ![...props.removeInSearch, 'actions'].includes(col.key))
