@@ -1,5 +1,5 @@
 import { statusMap, getSubdomainName } from '@/Global'
-import { dateTime, date } from '../../Helpers'
+import { dateTime, date, createUrl } from '../../Helpers'
 import { Eye, Edit, Trash, UserCircle2, X } from 'lucide-vue-next'
 import { setUpAxiosToUse } from 'septor-store'
 import { tenantClient } from '@/tenant/apis/tenantClient'
@@ -93,10 +93,11 @@ export const ACTION_CONFIG = {
 }
 
 export const dataTabelFilter = (collection: any, searchQuery: any) => {
-  // const collection = Store[props?.state]?.payload ?? props.data ?? { data: [] }
+  const sliptTheString=searchQuery?.split(' ').map((stng:any)=> `${stng}`.toLowerCase())
   return (collection ?? []).filter((item: any) => {
     const stng = JSON.stringify(item)
-    return `${stng}`.toLowerCase().includes(searchQuery.toLowerCase())
+   return sliptTheString.some((query: any) => stng.toLowerCase().includes(query))
+    
   })
 }
 export async function fetchTableData({
@@ -111,10 +112,12 @@ export async function fetchTableData({
   saveData?: boolean
 }) { 
   const subdomain = getSubdomainName()
-  const interceptor = subdomain ? tenantClient : apiClient
+  const interceptor = subdomain ? tenantClient : apiClient,
+  createTheState=props?.state?props?.state:props?.url.replace(/[^a-z0-9]+/gi, '-')
+  
   const collection = {
     reload: !!props.reload ? 0 : 1, // dont think am stupid i know that
-    StateStore: props?.state,
+    StateStore: createTheState,
     time: props?.time ?? 0,
     reqs: {
       ...props,

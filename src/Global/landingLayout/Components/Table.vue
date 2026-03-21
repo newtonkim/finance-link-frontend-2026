@@ -1,4 +1,5 @@
 <template>
+
   <div class="w-full    dark:bg-neutral-900 bg- nfuko-50 overflow-x-auto w-full  custom-scrollbar h-[64vh] border-neutral-100 bg-white dark:bg-neutral-900 shadow-sm dark:border-neutral-800 rounded-2xl">
     <table class="w-full table-auto text-left border-collapse  ">
       <thead v-once class="sticky top-0  z-40 bg-white s hadow-sm dark:bg-neutral-900 rounded-sm">

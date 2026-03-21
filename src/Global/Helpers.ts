@@ -429,7 +429,7 @@ export function routebuilder(routes = [], prifix = 'central') {
   const collecction: any = []
   routes.forEach((route) => {
     if (!route?.children) {
-      console.log(route);
+      // console.log(route);
       
       const routePath = route.path?`${prifix}/${route.path}`:null
       //  if(hasPermission(route?.permissions))

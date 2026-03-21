@@ -6,7 +6,7 @@
         <div class="flex items-center justify-between">
            
 
-            <div v-if="$slots['header-action']">
+            <div v-if="$slots['header-action']" class='my-4'>
                 <slot name="header-action" />
             </div>
             <div v-else>
@@ -24,7 +24,11 @@
                     </button>
                 </span>
             </span>
+          
         </div>
+           <div v-if="$slots['sub-header']">
+                <slot name="sub-header" />
+            </div>
         <!-- SEARCH -->
         <div
             class="rounded-xl border-0 border-neutral-200 b g-white dark:border-neutral-800 dark:bg-neutral-900  overflow-hidden ">
@@ -194,6 +198,7 @@ const toggleDrawer = () => {
 
  function save  (data: unknown, type = 'save')  {
     if (type == 'search' && props?.state && props?.url) {
+    console.log(props)
         fetchTableData({ data, props, Store })
         return
     }
@@ -332,6 +337,7 @@ const callNewPage = changeThePage;
 const onSearch = (type: string, data: unknown) => save(data, type);
 const dataFilter = computed(() => {
     const collection = (props?.state ? (Store[props.state as keyof typeof Store] as any)?.payload : null) ?? props.data ?? { data: [] }
+  
     return dataTabelFilter(collection?.data, searchQuery.value);
 })
 const dataPageLinks = computed(() => {

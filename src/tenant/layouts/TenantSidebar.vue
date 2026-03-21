@@ -55,18 +55,18 @@ const tenant = tenantStore.currentTenant as any
 const memberCount = computed(() => tenantStore.memberCount)
 
 onMounted(async () => {
-  const [membersRes] = await Promise.allSettled([
-    membersApi.list({ page: 1 }),
-    (async () => {
-      if (!saccoBrandingState.loaded) {
-        try { await saccoBrandingApi.get() } catch { /* silently ignore */ }
-      }
-    })(),
-  ])
-  if (membersRes.status === 'fulfilled') {
-    const total = membersRes.value.data?.meta?.total ?? membersRes.value.data?.total ?? null
-    if (total !== null) tenantStore.setMemberCount(total)
-  }
+//  const [membersRes] = await Promise.allSettled([
+//    membersApi.list({ page: 1 }),
+//    (async () => {
+//      if (!saccoBrandingState.loaded) {
+//        try { await saccoBrandingApi.get() } catch { /* silently ignore */ }
+//      }
+//    })(),
+//  ])
+//  if (membersRes.status === 'fulfilled') {
+//    const total = membersRes.value.data?.meta?.total ?? membersRes.value.data?.total ?? null
+//    if (total !== null) tenantStore.setMemberCount(total)
+//  }
 })
 </script>
 

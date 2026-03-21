@@ -76,7 +76,8 @@ export const tenantRoutes: MenuRoutes[] = [
     permissions: 'group-savings-module-link-view',
     icon: Users,
     showSideBar: true,
-    component: () => import('@/tenant/modules/savings/pages/SavingsGroups.vue'),
+   component: () => import('@/tenant/modules/savings/group-account/Index.vue'),
+    // component: () => import('@/tenant/modules/savings/pages/SavingsGroups.vue'),
   },
   ///////////
   {
