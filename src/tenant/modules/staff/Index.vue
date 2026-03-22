@@ -7,9 +7,9 @@
     }" drawerWidth=" w-2/4"  :url="tableUrl" state="staffList" :drawerTitle="drawerTitle" " :columns="columns"
         @save="saveUser">
     <template #header-action>
-<div><h1 class="text-2xl font-bold text-neutral-900 dark:text-white my-3">
-Members list</h1>
-<p class="text-sm text-neutral-500 dark:text-neutral-400 ">Manage all members.</p></div>
+<div><h1 class="text-4xl font-black text-[#0A2318] dark:text-white tracking-tight">
+Staff list</h1>
+<p class="text-sm text-neutral-500 dark:text-neutral-400 ">Manage all staff.</p></div>
 </template>
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />

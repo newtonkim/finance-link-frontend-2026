@@ -2,7 +2,7 @@
     <TableDrawer :drawerWidth="drawerTitle?.width" :url="tableUrl" state="memberAccountList" :drawerTitle="drawerTitle?.title" " :columns="
         columns" @save="saveUser">
         <template #member_name="{item}">
-       <div class="px-1 py-4">
+       <div class="-1">
        <div class="font-semibold text-nfuko-action text-sm dark:text-white">
        {{item.member_name}}
        </div>
@@ -15,9 +15,9 @@
        </div>
         </template>
 <template #header-action>
-<div><h1 class="text-2xl font-bold text-neutral-900 dark:text-white my-3">
-Members Savings Account</h1>
-<p class="text-sm text-neutral-500 dark:text-neutral-400 ">Manage all member savings accounts and their balances.</p></div>
+
+      <PainPageHeader  title="Members Savings Account" dec="Manage all member savings accounts and their balances." />
+
 </template>
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
@@ -31,7 +31,7 @@ Members Savings Account</h1>
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Create, Details } from '.'
-import { TableDrawer, StatusButtonsHorizontal } from '@/Global'
+import { TableDrawer, StatusButtonsHorizontal,PainPageHeader } from '@/Global'
 const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
  drawerTitle = ref('Create Tenant'), filters = ['all', 'active', 'suspended', 'expired', 'trial'], 
  tableUrl = computed(() => `/members-account/list?status=${statusFilter.value}`), 
@@ -49,7 +49,7 @@ const columns = [
     { key: 'product', label: 'product', sticky: 'left', width: '14em ', },
     { key: 'status', label: 'status', type:'status' },
     { key: 'blc', label: 'balance',  type:'money' },
-    { key: 'created at', label: 'created_at', type:'status' },
+    { key: 'created at', label: 'created at', type:'status' },
     { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 ]
 </script>

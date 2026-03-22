@@ -10,34 +10,33 @@ const props = defineProps({
 })
 const columns = [
     {
-        header: 'Saving Account Details',
+        header: 'Group Saving Account Details',
         type: 'Descriptions',
         column: 3,
         list: [
-            { key: 'account_code', label: 'code' },
-            { key: 'phone', label: 'phone' },
-            { key: 'member_name', label: 'name' },
-            { key: 'type', label: 'type' },
-            { key: 'intrest', label: 'intrest' },
-            { key: 'opblc', label: 'opening balance',type:"money" },
-            { key: 'minBalance', label: 'min balance',type:"money" },
+            { key: 'group_code', label: 'code' },
+            { key: 'group_name', label: 'group name' },
             { key: 'blc', label: 'Account balance',type:"money" },
+            { key: 'phone', label: 'phone' },
+            { key: 'phone2', label: 'phone2' },
+            { key: 'created_by', label: 'created_by' },
+            { key: 'dcreated', label: 'joined Date' },
+            { key: 'location', label: 'location' },
             { key: 'status', label: 'status' ,type:"status"},
-            { key: 'product', label: 'product' },
+            { key: 'desc', label: 'description' },
             { key: 'created_at', label: 'created',type:"dateTime" },
         ]
     },
     {
-        header: 'Account Transactions Details',
+        header: 'Group Members',
         type: 'Table',
         column: [
-            { key: 'type', label: 'type',sticky:"left" },
-            { key: 'mode', label: 'mode',type:"status",sticky:"left" },
-            { key: 'reference', label: 'reference',sticky:"left" },
-            { key: 'narration', label: 'narration' },
-            { key: 'ntransfer Byarration', label: 'transfer By' },
-            { key: 'transaction_date', label: 'transaction date',width:"10em" },
-            { key: 'created_at', label: 'created at',sticky:"right",width:"10em",type:"dateTime" },
+            { key: 'member_name', label: 'name',sticky:"left" },
+            { key: 'phone', label: 'phone',sticky:"left" },
+            { key: 'member_code', label: 'memebr code',sticky:"left" },
+            { key: 'group_code', label: 'joined code',sticky:"left" },
+            { key: 'product', label: 'product'},
+            { key: 'created_at', label: 'created at',sticky:"right",width:"10em",type:"dateTime" }, 
         ],
         list: []
     }
@@ -46,7 +45,7 @@ async function prepareTheFeaturesData() {
     loading.value = true
     if (props.data.transactionList)
         props.data.transactionList.forEach(element => {
-            columns[1].list.push({created_at:element.created_at,"narration":element.narration,transaction_date:element.transaction_date, type: element.type, mode: element.mode,"transfer By":element.by,reference:element.reference })
+            columns[1].list.push({created_at:element.created_at,"phone":element.phone,product:element.product, 'group_code': element.member_group_code, member_code: element[member_code],name:element.member_name })
         });
     loading.value = false
 }

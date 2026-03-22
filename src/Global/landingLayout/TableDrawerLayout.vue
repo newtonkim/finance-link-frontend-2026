@@ -10,9 +10,9 @@
                 <slot name="header-action" />
             </div>
             <div v-else>
-             <div v-if='title' class="text-lg font-bold text-neutral-900 dark:text-white capitalize" v-once>
-
+             <div v-if='title' class="text-4xl font-black text-[#0A2318] dark:text-white tracking-tight font-bold text-neutral-900 dark:text-white capitalize" v-once>
                 <h3 v-html="title"></h3>
+                <
             </div>
             </div>
             <span >
@@ -97,7 +97,7 @@ import Drawer from '../Drawer/Drawer.vue';
 import { Plus } from 'lucide-vue-next';
 import ConfirmationDialog from '../confirmationDialog/confirmationDialog.vue';
 import Searchbar from './Components/Searchbar.vue';
-import { formDataFormatV2, createUrl, feedback } from '@/Global';
+import { formDataFormatV2, createUrl, feedback, } from '@/Global';
 import Table from './Components/Table.vue';
 import { Download, Printer } from 'lucide-vue-next';
 import { pomPinia } from 'septor-store';
@@ -191,6 +191,10 @@ const drawerShooter2 = ref(props.drawerShowFooter)
 
 const toggleDrawer = () => {
     (drawerOpen.value = !drawerOpen.value)
+    if (drawerOpen.value) {
+    //////
+       Store.currentFormValues = {}
+    }
 
 };
 
@@ -198,7 +202,7 @@ const toggleDrawer = () => {
 
  function save  (data: unknown, type = 'save')  {
     if (type == 'search' && props?.state && props?.url) {
-    console.log(props)
+
         fetchTableData({ data, props, Store })
         return
     }
@@ -221,11 +225,9 @@ const toggleDrawer = () => {
 
 
 async function automaticCreateFun() {
-
     if (props.automaticCreate) {
         const data = Store.currentFormValues;
- 
-
+        console.log(data,'data====')
         const customeUrl = props?.outerlinks?.['create'] ?? "create";
         const formDataScoping: any = formDataFormatV2((data))
         const res = await fetchTableData({
@@ -256,7 +258,7 @@ async function automaticCreateFun() {
 async function saveDrawerData(data: any) {
        Store.isFormSubmitted=true;
        const AnyErrorsFoundInTheFOrm = Store.AnyErrorsFoundInTheFOrm;
-       console.log(Store.isFormSubmitted)
+       console.log(Store.isFormSubmitted,AnyErrorsFoundInTheFOrm)
        if(AnyErrorsFoundInTheFOrm){
        
        }else{
@@ -347,6 +349,7 @@ function filterDataByString(value: string) {
     searchQuery.value = value
 }
 onMounted(async () => {
+
     callOnmount()
 
 });

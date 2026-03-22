@@ -7,19 +7,21 @@ import router from './router'
 import { useAuthStore } from './stores/auth'
 import { VueDatePicker } from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
-import { authDirective, vauth, vsetting } from './Global' 
+import {  vauth, vsetting } from './Global' 
+
+
 const app = createApp(App)
 const pinia = createPinia()
 // vauth
 // vsetting
 app.use(pinia)
 .use(router)
+// .use(Flowbite)
 .component('DatePicker', VueDatePicker)
 .directive('auth', vauth)
 .directive('setting', vsetting)
 
-
-
+ 
 const authStore = useAuthStore(pinia)
 authStore.hydrateAuth()
 

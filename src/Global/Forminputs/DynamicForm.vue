@@ -33,6 +33,7 @@ const remountComponent = ref<any>(true);
 
 onMounted(() => {
 
+
     if (Array.isArray(props.form))
         prfields.value = [...(props.form)];
     if (props.action == 'add')
@@ -46,12 +47,29 @@ const inputClass = 'w-full rounded-lg border focus:border-nfuko-primary/50 focus
 function DatawhistleBlower(newFields){
         emits('update:form', newFields);
         emits('results', newFields);
-        Store.currentFormValues = newFields
-      
+        const NewCollectionSet=[];
+        console.log('---')
+        newFields.forEach((field: any) => {
+        if(field?.fields){
+            NewCollectionSet.push(...field.fields)
+        }else
+            NewCollectionSet.push(field)
+        })
+         // let remove the duplicate in the data  
+         /// to sa ve the clean version of the data 
+        Store.currentFormValues = Object.values([
+    ...(Array.isArray(Store.currentFormValues) ? Store.currentFormValues : []),
+    ...NewCollectionSet
+  ].reduce((acc: any, item: any) => {
+    acc[item.name] = item;
+    return acc;
+  }, {})
+);
+  
 }
 
 watch(
-    prfields,
+   prfields,
     (newFields) => {
       DatawhistleBlower(newFields)
     },
@@ -68,27 +86,43 @@ const handleChange = (field: any, index: number) => {
     field.change?.(field.value, field, index);
 };
 function FormValidate() {
-console.log(isTriggered)
-  const data = prfields.value || [];
+  const data =  prfields.value || [];
 if(isTriggered){
   data.forEach((field: any) => {
+  if(field?.fields){
+    field.fields.forEach((subfield: any) => {
+      subfield.showError =false 
+      if (subfield.required) {
+        subfield.error = null;
+        const isEmpty =
+          subfield.value === null ||
+          subfield.value === undefined ||
+          subfield.value === '';
+        if (isEmpty) {
+          subfield.error =subfield?.error ||  'This field is required *';
+             subfield.showError =true
+        }
+    
+      }
+    })
+  }else if (field.required) {
     field.error = null;
-    if (field.required) {
       const isEmpty =
         field.value === null ||
         field.value === undefined ||
         field.value === '';
-field.error =null
+        field.error =null
+
       if (isEmpty) {
         field.error =field?.error ||  'This field is required *';
       }
     }
   });
 
-  const results= data.some((field: any) => field.error);
 
 }
   Store.isFormSubmitted=false
+  return  data.some((field: any) => field.error);
 }
 
 const handleAvatarChange = (field: any, index: number, event: Event) => {
@@ -124,16 +158,31 @@ defineExpose({
   
 })
 
+const getGridClass = (len: number = 1) => {
+  if (len <= 1) return 'grid grid-cols-1 gap-4 md:gap-6 space-y-2'
+  if (len === 2) return 'grid grid-cols-2 gap-4 md:gap-6 space-y-2'
+  if (len >= 3) return 'grid grid-cols-3 gap-4 md:gap-6 space-y-2'
+  return 'grid grid-cols-4 gap-4 md:gap-6 space-y-2'
+}
+function FieldHasProfile(){
+const hasProfile = prfields.value.some((field: any) => field?.type === 'profile');
+return hasProfile
+}
 
 </script>
 
 <template> 
+<div >
+
     <div  :class="(parentStyle || '') + ' space-y-2'">
 
-        <div v-for="(field, index) in prfields" :key="index">
-            
-            <FormField class="capitalize" :label="field?.label?.toLowerCase().replace(/^./, c => c.toUpperCase())"
-                :required="field.required" :html-for="field.name" :error="field.error">
+        <div v-for="(field, index) in prfields" :key="index">  
+           <template v-if="field.group>=0 ">
+           <div class="capitalize" >{{field?.label?.toLowerCase().replace(/^./, c => c.toUpperCase())}} </div>         
+           <DynamicForm   :parentStyle="getGridClass(field.group??field?.fields?.length)" :form="field.fields" :action="field.action" @results="emits('results', $event)" @field-changed="emits('field-changed', $event)" />
+           </template>
+            <FormField v-else class="capitalize" :label="field?.label?.toLowerCase().replace(/^./, c => c.toUpperCase())"
+                :required="field.required" :html-for="field.name" :error="field.error" :showError="field?.showError" >
                 <slot name='field.name' v-if='$slots[field.name]'/>
                 <span v-else>
                 <!-- Text/Email/Date/Tel -->
@@ -214,4 +263,6 @@ defineExpose({
             </FormField>
         </div>
     </div>
+    </div>
+
 </template>

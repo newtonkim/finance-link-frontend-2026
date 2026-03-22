@@ -1,6 +1,11 @@
 <template>
     <TableDrawer drawerWidth=" w-2/3" :url="tableUrl" state="memberList" :drawerTitle="drawerTitle" " :columns="
         columns" @save="saveUser">
+            <template #header-action>
+<div><h1 class="text-4xl font-black text-[#0A2318] dark:text-white tracking-tight">
+Members list</h1>
+<p class="text-sm text-neutral-500 dark:text-neutral-400 ">Manage all members.</p></div>
+</template>
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>

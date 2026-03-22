@@ -36,11 +36,7 @@
           Cancel
         </button>
 
-        <button 
-        :class="[
-  currentStyle?.bg,
-  currentStyle?.color
-]"
+        <button         :class="[  currentStyle?.bg,  currentStyle?.color]"
         type="button" @click="() => executeDelete(items)" :disabled="deleting"
           class="flex items-center gap-2 rounded-lg  px-4 py-2 text-sm font-medium text-white   transition-colors disabled:opacity-50">
           <span v-if="deleting" class="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white"></span>

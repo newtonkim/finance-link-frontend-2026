@@ -313,9 +313,10 @@ export function isJSON(jsonString: string) {
 }
 export function formDataFormatV2(fields: any[]) {
   const fd = new FormData()
+  console.log(fields)
 
   fields.forEach((field) => {
-    const key = field.name.toLocaleLowerCase().replace('\+S', '_')
+    const key = `${field.name}`.toLocaleLowerCase().replace('\+S', '_')
     const value = field.value
     if (value === undefined) return
 
@@ -341,6 +342,11 @@ export function formDataFormatV2(fields: any[]) {
   return fd
 }
 
+function isISODate(value: any) {
+  return typeof value === 'string' &&
+         /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(value) &&
+         !isNaN(new Date(value).getTime());
+}
 export function formDataFormat(data: any) { // first version
   let formData = new FormData()
 
