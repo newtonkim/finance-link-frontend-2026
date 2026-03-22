@@ -67,7 +67,7 @@ const titleMap: Record<string, { title: string; width: string }> = {
 const columns = [
   { key: 'group_name', label: 'name', sticky: 'left', width: '14em' },
   { key: 'phone', label: 'admin phone', sticky: 'left', width: '14em' },
-  { key: 'group_code', label: 'code',type:"copy", sticky: 'left', width: '14em' },
+  { key: 'group_code', label: 'code',copy:true, sticky: 'left', width: '14em' },
   { key: 'status', label: 'Status', type: 'status' },
   { key: 'total_in_group', label: 'total', type: 'number',width: '8em' },
   { key: 'dcreated', label: 'joined',   },

@@ -44,13 +44,9 @@
             </div>
             <template v-else>
               <slot v-if="$slots[col.key]" :name="col.key" :item="item" />
-              <span v-else-if="col.type === 'copy'" >
-              <div class='w-full overflow-hidden item-center'>
-<div class='grid grid-cols-7 justify-between'>
-<div class='col-span-6 trucate'>{{item[col?.key]}}</div>
-<div @click='copyToClipboard(item[col?.key])' class='col-span-1 flex justify-end bg-white dark:bg-nfuko-primary cursor-pointer hover:text-nfuko-primary/90'><copy class='h-4 w-4'/></div>
-</div>
-</div>
+              <span v-else-if="col.copy" >
+              <CopyData :show="item[col?.key]" :copy="item[col?.key]"/>
+          
               </span>
               <span v-else v-html="col.type ? dataFomater(item[col?.key], col.type) : item[col.key]"></span>
             </template>
@@ -64,7 +60,7 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
 import { dataFomater } from '../util';
-import { copyToClipboard } from '@/Global'
+import { CopyData } from '@/Global'
 import { EmptySvg } from '../..';
 import { Copy, } from 'lucide-vue-next';
 

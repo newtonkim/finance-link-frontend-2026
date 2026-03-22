@@ -27,7 +27,9 @@
                                             <span class="text-neutral-400">
                                                 {{ key.replaceAll('_', ' ') }}
                                             </span>
-                                            <span v-html="item.type ? dataFomater(val, item.type) : val"></span>
+                                       
+                                          
+                                            <span   v-html="item.type ? dataFomater(val, item.type) : val"></span>
                                         </div>
                                     </template>
                                     <template v-else>
@@ -41,27 +43,14 @@
                             </template>
                             <template v-else>
                             
-                                <div
- 
-      class="relative inline-block group cursor-pointer"
-    >
-
-    
-      <span class='line-clamp-2' v-html="stringToshow(item,data)"></span>
-
-
- 
-
-  <!-- Tooltip -->
+                                <div class="relative inl ine-block group cursor-pointer">
+       <div v-if="item.copy">
+          <CopyData :copy="stringToshow(item, data)"  />
+              </div>
+      <span v-else class='line-clamp-2' v-html="stringToshow(item,data)"></span>
   <div v-if="data?.[item.key]?.length>20"
-    class="absolute left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block
-           bg-black text-white text-xs rounded px-3 py-2
-           max-w-xs w-max min-w-[120px]
-           whitespace-normal break-words z-[9999] shadow-lg"
-  >
+    class="absolute left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-black text-white text-xs rounded px-3 py-2 max-w-xs w-max min-w-[120px] whitespace-normal break-words z-[9999] shadow-lg">
     {{ stringToshow(item, data) }}
-
-
 </div>
     </div>
                            
@@ -76,8 +65,10 @@
 
 <script setup>
 import { isJSON } from "../Helpers"
+import { CopyData } from "@/Global"
 import Table from "../landingLayout/Components/Table.vue"
 import { ACTION_CONFIG, dataFomater } from "../landingLayout/util"
+
 
 const props = defineProps({
     data: { type: Object, default: () => ({}) },
