@@ -48,7 +48,7 @@ function DatawhistleBlower(newFields){
         emits('update:form', newFields);
         emits('results', newFields);
         const NewCollectionSet=[];
-        console.log('---')
+    
         newFields.forEach((field: any) => {
         if(field?.fields){
             NewCollectionSet.push(...field.fields)

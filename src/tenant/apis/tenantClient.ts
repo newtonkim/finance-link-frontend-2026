@@ -32,7 +32,7 @@ tenantClient.interceptors.request.use((config) => {
   
   if (subdomain) {
     config.headers['X-Tenant-Subdomain'] = subdomain
-    console.log(config);
+   // console.log(config);
     
   }
 

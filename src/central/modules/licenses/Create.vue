@@ -76,7 +76,6 @@ async function promtValueOnUpdate() {
         const data = { tenant_id: props.data.tenant_id, plan: props.data.plan_id, date: [props.data.starts, props.data.expires], status: props.data.status }
        await Object.entries(data).forEach(([key, value]) => {
             const field = fields.value.find((f: any) => f.name === key)
-            console.log(field);
             if (field) {
                 field.value = value
                 
@@ -89,7 +88,6 @@ async function promtValueOnUpdate() {
                 value: props.data.id,
                 required: true,
             }]
-            console.log( fields.value);
             
         }
 

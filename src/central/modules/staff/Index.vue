@@ -44,7 +44,6 @@ const title: Record<string, string> = {
 }
 function saveUser(type: string, data: any) {
     triggerAction[type]?.(data)
-    console.log(type, data);
     if (title?.[type])
         drawerTitle.value = title?.[type]
 }

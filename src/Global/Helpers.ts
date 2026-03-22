@@ -112,7 +112,6 @@ export function getUserData() {
 export function getUserToken() {
   try {
     const userData = getUserData()
-    console.log(userData)
 
     return userData?.token ?? null
   } catch (error) {
@@ -313,7 +312,6 @@ export function isJSON(jsonString: string) {
 }
 export function formDataFormatV2(fields: any[]) {
   const fd = new FormData()
-  console.log(fields)
 
   fields.forEach((field) => {
     const key = `${field.name}`.toLocaleLowerCase().replace('\+S', '_')
@@ -350,7 +348,6 @@ function isISODate(value: any) {
 export function formDataFormat(data: any) { // first version
   let formData = new FormData()
 
-  // //console.log(data)
   for (let key in data) {
     let value = data[key]
 
@@ -435,7 +432,6 @@ export function routebuilder(routes = [], prifix = 'central') {
   const collecction: any = []
   routes.forEach((route) => {
     if (!route?.children) {
-      // console.log(route);
       
       const routePath = route.path?`${prifix}/${route.path}`:null
       //  if(hasPermission(route?.permissions))
@@ -458,7 +454,6 @@ export function routebuilder(routes = [], prifix = 'central') {
 
 export function feedback(res: any, success: string, fail: string) {
   let successStatus = false
-  console.log(res);
 
   let msg: Record<string, string> = {
     msg: success,

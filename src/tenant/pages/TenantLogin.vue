@@ -82,7 +82,7 @@ async function submit() {
       await router.push('/tenant/dashboard');
     }
   } catch (error) {
-     console.log(error)
+     console.error(error)
     if (isAxiosError(error)) {
       const payload = error.response?.data as {
         message?: string;

@@ -19,7 +19,7 @@
              v-if="searchQuery" @click="() => {
                 const v = Object.keys(searchBy ?? []);
                 const obj = { search_keyword: searchQuery, }
-                console.log(v);
+          
                 if (v.length)
                     obj.search_by = v
 

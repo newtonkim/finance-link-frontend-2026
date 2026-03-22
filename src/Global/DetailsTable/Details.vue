@@ -127,8 +127,8 @@ function getSlot(item) {
 
 const handleAction = async (item, action) => {
 
-    console.log("Action:", action)
-    console.log("Item:", item)
+  //  console.log("Action:", action)
+  //  console.log("Item:", item)
 
 }
 function stringToshow(item,data){
