@@ -49,8 +49,7 @@ import { ArrowLeftRight, Loader2, CheckCircle2, AlertCircle, RefreshCw } from 'l
     placeholder: 'Enter amount to transfer',
     rows:"10"
   },
-]);
-const transferState = computed(() => {
+]),transferState = computed(() => {
   const get = (name: string) => fields.value.find(f => f.name === name)
   return {
     from: get('from')?.selected,
@@ -97,8 +96,7 @@ const transferState = computed(() => {
                         </div>
                     </div>
                 </div>
-      <div
-  v-if="transferState.from?.id && transferState.to?.id && Number(transferState.amount) > 0 && !amountError"
+      <div v-if="transferState.from?.id && transferState.to?.id && Number(transferState.amount) > 0 && !amountError"
   class="bg-white rounded-2xl shadow-sm border border-nfuko-primary-200 p-5">
   <div class="flex items-center gap-2 mb-4">
     <div class="flex items-center justify-center w-7 h-7 rounded-full bg-nfuko-primary-100">
