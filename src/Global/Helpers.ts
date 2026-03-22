@@ -213,9 +213,15 @@ export  function localStoragePicker(key = '') {
 
 /////////
 
-export function addCommasCurrency(number: any, delimeter = ',') {
+export function addNumberCommas(number: any, delimeter = ',') {
   return `${number}`.toString().replace(/\B(?=(\d{3})+(?!\d))/g, delimeter)
 }
+export const formatCurrency = (amount: number | string) => {
+  return new Intl.NumberFormat('en-UG', {
+    style: 'currency',
+    currency: 'UGX',
+  }).format(Number(amount || 0));
+};
 export function addMinutesToTime(startTime: string, minutesToAdd: number | string = 40) {
   const [hours = 0, minutes = 0] = startTime.split(':').map(Number)
   const totalMinutes = hours * 60 + minutes + parseFloat(String(minutesToAdd))
@@ -480,4 +486,16 @@ export function createUrl(url: string, action: string) {
   const url2 = url.split("/")
   url2.length = url2.length - 1
   return url2.join("/") + `/${action}`
+}
+
+
+export async function copyToClipboard(text:string) {
+  try {
+    await navigator.clipboard.writeText(text);
+    console.log('Copied!');
+    notify({pos: 'br', type: 'Info', msg: 'Copied!' });
+  } catch (err) {
+    notify({pos: 'br', type: 'warning', message: 'failed to copy' });
+    console.error('Failed to copy:', err);
+  }
 }

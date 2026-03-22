@@ -83,6 +83,7 @@ if(val)
 })
 
 const handleChange = (field: any, index: number) => {
+    if(field?.change)
     field.change?.(field.value, field, index);
 };
 function FormValidate() {
@@ -224,8 +225,16 @@ return hasProfile
 
                 <!-- Money -->
                 <template v-else-if="field.type === 'money'">
-                    <MoneyInput :id="field.name" v-model="field.value" :placeholder="field?.placeholder || ''"
+                <div class='flex'>
+                           <div v-if="field?.suffix"
+                            class="px-2 flex items-center border-gray-300 bg-neutral-100 dark:bg-red-200 border border-l-0 rounded-xl rounded-r-none text-sm text-neutral-500 dark:text-neutral-400 font-medium">
+                            {{ field.suffix }}
+                        </div>
+                    <MoneyInput 
+                    :class="[field.suffix ? ' rounded-xl rounded-l-none ' : '']"
+                    :id="field.name" v-model="field.value" :placeholder="field?.placeholder || ''"
                         @input="() => field?.change && handleChange(field, index)" />
+                </div>
                 </template>
                 <!-- date -->
                 <template v-else-if="field.type === 'datec'">

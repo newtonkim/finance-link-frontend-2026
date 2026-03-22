@@ -1,7 +1,6 @@
-import { statusMap, getSubdomainName } from '@/Global'
+import { statusMap, getSubdomainName,formatCurrency } from '@/Global'
 import { dateTime, date, createUrl } from '../../Helpers'
 import { Eye, Edit, Trash, UserCircle2, X } from 'lucide-vue-next'
-import { setUpAxiosToUse } from 'septor-store'
 import { tenantClient } from '@/tenant/apis/tenantClient'
 import { apiClient } from '@/central/api/client'
 
@@ -50,10 +49,7 @@ export const dataFomater = (data: any, type: string) => {
       return `<span class="${verifyTheStatus?.className}">${verifyTheStatus?.label}</span>`
     },
    money: () => {
-  return `<span>${new Intl.NumberFormat('en-UG', {
-    style: 'currency',
-    currency: 'UGX',
-  }).format(data)}</span>`
+  return `<span>${formatCurrency(data)}</span>`
 }
   }
   return filter?.[type]?.() ?? data

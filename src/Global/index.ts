@@ -11,6 +11,7 @@ export {default as TextLink} from './TextLink.vue';
 export {default as settingsForm} from './settings/Form.vue';
 export {default as AnalysisTile} from './AnalysisTile/index.vue';
 export {default as PainPageHeader} from './PainPageHeader/index.vue';
+export {default as MultiSearchableSelect} from './MultiSearchableSelect.vue';
 export * from './Directives/index.ts';
 export * from './DetailsTable';
 export {default as StatusButtonsHorizontal} from './StatusButtonsHorizontal/index.vue';

@@ -43,7 +43,7 @@ const handleCancel = () => {
                         <slot name="drawer-title" />
                     </SheetTitle>
                 </SheetHeader>
-                <div class="">
+                <div class="  bg-nfuko-bg p-2 px-4 rounded-full">
                     <form @submit.prevent="handleSave" style="height: 90vh;overflow: auto;">
                         <div
                             class="flex- overflow-auto p-5 py-2 border-b border-neutral-100 dark:border-neutral-800 h-[96vh] overflow-auto">

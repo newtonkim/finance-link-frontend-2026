@@ -1,77 +1,80 @@
 import { toast } from 'vue-sonner';
-/**
- *  type:|Default|Description|Success|Info|Warning|Error|Action|Promise
- *  pos:|Default|top-left|top-right|bottom-left|bottom-right
- *  msg:message to toster
- *  calback:Function to help the action
- * **/
+
 interface INotify {
     label?: string;
     callback?: (event: Event) => void;
     pos?: 'tl' | 'tr' | 'bl' | 'br';
     msg?: string;
     type?:
-        | 'Default'
-        | 'Description'
-        | 'Success'
-        | 'Info'
-        | 'Warning'
-        | 'Error'
-        | 'Action'
-        | 'Promise';
+        | 'default'
+        | 'description'
+        | 'success'
+        | 'info'
+        | 'warning'
+        | 'error'
+        | 'action'
+        | 'promise';
 }
 
 export function notify({
     label,
     callback,
-    pos = 'tl',
+    pos = 'tr',
     msg = 'Action was successful',
     type = 'success',
 }: INotify) {
-    const definePosition: Record<string, string> = {
+
+    const positions: Record<string, any> = {
         tl: 'top-left',
         tr: 'top-right',
         bl: 'bottom-left',
         br: 'bottom-right',
     };
-    const typeCheck = type.toLowerCase();
-    const typeMap: Record<string, keyof typeof toast> = {
-        default: 'success',
-        description: 'info',
-        success: 'success',
-        info: 'info',
-        warning: 'warning',
-        error: 'error',
-        promise: 'loading',
+
+    const options = {
+        position: positions[pos],
     };
-    switch (typeCheck) {
-        case 'default':
-        case 'description':
+
+    switch (type.toLocaleLowerCase()) {
         case 'success':
-        case 'info':
-        case 'warning':
-        case 'error':{
-        toast?.[typeCheck]?.('Event has been created')
-        return
-    }
-        case 'promise': {
-            const toastMethod = typeMap[typeCheck as keyof typeof typeMap];
-            if (toastMethod) {
-                (toast[toastMethod] as Function)(msg, {
-                    position: definePosition[pos],
-                });
-            }
+            toast.success(msg, options);
             break;
-        }
-        default:
+
+        case 'info':
+        case 'description':
+            toast.info(msg, options);
+            break;
+
+        case 'warning':
+            toast.warning(msg, options);
+            break;
+
+        case 'error':
+            toast.error(msg, options);
+            break;
+
+        case 'promise':
+            // Example usage: notify({ type: 'promise', msg: promise })
+            toast.promise(msg as any, {
+                loading: 'Loading...',
+                success: 'Completed successfully',
+                error: 'Something went wrong',
+                position: positions[pos],
+            });
+            break;
 
         case 'action':
             toast(msg, {
+                ...options,
                 action: {
-                    label,
+                    label: label || 'Undo',
                     onClick: (e: Event) => callback?.(e),
                 },
             });
+            break;
+
+        default:
+            toast(msg, options);
             break;
     }
 }

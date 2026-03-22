@@ -86,7 +86,8 @@ export const tenantRoutes: MenuRoutes[] = [
     permissions: 'savings-transfer-module-link-view',
     showSideBar: true,
     icon: ArrowLeftRight,
-    component: () => import('@/tenant/modules/savings/pages/SavingsTransfer.vue'),
+    component: () => import('@/tenant/modules/savings/savings-transfer/Index.vue'),
+    // component: () => import('@/tenant/modules/savings/pages/SavingsTransfer.vue'),
   },
   {
     path: 'loans',

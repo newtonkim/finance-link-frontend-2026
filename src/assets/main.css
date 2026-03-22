@@ -18,6 +18,7 @@
 
 @theme {
   /* Custom colors */
+--color-nfuko-bg: #f2f6f5;      /* Deep Forest Green (Sidebar background) */
 --color-nfuko-primary: #0A2318;      /* Deep Forest Green (Sidebar background) */
   --color-nfuko-accent: #FCDC04;       /* Primary Yellow (Active icon/Logo) */
   --color-nfuko-action: #39B588;       /* Mint Green (Buttons & Progress bars) */

@@ -180,7 +180,7 @@ function accountLabel(a: Account) {
 
 <template>
     <div class="min-h-screen bg-[#f2f6f5] p-6">
-
+3456789
         <!-- Page header -->
         <div class="mb-6 flex items-center gap-3">
             <div class="flex h-10 w-10 items-center justify-center rounded-xl  bg-nfuko-primary/10">

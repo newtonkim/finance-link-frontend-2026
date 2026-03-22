@@ -1,5 +1,13 @@
 <template>
-  <TableDrawer   :drawerWidth="drawerTitle?.width"   :url="tableUrl"   state="groupAccountList"   :drawerTitle="drawerTitle?.title"   :columns="columns"   @save="saveUser" >
+  <TableDrawer 
+ 
+      <TableDrawer :permissions="{
+         create: 'group-saving-create',
+       view: 'group-saving-details',
+         edit: 'group-saving-update',
+         delete: 'group-saving-delete'
+    }"
+    :drawerWidth="drawerTitle?.width"   :url="tableUrl"   state="groupAccountList"   :drawerTitle="drawerTitle?.title"   :columns="columns"   @save="saveUser" >
     <template #header-action>
       <div class="space-y-3">
  <nav class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-neutral-400" >
@@ -43,7 +51,7 @@
 <script setup lang="ts">
 import { ref, computed, watch,onMounted } from 'vue'
 import { Create, Details } from '.'
-import {  TableDrawer,  StatusButtonsHorizontal,  addCommasCurrency,  AnalysisTile,  PainPageHeader} from '@/Global'
+import {  TableDrawer,  StatusButtonsHorizontal,  addNumberCommas,  AnalysisTile,  PainPageHeader} from '@/Global'
 const props = defineProps<{
   data?: any
 }>()
@@ -68,13 +76,13 @@ const titleMap: Record<string, { title: string; width: string }> = {
   },
   add: {
     title: "Create a Group Savings",
-    width: "w-2/3"
+    width: " md:w-2/3 sm:w-full"
   }
 }
 const columns = [
   { key: 'group_name', label: 'name', sticky: 'left', width: '14em' },
   { key: 'phone', label: 'admin phone', sticky: 'left', width: '14em' },
-  { key: 'group_code', label: 'code', sticky: 'left', width: '14em' },
+  { key: 'group_code', label: 'code',type:"copy", sticky: 'left', width: '14em' },
   { key: 'status', label: 'Status', type: 'status' },
   { key: 'total_in_group', label: 'total', type: 'number',width: '8em' },
   { key: 'dcreated', label: 'joined',   },
@@ -87,7 +95,7 @@ function setData() {
   stats.value = [
     {
       title: 'Total Group',
-      value: addCommasCurrency(props?.data?.tenants?.total_tenants ?? 0),
+      value: addNumberCommas(props?.data?.tenants?.total_tenants ?? 45),
       trendColor: 'text-emerald-500',
       bgColor: 'bg-[#f0f9f6]',
       iconColor: 'text-[#2d9d78]'
@@ -101,7 +109,7 @@ function setData() {
     },
     {
       title: 'Growth Rate',
-      value: addCommasCurrency(props?.data?.revenue?.yearly ?? '0.00'),
+      value: addNumberCommas(props?.data?.revenue?.yearly ?? '1.00'),
       trendColor: 'text-neutral-400',
       bgColor: 'bg-[#f0f9f6]',
       iconColor: 'text-[#2d9d78]'
