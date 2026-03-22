@@ -1,5 +1,7 @@
 <template>
-    <TableDrawer :drawerWidth="drawerTitle?.width" :url="tableUrl" state="memberAccountList" :drawerTitle="drawerTitle?.title" " :columns="
+    <TableDrawer
+    :showTableAction="true"
+     :drawerWidth="drawerTitle?.width" :url="tableUrl" state="memberAccountList" :drawerTitle="drawerTitle?.title" " :columns="
         columns" @save="saveUser">
         <template #member_name="{item}">
        <div class="-1">

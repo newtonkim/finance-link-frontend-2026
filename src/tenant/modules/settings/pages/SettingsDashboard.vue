@@ -34,7 +34,7 @@ const navigate = (path: string) => {
 </script>
 
 <template>
-    <div class="flex-1 overflow-y-auto p-6 bg-[#f8faf9] dark:bg-[#0a0a0a]" v-auth='settings-module-link-view'>
+    <div class="flex-1 overflow-y-auto p-6 bg-[#f8faf9] dark:bg-[#0a0a0a]" v-auth='"settings-module-link-view"'>
         <div class="max-w-5xl mx-auto space-y-8">
             <div>
                 <h1 class="text-3xl font-bold text-neutral-900 dark:text-white">System Settings Architecture</h1>

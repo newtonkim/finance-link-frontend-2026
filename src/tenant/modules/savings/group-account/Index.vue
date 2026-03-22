@@ -3,29 +3,14 @@
  
       <TableDrawer :permissions="{
          create: 'group-saving-create',
-       view: 'group-saving-details',
+         view: 'group-saving-details',
          edit: 'group-saving-update',
          delete: 'group-saving-delete'
     }"
     :drawerWidth="drawerTitle?.width"   :url="tableUrl"   state="groupAccountList"   :drawerTitle="drawerTitle?.title"   :columns="columns"   @save="saveUser" >
     <template #header-action>
       <div class="space-y-3">
- <nav class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-neutral-400" >
-   <a href="/tenant/dashboard" class="hover:text-[#0A2318] transition-colors">
-     Dashboard
-   </a>
-   <svg
-     xmlns="http://www.w3.org/2000/svg"
-     class="h-3 w-3"
-     viewBox="0 0 24 24"
-     fill="none"
-     stroke="currentColor"
-     stroke-width="2"
-   >
-     <path d="m9 18 6-6-6-6"></path>
-   </svg>
-   <span class="text-[#0A2318]">Group Savings</span>
- </nav>
+ 
 
  <PainPageHeader
    title="Group Savings"

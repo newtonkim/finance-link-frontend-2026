@@ -1,21 +1,15 @@
 <template>
-    <div class="flex h-full fle x-1 flex-col  p-4 ">
-    <!-- <div class="flex h-full flex-1 flex-col gap-4 p-6 px8 "> -->
-
-        <!-- HEADER -->
+    <div class="flex h-full fle x-1 flex-col  px-10 py-6 ">
         <div class="flex items-center justify-between">
-           
-
             <div v-if="$slots['header-action']" class='my-4'>
                 <slot name="header-action" />
             </div>
             <div v-else>
              <div v-if='title' class="text-4xl font-black text-[#0A2318] dark:text-white tracking-tight font-bold text-neutral-900 dark:text-white capitalize" v-once>
                 <h3 v-html="title"></h3>
-                <
             </div>
             </div>
-            <span >
+            <span>
                 <span v-auth="haspermission('create')">
                     <button v-if="showAddButton" @click="createNewRecord"
                         class="justify-center  bg-nfuko-primary hover: bg-nfuko-primary/90 whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive  h-9 has-[>svg]:px-3 flex items-center gap-2 rounded-xl  px-4 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90 shadow-sm ">
@@ -24,38 +18,32 @@
                     </button>
                 </span>
             </span>
-          
         </div>
            <div v-if="$slots['sub-header']">
                 <slot name="sub-header" />
             </div>
-        <!-- SEARCH -->
         <div
             class="rounded-xl border-0 border-neutral-200 b g-white dark:border-neutral-800 dark:bg-neutral-900  overflow-hidden ">
             <div v-if="showSearchbar || showTableAction"
                 class="flex p-1  my-2 justify-between rounded-xl border border-neutral-100 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
                 <Searchbar 
-              
                 v-if="showSearchbar" @search="onSearch" :removeInSearch="removeInSearch" :columns="columns"
                 @filter="(v) => filterDataByString(v)" />
                 <div class="flex">
                     <div class="flex items-center gap-2 board-r-1 mx-2" v-if="showTableAction">
                         <button @click="handleExport"
-                            class="p-2 bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
+                            class="p-2 cursor-pointer hover:bg-nfuko-action hover:text-white hover:rounded-full hover:border-1 hover:border-accent bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
                             <Download :size="18" />
                         </button>
-                        <!-- Print Button -->
                         <button @click="handlePrint"
-                            class="p-2 bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
+                            class="p-2 cursor-pointer hover:bg-nfuko-action hover:text-white hover:rounded-full hover:border-1 hover:border-accent bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
                             <Printer :size="18" />
                         </button>
-                        <!-- Divider -->
                         <div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2"></div>
                     </div>
                 <slot name="searchSideAction" />
                 </div>
         </div>
-        <!-- TABLE -->
         <div class="rounded-2xl    bg-white pt-0 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]   dark:bg-neutral-900">
             <div
                 class="overflow-x-auto w-full  custom-scrollbar h-[64vh] border-neutral-100 bg-white dark:bg-neutral-900 shadow-sm dark:border-neutral-800 rounded-2xl">
@@ -65,14 +53,12 @@
                         <slot :name="name" v-bind="slotProps || {}" />
                     </template>
                 </Table>
-
             </div>
             <Pagination @change="callNewPage" v-if="dataPageLinks?.links && dataPageLinks?.total"
                 :links="dataPageLinks?.links" :from="dataPageLinks?.from" :to="dataPageLinks?.to"
                 :total="dataPageLinks?.total" />
         </div>
     </div>
-    <!-- DRAWER -->
     </div>
     <div v-if="DrawerMounted">
         <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShooter2" v-model:open="drawerOpen"
@@ -81,11 +67,9 @@
 
                 <slot :data="provideDataTotheParent" name="drawer" :action="buttonTypeClicked"
                     :submit="submitChanges" />
-
             </template>
         </Drawer>
     </div>
-
     <ConfirmationDialog v-model:show="showDelete" items1="selectedItem"
         @confirm="() => save(selected ?? {}, 'delete')" />
 </template>
@@ -220,10 +204,6 @@ const toggleDrawer = () => {
     drawerShooter2.value = type !== 'view'
     emit("save", type, data)
 };
-
-
-
-
 async function automaticCreateFun() {
     if (props.automaticCreate) {
         const data = Store.currentFormValues;
@@ -278,9 +258,7 @@ async function saveDrawerData(data: any) {
        // if all it ok
       //Store.isSubmitted==false;
        }
-
 }
-
 const handleAction = async (item: any, action: keyof typeof ACTION_CONFIG) => {
     const fn = (ACTION_CONFIG?.[action] as { action?: (payload: any) => void } | undefined)?.action;
     if (action === 'delete') {
