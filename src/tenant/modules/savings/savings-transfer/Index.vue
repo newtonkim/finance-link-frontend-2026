@@ -17,7 +17,8 @@ import { ref, computed } from 'vue'
 import { Create, Details } from '.'
 import { TableDrawer, StatusButtonsHorizontal,PainPageHeader } from '@/Global'
 const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
- drawerTitle = ref('Create Tenant'), filters = ['all', 'active', 'suspended', 'expired', 'trial'], 
+ drawerTitle = ref('Create Tenant'), 
+ filters = ["rejected","pending","approved","cancelled","completed","no-funds",], 
  tableUrl = computed(() => `/savings-transfer/list?status=${statusFilter.value}`), 
  title: Record<string, string> = {
     "view": {title:"Viewmember saving's Account Details",width:"w-1/2"}, 
@@ -26,12 +27,21 @@ const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
 function saveUser(type: string, data: any) {
     if (title?.[type]) drawerTitle.value = title?.[type]
 }
+    // "id": 5,
+    //                             "code": "STS-1774275320",
+    //                             "transfer_amount": "123.00",
+    //                             "status": "approved",
+    //                             "created_at": "2026-03-23 17:15:20",
+    //                             "account_balance": "323.00",
+    //                             "transfer_to_product": "General Savings Account",
+    //                             "member_name": "Mrs:Blaze Hawkins"
 const columns = [
     { key: 'member_name', label: 'Member', sticky: 'left', width: '14em ', },
-    { key: 'product', label: 'product', sticky: 'left', width: '14em ', },
-    { key: 'status', label: 'status', type:'status' },
-    { key: 'blc', label: 'balance',  type:'money' },
-    { key: 'created at', label: 'created at', type:'status' },
+    { key: 'transfer_to_product', label: 'product', sticky: 'left', width: '14em ', },
+    { key: 'transfer_amount', label: 'transfer',  },
+    { key: 'account_balance', label: 'balance',  },
+    { key: 'status', label: 'status',  type:'status' },
+    { key: 'created_at', label: 'created at', type:'status' },
     { key: 'actions', label: 'Actions', show: ['view', 'delete'] }
 ]
 </script>
