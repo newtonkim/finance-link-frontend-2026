@@ -1,6 +1,4 @@
 <template>
-  <TableDrawer 
- 
       <TableDrawer :permissions="{
          create: 'group-saving-create',
          view: 'group-saving-details',
@@ -10,19 +8,15 @@
     :drawerWidth="drawerTitle?.width"   :url="tableUrl"   state="groupAccountList"   :drawerTitle="drawerTitle?.title"   :columns="columns"   @save="saveUser" >
     <template #header-action>
       <div class="space-y-3">
- 
-
  <PainPageHeader
    title="Group Savings"
    dec="Manage and monitor institutional savings groups, their membership tiers, and overall performance."
  />
       </div>
     </template>
-
     <template #sub-header>
       <AnalysisTile :data="stats" />
     </template>
-
     <template #searchSideAction>
       <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter"      />
     </template>

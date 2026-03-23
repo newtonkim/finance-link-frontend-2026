@@ -8,9 +8,7 @@
        <div class="font-semibold text-nfuko-action text-sm dark:text-white">
        {{item.member_name}}
        </div>
-       <div class="font-semibold text-nfuko-black dark:text-white">
-       {{item.account_code}}
-       </div>
+       <CopyData :show="item.account_code" />
        <div class="text-[11px] uppercase tracking-wide ">
        {{item.type}}
        </div>
@@ -33,7 +31,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Create, Details } from '.'
-import { TableDrawer, StatusButtonsHorizontal,PainPageHeader } from '@/Global'
+import { TableDrawer, StatusButtonsHorizontal,PainPageHeader ,CopyData} from '@/Global'
 const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
  drawerTitle = ref('Create Tenant'), filters = ['all', 'active', 'suspended', 'expired', 'trial'], 
  tableUrl = computed(() => `/members-account/list?status=${statusFilter.value}`), 

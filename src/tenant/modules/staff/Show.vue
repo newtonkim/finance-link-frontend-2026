@@ -14,7 +14,7 @@ const columns = [
         type: 'Descriptions',
         column: 3,
         list: [
-            { key: 'staff_code', label: 'code' },
+            { key: 'staff_code', label: 'code',copy:true },
             { key: 'staff_fall_name', label: 'name' },
             { key: 'staff_email', label: 'email' },
             { key: 'system_role', label: 'role' },
