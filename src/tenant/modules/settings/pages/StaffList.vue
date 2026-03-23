@@ -15,12 +15,15 @@ import {
 } from '@/Global'
 import { toast } from 'vue-sonner'
 import type { Staff } from '@/tenant/apis/staff/api'
+import { branchesApi } from '@/tenant/apis/branches/branchesApi'
+import type { Branch } from '@/tenant/apis/branches/branchesApi'
 
 const staffStore = useStaffStore()
 
 const isDrawerOpen = ref(false)
 const isEditing = ref(false)
 const currentStaffId = ref<number | null>(null)
+const branches = ref<Branch[]>([])
 
 const formData = ref({
     name: '',
@@ -28,11 +31,16 @@ const formData = ref({
     role: 'Staff',
     password: '',
     status: 'active' as 'active' | 'inactive',
-    is_tenant_admin: false
+    is_tenant_admin: false,
+    branch_id: null as number | null,
 })
 
 onMounted(async () => {
     await staffStore.fetchStaffList()
+    try {
+        const res = await branchesApi.list()
+        branches.value = (res.data?.data ?? []).filter((b: Branch) => b.is_active)
+    } catch {}
 })
 
 const openAddDrawer = () => {
@@ -44,7 +52,8 @@ const openAddDrawer = () => {
         role: 'Staff',
         password: '',
         status: 'active',
-        is_tenant_admin: false
+        is_tenant_admin: false,
+        branch_id: null,
     }
     isDrawerOpen.value = true
 }
@@ -58,7 +67,8 @@ const openEditDrawer = (staff: Staff) => {
         role: staff.role,
         password: '', // leave empty for editing unless changing
         status: staff.status,
-        is_tenant_admin: staff.is_tenant_admin || false
+        is_tenant_admin: staff.is_tenant_admin || false,
+        branch_id: staff.branch_id ?? null,
     }
     isDrawerOpen.value = true
 }
@@ -212,6 +222,14 @@ const deleteStaff = async (id: number) => {
                             <option value="Staff">Regular Staff</option>
                             <option value="Manager">Manager</option>
                             <option value="Teller">Teller</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <Label class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Branch</Label>
+                        <select v-model="formData.branch_id" class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-nfuko-primary focus:outline-none focus:ring-1 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white">
+                            <option :value="null">— No Branch —</option>
+                            <option v-for="branch in branches" :key="branch.id" :value="branch.id">{{ branch.name }}</option>
                         </select>
                     </div>
 

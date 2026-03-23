@@ -11,6 +11,7 @@ import { saccoBrandingApi } from '@/tenant/apis/saccobranding/saccoBrandingApi'
 import { savingsProductsApi } from '@/tenant/apis/savingsProducts/api'
 import { chartOfAccountsApi } from '@/tenant/apis/chartOfAccounts/chartOfAccountsApi'
 import { tenantClient } from '@/tenant/apis/tenantClient'
+import ManageBranchesCard from '../components/ManageBranchesCard.vue'
 import { useTenantContextStore } from '@/stores/tenantContext'
 import { useCurrencyStore } from '@/stores/currency'
 import { toast } from 'vue-sonner'
@@ -745,13 +746,8 @@ async function confirmDelete() {
                     Currency configuration →
                 </button>
             </div>
-            <div
-                class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Branch Management</h3>
-                <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Manage branches and physical locations.
-                </p>
-                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Manage Branches
-                    →</button>
+            <div class="col-span-full">
+                <ManageBranchesCard />
             </div>
             <div
                 class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">

@@ -8,6 +8,7 @@ import {
   HandCoins,
   ArrowUpDown,
   BookOpen,
+  BarChart2,
   Settings,
   Moon,
   Sun,
@@ -57,6 +58,7 @@ const navItems = [
   { title: 'Loans', href: '/tenant/loans', icon: HandCoins },
   { title: 'Transactions', href: '/tenant/transactions', icon: ArrowUpDown },
   { title: 'Chart of Accounts', href: '/tenant/chart-of-accounts', icon: BookOpen },
+  { title: 'Reports', href: '/tenant/reports', icon: BarChart2 },
 ]
 
 // Settings sub-items removed to avoid duplication with the Settings Workspace sidebar
