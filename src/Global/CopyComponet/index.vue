@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full flex items-center justify-between   bg-white dark:bg-neutral-900 rounded-lg ">
+  <div v-if="show??copy" class="w-full flex items-center justify-between   bg-white dark:bg-neutral-900 rounded-lg ">
     <div class="flex-1 min-w-0">
       <p class="text-sm text-neutral-700 dark:text-neutral-200 truncate line-clamp-2">
         {{ show??copy }}

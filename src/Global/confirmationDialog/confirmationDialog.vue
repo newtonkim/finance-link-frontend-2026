@@ -18,14 +18,14 @@
  />
         </div>
         <div>
-          <h3 class="text-base font-semibold text-neutral-900 dark:text-white">{{ title??currentStyle.title }}</h3>
+          <h3 class=" font-semibold text-neutral-900 dark:text-white text-[14px] mb-5">{{ title??currentStyle.title }}</h3>
           <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
             <slot name="message" v-if="$slots.message" />
             <slot name="body" v-if="$slots.body" />
-            <span v-else>
-              Are you sure you want to delete <strong class="text-neutral-700 dark:text-neutral-200">{{ items?.name
-                }}</strong>? This action cannot be undone.
-            </span>
+            <div v-else class='text-neutral-500 dark:text-neutral-200 text-[12px] ml-3'>
+              Are you sure you want to delete <strong class="">{{ items?.name
+                }}</strong>?
+            </div>
           </p>
         </div>
       </div>

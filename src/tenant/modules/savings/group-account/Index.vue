@@ -64,8 +64,8 @@ const columns = [
   { key: 'group_code', label: 'code',copy:true, sticky: 'left', width: '14em' },
   { key: 'status', label: 'Status', type: 'status' },
   { key: 'total_in_group', label: 'total', type: 'number',width: '8em' },
-  { key: 'dcreated', label: 'joined',   },
   { key: 'created_by', label: 'Created By',width: '10em' },
+  { key: 'dcreated', label: 'joined',   },
   { key: 'created_at', label: 'Created At', type: 'date',width: '9em'  },
   { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 ]

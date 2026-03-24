@@ -434,6 +434,11 @@ export function RouteStructure(route: any, routePath: string) {
     component: route.component,
   }
 }
+export function checkIfObjectPlain(value: any) {
+  if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+    return true
+  }
+}
 export function routebuilder(routes = [], prifix = 'central') {
   const collecction: any = []
   routes.forEach((route) => {

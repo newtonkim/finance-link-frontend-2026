@@ -28,6 +28,10 @@ export const paymentStatus = {
     label: "Paid",
     className: "text-xs font-bold px-2 py-1 rounded-full bg-green-100 text-green-700",
   },
+  completed: {
+    label: "completed",
+    className: "text-xs font-bold px-2 py-1 rounded-full bg-green-200 text-green-700",
+  },
   partially_paid: {
     label: "Partially Paid",
     className: "text-xs font-bold px-2 py-1 rounded-full bg-yellow-100 text-yellow-700",
