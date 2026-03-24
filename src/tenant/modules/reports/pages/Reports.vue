@@ -51,12 +51,26 @@ function fmt(value: string | number | null): string {
 <template>
   <div class="flex flex-col gap-6 p-6">
     <!-- Header -->
-    <div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div>
         <h1 class="text-2xl font-bold text-neutral-900 dark:text-white">Reports</h1>
         <p class="text-sm text-neutral-500 dark:text-neutral-400">
           Branch performance, daily collections, and staff activity.
         </p>
+      </div>
+      <div class="flex gap-2">
+        <router-link
+          :to="{ name: 'tenant-balances-report' }"
+          class="rounded-full bg-white border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50 shadow-sm"
+        >
+          Balances Report
+        </router-link>
+        <router-link
+          :to="{ name: 'tenant-member-statement' }"
+          class="rounded-full bg-white border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50 shadow-sm"
+        >
+          Member Statement
+        </router-link>
       </div>
     </div>
 
