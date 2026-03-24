@@ -11,9 +11,9 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted, reactive, computed, watch } from 'vue'
-import { Form, getSystemSetting, pickAsettingKeyValue } from '@/Global'
+import { Form, getSystemSetting, pickAsettingKeyValue, tryCatch } from '@/Global'
 import { memberAccountApi } from '@/tenant/apis'
- const { getProductCharges } = memberAccountApi()
+const { getProductCharges } = memberAccountApi()
 
 const emits = defineEmits(['update:form']),
   loading = ref(true),
@@ -57,10 +57,9 @@ const emits = defineEmits(['update:form']),
       placeholder: 'Enter is New Account',
     },
     {
-
       name: 'charges',
       type: 'text',
-      hidden:true,
+      hidden: true,
       required: true,
       disabled: true,
       placeholder: 'Enter charges',
@@ -72,46 +71,35 @@ const emits = defineEmits(['update:form']),
       required: true,
       options: yesNoOptions,
       placeholder: 'Enter consider Minimun Balance',
-      
     },
 
-{
-  label: 'initial deposit',
-  name: 'in_deposit',
-  type: 'number',
-  value: 0,
-  required: true,
-  placeholder: 'Select initial deposit',
+    {
+      label: 'initial deposit',
+      name: 'in_deposit',
+      type: 'number',
+      value: 0,
+      required: true,
+      placeholder: 'Select initial deposit',
+      onChange: async (val) => {
+        const finedProduct = fields.value.find((f) => f.name === 'product_id')
+        const chargeField = fields.value.find((f) => f.name === 'charges')
+        if (!finedProduct || !finedProduct.value) return
+        const amount = val?.target ? val.target.value : val
+        tryCatch(async () => {
+          const res: any = await getProductCharges({
+            product_id: finedProduct.value,
+            amount: amount,
+            type: 'deposit',
+          })
 
-  onChange: async (val) => {
-    const finedProduct = fields.value.find(f => f.name === 'product_id');
-    const chargeField = fields.value.find(f => f.name === 'charges');
-
-    if (!finedProduct || !finedProduct.value) return;
-
-    const amount = val?.target ? val.target.value : val;
-
-    try {
-      const res: any = await getProductCharges({
-        product_id: finedProduct.value,
-        amount: amount,
-        type: 'deposit'
-      });
-
-      if (chargeField) {
-        chargeField.value = res?.cost ?? 0;
-        chargeField.hidden = false;
-        chargeField.label = 'charges';
-      }
-
-    } catch (error) {
-      console.error('Error fetching charges:', error);
-    }
-  },
-},
-
-
-
+          if (chargeField) {
+            chargeField.value = res?.cost ?? 0
+            chargeField.hidden = false
+            chargeField.label = 'charges'
+          }
+        })
+      },
+    },
 
     {
       label: 'Status',
