@@ -93,7 +93,7 @@ const emits = defineEmits(['update:form']),
           })
 
           if (chargeField) {
-            chargeField.value = (res?.cost ?? 0).toFixed(2)+' (charges)'
+            chargeField.value = (res?.cost ?? 0)+' (charges)'
             chargeField.hidden = false
             chargeField.label = 'charges'
           }
