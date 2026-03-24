@@ -1,6 +1,3 @@
-<<<<<<< Updated upstream
-export {}
-=======
 import type { RouteRecordRaw } from 'vue-router'
 import Reports from './pages/Reports.vue'
 import MemberStatement from './pages/MemberStatement.vue'
@@ -23,4 +20,3 @@ export const reportsRoutes: RouteRecordRaw[] = [
     component: BalancesReport,
   },
 ]
->>>>>>> Stashed changes
