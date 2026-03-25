@@ -1,5 +1,37 @@
 <script setup lang="ts">
+import { SettingCard } from '@/tenant/components/globals'
 import { CreditCard } from 'lucide-vue-next'
+const settingsCards = [
+    {
+        title: "Loan Types",
+        description: "Define different categories of loan products.",
+        type: "link",
+        route: { name: "tenant-settings-members-roles-permission" },
+        action: "Manage Types →"
+    },
+    {
+        title: "Interest Settings",
+        description: "Setup interest rates and calculation methods.",
+        type: "link",
+        route: { name: "tenant-settings-members-roles-permission" },
+        action: "Configure Interest →"
+    },
+    {
+        title: "Repayment Rules",
+        description: "Define schedules and rules for loan repayments.",
+        type: "button",
+        route: { name: "tenant-settings-members-roles-permission" },
+        action: "Setup Rules →"
+    },
+    {
+        title: "Penalties",
+        description: "Configure late payment fees and penalties.",
+        type: "button",
+        route: { name: "tenant-settings-members-roles-permission" },
+        action: "Manage Penalties →"
+    }
+]
+ 
 </script>
 
 <template>
@@ -15,39 +47,10 @@ import { CreditCard } from 'lucide-vue-next'
             </div>
         </div>
 
+        <SettingCard :settingsCards="settingsCards"/>
         <div class="grid gap-5 lg:grid-cols-2">
-            <div
-                class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Loan Types</h3>
-                <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Define different categories of loan
-                    products.</p>
-                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Manage Types
-                    →</button>
-            </div>
-            <div
-                class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Interest Settings</h3>
-                <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Setup interest rates and calculation
-                    methods.</p>
-                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Configure
-                    Interest →</button>
-            </div>
-            <div
-                class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Repayment Rules</h3>
-                <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Define schedules and rules for loan
-                    repayments.</p>
-                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Setup Rules
-                    →</button>
-            </div>
-            <div
-                class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Penalties</h3>
-                <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Configure late payment fees and
-                    penalties.</p>
-                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Manage Penalties
-                    →</button>
-            </div>
+           
+             
         </div>
     </div>
 </template>

@@ -4,13 +4,14 @@ import TenantLayout from '../tenant/layouts/TenantLayout.vue'
 import TenantLogin from '../tenant/pages/TenantLogin.vue'
 import {  centralRoutes, } from '../central/modules/routes'
 import { dashboardRoutes } from '../tenant/modules/dashboard/routes'
-import { membersRoutes } from '../tenant/modules/members/routes'
+// import { membersRoutes } from '../tenant/modules/members/routesNotUsed'
 import { settingsRoutes } from '../tenant/modules/settings/routes'
 import { savingsRoutes } from '../tenant/modules/savings/routes'
 import { accountingRoutes } from '../tenant/modules/accounting/routes'
 import { migrationRoutes } from '../tenant/modules/migration/routes'
 import { reportsRoutes } from '../tenant/modules/reports/routes'
 import { getTenantSubdomain } from '@/Global'
+import { tenantRoutes, tenantRoutesList } from "@/tenant/layouts/routes.ts";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -43,14 +44,15 @@ const router = createRouter({
       name: 'tenant-login',
       component: TenantLogin,
     },
-    // Tenant app routes — wrapped in TenantLayout
     {
       path: '/tenant',
       component: TenantLayout,
       redirect: '/tenant/dashboard',
       children: [
+              ...tenantRoutesList,
+    
         ...dashboardRoutes,
-        ...membersRoutes,
+        // ...membersRoutes,
         ...settingsRoutes,
         ...savingsRoutes,
         ...accountingRoutes,

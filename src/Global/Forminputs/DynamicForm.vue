@@ -5,9 +5,12 @@ import PhoneInput from '@/Global/PhoneInput.vue';
 import FormField from '@/Global/FormField.vue';
 import MoneyInput from '@/Global/MoneyInput.vue';
 import { UserCircle2 } from 'lucide-vue-next';
-
+import { pomPinia } from 'septor-store';
+const Store = pomPinia();
 const props = defineProps<{
     action: string,
+    isSubmitted: boolean,
+    remount: boolean,
     form: Array<{
         label: string;
         name: string;
@@ -26,38 +29,108 @@ const props = defineProps<{
 const emits = defineEmits(['update:form', 'field-changed', 'results']);
 
 const prfields = ref<any>([]);
+const remountComponent = ref<any>(true);
 
 onMounted(() => {
+
+
     if (Array.isArray(props.form))
         prfields.value = [...(props.form)];
-    if(props.action == 'add')
-          prfields.value = prfields.value.map((f: any) => ({ value: null, ...f }))
+    if (props.action == 'add')
+        prfields.value = prfields.value.map((f: any) => ({ value: null, ...f }))
+        remountComponent.value=false
+Store.isFormSubmitted=false
 })
 const avatarPreviews = ref<Record<number, string>>({});
 
-const inputClass =
-    'w-full rounded-lg border focus:border-nfuko-primary/50 focus:ring-1    bg-white px-3 py-2.5 text-sm outline-none transition  border-nfuko-primary/10 focus:ring-1 focus:ring-[ bg-nfuko-primary]/90 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#8ba8a2]/90 dark:focus:ring-[#8ba8a2]/90';
-
-watch(
-    prfields,
-    (newFields) => {
-
+const inputClass = 'w-full rounded-lg border focus:border-nfuko-primary/50 focus:ring-1    bg-white px-3 py-2.5 text-sm outline-none transition  border-nfuko-primary/10 focus:ring-1 focus:ring-bg-nfuko-primary/90 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#8ba8a2]/90 dark:focus:ring-[#8ba8a2]/90';
+function DatawhistleBlower(newFields){
         emits('update:form', newFields);
         emits('results', newFields);
+        const NewCollectionSet=[];
+    
+        newFields.forEach((field: any) => {
+        if(field?.fields){
+            NewCollectionSet.push(...field.fields)
+        }else
+            NewCollectionSet.push(field)
+        })
+         // let remove the duplicate in the data  
+         /// to sa ve the clean version of the data 
+        Store.currentFormValues = Object.values([
+    ...(Array.isArray(Store.currentFormValues) ? Store.currentFormValues : []),
+    ...NewCollectionSet
+  ].reduce((acc: any, item: any) => {
+    acc[item.name] = item;
+    return acc;
+  }, {})
+);
+  
+}
+
+watch(
+   prfields,
+    (newFields) => {
+      DatawhistleBlower(newFields)
     },
     { deep: true }
 );
+const isTriggered = computed(() => props.isSubmitted || Store.isFormSubmitted)
+
+watch(isTriggered, (val) => {
+if(val)
+  Store.AnyErrorsFoundInTheFOrm = FormValidate()
+})
 
 const handleChange = (field: any, index: number) => {
+    if(field?.change)
     field.change?.(field.value, field, index);
 };
+function FormValidate() {
+  const data =  prfields.value || [];
+if(isTriggered){
+  data.forEach((field: any) => {
+  if(field?.fields){
+    field.fields.forEach((subfield: any) => {
+      subfield.showError =false 
+      if (subfield.required) {
+        subfield.error = null;
+        const isEmpty =
+          subfield.value === null ||
+          subfield.value === undefined ||
+          subfield.value === '';
+        if (isEmpty) {
+          subfield.error =subfield?.error ||  'This field is required *';
+             subfield.showError =true
+        }
+    
+      }
+    })
+  }else if (field.required) {
+    field.error = null;
+      const isEmpty =
+        field.value === null ||
+        field.value === undefined ||
+        field.value === '';
+        field.error =null
+
+      if (isEmpty) {
+        field.error =field?.error ||  'This field is required *';
+      }
+    }
+  });
+
+
+}
+  Store.isFormSubmitted=false
+  return  data.some((field: any) => field.error);
+}
 
 const handleAvatarChange = (field: any, index: number, event: Event) => {
     const target = event.target as HTMLInputElement;
     if (target.files && target.files[0]) {
         const file = target.files[0];
         field.value = file;
-
         const reader = new FileReader();
         reader.onload = (e) => {
             avatarPreviews.value[index] = e.target?.result as string;
@@ -67,21 +140,52 @@ const handleAvatarChange = (field: any, index: number, event: Event) => {
         field.value = null;
         avatarPreviews.value[index] = '';
     }
-
     emits('field-changed', { field, index });
+    DatawhistleBlower(field);
 };
+const nationalityOptions  = [
+  { id: 'Ugandan', name: 'Uganda' }, { id: 'Kenyan', name: 'Kenya' },
+  { id: 'Tanzanian', name: 'Tanzania' }, { id: 'Rwandan', name: 'Rwanda' },
+  { id: 'Burundian', name: 'Burundi' }, { id: 'South Sudanese', name: 'South Sudan' },
+  { id: 'Congolese', name: 'DR Congo' }, { id: 'Ethiopian', name: 'Ethiopia' },
+  { id: 'Somali', name: 'Somalia' }, { id: 'Nigerian', name: 'Nigeria' },
+  { id: 'Ghanaian', name: 'Ghana' }, { id: 'South African', name: 'South Africa' },
+  { id: 'British', name: 'United Kingdom' }, { id: 'American', name: 'United States' },
+  { id: 'Indian', name: 'India' }, { id: 'Other', name: 'Other' },
+]
 
+defineExpose({
+    FormValidate,
+  
+})
 
+const getGridClass = (len: number = 1) => {
+  if (len <= 1) return 'grid grid-cols-1 gap-4 md:gap-6 space-y-2'
+  if (len === 2) return 'grid grid-cols-2 gap-4 md:gap-6 space-y-2'
+  if (len >= 3) return 'grid grid-cols-3 gap-4 md:gap-6 space-y-2'
+  return 'grid grid-cols-4 gap-4 md:gap-6 space-y-2'
+}
+function FieldHasProfile(){
+const hasProfile = prfields.value.some((field: any) => field?.type === 'profile');
+return hasProfile
+}
 
 </script>
 
-<template>
-    <div :class="(parentStyle || '') + ' space-y-2'">
-        
-        <div v-for="(field, index) in prfields" :key="index">
-            <FormField class="capitalize" :label="field?.label?.toLowerCase().replace(/^./, c => c.toUpperCase())" :required="field.required"
-                :html-for="field.name" :error="field.error">
+<template> 
+<div >
 
+    <div  :class="(parentStyle || '') + ' space-y-2'">
+
+        <div v-for="(field, index) in prfields" :key="index">  
+           <template v-if="field.group>=0 ">
+           <div class="capitalize" >{{field?.label?.toLowerCase().replace(/^./, c => c.toUpperCase())}} </div>         
+           <DynamicForm   :parentStyle="getGridClass(field.group??field?.fields?.length)" :form="field.fields" :action="field.action" @results="emits('results', $event)" @field-changed="emits('field-changed', $event)" />
+           </template>
+            <FormField v-else class="capitalize" :label="field?.label?.toLowerCase().replace(/^./, c => c.toUpperCase())"
+                :required="field.required" :html-for="field.name" :error="field.error" :showError="field?.showError" >
+                <slot name='field.name' v-if='$slots[field.name]'/>
+                <span v-else>
                 <!-- Text/Email/Date/Tel -->
                 <template v-if="['text', 'email', 'date', 'tel'].includes(field.type)">
                     <div class="flex">
@@ -104,6 +208,11 @@ const handleAvatarChange = (field: any, index: number, event: Event) => {
                 <!-- Select -->
                 <template v-else-if="field.type === 'select'">
                     <SearchableSelect v-model="field.value" :options="field.options || []"
+                        :placeholder="field?.placeholder || ''" v-model:item-selected="field.selected"
+                        @update:modelValue="() => handleChange(field, index)" v-bind="field" />
+                </template>
+                <template v-else-if="field.type === 'nationality'">
+                    <SearchableSelect v-model="field.value" :options="field.options || nationalityOptions"
                         :placeholder="field.props?.placeholder || ''" v-model:item-selected="field.selected"
                         @update:modelValue="() => handleChange(field, index)" v-bind="field" />
                 </template>
@@ -116,8 +225,16 @@ const handleAvatarChange = (field: any, index: number, event: Event) => {
 
                 <!-- Money -->
                 <template v-else-if="field.type === 'money'">
-                    <MoneyInput :id="field.name" v-model="field.value" :placeholder="field.props?.placeholder || ''"
+                <div class='flex'>
+                           <div v-if="field?.suffix"
+                            class="px-2 flex items-center border-gray-300 bg-neutral-100 dark:bg-red-200 border border-l-0 rounded-xl rounded-r-none text-sm text-neutral-500 dark:text-neutral-400 font-medium">
+                            {{ field.suffix }}
+                        </div>
+                    <MoneyInput 
+                    :class="[field.suffix ? ' rounded-xl rounded-l-none ' : '']"
+                    :id="field.name" v-model="field.value" :placeholder="field?.placeholder || ''"
                         @input="() => field?.change && handleChange(field, index)" />
+                </div>
                 </template>
                 <!-- date -->
                 <template v-else-if="field.type === 'datec'">
@@ -127,7 +244,7 @@ const handleAvatarChange = (field: any, index: number, event: Event) => {
                 </template>
 
                 <!-- Avatar -->
-                <template v-else-if="field.type === 'avatar'">
+                <template v-else-if="['avatar', 'avatar2','prifile'].includes(field.type) ">
                     <div class="flex items-center gap-4 mt-2">
                         <div
                             class="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700">
@@ -149,7 +266,12 @@ const handleAvatarChange = (field: any, index: number, event: Event) => {
                         @input="() => field?.change && handleChange(field, index)" />
                 </template>
 
+                </span>
+
+
             </FormField>
         </div>
     </div>
+    </div>
+
 </template>

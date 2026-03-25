@@ -95,11 +95,12 @@ const submit = async () => {
       if (payload?.errors?.password?.[0]) {
         errors.value.password = payload.errors.password[0];
       }
+
       if (!errors.value.email && !errors.value.password) {
-        errors.value.form = payload?.message ?? 'Login failed. Please try again.';
+        errors.value.form = payload?.message ?? 'Login failed. Please try again2.';
       }
     } else {
-      errors.value.form = 'Login failed. Please try again.';
+      errors.value.form = 'Login failed. Please try again1.';
     }
   } finally {
     processing.value = false;
@@ -136,7 +137,7 @@ const submit = async () => {
             :tabindex="1"
             autocomplete="email"
             placeholder="Enter your email"
-            class="h-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-[ bg-nfuko-primary]/10"
+            class="h-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-bg-nfuko-primary/10"
           />
           <InputError :message="errors.email" />
         </div>
@@ -155,7 +156,7 @@ const submit = async () => {
               :tabindex="2"
               autocomplete="current-password"
               placeholder="Enter your password"
-              class="h-12 w-full pr-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-[ bg-nfuko-primary]/10"
+              class="h-12 w-full pr-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-bg-nfuko-primary/10"
             />
             <button
               type="button"

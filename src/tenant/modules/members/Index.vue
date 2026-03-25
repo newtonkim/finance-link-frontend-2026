@@ -1,0 +1,47 @@
+<template>
+    <TableDrawer drawerWidth=" w-2/3" :url="tableUrl" state="memberList" :drawerTitle="drawerTitle" " :columns="
+        columns" @save="saveUser">
+            <template #header-action>
+<div><h1 class="text-4xl font-black text-[#0A2318] dark:text-white tracking-tight">
+Members list</h1>
+<p class="text-sm text-neutral-500 dark:text-neutral-400 ">Manage all members.</p></div>
+</template>
+        <template #searchSideAction>
+            <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
+        </template>
+        
+        <template #drawer="{ action, data }">
+            <Create v-if="['add', 'edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
+            <Details v-if="['view'].includes(action)" :data="data" />
+        </template>
+    </TableDrawer>
+</template>
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { Create, Details } from '.'
+import { TableDrawer, StatusButtonsHorizontal } from '@/Global'
+const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
+ drawerTitle = ref('Create Tenant'), filters = ['all', 'active', 'suspended', 'expired', 'trial'], 
+ tableUrl = computed(() => `/members/list?status=${statusFilter.value}`), 
+ title: Record<string, string> = {
+    "view": "View Member Details",
+    "edit": "Edit member",
+    "add": "Create a sacco member",
+}
+function saveUser(type: string, data: any) {
+    if (title?.[type]) drawerTitle.value = title?.[type]
+}
+const columns = [
+    { key: 'salutation_name', label: 'Member', sticky: 'left', width: '14em ', },
+    { key: 'member_type', label: 'Member Type' },
+    { key: 'memeber_code', label: 'code', },
+    { key: 'NIN', label: 'national_id', },
+    { key: 'email', label: 'email', },
+    { key: 'primary_contact', label: 'phone', width: '14em ', },
+    { key: 'other_contacts', label: 'Other Contacts', width: '14em ', },
+    { key: 'joined_date', label: 'Joined Date', width: '9em ', },
+    { key: 'sex', label: 'Gender', type: 'status' },
+    { key: 'marital_status', label: 'Status', type: 'status' },
+    { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
+]
+</script>

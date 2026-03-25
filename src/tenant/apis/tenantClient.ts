@@ -14,8 +14,8 @@ function getBaseURL():string{
 export const tenantClient = axios.create({
   baseURL: getBaseURL(),
   headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
+    // Accept: 'application/json',
+    // 'Content-Type': 'application/json',
   },
 })
 

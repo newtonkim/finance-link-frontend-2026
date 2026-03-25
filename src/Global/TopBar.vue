@@ -1,28 +1,67 @@
 <script setup lang="ts">
 import { Search, Bell, Plus, LayoutGrid, ChevronDown, Building2 } from 'lucide-vue-next';
-import { Button, DropdownMenuTrigger, Input, Avatar, AvatarFallback, AvatarImage, DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '@/Global';
-import UserMenuContent from '@/Global/UserMenuContent.vue';
 
 import {
-    Breadcrumb,
+    Button, DropdownMenuTrigger, Input, Avatar, AvatarFallback, AvatarImage, DropdownMenu, DropdownMenuContent, Form, Breadcrumb,
     BreadcrumbItem,
-    BreadcrumbLink,
     BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-} from '@/Global/ui/breadcrumb';
+    BreadcrumbPage,DropdownMenuItem
+} from '@/Global';
+import UserMenuContent from '@/Global/UserMenuContent.vue';
 import { useAuthStore } from '@/stores/auth';
-import { computed } from 'vue';
-import { getInitials } from './Helpers';
+import { computed, onMounted, ref } from 'vue';
+import { getInitials, getSubdomainName, keysToUse, setLocalValues, tryCatch } from './Helpers';
+import { tenantClient } from '@/tenant/apis/tenantClient';
+import { apiClient } from '@/central/api/client';
+import { pomPinia } from 'septor-store';
+const Store = pomPinia();
+const loading = ref(true)
+const subdomain = getSubdomainName()
 import { useBranchStore } from '@/stores/branchStore';
 
+const interceptor = subdomain ? tenantClient : apiClient
+const fields = ref([
+    {
+        name: 'branch_name',
+        type: 'select',
+        placeholder: 'Branch',
+        change: (val: number) => {
+            setLocalValues(keysToUse.activeBranch, val)
+        }
+    },]);
+
+async function fetchBranches() {
+    tryCatch(async () => {
+        const collection = {
+            reload: 0,
+            StateStore: 'system-branches',
+            time: 0,
+            reqs: {
+                url: 'settings/branches/branches-dropdown-list',
+                method: 'post',
+                data: {},
+            },
+            axiosInstance: interceptor,
+            mStore: { mUse: true },
+        }
+        await Store.stateGenaratorApi(collection)
+        fields.value[0].options = Store?.['system-branches']?.payload?.data ?? []
+        fields.value[0].value = Store?.['system-branches']?.payload?.data[0]?.id
+        setLocalValues(keysToUse.activeBranch, fields.value[0].value)
+        loading.value = false
+    })
+}
 defineProps<{
     title: string;
 }>();
+
 const authStore = useAuthStore();
 const user = computed(() => authStore.user);
 const userName = computed(() => String(user.value?.name ?? 'User'));
 
+onMounted(async () => {
+    await fetchBranches()
+})
 const branchStore = useBranchStore();
 const showBranchSwitcher = computed(() => branchStore.showBranchFilter && branchStore.availableBranches.length > 0);
 const activeBranch = computed(() =>
@@ -89,7 +128,7 @@ function selectBranch(id: number | null) {
                 <Search
                     class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-neutral-400 dark:text-neutral-500" />
                 <Input placeholder="Search anything"
-                    class="pl-10 h-10 bg-[#F1F5F9] dark:bg-white/10 border-none rounded-[14px] focus-visible:ring-1 focus-visible:ring-[ bg-nfuko-primary]/5 dark:focus-visible:ring-white/10 text-sm dark:text-white dark:placeholder-neutral-500" />
+                    class="pl-10 h-10 bg-[#F1F5F9] dark:bg-white/10 border-none rounded-[14px] focus-visible:ring-1 focus-visible:ring-bg-nfuko-primary/5 dark:focus-visible:ring-white/10 text-sm dark:text-white dark:placeholder-neutral-500" />
                 <div
                     class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-[2px] text-[10px] font-bold text-neutral-400 dark:text-neutral-500">
                     <span
@@ -98,6 +137,9 @@ function selectBranch(id: number | null) {
                         class="bg-white/50 dark:bg-white/10 px-1 rounded border border-neutral-200/50 dark:border-white/10">K</span>
                 </div>
             </div>
+
+            <Form v-if="!loading && Store?.['system-branches']?.payload?.data.length > 1" parentStyle=" p-0"
+                v-model:form="fields" />
         </div>
 
         <div class="flex items-center gap-4">

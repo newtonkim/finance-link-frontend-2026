@@ -18,6 +18,7 @@
 
 @theme {
   /* Custom colors */
+--color-nfuko-bg: #f2f6f5;      /* Deep Forest Green (Sidebar background) */
 --color-nfuko-primary: #0A2318;      /* Deep Forest Green (Sidebar background) */
   --color-nfuko-accent: #FCDC04;       /* Primary Yellow (Active icon/Logo) */
   --color-nfuko-action: #39B588;       /* Mint Green (Buttons & Progress bars) */
@@ -39,12 +40,12 @@
   --color-nfuko-text-muted: #6B7280;   /* Gray (Labels and secondary text) */
 
   /* Aliases for backward compatibility */
-  --color-nfukoBlack: #000000;
+  --color-nfuko-black: #000000;
   --color-nfuko-yellow: #C9A84C;
-  --color-nfukoRed: #D90000;
-  --color-nfukoBlue: #0047AB;
-  --color-nfukoGreen: #00A86B;
-  --color-nfukoGray: #6B7280;
+  --color-nfuko-red: #D90000;
+  --color-nfuko-blue: #0047AB;
+  --color-nfuko-green: #00A86B;
+  --color-nfuko-gray: #6B7280;
   /* Monochromatic Scale (Lighter to Darker) */
   --color-nfuko-primary-50:  #F2F6F4; /* Ultra-light background for cards/inputs */
   --color-nfuko-primary-100: #E2EBE7; /* Subtle borders */

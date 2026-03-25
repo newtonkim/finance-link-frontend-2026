@@ -53,7 +53,7 @@ const logout = () => {
                         class="data-[state=open]:bg-white/10 hover:bg-white/5 transition-all duration-200 py-6">
                         <!-- Avatar -->
                         <div
-                            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-bg-nfuko-yellow text-[#0A2318] text-[11px] font-black shadow">
+                            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-nfuko-yellow text-[#0A2318] text-[11px] font-black shadow">
                             {{ initials }}
                         </div>
                         <!-- Name + email (hidden when sidebar is collapsed) -->
@@ -78,7 +78,7 @@ const logout = () => {
                     <!-- User info header -->
                     <DropdownMenuLabel class="flex items-center gap-3 px-3 py-3">
                         <div
-                            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-bg-nfuko-yellow text-[#0A2318] text-[12px] font-black">
+                            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-nfuko-yellow text-[#0A2318] text-[12px] font-black">
                             {{ initials }}
                         </div>
                         <div class="grid min-w-0">

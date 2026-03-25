@@ -1,23 +1,25 @@
 <template>
     <div class="relative w-full max-w-[600px] lg:w-1/3 md:w-80 sm:w-full group">
-
         <!-- Search Section -->
         <div class="flex items-center gap-2 mb-2">
-
             <div class="relative w-full">
                 <Search class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size="16" />
-
                 <input v-model="searchQuery"
                  @input="(e)=>inputValue(e.target.value)"
                 type="search" autocomplete="off"
-                    placeholder="Search by name, member number, phone, or email..." class="w-full rounded-full border border-neutral-200 bg-white py-2.5 pl-11 pr-4 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
+                    placeholder="Search by name, member number, phone, or email..."
+                    :class='[
+                    searchClass,
+                    "w-full focus:rounded-full    bg-white py-2.5 pl-11 pr-4 text-sm outline-none transition border-nfuko-primary/10 focus:border-1 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                    ]'
+                     />
             </div>
             <button
             type="button"
              v-if="searchQuery" @click="() => {
                 const v = Object.keys(searchBy ?? []);
                 const obj = { search_keyword: searchQuery, }
-                console.log(v);
+          
                 if (v.length)
                     obj.search_by = v
 
@@ -51,9 +53,7 @@
             <div v-for="(value, index) in Object.keys(searchBy)" :key="index"
                 class="flex items-center gap-2 px-2 py-1    text-xs font-medium    bg-white    text-neutral-600   dark: bg-nfuko-primary hover: bg-nfuko-primary/90 dark:text-white   rounded-full capitalize   transition-all duration-200">
                 <span>{{ value }}</span>
-
-                <button @click.stop="removeColumn(value)"
-                    class="ml-1 text-red-200/80 hover:text-red-300 hover:dark:text-red-500 hover:rounded-full hover:bg-red-50 hover:px-1  hover:dark:bg-red-900 text-xs ">
+                <button @click.stop="removeColumn(value)" class="ml-1 text-red-200/80 hover:text-red-300 hover:dark:text-red-500 hover:rounded-full hover:bg-red-50 hover:px-1  hover:dark:bg-red-900 text-xs ">
                     ✕
                 </button>
             </div>
@@ -71,7 +71,8 @@ const emit = defineEmits(['search','filter']);
 
 const props = defineProps({
     columns: { type: Array, required: true },
-    removeInSearch: { type: Array, default: ["action"] }
+    removeInSearch: { type: Array, default: ["action"] },
+    searchClass:' rounded-2xl      transition-all placeholder:text-neutral-400   dark:text-white'
 });
 
 const removeActionInSupperseach = props.columns.filter(col => ![...props.removeInSearch, 'actions'].includes(col.key))

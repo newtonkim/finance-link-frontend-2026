@@ -1,10 +1,13 @@
 <template>
 
-    <TableDrawer ref="drawer" drawerWidth="w-1/2" url="/settings/roles/list" state="tenant_settings_roles_list"
+    <TableDrawer ref="drawer"
+  :drawerShowFooter="['add', 'edit'].includes(drawerTitle.action)"
+     drawerWidth="w-1/2" url="/settings/roles/list" state="tenant_settings_roles_list"
         :outerlinks="{
             edit: 'details'
-        }" drawerTitle="Add New roles" title="roles list" :columns="columns" @save="saveUser">
+        }" :drawerTitle="drawerTitle?.title" title="roles list" :columns="columns" @save="saveUser">
         <template #drawer="{ action, submit, data }">
+ 
             <EditUserRole v-if="dispalyAlterUserRole.show" :data="dispalyAlterUserRole.data" />
             <Details v-else-if="action == 'view'" :data="data" />
             <Create :data="{...data,action}" v-else-if="['edit', 'add'].includes(action)" :watcher="{ action, submit }"
@@ -24,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, reactive } from 'vue'
+import { ref, watch, reactive,shallowReactive } from 'vue'
 import { TableDrawer, StatusButtonsHorizontal } from '@/Global'
 import { UserCog2 } from 'lucide-vue-next';
 const formData = ref<Record<string, any>>({})
@@ -39,6 +42,15 @@ const emit = defineEmits(['update:modelValue',]);
 watch(() => statusFilter.value, (filter) => {
     if (filter)
         emit('update:modelValue', filter)
+})
+let drawerTitle = shallowReactive({
+    title: "Create role",
+
+})
+const title = shallowReactive({
+    add:"Create role",
+    edit:"Edit role",
+    view:"View role",
 })
 const triggerAction: Record<string, Function> = {
     async create() {
@@ -56,6 +68,7 @@ const triggerAction: Record<string, Function> = {
 }
 function toggleDrawer(item: any) {
     dispalyAlterUserRole = { show: true, data: item }
+    drawerTitle = {title:'alter staff Roles',action:'alter'}
     setTimeout(() => {
         drawer.value.toggleDrawer()
     }, 100)
@@ -63,9 +76,11 @@ function toggleDrawer(item: any) {
 function saveUser(type: string, data: any) {
     triggerAction[type]?.(data)
     dispalyAlterUserRole.show = false
+        if (title?.[type]){
+        drawerTitle = {title:title?.[type],action:type}
 
+        }
 }
-
 const columns = [
     { key: 'name', label: 'Name' },
     { key: 'created_at', label: 'Created Date', },

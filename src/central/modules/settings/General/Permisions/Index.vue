@@ -39,7 +39,6 @@ const triggerAction: Record<string, Function> = {
 
 function saveUser(type: string, data: any) {
     triggerAction[type]?.(data)
-    console.log(type);
 
 }
 

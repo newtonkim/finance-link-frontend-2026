@@ -1,33 +1,50 @@
 <template>
-    <div
-        class="h-[5vh] flex rounded-lg border border-neutral-200 bg-neutral-50 p-[4px] dark:border-neutral-700 dark:bg-neutral-800">
-        <button v-for="filter in filters" :key="filter"
-            class="rounded-md px-3.5 py-1 text-xs font-medium capitalize transition-all"
-            :class="filter === modelValue ? activeFilterClass : inactiveFilterClass"
-            @click="() => updateStatusFilter(filter)">
-            {{ filter }}
-        </button>
-    </div>
 
+  <div
+    class="flex min-w-[200px] rounded-lg border border-neutral-200 bg-neutral-50 p-[4px] dark:border-neutral-700 dark:bg-neutral-800"
+  >
+  <template v-if="filters?.length>maxLength">
+    <div class="w-full">
+        <SearchableSelect     v-model="selectedFilter" :options="defineFiltersPertten()" placeholder="filters"/>
+    </div>
+  </template>
+
+  <template v-else>
+    <button
+      v-for="filter in filters"
+      :key="filter"
+      class="rounded-md px-3.5 py-1 text-xs font-medium capitalize transition-all"
+      :class="filter === modelValue ? activeFilterClass : inactiveFilterClass"
+      @click="() => updateStatusFilter(filter?.id??filter)"
+    >
+      {{ filter.name??filter }}
+    </button>
+</template>
+  
+  </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed } from 'vue'
+import SearchableSelect from '../SearchableSelect.vue'
 
-const emit = defineEmits(['update:modelValue',]);
 
+const emit = defineEmits(['update:modelValue'])
 const props = defineProps({
-    filters: { type: Array, required: true },
-    modelValue: { type: String, default: "" }
-
-});
-
+  maxLength: { type: Number, required: false, default: 5 },
+  filters: { type: Array, required: true },
+  modelValue: { type: String, default: '' },
+})
 const activeFilterClass = 'bg-white text-neutral-900 shadow-sm dark:bg-neutral-700 dark:text-white'
 const inactiveFilterClass = 'text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300'
-
 function updateStatusFilter(filter) {
-    // statusFilter.value = filter
-      emit('update:modelValue', filter)
-
+  emit('update:modelValue', filter)
 }
+function defineFiltersPertten(){
+    return     props.filters.map(f => ({ id: f.id??f, name: f.name??f }))
+}
+const selectedFilter = computed({
+  get: () => props.modelValue,
+  set: (val) => updateStatusFilter(val),
+})
 </script>

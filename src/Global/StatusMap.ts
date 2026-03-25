@@ -28,6 +28,10 @@ export const paymentStatus = {
     label: "Paid",
     className: "text-xs font-bold px-2 py-1 rounded-full bg-green-100 text-green-700",
   },
+  completed: {
+    label: "completed",
+    className: "text-xs font-bold px-2 py-1 rounded-full bg-green-200 text-green-700",
+  },
   partially_paid: {
     label: "Partially Paid",
     className: "text-xs font-bold px-2 py-1 rounded-full bg-yellow-100 text-yellow-700",
@@ -45,6 +49,7 @@ export const paymentStatus = {
 export const paymentMethods = {
   cash: { label: "Cash", className: " font-bold px-2 py-1 rounded-full     text-green-700" },
   card: { label: "Card", className: "  font-bold px-2 py-1 rounded-full  text-blue-600" },
+  bank: { label: "Bank", className: "  font-bold px-2 py-1 rounded-full  text-blue-600" },
   mobile_money: { label: "Mobile Money", className: " font-bold px-0 py-1 rounded-full  text-blue-700" },
 }
 export const systemRoles = {
@@ -73,12 +78,55 @@ export const systemRoles = {
     className: "font-bold px-2 py-1 rounded-full text-indigo-600" 
   },
 }
+    // maritalOptions: [{ id: 'single', name: 'Single' }, { id: 'married', name: 'Married' }, { id: 'divorced', name: 'Divorced' }, { id: 'widowed', name: 'Widowed' }]
 
+const marriageStatus = {
+  single: {
+    label: "Single",
+    className:
+      "inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-teal-100 text-teal-700 border border-teal-200"
+  },
+  married: {
+    label: "Married",
+    className:
+      "inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-indigo-100 text-indigo-700/60 border border-indigo-200"
+  },
+  divorced: {
+    label: "Divorced",
+    className:
+      "inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-rose-100 text-rose-700 border border-rose-200"
+  },
+  widowed: {
+    label: "Widowed",
+    className:
+      "inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-700 border border-red-200"
+  }
+}
+
+const genderOptions = {
+  male: {
+    label: "Male",
+    className:
+      "inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-teal-100 text-teal-700 border border-teal-200"
+  },
+  female: {
+    label: "Female",
+    className:
+      "inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-amber-100 text-amber-700 border border-amber-200"
+  },
+  other: {
+    label: "Other",
+    className:
+      "inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-rose-100 text-rose-700 border border-rose-200"
+  }
+};
 
 
 
 export const statusMap = {
   ...status,
+  ...genderOptions,
+  ...marriageStatus,
   ...paymentStatus,
   ...paymentMethods,
   ...systemRoles

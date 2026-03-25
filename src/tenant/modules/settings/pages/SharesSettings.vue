@@ -90,51 +90,43 @@ const form = reactive({
     carry_forward_remainder: true,
 })
 
-const accountTypeOptions = [
-    { value: 'shareholders_only', label: 'Share holders only' },
-    { value: 'all_accounts', label: 'All sacco accounts' },
-]
 
-const frequencyOptions = [
-    { value: 'monthly', label: 'Monthly' },
-    { value: 'quarterly', label: 'Quarterly' },
-    { value: 'semi_annually', label: 'Semi-annually' },
-    { value: 'annually', label: 'Annually' },
-]
-
-const basisOptions = [
-    { value: 'proportional', label: 'Proportional to shares held' },
-    { value: 'equal', label: 'Equal distribution' },
-]
-
-const roundingOptions = [
-    { value: 'nearest', label: 'Round to nearest' },
-    { value: 'floor', label: 'Round down (floor)' },
-    { value: 'ceil', label: 'Round up (ceiling)' },
-]
-
-const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
-]
-
-async function handleSave() {
-    saving.value = true
-    try {
-        // await tenantClient.post('/settings/dividend', form)
-        await new Promise(resolve => setTimeout(resolve, 700))
-        toast.success('Dividend settings saved successfully.')
-        drawerOpen.value = false
-    } catch {
-        toast.error('Failed to save dividend settings.')
-    } finally {
-        saving.value = false
-    }
-}
+ 
 
 function openDrawer() {
     drawerOpen.value = true
 }
+
+const settingsCards = [
+    {
+        id: "share-management",
+        title: "Share Management",
+        description: "Manage share products and related account settings.",
+        type: "button",
+        action: openSharesDrawer
+    },
+    {
+        id: "share-capital",
+        title: "Share Capital",
+        description: "Manage share capital structure and limits.",
+        type: "link",
+        // route: { name: "tenant-share-capital" },
+        action: "Manage Capital →"
+    },
+    {
+        id: "share-pricing",
+        title: "Share Pricing",
+        description: "Set and update share prices over time.",
+        action: "Configure Pricing →"
+    },
+    {
+        id: "dividends",
+        title: "Dividend Distribution",
+        description: "Setup rules and schedules for dividend payouts.",
+        type: "button",
+        action: openDrawer
+    }
+]
 </script>
 
 <template>
@@ -152,68 +144,20 @@ function openDrawer() {
             </div>
         </div>
 
-        <!-- Cards -->
-        <div class="grid gap-5 lg:grid-cols-2">
-            <div
-                class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                <div class="flex items-start justify-between mb-4">
-                    <div>
-                        <h3 class="text-base font-semibold text-neutral-900 dark:text-white">Share Management</h3>
-                        <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1">Manage share products and related
-                            account settings.</p>
-                    </div>
-                    <span v-if="settingsStore.hideIsShareholderField"
-                        class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-600 border border-blue-200 uppercase tracking-wide">
-                        Customised
-                    </span>
-                </div>
-                <button @click="openSharesDrawer"
+
+        <SettingCard :settingsCards="settingsCards">
+            <template #share-management="{ card }">
+                   <button @click="openSharesDrawer"
                     class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">
                     Manage Shares →
                 </button>
-            </div>
-            <div
-                class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Share Capital</h3>
-                <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Manage share capital structure and
-                    limits.</p>
-                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Manage Capital
-                    →</button>
-            </div>
-            <div
-                class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Share Pricing</h3>
-                <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Set and update share prices over time.
-                </p>
-                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Configure
-                    Pricing →</button>
-            </div>
-            <div
-                class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Share Transfers</h3>
-                <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Define rules for transferring shares
-                    between members.</p>
-                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Manage
-                    Transfers →</button>
-            </div>
+           <ManageShareDrive v-model:show="sharesDrawerOpen"/>
+            </template>
+            <template #kyc-member-onboarding="{ card }">
+            </template>
 
-            <!-- Dividend Distribution card -->
-            <div
-                class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                <div class="flex items-start justify-between mb-4">
-                    <div>
-                        <h3 class="text-base font-semibold text-neutral-900 dark:text-white">Dividend Distribution</h3>
-                        <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1">Setup rules and schedules for
-                            dividend payouts.</p>
-                    </div>
-                    <span
-                        class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-200 uppercase tracking-wide">
-                        Configurable
-                    </span>
-                </div>
-
-                <!-- Quick summary -->
-                <div class="flex flex-wrap gap-3 mb-4">
+            <template #dividend-distribution="{ card }">
+              <div class="flex flex-wrap gap-3 mb-4">
                     <div
                         class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-50 dark:bg-neutral-800 border border-neutral-100 dark:border-neutral-700 text-[12px] text-neutral-500">
                         <Users class="h-3 w-3" />
@@ -235,8 +179,10 @@ function openDrawer() {
                     class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">
                     Configure Dividends →
                 </button>
-            </div>
-        </div>
+                <DividedDrawer v-model:show="drawerOpen" v-model:form="form"/>
+            </template>
+
+        </SettingCard>
     </div>
 
     <!-- ═══════════════ MANAGE SHARES DRAWER ═══════════════ -->

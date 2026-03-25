@@ -39,7 +39,7 @@ const memberAlerts = ref(false)
                         </div>
                         <button @click="emailNotifications = !emailNotifications"
                             class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200"
-                            :class="emailNotifications ? ' bg-nfuko-primary dark:bg-bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'">
+                            :class="emailNotifications ? ' bg-nfuko-primary dark:bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'">
                             <span
                                 class="inline-block h-4 w-4 transform rounded-full bg-white transition-all duration-200 shadow-sm"
                                 :class="emailNotifications ? 'translate-x-6' : 'translate-x-1'" />
@@ -53,7 +53,7 @@ const memberAlerts = ref(false)
                         </div>
                         <button @click="smsNotifications = !smsNotifications"
                             class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200"
-                            :class="smsNotifications ? ' bg-nfuko-primary dark:bg-bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'">
+                            :class="smsNotifications ? ' bg-nfuko-primary dark:bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'">
                             <span
                                 class="inline-block h-4 w-4 transform rounded-full bg-white transition-all duration-200 shadow-sm"
                                 :class="smsNotifications ? 'translate-x-6' : 'translate-x-1'" />
@@ -74,7 +74,7 @@ const memberAlerts = ref(false)
                         </div>
                         <button @click="loanAlerts = !loanAlerts"
                             class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200"
-                            :class="loanAlerts ? ' bg-nfuko-primary dark:bg-bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'">
+                            :class="loanAlerts ? ' bg-nfuko-primary dark:bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'">
                             <span
                                 class="inline-block h-4 w-4 transform rounded-full bg-white transition-all duration-200 shadow-sm"
                                 :class="loanAlerts ? 'translate-x-6' : 'translate-x-1'" />
@@ -88,7 +88,7 @@ const memberAlerts = ref(false)
                         </div>
                         <button @click="depositAlerts = !depositAlerts"
                             class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200"
-                            :class="depositAlerts ? ' bg-nfuko-primary dark:bg-bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'">
+                            :class="depositAlerts ? ' bg-nfuko-primary dark:bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'">
                             <span
                                 class="inline-block h-4 w-4 transform rounded-full bg-white transition-all duration-200 shadow-sm"
                                 :class="depositAlerts ? 'translate-x-6' : 'translate-x-1'" />
@@ -102,7 +102,7 @@ const memberAlerts = ref(false)
                         </div>
                         <button @click="memberAlerts = !memberAlerts"
                             class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200"
-                            :class="memberAlerts ? ' bg-nfuko-primary dark:bg-bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'">
+                            :class="memberAlerts ? ' bg-nfuko-primary dark:bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'">
                             <span
                                 class="inline-block h-4 w-4 transform rounded-full bg-white transition-all duration-200 shadow-sm"
                                 :class="memberAlerts ? 'translate-x-6' : 'translate-x-1'" />
@@ -115,7 +115,7 @@ const memberAlerts = ref(false)
         <!-- Save Button -->
         <div class="flex justify-end">
             <button
-                class="rounded-xl  bg-nfuko-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#002e35] active:scale-[0.98] dark:bg-bg-nfuko-yellow dark:text-[#0A2318] dark:hover:bg-[#b8973f]">
+                class="rounded-xl  bg-nfuko-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#002e35] active:scale-[0.98] dark:bg-nfuko-yellow dark:text-[#0A2318] dark:hover:bg-[#b8973f]">
                 Save Changes
             </button>
         </div>

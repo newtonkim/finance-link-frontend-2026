@@ -9,7 +9,7 @@ import {
   Label,
   InputError,
   Spinner,
-  AuthBase,storeUserLogedinData, storeUserPermissions
+  AuthBase,storeUserLogedinData, storeUserPermissions,setSystemBranding
 } from '@/Global';
 import { tenantClient } from '@/tenant/apis/tenantClient';
 import { setBearerToken } from 'septor-store';
@@ -50,16 +50,19 @@ async function submit() {
       headers['X-Tenant-Subdomain'] = subdomain.value;
     }
 
-    const { data: raw } = await tenantClient.post<string>(
-      '/auth/login',
+    const res = await tenantClient.post(
+      '/auth/login', 
       { email: email.value, password: password.value, type: 'tenant' },
       { headers },
     );
-    const data = JSON.parse(atob(raw));
+    const data=JSON.parse(atob(res?.data)) 
+
+    setSystemBranding(data.data.branding)
 
     // Store token, subdomain, and user profile for sidebar display
     if (data?.data?.access_token) {
       localStorage.setItem('tenant_token', data.data.access_token);
+   
     }
     if (subdomain.value) {
       localStorage.setItem('tenant_subdomain', subdomain.value);
@@ -67,8 +70,8 @@ async function submit() {
     if (data?.data?.user) {
       localStorage.setItem('tenant_user', JSON.stringify(data.data.user));
     }
-    console.log(data);
-
+    //console.log(data);
+    
     setBearerToken({token: data.data.access_token,...data.data.user})
     storeUserLogedinData(data.data.user)
     storeUserPermissions({data:data.data?.permissions})
@@ -85,6 +88,7 @@ async function submit() {
       await router.push('/tenant/dashboard');
     }
   } catch (error) {
+     console.error(error)
     if (isAxiosError(error)) {
       const payload = error.response?.data as {
         message?: string;
@@ -93,10 +97,10 @@ async function submit() {
       if (payload?.errors?.email?.[0]) errors.value.email = payload.errors.email[0];
       if (payload?.errors?.password?.[0]) errors.value.password = payload.errors.password[0];
       if (!errors.value.email && !errors.value.password) {
-        errors.value.form = payload?.message ?? 'Login failed. Please try again.';
+        errors.value.form = payload?.message ?? 'Login failed. Please try again.1';
       }
     } else {
-      errors.value.form = 'Login failed. Please try again.';
+      errors.value.form = 'Login failed. Please try again.2';
     }
   } finally {
     processing.value = false;
@@ -130,7 +134,7 @@ async function submit() {
           <Label for="email" class="text-sm font-semibold  text-nfuko-primary">Email address</Label>
           <Input id="email" type="email" v-model="email" required autofocus :tabindex="1" autocomplete="email"
             placeholder="Enter your email"
-            class="h-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-[ bg-nfuko-primary]/10" />
+            class="h-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-bg-nfuko-primary/10" />
           <InputError :message="errors.email" />
         </div>
 
@@ -140,7 +144,7 @@ async function submit() {
           <div class="relative">
             <Input id="password" :type="showPassword ? 'text' : 'password'" v-model="password" required :tabindex="2"
               autocomplete="current-password" placeholder="Enter your password"
-              class="h-12 w-full pr-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-[ bg-nfuko-primary]/10" />
+              class="h-12 w-full pr-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-bg-nfuko-primary/10" />
             <button type="button" @click="showPassword = !showPassword"
               class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-neutral-400 hover: text-nfuko-primary transition-colors"
               tabindex="-1">

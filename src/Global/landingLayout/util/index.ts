@@ -1,7 +1,6 @@
-import { statusMap, getSubdomainName } from '@/Global'
-import { dateTime, date } from '../../Helpers'
+import { statusMap, getSubdomainName,formatCurrency } from '@/Global'
+import { dateTime, date, createUrl, getLocalValues, keysToUse } from '../../Helpers'
 import { Eye, Edit, Trash, UserCircle2, X } from 'lucide-vue-next'
-import { setUpAxiosToUse } from 'septor-store'
 import { tenantClient } from '@/tenant/apis/tenantClient'
 import { apiClient } from '@/central/api/client'
 
@@ -13,7 +12,6 @@ function splitTheLink(link: string) {
   return { url: url.href, name: url2[name] }
 }
 export const dataFomater = (data: any, type: string) => {
-  console.log(data)
 
   const filter = {
     date: () => date(data),
@@ -50,6 +48,9 @@ export const dataFomater = (data: any, type: string) => {
         statusMap?.[`${data}`?.toUpperCase()]
       return `<span class="${verifyTheStatus?.className}">${verifyTheStatus?.label}</span>`
     },
+   money: () => {
+  return `<span>${formatCurrency(data)}</span>`
+}
   }
   return filter?.[type]?.() ?? data
 }
@@ -88,10 +89,11 @@ export const ACTION_CONFIG = {
 }
 
 export const dataTabelFilter = (collection: any, searchQuery: any) => {
-  // const collection = Store[props?.state]?.payload ?? props.data ?? { data: [] }
+  const sliptTheString=searchQuery?.split(' ').map((stng:any)=> `${stng}`.toLowerCase())
   return (collection ?? []).filter((item: any) => {
     const stng = JSON.stringify(item)
-    return `${stng}`.toLowerCase().includes(searchQuery.toLowerCase())
+   return sliptTheString.some((query: any) => stng.toLowerCase().includes(query))
+    
   })
 }
 export async function fetchTableData({
@@ -104,21 +106,25 @@ export async function fetchTableData({
   props: any
   Store: any
   saveData?: boolean
-}) {
+}) { 
   const subdomain = getSubdomainName()
-  const interceptor = subdomain ? tenantClient : apiClient
+  const interceptor = subdomain ? tenantClient : apiClient,
+  createTheState=props?.state?props?.state:props?.url.replace(/[^a-z0-9]+/gi, '-')
+ const branch_id= getLocalValues(keysToUse.activeBranch)
+ const quer=props?.url.includes('?')?`${props?.url}&`:`${props?.url}?`
   const collection = {
     reload: !!props.reload ? 0 : 1, // dont think am stupid i know that
-    StateStore: props?.state,
-    time: props?.time ?? 1,
+    StateStore: createTheState,
+    time: props?.time ?? 0,
     reqs: {
       ...props,
-      url: props?.url,
+      url: quer+`branch_id=${branch_id}`,
       method: 'post',
       data,
     },
     axiosInstance: interceptor,
     mStore: { mUse: saveData ?? true },
   }
+  
   return await Store.stateGenaratorApi(collection)
 }

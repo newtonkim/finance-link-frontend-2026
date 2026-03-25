@@ -124,6 +124,8 @@ const topProducts = [
             <h2 class="text-lg font-bold text-neutral-800 dark:text-white tracking-tight">Platform Overview</h2>
         </div>
        <AnalysisTiles :data="Store?.dashboardAnalytics?.payload"/>
+
+       
         <!-- Charts Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Sales Revenue Chart -->

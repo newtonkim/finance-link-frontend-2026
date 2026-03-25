@@ -3,19 +3,11 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   LayoutGrid,
-  Users,
-  Wallet,
-  HandCoins,
-  ArrowUpDown,
-  FileText,
-  BookOpen,
-  BarChart2,
   Settings,
   Moon,
   Sun,
   MapPin,
   Mail,
-  ArrowLeftRight,
   DatabaseZap,
 } from 'lucide-vue-next'
 import {
@@ -30,10 +22,13 @@ import {
   SidebarMenuItem,
   SidebarRail,
   useSidebar,
-} from '@/Global/ui/sidebar'
+
+} from '@/Global'
 import TenantNavUser from './TenantNavUser.vue'
 import { useTenantContextStore } from '@/stores/tenantContext'
 import { membersApi } from '@/tenant/apis/members/membersApi'
+import { tenantRoutes } from "@/tenant/layouts/routes.ts";
+import { OutClickNav } from '@/Global/OutClicknavigation';
 import { saccoBrandingApi, saccoBrandingState } from '@/tenant/apis/saccobranding/saccoBrandingApi'
 
 const route = useRoute()
@@ -50,39 +45,10 @@ function toggleDarkMode() {
 const isActive = (path: string) => route.path === path
 const isSettingsActive = computed(() => route.path.startsWith('/tenant/settings'))
 
-const navItems = [
-  { title: 'Dashboard', href: '/tenant/dashboard', icon: LayoutGrid },
-  { title: 'Members', href: '/tenant/members', icon: Users },
-  { title: 'Members Account', href: '/tenant/savings-accounts', icon: Wallet },
-  { title: 'Group Savings', href: '/tenant/savings-groups', icon: Users },
-  { title: 'Savings Transfer', href: '/tenant/savings-transfer', icon: ArrowLeftRight },
-  { title: 'Loans', href: '/tenant/loans', icon: HandCoins },
-  { title: 'Transactions', href: '/tenant/transactions', icon: ArrowUpDown },
-  { title: 'Manual Journal Entries', href: '/tenant/journal-entries', icon: FileText },
-  { title: 'Chart of Accounts', href: '/tenant/chart-of-accounts', icon: BookOpen },
-  { title: 'Reports', href: '/tenant/reports', icon: BarChart2 },
-]
-
-// Settings sub-items removed to avoid duplication with the Settings Workspace sidebar
-
+ 
 const tenant = tenantStore.currentTenant as any
 
-const memberCount = computed(() => tenantStore.memberCount)
-
-onMounted(async () => {
-  const [membersRes] = await Promise.allSettled([
-    membersApi.list({ page: 1 }),
-    (async () => {
-      if (!saccoBrandingState.loaded) {
-        try { await saccoBrandingApi.get() } catch { /* silently ignore */ }
-      }
-    })(),
-  ])
-  if (membersRes.status === 'fulfilled') {
-    const total = membersRes.value.data?.meta?.total ?? membersRes.value.data?.total ?? null
-    if (total !== null) tenantStore.setMemberCount(total)
-  }
-})
+ 
 </script>
 
 <template>
@@ -92,7 +58,7 @@ onMounted(async () => {
       <div class="flex items-center gap-3">
         <!-- Logo: show uploaded logo or fallback icon -->
         <div
-          class="flex shrink-0 items-center justify-center overflow-hidden transition-all duration-500"
+          class="flex shrink-0 items-center justify-center rounded-2xl bg-nfuko-yellow text-[#0A2318] shadow-xl transition-all duration-500"
           :class="state === 'expanded' ? 'h-14 w-14' : 'h-8 w-8'">
           <img
             v-if="saccoBrandingState.logo_url"
@@ -131,38 +97,15 @@ onMounted(async () => {
       </div>
     </SidebarHeader>
 
-    <SidebarContent class="px-2 flex-1 min-h-0 overflow-y-auto">
-      <!-- NAVIGATION -->
-      <SidebarGroup>
+    <!-- NAVIGATION -->
+     <div class='flex   flex-col h-full py-2 px-3'>
+    <SidebarContent class="flex-1 h-full flex flex-col h-full   overflow-y-auto min-h-0 gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden px-3 flex flex-col flex-1">
+      <SidebarGroup >
         <SidebarGroupLabel class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
           Navigation
         </SidebarGroupLabel>
-        <SidebarMenu>
-          <SidebarMenuItem v-for="item in navItems" :key="item.title">
-            <SidebarMenuButton :tooltip="item.title" @click="router.push(item.href)"
-              class="relative px-0 py-2.5 hover:bg-white/5 transition-all duration-200 group">
-              <div class="flex w-full items-center gap-3 pl-4 pr-3">
-                <component :is="item.icon" class="h-4 w-4 transition-colors duration-200"
-                  :class="isActive(item.href) ? 'text-bg-nfuko-yellow' : 'text-nfuko-nav-text group-hover:text-bg-nfuko-yellow'" />
-                <span class="flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200"
-                  :class="isActive(item.href) ? 'text-bg-nfuko-yellow' : 'text-nfuko-nav-text group-hover:text-white'">
-                  {{ item.title }}
-                </span>
-                <span
-                  v-if="item.href === '/tenant/members' && memberCount !== null && state === 'expanded'"
-                  class="inline-flex items-center justify-center rounded-full bg-nfuko-accent px-1.5 min-w-[20px] h-5 text-[10px] font-bold leading-none text-[#0A2318]"
-                >
-                  {{ memberCount > 9999 ? '9999+' : memberCount }}
-                </span>
-              </div>
-              <!-- Active left indicator -->
-              <div v-if="isActive(item.href)"
-                class="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-[3px] bg-bg-nfuko-yellow rounded-r-full shadow-[0_0_10px_rgba(201,168,76,0.5)]" />
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <OutClickNav class="flex-1 h-full" :links="tenantRoutes" />
       </SidebarGroup>
-
       <!-- DATA MIGRATION -->
       <SidebarGroup class="mt-2">
         <SidebarGroupLabel class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
@@ -186,13 +129,12 @@ onMounted(async () => {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroup>
-
       <!-- CONFIGURATION -->
       <SidebarGroup class="mt-2">
         <SidebarGroupLabel class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
           Configuration
         </SidebarGroupLabel>
-        <SidebarMenu>
+        <SidebarMenu v-auth='"settings-module-link-view"'>
           <SidebarMenuItem>
             <SidebarMenuButton :tooltip="'Settings'" @click="router.push('/tenant/settings')" :class="[
               'relative px-0 py-2.5 hover:bg-white/5 transition-all duration-200 group',
@@ -207,14 +149,16 @@ onMounted(async () => {
                 </span>
               </div>
               <div v-if="isSettingsActive"
-                class="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-[3px] bg-bg-nfuko-yellow rounded-r-full shadow-[0_0_10px_rgba(201,168,76,0.5)]" />
+                class="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-[3px] bg-nfuko-yellow rounded-r-full shadow-[0_0_10px_rgba(201,168,76,0.5)]" />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroup>
-    </SidebarContent>
 
-    <SidebarFooter class="shrink-0 p-4 space-y-3">
+    </SidebarContent>
+     </div>
+
+    <SidebarFooter class="shrink-0 flex-1 p-4 space-y-3">
       <!-- Dark mode toggle — hide label when sidebar is collapsed -->
       <div class="flex items-center justify-between px-2 bg-white/5 rounded-xl p-3 border border-white/5">
         <div class="flex items-center gap-2.5">
@@ -224,17 +168,17 @@ onMounted(async () => {
         </div>
         <button v-if="state === 'expanded'" @click="toggleDarkMode"
           class="relative inline-flex h-5 w-10 items-center rounded-full transition-all duration-300"
-          :class="isDark ? 'bg-bg-nfuko-yellow' : 'bg-white/10'">
+          :class="isDark ? 'bg-nfuko-yellow' : 'bg-white/10'">
           <span class="inline-flex h-4 w-4 rounded-full bg-white transition-transform duration-300 shadow-xl"
             :class="isDark ? 'translate-x-5' : 'translate-x-0.5'" />
         </button>
         <!-- Collapsed: icon-only toggle -->
         <button v-else @click="toggleDarkMode" class="ml-1 rounded-lg p-1 hover:bg-white/10 transition-colors">
           <Moon v-if="!isDark" :size="14" class="text-nfuko-nav-text" />
-          <Sun v-else :size="14" class="text-bg-nfuko-yellow" />
+          <Sun v-else :size="14" class="text-bg-nfuko-yellow" /> you heard
         </button>
       </div>
-      <TenantNavUser />
+      <!--<TenantNavUser />-->
     </SidebarFooter>
     <SidebarRail />
   </Sidebar>

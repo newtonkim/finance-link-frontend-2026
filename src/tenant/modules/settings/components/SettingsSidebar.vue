@@ -19,16 +19,16 @@ const route = useRoute()
 const router = useRouter()
 
 const modules = [
-    { name: 'Organisation', icon: Building2, path: '/tenant/settings/organisation' },
-    { name: 'Members & Roles', icon: Users, path: '/tenant/settings/members' },
-    { name: 'Loan Products', icon: CreditCard, path: '/tenant/settings/loans' },
-    { name: 'Savings Products', icon: Landmark, path: '/tenant/settings/savings' },
-    { name: 'Shares & Dividends', icon: PieChart, path: '/tenant/settings/shares' },
-    { name: 'Transactions', icon: ArrowLeftRight, path: '/tenant/settings/transactions' },
-    { name: 'Accounting & GL', icon: BookOpen, path: '/tenant/settings/accounting' },
-    { name: 'Compliance & Audit', icon: ShieldCheck, path: '/tenant/settings/compliance' },
-    { name: 'Notifications', icon: Bell, path: '/tenant/settings/notifications' },
-    { name: 'System & Security', icon: Shield, path: '/tenant/settings/system' },
+    {permission:"settings-Organisation-link-view", name: 'Organisation', icon: Building2, path: '/tenant/settings/organisation' },
+    {permission:"settings-Members-Roles-link-view", name: 'Members & Roles', icon: Users, path: '/tenant/settings/members' },
+    {permission:"settings-Loan-Products-link-view", name: 'Loan Products', icon: CreditCard, path: '/tenant/settings/loans' },
+    {permission:"settings-Savings-Products-link-view", name: 'Savings Products', icon: Landmark, path: '/tenant/settings/savings' },
+    {permission:"settings-Shares-Dividends-link-view", name: 'Shares & Dividends', icon: PieChart, path: '/tenant/settings/shares' },
+    {permission:"settings-transaction-link-view", name: 'Transactions', icon: ArrowLeftRight, path: '/tenant/settings/transactions' },
+    {permission:"settings-Accounting-GL-link-view", name: 'Accounting & GL', icon: BookOpen, path: '/tenant/settings/accounting' },
+    {permission:"settings-Compliance-Audit-link-view", name: 'Compliance & Audit', icon: ShieldCheck, path: '/tenant/settings/compliance' },
+    {permission:"settings-notifications-link-view", name: 'Notifications', icon: Bell, path: '/tenant/settings/notifications' },
+    {permission:"settings-System-Security-link-view", name: 'System & Security', icon: Shield, path: '/tenant/settings/system' },
 ]
 
 const isActive = (path: string) => route.path.startsWith(path)
@@ -40,13 +40,13 @@ const navigate = (path: string) => {
 
 <template>
     <aside
-        class="w-64 border-r border-neutral-100 bg-white dark:border-neutral-800 dark:bg-neutral-900 flex flex-col h-full overflow-y-auto">
+        class=" border-r border-neutral-100 bg-white dark:border-neutral-800 dark:bg-neutral-900 flex flex-col h-full overflow-y-auto">
         <div class="p-4 border-b border-neutral-100 dark:border-neutral-800">
             <h2 class="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Settings
                 Modules</h2>
         </div>
         <nav class="flex-1 p-2 space-y-1">
-            <button v-for="mod in modules" :key="mod.name" @click="navigate(mod.path)" :class="[
+            <button v-for="mod in modules" v-auth="mod?.permission" :key="mod.name" @click="navigate(mod.path)" :class="[
                 'w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors capitalize',
                 isActive(mod.path)
                     ? 'bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-white'
