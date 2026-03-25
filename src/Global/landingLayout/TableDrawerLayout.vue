@@ -5,9 +5,11 @@
                 <slot name="header-action" />
             </div>
             <div v-else>
-             <div v-if='title' class="text-4xl font-black text-[#0A2318] dark:text-white tracking-tight font-bold text-neutral-900 dark:text-white capitalize" v-once>
-                <h3 v-html="title"></h3>
-            </div>
+                <div v-if='title'
+                    class="text-4xl font-black text-[#0A2318] dark:text-white tracking-tight font-bold text-neutral-900 dark:text-white capitalize"
+                    v-once>
+                    <h3 v-html="title"></h3>
+                </div>
             </div>
             <span>
                 <span v-auth="haspermission('create')">
@@ -19,16 +21,15 @@
                 </span>
             </span>
         </div>
-           <div v-if="$slots['sub-header']">
-                <slot name="sub-header" />
-            </div>
+        <div v-if="$slots['sub-header']">
+            <slot name="sub-header" />
+        </div>
         <div
             class="rounded-xl border-0 border-neutral-200 b g-white dark:border-neutral-800 dark:bg-neutral-900  overflow-hidden ">
             <div v-if="showSearchbar || showTableAction"
                 class="flex p-1  my-2 justify-between rounded-xl border border-neutral-100 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                <Searchbar 
-                v-if="showSearchbar" @search="onSearch" :removeInSearch="removeInSearch" :columns="columns"
-                @filter="(v) => filterDataByString(v)" />
+                <Searchbar v-if="showSearchbar" @search="onSearch" :removeInSearch="removeInSearch" :columns="columns"
+                    @filter="(v) => filterDataByString(v)" />
                 <div class="flex">
                     <div class="flex items-center gap-2 board-r-1 mx-2" v-if="showTableAction">
                         <button @click="handleExport"
@@ -41,24 +42,24 @@
                         </button>
                         <div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2"></div>
                     </div>
-                <slot name="searchSideAction" />
+                    <slot name="searchSideAction" />
                 </div>
-        </div>
-        <div class="rounded-2xl    bg-white pt-0 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]   dark:bg-neutral-900">
-            <div
-                class="overflow-x-auto w-full  custom-scrollbar h-[64vh] border-neutral-100 bg-white dark:bg-neutral-900 shadow-sm dark:border-neutral-800 rounded-2xl">
-                <Table :handleAction="handleAction" :action_config="ACTION_CONFIG" :dataFilter="dataFilter" :data="data"
-                    :columns="columns" :permissions="permissions">
-                    <template v-for="(_, name) in $slots" #[name]="slotProps">
-                        <slot :name="name" v-bind="slotProps || {}" />
-                    </template>
-                </Table>
             </div>
-            <Pagination @change="callNewPage" v-if="dataPageLinks?.links && dataPageLinks?.total"
-                :links="dataPageLinks?.links" :from="dataPageLinks?.from" :to="dataPageLinks?.to"
-                :total="dataPageLinks?.total" />
+            <div class="rounded-2xl    bg-white pt-0 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]   dark:bg-neutral-900">
+                <div
+                    class="overflow-x-auto w-full  custom-scrollbar h-[64vh] border-neutral-100 bg-white dark:bg-neutral-900 shadow-sm dark:border-neutral-800 rounded-2xl">
+                    <Table :handleAction="handleAction" :action_config="ACTION_CONFIG" :dataFilter="dataFilter"
+                        :data="data" :columns="columns" :permissions="permissions">
+                        <template v-for="(_, name) in $slots" #[name]="slotProps">
+                            <slot :name="name" v-bind="slotProps || {}" />
+                        </template>
+                    </Table>
+                </div>
+                <Pagination @change="callNewPage" v-if="dataPageLinks?.links && dataPageLinks?.total"
+                    :links="dataPageLinks?.links" :from="dataPageLinks?.from" :to="dataPageLinks?.to"
+                    :total="dataPageLinks?.total" />
+            </div>
         </div>
-    </div>
     </div>
     <div v-if="DrawerMounted">
         <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShooter2" v-model:open="drawerOpen"
@@ -176,15 +177,15 @@ const drawerShooter2 = ref(props.drawerShowFooter)
 const toggleDrawer = () => {
     (drawerOpen.value = !drawerOpen.value)
     if (drawerOpen.value) {
-    //////
-       Store.currentFormValues = {}
+        //////
+        Store.currentFormValues = {}
     }
 
 };
 
 
 
- function save  (data: unknown, type = 'save')  {
+function save(data: unknown, type = 'save') {
     if (type == 'search' && props?.state && props?.url) {
 
         fetchTableData({ data, props, Store })
@@ -207,7 +208,7 @@ const toggleDrawer = () => {
 async function automaticCreateFun() {
     if (props.automaticCreate) {
         const data = Store.currentFormValues;
-        console.log(data,'data====')
+        console.log(data, 'data====')
         const customeUrl = props?.outerlinks?.['create'] ?? "create";
         const formDataScoping: any = formDataFormatV2((data))
         const res = await fetchTableData({
@@ -236,28 +237,28 @@ async function automaticCreateFun() {
     }
 }
 async function saveDrawerData(data: any) {
-       Store.isFormSubmitted=true;
-       const AnyErrorsFoundInTheFOrm = Store.AnyErrorsFoundInTheFOrm;
-       console.log(Store.isFormSubmitted,AnyErrorsFoundInTheFOrm)
-       if(AnyErrorsFoundInTheFOrm){
-       
-       }else{
-    const checker = await automaticCreateFun('create')
-    if (!checker) {
-        return
-    }
+    Store.isFormSubmitted = true;
+    const AnyErrorsFoundInTheFOrm = Store.AnyErrorsFoundInTheFOrm;
+    console.log(Store.isFormSubmitted, AnyErrorsFoundInTheFOrm)
+    if (AnyErrorsFoundInTheFOrm) {
 
-    save(data, 'create')
-    toggleDrawer()
-    setTimeout(() => {
-        submitChanges.value = false
-    }, 2000)
-    setTimeout(() => {
+    } else {
+        const checker = await automaticCreateFun('create')
+        if (!checker) {
+            return
+        }
+
+        save(data, 'create')
         toggleDrawer()
-    }, 100)
-       // if all it ok
-      //Store.isSubmitted==false;
-       }
+        setTimeout(() => {
+            submitChanges.value = false
+        }, 2000)
+        setTimeout(() => {
+            toggleDrawer()
+        }, 100)
+        // if all it ok
+        //Store.isSubmitted==false;
+    }
 }
 const handleAction = async (item: any, action: keyof typeof ACTION_CONFIG) => {
     const fn = (ACTION_CONFIG?.[action] as { action?: (payload: any) => void } | undefined)?.action;
@@ -317,7 +318,7 @@ const callNewPage = changeThePage;
 const onSearch = (type: string, data: unknown) => save(data, type);
 const dataFilter = computed(() => {
     const collection = (props?.state ? (Store[props.state as keyof typeof Store] as any)?.payload : null) ?? props.data ?? { data: [] }
-  
+
     return dataTabelFilter(collection?.data, searchQuery.value);
 })
 const dataPageLinks = computed(() => {
