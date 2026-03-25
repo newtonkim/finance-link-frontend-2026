@@ -18,6 +18,8 @@ export * from './DetailsTable';
 export {default as StatusButtonsHorizontal} from './StatusButtonsHorizontal/index.vue';
 export * from './uploadLogo/index';
 export {default as Pagination} from './Pagination.vue';
+export {default as TopBar} from './TopBar.vue';
+export * from 'vue-sonner'
 
 export { default as authDirective } from './Directives/authDirective.ts';
 export * from './landingLayout/Components/index.ts';

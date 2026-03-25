@@ -5,7 +5,7 @@ import {
     Button, DropdownMenuTrigger, Input, Avatar, AvatarFallback, AvatarImage, DropdownMenu, DropdownMenuContent, Form, Breadcrumb,
     BreadcrumbItem,
     BreadcrumbList,
-    BreadcrumbPage,DropdownMenuItem
+    BreadcrumbPage, DropdownMenuItem
 } from '@/Global';
 import UserMenuContent from '@/Global/UserMenuContent.vue';
 import { useAuthStore } from '@/stores/auth';
@@ -27,6 +27,7 @@ const fields = ref([
         placeholder: 'Branch',
         change: (val: number) => {
             setLocalValues(keysToUse.activeBranch, val)
+            watchBranchchanges(val)
         }
     },]);
 
@@ -47,7 +48,7 @@ async function fetchBranches() {
         await Store.stateGenaratorApi(collection)
         fields.value[0].options = Store?.['system-branches']?.payload?.data ?? []
         fields.value[0].value = Store?.['system-branches']?.payload?.data[0]?.id
-        setLocalValues(keysToUse.activeBranch, fields.value[0].value)
+        watchBranchchanges(fields.value[0].value)
         loading.value = false
     })
 }
@@ -55,6 +56,10 @@ defineProps<{
     title: string;
 }>();
 
+function watchBranchchanges(branch: any) {
+    setLocalValues(keysToUse.activeBranch, branch)
+    Store.activeBranch = branch
+}
 const authStore = useAuthStore();
 const user = computed(() => authStore.user);
 const userName = computed(() => String(user.value?.name ?? 'User'));
@@ -97,23 +102,20 @@ function selectBranch(id: number | null) {
         <div v-if="showBranchSwitcher" class="flex items-center">
             <DropdownMenu>
                 <DropdownMenuTrigger>
-                    <div class="flex items-center gap-2 h-9 px-3 rounded-[14px] bg-[#F1F5F9] dark:bg-white/10 border border-neutral-200/50 dark:border-white/10 text-sm font-medium text-neutral-700 dark:text-neutral-200 cursor-pointer hover:bg-neutral-200 dark:hover:bg-white/20 transition-all">
+                    <div
+                        class="flex items-center gap-2 h-9 px-3 rounded-[14px] bg-[#F1F5F9] dark:bg-white/10 border border-neutral-200/50 dark:border-white/10 text-sm font-medium text-neutral-700 dark:text-neutral-200 cursor-pointer hover:bg-neutral-200 dark:hover:bg-white/20 transition-all">
                         <Building2 class="size-3.5 text-neutral-400 dark:text-neutral-500 shrink-0" />
                         <span class="max-w-[140px] truncate">{{ activeBranch?.name ?? 'All Branches' }}</span>
                         <ChevronDown class="size-3.5 text-neutral-400 dark:text-neutral-500 shrink-0" />
                     </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" class="w-52">
-                    <DropdownMenuItem
-                        v-if="branchStore.canAccessMultipleBranches"
-                        class="text-sm cursor-pointer"
+                    <DropdownMenuItem v-if="branchStore.canAccessMultipleBranches" class="text-sm cursor-pointer"
                         :class="branchStore.activeBranchId === null ? 'font-semibold text-nfuko-primary' : ''"
                         @click="selectBranch(null)">
                         All Branches
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                        v-for="branch in branchStore.availableBranches"
-                        :key="branch.id"
+                    <DropdownMenuItem v-for="branch in branchStore.availableBranches" :key="branch.id"
                         class="text-sm cursor-pointer"
                         :class="branchStore.activeBranchId === branch.id ? 'font-semibold text-nfuko-primary' : ''"
                         @click="selectBranch(branch.id)">
