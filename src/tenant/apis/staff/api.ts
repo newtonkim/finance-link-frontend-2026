@@ -8,6 +8,7 @@ export interface Staff {
   password?: string
   status: 'active' | 'inactive'
   is_tenant_admin?: boolean
+  branch_id?: number | null
   created_at?: string
 }
 

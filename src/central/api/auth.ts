@@ -36,8 +36,8 @@ export interface ApiResponse<T> {
 }
 
 export const loginApi = async (payload: LoginPayload): Promise<ApiResponse<AuthSuccessData>> => {
-  const { data } = await apiClient.post<ApiResponse<AuthSuccessData>>('/auth/login', payload)
-  return data
+  const { data } = await apiClient.post<string>('/auth/login', payload)
+  return JSON.parse(atob(data)) as ApiResponse<AuthSuccessData>
 }
 
 export const registerApi = async (payload: RegisterPayload): Promise<ApiResponse<AuthSuccessData>> => {

@@ -3,6 +3,7 @@ import { Eye, EyeOff } from 'lucide-vue-next';
 import { isAxiosError } from 'axios';
 import { ref, onMounted, onUnmounted,computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { toast } from 'vue-sonner';
 import { registerApi } from '@/central/api/auth';
 import { useAuthStore } from '@/stores/auth';
 import {
@@ -24,7 +25,6 @@ const password = ref('');
 const password_confirmation = ref('');
 const processing = ref(false);
 const errors = ref<{ name?: string; email?: string; password?: string; password_confirmation?: string; form?: string }>({});
-const status = ref('');
 
 const features = [
   {
@@ -74,7 +74,6 @@ const showConfirmPassword = ref(false);
 const submit = async () => {
   processing.value = true;
   errors.value = {};
-  status.value = '';
 
   if (password.value !== password_confirmation.value) {
     errors.value.password_confirmation = "The password confirmation does not match.";
@@ -91,7 +90,7 @@ const submit = async () => {
     });
 
     authStore.setAuthSession(response.data);
-    status.value = response.message;
+    toast.success(response.message || 'Registration successful');
 
     const redirectUrl = response.data.redirect_url;
     const targetPath =
@@ -144,12 +143,6 @@ const loginPath = '/login';
 
 <template>
   <AuthBase title="Create an account" description="Join Mfuko Pro today and elevate your financial management">
-    <div
-      v-if="status"
-      class="mb-6 rounded-lg bg-green-50 p-4 text-center text-sm font-medium text-green-600 border border-green-100"
-    >
-      {{ status }}
-    </div>
     <div
       v-if="errors.form"
       class="mb-6 rounded-lg bg-red-50 p-4 text-center text-sm font-medium text-red-600 border border-red-100"

@@ -2,8 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { Calendar, Upload } from 'lucide-vue-next'
 import { Spinner } from '@/Global'
-import axios from 'axios'
-import { useAuthStore } from '@/stores/authStore'
+import { tenantClient } from '@/tenant/apis/tenantClient'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -16,17 +15,11 @@ const member = ref<any>(null)
 const summary = ref({ total_savings: 0, total_shares: 0, total_loans: 0 })
 const transactions = ref<any[]>([])
 
-const { auth } = useAuthStore()
-const apiClient = axios.create({ 
-  baseURL: import.meta.env.VITE_API_BASE_URL + '/api/v1',
-  headers: { Authorization: `Bearer ${auth.token}` } 
-})
-
 async function fetchStatement() {
   if (!memberId.value) return
   loading.value = true
   try {
-    const res = await apiClient.get(`/reports/member-statement/${memberId.value}`, {
+    const res = await tenantClient.get(`/reports/member-statement/${memberId.value}`, {
       params: { date_from: dateFrom.value, date_to: dateTo.value }
     })
     member.value = res.data.member

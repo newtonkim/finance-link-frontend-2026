@@ -3,12 +3,11 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   LayoutGrid,
-  Users,
-  Wallet,
-  HandCoins,
-  ArrowUpDown,
+  Settings,
+  Moon,
+  Sun,
+  MapPin,
   Mail,
-  ArrowLeftRight,
   DatabaseZap,
 } from 'lucide-vue-next'
 import {
@@ -46,28 +45,10 @@ function toggleDarkMode() {
 const isActive = (path: string) => route.path === path
 const isSettingsActive = computed(() => route.path.startsWith('/tenant/settings'))
 
-
-
-// Settings sub-items removed to avoid duplication with the Settings Workspace sidebar
-
+ 
 const tenant = tenantStore.currentTenant as any
 
-const memberCount = computed(() => tenantStore.memberCount)
-
-onMounted(async () => {
-//  const [membersRes] = await Promise.allSettled([
-//    membersApi.list({ page: 1 }),
-//    (async () => {
-//      if (!saccoBrandingState.loaded) {
-//        try { await saccoBrandingApi.get() } catch { /* silently ignore */ }
-//      }
-//    })(),
-//  ])
-//  if (membersRes.status === 'fulfilled') {
-//    const total = membersRes.value.data?.meta?.total ?? membersRes.value.data?.total ?? null
-//    if (total !== null) tenantStore.setMemberCount(total)
-//  }
-})
+ 
 </script>
 
 <template>

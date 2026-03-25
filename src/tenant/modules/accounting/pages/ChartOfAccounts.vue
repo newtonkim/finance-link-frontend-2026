@@ -3,6 +3,7 @@ import { ref, watch, onMounted, computed } from 'vue'
 import { Search, Plus, ChevronRight, ChevronDown } from 'lucide-vue-next'
 import { Spinner } from '@/Global'
 import { chartOfAccountsApi } from '@/tenant/apis/chartOfAccounts/chartOfAccountsApi'
+import ChartOfAccountForm from '../components/ChartOfAccountForm.vue'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Account {
@@ -26,6 +27,7 @@ const accounts  = ref<Account[]>([])
 const meta      = ref<Meta>({ current_page: 1, last_page: 1, total: 0 })
 const loading   = ref(false)
 const search    = ref('')
+const showForm  = ref(false)
 let   timer: ReturnType<typeof setTimeout> | null = null
 
 // ─── Fetch ────────────────────────────────────────────────────────────────────
@@ -98,6 +100,7 @@ const typeLabel: Record<string, string> = {
         </p>
       </div>
       <button
+        @click="showForm = true"
         class="inline-flex items-center gap-2 rounded-full  bg-nfuko-primary px-5 py-2.5 text-sm font-semibold text-white hover: bg-nfuko-primary/90 transition-colors shadow-sm"
       >
         <Plus class="h-4 w-4" />
@@ -251,5 +254,11 @@ const typeLabel: Record<string, string> = {
         </div>
       </div>
     </template>
+
+    <!-- Create Form -->
+    <ChartOfAccountForm
+      v-model:open="showForm"
+      @saved="fetchAccounts(1)"
+    />
   </div>
 </template>

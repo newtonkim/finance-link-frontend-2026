@@ -13,8 +13,10 @@ import {
 } from '@/Global';
 import { tenantClient } from '@/tenant/apis/tenantClient';
 import { setBearerToken } from 'septor-store';
+import { useBranchStore } from '@/stores/branchStore';
 
-const router = useRouter();
+const router = useRouter()
+const branchStore = useBranchStore()
 
 // Extract subdomain from hostname: "naivasha-sacco.localhost" → "naivasha-sacco"
 const subdomain = computed(() => {
@@ -73,6 +75,10 @@ async function submit() {
     setBearerToken({token: data.data.access_token,...data.data.user})
     storeUserLogedinData(data.data.user)
     storeUserPermissions({data:data.data?.permissions})
+
+    if (data?.data?.branch_context) {
+      branchStore.setBranchContext(data.data.branch_context)
+    }
 
 
     const redirectUrl = data?.data?.redirect_url;

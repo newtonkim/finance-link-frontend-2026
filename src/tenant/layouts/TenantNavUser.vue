@@ -17,9 +17,11 @@ import {
     useSidebar,
 } from '@/Global/ui/sidebar'
 import { useTenantUserStore } from '@/stores/tenantUserStore'
+import { useBranchStore } from '@/stores/branchStore'
 
 const router = useRouter()
 const store = useTenantUserStore()
+const branchStore = useBranchStore()
 const { isMobile, state } = useSidebar()
 
 onMounted(() => store.load())
@@ -37,6 +39,7 @@ const initials = computed(() => {
 
 const logout = () => {
     store.clear()
+    branchStore.clear()
     router.push('/tenant/login')
 }
 </script>
