@@ -1,7 +1,7 @@
 <template>
     <div class="flex h-full fle x-1 flex-col  px-10 py-6 ">
         <div class="flex items-center justify-between">
-            <div v-if="$slots['header-action']" class='my-4'>
+            <div v-if="$slots['header-action']" class='my-2'>
                 <slot name="header-action" />
             </div>
             <div v-else>
@@ -28,8 +28,8 @@
             class="rounded-xl border-0 border-neutral-200 b g-white dark:border-neutral-800 dark:bg-neutral-900  overflow-hidden ">
             <div v-if="showSearchbar || showTableAction"
                 class="flex p-1  my-2 justify-between rounded-xl border border-neutral-100 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                <Searchbar v-if="showSearchbar" @search="onSearch" :removeInSearch="removeInSearch" :columns="columns"
-                    @filter="(v) => filterDataByString(v)" />
+                <Searchbar class="m-0 p-0" v-if="showSearchbar" @search="onSearch" :removeInSearch="removeInSearch"
+                    :columns="columns" @filter="(v) => filterDataByString(v)" />
                 <div class="flex">
                     <div class="flex items-center gap-2 board-r-1 mx-2" v-if="showTableAction">
                         <button @click="handleExport"

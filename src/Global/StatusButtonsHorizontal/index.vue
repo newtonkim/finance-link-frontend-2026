@@ -1,11 +1,11 @@
 <template>
 
   <div
-    class="flex min-w-[200px] rounded-lg border border-neutral-200 bg-neutral-50 p-[4px] dark:border-neutral-700 dark:bg-neutral-800"
+    class="flex min-w-[200px] rounded-lg border border-neutral-200 bg-neutral-50 p-[1px] dark:border-neutral-700 dark:bg-neutral-800"
   >
   <template v-if="filters?.length>maxLength">
     <div class="w-full">
-        <SearchableSelect     v-model="selectedFilter" :options="defineFiltersPertten()" placeholder="filters"/>
+        <SearchableSelect class="p-0"    v-model="selectedFilter" :options="defineFiltersPertten()" placeholder="filters"/>
     </div>
   </template>
 

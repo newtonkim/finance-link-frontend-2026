@@ -174,7 +174,7 @@ const fields = ref([
     label: 'referred by',
     name: 'referred_by',
     type: 'select',
-    required: true,
+    required: false,
     url: 'staff/users-drop-down',
     placeholder: 'Referred by',
     dataOnMount: true,
@@ -254,7 +254,6 @@ watch(
           placeholder: 'Enter code',
         })
       }
-
     } else {
       if (codeIndex !== -1) {
         fields.value.splice(codeIndex, 1)

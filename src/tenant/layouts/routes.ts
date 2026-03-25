@@ -12,7 +12,6 @@ import {
 } from 'lucide-vue-next'
 import type { MenuRoutes } from '@/Global/types/helpers'
 
-
 export const tenantRoutes: MenuRoutes[] = [
   {
     path: 'Dashboard',
@@ -76,7 +75,7 @@ export const tenantRoutes: MenuRoutes[] = [
     permissions: 'group-savings-module-link-view',
     icon: Users,
     showSideBar: true,
-   component: () => import('@/tenant/modules/savings/group-account/Index.vue'),
+    component: () => import('@/tenant/modules/savings/group-account/Index.vue'),
     // component: () => import('@/tenant/modules/savings/pages/SavingsGroups.vue'),
   },
   ///////////
@@ -114,6 +113,4 @@ export const tenantRoutes: MenuRoutes[] = [
     component: () => import('@/tenant/modules/accounting/pages/ChartOfAccounts.vue'),
   },
 ]
-
-// export const tenantRoutesList: RouteRecordRaw[] = routebuilder(tenantRoutes, 'tenant')
 export const tenantRoutesList = routebuilder(tenantRoutes, 'tenant') as RouteRecordRaw[]

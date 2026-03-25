@@ -70,6 +70,8 @@ export const IS_REVENUE_OPTIONS = [
   { id: 'no', name: 'No' },
 ]
 
-export const INPUT_CLS = 'w-full rounded-xl border border-neutral-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-nfuko-primary focus:ring-1 focus:ring-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white'
+export const INPUT_CLS =
+  'w-full rounded-xl border border-neutral-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-nfuko-primary focus:ring-1 focus:ring-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white'
 
-export const FIELD_CLS = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-nfuko-primary focus:ring-2 focus:ring-nfuko-primary/10 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white'
+export const FIELD_CLS =
+  'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-nfuko-primary focus:ring-2 focus:ring-nfuko-primary/10 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white'
