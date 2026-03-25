@@ -120,7 +120,7 @@ const deleteStaff = async (id: number) => {
         </List>
 
 
-                <div class="flex-1 overflow-y-auto px-6 py-6 space-y-5">
+                <div class="flex-1 overflow-y-auto px-3 py-6 space-y-5">
                     <div class="space-y-1.5">
                         <Label class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Name</Label>
                         <input type="text" v-model="formData.name" class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-[ bg-nfuko-primary] dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow" placeholder="e.g. John Doe" />
@@ -183,7 +183,7 @@ const deleteStaff = async (id: number) => {
                         <span v-else>{{ isEditing ? 'Save Changes' : 'Create Staff' }}</span>
                     </Button>
                 </SheetFooter>
-            </SheetContent>
-        </Sheet>
+            <!-- </SheetContent>
+        </Sheet> -->
     </div>
 </template>

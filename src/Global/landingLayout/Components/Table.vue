@@ -47,7 +47,7 @@
             v-for="col in columns"
             :key="col.key"
             :class="[
-              'px-3 py-3 text-[14px] text-neutral-500 dark:text-neutral-400 capitalize',
+              'px-3 py-3 truncate text-[14px] text-neutral-500 dark:text-neutral-400 capitalize',
               col.sticky ? `sticky z-30 ${col.sticky}-0 dark:bg-neutral-900 bg-white` : '',
               col.class || '',
               col.key === 'actions'
@@ -122,8 +122,8 @@ const props = defineProps({
 function getColumnStyle(col: any) {
   const width = typeof col.width ? col.width + 'px' : col.width
   return {
-    'min-width': width,
-    minWidth: col.width
+    'max-width': width,
+    maxWidth: col.width
       ? typeof col.width === 'number'
         ? col.width + 'px'
         : col.width
