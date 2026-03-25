@@ -50,11 +50,12 @@ async function submit() {
       headers['X-Tenant-Subdomain'] = subdomain.value;
     }
 
-    const { data } = await tenantClient.post(
-      '/auth/login', 
+    const { data: raw } = await tenantClient.post<string>(
+      '/auth/login',
       { email: email.value, password: password.value, type: 'tenant' },
       { headers },
     );
+    const data = JSON.parse(atob(raw));
 
     // Store token, subdomain, and user profile for sidebar display
     if (data?.data?.access_token) {
