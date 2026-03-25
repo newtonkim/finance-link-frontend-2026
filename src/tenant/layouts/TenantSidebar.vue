@@ -7,6 +7,7 @@ import {
   Wallet,
   HandCoins,
   ArrowUpDown,
+  FileText,
   BookOpen,
   BarChart2,
   Settings,
@@ -57,6 +58,7 @@ const navItems = [
   { title: 'Savings Transfer', href: '/tenant/savings-transfer', icon: ArrowLeftRight },
   { title: 'Loans', href: '/tenant/loans', icon: HandCoins },
   { title: 'Transactions', href: '/tenant/transactions', icon: ArrowUpDown },
+  { title: 'Manual Journal Entries', href: '/tenant/journal-entries', icon: FileText },
   { title: 'Chart of Accounts', href: '/tenant/chart-of-accounts', icon: BookOpen },
   { title: 'Reports', href: '/tenant/reports', icon: BarChart2 },
 ]

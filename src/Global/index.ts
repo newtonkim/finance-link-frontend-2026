@@ -10,6 +10,7 @@ export {default as InputError} from './InputError.vue';
 export {default as TextLink} from './TextLink.vue';
 export * from './DetailsTable';
 export {default as StatusButtonsHorizontal} from './StatusButtonsHorizontal/index.vue';
+export {default as Pagination} from './Pagination.vue';
 
 export { default as authDirective } from './authDirective';
 export * from './landingLayout/Components/index.ts';
