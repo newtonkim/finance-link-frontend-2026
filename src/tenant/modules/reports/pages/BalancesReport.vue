@@ -3,8 +3,7 @@ import { ref, onMounted } from 'vue'
 import { Calendar, Filter } from 'lucide-vue-next'
 import { Spinner } from '@/Global'
 import { reportsApi } from '@/tenant/apis/reports/reportsApi'
-import axios from 'axios'
-import { useAuthStore } from '@/stores/authStore'
+import { tenantClient } from '@/tenant/apis/tenantClient'
 
 const loading = ref(false)
 const asOfDate = ref(new Date().toISOString().split('T')[0])
@@ -14,17 +13,10 @@ const branches = ref<any[]>([])
 const summary = ref({ grand_total_savings: 0, grand_total_shares: 0 })
 const members = ref<any[]>([])
 
-// Placeholder API call using standard axios if reportsApi doesn't have it
-const { auth } = useAuthStore()
-const apiClient = axios.create({ 
-  baseURL: import.meta.env.VITE_API_BASE_URL + '/api/v1',
-  headers: { Authorization: `Bearer ${auth.token}` } 
-})
-
 async function fetchBalances() {
   loading.value = true
   try {
-    const res = await apiClient.get('/reports/savings-shares-balances', {
+    const res = await tenantClient.get('/reports/savings-shares-balances', {
       params: { as_of_date: asOfDate.value, branch_id: branchId.value }
     })
     summary.value = res.data.summary

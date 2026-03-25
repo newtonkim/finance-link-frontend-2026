@@ -1,4 +1,4 @@
-import { getSubdomainName, getTenantSubdomain, getUserToken } from '@/Global'
+import { getSubdomainName } from '@/Global'
 import axios from 'axios'
 import { getBearerToken } from 'septor-store';
 // import { getBearerToken } from 'septor-store';
@@ -22,18 +22,36 @@ export const tenantClient = axios.create({
 tenantClient.interceptors.request.use((config) => {
   // console.log("=====tenants2",getBaseURL());
   const token=getBearerToken()?.token;
-  if (token) { // can be remved 
+  if (token) { // can be remved
     config.headers.Authorization = `Bearer ${token}`
   }
   // Prefer subdomain from hostname (production subdomain routing),
   // fall back to value saved at login time (dev on localhost)
   const subdomain = getSubdomainName()
-  console.log(subdomain,"subdomainsubdomaininsepto");
-  
+
   if (subdomain) {
     config.headers['X-Tenant-Subdomain'] = subdomain
-    console.log(config);
-    
+  }
+
+  // Inject active branch context so the backend scopes reads and stamps writes.
+  // We read directly from localStorage here to avoid a circular Pinia import
+  // (the store is not yet created when this module is loaded).
+  try {
+    const raw = localStorage.getItem('tenant_branch_context')
+    if (raw) {
+      const ctx = JSON.parse(raw)
+      const activeBranchId: number | null = ctx?.active_branch_id ?? null
+      if (activeBranchId !== null) {
+        // For GET list endpoints — backend reads ?branch_id= for filter
+        if (config.method === 'get') {
+          config.params = { ...config.params, branch_id: activeBranchId }
+        }
+        // For all methods — backend reads X-Acting-Branch-Id to stamp writes
+        config.headers['X-Acting-Branch-Id'] = String(activeBranchId)
+      }
+    }
+  } catch {
+    // localStorage unavailable or corrupt — skip silently
   }
 
   return config
