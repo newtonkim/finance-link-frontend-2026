@@ -16,14 +16,15 @@ interface Option {
 
 const props = defineProps<{
     modelValue: string | number;
-    options: Option[];
+    options?: Option[];
     placeholder?: string;
     label?: string;
     error?: string;
     disabled?: boolean;
     remote?: boolean;
     url?: string;
-    state: string
+    saveData?: boolean;
+    state?: string
     dataOnMount?: boolean
 }>();
 
@@ -32,17 +33,18 @@ const remoteUrl = debounce(async (url: string) => {
     if (!url) return;
     tryCatch(async () => {
         const data = {}
-
         if (searchQuery.value?.length >= 3)
             data.search_keyword = searchQuery.value
-        const  generateAstate=props?.state??`${url}`.replace(/[^a-zA-Z0-9]/g, "-");
+        const generateAstate =await  props?.state ?? `${url}`.replace(/[^a-zA-Z0-9]/g, "-");
         const res = await fetchTableData({
             data: data?.search_keyword ? data : null,
-            props: { url, reload: false, state:generateAstate },
+            saveData:  props?.saveData ?? true,
+            props: { url, reload: false, state: generateAstate, },
             Store,
         });
-        if (res.success !== false)
-            collection.value = res?.payload?.data ?? res?.payload ?? res ?? [];
+        const checker= await Store?.[generateAstate]?.payload?.data ?? Store?.[generateAstate]?.payload ?? Store?.[generateAstate] ?? [];
+        
+            collection.value = checker
     })
 }, 1000);
 
@@ -54,7 +56,7 @@ const collection = shallowRef<any[]>([]);
 const containerRef = ref<HTMLElement | null>(null);
 const selectedOption = computed(() => {
     const options = props?.url ? collection.value : props.options
-    if(options?.length===0) return []
+    if (options?.length === 0) return []
     return options.find(opt => opt.id === props.modelValue);
 });
 
@@ -74,20 +76,21 @@ const selectOption = (option: Option) => {
     searchQuery.value = '';
 };
 
-const toggleDropdown = () => {
+const toggleDropdown =async () => {
     if (props.disabled) return;
     isOpen.value = !isOpen.value;
     if (isOpen.value)
         searchQuery.value = null;
-            const  generateAstate=props?.state??`${props?.url}`.replace(/[^a-zA-Z0-9]/g, "-");
-            const DataAlreadyCollected=Store[generateAstate]?.payload?.data??Store[generateAstate]?.payload
+    const generateAstate = props?.state ?? `${props?.url}`.replace(/[^a-zA-Z0-9]/g, "-");
+    const DataAlreadyCollected = Store[generateAstate]?.payload?.data ?? Store[generateAstate]?.payload
+        console.log({Store},Store[generateAstate],'checkercheckercheckercheckerchecker');
 
-    if (props.url&&!DataAlreadyCollected?.length){
+    if (props.url && !DataAlreadyCollected?.length) {
         remoteUrl(props.url)
-        }else{
-     
-            collection.value=DataAlreadyCollected
-        }
+    } else {
+
+        collection.value = DataAlreadyCollected
+    }
 };
 
 const closeDropdown = (e: MouseEvent) => {
@@ -108,17 +111,14 @@ watch(props, async (newVal) => {
     if (newVal?.dataOnMount) {
         searchQuery.value = props.modelValue ?? '';
         await toggleDropdown();
-        await toggleDropdown();
-
-
-
+        // await toggleDropdown();
     }
 }, { immediate: true, deep: true });
-watch(isOpen, (newVal) => {
-    if (newVal) {
-        // Optional: focus searchable input
-    }
-});
+// watch(isOpen, (newVal) => {
+//     if (newVal) {
+//         // Optional: focus searchable input
+//     }
+// });
 
 watch(searchQuery, (newVal) => {
     if (searchQuery.value?.length >= 3 && props.url) {
@@ -149,7 +149,8 @@ const inputClass =
             disabled ? 'opacity-50 cursor-not-allowed bg-neutral-50 dark:bg-neutral-950' : 'hover:border-neutral-300 dark:hover:border-neutral-700'
         ]">
             <div class="flex items-center justify-between gap-2">
-                <span v-if="selectedOption?.id" class="block truncate text-neutral-900 dark:text-neutral-100 font-medium">
+                <span v-if="selectedOption?.id"
+                    class="block truncate text-neutral-900 dark:text-neutral-100 font-medium">
                     {{ selectedOption.name }}
                 </span>
                 <span v-else class="block truncate text-neutral-400">
@@ -164,14 +165,12 @@ const inputClass =
             enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100"
             leave-active-class="transition duration-75 ease-in" leave-from-class="transform scale-100 opacity-100"
             leave-to-class="transform scale-95 opacity-0">
-            <div
-            style="z-index:9999"
-            v-if="isOpen"
+            <div style="z-index:9999" v-if="isOpen"
                 class="absolute   mt-2 w-full overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xl dark:border-neutral-800 dark:bg-neutral-900">
                 <div class="p-2 border-b border-neutral-100 dark:border-neutral-800">
                     <div class="relative flex items-center">
                         <Search class="absolute left-3.5 h-4 w-4 text-neutral-400" />
-                        <input v-model="searchQuery" type="text" :placeholder="'Search...'+placeholder"
+                        <input v-model="searchQuery" type="text" :placeholder="'Search...' + placeholder"
                             class="w-full rounded-lg bg-neutral-50 dark:bg-neutral-950 px-10 py-2 text-sm outline-none focus:ring-0 placeholder:text-neutral-400"
                             @click.stop />
                         <button v-if="searchQuery" @click.stop="searchQuery = ''"

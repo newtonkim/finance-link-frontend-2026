@@ -20,6 +20,7 @@ const StaffProfile = () => import('./pages/StaffProfile.vue')
 const GeneralSettings = () => import('./pages/GeneralSettings.vue')
 const Notifications = () => import('./pages/Notifications.vue')
 const TransactionCharges = () => import('./pages/TransactionCharges.vue')
+const BranchList = () => import('@/tenant/modules/settings/branches/Index.vue')
 
 export const settingsRoutes: RouteRecordRaw[] = [
   {
@@ -46,6 +47,11 @@ export const settingsRoutes: RouteRecordRaw[] = [
         path: 'members',
         name: 'tenant-settings-members',
         component: MembersSettings,
+      },
+      {
+        path: 'branches',
+        name: 'tenant-settings-branch-list',
+        component: BranchList,
       },
       {
         path: 'staff',

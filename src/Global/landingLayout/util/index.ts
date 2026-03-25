@@ -1,5 +1,5 @@
 import { statusMap, getSubdomainName,formatCurrency } from '@/Global'
-import { dateTime, date, createUrl } from '../../Helpers'
+import { dateTime, date, createUrl, getLocalValues, keysToUse } from '../../Helpers'
 import { Eye, Edit, Trash, UserCircle2, X } from 'lucide-vue-next'
 import { tenantClient } from '@/tenant/apis/tenantClient'
 import { apiClient } from '@/central/api/client'
@@ -110,19 +110,21 @@ export async function fetchTableData({
   const subdomain = getSubdomainName()
   const interceptor = subdomain ? tenantClient : apiClient,
   createTheState=props?.state?props?.state:props?.url.replace(/[^a-z0-9]+/gi, '-')
-  
+ const branch_id= getLocalValues(keysToUse.activeBranch)
+ const quer=props?.url.includes('?')?`${props?.url}&`:`${props?.url}?`
   const collection = {
     reload: !!props.reload ? 0 : 1, // dont think am stupid i know that
     StateStore: createTheState,
     time: props?.time ?? 0,
     reqs: {
       ...props,
-      url: props?.url,
+      url: quer+`branch_id=${branch_id}`,
       method: 'post',
       data,
     },
     axiosInstance: interceptor,
     mStore: { mUse: saveData ?? true },
   }
+  
   return await Store.stateGenaratorApi(collection)
 }

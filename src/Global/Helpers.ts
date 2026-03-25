@@ -10,7 +10,8 @@ export const keysToUse = {
   loginUserData: 'loginUserData',
   loggedInAsStudentOrStaff: 'loggedInAsStudentOrStaff',
   IpEverLoged: 'IpEverLoged',
-  SystemBranding: "SystemBranding" + getSubdomainName()
+  activeBranch: 'activeBranch',
+  SystemBranding: 'SystemBranding' + getSubdomainName(),
 }
 export function dateTime(time: string) {
   return tryCatch(() => {
@@ -67,6 +68,20 @@ export function storeUserLogedinData(data: any, key: string = 'loginUserData') {
 export function setIpEverLoged(data: any): void {
   try {
     encryptStorage.setItem(keysToUse['IpEverLoged'], data)
+  } catch (error) {
+    console.error(`Failed to store key "${keysToUse['IpEverLoged']}":`, error)
+  }
+}
+export function setLocalValues(key: any, data: any): void {
+  try {
+    encryptStorage.setItem(keysToUse[key], data)
+  } catch (error) {
+    console.error(`Failed to store key "${keysToUse['IpEverLoged']}":`, error)
+  }
+}
+export function getLocalValues(key: any) {
+  try {
+    return encryptStorage.getItem(keysToUse[key])
   } catch (error) {
     console.error(`Failed to store key "${keysToUse['IpEverLoged']}":`, error)
   }
@@ -163,8 +178,8 @@ export function getetSystemBranding() {
 
 export function pickAsettingKeyValue(key: string) {
   try {
-    const data = encryptStorage.getItem(keysToUse.systemSettings);
-    return data[key];
+    const data = encryptStorage.getItem(keysToUse.systemSettings)
+    return data[key]
   } catch (error) {
     console.error('failed to get this  key:', error)
   }
@@ -177,19 +192,19 @@ export function storeUserPermissions(props: { data: any } = { data: null }) {
     console.error('Error storing user permissions:', error)
   }
 }
-export  function hasPermission(permission: string) {
+export function hasPermission(permission: string) {
   try {
-    if(!`${permission}`.trim()?.length){
-      return true /// means its a global permission to be accessed 
+    if (!`${permission}`.trim()?.length) {
+      return true /// means its a global permission to be accessed
     }
-    const list =  localStoragePicker(keysToUse.userPermissions);
-    const userPermissions = Array.isArray(list) ? list : JSON.parse(list || '[]');
+    const list = localStoragePicker(keysToUse.userPermissions)
+    const userPermissions = Array.isArray(list) ? list : JSON.parse(list || '[]')
     return !userPermissions.includes(permission)
   } catch (error) {
     console.error('Error :', error)
   }
 }
-export function appendOnAjsonStore(props: { data: any, key: string } = { data: {}, key: "" }) {
+export function appendOnAjsonStore(props: { data: any; key: string } = { data: {}, key: '' }) {
   const { data, key } = props
 
   try {
@@ -201,7 +216,7 @@ export function appendOnAjsonStore(props: { data: any, key: string } = { data: {
     console.error('Error storing user ' + key + ':', error)
   }
 }
-export  function localStoragePicker(key = '') {
+export function localStoragePicker(key = '') {
   try {
     const data = encryptStorage.getItem(key)
     return data || []
@@ -220,8 +235,8 @@ export const formatCurrency = (amount: number | string) => {
   return new Intl.NumberFormat('en-UG', {
     style: 'currency',
     currency: 'UGX',
-  }).format(Number(amount || 0));
-};
+  }).format(Number(amount || 0))
+}
 export function addMinutesToTime(startTime: string, minutesToAdd: number | string = 40) {
   const [hours = 0, minutes = 0] = startTime.split(':').map(Number)
   const totalMinutes = hours * 60 + minutes + parseFloat(String(minutesToAdd))
@@ -313,7 +328,7 @@ export function scopeValues(data: any) {
 export function isJSON(jsonString: string) {
   try {
     return JSON.parse(jsonString)
-  } catch (e) { }
+  } catch (e) {}
   return jsonString
 }
 export function formDataFormatV2(fields: any[]) {
@@ -342,16 +357,20 @@ export function formDataFormatV2(fields: any[]) {
       fd.append(key, value)
     }
   })
+  fd.append('branch_id', getLocalValues(keysToUse.activeBranch))
 
   return fd
 }
 
 function isISODate(value: any) {
-  return typeof value === 'string' &&
-         /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(value) &&
-         !isNaN(new Date(value).getTime());
+  return (
+    typeof value === 'string' &&
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(value) &&
+    !isNaN(new Date(value).getTime())
+  )
 }
-export function formDataFormat(data: any) { // first version
+export function formDataFormat(data: any) {
+  // first version
   let formData = new FormData()
 
   for (let key in data) {
@@ -379,15 +398,14 @@ export function formDataFormat(data: any) { // first version
     } else if (typeof value === 'object' && !(value instanceof File)) {
       const lowerCaseKeys = `${key}`.toLocaleLowerCase().replace('\+S', '_')
       formData.append(`${lowerCaseKeys}`.toLocaleLowerCase(), JSON.stringify(value))
-
     } else {
       const lowerCaseKeys = `${key}`.toLocaleLowerCase().replace('\+S', '_')
       // Handle primitive values and Files
 
-
       formData.append(lowerCaseKeys, value)
     }
   }
+  formData.append('branch_id', getLocalValues(keysToUse.activeBranch))
 
   return formData
 }
@@ -443,8 +461,7 @@ export function routebuilder(routes = [], prifix = 'central') {
   const collecction: any = []
   routes.forEach((route) => {
     if (!route?.children) {
-      
-      const routePath = route.path?`${prifix}/${route.path}`:null
+      const routePath = route.path ? `${prifix}/${route.path}` : null
       //  if(hasPermission(route?.permissions))
       collecction.push(RouteStructure(route, routePath))
     } else if (Array.isArray(route.children)) {
@@ -452,8 +469,8 @@ export function routebuilder(routes = [], prifix = 'central') {
         if (child?.items) {
           child.items.forEach((item) => {
             // const childRoutePath = `${prifix}/${item.path}`
-             const childRoutePath = item.path?`${prifix}/${item.path}`:null
-              // if (hasPermission(route?.permissions))
+            const childRoutePath = item.path ? `${prifix}/${item.path}` : null
+            // if (hasPermission(route?.permissions))
             collecction.push(RouteStructure(item, childRoutePath))
           })
         }
@@ -465,12 +482,27 @@ export function routebuilder(routes = [], prifix = 'central') {
 
 export function feedback(res: any, success: string, fail: string) {
   let successStatus = false
-
   let msg: Record<string, string> = {
-    msg: success,
+    msg: res.error || success,
     type: 'Error',
     success: successStatus,
   }
+
+  if (res.error?.message?.includes('422')) {
+    msg = {
+      msg: 'Failed  some fields are missing',
+      type: 'error',
+      success: false,
+    }
+  }
+  if (res.error?.message?.includes('403') || res.error?.message?.includes('401')) {
+    msg = {
+      msg: 'You are not authorized to perform this action',
+      type: 'error',
+      success: false,
+    }
+  }
+
   if (!res || res.code == 200) {
     successStatus = true
     msg = {
@@ -488,19 +520,29 @@ export function feedback(res: any, success: string, fail: string) {
 }
 
 export function createUrl(url: string, action: string) {
-  const url2 = url.split("/")
+  const url2 = url.split('/')
   url2.length = url2.length - 1
-  return url2.join("/") + `/${action}`
+  return url2.join('/') + `/${action}`
 }
 
-
-export async function copyToClipboard(text:string) {
+export async function copyToClipboard(text: string) {
   try {
-    await navigator.clipboard.writeText(text);
-    console.log('Copied!');
-    notify({pos: 'br', type: 'Info', msg: 'Copied!' });
+    await navigator.clipboard.writeText(text)
+    console.log('Copied!')
+    notify({ pos: 'br', type: 'Info', msg: 'Copied!' })
   } catch (err) {
-    notify({pos: 'br', type: 'warning', message: 'failed to copy' });
-    console.error('Failed to copy:', err);
+    notify({ pos: 'br', type: 'warning', message: 'failed to copy' })
+    console.error('Failed to copy:', err)
   }
+}
+
+export function exptendAformField({ fields, nextto, field }: any) {
+  const existsIndex = fields.value.findIndex((f) => f.name === nextto)
+  if (existsIndex === 1) {
+    fields.value.splice(existsIndex + 1, 0, { ...field })
+  } else {
+    fields.value.splice(existsIndex + 1, 1)
+  }
+
+  return fields
 }

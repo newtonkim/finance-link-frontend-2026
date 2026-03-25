@@ -88,7 +88,7 @@ const deleteStaff = async (id: number) => {
 
 <template>
     <div class="  bg-[#f8faf9] dark:bg-[#0a0a0a] ">
-        <div class="flex items-center my-2 pt-2 ">
+        <!-- <div class="flex items-center my-2 pt-2 ">
             <RouterLink to="/tenant/settings/members"
                 class="mr-2 p-2 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-800 transition">
                 <ChevronLeft class="h-5 w-5 text-neutral-600 dark:text-neutral-400" />
@@ -97,13 +97,14 @@ const deleteStaff = async (id: number) => {
                 <UserCog class="h-5 w-5  text-nfuko-primary dark:text-bg-nfuko-yellow" />
             </div>
             <div class="flex-1">
+                --
                 <h1 class="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">Staff Management
                 </h1>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400">Manage SACCO staff accounts and track
                     their onboarding performance</p>
             </div>
 
-        </div>
+        </div> -->
         <List>
 
         </List>

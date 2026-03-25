@@ -7,9 +7,10 @@
     }" drawerWidth=" w-2/4"  :url="tableUrl" state="staffList" :drawerTitle="drawerTitle" " :columns="columns"
         @save="saveUser">
     <template #header-action>
-<div><h1 class="text-4xl font-black text-[#0A2318] dark:text-white tracking-tight">
-Staff list</h1>
-<p class="text-sm text-neutral-500 dark:text-neutral-400 ">Manage all staff.</p></div>
+         <PainPageHeader
+   title="Staff list"
+   dec="Manage SACCO staff accounts and track their onboarding performance"
+ /> 
 </template>
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
@@ -24,7 +25,7 @@ Staff list</h1>
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Create, Details } from '.'
-import { TableDrawer, StatusButtonsHorizontal } from '@/Global'
+import { TableDrawer, StatusButtonsHorizontal, PainPageHeader } from '@/Global'
 const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
     drawerTitle = ref('Create Tenant'), filters = ['active', 'pendding'],
     tableUrl = computed(() => `/staff/list?status=${statusFilter.value}`),

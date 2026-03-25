@@ -27,6 +27,7 @@ export * from './confirmationDialog';
 export * from "./StatusMap"
 export *  from './ui/checkbox';
 export *  from './ui/input';
+export *  from './ui/breadcrumb';
 export * from './ui/label';
 export * from './ui/spinner';
 export * from './ui/alert';

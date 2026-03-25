@@ -1,27 +1,64 @@
 <script setup lang="ts">
 import { Search, Bell, Plus, LayoutGrid } from 'lucide-vue-next';
-import { Button, DropdownMenuTrigger, Input, Avatar, AvatarFallback, AvatarImage, DropdownMenu, DropdownMenuContent } from '@/Global';
-import UserMenuContent from '@/Global/UserMenuContent.vue';
-
 import {
-    Breadcrumb,
+    Button, DropdownMenuTrigger, Input, Avatar, AvatarFallback, AvatarImage, DropdownMenu, DropdownMenuContent, Form, Breadcrumb,
     BreadcrumbItem,
-    BreadcrumbLink,
     BreadcrumbList,
     BreadcrumbPage,
-    BreadcrumbSeparator,
-} from '@/Global/ui/breadcrumb';
+} from '@/Global';
+import UserMenuContent from '@/Global/UserMenuContent.vue';
 import { useAuthStore } from '@/stores/auth';
-import { computed } from 'vue';
-import { getInitials } from './Helpers';
+import { computed, onMounted, ref } from 'vue';
+import { getInitials, getSubdomainName, keysToUse, setLocalValues, tryCatch } from './Helpers';
+import { tenantClient } from '@/tenant/apis/tenantClient';
+import { apiClient } from '@/central/api/client';
+import { pomPinia } from 'septor-store';
+const Store = pomPinia();
+const loading = ref(true)
+const subdomain = getSubdomainName()
+const interceptor = subdomain ? tenantClient : apiClient
+const fields = ref([
+    {
+        name: 'branch_name',
+        type: 'select',
+        placeholder: 'Branch',
+        change: (val: number) => {
+            setLocalValues(keysToUse.activeBranch, val)
+        }
+    },]);
 
+async function fetchBranches() {
+    tryCatch(async () => {
+        const collection = {
+            reload: 0,
+            StateStore: 'system-branches',
+            time: 0,
+            reqs: {
+                url: 'settings/branches/branches-dropdown-list',
+                method: 'post',
+                data: {},
+            },
+            axiosInstance: interceptor,
+            mStore: { mUse: true },
+        }
+        await Store.stateGenaratorApi(collection)
+        fields.value[0].options = Store?.['system-branches']?.payload?.data ?? []
+        fields.value[0].value = Store?.['system-branches']?.payload?.data[0]?.id
+        setLocalValues(keysToUse.activeBranch, fields.value[0].value)
+        loading.value = false
+    })
+}
 defineProps<{
     title: string;
 }>();
+
 const authStore = useAuthStore();
 const user = computed(() => authStore.user);
 const userName = computed(() => String(user.value?.name ?? 'User'));
 
+onMounted(async () => {
+    await fetchBranches()
+})
 </script>
 
 <template>
@@ -57,6 +94,9 @@ const userName = computed(() => String(user.value?.name ?? 'User'));
                         class="bg-white/50 dark:bg-white/10 px-1 rounded border border-neutral-200/50 dark:border-white/10">K</span>
                 </div>
             </div>
+
+            <Form v-if="!loading && Store?.['system-branches']?.payload?.data.length > 1" parentStyle=" p-0"
+                v-model:form="fields" />
         </div>
 
         <div class="flex items-center gap-4">
