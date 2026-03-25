@@ -1,4 +1,4 @@
-import { getSubdomainName, getTenantSubdomain, getUserToken } from '@/Global'
+import { getSubdomainName } from '@/Global'
 import axios from 'axios'
 import { getBearerToken } from 'septor-store';
 // import { getBearerToken } from 'septor-store';
@@ -28,12 +28,9 @@ tenantClient.interceptors.request.use((config) => {
   // Prefer subdomain from hostname (production subdomain routing),
   // fall back to value saved at login time (dev on localhost)
   const subdomain = getSubdomainName()
-  console.log(subdomain,"subdomainsubdomaininsepto");
 
   if (subdomain) {
     config.headers['X-Tenant-Subdomain'] = subdomain
-    console.log(config);
-
   }
 
   // Inject active branch context so the backend scopes reads and stamps writes.
