@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Toaster } from 'vue-sonner';
+
 defineProps<{
     title: string;
     description: string;
@@ -6,6 +8,7 @@ defineProps<{
 </script>
 
 <template>
+    <Toaster position="top-right" richColors />
     <div class="flex min-h-screen bg-white">
         <!-- Left Panel: Auth Form -->
         <div class="flex w-1/2 flex-col justify-center px-8 py-12 lg:px-20 xl:px-28">
