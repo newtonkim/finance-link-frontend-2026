@@ -11,15 +11,6 @@ import {
 } from "reka-ui"
 import { cn } from "@/lib/utils"
 import SheetOverlay from "./SheetOverlay.vue"
-import { useSidebar } from "@/Global/ui/sidebar/utils"
-import { computed } from "vue"
-
-const { state: sidebarState, isMobile } = useSidebar()
-
-const sidebarWidth = computed(() => {
-  if (isMobile.value) return '0px'
-  return sidebarState.value === 'expanded' ? '16rem' : '3rem'
-})
 
 interface SheetContentProps extends DialogContentProps {
   class?: HTMLAttributes["class"]
@@ -56,10 +47,6 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
         side === 'bottom'
           && 'data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-0 h-auto border-t',
         props.class)"
-      :style="{
-        width: isMobile ? '100%' : `calc(100% - ${sidebarWidth})`,
-        left: side === 'left' ? sidebarWidth : 'auto'
-      }"
       v-bind="{ ...$attrs, ...forwarded }"
     >
       <slot />
