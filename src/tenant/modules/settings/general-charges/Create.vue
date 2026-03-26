@@ -128,7 +128,9 @@ const fields = ref([
         url: "global/chart-of-accounts",
         options: [],
         placeholder: 'Select account',
+        
         condition: (val: string) => ['on_registration', 'on_loan_application'].includes(val)// dispaly if application is on_registration or on_loan_application
+        // condition: (val: string) => ['on_registration', 'on_loan_application'].includes(val)// dispaly if application is on_registration or on_loan_application
     },
 ])
 // Prefill (edit mode)
