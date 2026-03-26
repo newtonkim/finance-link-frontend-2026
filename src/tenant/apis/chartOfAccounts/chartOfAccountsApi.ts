@@ -1,7 +1,7 @@
 import { tenantClient } from '@/tenant/apis/tenantClient'
 
 export const chartOfAccountsApi = {
-  list(params?: { search?: string; page?: number }) {
+  list(params?: { search?: string; page?: number; list?: number }) {
     return tenantClient.get('/chart-of-accounts', { params })
   },
   store(data: Record<string, any>) {

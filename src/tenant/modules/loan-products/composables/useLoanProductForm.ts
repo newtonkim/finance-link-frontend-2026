@@ -62,7 +62,7 @@ export function useLoanProductForm() {
 
     async function fetchAccounts() {
         try {
-            const res = await chartOfAccountsApi.list({ list: 1 } as any)
+            const res = await chartOfAccountsApi.list({ list: 1 })
             const all: any[] = Array.isArray(res.data?.data) ? res.data.data
                              : Array.isArray(res.data)       ? res.data
                              : []
