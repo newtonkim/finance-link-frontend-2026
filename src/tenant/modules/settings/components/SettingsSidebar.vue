@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+
 import { useRoute, useRouter } from 'vue-router'
 import {
     Building2,
@@ -21,7 +21,7 @@ const router = useRouter()
 const modules = [
     { name: 'Organisation', icon: Building2, path: '/tenant/settings/organisation' },
     { name: 'Members & Roles', icon: Users, path: '/tenant/settings/members' },
-    { name: 'Loan Products', icon: CreditCard, path: '/tenant/settings/loans' },
+    { name: 'Loans & Loan Products', icon: CreditCard, path: '/tenant/settings/loans' },
     { name: 'Savings Products', icon: Landmark, path: '/tenant/settings/savings' },
     { name: 'Shares & Dividends', icon: PieChart, path: '/tenant/settings/shares' },
     { name: 'Transactions', icon: ArrowLeftRight, path: '/tenant/settings/transactions' },

@@ -1,42 +1,22 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { onboardingSettingsApi } from '@/tenant/apis/onboardingSettings/api'
-
-const STORAGE_KEY = 'mfuko_settings'
-
-function loadFromStorage() {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY)
-        return raw ? JSON.parse(raw) : {}
-    } catch {
-        return {}
-    }
-}
-
-function saveToStorage(data: Record<string, unknown>) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-}
+import { onboardingSettingsApi, type OnboardingSettings } from '@/tenant/apis/onboardingSettings/api'
 
 export const useSettingsStore = defineStore('settings', () => {
-    const stored = loadFromStorage()
-
-    const hideInitialDeposit = ref<boolean>(Boolean(stored.hideInitialDeposit ?? false))
-    const hideOpeningBalance = ref<boolean>(Boolean(stored.hideOpeningBalance ?? false))
-    const hideIsShareholderField = ref<boolean>(Boolean(stored.hideIsShareholderField ?? false))
+    const hideInitialDeposit = ref<boolean>(false)
+    const hideOpeningBalance = ref<boolean>(false)
+    const hideIsShareholderField = ref<boolean>(false)
 
     function setHideInitialDeposit(value: boolean) {
         hideInitialDeposit.value = value
-        saveToStorage({ ...loadFromStorage(), hideInitialDeposit: value })
     }
 
     function setHideOpeningBalance(value: boolean) {
         hideOpeningBalance.value = value
-        saveToStorage({ ...loadFromStorage(), hideOpeningBalance: value })
     }
 
     function setHideIsShareholderField(value: boolean) {
         hideIsShareholderField.value = value
-        saveToStorage({ ...loadFromStorage(), hideIsShareholderField: value })
     }
 
     // ── Shares onboarding settings (fetched from backend) ────────────────────
@@ -49,41 +29,47 @@ export const useSettingsStore = defineStore('settings', () => {
     const loyalMemberMinTenureMonths = ref<number>(12)
     const onboardingSettingsLoaded = ref<boolean>(false)
 
+    function applyOnboardingSettings(data?: OnboardingSettings | null) {
+        if (!data) return
+
+        sharesCompulsory.value = Boolean(data.shares_compulsory)
+        minSharesOnOnboarding.value = Number(data.min_shares_on_onboarding ?? 1)
+        sharePrice.value = Number(data.share_price ?? 0)
+        sharesCompulsoryAppliesToExisting.value = Boolean(data.shares_compulsory_applies_to_existing)
+        autoCreateSavingsAccount.value = data.auto_create_savings_account ?? true
+        requireMemberApproval.value = Boolean(data.require_member_approval)
+        loyalMemberMinTenureMonths.value = data.loyal_member_min_tenure_months ?? 12
+        hideInitialDeposit.value = Boolean(data.hide_initial_deposit_field)
+        hideOpeningBalance.value = Boolean(data.hide_opening_balance_field)
+        hideIsShareholderField.value = Boolean(data.hide_is_shareholder_field)
+        onboardingSettingsLoaded.value = true
+    }
+
     async function fetchOnboardingSettings() {
         try {
             const res = await onboardingSettingsApi.get()
-            const data = res.data.data
-            sharesCompulsory.value = data.shares_compulsory
-            minSharesOnOnboarding.value = data.min_shares_on_onboarding
-            sharePrice.value = Number(data.share_price)
-            sharesCompulsoryAppliesToExisting.value = data.shares_compulsory_applies_to_existing
-            autoCreateSavingsAccount.value = data.auto_create_savings_account
-            requireMemberApproval.value = data.require_member_approval
-            loyalMemberMinTenureMonths.value = data.loyal_member_min_tenure_months ?? 12
-            onboardingSettingsLoaded.value = true
+            applyOnboardingSettings(res.data.data)
         } catch {
             // silently fail — defaults remain
         }
     }
 
-    async function saveOnboardingSettings(payload: {
-        shares_compulsory: boolean
-        min_shares_on_onboarding: number
-        share_price: number
-        shares_compulsory_applies_to_existing: boolean
-        auto_create_savings_account: boolean
-        require_member_approval: boolean
-        loyal_member_min_tenure_months: number
-    }) {
-        const res = await onboardingSettingsApi.update(payload)
-        const data = res.data.data
-        sharesCompulsory.value = data.shares_compulsory
-        minSharesOnOnboarding.value = data.min_shares_on_onboarding
-        sharePrice.value = Number(data.share_price)
-        sharesCompulsoryAppliesToExisting.value = data.shares_compulsory_applies_to_existing
-        autoCreateSavingsAccount.value = data.auto_create_savings_account
-        requireMemberApproval.value = data.require_member_approval
-        loyalMemberMinTenureMonths.value = data.loyal_member_min_tenure_months ?? 12
+    async function saveOnboardingSettings(payload: OnboardingSettings) {
+        const res = await onboardingSettingsApi.update({
+            shares_compulsory: sharesCompulsory.value,
+            min_shares_on_onboarding: minSharesOnOnboarding.value,
+            share_price: sharePrice.value,
+            shares_compulsory_applies_to_existing: sharesCompulsoryAppliesToExisting.value,
+            auto_create_savings_account: autoCreateSavingsAccount.value,
+            require_member_approval: requireMemberApproval.value,
+            loyal_member_min_tenure_months: loyalMemberMinTenureMonths.value,
+            hide_initial_deposit_field: hideInitialDeposit.value,
+            hide_opening_balance_field: hideOpeningBalance.value,
+            hide_is_shareholder_field: hideIsShareholderField.value,
+            ...payload,
+        })
+
+        applyOnboardingSettings(res.data.data)
     }
 
     return {
