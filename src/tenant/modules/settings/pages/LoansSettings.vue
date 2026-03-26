@@ -1,4 +1,4 @@
-<script setup lang="ts">
+it commit<script setup lang="ts">
 import { CreditCard, Settings2 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 
@@ -19,7 +19,6 @@ const router = useRouter()
                     <p class="text-sm text-neutral-500 dark:text-neutral-400">Configure loan types, interest, and repayment rules</p>
                 </div>
             </div>
-
             <div class="grid gap-5 lg:grid-cols-2">
                 <div class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
                     <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Loan Types</h3>
