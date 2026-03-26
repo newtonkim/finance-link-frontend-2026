@@ -3,7 +3,7 @@
         create: 'branch-create',
         // view: 'branch-details',
         // edit: 'branch-update',
-        // delete: 'branch-delete'
+        delete: 'branch-delete'
     }" drawerWidth=" w-2/4" :url="tableUrl" state="branchList" :drawerTitle="drawerTitle" " :columns="columns"
         @save="saveUser">
         <template #header-action>

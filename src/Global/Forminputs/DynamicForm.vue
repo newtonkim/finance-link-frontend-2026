@@ -48,8 +48,6 @@ const prfields = ref<any>([]);
 const remountComponent = ref<any>(true);
 
 onMounted(() => {
-
-
     if (Array.isArray(props.form))
         prfields.value = [...(props.form)];
     if (props.action == 'add')
@@ -104,6 +102,8 @@ const handleChange = (field: any, index: number) => {
 };
 function FormValidate() {
     const data = prfields.value || [];
+    // console.log(prfields.value);
+    
     if (isTriggered) {
         data.forEach((field: any) => {
             if (field?.fields) {
@@ -181,51 +181,51 @@ const getGridClass = (len: number = 1) => {
     if (len >= 3) return 'grid grid-cols-3 gap-4 md:gap-6 space-y-2'
     return 'grid grid-cols-4 gap-4 md:gap-6 space-y-2'
 }
- 
+
 
 // dependsOn: {
 //     field: 'amount',
 //     condition: (value: any) => Number(value) > 0
 //   }
 function shouldShowField(field: any) {
-  if (!field.dependsOn) return true;
+    if (!field.dependsOn) return true;
 
-  // Handle new structure
-  if (field.dependsOn.conditions) {
-    const { operator = 'and', conditions } = field.dependsOn;
+    // Handle new structure
+    if (field.dependsOn.conditions) {
+        const { operator = 'and', conditions } = field.dependsOn;
 
-    const results = conditions.map((condition: any) => {
-      const target = prfields.value.find(
-        (f: any) => f.name === condition.field
-      );
+        const results = conditions.map((condition: any) => {
+            const target = prfields.value.find(
+                (f: any) => f.name === condition.field
+            );
 
-      if (!target) return false;
+            if (!target) return false;
 
-      if (typeof condition.condition === 'function') {
-        return condition.condition(target.value);
-      }
+            if (typeof condition.condition === 'function') {
+                return condition.condition(target.value);
+            }
 
-      return target.value === condition.value;
+            return target.value === condition.value;
+        });
+
+        return operator === 'or'
+            ? results.some(Boolean)
+            : results.every(Boolean);
+    }
+
+    // fallback (old format)
+    const conditions = Array.isArray(field.dependsOn)
+        ? field.dependsOn
+        : [field.dependsOn];
+
+    return conditions.every((condition: any) => {
+        const target = prfields.value.find(
+            (f: any) => f.name === condition.field
+        );
+
+        if (!target) return false;
+        return target.value === condition.value;
     });
-
-    return operator === 'or'
-      ? results.some(Boolean)   
-      : results.every(Boolean); 
-  }
-
-  // fallback (old format)
-  const conditions = Array.isArray(field.dependsOn)
-    ? field.dependsOn
-    : [field.dependsOn];
-
-  return conditions.every((condition: any) => {
-    const target = prfields.value.find(
-      (f: any) => f.name === condition.field
-    );
-
-    if (!target) return false;
-    return target.value === condition.value;
-  });
 }
 
 </script>

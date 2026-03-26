@@ -170,6 +170,8 @@ const props = defineProps({
  * }
  */
     outerlinks: { type: Object, required: false },
+    actionSlot: { type: String, default: false },
+
 });
 
 const drawerShooter2 = ref(props.drawerShowFooter)
@@ -208,8 +210,18 @@ function save(data: unknown, type = 'save') {
 async function automaticCreateFun() {
     if (props.automaticCreate) {
         const data = Store.currentFormValues;
-        console.log(data, 'data====')
-        const customeUrl = props?.outerlinks?.['create'] ?? "create";
+        let customeUrl = props.actionSlot ?? props?.outerlinks?.['create'] ?? "create";
+
+
+        if (props.actionSlot) {
+            customeUrl = props.actionSlot;
+        } else if (props?.outerlinks?.['create']) {
+            customeUrl = props.outerlinks['create'];
+        } else {
+            customeUrl = "create";
+        }
+        // console.log(customeUrl);
+        
         const formDataScoping: any = formDataFormatV2((data))
         const res = await fetchTableData({
             data: formDataScoping,
@@ -220,7 +232,6 @@ async function automaticCreateFun() {
             }, Store
         });
         const response = feedback(res);
-        console.log(response);
         if (response.success) {
             Store[props?.state] = res
             toggleDrawer()
@@ -239,16 +250,20 @@ async function automaticCreateFun() {
 async function saveDrawerData(data: any) {
     Store.isFormSubmitted = true;
     const AnyErrorsFoundInTheFOrm = Store.AnyErrorsFoundInTheFOrm;
-    console.log(Store.isFormSubmitted, AnyErrorsFoundInTheFOrm)
+    // console.log(Store.isFormSubmitted, AnyErrorsFoundInTheFOrm)
     if (AnyErrorsFoundInTheFOrm) {
 
     } else {
         const checker = await automaticCreateFun('create')
-        if (!checker) {
+        console.log(checker,'====2');
+
+        if (checker) {
+            // if (!checker) {
             return
         }
 
-        save(data, 'create')
+        save(data, props.actionSlot ?? 'create')
+
         toggleDrawer()
         setTimeout(() => {
             submitChanges.value = false

@@ -10,26 +10,17 @@ import {
 import UserMenuContent from '@/Global/UserMenuContent.vue';
 import { useAuthStore } from '@/stores/auth';
 import { computed, onMounted, ref } from 'vue';
-import { getInitials, getSubdomainName, keysToUse, setLocalValues, tryCatch } from './Helpers';
+import { getInitials, getLocalValues, getSubdomainName, keysToUse, setLocalValues, tryCatch } from './Helpers';
 import { tenantClient } from '@/tenant/apis/tenantClient';
 import { apiClient } from '@/central/api/client';
 import { pomPinia } from 'septor-store';
 const Store = pomPinia();
-const loading = ref(true)
+const activeBranch = ref(true)
 const subdomain = getSubdomainName()
 import { useBranchStore } from '@/stores/branchStore';
+import SearchableSelect from './SearchableSelect.vue';
 
 const interceptor = subdomain ? tenantClient : apiClient
-const fields = ref([
-    {
-        name: 'branch_name',
-        type: 'select',
-        placeholder: 'Branch',
-        change: (val: number) => {
-            setLocalValues(keysToUse.activeBranch, val)
-            watchBranchchanges(val)
-        }
-    },]);
 
 async function fetchBranches() {
     tryCatch(async () => {
@@ -46,10 +37,8 @@ async function fetchBranches() {
             mStore: { mUse: true },
         }
         await Store.stateGenaratorApi(collection)
-        fields.value[0].options = Store?.['system-branches']?.payload?.data ?? []
-        fields.value[0].value = Store?.['system-branches']?.payload?.data[0]?.id
-        watchBranchchanges(fields.value[0].value)
-        loading.value = false
+        watchBranchchanges(Store?.['system-branches']?.payload?.data[0]?.id)
+        activeBranch.value = false
     })
 }
 defineProps<{
@@ -57,8 +46,12 @@ defineProps<{
 }>();
 
 function watchBranchchanges(branch: any) {
+        activeBranch.value = branch
+
     setLocalValues(keysToUse.activeBranch, branch)
     Store.activeBranch = branch
+        activeBranch.value = branch
+
 }
 const authStore = useAuthStore();
 const user = computed(() => authStore.user);
@@ -67,16 +60,13 @@ const userName = computed(() => String(user.value?.name ?? 'User'));
 onMounted(async () => {
     await fetchBranches()
 })
-const branchStore = useBranchStore();
-const showBranchSwitcher = computed(() => branchStore.showBranchFilter && branchStore.availableBranches.length > 0);
-const activeBranch = computed(() =>
-    branchStore.availableBranches.find(b => b.id === branchStore.activeBranchId)
-    ?? branchStore.assignedBranch
-)
 
-function selectBranch(id: number | null) {
-    branchStore.setActiveBranchId(id)
-}
+
+ 
+ function onBranchChange (val: number)  {
+            setLocalValues(keysToUse.activeBranch, val)
+            watchBranchchanges(val)
+        }
 </script>
 
 <template>
@@ -96,34 +86,7 @@ function selectBranch(id: number | null) {
             </Breadcrumb>
         </div>
 
-
-
-        <!-- Branch switcher — only visible to multi-branch staff/admin -->
-        <div v-if="showBranchSwitcher" class="flex items-center">
-            <DropdownMenu>
-                <DropdownMenuTrigger>
-                    <div
-                        class="flex items-center gap-2 h-9 px-3 rounded-[14px] bg-[#F1F5F9] dark:bg-white/10 border border-neutral-200/50 dark:border-white/10 text-sm font-medium text-neutral-700 dark:text-neutral-200 cursor-pointer hover:bg-neutral-200 dark:hover:bg-white/20 transition-all">
-                        <Building2 class="size-3.5 text-neutral-400 dark:text-neutral-500 shrink-0" />
-                        <span class="max-w-[140px] truncate">{{ activeBranch?.name ?? 'All Branches' }}</span>
-                        <ChevronDown class="size-3.5 text-neutral-400 dark:text-neutral-500 shrink-0" />
-                    </div>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" class="w-52">
-                    <DropdownMenuItem v-if="branchStore.canAccessMultipleBranches" class="text-sm cursor-pointer"
-                        :class="branchStore.activeBranchId === null ? 'font-semibold text-nfuko-primary' : ''"
-                        @click="selectBranch(null)">
-                        All Branches
-                    </DropdownMenuItem>
-                    <DropdownMenuItem v-for="branch in branchStore.availableBranches" :key="branch.id"
-                        class="text-sm cursor-pointer"
-                        :class="branchStore.activeBranchId === branch.id ? 'font-semibold text-nfuko-primary' : ''"
-                        @click="selectBranch(branch.id)">
-                        {{ branch.name }}
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </div>
+ 
 
         <div class="flex items-center gap-4 flex-1 max-w-sm mx-12">
             <div class="relative w-full">
@@ -139,9 +102,8 @@ function selectBranch(id: number | null) {
                         class="bg-white/50 dark:bg-white/10 px-1 rounded border border-neutral-200/50 dark:border-white/10">K</span>
                 </div>
             </div>
-
-            <Form v-if="!loading && Store?.['system-branches']?.payload?.data.length > 1" parentStyle=" p-0"
-                v-model:form="fields" />
+ 
+                <SearchableSelect :modelValue="activeBranch" :options="Store?.['system-branches']?.payload?.data ?? []" @update:modelValue="onBranchChange"/>
         </div>
 
         <div class="flex items-center gap-4">

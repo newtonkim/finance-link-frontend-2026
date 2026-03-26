@@ -1,6 +1,7 @@
 <template>
-    <TableDrawer :showTableAction="true" :drawerWidth="drawerTitle?.width" :url="tableUrl" state="memberAccountList"
-        :drawerTitle="drawerTitle?.title" " :columns="columns" @save="saveUser">
+    <TableDrawer :automaticCreate="automaticCreate.actionSlot != 'deposit'" ref="drawer" :showTableAction="true"
+        :drawerWidth="drawerTitle?.width" :url="tableUrl" state="memberAccountList" :drawerTitle="drawerTitle?.title"
+        :columns="columns" @save="saveUser">
         <template #member_name="{ item }">
             <div class="-1">
                 <div class="font-semibold text-nfuko-action text-sm dark:text-white">
@@ -12,35 +13,58 @@
                 </div>
             </div>
         </template>
+        <template #actions="{ item }: { item: any }">
+            <div class="w-full gap-2 flex items-center justify-center">
+                <Button @click="() => OpenThedrawer(item)"
+                    class="flex items-center  rounded-full bg- p-2  text-xs font-bold text-neutral-700 transition-colors  text-nfuko-primary  bg-nfuko-primary/10 hover:bg-nfuko-action/90 hover:bg-nfuko-action/90">
+                    <CircleDollarSign size=" 13" class="mx-2" /> deposit
+                </Button>
+            </div>
+        </template>
         <template #header-action>
-
             <PainPageHeader title="Members Savings Account"
                 dec="Manage all member savings accounts and their balances." />
-
         </template>
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
         <template #drawer="{ action, data }">
-            <Create v-if="['add', 'edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
-            <Details v-if="['view'].includes(action)" :data="data" />
+            <Deposit v-if="automaticCreate?.actionSlot == 'deposit'" :data="{ action, ...(automaticCreate ?? {}) }"
+                v-model:form="formData" />
+            <Create v-else-if="['add', 'edit'].includes(action)" :data="{ ...data, action }" />
+            <Details v-else-if="['view'].includes(action)" :data="data" />
         </template>
     </TableDrawer>
 </template>
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { Create, Details } from '.'
+import { Create, Details, Deposit } from '.'
 import { TableDrawer, StatusButtonsHorizontal, PainPageHeader, CopyData } from '@/Global'
+import { CircleDollarSign } from 'lucide-vue-next'
+import { memberAccountApi } from '@/tenant/apis'
+const
+    drawer = ref(null),
+    automaticCreate = ref({ drawerActions: true, actionSlot: null })
 const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
+    { memebrAccountDepositAmount } = memberAccountApi(),
     drawerTitle = ref('Create Tenant'), filters = ['all', 'active', 'suspended', 'expired', 'trial'],
     tableUrl = computed(() => `/members-account/list?status=${statusFilter.value}`),
     title: Record<string, string> = {
         "view": { title: "Viewmember saving's Account Details", width: "w-1/2" },
         "edit": { title: "Edit member saving's Account", width: "w-1/3" },
         "add": { title: "Create a member saving's Account", width: "w-1/3" },
+        "deposit": { title: "", fun: () => memebrAccountDepositAmount(formData.value, automaticCreate.value,), },// this will be the deposite
     }
+// automaticCreate.actionSlot// this will help switch off the default drawer actions  and use out side action
 function saveUser(type: string, data: any) {
-    if (title?.[type]) drawerTitle.value = title?.[type]
+    if (automaticCreate.value.actionSlot == 'deposit') {
+        title?.['deposit']?.fun?.()
+        return
+    } else if (title?.[type]) {
+        drawerTitle.value = title?.[type]
+    }
+    title?.[type]?.fun?.()
+    automaticCreate.value = {}// celan the automatic create
 }
 
 const columns = [
@@ -51,4 +75,12 @@ const columns = [
     { key: 'created at', label: 'created at', type: 'status' },
     { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 ]
+
+function OpenThedrawer(item: any) {
+    automaticCreate.value = { actionSlot: 'deposit', ...item }
+    setTimeout(() => {
+        drawer.value.toggleDrawer()
+    }, 1000)
+
+}
 </script>
