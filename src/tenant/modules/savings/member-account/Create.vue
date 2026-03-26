@@ -55,6 +55,8 @@ const emits = defineEmits(['update:form']),
       type: 'select',
       required: true,
       options: yesNoOptions,
+      value: 1,
+      disabled: true,
       placeholder: 'Enter is New Account',
     },
     {
