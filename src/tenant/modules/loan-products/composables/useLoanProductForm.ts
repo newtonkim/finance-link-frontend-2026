@@ -1,7 +1,43 @@
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
-import { loanProductsApi, type LoanProduct } from '../../../apis/loanProducts/loanProductsApi'
+import { loanProductsApi, type LoanProduct, type LoanProductPreview } from '../../../apis/loanProducts/loanProductsApi'
+import { chartOfAccountsApi } from '../../../apis/chartOfAccounts/chartOfAccountsApi'
+
+function createDefaultForm(): LoanProduct {
+    return {
+        code: '',
+        name: '',
+        description: '',
+        min_amount: null,
+        max_amount: null,
+        interest_rate: null,
+        interest_method: null,
+        repayment_structure: null,
+        interest_period: 'per_month',
+        loan_duration: null,
+        duration_type: 'months',
+        repayment_cycle: 'monthly',
+        min_guarantors: 0,
+        max_guarantors: 0,
+        grace_period: 0,
+        penalty_rate: 0,
+        penalty_type: 'none',
+        requires_approval: false,
+        allow_top_up: true,
+        allow_reschedule: true,
+        processing_fee_type: 'none',
+        processing_fee_value: 0,
+        loan_portfolio_account_id: null,
+        interest_income_account_id: null,
+        interest_receivable_account_id: null,
+        penalty_income_account_id: null,
+        penalty_receivable_account_id: null,
+        disbursement_account_id: null,
+        is_active: false,
+        penalty_rules: [],
+    }
+}
 
 export function useLoanProductForm() {
     const route  = useRoute()
@@ -11,26 +47,62 @@ export function useLoanProductForm() {
     const isEditing = computed(() => !!route.params.id)
     const loading   = ref(false)
     const saving    = ref(false)
+    const previewLoading = ref(false)
     const errors    = ref<Record<string, any>>({})
+    const preview   = ref<LoanProductPreview | null>(null)
+    const previewAmount = ref<number | null>(null)
+    const previewTerm = ref<number | null>(null)
 
-    const form = ref<LoanProduct>({
-        name:            '',
-        min_amount:      null,
-        max_amount:      null,
-        interest_rate:   null,
-        interest_method: null,
-        interest_period: null,
-        loan_duration:   null,
-        duration_type:   null,
-        repayment_cycle: null,
-        min_guarantors:  null,
-        max_guarantors:  null,
-        grace_period:    null,
-        penalty_rate:    null,
-        penalty_type:    null,
-        is_active:       true,
-        penalty_rules:   [],
-    })
+    const form = ref<LoanProduct>(createDefaultForm())
+    let previewTimer: ReturnType<typeof setTimeout> | null = null
+
+    // ─── Accounts (for accounting mapping selectors) ───────────────────────────
+    const accounts    = ref<{ id: number; name: string }[]>([])
+    const rawAccounts = ref<any[]>([])
+
+    async function fetchAccounts() {
+        try {
+            const res = await chartOfAccountsApi.list({ list: 1 } as any)
+            const all: any[] = Array.isArray(res.data?.data) ? res.data.data
+                             : Array.isArray(res.data)       ? res.data
+                             : []
+            rawAccounts.value = all.filter((a: any) => a.is_postable)
+            accounts.value    = rawAccounts.value.map((a: any) => ({
+                id:   a.id,
+                name: `${a.gl_code} - ${a.name}`,
+            }))
+        } catch {
+            toast.error('Failed to load chart of accounts.')
+        }
+    }
+
+    function autoFillAccounts() {
+        if (!rawAccounts.value.length) return
+
+        function match(type: string, ...keywords: string[][]): number | null {
+            const found = rawAccounts.value.find((a: any) => {
+                if (a.account_type !== type) return false
+                const hay = `${a.name} ${a.account_subtype ?? ''}`.toLowerCase()
+                return keywords.every(group => group.some(kw => hay.includes(kw)))
+            })
+            return found ? found.id : null
+        }
+
+        const slots: Array<{ field: keyof LoanProduct; type: string; keywords: string[][] }> = [
+            { field: 'loan_portfolio_account_id',      type: 'ASSET',  keywords: [['loan', 'portfolio']] },
+            { field: 'interest_income_account_id',     type: 'INCOME', keywords: [['interest']] },
+            { field: 'interest_receivable_account_id', type: 'ASSET',  keywords: [['interest'], ['receivable']] },
+            { field: 'disbursement_account_id',        type: 'ASSET',  keywords: [['bank', 'cash']] },
+            { field: 'penalty_income_account_id',      type: 'INCOME', keywords: [['penalty', 'fine']] },
+            { field: 'penalty_receivable_account_id',  type: 'ASSET',  keywords: [['penalty'], ['receivable']] },
+        ]
+
+        for (const slot of slots) {
+            if (form.value[slot.field] != null) continue   // already set — never overwrite
+            const id = match(slot.type, ...slot.keywords)
+            if (id !== null) (form.value as any)[slot.field] = id
+        }
+    }
 
     // ─── Load (edit mode) ─────────────────────────────────────────────────────
     async function loadProduct() {
@@ -39,7 +111,9 @@ export function useLoanProductForm() {
         try {
             const res = await loanProductsApi.get(Number(route.params.id))
             const p   = res.data?.data ?? res.data
-            form.value = { ...form.value, ...p, penalty_rules: p.penalty_rules ?? [] }
+            form.value = { ...createDefaultForm(), ...p, penalty_rules: p.penalty_rules ?? [] }
+            previewAmount.value = Number(p.min_amount ?? 0) || null
+            previewTerm.value = p.loan_duration ?? null
         } catch (err: any) {
             toast.error('Failed to load loan product.')
             router.push({ name: 'tenant-settings-loan-products' })
@@ -48,7 +122,10 @@ export function useLoanProductForm() {
         }
     }
 
-    onMounted(loadProduct)
+    onMounted(async () => {
+        await Promise.all([loadProduct(), fetchAccounts()])
+        autoFillAccounts()
+    })
 
     // ─── Penalty rules ────────────────────────────────────────────────────────
     function addPenaltyRule() {
@@ -69,6 +146,51 @@ export function useLoanProductForm() {
         const val = errors.value[field]
         return Array.isArray(val) ? val[0] : val ?? null
     }
+
+    function shouldPreview() {
+        return !!form.value.interest_method && !!form.value.loan_duration && !!previewAmount.value
+    }
+
+    async function refreshPreview() {
+        if (!shouldPreview()) {
+            preview.value = null
+            return
+        }
+
+        previewLoading.value = true
+        try {
+            const res = await loanProductsApi.preview({
+                ...form.value,
+                preview_amount: previewAmount.value,
+                preview_term: previewTerm.value ?? form.value.loan_duration,
+            })
+            preview.value = res.data?.data ?? null
+        } catch (err: any) {
+            preview.value = null
+        } finally {
+            previewLoading.value = false
+        }
+    }
+
+    watch(
+        [
+            () => form.value.min_amount,
+            () => form.value.interest_rate,
+            () => form.value.interest_method,
+            () => form.value.repayment_structure,
+            () => form.value.interest_period,
+            () => form.value.loan_duration,
+            () => form.value.repayment_cycle,
+            previewAmount,
+            previewTerm,
+        ],
+        () => {
+            if (previewTimer) clearTimeout(previewTimer)
+            previewTimer = setTimeout(() => {
+                void refreshPreview()
+            }, 250)
+        },
+    )
 
     // ─── Save ─────────────────────────────────────────────────────────────────
     async function save() {
@@ -96,6 +218,8 @@ export function useLoanProductForm() {
 
     return {
         isEditing, loading, saving, errors, form,
+        accounts,
+        preview, previewLoading, previewAmount, previewTerm, refreshPreview,
         addPenaltyRule, removePenaltyRule,
         fieldError, save,
     }
