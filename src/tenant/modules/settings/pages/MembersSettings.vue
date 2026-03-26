@@ -59,9 +59,9 @@ const settingsCards = [
 // Sync local state when drawer opens — also fetch backend settings
 watch(isDrawerOpen, async (isOpen) => {
     if (isOpen) {
+        await settingsStore.fetchOnboardingSettings()
         tempHideInitialDeposit.value = Boolean(settingsStore.hideInitialDeposit)
         tempHideOpeningBalance.value = Boolean(settingsStore.hideOpeningBalance)
-        await settingsStore.fetchOnboardingSettings()
         tempAutoCreateSavingsAccount.value = settingsStore.autoCreateSavingsAccount
         tempRequireMemberApproval.value = settingsStore.requireMemberApproval
         tempLoyalMemberMinTenureMonths.value = settingsStore.loyalMemberMinTenureMonths
@@ -74,13 +74,11 @@ async function handleSave() {
         settingsStore.setHideInitialDeposit(Boolean(tempHideInitialDeposit.value))
         settingsStore.setHideOpeningBalance(Boolean(tempHideOpeningBalance.value))
         await settingsStore.saveOnboardingSettings({
-            shares_compulsory: settingsStore.sharesCompulsory,
-            min_shares_on_onboarding: settingsStore.minSharesOnOnboarding,
-            share_price: settingsStore.sharePrice,
-            shares_compulsory_applies_to_existing: settingsStore.sharesCompulsoryAppliesToExisting,
             auto_create_savings_account: tempAutoCreateSavingsAccount.value,
             require_member_approval: tempRequireMemberApproval.value,
             loyal_member_min_tenure_months: tempLoyalMemberMinTenureMonths.value,
+            hide_initial_deposit_field: Boolean(tempHideInitialDeposit.value),
+            hide_opening_balance_field: Boolean(tempHideOpeningBalance.value),
         })
         isDrawerOpen.value = false
         nextTick(() => toast.success('Member onboarding settings saved.'))

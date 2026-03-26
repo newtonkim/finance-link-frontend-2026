@@ -53,8 +53,7 @@ async function saveSharesSettings() {
             min_shares_on_onboarding: Number(tempMinShares.value),
             share_price: Number(tempSharePrice.value),
             shares_compulsory_applies_to_existing: tempAppliesToExisting.value,
-            auto_create_savings_account: settingsStore.autoCreateSavingsAccount,
-            require_member_approval: settingsStore.requireMemberApproval,
+            hide_is_shareholder_field: Boolean(tempHideIsShareholderField.value),
         })
         toast.success('Share management settings saved.')
         sharesDrawerOpen.value = false
