@@ -1,4 +1,4 @@
-it commit<script setup lang="ts">
+<script setup lang="ts">
 import { CreditCard, Settings2 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 

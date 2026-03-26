@@ -29,7 +29,9 @@ onMounted(fetch)
                     <h1 class="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
                         {{ loading ? 'Loading…' : product?.name }}
                     </h1>
-                    <p class="text-sm text-neutral-500 dark:text-neutral-400">Loan product details</p>
+                    <p class="text-sm text-neutral-500 dark:text-neutral-400">
+                        {{ product?.code ? `${product.code} · ` : '' }}Loan product details
+                    </p>
                 </div>
             </div>
             <button
@@ -64,6 +66,14 @@ onMounted(fetch)
                             <component :is="product.is_active ? ToggleRight : ToggleLeft" class="h-3 w-3" />
                             {{ product.is_active ? 'Active' : 'Inactive' }}
                         </span>
+                        <span v-if="product.is_in_use" class="inline-flex rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+                            In use by {{ product.loan_count ?? 0 }} loans
+                        </span>
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">Description</p>
+                        <p class="text-sm text-neutral-900 dark:text-white">{{ orDash(product.description) }}</p>
                     </div>
 
                     <div>
@@ -84,6 +94,10 @@ onMounted(fetch)
                     <div>
                         <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">Interest Method</p>
                         <p class="text-sm text-neutral-900 dark:text-white">{{ interestMethodLabel(product.interest_method) }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">Repayment Structure</p>
+                        <p class="text-sm text-neutral-900 dark:text-white">{{ orDash(product.repayment_structure) }}</p>
                     </div>
                     <div>
                         <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">Interest Rate</p>
@@ -118,13 +132,17 @@ onMounted(fetch)
                             {{ product.grace_period != null ? `${product.grace_period} days` : '—' }}
                         </p>
                     </div>
+                    <div>
+                        <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">Requires Approval</p>
+                        <p class="text-sm text-neutral-900 dark:text-white">{{ product.requires_approval ? 'Yes' : 'No' }}</p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Guarantors -->
+            <!-- Workflow & Fees -->
             <div class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                <h2 class="text-base font-semibold text-neutral-900 dark:text-white mb-5">Guarantors</h2>
-                <div class="grid gap-4 sm:grid-cols-2">
+                <h2 class="text-base font-semibold text-neutral-900 dark:text-white mb-5">Workflow, Fees and Guarantors</h2>
+                <div class="grid gap-4 sm:grid-cols-3">
                     <div>
                         <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">Minimum Guarantors</p>
                         <p class="text-sm text-neutral-900 dark:text-white">{{ orDash(product.min_guarantors) }}</p>
@@ -132,6 +150,18 @@ onMounted(fetch)
                     <div>
                         <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">Maximum Guarantors</p>
                         <p class="text-sm text-neutral-900 dark:text-white">{{ orDash(product.max_guarantors) }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">Processing Fee</p>
+                        <p class="text-sm text-neutral-900 dark:text-white">{{ orDash(product.processing_fee_type) }} {{ product.processing_fee_value ?? '' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">Allow Top-up</p>
+                        <p class="text-sm text-neutral-900 dark:text-white">{{ product.allow_top_up ? 'Yes' : 'No' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">Allow Reschedule</p>
+                        <p class="text-sm text-neutral-900 dark:text-white">{{ product.allow_reschedule ? 'Yes' : 'No' }}</p>
                     </div>
                 </div>
             </div>

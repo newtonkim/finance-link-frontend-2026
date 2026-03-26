@@ -15,7 +15,7 @@ import { tenantClient } from '@/tenant/apis/tenantClient';
 import { apiClient } from '@/central/api/client';
 import { pomPinia } from 'septor-store';
 const Store = pomPinia();
-const activeBranch = ref(true)
+const activeBranch = ref<number | string | null>(null)
 const subdomain = getSubdomainName()
 import { useBranchStore } from '@/stores/branchStore';
 import SearchableSelect from './SearchableSelect.vue';
@@ -38,7 +38,6 @@ async function fetchBranches() {
         }
         await Store.stateGenaratorApi(collection)
         watchBranchchanges(Store?.['system-branches']?.payload?.data[0]?.id)
-        activeBranch.value = false
     })
 }
 defineProps<{

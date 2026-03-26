@@ -17,7 +17,7 @@ export function useLoanProducts() {
     async function fetch(page = 1) {
         loading.value = true
         try {
-            const res = await loanProductsApi.list({ search: search.value || undefined, page })
+            const res = await loanProductsApi.list({ search: search.value || undefined, page, per_page: 15 })
             products.value = res.data?.data ?? []
             if (res.data?.meta) meta.value = res.data.meta
         } catch (err: any) {
