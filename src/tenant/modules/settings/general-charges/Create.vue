@@ -4,7 +4,7 @@
     </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { Form } from '@/Global'
 import { APPLICATION_OPTIONS, CHARGE_TYPE_OPTIONS, WHERE_TO_APPLY_OPTIONS, INTERVAL_TYPE_OPTIONS, IS_FINE_OPTIONS, IS_REVENUE_OPTIONS } from '../constants'
 const props = defineProps({

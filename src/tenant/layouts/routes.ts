@@ -2,13 +2,11 @@ import type { RouteRecordRaw } from 'vue-router'
 import { routebuilder } from '@/Global'
 import {
   LayoutGrid,
-  Users,
-  Wallet,
+  Users, 
   HandCoins,
   ArrowUpDown,
   BookOpen,
   ArrowLeftRight,
-  CogIcon,
 } from 'lucide-vue-next'
 import type { MenuRoutes } from '@/Global/types/helpers'
 
