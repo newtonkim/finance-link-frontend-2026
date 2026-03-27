@@ -250,9 +250,12 @@ async function automaticCreateFun() {
 async function saveDrawerData(data: any) {
     Store.isFormSubmitted = true;
     const AnyErrorsFoundInTheFOrm = Store.AnyErrorsFoundInTheFOrm;
-    if (AnyErrorsFoundInTheFOrm == undefined) {
+    console.log({AnyErrorsFoundInTheFOrm});
+    
+    // if (AnyErrorsFoundInTheFOrm == undefined) {
 
-    } else if (AnyErrorsFoundInTheFOrm) {
+    // } else
+     if (AnyErrorsFoundInTheFOrm) {
 
     } else {
         const checker = await automaticCreateFun('create')

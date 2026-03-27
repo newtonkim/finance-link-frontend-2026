@@ -139,7 +139,15 @@ function FormValidate() {
 
     }
     Store.isFormSubmitted = false
-    return data.some((field: any) => field.error);
+    return data.some((field: any) => {
+        if(field.error){
+            console.log(field);
+        
+            
+        }
+return field.error
+        
+    });
 }
 
 const handleAvatarChange = (field: any, index: number, event: Event) => {
@@ -315,7 +323,7 @@ function shouldShowField(field: any) {
                             </template>
 
                             <!-- Avatar -->
-                            <template v-else-if="['avatar', 'avatar2', 'prifile'].includes(field.type)">
+                            <template v-else-if="['avatar', 'avatar2', 'profile'].includes(field.type)">
                                 <div class="flex items-center gap-4 mt-2">
                                     <div
                                         class="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700">
@@ -331,6 +339,7 @@ function shouldShowField(field: any) {
                                         <p class="text-xs text-neutral-400 mt-1">Recommended: Square image, max 2MB.</p>
                                     </div>
                                 </div>
+                                <div v-if="field.error" class="mt-2 px-1 text-xs text-red-500 font-medium">{{ field.error }}</div>
                             </template>
 
                             <!-- Default -->

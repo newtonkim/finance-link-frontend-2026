@@ -14,12 +14,9 @@
             </div>
         </template>
         <template #actions="{ item }: { item: any }">
-            <div class="w-full gap-2 flex items-center justify-center">
-                <Button @click="() => OpenThedrawer(item)"
-                    class="flex items-center  rounded-full bg- p-2  text-xs font-bold text-neutral-700 transition-colors  text-nfuko-primary  bg-nfuko-primary/10 hover:bg-nfuko-action/90 hover:bg-nfuko-action/90">
-                    <CircleDollarSign size=" 13" class="mx-2" /> deposit
-                </Button>
-            </div>
+            <TabelActionButtons  @action="() => OpenThedrawer(item)"  title="deposit" color="danger"
+                icon="CircleDollarSign"
+                />  
         </template>
         <template #header-action>
             <PainPageHeader title="Members Savings Account"
@@ -39,8 +36,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Create, Details, Deposit } from '.'
-import { TableDrawer, StatusButtonsHorizontal, PainPageHeader, CopyData } from '@/Global'
-import { CircleDollarSign } from 'lucide-vue-next'
+import { TableDrawer, StatusButtonsHorizontal, PainPageHeader, CopyData, TabelActionButtons } from '@/Global'
 import { memberAccountApi } from '@/tenant/apis'
 const
     drawer = ref(null),
@@ -77,7 +73,7 @@ const columns = [
 
 function OpenThedrawer(item: any) {
     automaticCreate.value = { actionSlot: 'deposit', ...item }
-        drawerTitle.value = { title: "deposit member saving's Account", width: "w-2/4" }
+    drawerTitle.value = { title: "deposit member saving's Account", width: "w-2/4" }
     setTimeout(() => {
         drawer.value.toggleDrawer()
     }, 1000)

@@ -1,0 +1,1 @@
+export {default as TabelActionButtons} from "./index.vue"

@@ -17,21 +17,15 @@
         </div>
       </div>
       <div class="col-span-5">
-        <Form
-          :action="data?.action"
-          parentStyle="grid  grid-cols-1 gap-4  "
-          v-model:form="fields"
-        />
+        <Form :action="data?.action" parentStyle="grid  grid-cols-1 gap-4  " v-model:form="fields" />
       </div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, reactive, computed, watch } from 'vue'
-import { Form, getSystemSetting, pickAsettingKeyValue, UploadLogo } from '@/Global'
-import { Upload } from 'lucide-vue-next'
-const   loading = ref(true),
-  settingList = ref({}),
+import { ref, onMounted,   } from 'vue'
+import { Form,  UploadLogo } from '@/Global'
+const loading = ref(true),
   props = defineProps({
     data: {
       type: Object,
@@ -46,25 +40,42 @@ const   loading = ref(true),
       required: true,
       placeholder: 'Enter Group official name',
     },
+     {
+      label: 'add group member',
+      name: 'memberslist',
+      type: 'multi-select',
+      required: true,
+      url: 'global/member-dropdown-list',
+      placeholder: 'Enter member name',
+      dependsOn: {
+        conditions: [
+          {
+            field: 'group_name',
+            condition: (val: any) => val !== null && val !== ''
+          }
+        ]
+      }
+    },
     {
       group: 2,
       fields: [
-    {
-      label: 'Date Create',
-      name: 'dcreated',
-      type: 'datec',
-      required: true,
-      placeholder: 'Enter Date Create',
+        {
+          label: 'Date Create',
+          name: 'dcreated',
+          type: 'datec',
+          required: true,
+          placeholder: 'Enter Date Create',
+        },
+        {
+          label: 'location',
+          name: 'address',
+          type: 'text',
+          required: true,
+          placeholder: 'Enter location',
+        },
+      ],
     },
-    {
-      label: 'location',
-      name: 'address',
-      type: 'text',
-      required: true,
-      placeholder: 'Enter location',
-    },
-  ],
-    },
+   
     {
       label: 'primary Admin contact',
       name: 'phone1',
@@ -106,11 +117,5 @@ async function promtValueOnUpdate() {
 onMounted(() => {
   promtValueOnUpdate()
 })
-watch(
-  () => fields.value,
-  (val) => {},
-  {
-    deep: true,
-  },
-)
+
 </script>

@@ -20,6 +20,7 @@ export * from './uploadLogo/index';
 export {default as Pagination} from './Pagination.vue';
 export {default as TopBar} from './TopBar.vue';
 export * from 'vue-sonner'
+export * from './TabelActionButtons';
 
 export { default as authDirective } from './Directives/authDirective.ts';
 export * from './landingLayout/Components/index.ts';
