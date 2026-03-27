@@ -290,7 +290,7 @@ function shouldShowField(field: any) {
                             <!-- Phone -->
                             <template v-else-if="field.type === 'phone'">
                                 <PhoneInput v-model="field.value" :placeholder="field.props?.placeholder || ''"
-                                    @input="() => field?.change && handleChange(field, index)" />
+                                    @input="() => field?.change && handleChange(field, index)" v-bind="field" />
                             </template>
 
                             <!-- Money -->
@@ -303,6 +303,8 @@ function shouldShowField(field: any) {
                                     <MoneyInput :class="[field.suffix ? ' rounded-xl rounded-l-none ' : '']"
                                         :id="field.name" v-model="field.value" :placeholder="field?.placeholder || ''"
                                         @input="() => field?.change && handleChange(field, index)" />
+                                        <!-- {{ field.error }} -->
+                                            <div v-if="field.error" class="mt-2 px-1 text-xs text-red-500 font-medium">{{ field.error }}</div>
                                 </div>
                             </template>
                             <!-- date -->

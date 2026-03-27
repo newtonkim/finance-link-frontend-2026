@@ -1,3 +1,4 @@
+<!-- this used in more than one place -->
 <template>
   <div v-if='fields?.length > 0' class="">
 
@@ -15,6 +16,8 @@
           </p>
         </div>
         <button
+          class="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-all duration-300"
+          type="button"
           @click="() => storeLocalChanages(field.id, field.settings_action.action = !field.settings_action.action, field,)"
           :class="[
             'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-all duration-300',
@@ -44,25 +47,31 @@
       </div>
     </div>
   </div>
-  <ConfirmDialog v-model:show="showDelete.show" @confirm="() => confirmAndSaveChanges()">
+  <ConfirmDialog type='warning' v-model:show="showDelete.show" @confirm="() => confirmAndSaveChanges()">
     <template #body>
       {{ showDelete.warning }}
-
     </template>
 
   </ConfirmDialog>
 </template>
 <script setup lang="ts">
-import { ref, watch, computed,onMounted ,nextTick} from "vue";
+import { ref, watch, computed, onMounted, nextTick } from "vue";
 import { appendOnAjsonStore, ConfirmDialog, createUrl, fetchTableData, keysToUse } from "..";
 import { pomPinia } from 'septor-store';
-import SystemSettings from "@/tenant/modules/settings/pages/SystemSettings.vue";
-// const { settingsList } = memmberSettingApi()
 const Store = pomPinia();
 
 const props = defineProps({
+  from: {
+    type: String,
+    required: false
+  },
   outerlinks: {
-
+    type: Object,
+    required: false
+  },
+  state: {
+    type: String,
+    required: false,
   },
   url: {
     type: String,
@@ -80,8 +89,8 @@ const props = defineProps({
 });
 
 const fields = computed(() => {
-const theListData=stateGenerator(props?.outerlinks?.['list'] ?? "settings-list");
-return Object.values(Store[theListData]?.payload ?? {}) 
+  const theListData = stateGenerator(props?.outerlinks?.['list']??props?.state ?? "settings-list");
+  return Object.values(Store[theListData]?.payload ?? {})
 })
 const emit = defineEmits(["update:modelValue"]);
 const internalValue = ref(props.modelValue);
@@ -102,51 +111,54 @@ function storeLocalChanages(id: string, value: string, action: string) {
 async function confirmAndSaveChanges(data: any) {
   const customeUrl = props?.outerlinks?.['create'] ?? "save-changed-settings";
   const { id, settings_action } = collectedData.value
+  const url= createUrl(props?.url, customeUrl)
+    const generateAstate = props?.state ?? `${url}`.replace(/[^a-zA-Z0-9]/g, "-");
+
   const res = await fetchTableData({
-    data: { id, settings_action },
+    data: { id, settings_action,from: props?.from },
     props: {
       ...props,
-      state: props?.state + "_" + customeUrl,
-      url: createUrl(props?.url, customeUrl)
+      state: generateAstate,
+      url: url
     }, Store
   });
-  if(res.payload)
-storeSettings(Object.values(res.payload))
+  if (res.payload)
+    storeSettings(Object.values(res.payload))
 }
 
-function storeSettings(useStoreAlltheGotSettings){
-const newsettings = {}
-useStoreAlltheGotSettings.forEach((value: any, index: number) => {
-  newsettings[value.name] = value?.['settings_action']?.['action']??value;
-})
+function storeSettings(useStoreAlltheGotSettings) {
+  const newsettings = {}
+  useStoreAlltheGotSettings.forEach((value: any, index: number) => {
+    newsettings[value.name] = value?.['settings_action']?.['action'] ?? value;
+  })
   appendOnAjsonStore({ data: newsettings, key: keysToUse.systemSettings })
-  }
+}
 
 function formatName(name: string) {
   return name.replace(/-/g, " ");
 }
 function stateGenerator(name: string) {
-  return name.replace(/\W+/g, "-");
+  return `${name}`.replace(/\W+/g, "-");
 }
-async function intializetheData(){
+async function intializetheData() {
   const customeUrl = props?.outerlinks?.['list'] ?? "settings-list";
-  const state=createUrl(props?.url, customeUrl);
-const theListData=stateGenerator(props?.outerlinks?.['list'] ?? "settings-list");
+  const state = createUrl(props?.url, customeUrl);
+  const theListData = stateGenerator(props?.outerlinks?.['list']??props?.state ?? "settings-list");
   const res = await fetchTableData({
     data: {},
     props: {
       ...props,
-      state:theListData,
+      state: theListData,
       url: state
     }, Store
   });
-  if(res.payload)
-storeSettings(Object.values(res.payload))
+  if (res.payload)
+    storeSettings(Object.values(res.payload))
 }
 onMounted(() => {
-     nextTick(() => {
-      intializetheData()
-        })
+  nextTick(() => {
+    intializetheData()
+  })
 
 });
 

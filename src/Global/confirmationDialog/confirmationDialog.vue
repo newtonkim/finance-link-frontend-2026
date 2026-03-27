@@ -9,38 +9,35 @@
       class="relative z-[9999] w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-neutral-900 dark:border dark:border-neutral-800">
 
       <div class="flex items-start gap-4">
-        <div 
-        :class="currentStyle?.color"
-        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full ">
-      <component
-  :is="currentStyle?.icon"
-  class="h-4 w-4"
- />
+        <div :class="currentStyle?.color" class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full ">
+          <component :is="currentStyle?.icon" class="h-4 w-4" />
         </div>
         <div>
-          <h3 class=" font-semibold text-neutral-900 dark:text-white text-[14px] mb-5">{{ title??currentStyle.title }}</h3>
+          <h3 class=" font-semibold text-neutral-900 dark:text-white text-[14px] mb-5">{{ title ?? currentStyle.title }}
+          </h3>
           <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
             <slot name="message" v-if="$slots.message" />
             <slot name="body" v-if="$slots.body" />
-            <div v-else class='text-neutral-500 dark:text-neutral-200 text-[12px] ml-3'>
-              Are you sure you want to delete <strong class="">{{ items?.name
-                }}</strong>?
-            </div>
+          <div v-else class='text-neutral-500 dark:text-neutral-200 text-[12px] ml-3'>
+            Are you sure you want to delete <strong class="">{{ items?.name
+            }}</strong>?
+          </div>
           </p>
         </div>
       </div>
 
-      <div class="mt-6 flex justify-end gap-3" >
+      <div class="mt-6 flex justify-end gap-3">
         <button type="button" @click="cancelDelete"
           class="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800">
           Cancel
         </button>
 
-        <button         :class="[  currentStyle?.bg,  currentStyle?.color]"
-        type="button" @click="() => executeDelete(items)" :disabled="deleting"
+        <button :class="[currentStyle?.bg, currentStyle?.color]" type="button" @click="() => executeDelete(items)"
+          :disabled="deleting"
           class="flex items-center gap-2 rounded-lg  px-4 py-2 text-sm font-medium text-white   transition-colors disabled:opacity-50">
-          <span v-if="deleting" class="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white"></span>
-          {{  currentStyle?.successText }}
+          <span v-if="deleting"
+            class="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white"></span>
+          {{ currentStyle?.successText }}
         </button>
       </div>
 
@@ -49,8 +46,8 @@
 </template>
 
 <script setup>
-import { ref,computed } from 'vue'; 
-import { AlertTriangle, Info, Check ,Trash2} from 'lucide-vue-next'
+import { ref, computed } from 'vue';
+import { AlertTriangle, Info, Check, Trash2 } from 'lucide-vue-next'
 const emit = defineEmits(['cancel', 'confirm', 'update:show']);
 
 const deleting = ref(false);
@@ -61,14 +58,14 @@ const ACtionStyle = ref({
     icon: AlertTriangle,
     color: "text-red-600 dark:text-red-400",
     successText: "Continue",
-    bg: "bg-red-100 dark:bg-red-900/30",
+    bg: "bg-amber-700 dark:bg-red-900/30",
     title: "Warning"
   },
   info: {
     icon: Info,
     color: "text-blue-600 dark:text-blue-400",
     successText: "Continue",
-    bg: "bg-blue-100 dark:bg-blue-900/30",
+    bg: "bg-blue-500 dark:bg-blue-900/30",
     title: "information"
 
   },
@@ -112,8 +109,8 @@ const props = defineProps({
     default: "delete"
   },
   items: Object,
- 
- 
+
+
   title: { type: String, },
   show: { type: Boolean, default: false, required: true }
 });

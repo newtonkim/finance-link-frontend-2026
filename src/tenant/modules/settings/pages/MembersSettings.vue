@@ -109,8 +109,7 @@ async function handleSave() {
         </div>
         <SettingCard :settingsCards="settingsCards">
             <template #kyc-member-onboarding>
-                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Setup
-                    KYC →</button>
+                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Setup KYC →</button>
 
                 <Sheet v-model:open="isDrawerOpen">
                     <SheetTrigger as-child>

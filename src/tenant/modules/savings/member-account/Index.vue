@@ -53,7 +53,7 @@ const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
         "view": { title: "Viewmember saving's Account Details", width: "w-1/2" },
         "edit": { title: "Edit member saving's Account", width: "w-1/3" },
         "add": { title: "Create a member saving's Account", width: "w-1/3" },
-        "deposit": { title: "", fun: () => memebrAccountDepositAmount(formData.value, automaticCreate.value,), },// this will be the deposite
+        "deposit": { width: "w-3/4", title: "deposit Saving's Account", fun: () => memebrAccountDepositAmount(formData.value, automaticCreate.value,), },// this will be the deposite
     }
 // automaticCreate.actionSlot// this will help switch off the default drawer actions  and use out side action
 function saveUser(type: string, data: any) {
@@ -66,7 +66,6 @@ function saveUser(type: string, data: any) {
     title?.[type]?.fun?.()
     automaticCreate.value = {}// celan the automatic create
 }
-
 const columns = [
     { key: 'member_name', label: 'Member', sticky: 'left', width: '14em ', },
     { key: 'product', label: 'product', sticky: 'left', width: '14em ', },
@@ -78,6 +77,7 @@ const columns = [
 
 function OpenThedrawer(item: any) {
     automaticCreate.value = { actionSlot: 'deposit', ...item }
+        drawerTitle.value = { title: "deposit member saving's Account", width: "w-2/4" }
     setTimeout(() => {
         drawer.value.toggleDrawer()
     }, 1000)

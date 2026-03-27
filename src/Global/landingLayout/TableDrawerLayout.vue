@@ -221,7 +221,7 @@ async function automaticCreateFun() {
             customeUrl = "create";
         }
         // console.log(customeUrl);
-        
+
         const formDataScoping: any = formDataFormatV2((data))
         const res = await fetchTableData({
             data: formDataScoping,
@@ -250,12 +250,13 @@ async function automaticCreateFun() {
 async function saveDrawerData(data: any) {
     Store.isFormSubmitted = true;
     const AnyErrorsFoundInTheFOrm = Store.AnyErrorsFoundInTheFOrm;
-    // console.log(Store.isFormSubmitted, AnyErrorsFoundInTheFOrm)
-    if (AnyErrorsFoundInTheFOrm) {
+    if (AnyErrorsFoundInTheFOrm == undefined) {
+
+    } else if (AnyErrorsFoundInTheFOrm) {
 
     } else {
         const checker = await automaticCreateFun('create')
-        console.log(checker,'====2');
+        // console.log(checker,'====2');
 
         if (checker) {
             // if (!checker) {

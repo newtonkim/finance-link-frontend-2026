@@ -35,20 +35,18 @@ const remoteUrl = debounce(async (url: string) => {
         const data = {}
         if (searchQuery.value?.length >= 3)
             data.search_keyword = searchQuery.value
-        const generateAstate =await  props?.state ?? `${url}`.replace(/[^a-zA-Z0-9]/g, "-");
+        const generateAstate = await props?.state ?? `${url}`.replace(/[^a-zA-Z0-9]/g, "-");
         const res = await fetchTableData({
             data: data?.search_keyword ? data : null,
-            saveData:  props?.saveData ?? true,
+            saveData: props?.saveData ?? true,
             props: { url, reload: false, state: generateAstate, },
             Store,
         });
-        const checker= await Store?.[generateAstate]?.payload?.data ?? Store?.[generateAstate]?.payload ?? Store?.[generateAstate] ?? [];
-        
-            collection.value = checker
+        const checker = await Store?.[generateAstate]?.payload?.data ?? Store?.[generateAstate]?.payload ?? Store?.[generateAstate] ?? [];
+
+        collection.value = checker
     })
 }, 1000);
-
-
 
 const isOpen = ref(false);
 const searchQuery = ref('');
@@ -76,14 +74,13 @@ const selectOption = (option: Option) => {
     searchQuery.value = '';
 };
 
-const toggleDropdown =async () => {
+const toggleDropdown = async () => {
     if (props.disabled) return;
     isOpen.value = !isOpen.value;
     if (isOpen.value)
         searchQuery.value = null;
     const generateAstate = props?.state ?? `${props?.url}`.replace(/[^a-zA-Z0-9]/g, "-");
     const DataAlreadyCollected = Store[generateAstate]?.payload?.data ?? Store[generateAstate]?.payload
-        // console.log({Store},Store[generateAstate],'checkercheckercheckercheckerchecker');
 
     if (props.url && !DataAlreadyCollected?.length) {
         remoteUrl(props.url)

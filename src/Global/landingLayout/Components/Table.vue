@@ -66,6 +66,7 @@
                   @click="handleAction(item, action)"
                   v-auth="permissions?.[action]"
                   :class="action_config?.[action]?.class"
+                  class="py-2"
                 >
                   <component :is="action_config?.[action]?.icon" class="h-2.5 w-2.5" />
                   <span v-if="action !== 'delete'">{{ action }}</span>
