@@ -1,5 +1,5 @@
 import { statusMap, getSubdomainName,formatCurrency } from '@/Global'
-import { dateTime, date, createUrl, getLocalValues, keysToUse } from '../../Helpers'
+import { dateTime, date, createUrl, getLocalValues, keysToUse, addNumberCommas } from '../../Helpers'
 import { Eye, Edit, Trash, UserCircle2, X } from 'lucide-vue-next'
 import { tenantClient } from '@/tenant/apis/tenantClient'
 import { apiClient } from '@/central/api/client'
@@ -48,6 +48,10 @@ export const dataFomater = (data: any, type: string) => {
         statusMap?.[`${data}`?.toUpperCase()]
       return `<span class="${verifyTheStatus?.className}">${verifyTheStatus?.label}</span>`
     },
+   number: () => {
+   return addNumberCommas(data)
+
+   },
    money: () => {
   return `<span>${formatCurrency(data)}</span>`
 }

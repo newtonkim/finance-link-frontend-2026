@@ -13,7 +13,7 @@
     <button
       v-for="filter in filters"
       :key="filter"
-      class="rounded-md px-3.5 py-1 text-xs font-medium capitalize transition-all"
+      class="rounded-md px-3.5 py-1 text-xs font-medium capitalize transition-all px-6  text-sm font-medium transition-all duration-200 rounded-lg"
       :class="filter === modelValue ? activeFilterClass : inactiveFilterClass"
       @click="() => updateStatusFilter(filter?.id??filter)"
     >
@@ -27,15 +27,13 @@
 <script setup>
 import { computed } from 'vue'
 import SearchableSelect from '../SearchableSelect.vue'
-
-
 const emit = defineEmits(['update:modelValue'])
 const props = defineProps({
   maxLength: { type: Number, required: false, default: 5 },
   filters: { type: Array, required: true },
   modelValue: { type: String, default: '' },
 })
-const activeFilterClass = 'bg-white text-neutral-900 shadow-sm dark:bg-neutral-700 dark:text-white'
+const activeFilterClass = 'bg-white text-gray-900 shadow-sm ring-1 ring-black/5 e'
 const inactiveFilterClass = 'text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300'
 function updateStatusFilter(filter) {
   emit('update:modelValue', filter)

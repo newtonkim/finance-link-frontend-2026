@@ -37,7 +37,7 @@ const handleCancel = () => {
         <SheetContent side="right" :class="props.width + ' sm:max-w-none bg-white dark:bg-neutral-900'">
             <SheetHeader class="p-6 border-b border-neutral-100 dark:border-neutral-800">
                 <SheetTitle class="text-xl font-bold text-neutral-900 dark:text-white capitalize">
-                    {{ props.title.toLocaleLowerCase() }}
+                    {{props.title? `${props.title}`.toLocaleLowerCase():"" }}
                 </SheetTitle>
             </SheetHeader>
             <div

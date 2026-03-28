@@ -1800,6 +1800,15 @@ axios@*, axios@^1.13.6:
     form-data "^4.0.5"
     proxy-from-env "^1.1.0"
 
+axios@^1.9.0:
+  version "1.14.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.14.0.tgz#7c29f4cf2ea91ef05018d5aa5399bf23ed3120eb"
+  integrity sha512-3Y8yrqLSwjuzpXuZ0oIYZ/XGgLwUIBU3uLvbcpb0pidD9ctpShJd43KSlEEkVQg6DS0G9NKyzOvBfUtDKEyHvQ==
+  dependencies:
+    follow-redirects "^1.15.11"
+    form-data "^4.0.5"
+    proxy-from-env "^2.1.0"
+
 balanced-match@^1.0.0:
   version "1.0.2"
   resolved "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz"
@@ -3637,7 +3646,7 @@ pidtree@^0.6.0:
   resolved "https://registry.npmjs.org/pidtree/-/pidtree-0.6.0.tgz"
   integrity sha512-eG2dWTVw5bzqGRztnHExczNxt5VGsE6OwTeCG3fdUf9KBsZzO3R5OIIIzWR+iZA0NtZ+RDVdaoE2dK1cn6jH4g==
 
-pinia@^3.0.4:
+pinia@^3.0.2, pinia@^3.0.4:
   version "3.0.4"
   resolved "https://registry.npmjs.org/pinia/-/pinia-3.0.4.tgz"
   integrity sha512-l7pqLUFTI/+ESXn6k3nu30ZIzW5E2WZF/LaHJEpoq6ElcLD+wduZoB2kBN19du6K/4FDpPMazY2wJr+IndBtQw==
@@ -3713,6 +3722,11 @@ proxy-from-env@^1.1.0:
   version "1.1.0"
   resolved "https://registry.npmjs.org/proxy-from-env/-/proxy-from-env-1.1.0.tgz"
   integrity sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==
+
+proxy-from-env@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/proxy-from-env/-/proxy-from-env-2.1.0.tgz#a7487568adad577cfaaa7e88c49cab3ab3081aba"
+  integrity sha512-cJ+oHTW1VAEa8cJslgmUZrc+sjRKgAKl3Zyse6+PV38hZe/V6Z14TbCuXcan9F9ghlz4QrFr2c92TNF82UkYHA==
 
 public-encrypt@^4.0.3:
   version "4.0.3"
@@ -3915,6 +3929,15 @@ semver@^7.5.3, semver@^7.6.3, semver@^7.7.3:
   version "7.7.4"
   resolved "https://registry.npmjs.org/semver/-/semver-7.7.4.tgz"
   integrity sha512-vFKC2IEtQnVhpT78h1Yp8wzwrf8CM+MzKMHGJZfBtzhZNycRFnXsHk6E5TxIkkMsgNS7mdX3AGB7x2QM2di4lA==
+
+septor-store@^1.3.4:
+  version "1.3.4"
+  resolved "https://registry.yarnpkg.com/septor-store/-/septor-store-1.3.4.tgz#ed1164381f4206dfb7d87afc82d4c1159814a93e"
+  integrity sha512-8Sf4nhXe5kn2c5Tspfgt9kmQKpsZ0ITU+SzY1wyeClu/FN72UZilNk3zOJIU7LX1645lvI5WVtTO8a9CW4HNjg==
+  dependencies:
+    axios "^1.9.0"
+    pinia "^3.0.2"
+    vue "^3.5.13"
 
 set-function-length@^1.2.2:
   version "1.2.2"

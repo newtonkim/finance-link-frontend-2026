@@ -137,11 +137,11 @@ const fields = ref([
     placeholder: 'Enter Address',
   },
   {
-    label: 'prifile picture',
+    label: 'profile picture',
     name: 'profile_picture',
-    type: 'prifile',
+    type: 'profile',
     required: true,
-    placeholder: 'Enter prifile picture',
+    placeholder: 'Enter profile picture',
   },
   {
     label: 'Next of Kin',

@@ -28,8 +28,9 @@ function saveUser(type: string, data: any) {
     if (title?.[type]) drawerTitle.value = title?.[type]
 }
 const columns = [
+    { key: 'code', label: 'transfer code', sticky: 'left', width: '14em',copy: true },
     { key: 'member_name', label: 'Member', sticky: 'left', width: '14em ', },
-    { key: 'transfer_to_product', label: 'product', sticky: 'left', width: '14em ', },
+    { key: 'transfer_to_product', label: 'transfer to', sticky: 'left', width: '14em ', },
     { key: 'transfer_amount', label: 'transfer', type:"money" },
     { key: 'account_balance', label: 'balance', type:"money" },
     { key: 'status', label: 'status',  type:'status' },

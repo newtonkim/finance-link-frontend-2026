@@ -14,7 +14,7 @@ interface Option {
 }
 
 const props = defineProps<{
-    modelValue: (string | number)[];
+    modelValue: (string | number|null)[];
     options: Option[];
     placeholder?: string;
     label?: string;
@@ -22,7 +22,7 @@ const props = defineProps<{
     disabled?: boolean;
     remote?: boolean;
     url?: string;
-    state: string
+    state?: string
     dataOnMount?: boolean
 }>();
 

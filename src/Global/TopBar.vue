@@ -15,7 +15,7 @@ import { tenantClient } from '@/tenant/apis/tenantClient';
 import { apiClient } from '@/central/api/client';
 import { pomPinia } from 'septor-store';
 const Store = pomPinia();
-const activeBranch = ref<number | string | null>(null)
+const activeBranch = ref(null)
 const subdomain = getSubdomainName()
 import { useBranchStore } from '@/stores/branchStore';
 import SearchableSelect from './SearchableSelect.vue';
@@ -23,6 +23,9 @@ import SearchableSelect from './SearchableSelect.vue';
 const interceptor = subdomain ? tenantClient : apiClient
 
 async function fetchBranches() {
+    activeBranch.value = getLocalValues(keysToUse.activeBranch)
+ 
+
     tryCatch(async () => {
         const collection = {
             reload: 0,
@@ -37,7 +40,9 @@ async function fetchBranches() {
             mStore: { mUse: true },
         }
         await Store.stateGenaratorApi(collection)
-        watchBranchchanges(Store?.['system-branches']?.payload?.data[0]?.id)
+        if(!getLocalValues(keysToUse.activeBranch)){
+            watchBranchchanges(Store?.['system-branches']?.payload?.data[0]?.id)
+        }
     })
 }
 defineProps<{
@@ -46,7 +51,6 @@ defineProps<{
 
 function watchBranchchanges(branch: any) {
         activeBranch.value = branch
-
     setLocalValues(keysToUse.activeBranch, branch)
     Store.activeBranch = branch
         activeBranch.value = branch
@@ -57,6 +61,8 @@ const user = computed(() => authStore.user);
 const userName = computed(() => String(user.value?.name ?? 'User'));
 
 onMounted(async () => {
+
+    watchBranchchanges(getLocalValues(keysToUse.activeBranch))
     await fetchBranches()
 })
 
@@ -101,7 +107,6 @@ onMounted(async () => {
                         class="bg-white/50 dark:bg-white/10 px-1 rounded border border-neutral-200/50 dark:border-white/10">K</span>
                 </div>
             </div>
- 
                 <SearchableSelect :modelValue="activeBranch" :options="Store?.['system-branches']?.payload?.data ?? []" @update:modelValue="onBranchChange"/>
         </div>
 

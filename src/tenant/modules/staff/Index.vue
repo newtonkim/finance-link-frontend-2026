@@ -4,14 +4,12 @@
         // view: 'staff-details',
         // edit: 'staff-update',
         // delete: 'staff-delete'
-    }" drawerWidth=" w-2/4"  :url="tableUrl" state="staffList" :drawerTitle="drawerTitle" " :columns="columns"
+    }" drawerWidth=" w-2/4" :url="tableUrl" state="staffList" :drawerTitle="drawerTitle" " :columns="columns"
         @save="saveUser">
-    <template #header-action>
-         <PainPageHeader
-   title="Staff list"
-   dec="Manage SACCO staff accounts and track their onboarding performance"
- /> 
-</template>
+        <template #header-action>
+            <PainPageHeader title="Staff list"
+                dec="Manage SACCO staff accounts and track their onboarding performance" />
+        </template>
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
@@ -38,12 +36,12 @@ function saveUser(type: string, data: any) {
     if (title?.[type]) drawerTitle.value = title?.[type]
 }
 const columns = [
-    { key: 'staff_fall_name', label: 'Member', sticky: 'left', width: '14em ', },
-    { key: 'staff_email', label: 'Member Type' },
     { key: 'staff_code', label: 'code', copy: true },
+    { key: 'staff_fall_name', label: 'Member', sticky: 'left', },
+    { key: 'staff_email', label: 'Member Type' },
     { key: 'system_role', label: 'role', },
     { key: 'status', label: 'status', type: 'status' },
-    { key: 'created_at', label: 'created_at', width: '14em ', },
+    { key: 'created_at', label: 'created_at', },
     { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 
 ]
