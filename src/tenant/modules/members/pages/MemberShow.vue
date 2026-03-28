@@ -4,6 +4,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { toast } from 'vue-sonner';
 import { storeToRefs } from 'pinia';
 import { UserCircle2, FileText, TrendingUp, MinusCircle, Wallet, BarChart3, RotateCcw, Printer } from 'lucide-vue-next';
+import { formatMoneyValue } from '@/Global';
 import { tenantClient } from '@/tenant/apis/tenantClient';
 import { useCurrencyStore } from '@/stores/currency';
 import { useMember } from '../composables/useMember';
@@ -100,7 +101,7 @@ const formatDateTime = (dateString?: string) => {
 };
 
 const formatCurrency = (amount?: string | number) =>
-    Number(amount ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    formatMoneyValue(amount ?? 0);
 
 // ── Handle member delete ─────────────────────────────────────────────────────
 const handleDelete = () => deleteMember(() => router.push('/tenant/members'));
@@ -390,11 +391,11 @@ const handleDelete = () => deleteMember(() => router.push('/tenant/members'));
                 </div>
                 <div class="flex justify-between border-b border-dashed border-gray-300 pb-2">
                     <span class="font-semibold text-gray-600">Total Amount:</span>
-                    <span class="font-bold">{{ formatCurrency(printingTxn.amount) }} {{ currencyCode }}</span>
+                    <span class="font-bold">{{ printingTxn.amount_formatted || `${currencyCode} ${formatCurrency(printingTxn.amount)}` }}</span>
                 </div>
                 <div class="flex justify-between border-b border-dashed border-gray-300 pb-2">
                     <span class="font-semibold text-gray-600">Trans Charge:</span>
-                    <span class="font-bold">{{ formatCurrency(printingTxn.charge || 0) }}.0 {{ currencyCode }}</span>
+                    <span class="font-bold">{{ currencyCode }} {{ formatCurrency(printingTxn.charge || 0) }}</span>
                 </div>
             </div>
             <div class="text-center mt-10 space-y-4">

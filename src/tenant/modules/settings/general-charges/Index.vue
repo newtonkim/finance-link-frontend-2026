@@ -16,7 +16,7 @@
         <template #charge_amount="{ item }">
             <div class="flex flex-col gap-1"><span class="font-mono font-semibold text-neutral-600 dark:text-white">
                     {{ item?.charge_type === 'percentage' ? item?.charge_amount + ' %' :
-                        formatCurrency(item?.charge_amount) }}
+                        formatMoneyValue(item?.charge_amount) }}
                 </span><span
                     class="inline-flex w-fit rounded px-1.5 py-0.5 text-xs font-medium capitalize bg-amber-50 text-amber-800">
                     {{ item?.charge_type ?? 'flat amount' }}
@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Create, Details } from '.'
-import { TableDrawer, PainPageHeader, formatCurrency } from '@/Global'
+import { TableDrawer, PainPageHeader, formatMoneyValue } from '@/Global'
 import ToggleSwitch from '@/Global/ToggleSwitch.vue'
 import { useGeneralCharges } from '../composables/useGeneralCharges'
 const { toggleReversible } = useGeneralCharges()

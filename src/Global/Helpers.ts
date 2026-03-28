@@ -231,10 +231,18 @@ export function localStoragePicker(key = '') {
 export function addNumberCommas(number: any, delimeter = ',') {
   return `${number}`.toString().replace(/\B(?=(\d{3})+(?!\d))/g, delimeter)
 }
-export const formatCurrency = (amount: number | string) => {
+export const formatCurrency = (amount: number | string, currencyCode = 'UGX') => {
   return new Intl.NumberFormat('en-UG', {
     style: 'currency',
-    currency: 'UGX',
+    currency: currencyCode,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(amount || 0))
+}
+export const formatMoneyValue = (amount: number | string, minimumFractionDigits = 2) => {
+  return new Intl.NumberFormat('en-UG', {
+    minimumFractionDigits,
+    maximumFractionDigits: minimumFractionDigits,
   }).format(Number(amount || 0))
 }
 export function addMinutesToTime(startTime: string, minutesToAdd: number | string = 40) {

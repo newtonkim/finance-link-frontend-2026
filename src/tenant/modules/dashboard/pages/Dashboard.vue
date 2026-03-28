@@ -20,6 +20,7 @@ import {
 } from 'lucide-vue-next'
 import { computed, onMounted, ref } from 'vue'
 import { Bar, Doughnut } from 'vue-chartjs'
+import { formatMoneyValue } from '@/Global'
 import { tenantClient } from '@/tenant/apis/tenantClient'
 import { useCurrencyStore } from '@/stores/currency'
 
@@ -65,6 +66,14 @@ const metrics = ref<Metrics | null>(null)
 const loading = ref(true)
 const error = ref<string | null>(null)
 
+function formatCount(value: number | string | null | undefined) {
+  return Number(value ?? 0).toLocaleString()
+}
+
+function formatMoney(value: number | string | null | undefined) {
+  return `${currencyStore.currencyCode} ${formatMoneyValue(value ?? 0)}`
+}
+
 onMounted(async () => {
   try {
     const { data } = await tenantClient.get('/dashboard')
@@ -81,7 +90,7 @@ const stats = computed(() => {
   return [
     {
       title: 'Total Members',
-      value: metrics.value.total_members.toLocaleString(),
+      value: formatCount(metrics.value.total_members),
       subvalue: `${metrics.value.active_members} active`,
       icon: Users,
       trend: '+12.5%',
@@ -91,7 +100,7 @@ const stats = computed(() => {
     },
     {
       title: 'Number of Accounts',
-      value: metrics.value.savings_summary.active_accounts.toLocaleString(),
+      value: formatCount(metrics.value.savings_summary.active_accounts),
       subvalue: 'Savings accounts open',
       icon: BarChart3,
       trend: '',
@@ -101,7 +110,7 @@ const stats = computed(() => {
     },
     {
       title: 'Savings Balance',
-      value: `${currencyStore.currencyCode} ${Number(metrics.value.savings_summary.total_deposits).toLocaleString()}`,
+      value: formatMoney(metrics.value.savings_summary.total_deposits),
       subvalue: 'Total deposits held',
       icon: PiggyBank,
       trend: '+8.2%',
@@ -111,7 +120,7 @@ const stats = computed(() => {
     },
     {
       title: 'Total Withdrawals',
-      value: `${currencyStore.currencyCode} ${Number(metrics.value.total_withdrawals).toLocaleString()}`,
+      value: formatMoney(metrics.value.total_withdrawals),
       subvalue: 'All time withdrawals',
       icon: ArrowDownLeft,
       trend: '',
@@ -121,7 +130,7 @@ const stats = computed(() => {
     },
     {
       title: 'Total Deposits',
-      value: `${currencyStore.currencyCode} ${Number(metrics.value.total_deposits).toLocaleString()}`,
+      value: formatMoney(metrics.value.total_deposits),
       subvalue: 'All time deposits',
       icon: ArrowUpRight,
       trend: '',
@@ -131,7 +140,7 @@ const stats = computed(() => {
     },
     {
       title: 'Active Loans',
-      value: `${currencyStore.currencyCode} ${Number(metrics.value.loans_summary.total_outstanding).toLocaleString()}`,
+      value: formatMoney(metrics.value.loans_summary.total_outstanding),
       subvalue: `${metrics.value.loans_summary.active_loans} loans running`,
       icon: HandCoins,
       trend: '-2.4%',
@@ -242,7 +251,7 @@ function computeOverall(
       name: member.name,
       member_number: member.member_number,
       score: Math.round((vScore + fScore) / 2),
-      valueLabel: vEntry ? Number(vEntry[valueKey]).toLocaleString() : '—',
+      valueLabel: vEntry ? formatMoneyValue(vEntry[valueKey] ?? 0) : '—',
       freqLabel:  fEntry ? String(fEntry[freqKey]) : '—',
     }
   }).sort((a, b) => b.score - a.score).slice(0, 5)
@@ -436,7 +445,7 @@ const portfolioTotal = computed(() => {
             <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
               <span class="text-[11px] text-neutral-400">Total</span>
               <span class="text-sm font-bold text-neutral-900 dark:text-white">
-                {{ portfolioTotal.toLocaleString() }}
+                {{ formatCount(portfolioTotal) }}
               </span>
             </div>
           </div>
@@ -448,7 +457,7 @@ const portfolioTotal = computed(() => {
               </span>
               <span class="flex items-center gap-3">
                 <span class="text-xs font-medium text-neutral-700 dark:text-neutral-200">
-                  {{ cat.value.toLocaleString() }}
+                  {{ formatCount(cat.value) }}
                 </span>
                 <span class="w-9 text-right text-xs font-semibold text-neutral-900 dark:text-white">{{ cat.pct }}</span>
               </span>
@@ -496,7 +505,7 @@ const portfolioTotal = computed(() => {
                     </div>
                   </div>
                   <span class="text-[13px] font-bold text-neutral-900 dark:text-white">
-                    {{ currencyStore.currencyCode }} {{ Number(member.total_balance).toLocaleString() }}
+                    {{ formatMoney(member.total_balance) }}
                   </span>
                 </div>
                 <!-- Proportional bar -->
@@ -528,7 +537,7 @@ const portfolioTotal = computed(() => {
                     </span>
                   </div>
                   <p class="text-[11px] text-neutral-400">
-                    {{ currencyStore.currencyCode }} {{ Number(member.total_deposited).toLocaleString() }} total deposited
+                    {{ formatMoney(member.total_deposited) }} total deposited
                   </p>
                 </div>
               </div>
@@ -595,7 +604,7 @@ const portfolioTotal = computed(() => {
                     </div>
                   </div>
                   <span class="text-[13px] font-bold text-neutral-900 dark:text-white">
-                    {{ currencyStore.currencyCode }} {{ Number(member.total_borrowed).toLocaleString() }}
+                    {{ formatMoney(member.total_borrowed) }}
                   </span>
                 </div>
                 <div class="h-1 w-full overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
@@ -626,7 +635,7 @@ const portfolioTotal = computed(() => {
                     </span>
                   </div>
                   <p class="text-[11px] text-neutral-400">
-                    {{ currencyStore.currencyCode }} {{ Number(member.total_borrowed).toLocaleString() }} total borrowed
+                    {{ formatMoney(member.total_borrowed) }} total borrowed
                   </p>
                 </div>
               </div>

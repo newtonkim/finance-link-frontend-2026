@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { Check, X, RotateCcw, Loader2, ChevronDown, AlertTriangle } from 'lucide-vue-next'
+import { formatMoneyValue } from '@/Global'
 import type { TransactionReversal } from '@/tenant/apis/reversals/reversalsApi'
 
 const props = defineProps<{
@@ -23,7 +24,7 @@ const emit = defineEmits<{
 onMounted(() => emit('refresh'))
 
 function formatAmount(amount: string | number) {
-  return Number(amount ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  return formatMoneyValue(amount ?? 0)
 }
 
 function formatDate(d?: string | null) {

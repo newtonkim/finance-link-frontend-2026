@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import { isAxiosError } from 'axios'
 import { ArrowLeft, UserCircle2, Share2, AlertCircle, TrendingUp, Wallet } from 'lucide-vue-next'
 import { Label, InputError, Spinner } from '@/Global'
+import { formatMoneyValue } from '@/Global'
 import PhoneInput from '@/Global/PhoneInput.vue'
 import SearchableSelect from '@/Global/SearchableSelect.vue'
 import { toast } from 'vue-sonner'
@@ -97,12 +98,16 @@ const sharesTotalAmount = computed(() => {
   return qty * settingsStore.sharePrice
 })
 
+function formatMoney(amount: number | string | null | undefined, minimumFractionDigits = 2) {
+  return `${currencyCode.value} ${formatMoneyValue(amount ?? 0, minimumFractionDigits)}`
+}
+
 const sharesError = computed(() => {
   if (!sharesRequired.value) return ''
   const qty = Number(form.value.shares_quantity)
   if (!qty || qty <= 0) return `At least ${settingsStore.minSharesOnOnboarding} share(s) required.`
   if (qty < settingsStore.minSharesOnOnboarding) {
-    return `Minimum ${settingsStore.minSharesOnOnboarding} share(s) required (${currencyCode.value} ${(settingsStore.minSharesOnOnboarding * settingsStore.sharePrice).toLocaleString()}).`
+    return `Minimum ${settingsStore.minSharesOnOnboarding} share(s) required (${formatMoney(settingsStore.minSharesOnOnboarding * settingsStore.sharePrice, 0)}).`
   }
   return ''
 })
@@ -485,8 +490,8 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
               <p class="text-[12px] text-emerald-800 leading-relaxed">
                 This SACCO requires a minimum of
                 <strong>{{ settingsStore.minSharesOnOnboarding }} share(s)</strong>
-                at <strong>{{ currencyCode }} {{ settingsStore.sharePrice.toLocaleString() }}</strong> each
-                (total: <strong>{{ currencyCode }} {{ (settingsStore.minSharesOnOnboarding * settingsStore.sharePrice).toLocaleString() }}</strong>)
+                at <strong>{{ formatMoney(settingsStore.sharePrice, 0) }}</strong> each
+                (total: <strong>{{ formatMoney(settingsStore.minSharesOnOnboarding * settingsStore.sharePrice, 0) }}</strong>)
                 to register a member.
               </p>
             </div>
@@ -521,10 +526,10 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
                   <TrendingUp class="h-4 w-4 text-emerald-600 shrink-0" />
                   <div>
                     <p class="text-[11px] text-neutral-500 font-medium uppercase tracking-wide">
-                      {{ form.shares_quantity || 0 }} shares × {{ currencyCode }} {{ settingsStore.sharePrice.toLocaleString() }}
+                      {{ form.shares_quantity || 0 }} shares × {{ formatMoney(settingsStore.sharePrice, 0) }}
                     </p>
                     <p class="text-[18px] font-black text-emerald-700 font-mono leading-tight">
-                      {{ currencyCode }} {{ sharesTotalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 }) }}
+                      {{ formatMoney(sharesTotalAmount) }}
                     </p>
                   </div>
                 </div>

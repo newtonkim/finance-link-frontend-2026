@@ -8,6 +8,19 @@ const router = useRouter()
 const { product, loading, fetch, interestMethodLabel, orDash } = useLoanProductShow()
 
 onMounted(fetch)
+
+function moneyOrDash(formatted?: string | null, raw?: string | number | null) {
+    if (formatted) return formatted
+    return orDash(raw)
+}
+
+function processingFeeLabel() {
+    if (!product.value) return '—'
+    const feeType = product.value.processing_fee_type
+    if (!feeType || feeType === 'none') return 'None'
+    if (feeType === 'percentage') return `${product.value.processing_fee_value ?? '—'}%`
+    return moneyOrDash(product.value.processing_fee_value_formatted, product.value.processing_fee_value)
+}
 </script>
 
 <template>
@@ -78,11 +91,11 @@ onMounted(fetch)
 
                     <div>
                         <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">Minimum Amount</p>
-                        <p class="text-sm text-neutral-900 dark:text-white">{{ orDash(product.min_amount) }}</p>
+                        <p class="text-sm text-neutral-900 dark:text-white">{{ moneyOrDash(product.min_amount_formatted, product.min_amount) }}</p>
                     </div>
                     <div>
                         <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">Maximum Amount</p>
-                        <p class="text-sm text-neutral-900 dark:text-white">{{ orDash(product.max_amount) }}</p>
+                        <p class="text-sm text-neutral-900 dark:text-white">{{ moneyOrDash(product.max_amount_formatted, product.max_amount) }}</p>
                     </div>
                 </div>
             </div>
@@ -153,7 +166,7 @@ onMounted(fetch)
                     </div>
                     <div>
                         <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">Processing Fee</p>
-                        <p class="text-sm text-neutral-900 dark:text-white">{{ orDash(product.processing_fee_type) }} {{ product.processing_fee_value ?? '' }}</p>
+                        <p class="text-sm text-neutral-900 dark:text-white">{{ processingFeeLabel() }}</p>
                     </div>
                     <div>
                         <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">Allow Top-up</p>
@@ -189,7 +202,7 @@ onMounted(fetch)
                                 <td class="px-4 py-3 text-neutral-900 dark:text-white">{{ orDash(rule.penalty_type) }}</td>
                                 <td class="px-4 py-3 text-neutral-600 dark:text-neutral-400">{{ orDash(rule.penalty_rate) }}</td>
                                 <td class="px-4 py-3 text-neutral-600 dark:text-neutral-400">{{ orDash(rule.grace_days) }}</td>
-                                <td class="px-4 py-3 text-neutral-600 dark:text-neutral-400">{{ orDash(rule.amount) }}</td>
+                                <td class="px-4 py-3 text-neutral-600 dark:text-neutral-400">{{ moneyOrDash(rule.amount_formatted, rule.amount) }}</td>
                             </tr>
                         </tbody>
                     </table>

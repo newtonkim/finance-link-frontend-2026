@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { X, CheckCircle2, RotateCcw, ArrowRightLeft, CalendarClock } from 'lucide-vue-next'
 import type { SavingsProduct, Charge } from '../../../apis/savingsProducts/api'
+import { formatMoneyValue } from '@/Global'
 import { useCurrencyStore } from '@/stores/currency'
 
 const currencyStore = useCurrencyStore()
@@ -23,7 +24,7 @@ const hasCharges = computed(() => {
 const monthlyFeeLabel = computed(() => {
     const p = props.product
     if (!p?.monthly_fee_enabled) return ''
-    const val = p.monthly_fee_type === 'percentage' ? `${p.monthly_fee_amount}%` : `${currency.value} ${Number(p.monthly_fee_amount).toLocaleString()}`
+    const val = p.monthly_fee_type === 'percentage' ? `${p.monthly_fee_amount}%` : `${currency.value} ${formatMoneyValue(Number(p.monthly_fee_amount), 0)}`
     return val
 })
 
@@ -58,7 +59,7 @@ const formatValue = (charge: Charge) => {
     if (charge.charge_type === 'percentage') {
         return `${charge.amount}%`
     }
-    return `${currency.value} ${Number(charge.amount).toLocaleString()}`
+    return `${currency.value} ${formatMoneyValue(Number(charge.amount), 0)}`
 }
 </script>
 
@@ -105,8 +106,8 @@ const formatValue = (charge: Charge) => {
                                 <span class="text-xs text-neutral-500">fee</span>
                             </div>
                             <div class="mt-0.5 flex gap-3 text-xs text-neutral-500">
-                                <span>Min: {{ charge.minimum_amount ? `${currency} ${Number(charge.minimum_amount).toLocaleString()}` : 'None' }}</span>
-                                <span v-if="charge.maximum_amount">Max: {{ currency }} {{ Number(charge.maximum_amount).toLocaleString() }}</span>
+                                <span>Min: {{ charge.minimum_amount ? `${currency} ${formatMoneyValue(Number(charge.minimum_amount), 0)}` : 'None' }}</span>
+                                <span v-if="charge.maximum_amount">Max: {{ currency }} {{ formatMoneyValue(Number(charge.maximum_amount), 0) }}</span>
                             </div>
                         </div>
                     </div>

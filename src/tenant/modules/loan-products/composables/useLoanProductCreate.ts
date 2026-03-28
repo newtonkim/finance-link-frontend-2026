@@ -1,4 +1,4 @@
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
 import { loanProductsApi, type LoanProduct, type LoanProductPreview } from '../../../apis/loanProducts/loanProductsApi'
@@ -21,6 +21,11 @@ function createDefaultForm(): LoanProduct {
         min_guarantors: 0,
         max_guarantors: 0,
         grace_period: 0,
+        savings_appraisal_threshold: 0,
+        warning_days: null,
+        max_securities: 3,
+        security_value_percentage: 150,
+        allow_sub_schedule: false,
         penalty_rate: 0,
         penalty_type: 'none',
         requires_approval: false,
@@ -171,6 +176,34 @@ export function useLoanProductForm() {
             previewLoading.value = false
         }
     }
+
+    // ─── Auto-generate code from name (create mode only) ─────────────────────
+    watch(
+        () => form.value.name,
+        (name) => {
+            if (isEditing.value) return
+            form.value.code = name
+                .trim()
+                .toUpperCase()
+                .replace(/[^A-Z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '')
+                .slice(0, 24)
+        },
+    )
+
+    // ─── Sync previewTerm with loan_duration automatically ────────────────────
+    watchEffect(() => {
+        if (form.value.loan_duration && !previewTerm.value) {
+            previewTerm.value = form.value.loan_duration
+        }
+    })
+
+    watch(
+        () => form.value.loan_duration,
+        (val) => {
+            previewTerm.value = val ?? null
+        },
+    )
 
     watch(
         [

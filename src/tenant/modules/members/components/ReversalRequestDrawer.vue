@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { X, RotateCcw, AlertTriangle, Clock } from 'lucide-vue-next'
 import { Spinner } from '@/Global'
+import { formatMoneyValue } from '@/Global'
 
 defineProps<{
   show: boolean
@@ -16,7 +17,7 @@ const emit = defineEmits<{
 }>()
 
 function formatAmount(amount: string | number) {
-  return Number(amount ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  return formatMoneyValue(amount ?? 0)
 }
 
 function formatDate(d?: string) {

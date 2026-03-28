@@ -5,6 +5,7 @@ import { ArrowLeftRight, Loader2, CheckCircle2, AlertCircle, RefreshCw } from 'l
 import { toast } from 'vue-sonner'
 import { tenantClient } from '@/tenant/apis/tenantClient'
 import SearchableSelect from '@/Global/SearchableSelect.vue'
+import { formatMoneyValue } from '@/Global'
 import { useCurrencyStore } from '@/stores/currency'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -94,7 +95,7 @@ const amountError = computed(() => {
     const amt = Number(form.value.amount)
     if (!amt || amt <= 0) return ''
     if (maxTransferable.value !== null && amt > maxTransferable.value) {
-        return `Exceeds available balance (${currencyCode.value} ${maxTransferable.value.toLocaleString('en-US', { minimumFractionDigits: 2 })})`
+        return `Exceeds available balance (${currencyCode.value} ${formatMoneyValue(maxTransferable.value)})`
     }
     return ''
 })
@@ -170,7 +171,7 @@ function resetForm() {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function fmtCurrency(n: number) {
-    return n.toLocaleString('en-US', { minimumFractionDigits: 2 })
+    return formatMoneyValue(n)
 }
 
 function accountLabel(a: Account) {

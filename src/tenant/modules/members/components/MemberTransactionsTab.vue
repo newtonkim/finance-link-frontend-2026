@@ -180,7 +180,7 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
                         <td class="py-3.5 px-5">
                             <span class="text-[14px] font-mono font-bold"
                                 :class="txn.type === 'deposit' ? 'text-emerald-600' : 'text-red-600'">
-                                {{ txn.type === 'deposit' ? '+' : '-' }}{{ formatCurrency(txn.amount) }}
+                                {{ txn.type === 'deposit' ? '+' : '-' }}{{ txn.amount_formatted || formatCurrency(txn.amount) }}
                             </span>
                         </td>
 
