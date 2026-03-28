@@ -1,7 +1,7 @@
 import { ref, computed, onMounted, watch, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
-import { loanProductsApi, type LoanProduct, type LoanProductPreview } from '../../../apis/loanProducts/loanProductsApi'
+import { loanProductsApi, type DocumentTypeOption, type LoanProduct, type LoanProductPreview } from '../../../apis/loanProducts/loanProductsApi'
 import { chartOfAccountsApi } from '../../../apis/chartOfAccounts/chartOfAccountsApi'
 
 function createDefaultForm(): LoanProduct {
@@ -20,6 +20,7 @@ function createDefaultForm(): LoanProduct {
         repayment_cycle: 'monthly',
         min_guarantors: 0,
         max_guarantors: 0,
+        required_documents: [],
         grace_period: 0,
         savings_appraisal_threshold: 0,
         warning_days: null,
@@ -59,6 +60,7 @@ export function useLoanProductForm() {
     const previewTerm = ref<number | null>(null)
 
     const form = ref<LoanProduct>(createDefaultForm())
+    const documentTypes = ref<DocumentTypeOption[]>([])
     let previewTimer: ReturnType<typeof setTimeout> | null = null
 
     // ─── Accounts (for accounting mapping selectors) ───────────────────────────
@@ -78,6 +80,15 @@ export function useLoanProductForm() {
             }))
         } catch {
             toast.error('Failed to load chart of accounts.')
+        }
+    }
+
+    async function fetchDocumentTypes() {
+        try {
+            const res = await loanProductsApi.documentTypes({ active_only: true })
+            documentTypes.value = res.data?.data ?? []
+        } catch {
+            toast.error('Failed to load document types.')
         }
     }
 
@@ -116,7 +127,12 @@ export function useLoanProductForm() {
         try {
             const res = await loanProductsApi.get(Number(route.params.id))
             const p   = res.data?.data ?? res.data
-            form.value = { ...createDefaultForm(), ...p, penalty_rules: p.penalty_rules ?? [] }
+            form.value = {
+                ...createDefaultForm(),
+                ...p,
+                penalty_rules: p.penalty_rules ?? [],
+                required_documents: p.required_documents ?? [],
+            }
             previewAmount.value = Number(p.min_amount ?? 0) || null
             previewTerm.value = p.loan_duration ?? null
         } catch (err: any) {
@@ -128,7 +144,7 @@ export function useLoanProductForm() {
     }
 
     onMounted(async () => {
-        await Promise.all([loadProduct(), fetchAccounts()])
+        await Promise.all([loadProduct(), fetchAccounts(), fetchDocumentTypes()])
         autoFillAccounts()
     })
 
@@ -144,6 +160,25 @@ export function useLoanProductForm() {
 
     function removePenaltyRule(index: number) {
         form.value.penalty_rules!.splice(index, 1)
+    }
+
+    function addRequiredDocument() {
+        form.value.required_documents ??= []
+        form.value.required_documents.push({
+            document_type_id: null,
+            required_stage: 'submission',
+            sort_order: form.value.required_documents.length,
+            is_required: true,
+            is_active: true,
+            notes: '',
+        })
+    }
+
+    function removeRequiredDocument(index: number) {
+        form.value.required_documents?.splice(index, 1)
+        form.value.required_documents?.forEach((row, idx) => {
+            row.sort_order = idx
+        })
     }
 
     // ─── Validation helpers ───────────────────────────────────────────────────
@@ -251,9 +286,10 @@ export function useLoanProductForm() {
 
     return {
         isEditing, loading, saving, errors, form,
-        accounts,
+        accounts, documentTypes,
         preview, previewLoading, previewAmount, previewTerm, refreshPreview,
         addPenaltyRule, removePenaltyRule,
+        addRequiredDocument, removeRequiredDocument,
         fieldError, save,
     }
 }

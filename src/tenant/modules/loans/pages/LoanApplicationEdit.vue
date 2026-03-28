@@ -4,6 +4,9 @@ import { ArrowLeft, HandCoins, Save, Send, ChevronDown, Loader2, Calculator } fr
 import { formatMoneyValue } from '@/Global'
 import { useRouter } from 'vue-router'
 import { useLoanApplicationEdit } from '../composables/useLoanApplicationEdit'
+import LoanEligibilityPanel from '../components/LoanEligibilityPanel.vue'
+import LoanGuarantorManager from '../components/LoanGuarantorManager.vue'
+import LoanDocumentUploader from '../components/LoanDocumentUploader.vue'
 
 const router = useRouter()
 
@@ -11,11 +14,20 @@ const {
     loading, saving, submitting, errors,
     form,
     selectedProduct, schedulePreview, previewLoading,
+    eligibilityResult, eligibilityLoading, triggerEligibilityCheck,
     members, products,
     fetchMembers, onProductChange,
     fieldError,
     save, submit,
 } = useLoanApplicationEdit()
+
+const eligibilityReady = computed(() =>
+    !!(form.value.member_id && form.value.loan_product_id && form.value.requested_amount && form.value.requested_term)
+)
+const hasEligibilityFailures  = computed(() => (eligibilityResult.value?.failed?.length ?? 0) > 0)
+const guarantorsAdequate      = ref(true)
+const minGuarantors           = computed(() => (selectedProduct.value as any)?.min_guarantors ?? 0)
+const canSubmit               = computed(() => !hasEligibilityFailures.value && (minGuarantors.value === 0 || guarantorsAdequate.value))
 
 // ─── Member search dropdown ───────────────────────────────────────────────────
 type MemberOption = { id: number; name: string; member_no: string; savings_account: { account_no: string; balance: number } | null }
@@ -357,6 +369,23 @@ watch(() => form.value.requested_amount, (v) => {
                     </div>
                 </div>
 
+                <!-- Guarantors -->
+                <LoanGuarantorManager
+                    v-if="form.id"
+                    :application-id="form.id"
+                    :min-guarantors="minGuarantors"
+                    :applicant-member-id="form.member_id"
+                    :editable="true"
+                    @adequacy-change="(v) => { guarantorsAdequate = v }"
+                />
+
+                <!-- Documents -->
+                <LoanDocumentUploader
+                    v-if="form.id"
+                    :application-id="form.id"
+                    :editable="true"
+                />
+
                 <!-- Actions -->
                 <div class="flex items-center justify-end gap-3">
                     <button type="button" class="rounded-xl border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-50 transition-colors dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800" @click="router.back()">Cancel</button>
@@ -367,7 +396,8 @@ watch(() => form.value.requested_amount, (v) => {
                     <button
                         v-if="form.status === 'draft'"
                         type="button"
-                        :disabled="submitting"
+                        :disabled="submitting || !canSubmit"
+                        :title="!canSubmit ? (hasEligibilityFailures ? 'Fix eligibility failures before submitting' : 'Add required guarantors before submitting') : undefined"
                         class="flex items-center gap-2 rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-medium text-white hover:bg-nfuko-primary/90 transition-colors disabled:opacity-50 dark:bg-bg-nfuko-yellow dark:text-black"
                         @click="submit"
                     >
@@ -414,6 +444,14 @@ watch(() => form.value.requested_amount, (v) => {
                         </div>
                     </dl>
                 </div>
+
+                <!-- Eligibility panel -->
+                <LoanEligibilityPanel
+                    :result="eligibilityResult"
+                    :loading="eligibilityLoading"
+                    :ready="eligibilityReady"
+                    @retry="triggerEligibilityCheck"
+                />
 
                 <!-- Schedule preview -->
                 <div class="rounded-2xl border border-neutral-100 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
