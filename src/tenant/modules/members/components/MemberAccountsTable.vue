@@ -54,7 +54,7 @@ const emit = defineEmits<{
                             </span>
                         </td>
                         <td class="py-5 px-6">
-                            <span class="block text-[18px] font-extrabold text-gray-900 font-mono tracking-tight">{{ formatCurrency(account.balance) }}</span>
+                            <span class="block text-[18px] font-extrabold text-gray-900 font-mono tracking-tight">{{ account.balance_formatted || formatCurrency(account.balance) }}</span>
                             <span class="block text-[11px] text-[#788896] mt-0.5">Last updated today</span>
                         </td>
                         <td class="py-5 px-6">

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { Calendar, Upload } from 'lucide-vue-next'
-import { Spinner } from '@/Global'
+import { Spinner, formatMoneyValue } from '@/Global'
 import { tenantClient } from '@/tenant/apis/tenantClient'
 import { useRoute } from 'vue-router'
 
@@ -12,7 +12,15 @@ const dateFrom = ref('')
 const dateTo = ref('')
 
 const member = ref<any>(null)
-const summary = ref({ total_savings: 0, total_shares: 0, total_loans: 0 })
+const summary = ref({
+  total_savings: 0,
+  total_savings_formatted: '',
+  total_shares: 0,
+  total_shares_formatted: '',
+  total_loans: 0,
+  total_loans_formatted: '',
+  currency_code: '',
+})
 const transactions = ref<any[]>([])
 
 async function fetchStatement() {
@@ -37,8 +45,11 @@ onMounted(() => {
 })
 
 function fmt(value: string | number | null): string {
-  const n = parseFloat(String(value ?? 0))
-  return isNaN(n) ? '0.00' : n.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  return formatMoneyValue(value ?? 0)
+}
+
+function displayMoney(formatted: string | null | undefined, raw: string | number | null | undefined): string {
+  return formatted || fmt(raw ?? 0)
 }
 </script>
 
@@ -87,15 +98,15 @@ function fmt(value: string | number | null): string {
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm">
           <h3 class="text-sm font-medium text-neutral-500">Savings Balance</h3>
-          <p class="mt-2 text-3xl font-bold text-green-600">{{ fmt(summary.total_savings) }}</p>
+          <p class="mt-2 text-3xl font-bold text-green-600">{{ displayMoney(summary.total_savings_formatted, summary.total_savings) }}</p>
         </div>
         <div class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm">
           <h3 class="text-sm font-medium text-neutral-500">Shares Balance</h3>
-          <p class="mt-2 text-3xl font-bold text-blue-600">{{ fmt(summary.total_shares) }}</p>
+          <p class="mt-2 text-3xl font-bold text-blue-600">{{ displayMoney(summary.total_shares_formatted, summary.total_shares) }}</p>
         </div>
         <div class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm">
           <h3 class="text-sm font-medium text-neutral-500">Loan Balance</h3>
-          <p class="mt-2 text-3xl font-bold text-red-600">{{ fmt(summary.total_loans) }}</p>
+          <p class="mt-2 text-3xl font-bold text-red-600">{{ displayMoney(summary.total_loans_formatted, summary.total_loans) }}</p>
         </div>
       </div>
 
@@ -120,7 +131,7 @@ function fmt(value: string | number | null): string {
                 <span class="rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-semibold text-neutral-700 uppercase">{{ t.type }}</span>
               </td>
               <td class="px-6 py-3 text-right font-mono font-semibold" :class="['deposit', 'transfer_in', 'share_purchase'].includes(t.type) ? 'text-green-600' : 'text-red-600'">
-                {{ ['deposit', 'transfer_in', 'share_purchase'].includes(t.type) ? '+' : '-' }}{{ fmt(t.amount) }}
+                {{ ['deposit', 'transfer_in', 'share_purchase'].includes(t.type) ? '+' : '-' }}{{ displayMoney(t.amount_formatted, t.amount) }}
               </td>
             </tr>
           </tbody>

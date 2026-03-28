@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { ArrowLeft, Calculator, CreditCard, Plus, Save } from 'lucide-vue-next'
+import { ref } from 'vue'
+import { ArrowLeft, Calculator, CreditCard, Plus, Save, ChevronDown, ChevronUp } from 'lucide-vue-next'
+import { formatMoneyValue } from '@/Global'
 import { useRouter } from 'vue-router'
-import { useLoanProductForm } from '../composables/useLoanProductForm'
+import { useLoanProductForm } from '../composables/useLoanProductCreate'
 import PenaltyRuleRow from '../components/PenaltyRuleRow.vue'
 import SearchableSelect from '@/Global/SearchableSelect.vue'
 
@@ -15,10 +17,18 @@ const {
     fieldError, save,
 } = useLoanProductForm()
 
+const showAccountingMapping = ref(true)
+
 function yesNoClass(enabled: boolean) {
     return enabled
         ? 'bg-nfuko-primary text-white dark:bg-bg-nfuko-yellow dark:text-black'
         : 'border border-neutral-200 text-neutral-600 dark:border-neutral-700 dark:text-neutral-300'
+}
+
+function previewMoney(formatted: string | null | undefined, raw: number | string | null | undefined) {
+    if (formatted) return formatted
+    if (raw == null || raw === '') return '—'
+    return formatMoneyValue(raw)
 }
 </script>
 
@@ -54,11 +64,10 @@ function yesNoClass(enabled: boolean) {
                     <h2 class="mb-5 text-base font-semibold text-neutral-900 dark:text-white">Basic Information</h2>
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div>
-                            <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Product Code <span class="text-red-500">*</span></label>
-                            <input v-model="form.code" type="text" placeholder="e.g. SAL-ADV"
-                                class="w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:bg-neutral-800 dark:text-white"
-                                :class="fieldError('code') ? 'border-red-400 dark:border-red-500' : 'border-neutral-200 dark:border-neutral-700'" />
-                            <p v-if="fieldError('code')" class="mt-1 text-xs text-red-500">{{ fieldError('code') }}</p>
+                            <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Product Code</label>
+                            <input :value="form.code" type="text" readonly
+                                class="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-500 cursor-default dark:border-neutral-700 dark:bg-neutral-800/60 dark:text-neutral-400" />
+                            <p class="mt-1 text-xs text-neutral-400 dark:text-neutral-500">Auto-generated from product name.</p>
                         </div>
                         <div>
                             <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Product Name <span class="text-red-500">*</span></label>
@@ -135,9 +144,18 @@ function yesNoClass(enabled: boolean) {
                             </select>
                         </div>
                         <div>
-                            <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Grace Period</label>
+                            <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Grace Period (days)</label>
                             <input v-model="form.grace_period" type="number" min="0" placeholder="0"
                                 class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
+                            <p class="mt-1 text-xs text-neutral-400 dark:text-neutral-500">Days beyond due date before penalty or cancellation.</p>
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Warning Days</label>
+                            <input v-model="form.warning_days" type="number" min="0" placeholder="e.g. 7"
+                                class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                                :class="fieldError('warning_days') ? 'border-red-400 dark:border-red-500' : ''" />
+                            <p class="mt-1 text-xs text-neutral-400 dark:text-neutral-500">Days before due date to start sending repayment reminders.</p>
+                            <p v-if="fieldError('warning_days')" class="mt-1 text-xs text-red-500">{{ fieldError('warning_days') }}</p>
                         </div>
                     </div>
                 </div>
@@ -189,6 +207,14 @@ function yesNoClass(enabled: boolean) {
                                 <option value="yearly">Yearly</option>
                             </select>
                         </div>
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Allow Sub Schedule</label>
+                            <div class="flex gap-2">
+                                <button type="button" class="rounded-xl px-3 py-2 text-sm font-medium" :class="yesNoClass(!!form.allow_sub_schedule)" @click="form.allow_sub_schedule = true">Yes</button>
+                                <button type="button" class="rounded-xl px-3 py-2 text-sm font-medium" :class="yesNoClass(!form.allow_sub_schedule)" @click="form.allow_sub_schedule = false">No</button>
+                            </div>
+                            <p class="mt-1 text-xs text-neutral-400 dark:text-neutral-500">Allow reducing balance interest generation on a yearly basis.</p>
+                        </div>
                     </div>
                 </div>
 
@@ -225,6 +251,36 @@ function yesNoClass(enabled: boolean) {
                                 <button type="button" class="rounded-xl px-3 py-2 text-sm font-medium" :class="yesNoClass(!!form.allow_reschedule)" @click="form.allow_reschedule = true">Yes</button>
                                 <button type="button" class="rounded-xl px-3 py-2 text-sm font-medium" :class="yesNoClass(!form.allow_reschedule)" @click="form.allow_reschedule = false">No</button>
                             </div>
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Savings Appraisal Threshold (%)</label>
+                            <div class="relative">
+                                <input v-model="form.savings_appraisal_threshold" type="number" min="0" max="100" step="0.01" placeholder="0"
+                                    class="w-full rounded-xl border border-neutral-200 py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                                    :class="fieldError('savings_appraisal_threshold') ? 'border-red-400 dark:border-red-500' : ''" />
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-400">%</span>
+                            </div>
+                            <p class="mt-1 text-xs text-neutral-400 dark:text-neutral-500">Percentage of applicant savings that does not require appraisal.</p>
+                            <p v-if="fieldError('savings_appraisal_threshold')" class="mt-1 text-xs text-red-500">{{ fieldError('savings_appraisal_threshold') }}</p>
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Maximum Securities</label>
+                            <input v-model="form.max_securities" type="number" min="1" placeholder="3"
+                                class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                                :class="fieldError('max_securities') ? 'border-red-400 dark:border-red-500' : ''" />
+                            <p class="mt-1 text-xs text-neutral-400 dark:text-neutral-500">Maximum number of securities allowed for a loan.</p>
+                            <p v-if="fieldError('max_securities')" class="mt-1 text-xs text-red-500">{{ fieldError('max_securities') }}</p>
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Security Value (%)</label>
+                            <div class="relative">
+                                <input v-model="form.security_value_percentage" type="number" min="0" step="0.01" placeholder="150"
+                                    class="w-full rounded-xl border border-neutral-200 py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                                    :class="fieldError('security_value_percentage') ? 'border-red-400 dark:border-red-500' : ''" />
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-400">%</span>
+                            </div>
+                            <p class="mt-1 text-xs text-neutral-400 dark:text-neutral-500">Required security value as a percentage of the loan amount.</p>
+                            <p v-if="fieldError('security_value_percentage')" class="mt-1 text-xs text-red-500">{{ fieldError('security_value_percentage') }}</p>
                         </div>
                     </div>
                 </div>
@@ -291,7 +347,16 @@ function yesNoClass(enabled: boolean) {
                 </div>
 
                 <div class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                    <h2 class="mb-5 text-base font-semibold text-neutral-900 dark:text-white">Accounting Mapping</h2>
+                    <div class="mb-5 flex items-center justify-between">
+                        <h2 class="text-base font-semibold text-neutral-900 dark:text-white">Accounting Mapping</h2>
+                        <button type="button"
+                            class="flex items-center gap-1.5 rounded-xl border border-neutral-200 px-3 py-1.5 text-xs font-medium transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                            @click="showAccountingMapping = !showAccountingMapping">
+                            <component :is="showAccountingMapping ? ChevronUp : ChevronDown" class="h-3.5 w-3.5" />
+                            {{ showAccountingMapping ? 'Hide' : 'Show' }}
+                        </button>
+                    </div>
+                    <template v-if="showAccountingMapping">
                     <p class="mb-4 text-xs text-neutral-500 dark:text-neutral-400">
                         These accounts define where journal entries are posted for loan transactions. Defaults are pre-filled from your chart of accounts — change them if needed.
                     </p>
@@ -357,6 +422,7 @@ function yesNoClass(enabled: boolean) {
                             />
                         </div>
                     </div>
+                    </template>
                 </div>
 
                 <div class="flex items-center justify-end gap-3">
@@ -420,16 +486,16 @@ function yesNoClass(enabled: boolean) {
                             <div class="grid gap-3">
                                 <div class="rounded-2xl border border-neutral-100 p-4 dark:border-neutral-800">
                                     <p class="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Estimated Installment</p>
-                                    <p class="mt-1 text-xl font-semibold text-neutral-900 dark:text-white">{{ preview.installment_amount.toFixed(2) }}</p>
+                                    <p class="mt-1 text-xl font-semibold text-neutral-900 dark:text-white">{{ previewMoney(preview.installment_amount_formatted, preview.installment_amount) }}</p>
                                 </div>
                                 <div class="grid gap-3 sm:grid-cols-2">
                                     <div class="rounded-2xl border border-neutral-100 p-4 dark:border-neutral-800">
                                         <p class="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Total Interest</p>
-                                        <p class="mt-1 text-base font-semibold text-neutral-900 dark:text-white">{{ preview.total_interest.toFixed(2) }}</p>
+                                        <p class="mt-1 text-base font-semibold text-neutral-900 dark:text-white">{{ previewMoney(preview.total_interest_formatted, preview.total_interest) }}</p>
                                     </div>
                                     <div class="rounded-2xl border border-neutral-100 p-4 dark:border-neutral-800">
                                         <p class="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Total Repayment</p>
-                                        <p class="mt-1 text-base font-semibold text-neutral-900 dark:text-white">{{ preview.total_repayment.toFixed(2) }}</p>
+                                        <p class="mt-1 text-base font-semibold text-neutral-900 dark:text-white">{{ previewMoney(preview.total_repayment_formatted, preview.total_repayment) }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -449,9 +515,9 @@ function yesNoClass(enabled: boolean) {
                                         <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
                                             <tr v-for="row in preview.schedule_preview" :key="row.period">
                                                 <td class="px-3 py-2 text-neutral-700 dark:text-neutral-200">{{ row.period }}</td>
-                                                <td class="px-3 py-2 text-right text-neutral-600 dark:text-neutral-300">{{ row.principal.toFixed(2) }}</td>
-                                                <td class="px-3 py-2 text-right text-neutral-600 dark:text-neutral-300">{{ row.interest.toFixed(2) }}</td>
-                                                <td class="px-3 py-2 text-right font-medium text-neutral-900 dark:text-white">{{ row.installment.toFixed(2) }}</td>
+                                                <td class="px-3 py-2 text-right text-neutral-600 dark:text-neutral-300">{{ previewMoney(row.principal_formatted, row.principal) }}</td>
+                                                <td class="px-3 py-2 text-right text-neutral-600 dark:text-neutral-300">{{ previewMoney(row.interest_formatted, row.interest) }}</td>
+                                                <td class="px-3 py-2 text-right font-medium text-neutral-900 dark:text-white">{{ previewMoney(row.installment_formatted, row.installment) }}</td>
                                             </tr>
                                         </tbody>
                                     </table>

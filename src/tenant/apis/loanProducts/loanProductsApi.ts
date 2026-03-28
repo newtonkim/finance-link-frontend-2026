@@ -12,25 +12,35 @@ export interface LoanPenaltyRule {
   penalty_rate?: number | string | null
   grace_days?: number | null
   amount?: number | string | null
+  amount_formatted?: string | null
   applies_to?: string | null
   branch_id?: number | null
+  currency_code?: string | null
 }
 
 export interface LoanProductPreviewRow {
   period: number
   principal: number
+  principal_formatted?: string | null
   interest: number
+  interest_formatted?: string | null
   installment: number
+  installment_formatted?: string | null
   balance: number
+  balance_formatted?: string | null
 }
 
 export interface LoanProductPreview {
   installment_amount: number
+  installment_amount_formatted?: string | null
   total_interest: number
+  total_interest_formatted?: string | null
   total_repayment: number
+  total_repayment_formatted?: string | null
   schedule_preview: LoanProductPreviewRow[]
   messages: string[]
   assumptions: string[]
+  currency_code?: string | null
 }
 
 export interface LoanProduct {
@@ -39,7 +49,9 @@ export interface LoanProduct {
   name: string
   description?: string | null
   min_amount?: number | string | null
+  min_amount_formatted?: string | null
   max_amount?: number | string | null
+  max_amount_formatted?: string | null
   interest_rate?: number | string | null
   interest_method?: 'flat' | 'reducing_balance' | null
   repayment_structure?: 'equal_installment' | 'equal_principal' | 'interest_only_balloon' | null
@@ -50,6 +62,11 @@ export interface LoanProduct {
   min_guarantors?: number | null
   max_guarantors?: number | null
   grace_period?: number | null
+  savings_appraisal_threshold?: number | string | null
+  warning_days?: number | null
+  max_securities?: number | null
+  security_value_percentage?: number | string | null
+  allow_sub_schedule?: boolean | null
   penalty_rate?: number | string | null
   penalty_type?: 'none' | 'flat' | 'percentage' | string | null
   requires_approval?: boolean
@@ -57,6 +74,7 @@ export interface LoanProduct {
   allow_reschedule?: boolean
   processing_fee_type?: 'none' | 'flat' | 'percentage' | null
   processing_fee_value?: number | string | null
+  processing_fee_value_formatted?: string | null
   loan_portfolio_account_id?: number | null
   interest_income_account_id?: number | null
   interest_receivable_account_id?: number | null
@@ -74,6 +92,7 @@ export interface LoanProduct {
   can_edit_core_fields?: boolean
   is_active: boolean
   penalty_rules?: LoanPenaltyRule[]
+  currency_code?: string | null
 }
 
 export const loanProductsApi = {

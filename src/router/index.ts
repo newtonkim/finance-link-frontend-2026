@@ -10,6 +10,7 @@ import { savingsRoutes } from '../tenant/modules/savings/routes'
 import { accountingRoutes } from '../tenant/modules/accounting/routes'
 import { migrationRoutes } from '../tenant/modules/migration/routes'
 import { reportsRoutes } from '../tenant/modules/reports/routes'
+import { loanRoutes } from '../tenant/modules/loans/routes'
 import { getTenantSubdomain } from '@/Global'
 import { tenantRoutes, tenantRoutesList } from "@/tenant/layouts/routes.ts";
 
@@ -58,6 +59,7 @@ const router = createRouter({
         ...accountingRoutes,
         ...migrationRoutes,
         ...reportsRoutes,
+        ...loanRoutes,
       ],
     },
   ],

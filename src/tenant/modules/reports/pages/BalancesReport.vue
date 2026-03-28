@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { Calendar, Filter } from 'lucide-vue-next'
-import { Spinner } from '@/Global'
+import { Spinner, formatMoneyValue } from '@/Global'
 import { reportsApi } from '@/tenant/apis/reports/reportsApi'
 import { tenantClient } from '@/tenant/apis/tenantClient'
 
@@ -31,8 +31,7 @@ async function fetchBalances() {
 onMounted(() => fetchBalances())
 
 function fmt(value: string | number | null): string {
-  const n = parseFloat(String(value ?? 0))
-  return isNaN(n) ? '0.00' : n.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  return formatMoneyValue(value ?? 0)
 }
 </script>
 

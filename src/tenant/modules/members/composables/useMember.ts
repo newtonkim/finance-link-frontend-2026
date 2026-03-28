@@ -9,9 +9,13 @@ export type SavingsAccount = {
     account_no: string;
     account_type: string;
     balance: string;
+    balance_formatted?: string | null;
     consider_min_balance?: boolean;
     minimum_balance?: number;
+    minimum_balance_formatted?: string | null;
     withdrawable_amount?: number;
+    withdrawable_amount_formatted?: string | null;
+    initial_deposit_formatted?: string | null;
     custom_monthly_fee_enabled?: boolean;
     custom_monthly_fee_type?: string;
     custom_monthly_fee_amount?: number | string | null;

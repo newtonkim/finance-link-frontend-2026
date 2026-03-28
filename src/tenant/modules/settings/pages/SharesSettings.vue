@@ -6,6 +6,7 @@ import {
     Settings2, TrendingUp, AlertCircle, ToggleRight, Loader2, Share2, ShieldCheck
 } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
+import { formatMoneyValue } from '@/Global'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { useCurrencyStore } from '@/stores/currency'
 
@@ -290,10 +291,10 @@ const settingsCards = [
                                                 <p class="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
                                                     Minimum Investment to Join</p>
                                                 <p class="text-[15px] font-black text-emerald-800 dark:text-emerald-300 font-mono mt-0.5">
-                                                    {{ currencyCode }} {{ minInvestment.toLocaleString('en-US', { minimumFractionDigits: 2 }) }}
+                                                    {{ currencyCode }} {{ formatMoneyValue(minInvestment) }}
                                                 </p>
                                                 <p class="text-[10px] text-emerald-600/70 dark:text-emerald-400/70 mt-0.5">
-                                                    {{ tempMinShares }} shares × {{ currencyCode }} {{ Number(tempSharePrice).toLocaleString() }}
+                                                    {{ tempMinShares }} shares × {{ currencyCode }} {{ formatMoneyValue(Number(tempSharePrice), 0) }}
                                                 </p>
                                             </div>
                                         </div>
@@ -325,7 +326,7 @@ const settingsCards = [
                                             <span>
                                                 New members must purchase at least
                                                 <strong>{{ tempMinShares }} share(s)</strong>
-                                                ({{ currencyCode }} {{ minInvestment.toLocaleString() }}) to complete registration.
+                                                ({{ currencyCode }} {{ formatMoneyValue(minInvestment, 0) }}) to complete registration.
                                                 <template v-if="tempAppliesToExisting">This also applies to existing members.</template>
                                             </span>
                                         </div>

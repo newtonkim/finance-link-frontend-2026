@@ -4,7 +4,7 @@ import { Landmark, Plus, Trash2, Edit, ChevronLeft, Eye } from 'lucide-vue-next'
 import { savingsProductsApi, type SavingsProduct } from '../../../apis/savingsProducts/api'
 import SavingsProductChargesModal from '../components/SavingsProductChargesModal.vue'
 import { toast } from 'vue-sonner'
-import { Spinner } from '@/Global'
+import { Spinner, formatMoneyValue } from '@/Global'
 
 const products = ref<SavingsProduct[]>([])
 const loading = ref(true)
@@ -100,7 +100,7 @@ const openChargesModal = (product: SavingsProduct) => {
                                 {{ product.type }}
                             </td>
                             <td class="whitespace-nowrap px-6 py-4">
-                                {{ Number(product.minimum_balance).toLocaleString() }}
+                                {{ formatMoneyValue(Number(product.minimum_balance), 0) }}
                             </td>
                             <td class="whitespace-nowrap px-6 py-4 text-center">
                                 <span :class="[

@@ -2,6 +2,7 @@
 import { onMounted } from 'vue'
 import { Plus, Pencil, Trash2, Receipt, X } from 'lucide-vue-next'
 import { Spinner, Label } from '@/Global'
+import { formatMoneyValue } from '@/Global'
 import ToggleSwitch from '@/Global/ToggleSwitch.vue'
 import SearchableSelect from '@/Global/SearchableSelect.vue'
 import MultiSearchableSelect from '@/Global/MultiSearchableSelect.vue'
@@ -114,7 +115,7 @@ onMounted(() => {
             <td class="px-6 py-4">
               <div class="flex flex-col gap-1">
                 <span class="font-mono font-semibold text-neutral-900 dark:text-white">
-                  {{ charge.charge_type === 'percentage' ? charge.amount + '%' : Number(charge.amount).toLocaleString() }}
+                  {{ charge.charge_type === 'percentage' ? charge.amount + '%' : formatMoneyValue(Number(charge.amount), 0) }}
                 </span>
                 <span class="inline-flex w-fit rounded px-1.5 py-0.5 text-xs font-medium capitalize"
                   :class="charge.charge_type === 'percentage' ? 'bg-amber-50 text-amber-700' : 'bg-neutral-100 text-neutral-600'"

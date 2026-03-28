@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { Plus, Search, FileText, Calendar, X } from 'lucide-vue-next'
-import { Spinner, Pagination } from '@/Global'
+import { Spinner, Pagination, formatMoneyValue } from '@/Global'
 import { journalEntriesApi } from '@/tenant/apis/journalEntries/journalEntriesApi'
 import { downloadFile } from '@/Global/Helpers'
 import JournalEntryForm from '../components/JournalEntryForm.vue'
@@ -83,8 +83,7 @@ watch([search, dateFrom, dateTo], () => {
 })
 
 function fmt(n: string | number | null) {
-  const v = parseFloat(String(n ?? 0))
-  return isNaN(v) ? '0.00' : v.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  return formatMoneyValue(n ?? 0)
 }
 </script>
 
