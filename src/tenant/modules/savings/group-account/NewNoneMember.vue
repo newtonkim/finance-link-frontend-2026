@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive, computed, watch } from 'vue';
-import { Form,  } from '@/Global';
+import { Form, } from '@/Global';
 const emits = defineEmits(['update:form']);
 const OptionList = reactive({
   salutationOptions: [{ id: 'Mr', name: 'Mr' }, { id: 'Mrs', name: 'Mrs' }, { id: 'Ms', name: 'Ms' }, { id: 'Dr', name: 'Dr' }, { id: 'Prof', name: 'Prof' }],
@@ -121,7 +121,7 @@ const fields = ref([
     type: 'phone',
     required: true,
     placeholder: 'Enter Next of Kin Contact',
-  }, 
+  },
   {
     label: 'referred by',
     name: 'referred_by',
@@ -131,6 +131,13 @@ const fields = ref([
     placeholder: 'Referred by',
     dataOnMount: true,
   },
+  {
+    label: 'inital deposit',
+    name: 'inital_deposit',
+    type: 'number',
+    required: true,
+    placeholder: 'Select initial deposit',
+  }
 ]);
 async function promtValueOnUpdate() {
   loading.value = true
