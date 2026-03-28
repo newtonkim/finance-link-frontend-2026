@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { HandCoins, Plus, Eye, Pencil, Search, X, Filter } from 'lucide-vue-next'
+import { HandCoins, Plus, Eye, Pencil, Search, X, Filter, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-vue-next'
 import { formatMoneyValue } from '@/Global'
 import { useRouter } from 'vue-router'
 import { useLoanApplications } from '../composables/useLoanApplications'
@@ -8,11 +8,24 @@ import { useLoanApplications } from '../composables/useLoanApplications'
 const router = useRouter()
 
 const {
-    applications, loading, filters, meta, pages, products, branches,
+    applications, loading, filters, meta, visiblePages, perPage, products, branches,
     fetch,
-    handleSearch, handleFilter, handlePageChange, clearFilters,
+    handleSearch, handleFilter, handlePageChange, changePerPage, clearFilters,
     openCreate, openEdit,
 } = useLoanApplications()
+
+async function reopenApplication(id: number) {
+    try {
+        const { loanApplicationsApi } = await import('../../../apis/loans/loanApplicationsApi')
+        await loanApplicationsApi.reopen(id)
+        const { toast } = await import('vue-sonner')
+        toast.success('Application reopened as draft.')
+        fetch(meta.value.current_page)
+    } catch (err: any) {
+        const { toast } = await import('vue-sonner')
+        toast.error(err?.response?.data?.message ?? 'Failed to reopen application.')
+    }
+}
 
 // ─── Product filter (client-side search over loaded list) ─────────────────────
 const productFilterSearch       = ref('')
@@ -349,6 +362,14 @@ const hasActiveFilters = () => {
                                 >
                                     <Pencil class="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
                                 </button>
+                                <button
+                                    v-if="app.status === 'cancelled'"
+                                    class="flex h-8 w-8 items-center justify-center rounded-lg text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-900/20 transition-colors"
+                                    title="Reopen as Draft"
+                                    @click="reopenApplication(app.id!)"
+                                >
+                                    <RotateCcw class="h-4 w-4" />
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -357,21 +378,65 @@ const hasActiveFilters = () => {
         </div>
 
         <!-- Pagination -->
-        <div v-if="meta.last_page > 1" class="flex items-center justify-between">
-            <p class="text-sm text-neutral-500 dark:text-neutral-400">
-                Total: {{ meta.total }} application{{ meta.total !== 1 ? 's' : '' }}
-            </p>
-            <div class="flex items-center gap-1">
+        <div v-if="meta.total > 0" class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+
+            <!-- Left: summary + per-page -->
+            <div class="flex items-center gap-3">
+                <p class="text-sm text-neutral-500 dark:text-neutral-400">
+                    <span v-if="meta.from && meta.to">
+                        Showing <span class="font-medium text-neutral-700 dark:text-neutral-200">{{ meta.from }}–{{ meta.to }}</span> of
+                    </span>
+                    <span class="font-medium text-neutral-700 dark:text-neutral-200">{{ meta.total }}</span>
+                    {{ meta.total === 1 ? 'application' : 'applications' }}
+                </p>
+                <div class="flex items-center gap-1.5">
+                    <label class="text-xs text-neutral-400 dark:text-neutral-500">Rows</label>
+                    <select
+                        :value="perPage"
+                        class="rounded-lg border border-neutral-200 bg-white px-2 py-1 text-xs text-neutral-700 focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+                        @change="changePerPage(Number(($event.target as HTMLSelectElement).value))"
+                    >
+                        <option v-for="n in [10, 15, 20, 25, 30, 40, 50]" :key="n" :value="n">{{ n }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Right: page controls -->
+            <div v-if="meta.last_page > 1" class="flex items-center gap-1">
+                <!-- Prev -->
                 <button
-                    v-for="page in pages"
-                    :key="page"
-                    class="flex h-8 w-8 items-center justify-center rounded-lg text-sm transition-colors"
-                    :class="page === meta.current_page
-                        ? 'bg-nfuko-primary text-white dark:bg-bg-nfuko-yellow dark:text-black'
-                        : 'hover:bg-neutral-100 text-neutral-600 dark:hover:bg-neutral-800 dark:text-neutral-400'"
-                    @click="handlePageChange(page)"
+                    :disabled="meta.current_page === 1"
+                    class="flex h-8 w-8 items-center justify-center rounded-lg border border-neutral-200 text-neutral-500 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                    @click="handlePageChange(meta.current_page - 1)"
                 >
-                    {{ page }}
+                    <ChevronLeft class="h-4 w-4" />
+                </button>
+
+                <!-- Page buttons / ellipsis -->
+                <template v-for="(p, i) in visiblePages" :key="i">
+                    <span
+                        v-if="p === null"
+                        class="flex h-8 w-6 items-end justify-center pb-1 text-sm text-neutral-400 dark:text-neutral-600"
+                    >…</span>
+                    <button
+                        v-else
+                        class="flex h-8 min-w-[2rem] items-center justify-center rounded-lg px-1 text-sm font-medium transition-colors"
+                        :class="p === meta.current_page
+                            ? 'bg-nfuko-primary text-white shadow-sm dark:bg-bg-nfuko-yellow dark:text-black'
+                            : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800'"
+                        @click="handlePageChange(p)"
+                    >
+                        {{ p }}
+                    </button>
+                </template>
+
+                <!-- Next -->
+                <button
+                    :disabled="meta.current_page === meta.last_page"
+                    class="flex h-8 w-8 items-center justify-center rounded-lg border border-neutral-200 text-neutral-500 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                    @click="handlePageChange(meta.current_page + 1)"
+                >
+                    <ChevronRight class="h-4 w-4" />
                 </button>
             </div>
         </div>

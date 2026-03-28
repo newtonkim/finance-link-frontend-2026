@@ -11,8 +11,21 @@ export function useLoanApplications() {
     // ─── List state ───────────────────────────────────────────────────────────
     const applications = ref<LoanApplication[]>([])
     const loading      = ref(false)
-    const meta         = ref({ current_page: 1, last_page: 1, total: 0 })
-    const pages        = computed(() => Array.from({ length: meta.value.last_page }, (_, i) => i + 1))
+    const perPage      = ref(10)
+    const meta         = ref({ current_page: 1, last_page: 1, total: 0, from: 1, to: 0 })
+
+    /** Windowed page list with null as ellipsis marker */
+    const visiblePages = computed((): (number | null)[] => {
+        const { current_page: cur, last_page: last } = meta.value
+        if (last <= 7) return Array.from({ length: last }, (_, i) => i + 1)
+
+        const pages: (number | null)[] = [1]
+        if (cur > 3) pages.push(null)
+        for (let p = Math.max(2, cur - 1); p <= Math.min(last - 1, cur + 1); p++) pages.push(p)
+        if (cur < last - 2) pages.push(null)
+        pages.push(last)
+        return pages
+    })
     const products  = ref<LoanProduct[]>([])
     const branches  = ref<{ id: number; name: string }[]>([])
 
@@ -28,7 +41,7 @@ export function useLoanApplications() {
     async function fetch(page = 1) {
         loading.value = true
         try {
-            const params: Record<string, any> = { page, per_page: 15 }
+            const params: Record<string, any> = { page, per_page: perPage.value }
             if (filters.value.status)          params.status          = filters.value.status
             if (filters.value.member_search)   params.member_search   = filters.value.member_search
             if (filters.value.loan_product_id) params.loan_product_id = filters.value.loan_product_id
@@ -38,7 +51,7 @@ export function useLoanApplications() {
 
             const res = await loanApplicationsApi.list(params)
             applications.value = res.data?.data ?? []
-            if (res.data?.meta) meta.value = res.data.meta
+            if (res.data?.meta) meta.value = { ...meta.value, ...res.data.meta }
         } catch (err: any) {
             toast.error(err?.response?.data?.message ?? 'Failed to load loan applications.')
         } finally {
@@ -56,6 +69,11 @@ export function useLoanApplications() {
 
     function handlePageChange(page: number) {
         void fetch(page)
+    }
+
+    function changePerPage(n: number) {
+        perPage.value = n
+        void fetch(1)
     }
 
     function clearFilters() {
@@ -123,9 +141,9 @@ export function useLoanApplications() {
     onMounted(() => { void fetch(1); void fetchProducts(); void fetchBranches() })
 
     return {
-        applications, loading, filters, meta, pages, products, branches,
+        applications, loading, filters, meta, visiblePages, perPage, products, branches,
         fetch,
-        handleSearch, handleFilter, handlePageChange, clearFilters,
+        handleSearch, handleFilter, handlePageChange, changePerPage, clearFilters,
         openCreate, openView, openEdit,
         showDeleteDialog, deleteTarget, deleting,
         openDeleteDialog, confirmDelete,

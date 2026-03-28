@@ -18,6 +18,26 @@ export interface LoanPenaltyRule {
   currency_code?: string | null
 }
 
+export interface DocumentTypeOption {
+  id: number
+  code: string
+  name: string
+  description?: string | null
+  is_active?: boolean
+}
+
+export interface LoanProductRequiredDocument {
+  id?: number | null
+  document_type_id: number | null
+  document_type_code?: string | null
+  document_type_name?: string | null
+  required_stage?: 'draft' | 'submission' | 'review' | 'approval' | 'disbursement' | null
+  sort_order?: number | null
+  is_required?: boolean
+  is_active?: boolean
+  notes?: string | null
+}
+
 export interface LoanProductPreviewRow {
   period: number
   principal: number
@@ -61,6 +81,7 @@ export interface LoanProduct {
   repayment_cycle?: 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'quarterly' | 'annually' | 'yearly' | null
   min_guarantors?: number | null
   max_guarantors?: number | null
+  required_documents?: LoanProductRequiredDocument[]
   grace_period?: number | null
   savings_appraisal_threshold?: number | string | null
   warning_days?: number | null
@@ -96,6 +117,9 @@ export interface LoanProduct {
 }
 
 export const loanProductsApi = {
+  documentTypes(params?: { active_only?: boolean | string }) {
+    return tenantClient.get('/document-types', { params })
+  },
   list(params?: { search?: string; is_active?: string; page?: number; per_page?: number }) {
     return tenantClient.get('/loan-products', { params })
   },

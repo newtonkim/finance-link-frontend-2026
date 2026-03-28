@@ -9,32 +9,71 @@ export function useLoanApplicationShow() {
 
     const loading     = ref(false)
     const cancelling  = ref(false)
+    const reopening   = ref(false)
     const application = ref<LoanApplication | null>(null)
 
+    // ─── Cancel modal state ───────────────────────────────────────────────────
+    const showCancelModal  = ref(false)
+    const cancelReason     = ref('')
+    const cancelReasonError = ref('')
+
+    function openCancelModal() {
+        cancelReason.value      = ''
+        cancelReasonError.value = ''
+        showCancelModal.value   = true
+    }
+
+    function closeCancelModal() {
+        showCancelModal.value = false
+    }
+
+    async function confirmCancel() {
+        cancelReasonError.value = ''
+        if (!cancelReason.value.trim() || cancelReason.value.trim().length < 10) {
+            cancelReasonError.value = 'Please provide a reason of at least 10 characters.'
+            return
+        }
+        cancelling.value = true
+        try {
+            await loanApplicationsApi.cancel(Number(route.params.id), cancelReason.value.trim())
+            toast.success('Loan application cancelled.')
+            showCancelModal.value = false
+            await loadApplication()
+        } catch (err: any) {
+            const errors = err?.response?.data?.errors
+            cancelReasonError.value = errors?.reason?.[0]
+                ?? err?.response?.data?.message
+                ?? 'Failed to cancel loan application.'
+        } finally {
+            cancelling.value = false
+        }
+    }
+
+    // ─── Reopen ───────────────────────────────────────────────────────────────
+    async function reopen() {
+        reopening.value = true
+        try {
+            await loanApplicationsApi.reopen(Number(route.params.id))
+            toast.success('Application reopened as draft. You can now make corrections and resubmit.')
+            await loadApplication()
+        } catch (err: any) {
+            toast.error(err?.response?.data?.message ?? 'Failed to reopen application.')
+        } finally {
+            reopening.value = false
+        }
+    }
+
+    // ─── Load ─────────────────────────────────────────────────────────────────
     async function loadApplication() {
         loading.value = true
         try {
-            const res     = await loanApplicationsApi.get(Number(route.params.id))
+            const res         = await loanApplicationsApi.get(Number(route.params.id))
             application.value = res.data?.data ?? res.data
         } catch {
             toast.error('Failed to load loan application.')
             router.push({ name: 'tenant-loans' })
         } finally {
             loading.value = false
-        }
-    }
-
-    async function cancel() {
-        if (!route.params.id) return
-        cancelling.value = true
-        try {
-            await loanApplicationsApi.cancel(Number(route.params.id))
-            toast.success('Loan application cancelled.')
-            await loadApplication()
-        } catch (err: any) {
-            toast.error(err?.response?.data?.message ?? 'Failed to cancel loan application.')
-        } finally {
-            cancelling.value = false
         }
     }
 
@@ -45,9 +84,11 @@ export function useLoanApplicationShow() {
     onMounted(() => loadApplication())
 
     return {
-        loading, cancelling,
+        loading, cancelling, reopening,
         application,
-        loadApplication,
-        openEdit, cancel,
+        showCancelModal, cancelReason, cancelReasonError,
+        openCancelModal, closeCancelModal, confirmCancel,
+        reopen,
+        loadApplication, openEdit,
     }
 }
