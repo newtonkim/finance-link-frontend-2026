@@ -6,6 +6,7 @@ import { Plus, Trash2 } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { journalEntriesApi } from '@/tenant/apis/journalEntries/journalEntriesApi'
 import { chartOfAccountsApi } from '@/tenant/apis/chartOfAccounts/chartOfAccountsApi'
+import { formatMoneyValue } from '@/Global'
 
 const props = defineProps<{
   open: boolean
@@ -107,7 +108,7 @@ const totalCredit = computed(() => lines.value.reduce((sum, line) => sum + (Numb
 const inBalance = computed(() => totalDebit.value > 0 && Math.abs(totalDebit.value - totalCredit.value) < 0.01)
 
 function formatMoney(amount: number) {
-  return amount.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  return formatMoneyValue(amount)
 }
 
 async function handleSubmit() {

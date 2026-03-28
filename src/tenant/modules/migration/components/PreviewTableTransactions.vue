@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Trash2 } from 'lucide-vue-next'
+import { formatMoneyValue } from '@/Global'
 
 export interface TxRow {
   member_number: string
@@ -83,7 +84,7 @@ const cols: { key: keyof TxRow; label: string; required: boolean; width: string;
           </td>
           <td class="border-b border-neutral-100 px-2 py-1 dark:border-neutral-800"
             :class="runningBalances[i] < 0 ? 'text-red-500 font-semibold' : 'text-green-600 font-semibold'">
-            {{ runningBalances[i].toLocaleString('en-KE', { minimumFractionDigits: 2 }) }}
+            {{ formatMoneyValue(runningBalances[i]) }}
           </td>
           <td class="border-b border-neutral-100 px-1 py-1 dark:border-neutral-800">
             <button @click="emit('delete', i)" class="rounded p-1 text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { Form, getSystemSetting, pickAsettingKeyValue,UploadLogo,formatCurrency } from '@/Global'; 
+import { Form, getSystemSetting, pickAsettingKeyValue,UploadLogo,formatMoneyValue } from '@/Global'; 
 import { ArrowLeftRight, Loader2, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-vue-next'
  const  props = defineProps({
   data: {
@@ -124,7 +124,7 @@ import { ArrowLeftRight, Loader2, CheckCircle2, AlertCircle, RefreshCw } from 'l
     <div class="flex items-center justify-between pt-1">
       <span class="text-neutral-500">Amount</span>
       <span class="font-bold text-[16px] text-emerald-700 font-mono">
-        {{ formatCurrency(Number(transferState.amount)) }}
+        {{ formatMoneyValue(Number(transferState.amount)) }}
       </span>
     </div>
   </div>

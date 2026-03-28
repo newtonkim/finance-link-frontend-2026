@@ -2,12 +2,19 @@ import { tenantClient } from '@/tenant/apis/tenantClient'
 
 export interface OnboardingSettings {
     id?: number
-    shares_compulsory: boolean
-    min_shares_on_onboarding: number
-    share_price: number
-    shares_compulsory_applies_to_existing: boolean
-    auto_create_savings_account: boolean
-    require_member_approval: boolean
+    shares_compulsory?: boolean
+    min_shares_on_onboarding?: number
+    share_price?: number
+    shares_compulsory_applies_to_existing?: boolean
+    auto_create_savings_account?: boolean
+    require_member_approval?: boolean
+    loyal_member_min_tenure_months?: number
+    hide_initial_deposit_field?: boolean
+    hide_opening_balance_field?: boolean
+    hide_is_shareholder_field?: boolean
+    reversal_requires_approval?: boolean
+    reversal_approver_roles?: string[]
+    reversal_max_days?: number
 }
 
 export const onboardingSettingsApi = {

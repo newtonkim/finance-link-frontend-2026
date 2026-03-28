@@ -4,6 +4,7 @@ import { toast } from 'vue-sonner';
 import { X, ArrowDownLeft, ArrowUpRight, Calendar, UserCircle2, FileText, MessageSquare } from 'lucide-vue-next';
 import SearchableSelect from '@/Global/SearchableSelect.vue';
 import { tenantClient } from '@/tenant/apis/tenantClient';
+import { formatMoneyValue } from '@/Global';
 
 const props = defineProps<{
     member: Record<string, any>;
@@ -72,7 +73,7 @@ const withdrawalAmountError = computed(() => {
     if (amt > max) {
         const acc = selectedAccount.value as any;
         const minBal = acc?.minimum_balance ?? 0;
-        return `Exceeds withdrawable amount. Max: ${props.currencyCode} ${Number(max).toLocaleString('en-US', { minimumFractionDigits: 2 })}${minBal > 0 ? ` (min balance: ${props.currencyCode} ${Number(minBal).toLocaleString('en-US', { minimumFractionDigits: 2 })})` : ''}`;
+        return `Exceeds withdrawable amount. Max: ${props.currencyCode} ${formatMoneyValue(max)}${minBal > 0 ? ` (min balance: ${props.currencyCode} ${formatMoneyValue(minBal)})` : ''}`;
     }
     return '';
 });
@@ -112,7 +113,7 @@ const systemNarration = computed(() => {
 });
 
 const formatCurrency = (v?: string | number) =>
-    Number(v ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    formatMoneyValue(v ?? 0);
 
 function open(type: 'deposit' | 'withdraw') {
     drawerOpen.value = type;
@@ -229,9 +230,9 @@ defineExpose({ open });
                             <!-- Min balance badge (withdrawal) -->
                             <div v-if="drawerOpen === 'withdraw' && selectedAccount && (selectedAccount as any).consider_min_balance && Number((selectedAccount as any).minimum_balance) > 0"
                                 class="flex items-center gap-4 px-4 py-2.5 rounded-xl bg-amber-50 border border-amber-200 text-[12px] font-medium text-amber-800">
-                                <span>Min Balance: <strong>{{ currencyCode }} {{ Number((selectedAccount as any).minimum_balance).toLocaleString('en-US', { minimumFractionDigits: 2 }) }}</strong></span>
+                                <span>Min Balance: <strong>{{ currencyCode }} {{ formatMoneyValue(Number((selectedAccount as any).minimum_balance)) }}</strong></span>
                                 <span class="text-amber-400">|</span>
-                                <span>Withdrawable: <strong>{{ currencyCode }} {{ Number((selectedAccount as any).withdrawable_amount).toLocaleString('en-US', { minimumFractionDigits: 2 }) }}</strong></span>
+                                <span>Withdrawable: <strong>{{ currencyCode }} {{ formatMoneyValue(Number((selectedAccount as any).withdrawable_amount)) }}</strong></span>
                             </div>
 
                             <!-- Amount + Person -->
@@ -310,7 +311,7 @@ defineExpose({ open });
                                 drawerOpen === 'deposit' ? 'bg-[#c6e4d6]' : 'bg-[#ffebd6]']">
                                 <div class="flex items-center justify-between mb-4">
                                     <span class="text-[11px] font-bold text-gray-900 uppercase tracking-widest">Current Balance</span>
-                                    <span class="text-[14px] font-black text-gray-900 font-mono tracking-tight">{{ currencyCode }} {{ formatCurrency(currentBalance) }}</span>
+                                    <span class="text-[14px] font-black text-gray-900 font-mono tracking-tight">{{ currencyCode }} {{ formatMoneyValue(currentBalance) }}</span>
                                 </div>
                                 <div class="flex items-center justify-between pt-4 border-t border-white/40">
                                     <span class="text-[11px] font-bold text-gray-900 uppercase tracking-widest">
@@ -318,7 +319,7 @@ defineExpose({ open });
                                     </span>
                                     <span :class="['text-[16px] font-black font-mono tracking-tight',
                                         drawerOpen === 'deposit' ? 'text-[#00a86b]' : 'text-[#ea580c]']">
-                                        {{ currencyCode }} {{ formatCurrency(previewBalance) }}
+                                        {{ currencyCode }} {{ formatMoneyValue(previewBalance) }}
                                     </span>
                                 </div>
                             </div>

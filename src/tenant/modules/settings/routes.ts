@@ -15,6 +15,9 @@ const NotificationsSettings = () => import('./pages/NotificationsSettings.vue')
 const SystemSettings = () => import('./pages/SystemSettings.vue')
 const SavingsProducts = () => import('./pages/SavingsProducts.vue')
 const SavingsProductForm = () => import('./pages/SavingsProductForm.vue')
+const LoanProductIndex = () => import('../loan-products/pages/LoanProductIndex.vue')
+const LoanProductForm = () => import('../loan-products/pages/LoanProductCreate.vue')
+const LoanProductShow = () => import('../loan-products/pages/LoanProductShow.vue')
 const StaffList = () => import('./pages/StaffList.vue')
 const StaffProfile = () => import('./pages/StaffProfile.vue')
 const GeneralSettings = () => import('./pages/GeneralSettings.vue')
@@ -78,6 +81,26 @@ export const settingsRoutes: RouteRecordRaw[] = [
         path: 'loans',
         name: 'tenant-settings-loans',
         component: LoansSettings,
+      },
+      {
+        path: 'loan-products',
+        name: 'tenant-settings-loan-products',
+        component: LoanProductIndex,
+      },
+      {
+        path: 'loan-products/:id',
+        name: 'tenant-settings-loan-products-show',
+        component: LoanProductShow,
+      },
+      {
+        path: 'loan-products/create',
+        name: 'tenant-settings-loan-products-create',
+        component: LoanProductForm,
+      },
+      {
+        path: 'loan-products/:id/edit',
+        name: 'tenant-settings-loan-products-edit',
+        component: LoanProductForm,
       },
       {
         path: 'savings',

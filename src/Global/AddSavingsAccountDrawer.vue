@@ -14,6 +14,7 @@ import { Label } from '@/Global/ui/label';
 import { Badge } from '@/Global/ui/badge';
 import { X, Check } from 'lucide-vue-next';
 import SearchableSelect from '@/Global/SearchableSelect.vue';
+import { formatMoneyValue } from '@/Global';
 import { apiClient } from '@/central/api/client';
 import { useCurrencyStore } from '@/stores/currency';
 
@@ -87,7 +88,7 @@ const productMinBalance = computed(() => Number(selectedProduct.value?.minimum_b
 const initialDepositError = computed(() => {
     if (!form.savings_product_id || !form.consider_min_balance) return '';
     if (productMinBalance.value > 0 && Number(form.initial_deposit) < productMinBalance.value) {
-        return `Must be at least ${currencyCode.value} ${productMinBalance.value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+        return `Must be at least ${currencyCode.value} ${formatMoneyValue(productMinBalance.value)}`;
     }
     return '';
 });
@@ -242,7 +243,7 @@ const showChargeDropdown = ref(false);
                     <div v-if="productMinBalance > 0 && form.consider_min_balance"
                         class="text-xs text-amber-600 dark:text-amber-400 px-1 flex items-center gap-1">
                         <span>Minimum balance for this product:</span>
-                        <strong>{{ currencyCode }} {{ productMinBalance.toLocaleString('en-US', { minimumFractionDigits: 2 }) }}</strong>
+                        <strong>{{ currencyCode }} {{ formatMoneyValue(productMinBalance) }}</strong>
                     </div>
                     <p v-if="initialDepositError" class="text-xs text-red-500 font-medium">{{ initialDepositError }}</p>
                     <p v-else-if="errors.initial_deposit" class="text-xs text-red-500">{{ errors.initial_deposit }}</p>

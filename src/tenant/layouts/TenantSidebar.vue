@@ -9,6 +9,8 @@ import {
   MapPin,
   Mail,
   DatabaseZap,
+  HandCoins,
+  Wallet,
 } from 'lucide-vue-next'
 import {
   Sidebar,
@@ -105,6 +107,44 @@ const tenant = tenantStore.currentTenant as any
           Navigation
         </SidebarGroupLabel>
         <OutClickNav class="flex-1 h-full" :links="tenantRoutes" />
+      </SidebarGroup>
+      <!-- LOAN SECTION -->
+      <SidebarGroup class="mt-2">
+        <SidebarGroupLabel class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
+          Loan Section
+        </SidebarGroupLabel>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton :tooltip="'Loan Applications'" @click="router.push('/tenant/loan-applications')"
+              class="relative px-0 py-2.5 hover:bg-white/5 transition-all duration-200 group">
+              <div class="flex w-full items-center gap-3 pl-4 pr-3">
+                <HandCoins class="h-4 w-4 transition-colors duration-200"
+                  :class="route.path.startsWith('/tenant/loan-applications') ? 'text-bg-nfuko-yellow' : 'text-nfuko-nav-text group-hover:text-bg-nfuko-yellow'" />
+                <span class="flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200"
+                  :class="route.path.startsWith('/tenant/loan-applications') ? 'text-bg-nfuko-yellow' : 'text-nfuko-nav-text group-hover:text-white'">
+                  Loan Applications
+                </span>
+              </div>
+              <div v-if="route.path.startsWith('/tenant/loan-applications')"
+                class="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-[3px] bg-bg-nfuko-yellow rounded-r-full shadow-[0_0_10px_rgba(201,168,76,0.5)]" />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton :tooltip="'Loans'" @click="router.push('/tenant/loans')"
+              class="relative px-0 py-2.5 hover:bg-white/5 transition-all duration-200 group">
+              <div class="flex w-full items-center gap-3 pl-4 pr-3">
+                <Wallet class="h-4 w-4 transition-colors duration-200"
+                  :class="route.path.startsWith('/tenant/loans') ? 'text-bg-nfuko-yellow' : 'text-nfuko-nav-text group-hover:text-bg-nfuko-yellow'" />
+                <span class="flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200"
+                  :class="route.path.startsWith('/tenant/loans') ? 'text-bg-nfuko-yellow' : 'text-nfuko-nav-text group-hover:text-white'">
+                  Loans
+                </span>
+              </div>
+              <div v-if="route.path.startsWith('/tenant/loans')"
+                class="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-[3px] bg-bg-nfuko-yellow rounded-r-full shadow-[0_0_10px_rgba(201,168,76,0.5)]" />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarGroup>
       <!-- DATA MIGRATION -->
       <SidebarGroup class="mt-2">

@@ -3,10 +3,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Users, CreditCard, PieChart, Shield, Info, ChevronRight, Plus, Trash2, Loader2, UserPlus } from 'lucide-vue-next'
 import { groupsApi } from '@/tenant/apis/savings'
+import { formatMoneyValue } from '@/Global'
+import { useCurrencyStore } from '@/stores/currency'
 import { toast } from 'vue-sonner'
 
 const route = useRoute()
 const router = useRouter()
+const currencyStore = useCurrencyStore()
 
 const groupId = Number(route.params.id)
 const group = ref<any>(null)
@@ -146,7 +149,7 @@ onMounted(fetchGroup)
               </div>
               <span class="text-xs font-semibold uppercase tracking-widest text-white/50">Collective Savings</span>
             </div>
-            <p class="text-2xl font-bold">UGX {{ totalSavings.toLocaleString() }}</p>
+            <p class="text-2xl font-bold">{{ currencyStore.currencyCode }} {{ formatMoneyValue(totalSavings, 0) }}</p>
             <p class="text-xs text-white/40 mt-1">All member accounts</p>
           </div>
 
@@ -255,7 +258,7 @@ onMounted(fetchGroup)
                 </div>
                 <div class="rounded-xl bg-neutral-50 dark:bg-neutral-800 p-4">
                   <p class="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-2">Total Savings (All Accounts)</p>
-                  <p class="text-3xl font-bold text-neutral-900 dark:text-white">{{ totalSavings.toLocaleString() }}</p>
+                  <p class="text-3xl font-bold text-neutral-900 dark:text-white">{{ formatMoneyValue(totalSavings, 0) }}</p>
                   <p class="text-xs text-neutral-400 mt-1">Uganda Shillings (UGX)</p>
                 </div>
               </div>

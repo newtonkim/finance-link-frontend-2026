@@ -1,4 +1,4 @@
-<script setup lang="ts">
+t<script setup lang="ts">
 import { Settings } from 'lucide-vue-next'
 </script>
 

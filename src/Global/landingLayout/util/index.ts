@@ -114,21 +114,56 @@ export async function fetchTableData({
   const subdomain = getSubdomainName()
   const interceptor = subdomain ? tenantClient : apiClient,
   createTheState=props?.state?props?.state:props?.url.replace(/[^a-z0-9]+/gi, '-')
- const branch_id= getLocalValues(keysToUse.activeBranch)
- const quer=props?.url.includes('?')?`${props?.url}&`:`${props?.url}?`
+  const branch_id = getLocalValues(keysToUse.activeBranch)
+  const method = resolveMethod(props?.url, data, props?.method)
+  const url = buildUrlWithQuery(props?.url, {
+    branch_id,
+    ...(method === 'get' && data && typeof data === 'object' ? data : {}),
+  })
   const collection = {
     reload: !!props.reload ? 0 : 1, // dont think am stupid i know that
     StateStore: createTheState,
     time: props?.time ?? 0,
     reqs: {
       ...props,
-      url: quer+`branch_id=${branch_id}`,
-      method: 'post',
-      data,
+      url,
+      method,
+      data: method === 'get' ? null : data,
     },
     axiosInstance: interceptor,
     mStore: { mUse: saveData ?? true },
   }
   
   return await Store.stateGenaratorApi(collection)
+}
+
+function resolveMethod(url: string, data: any, explicitMethod?: string) {
+  if (explicitMethod) return explicitMethod
+
+  const normalizedUrl = `${url ?? ''}`.split('?')[0]
+  const isListEndpoint = /\/list$/.test(normalizedUrl)
+  const isReadPayload = data == null || (typeof data === 'object' && !Array.isArray(data))
+
+  if (isListEndpoint && isReadPayload) {
+    return 'get'
+  }
+
+  return 'post'
+}
+
+function buildUrlWithQuery(url: string, params: Record<string, any>) {
+  const [path, existingQuery = ''] = `${url ?? ''}`.split('?')
+  const searchParams = new URLSearchParams(existingQuery)
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === '' || value === 'undefined') {
+      return
+    }
+
+    searchParams.set(key, String(value))
+  })
+
+  const query = searchParams.toString()
+
+  return query ? `${path}?${query}` : path
 }

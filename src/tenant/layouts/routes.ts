@@ -87,14 +87,6 @@ export const tenantRoutes: MenuRoutes[] = [
     // component: () => import('@/tenant/modules/savings/pages/SavingsTransfer.vue'),
   },
   {
-    path: 'loans',
-    label: 'loans',
-    icon: HandCoins,
-    showSideBar: true,
-    permissions: 'loans-module-link-view',
-    component: () => import('@/tenant/modules/savings/pages/SavingsGroups.vue'),
-  },
-  {
     path: 'transfer',
     label: 'transfer',
     icon: ArrowUpDown,
