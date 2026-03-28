@@ -6,7 +6,6 @@ export function groupSavingsApi() {
   async function addNoneExistingMember(data: any, outletData: any) {
     const dataPrepare = data
     dataPrepare.push({ name: 'group_id',value: outletData?.id },)
-
     const getCharges = await fetchTableData({
       data: formDataFormatV2(dataPrepare),
       Store,

@@ -37,11 +37,11 @@ function saveUser(type: string, data: any) {
 }
 const columns = [
     { key: 'staff_code', label: 'code', copy: true },
-    { key: 'staff_fall_name', label: 'Member', sticky: 'left', width: '14em ', },
+    { key: 'staff_fall_name', label: 'Member', sticky: 'left', },
     { key: 'staff_email', label: 'Member Type' },
     { key: 'system_role', label: 'role', },
     { key: 'status', label: 'status', type: 'status' },
-    { key: 'created_at', label: 'created_at', width: '14em ', },
+    { key: 'created_at', label: 'created_at', },
     { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 
 ]

@@ -152,7 +152,7 @@ watch(() => fields.value, () => {
 })
 </script>
 <template>
-  <div class="card shadow-md px-4 py-10 bg-white dark:bg-neutral-800 rounded-md h-[80vh] overflow-auto">
+  <div class="card shadow-md px-2 py-10 bg-white dark:bg-neutral-800 rounded-md h-[75vh] overflow-auto">
     <span v-if='loadingMount'></span>
     <Form :action="data?.action" v-else parentStyle="grid  grid-cols-2 gap-4 md:gap-6" v-model:form="fields" />
 

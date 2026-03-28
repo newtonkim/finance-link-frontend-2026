@@ -10,7 +10,7 @@ interface Country {
 }
 
 const props = defineProps<{
-    modelValue: string;
+     modelValue: string | null| number| undefined;
     countryCode?: string;
     placeholder?: string;
     error?: string;
@@ -49,9 +49,9 @@ const countries: Country[] = [
 const DEFAULT_COUNTRY: Country = { code: 'UG', name: 'Uganda', dial: '+256', flag: '🇺🇬' };
 
 //const selectedCountry = ref(DEFAULT_COUNTRY);
- const selectedCountry = computed(() => {
+const selectedCountry = computed(() => {
     return countries.find(c => c.code === (props.countryCode || 'UG')) || countries[0] || DEFAULT_COUNTRY;
- });
+});
 
 const filteredCountries = computed(() => {
     if (!searchQuery.value) return countries;
@@ -67,7 +67,7 @@ const selectCountry = (country: Country) => {
     emit('update:countryCode', country.code);
     isOpen.value = false;
     searchQuery.value = '';
-   // selectedCountry.value = country;
+    // selectedCountry.value = country;
 };
 
 const toggleDropdown = () => {
@@ -112,7 +112,7 @@ const handleInput = (e: Event) => {
     let digits = rawValue.replace(/\D/g, '');
 
     // East African formatting: strip leading 0, max 9 digits
-    if (['UG', 'KE', 'TZ', 'RW', 'BI', 'SS'].includes(selectedCountry.value.code)) {
+    if (['UG', 'KE', 'TZ', 'RW', 'BI', 'SS'].includes(selectedCountry?.value?.code)) {
         if (digits.startsWith('0')) {
             digits = digits.substring(1);
         }
@@ -124,8 +124,8 @@ const handleInput = (e: Event) => {
         }
         digits = digits.substring(0, 15);
     }
- //console.log(selectedCountry.value.dial)
-   // emit('update:modelValue', selectedCountry.value.dial + digits);
+    //console.log(selectedCountry.value.dial)
+    // emit('update:modelValue', selectedCountry.value.dial + digits);
 
     // Force the native input to update its value instantly so the user literally cannot type past the limit
     let formatted = digits;
@@ -145,10 +145,10 @@ const handleInput = (e: Event) => {
 
     // Explicitly update the DOM element's value to chop off trailing inputs immediately
     target.value = formatted;
-  const CCode=selectedCountry.value.dial
-  
-      emit('update:modelValue', CCode + digits);
-     // emit('update:modelValue',  digits);
+    const CCode = selectedCountry.value.dial
+
+    emit('update:modelValue', CCode + digits);
+    // emit('update:modelValue',  digits);
 };
 
 const maxLength = computed(() => {
@@ -197,7 +197,7 @@ onUnmounted(() => window.removeEventListener('click', closeDropdown));
                             </button>
                         </div>
                     </div>
-                    
+
                     <ul class="max-h-48 overflow-auto py-1 scrollbar-hide">
                         <li v-for="country in filteredCountries" :key="country.code"
                             @click.stop="selectCountry(country)"

@@ -32,12 +32,12 @@ const columns = [
         header: 'Group Members',
         type: 'Table',
         column: [
+            { key: 'group_code', label: 'group code', copy:true },
             { key: 'name', label: 'name', sticky: "left" },
             { key: 'phone', label: 'phone', sticky: "left" },
             { key: 'product', label: 'product' },
             { key: 'member_code', label: 'memebr code',   },
-            { key: 'group_code', label: 'group_code', copy:true },
-            { key: 'created_at', label: 'created at',  width: "19em", type: "dateTime", sticky: "right" },
+            { key: 'created_at', label: 'created at',  width: "10em", type: "dateTime", sticky: "right" },
         ],
         list: []
     }

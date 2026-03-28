@@ -170,7 +170,7 @@ const props = defineProps({
  * }
  */
     outerlinks: { type: Object, required: false },
-    actionSlot: { type: String, default: false },
+    actionSlot: { type: [String, null,Boolean], default: false },
 
 });
 
@@ -184,9 +184,6 @@ const toggleDrawer = () => {
     }
 
 };
-
-
-
 function save(data: unknown, type = 'save') {
     if (type == 'search' && props?.state && props?.url) {
 
@@ -210,18 +207,15 @@ function save(data: unknown, type = 'save') {
 async function automaticCreateFun() {
     if (props.automaticCreate) {
         const data = Store.currentFormValues;
-        let customeUrl = props.actionSlot ?? props?.outerlinks?.['create'] ?? "create";
-
-
-        if (props.actionSlot) {
-            customeUrl = props.actionSlot;
+        let customeUrl = props?.actionSlot ?? props?.outerlinks?.['create'] ?? "create";
+        if (props?.actionSlot) {
+            customeUrl = props?.actionSlot;
         } else if (props?.outerlinks?.['create']) {
             customeUrl = props.outerlinks['create'];
         } else {
             customeUrl = "create";
         }
         // console.log(customeUrl);
-
         const formDataScoping: any = formDataFormatV2((data))
         const res = await fetchTableData({
             data: formDataScoping,
@@ -266,7 +260,7 @@ async function saveDrawerData(data: any) {
             return
         }
 
-        save(data, props.actionSlot ?? 'create')
+        save(data, props?.actionSlot ?? 'create')
 
         toggleDrawer()
         setTimeout(() => {
@@ -368,6 +362,7 @@ function refresh() {
 defineExpose({
     toggleDrawer,
     callNewPage,
+    drawerOpen,
     changeThePage,
     handleAction,
     handlePrint,
@@ -376,7 +371,6 @@ defineExpose({
 
 function haspermission(permission = "") {
     return props.permissions?.[permission]
-
 }
 
 </script>

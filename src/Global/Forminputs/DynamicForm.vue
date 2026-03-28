@@ -10,9 +10,9 @@ import { UserCircle2 } from 'lucide-vue-next';
 import { pomPinia } from 'septor-store';
 const Store = pomPinia();
 const props = defineProps<{
-    action: string,
-    isSubmitted: boolean,
-    remount: boolean,
+    action?: string,
+    isSubmitted?: boolean,
+    remount?: boolean,
     form: Array<{
         label: string;
         name: string;
