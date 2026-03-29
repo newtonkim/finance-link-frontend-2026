@@ -9,6 +9,57 @@ export interface LoanApplicationStatusHistory {
   changed_by?: { id: number; name: string } | null
 }
 
+export interface LoanApplicationApproval {
+  id: number
+  approver?: { id: number; name: string } | null
+  level: number
+  decision: 'approved' | 'rejected'
+  comments: string | null
+  decided_at: string | null
+  created_at: string
+}
+
+export interface TimelineEvent {
+  type: 'created' | 'status_change' | 'document_uploaded' | 'guarantor_added' | 'approval_vote'
+  title: string
+  description: string
+  actor: { id: number; name: string } | null
+  notes: string | null
+  timestamp: string
+}
+
+export interface LoanScheduleRow {
+  installment_no: number
+  due_date: string
+  principal_due: string
+  interest_due: string
+  total_due: string
+  outstanding_balance: string
+  status: string
+}
+
+export interface DisbursedLoan {
+  id: number
+  loan_no: string
+  principal: string
+  principal_formatted?: string | null
+  processing_fee: string
+  processing_fee_formatted?: string | null
+  net_disbursed_amount: string
+  net_disbursed_amount_formatted?: string | null
+  interest_rate: string
+  term_months: number
+  disbursed_at: string
+  disbursement_method: string
+  disbursement_reference: string | null
+  status: string
+  outstanding_balance: string
+  outstanding_balance_formatted?: string | null
+  loan_officer?: { id: number; name: string } | null
+  disbursed_by_staff?: { id: number; name: string } | null
+  schedules?: LoanScheduleRow[]
+}
+
 export interface LoanApplication {
   id?: number
   application_no?: string
@@ -29,25 +80,61 @@ export interface LoanApplication {
   approved_amount_formatted?: string | null
   approved_term?: number | null
   rejection_reason?: string | null
+  cancellation_reason?: string | null
+  cancelled_at?: string | null
   appraisal_notes?: string | null
+  risk_rating?: string | null
   approval_notes?: string | null
+  return_reason?: string | null
+  returned_at?: string | null
+  reviewed_at?: string | null
   submitted_at?: string | null
   recommended_at?: string | null
   approved_at?: string | null
   rejected_at?: string | null
   disbursed_at?: string | null
+  disbursed_loan_id?: number | null
+  disbursed_loan?: DisbursedLoan | null
   created_at?: string
   // Nested
   member?: { id: number; name: string; member_no: string } | null
-  loan_product?: { id: number; name: string; code: string } | null
+  loan_product?: { id: number; name: string; code: string; min_guarantors?: number; max_amount?: number | null; max_amount_formatted?: string | null } | null
   loan_officer?: { id: number; name: string } | null
   appraised_by?: { id: number; name: string } | null
+  recommended_by?: { id: number; name: string } | null
   approved_by?: { id: number; name: string } | null
   rejected_by?: { id: number; name: string } | null
+  approvals?: LoanApplicationApproval[]
   status_history?: LoanApplicationStatusHistory[]
   created_by?: { id: number; name: string } | null
   days_pending?: number | null
   currency_code?: string | null
+  approvals_count?: number
+}
+
+export interface EligibilityCheckItem {
+  key: string
+  label: string
+  reason?: string
+  message?: string
+}
+
+export interface EligibilityResult {
+  eligible: boolean
+  passed: EligibilityCheckItem[]
+  failed: EligibilityCheckItem[]
+  warnings: EligibilityCheckItem[]
+  max_eligible_amount: number
+}
+
+export interface LoanApplicationSummary {
+  submitted: number
+  under_review: number
+  awaiting_documents: number
+  awaiting_guarantors: number
+  recommended: number
+  approved: number
+  total_active: number
 }
 
 export interface LoanApplicationListParams {
@@ -61,7 +148,15 @@ export interface LoanApplicationListParams {
   per_page?: number
 }
 
+export interface PendingDisbursementParams {
+  page?: number
+  per_page?: number
+}
+
 export const loanApplicationsApi = {
+  summary() {
+    return tenantClient.get<{ data: LoanApplicationSummary }>('/loan-applications/summary')
+  },
   list(params?: LoanApplicationListParams) {
     return tenantClient.get('/loan-applications', { params })
   },
@@ -77,7 +172,107 @@ export const loanApplicationsApi = {
   submit(id: number) {
     return tenantClient.post(`/loan-applications/${id}/submit`)
   },
-  cancel(id: number) {
-    return tenantClient.post(`/loan-applications/${id}/cancel`)
+  cancel(id: number, reason: string) {
+    return tenantClient.post(`/loan-applications/${id}/cancel`, { reason })
+  },
+  reopen(id: number) {
+    return tenantClient.post(`/loan-applications/${id}/reopen`)
+  },
+  eligibilityCheck(data: {
+    member_id: number
+    loan_product_id: number
+    requested_amount: number
+    requested_term: number
+  }) {
+    return tenantClient.post<{ data: EligibilityResult }>('/loan-applications/eligibility-check', data)
+  },
+
+  // ─── Appraisal ──────────────────────────────────────────────────────────────
+  takeForReview(id: number) {
+    return tenantClient.post(`/loan-applications/${id}/take-for-review`)
+  },
+  appraise(id: number, data: {
+    recommended_amount: number | string
+    recommended_term: number | string
+    risk_rating: string
+    appraisal_notes?: string | null
+  }) {
+    return tenantClient.post(`/loan-applications/${id}/appraise`, data)
+  },
+  requestDocuments(id: number, note: string) {
+    return tenantClient.post(`/loan-applications/${id}/request-documents`, { note })
+  },
+  requestGuarantors(id: number, note: string) {
+    return tenantClient.post(`/loan-applications/${id}/request-guarantors`, { note })
+  },
+  resumeReview(id: number) {
+    return tenantClient.post(`/loan-applications/${id}/resume-review`)
+  },
+  returnForCorrection(id: number, reason: string) {
+    return tenantClient.post(`/loan-applications/${id}/return-for-correction`, { reason })
+  },
+  rejectAtAppraisal(id: number, reason: string) {
+    return tenantClient.post(`/loan-applications/${id}/reject`, { reason })
+  },
+
+  // ─── Approval ───────────────────────────────────────────────────────────────
+  approve(id: number, comments?: string | null) {
+    return tenantClient.post(`/loan-applications/${id}/approve`, { comments })
+  },
+  decline(id: number, reason: string) {
+    return tenantClient.post(`/loan-applications/${id}/decline`, { reason })
+  },
+  listApprovals(id: number) {
+    return tenantClient.get(`/loan-applications/${id}/approvals`)
+  },
+
+  // ─── Timeline ───────────────────────────────────────────────────────────────
+  getTimeline(id: number) {
+    return tenantClient.get<{ data: TimelineEvent[] }>(`/loan-applications/${id}/timeline`)
+  },
+
+  // ─── Guarantors ─────────────────────────────────────────────────────────────
+  listGuarantors(applicationId: number) {
+    return tenantClient.get(`/loan-applications/${applicationId}/guarantors`)
+  },
+  addGuarantor(applicationId: number, data: { member_id: number; guarantee_amount: number; notes?: string }) {
+    return tenantClient.post(`/loan-applications/${applicationId}/guarantors`, data)
+  },
+  removeGuarantor(applicationId: number, guarantorId: number) {
+    return tenantClient.delete(`/loan-applications/${applicationId}/guarantors/${guarantorId}`)
+  },
+  validateGuarantors(applicationId: number) {
+    return tenantClient.post(`/loan-applications/${applicationId}/guarantors/validate`)
+  },
+
+  // ─── Disbursement queue ──────────────────────────────────────────────────────
+  getPendingDisbursements(params?: PendingDisbursementParams) {
+    return tenantClient.get('/loan-disbursements/pending', { params })
+  },
+
+  // ─── Disbursement ────────────────────────────────────────────────────────────
+  disburse(id: number, data: {
+    disbursement_method: string
+    disbursement_reference?: string | null
+    disbursement_date?: string | null
+    notes?: string | null
+    savings_account_id?: number | null
+    mobile_money_provider?: string | null
+    mobile_money_number?: string | null
+  }) {
+    return tenantClient.post(`/loan-applications/${id}/disburse`, data)
+  },
+
+  // ─── Documents ──────────────────────────────────────────────────────────────
+  listDocuments(applicationId: number) {
+    return tenantClient.get(`/loan-applications/${applicationId}/documents`)
+  },
+  uploadDocument(applicationId: number, data: FormData) {
+    return tenantClient.post(`/loan-applications/${applicationId}/documents`, data, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
+  deleteDocument(applicationId: number, documentId: number) {
+    return tenantClient.delete(`/loan-applications/${applicationId}/documents/${documentId}`)
   },
 }

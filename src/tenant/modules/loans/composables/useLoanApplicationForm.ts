@@ -1,6 +1,6 @@
 import { ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
-import { loanApplicationsApi, type LoanApplication } from '../../../apis/loans/loanApplicationsApi'
+import { loanApplicationsApi, type LoanApplication, type EligibilityResult } from '../../../apis/loans/loanApplicationsApi'
 import { loanProductsApi, type LoanProduct, type LoanProductPreview } from '../../../apis/loanProducts/loanProductsApi'
 import { tenantClient } from '../../../apis/tenantClient'
 
@@ -28,13 +28,16 @@ export function createDefaultForm(): Partial<LoanApplication> {
 export function useLoanApplicationForm() {
     const form            = ref<Partial<LoanApplication>>(createDefaultForm())
     const errors          = ref<Record<string, any>>({})
-    const selectedProduct = ref<LoanProduct | null>(null)
-    const schedulePreview = ref<LoanProductPreview | null>(null)
-    const previewLoading  = ref(false)
-    const members         = ref<MemberOption[]>([])
-    const products        = ref<LoanProduct[]>([])
+    const selectedProduct    = ref<LoanProduct | null>(null)
+    const schedulePreview    = ref<LoanProductPreview | null>(null)
+    const previewLoading     = ref(false)
+    const eligibilityResult  = ref<EligibilityResult | null>(null)
+    const eligibilityLoading = ref(false)
+    const members            = ref<MemberOption[]>([])
+    const products           = ref<LoanProduct[]>([])
 
-    let previewTimer: ReturnType<typeof setTimeout> | null = null
+    let previewTimer:     ReturnType<typeof setTimeout> | null = null
+    let eligibilityTimer: ReturnType<typeof setTimeout> | null = null
 
     // ─── Fetch dropdowns ──────────────────────────────────────────────────────
     async function fetchProducts() {
@@ -107,8 +110,42 @@ export function useLoanApplicationForm() {
         () => {
             if (previewTimer) clearTimeout(previewTimer)
             previewTimer = setTimeout(() => void triggerPreview(), 350)
+            if (eligibilityTimer) clearTimeout(eligibilityTimer)
+            eligibilityTimer = setTimeout(() => void triggerEligibilityCheck(), 600)
         },
     )
+
+    watch(
+        [() => form.value.member_id, () => form.value.loan_product_id],
+        () => {
+            eligibilityResult.value = null
+            if (eligibilityTimer) clearTimeout(eligibilityTimer)
+            eligibilityTimer = setTimeout(() => void triggerEligibilityCheck(), 600)
+        },
+    )
+
+    // ─── Eligibility check ────────────────────────────────────────────────────
+    async function triggerEligibilityCheck() {
+        const { member_id, loan_product_id, requested_amount, requested_term } = form.value
+        if (!member_id || !loan_product_id || !requested_amount || !requested_term) {
+            eligibilityResult.value = null
+            return
+        }
+        eligibilityLoading.value = true
+        try {
+            const res = await loanApplicationsApi.eligibilityCheck({
+                member_id:        member_id as number,
+                loan_product_id:  loan_product_id as number,
+                requested_amount: parseFloat(String(requested_amount)),
+                requested_term:   Number(requested_term),
+            })
+            eligibilityResult.value = res.data?.data ?? null
+        } catch {
+            eligibilityResult.value = null
+        } finally {
+            eligibilityLoading.value = false
+        }
+    }
 
     // ─── Validation helper ────────────────────────────────────────────────────
     function fieldError(field: string): string | null {
@@ -119,9 +156,11 @@ export function useLoanApplicationForm() {
     return {
         form, errors,
         selectedProduct, schedulePreview, previewLoading,
+        eligibilityResult, eligibilityLoading,
         members, products,
         fetchProducts, fetchMembers,
         loadProduct, onProductChange,
+        triggerEligibilityCheck,
         fieldError,
     }
 }

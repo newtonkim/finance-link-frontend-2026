@@ -1,18 +1,66 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { HandCoins, Plus, Eye, Pencil, Search, X, Filter } from 'lucide-vue-next'
+import { HandCoins, Plus, Eye, Pencil, Search, X, Filter, ChevronLeft, ChevronRight, RotateCcw, ClipboardList, Clock, FileSearch, Users, ThumbsUp, ThumbsDown, FileWarning } from 'lucide-vue-next'
 import { formatMoneyValue } from '@/Global'
 import { useRouter } from 'vue-router'
 import { useLoanApplications } from '../composables/useLoanApplications'
+import { useLoanAppraisalActions } from '../composables/useLoanAppraisalActions'
+import type { LoanApplication } from '../../../apis/loans/loanApplicationsApi'
 
 const router = useRouter()
 
 const {
-    applications, loading, filters, meta, pages, products, branches,
-    fetch,
-    handleSearch, handleFilter, handlePageChange, clearFilters,
+    applications, loading, filters, meta, visiblePages, perPage, products, branches,
+    summary,
+    fetch, fetchSummary,
+    handleSearch, handleFilter, handlePageChange, changePerPage, clearFilters,
     openCreate, openEdit,
 } = useLoanApplications()
+
+// Stub application ref for inline approve/decline — swapped per row action
+const activeApplication = ref<LoanApplication | null>(null)
+
+async function reloadList() {
+    await fetch(meta.value.current_page)
+    void fetchSummary()
+}
+
+const {
+    showApproveModal, approving, approveComments, openApproveModal, submitApprove,
+    showDeclineModal, declining, declineReason, declineError, openDeclineModal, submitDecline,
+} = useLoanAppraisalActions(activeApplication, reloadList)
+
+function openInlineApprove(app: LoanApplication) {
+    activeApplication.value = app
+    openApproveModal()
+}
+
+function openInlineDecline(app: LoanApplication) {
+    activeApplication.value = app
+    openDeclineModal()
+}
+
+const isRecommendedView = computed(() => filters.value.status === 'recommended')
+
+function filterByStatus(status: string) {
+    filters.value.status = status
+    void fetch(1)
+    void fetchSummary()
+}
+
+async function reopenApplication(id: number) {
+    try {
+        const { loanApplicationsApi } = await import('../../../apis/loans/loanApplicationsApi')
+        await loanApplicationsApi.reopen(id)
+        const { toast } = await import('vue-sonner')
+        toast.success('Application reopened as draft.')
+        fetch(meta.value.current_page)
+        void fetchSummary()
+    } catch (err: any) {
+        const { toast } = await import('vue-sonner')
+        toast.error(err?.response?.data?.message ?? 'Failed to reopen application.')
+    }
+}
 
 // ─── Product filter (client-side search over loaded list) ─────────────────────
 const productFilterSearch       = ref('')
@@ -59,6 +107,8 @@ const statusOptions = [
     { value: 'submitted',    label: 'Submitted' },
     { value: 'under_review', label: 'Under Review' },
     { value: 'recommended',  label: 'Recommended' },
+    { value: 'awaiting_documents',  label: 'Awaiting Documents' },
+    { value: 'awaiting_guarantors', label: 'Awaiting Guarantors' },
     { value: 'approved',     label: 'Approved' },
     { value: 'rejected',     label: 'Rejected' },
     { value: 'disbursed',    label: 'Disbursed' },
@@ -123,6 +173,100 @@ const hasActiveFilters = () => {
             >
                 <Plus class="h-4 w-4" />
                 New Application
+            </button>
+        </div>
+
+        <!-- Status Summary Cards -->
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-7">
+            <!-- Total Active -->
+            <button
+                class="group flex flex-col gap-1.5 rounded-2xl border border-neutral-100 bg-white p-4 shadow-sm transition-colors hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-600"
+                :class="filters.status === '' ? 'ring-2 ring-nfuko-primary dark:ring-bg-nfuko-yellow' : ''"
+                @click="filterByStatus('')"
+            >
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Active</span>
+                    <ClipboardList class="h-4 w-4 text-neutral-400 dark:text-neutral-500" />
+                </div>
+                <span class="text-2xl font-bold text-neutral-900 dark:text-white">{{ summary.total_active }}</span>
+            </button>
+
+            <!-- Submitted -->
+            <button
+                class="group flex flex-col gap-1.5 rounded-2xl border border-blue-100 bg-blue-50 p-4 shadow-sm transition-colors hover:border-blue-300 dark:border-blue-900/50 dark:bg-blue-900/20 dark:hover:border-blue-700"
+                :class="filters.status === 'submitted' ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''"
+                @click="filterByStatus('submitted')"
+            >
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-medium text-blue-600 dark:text-blue-400">Submitted</span>
+                    <Clock class="h-4 w-4 text-blue-400 dark:text-blue-500" />
+                </div>
+                <span class="text-2xl font-bold text-blue-700 dark:text-blue-300">{{ summary.submitted }}</span>
+            </button>
+
+            <!-- Under Review -->
+            <button
+                class="group flex flex-col gap-1.5 rounded-2xl border border-amber-100 bg-amber-50 p-4 shadow-sm transition-colors hover:border-amber-300 dark:border-amber-900/50 dark:bg-amber-900/20 dark:hover:border-amber-700"
+                :class="filters.status === 'under_review' ? 'ring-2 ring-amber-500 dark:ring-amber-400' : ''"
+                @click="filterByStatus('under_review')"
+            >
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-medium text-amber-600 dark:text-amber-400">Under Review</span>
+                    <FileSearch class="h-4 w-4 text-amber-400 dark:text-amber-500" />
+                </div>
+                <span class="text-2xl font-bold text-amber-700 dark:text-amber-300">{{ summary.under_review }}</span>
+            </button>
+
+            <!-- Awaiting Documents -->
+            <button
+                class="group flex flex-col gap-1.5 rounded-2xl border border-orange-100 bg-orange-50 p-4 shadow-sm transition-colors hover:border-orange-300 dark:border-orange-900/50 dark:bg-orange-900/20 dark:hover:border-orange-700"
+                :class="filters.status === 'awaiting_documents' ? 'ring-2 ring-orange-500 dark:ring-orange-400' : ''"
+                @click="filterByStatus('awaiting_documents')"
+            >
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-medium text-orange-600 dark:text-orange-400">Awaiting Docs</span>
+                    <FileWarning class="h-4 w-4 text-orange-400 dark:text-orange-500" />
+                </div>
+                <span class="text-2xl font-bold text-orange-700 dark:text-orange-300">{{ summary.awaiting_documents }}</span>
+            </button>
+
+            <!-- Awaiting Guarantors -->
+            <button
+                class="group flex flex-col gap-1.5 rounded-2xl border border-yellow-100 bg-yellow-50 p-4 shadow-sm transition-colors hover:border-yellow-300 dark:border-yellow-900/50 dark:bg-yellow-900/20 dark:hover:border-yellow-700"
+                :class="filters.status === 'awaiting_guarantors' ? 'ring-2 ring-yellow-500 dark:ring-yellow-400' : ''"
+                @click="filterByStatus('awaiting_guarantors')"
+            >
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-medium text-yellow-600 dark:text-yellow-400">Awaiting Guarantors</span>
+                    <Users class="h-4 w-4 text-yellow-400 dark:text-yellow-500" />
+                </div>
+                <span class="text-2xl font-bold text-yellow-700 dark:text-yellow-300">{{ summary.awaiting_guarantors }}</span>
+            </button>
+
+            <!-- Recommended -->
+            <button
+                class="group flex flex-col gap-1.5 rounded-2xl border border-purple-100 bg-purple-50 p-4 shadow-sm transition-colors hover:border-purple-300 dark:border-purple-900/50 dark:bg-purple-900/20 dark:hover:border-purple-700"
+                :class="filters.status === 'recommended' ? 'ring-2 ring-purple-500 dark:ring-purple-400' : ''"
+                @click="filterByStatus('recommended')"
+            >
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-medium text-purple-600 dark:text-purple-400">Pending Approval</span>
+                    <ThumbsUp class="h-4 w-4 text-purple-400 dark:text-purple-500" />
+                </div>
+                <span class="text-2xl font-bold text-purple-700 dark:text-purple-300">{{ summary.recommended }}</span>
+            </button>
+
+            <!-- Approved -->
+            <button
+                class="group flex flex-col gap-1.5 rounded-2xl border border-green-100 bg-green-50 p-4 shadow-sm transition-colors hover:border-green-300 dark:border-green-900/50 dark:bg-green-900/20 dark:hover:border-green-700"
+                :class="filters.status === 'approved' ? 'ring-2 ring-green-500 dark:ring-green-400' : ''"
+                @click="filterByStatus('approved')"
+            >
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-medium text-green-600 dark:text-green-400">Approved</span>
+                    <HandCoins class="h-4 w-4 text-green-400 dark:text-green-500" />
+                </div>
+                <span class="text-2xl font-bold text-green-700 dark:text-green-300">{{ summary.approved }}</span>
             </button>
         </div>
 
@@ -285,10 +429,19 @@ const hasActiveFilters = () => {
                         <th class="px-6 py-3">Member</th>
                         <th class="px-6 py-3">Product</th>
                         <th class="px-6 py-3 text-right">Requested</th>
-                        <th class="px-6 py-3 text-right">Approved</th>
-                        <th class="px-6 py-3">Status</th>
+                        <!-- Recommended view: swap Approved col for Recommended + Ceiling -->
+                        <template v-if="isRecommendedView">
+                            <th class="px-6 py-3 text-right">Recommended</th>
+                            <th class="px-6 py-3 text-right">Ceiling</th>
+                            <th class="px-6 py-3 text-center">Risk</th>
+                            <th class="px-6 py-3 text-center">Votes</th>
+                        </template>
+                        <template v-else>
+                            <th class="px-6 py-3 text-right">Approved</th>
+                            <th class="px-6 py-3">Status</th>
+                        </template>
                         <th class="px-6 py-3">Submitted</th>
-                        <th class="px-6 py-3 text-center">Days Pending</th>
+                        <th class="px-6 py-3 text-center">Days</th>
                         <th class="px-6 py-3 text-right">Actions</th>
                     </tr>
                 </thead>
@@ -314,23 +467,69 @@ const hasActiveFilters = () => {
                         </td>
                         <td class="px-6 py-4 text-right font-medium text-neutral-900 dark:text-white">
                             {{ displayAmount(app.requested_amount_formatted, app.requested_amount) }}
+                            <div v-if="app.requested_term" class="text-xs text-neutral-400">{{ app.requested_term }}mo</div>
                         </td>
-                        <td class="px-6 py-4 text-right text-neutral-600 dark:text-neutral-400">
-                            {{ displayAmount(app.approved_amount_formatted, app.approved_amount) }}
-                        </td>
-                        <td class="px-6 py-4">
-                            <span
-                                class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize"
-                                :class="statusBadgeClass(app.status)"
-                            >
-                                {{ statusLabel(app.status) }}
-                            </span>
-                        </td>
+
+                        <!-- Recommended view columns -->
+                        <template v-if="isRecommendedView">
+                            <td class="px-6 py-4 text-right">
+                                <span class="font-medium text-purple-700 dark:text-purple-300">
+                                    {{ displayAmount(app.recommended_amount_formatted, app.recommended_amount) }}
+                                </span>
+                                <div v-if="app.recommended_term" class="text-xs text-neutral-400">{{ app.recommended_term }}mo</div>
+                            </td>
+                            <td class="px-6 py-4 text-right text-neutral-500 dark:text-neutral-400">
+                                {{ displayAmount(app.loan_product?.max_amount_formatted, app.loan_product?.max_amount) }}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <span
+                                    v-if="app.risk_rating"
+                                    class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize"
+                                    :class="{
+                                        'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400': app.risk_rating === 'low',
+                                        'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400': app.risk_rating === 'medium',
+                                        'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400': app.risk_rating === 'high',
+                                        'bg-red-100 text-red-900 dark:bg-red-900/50 dark:text-red-300': app.risk_rating === 'critical',
+                                    }"
+                                >{{ app.risk_rating }}</span>
+                                <span v-else class="text-neutral-400">—</span>
+                            </td>
+                            <td class="px-6 py-4 text-center text-neutral-500 dark:text-neutral-400 text-xs">
+                                {{ app.approvals_count ?? 0 }} cast
+                            </td>
+                        </template>
+
+                        <!-- Default columns -->
+                        <template v-else>
+                            <td class="px-6 py-4 text-right text-neutral-600 dark:text-neutral-400">
+                                {{ displayAmount(app.approved_amount_formatted, app.approved_amount) }}
+                            </td>
+                            <td class="px-6 py-4">
+                                <span
+                                    class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize"
+                                    :class="statusBadgeClass(app.status)"
+                                >
+                                    {{ statusLabel(app.status) }}
+                                </span>
+                            </td>
+                        </template>
+
                         <td class="px-6 py-4 text-neutral-500 dark:text-neutral-400">
                             {{ formatDate(app.submitted_at) }}
                         </td>
-                        <td class="px-6 py-4 text-center text-neutral-500 dark:text-neutral-400">
-                            {{ app.days_pending != null ? app.days_pending : '—' }}
+                        <td class="px-6 py-4 text-center">
+                            <span v-if="app.days_pending != null"
+                                class="inline-flex min-w-[2rem] items-center justify-center rounded-full px-2 py-0.5 text-xs font-medium"
+                                :class="app.days_pending >= 15
+                                    ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                                    : app.days_pending >= 8
+                                        ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+                                        : app.days_pending >= 4
+                                            ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                                            : 'text-neutral-500 dark:text-neutral-400'">
+                                {{ app.days_pending }}
+                            </span>
+                            <span v-else class="text-neutral-400 dark:text-neutral-500">—</span>
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex items-center justify-end gap-1">
@@ -341,6 +540,23 @@ const hasActiveFilters = () => {
                                 >
                                     <Eye class="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
                                 </button>
+                                <!-- Inline approve/decline for recommended -->
+                                <template v-if="app.status === 'recommended'">
+                                    <button
+                                        class="flex h-8 w-8 items-center justify-center rounded-lg text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-900/20 transition-colors"
+                                        title="Approve"
+                                        @click="openInlineApprove(app)"
+                                    >
+                                        <ThumbsUp class="h-4 w-4" />
+                                    </button>
+                                    <button
+                                        class="flex h-8 w-8 items-center justify-center rounded-lg text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors"
+                                        title="Decline"
+                                        @click="openInlineDecline(app)"
+                                    >
+                                        <ThumbsDown class="h-4 w-4" />
+                                    </button>
+                                </template>
                                 <button
                                     v-if="app.status === 'draft'"
                                     class="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
@@ -348,6 +564,14 @@ const hasActiveFilters = () => {
                                     @click="openEdit(app)"
                                 >
                                     <Pencil class="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
+                                </button>
+                                <button
+                                    v-if="app.status === 'cancelled'"
+                                    class="flex h-8 w-8 items-center justify-center rounded-lg text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-900/20 transition-colors"
+                                    title="Reopen as Draft"
+                                    @click="reopenApplication(app.id!)"
+                                >
+                                    <RotateCcw class="h-4 w-4" />
                                 </button>
                             </div>
                         </td>
@@ -357,24 +581,138 @@ const hasActiveFilters = () => {
         </div>
 
         <!-- Pagination -->
-        <div v-if="meta.last_page > 1" class="flex items-center justify-between">
-            <p class="text-sm text-neutral-500 dark:text-neutral-400">
-                Total: {{ meta.total }} application{{ meta.total !== 1 ? 's' : '' }}
-            </p>
-            <div class="flex items-center gap-1">
+        <div v-if="meta.total > 0" class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+
+            <!-- Left: summary + per-page -->
+            <div class="flex items-center gap-3">
+                <p class="text-sm text-neutral-500 dark:text-neutral-400">
+                    <span v-if="meta.from && meta.to">
+                        Showing <span class="font-medium text-neutral-700 dark:text-neutral-200">{{ meta.from }}–{{ meta.to }}</span> of
+                    </span>
+                    <span class="font-medium text-neutral-700 dark:text-neutral-200">{{ meta.total }}</span>
+                    {{ meta.total === 1 ? 'application' : 'applications' }}
+                </p>
+                <div class="flex items-center gap-1.5">
+                    <label class="text-xs text-neutral-400 dark:text-neutral-500">Rows</label>
+                    <select
+                        :value="perPage"
+                        class="rounded-lg border border-neutral-200 bg-white px-2 py-1 text-xs text-neutral-700 focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+                        @change="changePerPage(Number(($event.target as HTMLSelectElement).value))"
+                    >
+                        <option v-for="n in [10, 15, 20, 25, 30, 40, 50]" :key="n" :value="n">{{ n }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Right: page controls -->
+            <div v-if="meta.last_page > 1" class="flex items-center gap-1">
+                <!-- Prev -->
                 <button
-                    v-for="page in pages"
-                    :key="page"
-                    class="flex h-8 w-8 items-center justify-center rounded-lg text-sm transition-colors"
-                    :class="page === meta.current_page
-                        ? 'bg-nfuko-primary text-white dark:bg-bg-nfuko-yellow dark:text-black'
-                        : 'hover:bg-neutral-100 text-neutral-600 dark:hover:bg-neutral-800 dark:text-neutral-400'"
-                    @click="handlePageChange(page)"
+                    :disabled="meta.current_page === 1"
+                    class="flex h-8 w-8 items-center justify-center rounded-lg border border-neutral-200 text-neutral-500 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                    @click="handlePageChange(meta.current_page - 1)"
                 >
-                    {{ page }}
+                    <ChevronLeft class="h-4 w-4" />
+                </button>
+
+                <!-- Page buttons / ellipsis -->
+                <template v-for="(p, i) in visiblePages" :key="i">
+                    <span
+                        v-if="p === null"
+                        class="flex h-8 w-6 items-end justify-center pb-1 text-sm text-neutral-400 dark:text-neutral-600"
+                    >…</span>
+                    <button
+                        v-else
+                        class="flex h-8 min-w-8 items-center justify-center rounded-lg px-1 text-sm font-medium transition-colors"
+                        :class="p === meta.current_page
+                            ? 'bg-nfuko-primary text-white shadow-sm dark:bg-bg-nfuko-yellow dark:text-black'
+                            : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800'"
+                        @click="handlePageChange(p)"
+                    >
+                        {{ p }}
+                    </button>
+                </template>
+
+                <!-- Next -->
+                <button
+                    :disabled="meta.current_page === meta.last_page"
+                    class="flex h-8 w-8 items-center justify-center rounded-lg border border-neutral-200 text-neutral-500 transition-colors hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                    @click="handlePageChange(meta.current_page + 1)"
+                >
+                    <ChevronRight class="h-4 w-4" />
                 </button>
             </div>
         </div>
 
     </div>
+
+    <!-- ─── Inline Approve Modal ─────────────────────────────────────────────── -->
+    <Teleport to="body">
+        <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition duration-150 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
+            <div v-if="showApproveModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+                <div class="w-full max-w-md rounded-2xl bg-white shadow-xl dark:bg-neutral-900" @click.stop>
+                    <div class="border-b border-neutral-100 px-6 py-4 dark:border-neutral-800">
+                        <h3 class="text-base font-semibold text-neutral-900 dark:text-white">Approve Application</h3>
+                        <p class="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400">{{ activeApplication?.application_no }}</p>
+                    </div>
+                    <div class="px-6 py-4">
+                        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300">Comments <span class="text-neutral-400">(optional)</span></label>
+                        <textarea
+                            v-model="approveComments"
+                            rows="3"
+                            placeholder="Add any comments…"
+                            class="mt-1.5 w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder-neutral-500"
+                        />
+                    </div>
+                    <div class="flex justify-end gap-3 border-t border-neutral-100 px-6 py-4 dark:border-neutral-800">
+                        <button class="rounded-xl border border-neutral-200 px-4 py-2 text-sm text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800" @click="showApproveModal = false">Cancel</button>
+                        <button
+                            class="flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+                            :disabled="approving"
+                            @click="submitApprove"
+                        >
+                            <ThumbsUp v-if="!approving" class="h-4 w-4" />
+                            <span>{{ approving ? 'Approving…' : 'Approve' }}</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+    </Teleport>
+
+    <!-- ─── Inline Decline Modal ─────────────────────────────────────────────── -->
+    <Teleport to="body">
+        <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition duration-150 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
+            <div v-if="showDeclineModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+                <div class="w-full max-w-md rounded-2xl bg-white shadow-xl dark:bg-neutral-900" @click.stop>
+                    <div class="border-b border-neutral-100 px-6 py-4 dark:border-neutral-800">
+                        <h3 class="text-base font-semibold text-neutral-900 dark:text-white">Decline Application</h3>
+                        <p class="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400">{{ activeApplication?.application_no }}</p>
+                    </div>
+                    <div class="px-6 py-4">
+                        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300">Reason <span class="text-red-500">*</span></label>
+                        <textarea
+                            v-model="declineReason"
+                            rows="3"
+                            placeholder="State the reason for declining…"
+                            class="mt-1.5 w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder-neutral-500"
+                            :class="declineError ? 'border-red-400' : ''"
+                        />
+                        <p v-if="declineError" class="mt-1 text-xs text-red-600 dark:text-red-400">{{ declineError }}</p>
+                    </div>
+                    <div class="flex justify-end gap-3 border-t border-neutral-100 px-6 py-4 dark:border-neutral-800">
+                        <button class="rounded-xl border border-neutral-200 px-4 py-2 text-sm text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800" @click="showDeclineModal = false">Cancel</button>
+                        <button
+                            class="flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                            :disabled="declining"
+                            @click="submitDecline"
+                        >
+                            <ThumbsDown v-if="!declining" class="h-4 w-4" />
+                            <span>{{ declining ? 'Declining…' : 'Decline' }}</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+    </Teleport>
 </template>

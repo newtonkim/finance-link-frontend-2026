@@ -5,31 +5,28 @@ import { loanApplicationsApi } from '../../../apis/loans/loanApplicationsApi'
 import { useLoanApplicationForm } from './useLoanApplicationForm'
 
 export function useLoanApplicationCreate() {
-    const router = useRouter()
-    const saving = ref(false)
+    const router    = useRouter()
+    const saving    = ref(false)
+    const submitting = ref(false)
 
     const {
         form, errors,
         selectedProduct, schedulePreview, previewLoading,
+        eligibilityResult, eligibilityLoading, triggerEligibilityCheck,
         members, products,
         fetchProducts, fetchMembers,
         onProductChange,
         fieldError,
     } = useLoanApplicationForm()
 
-    // ─── Save (create only) ───────────────────────────────────────────────────
+    // ─── Save (draft only) ────────────────────────────────────────────────────
     async function save() {
         saving.value = true
         errors.value = {}
         try {
-            const res = await loanApplicationsApi.create(form.value)
+            await loanApplicationsApi.create(form.value)
             toast.success('Loan application saved as draft.')
-            const newId = res.data?.data?.id ?? res.data?.id
-            if (newId) {
-                router.push({ name: 'tenant-loans-edit', params: { id: newId } })
-            } else {
-                router.push({ name: 'tenant-loans' })
-            }
+            router.push({ name: 'tenant-loans' })
         } catch (err: any) {
             if (err?.response?.status === 422) {
                 errors.value = err.response.data.errors ?? {}
@@ -42,17 +39,40 @@ export function useLoanApplicationCreate() {
         }
     }
 
+    // ─── Save then immediately submit ─────────────────────────────────────────
+    async function saveAndSubmit() {
+        submitting.value = true
+        errors.value = {}
+        try {
+            const createRes = await loanApplicationsApi.create(form.value)
+            const id = createRes.data?.data?.id ?? createRes.data?.id
+            await loanApplicationsApi.submit(id)
+            toast.success('Loan application submitted for review.')
+            router.push({ name: 'tenant-loans-show', params: { id } })
+        } catch (err: any) {
+            if (err?.response?.status === 422) {
+                errors.value = err.response.data.errors ?? {}
+                toast.error('Please fix the errors below.')
+            } else {
+                toast.error(err?.response?.data?.message ?? 'Failed to submit loan application.')
+            }
+        } finally {
+            submitting.value = false
+        }
+    }
+
     onMounted(async () => {
         await Promise.all([fetchProducts(), fetchMembers()])
     })
 
     return {
-        saving, errors,
+        saving, submitting, errors,
         form,
         selectedProduct, schedulePreview, previewLoading,
+        eligibilityResult, eligibilityLoading, triggerEligibilityCheck,
         members, products,
         fetchMembers, onProductChange,
         fieldError,
-        save,
+        save, saveAndSubmit,
     }
 }

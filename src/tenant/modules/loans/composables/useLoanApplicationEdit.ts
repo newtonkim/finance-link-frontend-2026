@@ -15,6 +15,7 @@ export function useLoanApplicationEdit() {
     const {
         form, errors,
         selectedProduct, schedulePreview, previewLoading,
+        eligibilityResult, eligibilityLoading, triggerEligibilityCheck,
         members, products,
         fetchProducts, fetchMembers, loadProduct,
         onProductChange,
@@ -114,6 +115,7 @@ export function useLoanApplicationEdit() {
         loading, saving, submitting, errors,
         form,
         selectedProduct, schedulePreview, previewLoading,
+        eligibilityResult, eligibilityLoading, triggerEligibilityCheck,
         members, products,
         fetchMembers, onProductChange,
         fieldError,

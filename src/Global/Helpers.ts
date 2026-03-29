@@ -343,7 +343,7 @@ export function formDataFormatV2(fields: any[]) {
   const fd = new FormData()
 
   fields.forEach((field) => {
-    const key = `${field.name}`.toLocaleLowerCase().replace('\+S', '_')
+    const key = `${field.name}`.toLocaleLowerCase().replace('+S', '_')
     const value = field.value
     if (value === undefined) return
 
@@ -387,7 +387,7 @@ export function formDataFormat(data: any) {
     if (Array.isArray(value)) {
       // Handle arrays
       value.forEach((element, index) => {
-        const lowerCaseKeys = `${key}[${index}]`.toLocaleLowerCase().replace('\+S', '_')
+        const lowerCaseKeys = `${key}[${index}]`.toLocaleLowerCase().replace('+S', '_')
         if (element && typeof element === 'object' && element.file instanceof File) {
           formData.append(lowerCaseKeys, element.file) // Use index for clarity
         } else if (
@@ -404,10 +404,10 @@ export function formDataFormat(data: any) {
         }
       })
     } else if (typeof value === 'object' && !(value instanceof File)) {
-      const lowerCaseKeys = `${key}`.toLocaleLowerCase().replace('\+S', '_')
+      const lowerCaseKeys = `${key}`.toLocaleLowerCase().replace('+S', '_')
       formData.append(`${lowerCaseKeys}`.toLocaleLowerCase(), JSON.stringify(value))
     } else {
-      const lowerCaseKeys = `${key}`.toLocaleLowerCase().replace('\+S', '_')
+      const lowerCaseKeys = `${key}`.toLocaleLowerCase().replace('+S', '_')
       // Handle primitive values and Files
 
       formData.append(lowerCaseKeys, value)
