@@ -141,7 +141,7 @@ function resolveMethod(url: string, data: any, explicitMethod?: string) {
   if (explicitMethod) return explicitMethod
 
   const normalizedUrl = `${url ?? ''}`.split('?')[0]
-  const isListEndpoint = /\/list$/.test(normalizedUrl)
+  const isListEndpoint = normalizedUrl.endsWith('/list')
   const isReadPayload = data == null || (typeof data === 'object' && !Array.isArray(data))
 
   if (isListEndpoint && isReadPayload) {

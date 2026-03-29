@@ -122,7 +122,7 @@ function getColumnStyle(col: any) {
   return {
     width,
     minWidth: width,
-    ...(col.style || {}),
+    ...col.style,
   }
 }
 </script>

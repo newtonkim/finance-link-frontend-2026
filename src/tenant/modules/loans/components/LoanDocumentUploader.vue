@@ -30,6 +30,10 @@ const props = defineProps<{
     editable?: boolean
 }>()
 
+const emit = defineEmits<{
+    updated: []
+}>()
+
 // ─── State ────────────────────────────────────────────────────────────────────
 const documents    = ref<UploadedDoc[]>([])
 const required     = ref<RequiredDoc[]>([])
@@ -79,6 +83,7 @@ async function onFileChange(event: Event, slug: string) {
         await loanApplicationsApi.uploadDocument(props.applicationId, fd)
         toast.success('Document uploaded.')
         await load()
+        emit('updated')
     } catch (err: any) {
         const msg = err?.response?.data?.errors?.file?.[0]
             ?? err?.response?.data?.message
@@ -96,6 +101,7 @@ async function removeDocument(doc: UploadedDoc) {
         await loanApplicationsApi.deleteDocument(props.applicationId, doc.id)
         toast.success('Document removed.')
         await load()
+        emit('updated')
     } catch (err: any) {
         toast.error(err?.response?.data?.message ?? 'Failed to remove document.')
     } finally {

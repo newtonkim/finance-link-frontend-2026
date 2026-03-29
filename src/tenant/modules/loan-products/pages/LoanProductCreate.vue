@@ -496,6 +496,26 @@ function previewMoney(formatted: string | null | undefined, raw: number | string
                                 :disabled="loading"
                             />
                         </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Charges Income Account</label>
+                            <SearchableSelect
+                                v-model="form.charges_income_account_id"
+                                :options="accounts"
+                                placeholder="Select charges income account"
+                                :error="fieldError('charges_income_account_id') ?? undefined"
+                                :disabled="loading"
+                            />
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Charges Receivable Account</label>
+                            <SearchableSelect
+                                v-model="form.charges_receivable_account_id"
+                                :options="accounts"
+                                placeholder="Select charges receivable account"
+                                :error="fieldError('charges_receivable_account_id') ?? undefined"
+                                :disabled="loading"
+                            />
+                        </div>
                     </div>
                     </template>
                 </div>

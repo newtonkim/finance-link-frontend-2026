@@ -1,7 +1,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
-import { loanApplicationsApi, type LoanApplication } from '../../../apis/loans/loanApplicationsApi'
+import { loanApplicationsApi, type LoanApplication, type TimelineEvent } from '../../../apis/loans/loanApplicationsApi'
 
 export function useLoanApplicationShow() {
     const route  = useRoute()
@@ -12,9 +12,25 @@ export function useLoanApplicationShow() {
     const reopening   = ref(false)
     const application = ref<LoanApplication | null>(null)
 
+    // ─── Timeline ─────────────────────────────────────────────────────────────
+    const timeline        = ref<TimelineEvent[]>([])
+    const timelineLoading = ref(false)
+
+    async function loadTimeline() {
+        timelineLoading.value = true
+        try {
+            const res       = await loanApplicationsApi.getTimeline(Number(route.params.id))
+            timeline.value  = res.data?.data ?? []
+        } catch {
+            // non-blocking
+        } finally {
+            timelineLoading.value = false
+        }
+    }
+
     // ─── Cancel modal state ───────────────────────────────────────────────────
-    const showCancelModal  = ref(false)
-    const cancelReason     = ref('')
+    const showCancelModal   = ref(false)
+    const cancelReason      = ref('')
     const cancelReasonError = ref('')
 
     function openCancelModal() {
@@ -40,7 +56,7 @@ export function useLoanApplicationShow() {
             showCancelModal.value = false
             await loadApplication()
         } catch (err: any) {
-            const errors = err?.response?.data?.errors
+            const errors            = err?.response?.data?.errors
             cancelReasonError.value = errors?.reason?.[0]
                 ?? err?.response?.data?.message
                 ?? 'Failed to cancel loan application.'
@@ -69,6 +85,7 @@ export function useLoanApplicationShow() {
         try {
             const res         = await loanApplicationsApi.get(Number(route.params.id))
             application.value = res.data?.data ?? res.data
+            void loadTimeline()
         } catch {
             toast.error('Failed to load loan application.')
             router.push({ name: 'tenant-loans' })
@@ -86,6 +103,7 @@ export function useLoanApplicationShow() {
     return {
         loading, cancelling, reopening,
         application,
+        timeline, timelineLoading,
         showCancelModal, cancelReason, cancelReasonError,
         openCancelModal, closeCancelModal, confirmCancel,
         reopen,

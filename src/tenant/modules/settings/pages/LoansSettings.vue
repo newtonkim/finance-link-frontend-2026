@@ -1,8 +1,17 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { CreditCard, Settings2 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
+import GeneralLoanSettingsDrawer from '../components/GeneralLoanSettingsDrawer.vue'
 
 const router = useRouter()
+const drawerRef = ref<InstanceType<typeof GeneralLoanSettingsDrawer> | null>(null)
+
+function openSettings() {
+    if (drawerRef.value) {
+        drawerRef.value.openDrawer()
+    }
+}
 </script>
 
 <template>
@@ -63,27 +72,26 @@ const router = useRouter()
 
             <div class="grid gap-5 lg:grid-cols-2">
                 <div class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                    <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Approval Workflow</h3>
-                    <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Configure approval stages and who can authorize loans.</p>
-                    <button class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Setup Workflow →</button>
+                    <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Approval Workflow & Limits</h3>
+                    <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Configure approval stages, default deduction modes, and who can authorize loans.</p>
+                    <button 
+                        @click="openSettings"
+                        class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline"
+                    >Setup Settings →</button>
                 </div>
-                <div class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                    <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Eligibility & Requirements</h3>
-                    <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Set collateral, guarantor, and document requirements.</p>
-                    <button class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Configure Requirements →</button>
-                </div>
+                <!-- Other settings... -->
                 <div class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
                     <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Disbursement Settings</h3>
-                    <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Define payment methods and disbursement approval limits.</p>
-                    <button class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Manage Disbursement →</button>
-                </div>
-                <div class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                    <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Loan Notifications</h3>
-                    <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Configure alerts for due dates, overdue loans, and reminders.</p>
-                    <button class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Setup Notifications →</button>
+                    <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Define payment methods and disbursement default channels.</p>
+                    <button 
+                        @click="openSettings"
+                        class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline"
+                    >Manage Disbursement →</button>
                 </div>
             </div>
         </div>
+
+        <GeneralLoanSettingsDrawer ref="drawerRef" />
 
     </div>
 </template>

@@ -95,7 +95,7 @@ function getColumnStyle(col: any) {
   return {
     width,
     // maxWidth: width,
-    ...(col.style || {}),
+    ...col.style,
   }
 }
 </script>

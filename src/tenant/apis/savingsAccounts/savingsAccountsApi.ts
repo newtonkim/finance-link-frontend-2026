@@ -1,7 +1,7 @@
 import { tenantClient } from '@/tenant/apis/tenantClient'
 
 export const savingsAccountsApi = {
-  list(params?: { search?: string; status?: string; page?: number }) {
+  list(params?: { search?: string; status?: string; page?: number; member_id?: number }) {
     return tenantClient.get('/savings-accounts', { params })
   },
   show(id: number) {

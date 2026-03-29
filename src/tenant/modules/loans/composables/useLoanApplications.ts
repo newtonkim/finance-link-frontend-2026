@@ -1,7 +1,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
-import { loanApplicationsApi, type LoanApplication } from '../../../apis/loans/loanApplicationsApi'
+import { loanApplicationsApi, type LoanApplication, type LoanApplicationSummary } from '../../../apis/loans/loanApplicationsApi'
 import { loanProductsApi, type LoanProduct } from '../../../apis/loanProducts/loanProductsApi'
 import { tenantClient } from '../../../apis/tenantClient'
 
@@ -26,6 +26,21 @@ export function useLoanApplications() {
         pages.push(last)
         return pages
     })
+    // ─── Summary counts ───────────────────────────────────────────────────────
+    const summary = ref<LoanApplicationSummary>({
+        submitted: 0, under_review: 0, awaiting_documents: 0,
+        awaiting_guarantors: 0, recommended: 0, approved: 0, total_active: 0,
+    })
+
+    async function fetchSummary() {
+        try {
+            const res     = await loanApplicationsApi.summary()
+            summary.value = res.data?.data ?? summary.value
+        } catch {
+            // non-blocking
+        }
+    }
+
     const products  = ref<LoanProduct[]>([])
     const branches  = ref<{ id: number; name: string }[]>([])
 
@@ -138,11 +153,12 @@ export function useLoanApplications() {
         }
     }
 
-    onMounted(() => { void fetch(1); void fetchProducts(); void fetchBranches() })
+    onMounted(() => { void fetch(1); void fetchProducts(); void fetchBranches(); void fetchSummary() })
 
     return {
         applications, loading, filters, meta, visiblePages, perPage, products, branches,
-        fetch,
+        summary,
+        fetch, fetchSummary,
         handleSearch, handleFilter, handlePageChange, changePerPage, clearFilters,
         openCreate, openView, openEdit,
         showDeleteDialog, deleteTarget, deleting,

@@ -40,6 +40,8 @@ function createDefaultForm(): LoanProduct {
         penalty_income_account_id: null,
         penalty_receivable_account_id: null,
         disbursement_account_id: null,
+        charges_income_account_id: null,
+        charges_receivable_account_id: null,
         is_active: false,
         penalty_rules: [],
     }
@@ -111,6 +113,8 @@ export function useLoanProductForm() {
             { field: 'disbursement_account_id',        type: 'ASSET',  keywords: [['bank', 'cash']] },
             { field: 'penalty_income_account_id',      type: 'INCOME', keywords: [['penalty', 'fine']] },
             { field: 'penalty_receivable_account_id',  type: 'ASSET',  keywords: [['penalty'], ['receivable']] },
+            { field: 'charges_income_account_id',      type: 'INCOME', keywords: [['charge', 'fee']] },
+            { field: 'charges_receivable_account_id',  type: 'ASSET',  keywords: [['charge'], ['receivable']] },
         ]
 
         for (const slot of slots) {
