@@ -61,7 +61,7 @@
                     <tbody>
                       <tr v-for="[key, value] in Object.entries(item[col.key])" :key="key">
                         <td v-if="value"><span>{{ key }}</span></td>
-                        <td v-if="value">: <span>{{ value }}</span></td>
+                        <td v-if="value" class="px-1 ">:<span  class="px-2 ">{{ value }}</span></td>
                       </tr>
                     </tbody>
                   </table>
