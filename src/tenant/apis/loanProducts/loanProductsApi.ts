@@ -102,12 +102,16 @@ export interface LoanProduct {
   penalty_income_account_id?: number | null
   penalty_receivable_account_id?: number | null
   disbursement_account_id?: number | null
+  charges_income_account_id?: number | null
+  charges_receivable_account_id?: number | null
   portfolio_account?: AccountSummary | null
   interest_income_account?: AccountSummary | null
   interest_receivable_account?: AccountSummary | null
   penalty_income_account?: AccountSummary | null
   penalty_receivable_account?: AccountSummary | null
   disbursement_account?: AccountSummary | null
+  charges_income_account?: AccountSummary | null
+  charges_receivable_account?: AccountSummary | null
   loan_count?: number
   is_in_use?: boolean
   can_edit_core_fields?: boolean
