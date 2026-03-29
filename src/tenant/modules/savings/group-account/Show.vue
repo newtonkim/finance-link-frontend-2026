@@ -57,4 +57,5 @@ onMounted(async () => {
 <template>
     <div v-if="loading">Loading...</div>
     <DetailsTable v-else :data="data" :columns="columns" />
+    <br/>
 </template>

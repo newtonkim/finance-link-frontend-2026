@@ -119,19 +119,16 @@ export async function fetchTableData({
     createTheState = props?.state ? props?.state : props?.url.replace(/[^a-z0-9]+/gi, '-')
   const branch_id = getLocalValues(keysToUse.activeBranch)
   const method = resolveMethod(props?.url, data, props?.method)
-  const url = buildUrlWithQuery(props?.url, {
-    branch_id,
-    ...(method === 'get' && data && typeof data === 'object' ? data : {}),
-  })
+   const quer=props?.url.includes('?')?`${props?.url}&`:`${props?.url}?`
   const collection = {
     reload: !!props.reload ? 0 : 1, // dont think am stupid i know that
     StateStore: createTheState,
     time: props?.time ?? 0,
     reqs: {
       ...props,
-      url,
-      method,
-      data: method === 'get' ? null : data,
+      url: quer+`branch_id=${branch_id}`,
+      method: 'post',
+      data,
     },
     axiosInstance: interceptor,
     mStore: { mUse: saveData ?? true },
@@ -142,7 +139,6 @@ export async function fetchTableData({
 
 function resolveMethod(url: string, data: any, explicitMethod?: string) {
   if (explicitMethod) return explicitMethod
-
   const normalizedUrl = `${url ?? ''}`.split('?')[0]
   const isListEndpoint = /\/list$/.test(normalizedUrl)
   const isReadPayload = data == null || (typeof data === 'object' && !Array.isArray(data))

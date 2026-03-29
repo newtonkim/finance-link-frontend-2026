@@ -14,9 +14,8 @@
             </div>
         </template>
         <template #actions="{ item }: { item: any }">
-            <TabelActionButtons  @action="() => OpenThedrawer(item)"  title="deposit" color="danger"
-                icon="CircleDollarSign"
-                />  
+            <TabelActionButtons @action="() => OpenThedrawer(item)" title="deposit" color="danger"
+                icon="CircleDollarSign" />
         </template>
         <template #header-action>
             <PainPageHeader title="Members Savings Account"
@@ -34,12 +33,11 @@
     </TableDrawer>
 </template>
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { Create, Details, Deposit } from '.'
 import { TableDrawer, StatusButtonsHorizontal, PainPageHeader, CopyData, TabelActionButtons } from '@/Global'
 import { memberAccountApi } from '@/tenant/apis'
-const
-    drawer = ref(null),
+const drawer = ref(null),
     automaticCreate = ref({ drawerActions: true, actionSlot: null })
 const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
     { memebrAccountDepositAmount } = memberAccountApi(),
@@ -53,6 +51,10 @@ const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
     }
 // automaticCreate.actionSlot// this will help switch off the default drawer actions  and use out side action
 function saveUser(type: string, data: any) {
+    if (['add', 'edit', 'view'].includes(type)) {
+        automaticCreate.value = {}
+    }
+
     if (automaticCreate.value.actionSlot == 'deposit') {
         title?.['deposit']?.fun?.()
         return
@@ -63,20 +65,18 @@ function saveUser(type: string, data: any) {
     automaticCreate.value = {}// celan the automatic create
 }
 const columns = [
-    { key: 'member_name', label: 'Member', sticky: 'left', width: '14em ', },
+    { key: 'member_name', label: 'Member', sticky: 'left', width: '16em ', },
     { key: 'product', label: 'product', sticky: 'left', width: '14em ', },
     { key: 'status', label: 'status', type: 'status' },
     { key: 'blc', label: 'balance', type: 'money' },
     { key: 'created at', label: 'created at', type: 'status' },
     { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 ]
-
 function OpenThedrawer(item: any) {
     automaticCreate.value = { actionSlot: 'deposit', ...item }
     drawerTitle.value = { title: "deposit member saving's Account", width: "w-2/4" }
     setTimeout(() => {
         drawer.value.toggleDrawer()
     }, 1000)
-
 }
 </script>

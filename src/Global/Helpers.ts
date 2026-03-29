@@ -536,7 +536,7 @@ export function createUrl(url: string, action: string) {
 export async function copyToClipboard(text: string) {
   try {
     await navigator.clipboard.writeText(text)
-    console.log('Copied!')
+    // console.log('Copied!')
     notify({ pos: 'br', type: 'Info', msg: 'Copied!' })
   } catch (err) {
     notify({ pos: 'br', type: 'warning', message: 'failed to copy' })

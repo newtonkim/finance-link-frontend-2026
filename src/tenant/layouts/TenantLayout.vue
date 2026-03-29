@@ -6,6 +6,7 @@ import { SidebarProvider, SidebarInset, TopBar, Toaster } from '@/Global'
 import TenantSidebar from './TenantSidebar.vue'
 import { useCurrencyStore } from '@/stores/currency'
 const currencyStore = useCurrencyStore()
+
 onMounted(() => {
   currencyStore.load()
 })
@@ -13,12 +14,16 @@ const Store = pomPinia(), route = useRoute()
 const routeKey = computed(() => {
   return `${route.fullPath}-${Store.activeBranch?.id ?? Store.activeBranch}`
 })
+const toggleSubmenu = () => {
+    Store.showSubmenu = null
+    
+}
 </script>
 
 <template>
   <SidebarProvider>
     <TenantSidebar />
-    <SidebarInset class="bg-[#f8faf9] dark:bg-[#0a0a0a]">
+    <SidebarInset class="bg-[#f8faf9] dark:bg-[#0a0a0a]" @click="toggleSubmenu">
       <TopBar title="Tenant Portal" />
       <main class="flex-1 overflow-y-auto">
         <router-view :key="routeKey" />
