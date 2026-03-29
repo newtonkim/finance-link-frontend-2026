@@ -1,8 +1,8 @@
 <template>
-    <div class="space-y-4  capitalize ">
+    <div class="space-y-4  capitalize h-sc reen flex flex-col">
 
         <section v-for="(section, sIndex) in columns" :key="sIndex" class="overflow-hidden rounded-lg r border-neutral-200 dark:border-neutral-700   dark:bg-neutral-900  
-            rounded-2xl border-neutral-100 bg-white   shadow-sm pb-5 dark:border-neutral-800 dark:bg-neutral-900
+           flex flex-col   rounded-2xl border-neutral-100 bg-white   shadow-sm pb-5 dark:border-neutral-800 dark:bg-neutral-900
             ">
             <header v-if="section.header"
                 class="flex items-center justify-between px-4  bg-nfuko-surface dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700">
@@ -10,11 +10,19 @@
                     {{ t(section.header) }}
                 </h3>
             </header>
-            <Table v-if="section.type.toLocaleLowerCase() === 'table'" :handleAction="handleAction"
+              <div
+        v-if="section.type.toLocaleLowerCase() === 'table'"
+        class="flex-1 min-h-0 overflow-auto "
+      >
+            <Table   :handleAction="handleAction"
                 :action_config="ACTION_CONFIG" :dataFilter="section?.list" :data="section?.list"
                 :columns="section.column" />
-            <div v-else-if="section.type.toLocaleLowerCase() === 'descriptions'"
-                class="grid gap-[1px] bg-neutral-200 dark:bg-neutral-700" :style="gridStyle(section.column)">
+                </div>
+                <div  v-else-if="section.type.toLocaleLowerCase() === 'descriptions'">
+
+             
+            <div
+                class="grid gap-[1px] bg-neutral-200 dark:bg-neutral-700 " :style="gridStyle(section.column)">
                 <div v-for="item in section.list" :key="item.key"
                     class="flex flex-col bg-white  dark:bg-neutral-900 px-4 py-2.5 transition hover:bg-neutral-50 dark:hover:bg-neutral-800">
                     <span class="text-[10px] font-semibold tracking-wide text-neutral-400 uppercase mb-0">
@@ -62,10 +70,12 @@
                             </template>
                         </template>
                     </div>
+                    </div>
                 </div>
             </div>
         </section>
     </div>
+    <slot name="actions" :item="data" />
 </template>
 
 <script setup>

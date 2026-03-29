@@ -57,7 +57,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed,onMounted ,onUnmounted} from 'vue';
 defineOptions({ inheritAttrs: false })
 import RouteLink from "./RouteLink.vue";
 import { SidebarGroupLabel } from '@/Global';
@@ -76,4 +76,11 @@ const toggleSubmenu = (label) => {
         Store.showSubmenu = label
     }
 }
+onMounted(() => {
+    // window.addEventListener('click', ()=> toggleSubmenu(null));
+});
+
+onUnmounted(() => {
+    window.removeEventListener('click', ()=> toggleSubmenu(null));
+});
 </script>

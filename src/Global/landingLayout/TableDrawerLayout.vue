@@ -27,9 +27,11 @@
         <div
             class="rounded-xl border-0 border-neutral-200 b g-white dark:border-neutral-800 dark:bg-neutral-900  overflow-hidden ">
             <div v-if="showSearchbar || showTableAction"
-                class="flex p-1  my-2 justify-between rounded-xl border border-neutral-100 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                <Searchbar class="m-0 p-0" v-if="showSearchbar" @search="onSearch" :removeInSearch="removeInSearch"
-                    :columns="columns" @filter="(v) => filterDataByString(v)" />
+                class="flex  items-center  my-2 px-1 justify-between rounded-xl border border-neutral-100 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+                <div class=" items-center gap-2 board-r-1 pt-2" v-if="showSearchbar">
+                    <Searchbar class="m-0 p-0 " @search="onSearch" :removeInSearch="removeInSearch" :columns="columns"
+                        @filter="(v) => filterDataByString(v)" />
+                </div>
                 <div class="flex">
                     <div class="flex items-center gap-2 board-r-1 mx-2" v-if="showTableAction">
                         <button @click="handleExport"
@@ -65,7 +67,6 @@
         <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShooter2" v-model:open="drawerOpen"
             :title="drawerTitle" @save="saveDrawerData">
             <template #body>
-
                 <slot :data="provideDataTotheParent" name="drawer" :action="buttonTypeClicked"
                     :submit="submitChanges" />
             </template>
@@ -105,11 +106,8 @@ async function createNewRecord() {
     await toggleDrawer();
     provideDataTotheParent.value = null
     DrawerMounted.value = true
+    // drawerShooter2
 
-}
-function handleExport() {
-    // Your export logic here
-    console.log('Export clicked');
 }
 
 function handlePrint() {
@@ -140,9 +138,10 @@ const props = defineProps({
     removeInSearch: { type: Array, default: () => ['action'] },
     showTableAction: { type: Boolean, default: false },
     showSearchbar: { type: Boolean, default: true },
+    drawerRemount: { type: Boolean, required: false },
     state: { type: String, required: false },
     url: { type: String, required: false },
-    module: { type: String, required: false },
+    // module: { type: String, required: false },
     /**
      * {
      *  *@enum[create,edit,view,delete] Example:
@@ -170,9 +169,24 @@ const props = defineProps({
  * }
  */
     outerlinks: { type: Object, required: false },
-    actionSlot: { type: [String, null,Boolean], default: false },
+    actionSlot: { type: [String, null, Boolean], default: false },
 
 });
+
+
+async function handleExport(item: any) {
+    let outerlinks = props?.outerlinks?.['export'] ?? "export"
+    const res = await fetchTableData({
+        data: item,
+        props: {
+            ...props,
+            state: props?.state + "_" + outerlinks,
+            url: createUrl(props.url, outerlinks)
+        }, Store
+    });
+    // const response = feedback(res);
+}
+
 
 const drawerShooter2 = ref(props.drawerShowFooter)
 
@@ -186,7 +200,6 @@ const toggleDrawer = () => {
 };
 function save(data: unknown, type = 'save') {
     if (type == 'search' && props?.state && props?.url) {
-
         fetchTableData({ data, props, Store })
         return
     }
@@ -202,8 +215,9 @@ function save(data: unknown, type = 'save') {
         }, 1000)
     }
     drawerShooter2.value = type !== 'view'
-    emit("save", type, data)
+    emit("save", type, data, submitChanges.value);
 };
+
 async function automaticCreateFun() {
     if (props.automaticCreate) {
         const data = Store.currentFormValues;
@@ -242,14 +256,14 @@ async function automaticCreateFun() {
     }
 }
 async function saveDrawerData(data: any) {
+    // alert()
     Store.isFormSubmitted = true;
     const AnyErrorsFoundInTheFOrm = Store.AnyErrorsFoundInTheFOrm;
-    console.log({AnyErrorsFoundInTheFOrm});
-    
+
     // if (AnyErrorsFoundInTheFOrm == undefined) {
 
     // } else
-     if (AnyErrorsFoundInTheFOrm) {
+    if (AnyErrorsFoundInTheFOrm) {
 
     } else {
         const checker = await automaticCreateFun('create')
@@ -260,20 +274,25 @@ async function saveDrawerData(data: any) {
             return
         }
 
-        save(data, props?.actionSlot ?? 'create')
 
-        toggleDrawer()
+        save(data, 'create')
+
         setTimeout(() => {
             submitChanges.value = false
         }, 2000)
-        setTimeout(() => {
+        if (props.drawerRemount) {
             toggleDrawer()
-        }, 100)
+            setTimeout(() => {
+                toggleDrawer()
+            }, 100)
+
+        }
         // if all it ok
         //Store.isSubmitted==false;
     }
 }
 const handleAction = async (item: any, action: keyof typeof ACTION_CONFIG) => {
+
     const fn = (ACTION_CONFIG?.[action] as { action?: (payload: any) => void } | undefined)?.action;
     if (action === 'delete') {
         showDelete.value = true;
@@ -303,6 +322,10 @@ const handleAction = async (item: any, action: keyof typeof ACTION_CONFIG) => {
             });
             provideDataTotheParent.value = res?.payload ?? res
         }
+        if (action == 'view') {
+            drawerShooter2.value = false
+
+        }
 
         DrawerMounted.value = true
     }
@@ -325,10 +348,13 @@ const changeThePage = (page: unknown) => {
         })
 
     }
+    // alert()
     save(page, "changePage");
 };
 const callNewPage = changeThePage;
-const onSearch = (type: string, data: unknown) => save(data, type);
+const onSearch = (type: string, data: unknown) => {
+    save(data, type);
+};
 const dataFilter = computed(() => {
     const collection = (props?.state ? (Store[props.state as keyof typeof Store] as any)?.payload : null) ?? props.data ?? { data: [] }
 
@@ -338,6 +364,7 @@ const dataPageLinks = computed(() => {
     return (props?.state ? (Store[props.state as keyof typeof Store] as any)?.payload : null) ?? props.data ?? { data: [] }
 })
 function filterDataByString(value: string) {
+    
     searchQuery.value = value
 }
 onMounted(async () => {

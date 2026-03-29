@@ -5,9 +5,11 @@
     view: 'group-saving-details',
     edit: 'group-saving-update',
     delete: 'group-saving-delete'
-  }" :automaticCreate="automaticCreate.actionSlot != 'create-none-member'" :drawerWidth="drawerTitle?.width"
-    :url="tableUrl" state="groupAccountList" :drawerTitle="drawerTitle?.title" :columns="columns" @save="saveUser"
-    ref="drawer">
+  }" 
+  :showTableAction="true"
+  :drawerRemount="drawerRemount" :automaticCreate="automaticCreate.actionSlot != 'create-none-member'"
+    :drawerWidth="drawerTitle?.width" :url="tableUrl" state="groupAccountList" :drawerTitle="drawerTitle?.title"
+    :columns="columns" @save="saveUser" ref="drawer">
     <template #header-action>
       <div class="space-y-3">
         <PainPageHeader title="Group Savings"
@@ -24,7 +26,6 @@
       <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
     </template>
     <template #drawer="{ action, data }">
-
       <AddGroupTab v-if="automaticCreate.actionSlot == 'create-none-member'" :data="{ ...data, action }"
         v-model:form="formData" />
       <Create v-else-if="['add', 'edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
@@ -33,7 +34,7 @@
   </TableDrawer>
 </template>
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { pomPinia } from 'septor-store';
 import { Create, Details, AddGroupTab } from '.'
 import { TableDrawer, StatusButtonsHorizontal, addNumberCommas, AnalysisTile, PainPageHeader, TabelActionButtons } from '@/Global'
@@ -44,6 +45,7 @@ const props = defineProps<{
 }>(),
   automaticCreate = ref({ drawerActions: true, actionSlot: null, item: null }),
   drawer = ref(null),
+  drawerRemount = ref(false),
   formData = ref<Record<string, any>>({})
 const statusFilter = ref('all')
 const drawerTitle = ref({
@@ -117,27 +119,32 @@ const stats = computed(() => [
   },
 ])
 
-function saveUser(type: string, data: any) {
+async function saveUser(type: string, data: any, sumited: any) {
+
+
   if (automaticCreate.value.actionSlot == 'create-none-member') {
-    addNoneExistingMember(formData.value, automaticCreate.value.item)
+    const checker = addNoneExistingMember(formData.value, automaticCreate.value.item)
+    if (checker == false) {
+      formData.value = formData.value
+    }
+    formData.value = {}
     automaticCreate.value = { actionSlot: 'create-none-member', item: automaticCreate.value.item }
     return
   } else if (titleMap[type]) {
     automaticCreate.value = { actionSlot: null, item: "" }
     drawerTitle.value = titleMap[type]
   }
+  // if(){
+  //   drawerRemount.value = !drawerRemount.value
+  // }
+
 }
 function OpenThedrawer(item: any) {
   automaticCreate.value = { actionSlot: 'create-none-member', item }
   drawerTitle.value = { title: "add member to group", width: "w-2/4" }
-  console.log(drawer.value);
+  drawer.value.toggleDrawer()
 
-  setTimeout(() => {
-    drawer.value.toggleDrawer()
-  }, 100)
 }
-
-
 watch(() => drawer.value?.drawerOpen, (val) => {
   if (!val) {
     automaticCreate.value = {}

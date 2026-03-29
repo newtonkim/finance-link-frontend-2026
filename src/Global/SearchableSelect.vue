@@ -15,7 +15,7 @@ interface Option {
 }
 
 const props = defineProps<{
-    modelValue: string | number|null;
+    modelValue: string | number | null;
     options?: Option[];
     placeholder?: string;
     label?: string;

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive, computed, watch } from 'vue';
-import { Form, getSystemSetting, pickAsettingKeyValue, formatMoneyValue } from '@/Global';
+import { Form, getSystemSetting, pickAsettingKeyValue } from '@/Global';
 import { AlertCircle, TrendingUp } from 'lucide-vue-next';
 const emits = defineEmits(['update:form']);
 const OptionList = reactive({
@@ -13,7 +13,6 @@ const loading = ref(true)
 const settingList = ref({})
 const additionalForm = ref({ shares_quantity: 0 });
 const errors = ref({ shares_quantity: 0 });
-const currencyCode = computed(() => `${pickAsettingKeyValue('default-currency') || 'UGX'}`);
 const props = defineProps({
   data: {
     type: Object,
@@ -137,11 +136,11 @@ const fields = ref([
     placeholder: 'Enter Address',
   },
   {
-    label: 'profile picture',
+    label: 'prifile picture',
     name: 'profile_picture',
-    type: 'profile',
+    type: 'prifile',
     required: true,
-    placeholder: 'Enter profile picture',
+    placeholder: 'Enter prifile picture',
   },
   {
     label: 'Next of Kin',
@@ -175,7 +174,7 @@ const fields = ref([
     label: 'referred by',
     name: 'referred_by',
     type: 'select',
-    required: false,
+    required: true,
     url: 'staff/users-drop-down',
     placeholder: 'Referred by',
     dataOnMount: true,
@@ -213,12 +212,6 @@ async function promtValueOnUpdate() {
 }
 
 const loadingMount = computed(() => loading.value)
-const sharePrice = computed(() => Number((settingList.value as any)?.['sacco-share-price-value'] ?? 0));
-const minSharesRequired = computed(() => Number((settingList.value as any)?.['sacco-share-on-member-creation-create-share-minimum-value'] ?? 0));
-const totalShareInvestment = computed(() => Number(additionalForm.value?.shares_quantity ?? 0) * sharePrice.value);
-function formatMoney(amount: number | string | null | undefined, minimumFractionDigits = 2) {
-  return `${currencyCode.value} ${formatMoneyValue(amount ?? 0, minimumFractionDigits)}`;
-}
 function checkForSettings() {
   const checkForVaailableSetting = getSystemSetting()
   settingList.value = {
@@ -261,6 +254,7 @@ watch(
           placeholder: 'Enter code',
         })
       }
+
     } else {
       if (codeIndex !== -1) {
         fields.value.splice(codeIndex, 1)
@@ -297,11 +291,14 @@ onMounted(() => {
           <p class="text-[12px] text-nfuko-primary-800 leading-relaxed">
             This SACCO requires a minimum of
             <strong>{{ settingList?.['sacco-share-on-member-creation-create-share-minimum-value'] }} share(s)</strong>
-            at <strong>{{ formatMoney(sharePrice, 0) }}</strong> each
+            at <strong>UGX {{ settingList?.['sacco-share-price-value'] }}</strong> each
 
             (total:
             <strong>
-              {{ formatMoney(sharePrice * minSharesRequired, 0) }}
+              UGX {{
+                (settingList?.['sacco-share-price-value'] ?? 1) *
+                (settingList?.['sacco-share-on-member-creation-create-share-minimum-value'] ?? 0)
+              }}
             </strong>)
             to register a member.
           </p>
@@ -333,10 +330,13 @@ onMounted(() => {
               <TrendingUp class="h-4 w-4 text-nfuko-primary-600 shrink-0" />
               <div>
                 <p class="text-[11px] text-neutral-500 font-medium uppercase tracking-wide">
-                  {{ additionalForm.shares_quantity || 0 }} shares × {{ formatMoney(sharePrice, 0) }}
+                  {{ additionalForm.shares_quantity || 0 }} shares × UGX {{ settingList?.['sacco-share-price-value'] }}
                 </p>
                 <p class="text-[18px] font-black text-nfuko-primary-700 font-mono leading-tight">
-                  {{ formatMoney(totalShareInvestment) }}
+                  UGX {{
+                    additionalForm.shares_quantity * settingList?.['sacco-share-price-value']?.toLocaleString('en-US', {
+                      minimumFractionDigits: 2
+                    }) }}
                 </p>
               </div>
             </div>
