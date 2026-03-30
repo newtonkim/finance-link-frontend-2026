@@ -138,7 +138,7 @@ const props = defineProps({
     removeInSearch: { type: Array, default: () => ['action'] },
     showTableAction: { type: Boolean, default: false },
     showSearchbar: { type: Boolean, default: true },
-    drawerRemount: { type: Boolean, required: false },
+    drawerRemount: { type: Boolean, required: false ,default: false},
     state: { type: String, required: false },
     url: { type: String, required: false },
     // module: { type: String, required: false },

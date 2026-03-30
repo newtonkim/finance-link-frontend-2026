@@ -120,13 +120,14 @@ export async function fetchTableData({
   const branch_id = getLocalValues(keysToUse.activeBranch)
   const method = resolveMethod(props?.url, data, props?.method)
    const quer=props?.url.includes('?')?`${props?.url}&`:`${props?.url}?`
+   const branchQuery = branch_id ? `branch_id=${branch_id}` : ''
   const collection = {
     reload: !!props.reload ? 0 : 1, // dont think am stupid i know that
     StateStore: createTheState,
     time: props?.time ?? 0,
     reqs: {
       ...props,
-      url: quer+`branch_id=${branch_id}`,
+      url: quer+branchQuery,
       method: 'post',
       data,
     },

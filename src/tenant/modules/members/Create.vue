@@ -215,10 +215,10 @@ const loadingMount = computed(() => loading.value)
 function checkForSettings() {
   const checkForVaailableSetting = getSystemSetting()
   settingList.value = {
-    "hide-initial-deposit-field": (checkForVaailableSetting['hide-initial-deposit-field'] ?? 0),
-    "sacco-members-free-input-code": (checkForVaailableSetting['sacco-members-free-input-code'] ?? 0),
-    "sacco-share-price-value": parseFloat(checkForVaailableSetting['sacco-share-price-value'] ?? 0),
-    "sacco-share-on-member-creation-create-share-minimum-value": parseFloat(checkForVaailableSetting['sacco-share-on-member-creation-create-share-minimum-value'] ?? 0)
+    "hide-initial-deposit-field": (checkForVaailableSetting?.['hide-initial-deposit-field'] ?? 0),
+    "sacco-members-free-input-code": (checkForVaailableSetting?.['sacco-members-free-input-code'] ?? 0),
+    "sacco-share-price-value": parseFloat(checkForVaailableSetting?.['sacco-share-price-value'] ?? 0),
+    "sacco-share-on-member-creation-create-share-minimum-value": parseFloat(checkForVaailableSetting?.['sacco-share-on-member-creation-create-share-minimum-value'] ?? 0)
   }
 }
 
@@ -228,7 +228,7 @@ watch(
     const codeIndex = val.findIndex(f => f.name === 'code');
     const fullNameIndex = val.findIndex(f => f.name === 'full_name');
 
-    if (settingList.value['hide-initial-deposit-field']) {
+    if (settingList.value?.['hide-initial-deposit-field']) {
       const initalDepositIndex = val.findIndex(f => f.name === 'inital_deposit')
       const referredByIndex = val.findIndex(f => f.name === 'referred_by')
       if (initalDepositIndex === -1 && referredByIndex !== 1) {
@@ -243,7 +243,7 @@ watch(
     }
 
     ///////
-    if (settingList.value['sacco-members-free-input-code']) {
+    if (settingList.value?.['sacco-members-free-input-code']) {
       if (codeIndex === -1 && fullNameIndex !== -1) {
         fields.value.splice(fullNameIndex + 1, 0, {
           label: 'free input code',

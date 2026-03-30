@@ -5,11 +5,17 @@ export function memberAccountApi() {
   async function memebrAccountDepositAmount(data: any, outletAction: any) {
     const dataPrepare = data
     dataPrepare.push(
-      { value: 'depositing', name: 'new_account' },
-      { name: 'id', value: outletAction?.id },
+      { value: 'depositing', name: 'new_account',hidden:true  },
+      { name: 'group_id', value: outletAction?.id,hidden:true  },
     )
+    const unique = Object.values(
+  dataPrepare.reduce((acc, item) => {
+    acc[item.name] = item
+    return acc
+  }, {} as Record<string, any>)
+)
     const getCharges = await fetchTableData({
-      data: formDataFormatV2(dataPrepare),
+      data: formDataFormatV2(unique),
       Store,
       saveData: true,
       props: {
