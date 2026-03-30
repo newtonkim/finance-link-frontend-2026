@@ -1,5 +1,4 @@
 <template>
-    {{ drawerRemount }}
     <TableDrawer :drawerRemount="drawerRemount" :automaticCreate="automaticCreate.actionSlot != 'deposit'" ref="drawer"
         :showTableAction="true" :drawerWidth="drawerTitle?.width" :url="tableUrl" state="memberAccountList"
         :drawerTitle="drawerTitle?.title" :columns="columns" @save="saveUser">
@@ -45,7 +44,7 @@ const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
     drawerTitle = ref('Create Tenant'), filters = ['all', 'active', 'suspended', 'expired', 'trial'],
     tableUrl = computed(() => `/members-account/list?status=${statusFilter.value}`),
     title: Record<string, string> = {
-        "view": { title: "Viewmember saving's Account Details", width: "w-1/2" },
+        "view": { title: "Viewmember saving's Account Details", width: "w-3/5" },
         "edit": { title: "Edit member saving's Account", width: "w-1/3" },
         "add": { title: "Create a member saving's Account", width: "w-1/3" },
         "deposit": { width: "w-3/4", title: "deposit Saving's Account", fun: async() => { drawerRemount.value = await memebrAccountDepositAmount(formData.value, automaticCreate.value,) }, },// this will be the deposite

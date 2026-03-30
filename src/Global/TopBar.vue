@@ -24,8 +24,6 @@ const interceptor = subdomain ? tenantClient : apiClient
 
 async function fetchBranches() {
     activeBranch.value = getLocalValues(keysToUse.activeBranch)
- 
-
     tryCatch(async () => {
         const collection = {
             reload: 0,

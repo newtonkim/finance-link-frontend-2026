@@ -159,7 +159,7 @@ const fields = ref([
   {
     label: 'opening balance',
     name: 'opening_balance',
-    type: 'phone',
+    type: 'money',
     required: true,
     placeholder: 'Enter opening balance',
   },

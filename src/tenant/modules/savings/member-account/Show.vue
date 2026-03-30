@@ -32,6 +32,7 @@ const columns = [
         type: 'Table',
         column: [
             { key: 'type', label: 'type',sticky:"left" },
+            { key: 'amount', label: 'amount',type:"money",sticky:"left" },
             { key: 'mode', label: 'mode',type:"status",sticky:"left" },
             { key: 'reference', label: 'reference',sticky:"left" },
             { key: 'narration', label: 'narration' },
@@ -46,7 +47,7 @@ async function prepareTheFeaturesData() {
     loading.value = true
     if (props.data.transactionList)
         props.data.transactionList.forEach(element => {
-            columns[1].list.push({created_at:element.created_at,"narration":element.narration,transaction_date:element.transaction_date, type: element.type, mode: element.mode,"transfer By":element.by,reference:element.reference })
+            columns[1].list.push({amount:element.amount,created_at:element.created_at,"narration":element.narration,transaction_date:element.transaction_date, type: element.type, mode: element.mode,"transfer By":element.by,reference:element.reference })
         });
     loading.value = false
 }

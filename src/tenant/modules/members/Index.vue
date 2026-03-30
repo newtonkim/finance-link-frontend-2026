@@ -7,6 +7,13 @@
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 ">Manage all members.</p>
             </div>
         </template>
+        <template #salutation_name="{item}">
+            <span>
+                <link :to="`/members/${item?.id}`" class="flex items-center gap-2 text-nfuko-primary dark:text-bg-nfuko-yellow">
+                    <span>{{ item?.salutation_name }}</span>-
+                </link>
+            </span>
+        </template>
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>

@@ -1,73 +1,144 @@
 <template>
-    <div class="space-y-4  capitalize h-sc reen flex flex-col">
-        <section v-for="(section, sIndex) in columns" :key="sIndex" class="overflow-hidden rounded-lg r border-neutral-200 dark:border-neutral-700   dark:bg-neutral-900  
-           flex flex-col   rounded-2xl border-neutral-100 bg-white   shadow-sm pb-5 dark:border-neutral-800 dark:bg-neutral-900
-            ">
-            <header v-if="section.header"
-                class="flex items-center justify-between px-4  bg-nfuko-surface dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700">
-                <h3 class="text-sm font-semibold py-3 tracking-wide text-neutral-700 dark:text-white">
-                    {{ t(section.header) }}
-                </h3>
-            </header>
-            <div v-if="section.type.toLocaleLowerCase() === 'table'" class="flex-1 min-h-0 overflow-auto ">
-                <Table :handleAction="handleAction" :action_config="ACTION_CONFIG" :dataFilter="section?.list"
-                    :data="section?.list" :columns="section.column" />
-            </div>
-            <div v-else-if="section.type.toLocaleLowerCase() === 'descriptions'">
+  <div class="space-y-2 h-sc reen f lex flex-col overflow-hidden">
+    
+    <section
+      v-for="(section, sIndex) in columns"
+      :key="sIndex"
+      class="flex flex-col rounded-2xl  
+             bg-white dark:bg-neutral-900 shadow-lg px-2 hover:shadow-md transition-all duration-200 overflow-hidden"
+    >
+      
+      <!-- Header -->
+      <header
+        v-if="section.header"
+        class="flex items-center justify-between px-2 py-3 
+               bg-neutral-50 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700"
+      >
+        <h3 class="text-sm font-semibold tracking-wide text-neutral-700 dark:text-white">
+          {{ t(section.header) }}
+        </h3>
+      </header>
 
+      <!-- TABLE -->
+      <div
+        v-if="section.type.toLowerCase() === 'table'"
+        class="flex-1 overflow-auto h-full py-2"
+      >
+        <Table
+          :handleAction="handleAction"
+          :action_config="ACTION_CONFIG"
+          :dataFilter="section?.list"
+          :data="section?.list"
+          :columns="section.column"
+          class="shadow-lg"
+        />
+      </div>
+      <!-- DESCRIPTIONS -->
+      <div
+        v-else-if="section.type.toLowerCase() === 'descriptions'"
+        class="py-3"
+      >
+        <div
+          class="grid gap-2"
+          :style="gridStyle(section.column)"
+        >
+          <div
+            v-for="item in section.list"
+            :key="item.key"
+            class="rounded-xl border border-neutral-200 dark:border-neutral-800 
+                   dark:bg-neutral-900 p-3 
+                   hover:bg-white dark:hover:bg-neutral-800 transition"
+          >
+            <!-- Label -->
+            <span class="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+              {{ t(item.label) }}
+            </span>
 
-                <div class="grid gap-[1px] bg-neutral-200 dark:bg-neutral-700 " :style="gridStyle(section.column)">
-                    <div v-for="item in section.list" :key="item.key"
-                        class="flex flex-col bg-white  dark:bg-neutral-900 px-4 py-2.5 transition hover:bg-neutral-50 dark:hover:bg-neutral-800">
-                        <span class="text-[10px] font-bold tracking-wide text-neutral-700 uppercase mb-0">
-                            {{ t(item.label) }}
-                        </span>
-                        <div class="text-sm font-medium text-neutral-500 dark:text-neutral-400 text-sm dark:text-neutral-200 break-words"
-                            :class="{ 'text-right': item.align === 'right', 'text-center': item.align === 'center' }">
-                            <component v-if="getSlot(item)" :is="getSlot(item)" :value="data[item.key]" :row="data" />
-                            <template v-else>
-                                <template v-if="isObjectJSON(data[item.key])">
-                                    <div class="space-y-1 text-xs">
-                                        <template v-if="!Array.isArray(parseJSON(data[item.key]))">
-                                            <div v-for="(val, key) in parseJSON(data[item.key])" :key="key"
-                                                class="flex justify-between gap-2">
-                                                <span class="text-neutral-400">
-                                                    {{ key.replaceAll('_', ' ') }}
-                                                </span>
-                                                <span v-html="item.type ? dataFomater(val, item.type) : val"></span>
-                                            </div>
-                                        </template>
-                                        <template v-else>
-                                            <div v-for="(val, index) in parseJSON(data[item.key])" :key="index"
-                                                class="flex justify-between">
-                                                <span class="text-neutral-400">{{ index }}</span>
-                                                <span>{{ val.replaceAll('_', ' ') }}</span>
-                                            </div>
-                                        </template>
-                                    </div>
-                                </template>
-                                <template v-else>
+            <!-- Value -->
+            <div
+              class="mt-0 text-sm text-neutral-700 dark:text-neutral-200 break-words"
+              :class="{
+                'text-right': item.align === 'right',
+                'text-center': item.align === 'center'
+              }"
+            >
+              <!-- SLOT -->
+              <component
+                v-if="getSlot(item)"
+                :is="getSlot(item)"
+                :value="data[item.key]"
+                :row="data"
+              />
 
-                                    <div class="relative inl ine-block group cursor-pointer">
-                                        <div v-if="item.copy">
-                                            <CopyData :copy="stringToshow(item, data)" />
-                                        </div>
-                                        <span v-else class='line-clamp-2' v-html="stringToshow(item, data)"></span>
-                                        <div v-if="data?.[item.key]?.length > 20"
-                                            class="absolute left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-black text-white text-xs rounded px-3 py-2 max-w-xs w-max min-w-[120px] whitespace-normal break-words z-[9999] shadow-lg">
-                                            {{ stringToshow(item, data) }}
-                                        </div>
-                                    </div>
-
-                                </template>
-                            </template>
-                        </div>
+              <!-- JSON -->
+              <template v-else-if="isObjectJSON(data[item.key])">
+                <div class="space-y-1 text-xs">
+                  <template v-if="!Array.isArray(parseJSON(data[item.key]))">
+                    <div
+                      v-for="(val, key) in parseJSON(data[item.key])"
+                      :key="key"
+                      class="flex justify-between gap-2"
+                    >
+                      <span class="text-neutral-400">
+                        {{ key.replaceAll('_', ' ') }}
+                      </span>
+                      <span class="font-medium">
+                        {{ val }}
+                      </span>
                     </div>
+                  </template>
+
+                  <template v-else>
+                    <div
+                      v-for="(val, index) in parseJSON(data[item.key])"
+                      :key="index"
+                      class="flex justify-between"
+                    >
+                      <span class="text-neutral-400">{{ index }}</span>
+                      <span>{{ val }}</span>
+                    </div>
+                  </template>
                 </div>
+              </template>
+
+              <!-- NORMAL -->
+              <template v-else>
+                <div class="relative group cursor-pointer">
+                  
+                  <!-- Copy -->
+                  <CopyData
+                    v-if="item.copy"
+                    :copy="stringToshow(item, data)"
+                  />
+
+                  <!-- Text -->
+                  <span
+                    v-else
+                    class="line-clamp-2"
+                    v-html="stringToshow(item, data)"
+                  />
+
+                  <!-- Tooltip -->
+                  <div
+                    v-if="data?.[item.key]?.length > 20"
+                    class="absolute left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block
+                           bg-neutral-900 text-white text-xs rounded-lg px-3 py-2 
+                           max-w-xs w-max whitespace-normal break-words z-50 shadow-lg"
+                  >
+                    {{ stringToshow(item, data) }}
+                  </div>
+
+                </div>
+              </template>
             </div>
-        </section>
-    </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Actions -->
     <slot name="actions" :item="data" />
+  </div>
 </template>
 
 <script setup>
