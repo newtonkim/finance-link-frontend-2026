@@ -46,18 +46,29 @@ export interface LoanTransaction {
   collected_by: { id: number; name: string } | null
 }
 
+export interface LoanSummary {
+  disbursed: number
+  approved: number
+  pending: number
+  arrears: number
+  all: number
+}
+
+export type LoanTab = 'disbursed' | 'approved' | 'pending' | 'arrears' | 'all'
+
 export interface ActiveLoan {
   id: number
   loan_no: string
-  status: 'active' | 'arrears' | 'closed'
+  status: string
   principal: string
   principal_formatted: string
   outstanding_balance: string
   outstanding_balance_formatted: string
-  interest_rate: string
-  term_months: number
-  disbursed_at: string
-  disbursement_method: string
+  interest_rate?: string
+  term_months?: number
+  disbursed_at: string | null
+  approved_at?: string | null
+  disbursement_method?: string
   member: {
     id: number
     name: string
@@ -67,10 +78,11 @@ export interface ActiveLoan {
     id: number
     name: string
     code: string
-    interest_method: string
+    interest_method?: string
   } | null
   next_due_date: string | null
   next_installment_amount: string | null
+  _source?: 'loan' | 'application'
 }
 
 export interface LoanDetail {
@@ -123,6 +135,7 @@ export interface RepaymentPreview {
 }
 
 export interface ActiveLoanParams {
+  tab?: LoanTab
   status?: string
   member_id?: number
   loan_product_id?: number
@@ -142,6 +155,10 @@ export interface PostRepaymentData {
 
 export const loansApi = {
   // ─── Loan portfolio ───────────────────────────────────────────────────────
+  summary() {
+    return tenantClient.get<LoanSummary>('/loans/summary')
+  },
+
   list(params?: ActiveLoanParams) {
     return tenantClient.get<{ data: ActiveLoan[]; meta: object }>('/loans', { params })
   },
