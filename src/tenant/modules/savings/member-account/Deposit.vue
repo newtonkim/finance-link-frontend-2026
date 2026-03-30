@@ -4,7 +4,6 @@
             <DetailsTable :data="props.data" :columns="columns" />
         </div>
         <Form :action="data.action" parentStyle="grid  grid-cols-1 gap-4 md:gap-6" v-model:form="fields" />
-        
     </div>
 </template>
 <script setup lang="ts">
