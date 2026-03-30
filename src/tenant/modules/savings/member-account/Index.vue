@@ -1,7 +1,8 @@
 <template>
-    <TableDrawer :automaticCreate="automaticCreate.actionSlot != 'deposit'" ref="drawer" :showTableAction="true"
-        :drawerWidth="drawerTitle?.width" :url="tableUrl" state="memberAccountList" :drawerTitle="drawerTitle?.title"
-        :columns="columns" @save="saveUser">
+    {{ drawerRemount }}
+    <TableDrawer :drawerRemount="drawerRemount" :automaticCreate="automaticCreate.actionSlot != 'deposit'" ref="drawer"
+        :showTableAction="true" :drawerWidth="drawerTitle?.width" :url="tableUrl" state="memberAccountList"
+        :drawerTitle="drawerTitle?.title" :columns="columns" @save="saveUser">
         <template #member_name="{ item }">
             <div class="-1">
                 <div class="font-semibold text-nfuko-action text-sm dark:text-white">
@@ -37,7 +38,7 @@ import { ref, computed, watch } from 'vue'
 import { Create, Details, Deposit } from '.'
 import { TableDrawer, StatusButtonsHorizontal, PainPageHeader, CopyData, TabelActionButtons } from '@/Global'
 import { memberAccountApi } from '@/tenant/apis'
-const drawer = ref(null),
+const drawer = ref(null), drawerRemount = ref(true),
     automaticCreate = ref({ drawerActions: true, actionSlot: null })
 const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
     { memebrAccountDepositAmount } = memberAccountApi(),
@@ -47,7 +48,7 @@ const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
         "view": { title: "Viewmember saving's Account Details", width: "w-1/2" },
         "edit": { title: "Edit member saving's Account", width: "w-1/3" },
         "add": { title: "Create a member saving's Account", width: "w-1/3" },
-        "deposit": { width: "w-3/4", title: "deposit Saving's Account", fun: () => memebrAccountDepositAmount(formData.value, automaticCreate.value,), },// this will be the deposite
+        "deposit": { width: "w-3/4", title: "deposit Saving's Account", fun: async() => { drawerRemount.value = await memebrAccountDepositAmount(formData.value, automaticCreate.value,) }, },// this will be the deposite
     }
 // automaticCreate.actionSlot// this will help switch off the default drawer actions  and use out side action
 function saveUser(type: string, data: any) {
