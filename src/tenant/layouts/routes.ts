@@ -17,6 +17,7 @@ export const tenantRoutes: MenuRoutes[] = [
     showSideBar: true,
     icon: LayoutGrid,
     permissions: 'dashboard-module-link-view',
+    component: () => import('@/tenant/modules/dashboard/pages/Dashboard.vue'),
   },
   {
     label: 'Members',

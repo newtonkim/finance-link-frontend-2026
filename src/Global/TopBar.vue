@@ -20,7 +20,7 @@ const subdomain = getSubdomainName()
 import { useBranchStore } from '@/stores/branchStore';
 import SearchableSelect from './SearchableSelect.vue';
 
-const interceptor = subdomain ? tenantClient : apiClient
+const interceptor = tenantClient
 
 async function fetchBranches() {
     activeBranch.value = getLocalValues(keysToUse.activeBranch)
