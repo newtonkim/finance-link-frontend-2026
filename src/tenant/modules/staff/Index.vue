@@ -7,13 +7,11 @@
     }" drawerWidth=" w-2/4" :url="tableUrl" state="staffList" :drawerTitle="drawerTitle" " :columns="columns"
         @save="saveUser">
         <template #header-action>
-            <PainPageHeader title="Staff list"
-                dec="Manage SACCO staff accounts and track their onboarding performance" />
+            <PainPageHeader title="Staff list" dec="Manage SACCO staff accounts and track their onboarding performance" />
         </template>
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
-
         <template #drawer="{ action, data }">
             <Create v-if="['add', 'edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
             <Details v-if="['view'].includes(action)" :data="data" />
@@ -43,6 +41,5 @@ const columns = [
     { key: 'status', label: 'status', type: 'status' },
     { key: 'created_at', label: 'created_at', },
     { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
-
 ]
 </script>

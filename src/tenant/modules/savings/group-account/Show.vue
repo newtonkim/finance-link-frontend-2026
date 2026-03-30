@@ -14,8 +14,8 @@ const columns = [
         type: 'Descriptions',
         column: 3,
         list: [
-            { key: 'group_name', label: 'group name' },
             { key: 'group_code', label: 'code',copy:true },
+            { key: 'group_name', label: 'group name' },
             { key: 'blc', label: 'Account balance', type: "money" },
             { key: 'status', label: 'status', type: "status" },
             { key: 'total_members', label: 'total members', type: "number" },

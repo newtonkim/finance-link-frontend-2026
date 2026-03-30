@@ -1,8 +1,7 @@
 <script setup>
 import { DetailsTable } from '@/Global'
 import { onMounted, ref } from 'vue'
-const loading = ref(true)
-const props = defineProps({
+const loading = ref(true), props = defineProps({
   data: {
     type: Object,
     required: true,
@@ -14,7 +13,7 @@ const columns = [
     type: 'Descriptions',
     column: 3,
     list: [
-      { key: 'code', label: 'code' },
+      { key: 'code', label: 'code', copy: true },
       { key: 'member_name', label: 'memeber name' },
       { key: 'transfer_amount', label: 'transfer' },
       { key: 'status', label: 'status', type: 'status' },
@@ -58,7 +57,6 @@ onMounted(async () => {
   await prepareTheFeaturesData()
 })
 </script>
-
 <template>
   <div v-if="loading">Loading...</div>
   <DetailsTable v-else :data="data" :columns="columns" />
