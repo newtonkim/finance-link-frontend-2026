@@ -81,27 +81,6 @@ const { formatAmount } = useLoanApplicationHelpers()
                 </div>
             </div>
 
-            <!-- Guarantors summary -->
-            <div v-if="form.guarantors?.length" class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                <div class="mb-4 flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <Shield class="h-4 w-4 text-nfuko-primary" />
-                        <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">Guarantors</h3>
-                        <span class="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-500 dark:bg-neutral-800">{{ form.guarantors.length }} selected</span>
-                    </div>
-                    <button type="button" class="text-xs text-nfuko-primary hover:underline dark:text-bg-nfuko-yellow" @click="emit('goToStep', 1)">Edit</button>
-                </div>
-                <div class="space-y-2">
-                    <div v-for="g in form.guarantors" :key="g.member_id" class="flex items-center gap-3 rounded-xl bg-neutral-50 px-4 py-3 dark:bg-neutral-800/50">
-                        <div class="h-8 w-8 flex items-center justify-center rounded-full bg-neutral-200 dark:bg-neutral-700 text-[10px] font-bold text-neutral-600">{{ g.name.charAt(0) }}</div>
-                        <div class="min-w-0 flex-1">
-                            <p class="text-sm font-medium text-neutral-900 dark:text-white">{{ g.name }}</p>
-                            <p class="text-xs text-neutral-500 font-mono">{{ g.member_no }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Nav + actions -->
             <div class="flex items-center justify-between">
                 <button type="button" class="flex items-center gap-2 rounded-xl border border-neutral-200 px-4 py-2.5 text-sm font-medium text-neutral-600 hover:bg-neutral-50 transition-colors dark:border-neutral-700 dark:text-neutral-300" @click="emit('prev')">
@@ -120,7 +99,7 @@ const { formatAmount } = useLoanApplicationHelpers()
 
         <!-- Right: eligibility + schedule summary -->
         <div class="flex flex-col gap-6">
-            <LoanEligibilityPanel :result="eligibilityResult" :loading="eligibilityLoading" :ready="eligibilityReady" @retry="emit('retryEligibility')" />
+            <LoanEligibilityPanel :result="eligibilityResult" :loading="eligibilityLoading" :ready="eligibilityReady" :product-max-amount="selectedProduct?.max_amount ?? null" @retry="emit('retryEligibility')" />
             <div v-if="schedulePreview" class="rounded-2xl border border-neutral-100 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
                 <div class="mb-4 flex items-center gap-2">
                     <Calculator class="h-4 w-4 text-nfuko-primary dark:text-bg-nfuko-yellow" />

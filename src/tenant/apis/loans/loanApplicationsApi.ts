@@ -20,7 +20,7 @@ export interface LoanApplicationApproval {
 }
 
 export interface TimelineEvent {
-  type: 'created' | 'status_change' | 'document_uploaded' | 'guarantor_added' | 'approval_vote'
+  type: 'created' | 'status_change' | 'document_uploaded' | 'approval_vote'
   title: string
   description: string
   actor: { id: number; name: string } | null
@@ -98,7 +98,7 @@ export interface LoanApplication {
   created_at?: string
   // Nested
   member?: { id: number; name: string; member_no: string } | null
-  loan_product?: { id: number; name: string; code: string; min_guarantors?: number; max_amount?: number | null; max_amount_formatted?: string | null } | null
+  loan_product?: { id: number; name: string; code: string; max_amount?: number | null; max_amount_formatted?: string | null } | null
   loan_officer?: { id: number; name: string } | null
   appraised_by?: { id: number; name: string } | null
   recommended_by?: { id: number; name: string } | null
@@ -131,7 +131,6 @@ export interface LoanApplicationSummary {
   submitted: number
   under_review: number
   awaiting_documents: number
-  awaiting_guarantors: number
   recommended: number
   approved: number
   total_active: number
@@ -202,9 +201,6 @@ export const loanApplicationsApi = {
   requestDocuments(id: number, note: string) {
     return tenantClient.post(`/loan-applications/${id}/request-documents`, { note })
   },
-  requestGuarantors(id: number, note: string) {
-    return tenantClient.post(`/loan-applications/${id}/request-guarantors`, { note })
-  },
   resumeReview(id: number) {
     return tenantClient.post(`/loan-applications/${id}/resume-review`)
   },
@@ -229,20 +225,6 @@ export const loanApplicationsApi = {
   // ─── Timeline ───────────────────────────────────────────────────────────────
   getTimeline(id: number) {
     return tenantClient.get<{ data: TimelineEvent[] }>(`/loan-applications/${id}/timeline`)
-  },
-
-  // ─── Guarantors ─────────────────────────────────────────────────────────────
-  listGuarantors(applicationId: number) {
-    return tenantClient.get(`/loan-applications/${applicationId}/guarantors`)
-  },
-  addGuarantor(applicationId: number, data: { member_id: number; guarantee_amount: number; notes?: string }) {
-    return tenantClient.post(`/loan-applications/${applicationId}/guarantors`, data)
-  },
-  removeGuarantor(applicationId: number, guarantorId: number) {
-    return tenantClient.delete(`/loan-applications/${applicationId}/guarantors/${guarantorId}`)
-  },
-  validateGuarantors(applicationId: number) {
-    return tenantClient.post(`/loan-applications/${applicationId}/guarantors/validate`)
   },
 
   // ─── Disbursement queue ──────────────────────────────────────────────────────

@@ -79,8 +79,6 @@ export interface LoanProduct {
   loan_duration?: number | null
   duration_type?: 'days' | 'weeks' | 'months' | 'years' | null
   repayment_cycle?: 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'quarterly' | 'annually' | 'yearly' | null
-  min_guarantors?: number | null
-  max_guarantors?: number | null
   required_documents?: LoanProductRequiredDocument[]
   grace_period?: number | null
   savings_appraisal_threshold?: number | string | null

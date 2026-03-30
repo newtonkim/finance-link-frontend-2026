@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { Shield, Trash2 } from 'lucide-vue-next'
+import { UserCog } from 'lucide-vue-next'
 import { ChevronRight } from 'lucide-vue-next'
 import SearchableSelect from '@/Global/SearchableSelect.vue'
-import LoanEligibilityPanel from './LoanEligibilityPanel.vue'
 import { useLoanApplicationHelpers } from '../composables/useLoanApplicationHelpers'
 
 defineProps<{
@@ -11,10 +10,8 @@ defineProps<{
     selectedProduct: any
     memberOptions: any[]
     productOptions: any[]
+    staffOptions: any[]
     fieldError: (field: string) => string | null | undefined
-    eligibilityResult: any
-    eligibilityLoading: boolean
-    eligibilityReady: boolean
     step1Valid: boolean
 }>()
 
@@ -23,9 +20,6 @@ const emit = defineEmits<{
     clearMember: []
     selectProduct: [p: any]
     next: []
-    retryEligibility: []
-    addGuarantor: [m: any]
-    removeGuarantor: [memberId: number]
 }>()
 
 const { formatAmount } = useLoanApplicationHelpers()
@@ -86,7 +80,7 @@ const { formatAmount } = useLoanApplicationHelpers()
             </div>
         </div>
 
-        <!-- Sidebar: Product details + Eligibility + Guarantors -->
+        <!-- Sidebar: Product details + Loan Officer -->
         <div class="flex flex-col gap-6">
             <div v-if="selectedProduct" class="rounded-2xl border border-neutral-100 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
                 <h3 class="mb-4 text-sm font-semibold text-neutral-900 dark:text-white">Product Details</h3>
@@ -105,57 +99,19 @@ const { formatAmount } = useLoanApplicationHelpers()
                     </div>
                 </dl>
             </div>
-            <LoanEligibilityPanel :result="eligibilityResult" :loading="eligibilityLoading" :ready="eligibilityReady" @retry="emit('retryEligibility')" />
-            <!-- Guarantors -->
-            <div v-if="selectedProduct" class="rounded-2xl border border-neutral-100 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                <div class="mb-4 flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <Shield class="h-4 w-4 text-nfuko-primary dark:text-bg-nfuko-yellow" />
-                        <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">Guarantors</h3>
-                    </div>
-                    <span v-if="selectedProduct.min_guarantors" class="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
-                        :class="(form.guarantors?.length || 0) < selectedProduct.min_guarantors ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'">
-                        {{ form.guarantors?.length || 0 }} of {{ selectedProduct.min_guarantors }} required
-                    </span>
+
+            <!-- Loan Officer -->
+            <div class="rounded-2xl border border-neutral-100 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+                <div class="mb-4 flex items-center gap-2">
+                    <UserCog class="h-4 w-4 text-nfuko-primary dark:text-bg-nfuko-yellow" />
+                    <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">Loan Officer</h3>
                 </div>
-                <div class="mb-4">
-                    <SearchableSelect model-value="" :options="memberOptions" placeholder="Add guarantor..." @update:item-selected="emit('addGuarantor', $event)">
-                        <template #option="{ option }">
-                            <div class="flex flex-col py-0.5 text-xs">
-                                <span class="font-semibold text-neutral-900 dark:text-white">{{ option.name }}</span>
-                                <div class="flex items-center gap-1.5 text-[9px] text-neutral-500">
-                                    <span>{{ option.member_no }}</span>
-                                    <template v-if="option.savings_account">
-                                        <span class="text-neutral-300">·</span>
-                                        <span>{{ option.savings_account.account_no }}</span>
-                                        <span class="font-medium text-nfuko-primary dark:text-bg-nfuko-yellow">{{ formatAmount(option.savings_account.balance) }}</span>
-                                    </template>
-                                </div>
-                            </div>
-                        </template>
-                    </SearchableSelect>
-                </div>
-                <div v-if="form.guarantors?.length" class="space-y-2">
-                    <div v-for="g in form.guarantors" :key="g.member_id" class="flex items-center justify-between rounded-xl bg-neutral-50 px-3 py-2.5 dark:bg-neutral-800/50 group">
-                        <div class="min-w-0 flex-1">
-                            <p class="truncate text-xs font-semibold text-neutral-900 dark:text-white">{{ g.name }}</p>
-                            <div class="flex items-center gap-1.5 text-[9px] text-neutral-500 mt-0.5">
-                                <span>{{ g.member_no }}</span>
-                                <template v-if="g.savings_account">
-                                    <span class="text-neutral-300">·</span>
-                                    <span class="font-medium text-nfuko-primary dark:text-bg-nfuko-yellow">{{ formatAmount(g.savings_account.balance) }}</span>
-                                </template>
-                            </div>
-                        </div>
-                        <button type="button" class="ml-2 shrink-0 rounded-lg p-1 text-neutral-400 hover:bg-red-50 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all" @click="emit('removeGuarantor', g.member_id)">
-                            <Trash2 class="h-3.5 w-3.5" />
-                        </button>
-                    </div>
-                </div>
-                <div v-else class="flex flex-col items-center justify-center py-6 text-center border border-dashed border-neutral-100 rounded-xl dark:border-neutral-800">
-                    <Shield class="mb-2 h-5 w-5 text-neutral-200 dark:text-neutral-700" />
-                    <p class="text-[11px] text-neutral-400">No guarantors added yet.</p>
-                </div>
+                <SearchableSelect
+                    v-model="form.loan_officer_id"
+                    :options="staffOptions"
+                    placeholder="Select loan officer..."
+                    :error="fieldError('loan_officer_id') ?? undefined"
+                />
             </div>
         </div>
     </div>

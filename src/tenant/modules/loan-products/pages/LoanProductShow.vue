@@ -154,16 +154,8 @@ function processingFeeLabel() {
 
             <!-- Workflow & Fees -->
             <div class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                <h2 class="text-base font-semibold text-neutral-900 dark:text-white mb-5">Workflow, Fees and Guarantors</h2>
+                <h2 class="text-base font-semibold text-neutral-900 dark:text-white mb-5">Workflow and Fees</h2>
                 <div class="grid gap-4 sm:grid-cols-3">
-                    <div>
-                        <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">Minimum Guarantors</p>
-                        <p class="text-sm text-neutral-900 dark:text-white">{{ orDash(product.min_guarantors) }}</p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">Maximum Guarantors</p>
-                        <p class="text-sm text-neutral-900 dark:text-white">{{ orDash(product.max_guarantors) }}</p>
-                    </div>
                     <div>
                         <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">Processing Fee</p>
                         <p class="text-sm text-neutral-900 dark:text-white">{{ processingFeeLabel() }}</p>

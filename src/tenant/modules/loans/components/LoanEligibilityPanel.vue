@@ -9,13 +9,16 @@ const props = defineProps<{
     /** True when member + product + amount + term are all filled */
     ready: boolean
     error?: string | null
+    /** Product max_amount — shown as "Max eligible" when provided */
+    productMaxAmount?: number | null
 }>()
 
 const emit = defineEmits<{ (e: 'retry'): void }>()
 
 const formattedMax = computed(() => {
-    if (props.result?.max_eligible_amount == null) return null
-    return Number(props.result.max_eligible_amount).toLocaleString(undefined, {
+    const val = props.productMaxAmount ?? props.result?.max_eligible_amount
+    if (val == null) return null
+    return Number(val).toLocaleString(undefined, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     })

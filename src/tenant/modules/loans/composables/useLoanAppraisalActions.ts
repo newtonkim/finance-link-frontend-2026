@@ -132,39 +132,6 @@ export function useLoanAppraisalActions(
         }
     }
 
-    // ─── Request Guarantors modal ─────────────────────────────────────────────
-    const showRequestGuarantorsModal = ref(false)
-    const requestingGuarantors       = ref(false)
-    const requestGuarantorsNote      = ref('')
-    const requestGuarantorsError     = ref('')
-
-    function openRequestGuarantorsModal() {
-        requestGuarantorsNote.value  = ''
-        requestGuarantorsError.value = ''
-        showRequestGuarantorsModal.value = true
-    }
-
-    async function submitRequestGuarantors() {
-        requestGuarantorsError.value = ''
-        if (requestGuarantorsNote.value.trim().length < 10) {
-            requestGuarantorsError.value = 'Please provide a note of at least 10 characters.'
-            return
-        }
-        requestingGuarantors.value = true
-        try {
-            await loanApplicationsApi.requestGuarantors(id(), requestGuarantorsNote.value.trim())
-            toast.success('Application flagged as awaiting guarantors.')
-            showRequestGuarantorsModal.value = false
-            await reload()
-        } catch (err: any) {
-            requestGuarantorsError.value = err?.response?.data?.errors?.note?.[0]
-                ?? err?.response?.data?.message
-                ?? 'Failed to request guarantors.'
-        } finally {
-            requestingGuarantors.value = false
-        }
-    }
-
     // ─── Return for Correction modal ──────────────────────────────────────────
     const showReturnModal = ref(false)
     const returning       = ref(false)
@@ -299,9 +266,6 @@ export function useLoanAppraisalActions(
         // Request docs
         showRequestDocsModal, requestingDocs, requestDocsNote, requestDocsError,
         openRequestDocsModal, submitRequestDocs,
-        // Request guarantors
-        showRequestGuarantorsModal, requestingGuarantors, requestGuarantorsNote, requestGuarantorsError,
-        openRequestGuarantorsModal, submitRequestGuarantors,
         // Return for correction
         showReturnModal, returning, returnReason, returnError,
         openReturnModal, submitReturn,

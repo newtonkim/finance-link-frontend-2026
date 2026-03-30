@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {
-    XCircle, ClipboardCheck, FileSearch, Users, Undo2,
+    XCircle, ClipboardCheck, FileSearch, Undo2,
     XCircle as XCircleIcon, ThumbsUp, ThumbsDown,
 } from 'lucide-vue-next'
 import { useLoanApplicationHelpers } from '../composables/useLoanApplicationHelpers'
@@ -20,10 +20,6 @@ const props = defineProps<{
     showRequestDocsModal: boolean
     requestingDocs: boolean
     requestDocsError: string
-    // Request Guarantors
-    showRequestGuarantorsModal: boolean
-    requestingGuarantors: boolean
-    requestGuarantorsError: string
     // Return
     showReturnModal: boolean
     returning: boolean
@@ -48,8 +44,6 @@ const emit = defineEmits<{
     appraiseSubmit: []
     requestDocsClose: []
     requestDocsSubmit: []
-    requestGuarantorsClose: []
-    requestGuarantorsSubmit: []
     returnClose: []
     returnSubmit: []
     rejectClose: []
@@ -63,7 +57,6 @@ const emit = defineEmits<{
 // Two-way text field models
 const cancelReason         = defineModel<string>('cancelReason', { default: '' })
 const requestDocsNote      = defineModel<string>('requestDocsNote', { default: '' })
-const requestGuarantorsNote = defineModel<string>('requestGuarantorsNote', { default: '' })
 const returnReason         = defineModel<string>('returnReason', { default: '' })
 const rejectReason         = defineModel<string>('rejectReason', { default: '' })
 const approveComments      = defineModel<string>('approveComments', { default: '' })
@@ -206,38 +199,6 @@ const btnCancel = 'rounded-xl border border-neutral-200 px-4 py-2 text-sm font-m
                             <button :class="btnCancel" @click="emit('requestDocsClose')">Cancel</button>
                             <button :disabled="requestingDocs" class="flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-white hover:bg-amber-600 disabled:opacity-50" @click="emit('requestDocsSubmit')">
                                 <FileSearch class="h-4 w-4" />{{ requestingDocs ? 'Saving…' : 'Request Documents' }}
-                            </button>
-                        </div>
-                    </div>
-                </Transition>
-            </div>
-        </Transition>
-
-        <!-- ── Request Guarantors modal ── -->
-        <Transition enter-active-class="transition duration-150 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100"
-            leave-active-class="transition duration-100 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
-            <div v-if="showRequestGuarantorsModal" :class="modalBase" @mousedown.self="emit('requestGuarantorsClose')">
-                <Transition enter-active-class="transition duration-150 ease-out" enter-from-class="opacity-0 scale-95" enter-to-class="opacity-100 scale-100" appear>
-                    <div :class="[cardBase, 'max-w-md']">
-                        <div class="flex items-center gap-3 border-b border-neutral-100 px-6 py-4 dark:border-neutral-800">
-                            <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-900/30">
-                                <Users class="h-5 w-5 text-amber-600" />
-                            </div>
-                            <div>
-                                <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">Request Guarantors</h3>
-                                <p class="text-xs text-neutral-500">Specify what guarantors are required.</p>
-                            </div>
-                        </div>
-                        <div class="px-6 py-5">
-                            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300">Note <span class="text-red-400">*</span></label>
-                            <textarea v-model="requestGuarantorsNote" rows="4" placeholder="e.g. At least 2 guarantors are required, each guaranteeing a minimum of KES 50,000…"
-                                :class="[inputBase, requestGuarantorsError ? 'border-red-300' : '']" />
-                            <p v-if="requestGuarantorsError" class="mt-1 text-xs text-red-500">{{ requestGuarantorsError }}</p>
-                        </div>
-                        <div class="flex justify-end gap-3 border-t border-neutral-100 px-6 py-4 dark:border-neutral-800">
-                            <button :class="btnCancel" @click="emit('requestGuarantorsClose')">Cancel</button>
-                            <button :disabled="requestingGuarantors" class="flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-white hover:bg-amber-600 disabled:opacity-50" @click="emit('requestGuarantorsSubmit')">
-                                <Users class="h-4 w-4" />{{ requestingGuarantors ? 'Saving…' : 'Request Guarantors' }}
                             </button>
                         </div>
                     </div>

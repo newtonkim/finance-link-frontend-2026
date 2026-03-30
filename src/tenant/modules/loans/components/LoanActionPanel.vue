@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {
-    ClipboardCheck, FileSearch, Users, Undo2, XCircle as XCircleIcon,
+    ClipboardCheck, FileSearch, Undo2, XCircle as XCircleIcon,
     ThumbsUp, ThumbsDown, RefreshCw, Banknote,
 } from 'lucide-vue-next'
 import { useLoanApplicationHelpers } from '../composables/useLoanApplicationHelpers'
@@ -16,7 +16,6 @@ const emit = defineEmits<{
     takeForReview: []
     openAppraise: []
     openRequestDocs: []
-    openRequestGuarantors: []
     openReturn: []
     openReject: []
     openApprove: []
@@ -55,10 +54,6 @@ const { displayAmount } = useLoanApplicationHelpers()
                 @click="emit('openRequestDocs')">
                 <FileSearch class="h-4 w-4" /> Request Documents
             </button>
-            <button class="flex items-center gap-2 rounded-xl border border-amber-200 bg-white px-4 py-2 text-sm font-medium text-amber-700 transition-colors hover:bg-amber-50 dark:border-amber-800 dark:bg-transparent dark:text-amber-400 dark:hover:bg-amber-900/20"
-                @click="emit('openRequestGuarantors')">
-                <Users class="h-4 w-4" /> Request Guarantors
-            </button>
             <button class="flex items-center gap-2 rounded-xl border border-orange-200 bg-white px-4 py-2 text-sm font-medium text-orange-700 transition-colors hover:bg-orange-50 dark:border-orange-800 dark:bg-transparent dark:text-orange-400 dark:hover:bg-orange-900/20"
                 @click="emit('openReturn')">
                 <Undo2 class="h-4 w-4" /> Return for Correction
@@ -70,15 +65,12 @@ const { displayAmount } = useLoanApplicationHelpers()
         </div>
     </div>
 
-    <!-- Awaiting docs/guarantors: resume review -->
-    <div v-else-if="application.status === 'awaiting_documents' || application.status === 'awaiting_guarantors'"
+    <!-- Awaiting docs: resume review -->
+    <div v-else-if="application.status === 'awaiting_documents'"
         class="rounded-2xl border border-orange-100 bg-orange-50/50 p-5 dark:border-orange-900/40 dark:bg-orange-900/10">
-        <p class="mb-1 text-sm font-semibold text-orange-800 dark:text-orange-300">
-            {{ application.status === 'awaiting_documents' ? 'Awaiting Documents' : 'Awaiting Guarantors' }}
-        </p>
+        <p class="mb-1 text-sm font-semibold text-orange-800 dark:text-orange-300">Awaiting Documents</p>
         <p class="mb-4 text-xs text-orange-700 dark:text-orange-400">
-            Once the member has provided the required
-            {{ application.status === 'awaiting_documents' ? 'documents' : 'guarantors' }}, resume the review.
+            Once the member has provided the required documents, resume the review.
         </p>
         <button :disabled="resumingReview"
             class="flex items-center gap-2 rounded-xl bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 disabled:opacity-50"

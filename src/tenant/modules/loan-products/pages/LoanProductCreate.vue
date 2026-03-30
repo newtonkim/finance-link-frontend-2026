@@ -223,16 +223,6 @@ function previewMoney(formatted: string | null | undefined, raw: number | string
                     <h2 class="mb-5 text-base font-semibold text-neutral-900 dark:text-white">Workflow and Eligibility</h2>
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div>
-                            <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Minimum Guarantors</label>
-                            <input v-model="form.min_guarantors" type="number" min="0"
-                                class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
-                        </div>
-                        <div>
-                            <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Maximum Guarantors</label>
-                            <input v-model="form.max_guarantors" type="number" min="0"
-                                class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
-                        </div>
-                        <div>
                             <label class="mb-2 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Requires Approval</label>
                             <div class="flex gap-2">
                                 <button type="button" class="rounded-xl px-3 py-2 text-sm font-medium" :class="yesNoClass(!!form.requires_approval)" @click="form.requires_approval = true">Yes</button>
