@@ -55,7 +55,7 @@ async function fetchBranches() {
       },
       axiosInstance: interceptor,
       // mStore: { mUse: false },
-      // mStore: { mUse: true },
+      mStore: { mUse: true },
     }
     await Store.stateGenaratorApi(collection)
     if (!getLocalValues(keysToUse.activeBranch)) {
