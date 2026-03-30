@@ -1,7 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router'
-import SavingsAccounts from './pages/SavingsAccounts.vue'
-import SavingsTransfer from './pages/SavingsTransfer.vue'
-import SavingsGroups from './pages/SavingsGroups.vue'
+import SavingsAccounts from './pages/SavingsAccounts.vue' 
 
 // all this routes are for tenant should be deleted
 export const savingsRoutes: RouteRecordRaw[] = [
@@ -10,14 +8,5 @@ export const savingsRoutes: RouteRecordRaw[] = [
     name: 'tenant-savings-accounts',
     component: SavingsAccounts,
   },
-  // {
-  //   path: 'savings-transfer',
-  //   name: 'tenant-savings-transfer',
-  //   component: SavingsTransfer,
-  // },
-  {
-    path: 'savings-groups',
-    name: 'tenant-savings-groups',
-    component: SavingsGroups,
-  },
+ 
 ]

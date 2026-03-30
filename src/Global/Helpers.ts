@@ -225,9 +225,7 @@ export function localStoragePicker(key = '') {
     return []
   }
 }
-
 /////////
-
 export function addNumberCommas(number: any, delimeter = ',') {
   return `${number}`.toString().replace(/\B(?=(\d{3})+(?!\d))/g, delimeter)
 }
@@ -305,20 +303,16 @@ export function downloadPDF(url: string, filename: string) {
 }
 export function NameInitials(strings: string) {
   if (!strings || typeof strings !== 'string') return ''
-
   const parts = strings.trim().split(/\s+/) // handles multiple spaces
   if (parts.length === 0) return ''
-
   const firstInitial = parts[0]?.[0]?.toUpperCase() || ''
   const lastInitial = parts[parts.length - 1]?.[0]?.toUpperCase() || ''
-
   return firstInitial + lastInitial
 }
 
 export function scopeValues(data: any) {
   return tryCatch(() => {
     const values: any = {}
-
     data.forEach((vl: any) => {
       const value = vl?.value ?? null
 
@@ -536,7 +530,6 @@ export function createUrl(url: string, action: string) {
 export async function copyToClipboard(text: string) {
   try {
     await navigator.clipboard.writeText(text)
-    // console.log('Copied!')
     notify({ pos: 'br', type: 'Info', msg: 'Copied!' })
   } catch (err) {
     notify({ pos: 'br', type: 'warning', message: 'failed to copy' })

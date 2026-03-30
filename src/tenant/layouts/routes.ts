@@ -59,14 +59,7 @@ export const tenantRoutes: MenuRoutes[] = [
     ],
   },
 
-  // {
-  //   path: 'members-account',
-  //   label: 'Members Account',
-  //   permissions: 'members-account-module-link-view',
-  //   icon: Wallet,
-  //   showSideBar: true,
-  //   component: () => import('@/tenant/modules/savings/pages/SavingsAccounts.vue'),
-  // },
+ 
   {
     path: 'group-savings',
     label: 'Group Savings',
@@ -74,7 +67,6 @@ export const tenantRoutes: MenuRoutes[] = [
     icon: Users,
     showSideBar: true,
     component: () => import('@/tenant/modules/savings/group-account/Index.vue'),
-    // component: () => import('@/tenant/modules/savings/pages/SavingsGroups.vue'),
   },
   ///////////
   {
@@ -86,14 +78,7 @@ export const tenantRoutes: MenuRoutes[] = [
     component: () => import('@/tenant/modules/savings/savings-transfer/Index.vue'),
     // component: () => import('@/tenant/modules/savings/pages/SavingsTransfer.vue'),
   },
-  {
-    path: 'transfer',
-    label: 'transfer',
-    icon: ArrowUpDown,
-    showSideBar: true,
-    permissions: 'transfer-module-link-view',
-    component: () => import('@/tenant/modules/savings/pages/SavingsGroups.vue'),
-  },
+  
   {
     path: 'chart-of-accounts',
     label: 'chart of accounts',
