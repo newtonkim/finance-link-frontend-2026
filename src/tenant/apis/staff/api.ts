@@ -30,5 +30,5 @@ export const staffApi = {
   },
   getReferredMembers(id: number) {
     return tenantClient.get(`/staff/${id}/referred-members`)
-  }
+  },
 }

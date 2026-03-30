@@ -445,7 +445,11 @@ export function getTenantSubdomain(): string | null {
 }
 
 export function getSubdomainName() {
-  const subdomain = getTenantSubdomain() ?? localStorage.getItem('tenant_subdomain')
+  const subdomain =
+    getTenantSubdomain() ??
+    localStorage.getItem('tenant_subdomain') ??
+    (import.meta.env.VITE_TENANT_SUBDOMAIN as string | undefined) ??
+    null
   return subdomain
 }
 
