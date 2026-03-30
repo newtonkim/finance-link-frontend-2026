@@ -1,5 +1,6 @@
 <template>
-    <TableDrawer drawerWidth=" w-2/3" :url="tableUrl" state="memberList" :drawerTitle="drawerTitle" " :columns="columns" @save="saveUser">
+    <TableDrawer drawerWidth=" w-2/3" :url="tableUrl" state="memberList" :drawerTitle="drawerTitle" " :columns="
+        columns" @save="saveUser">
         <template #header-action>
             <div>
                 <h1 class="text-4xl font-black text-[#0A2318] dark:text-white tracking-tight">
@@ -7,11 +8,12 @@
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 ">Manage all members.</p>
             </div>
         </template>
-        <template #salutation_name="{item}">
+        <template #salutation_name="{ item }">
             <span>
-                <link :to="`/members/${item?.id}`" class="flex items-center gap-2 text-nfuko-primary dark:text-bg-nfuko-yellow">
-                    <span>{{ item?.salutation_name }}</span>-
-                </link>
+                <router-link :to="`/members/${item?.id}`"
+                    class="flex items-center gap-2 font-semibold text-nfuko-action text-sm dark:text-white">
+                    <span>{{ item?.salutation_name }}</span>
+                </router-link>
             </span>
         </template>
         <template #searchSideAction>

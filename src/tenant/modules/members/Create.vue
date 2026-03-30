@@ -136,10 +136,10 @@ const fields = ref([
     placeholder: 'Enter Address',
   },
   {
-    label: 'prifile picture',
+    label: 'profile picture',
     name: 'profile_picture',
-    type: 'prifile',
-    required: true,
+    type: 'profile',
+    required: false,
     placeholder: 'Enter prifile picture',
   },
   {
@@ -174,7 +174,7 @@ const fields = ref([
     label: 'referred by',
     name: 'referred_by',
     type: 'select',
-    required: true,
+    required: false,
     url: 'staff/users-drop-down',
     placeholder: 'Referred by',
     dataOnMount: true,
@@ -215,11 +215,13 @@ const loadingMount = computed(() => loading.value)
 function checkForSettings() {
   const checkForVaailableSetting = getSystemSetting()
   settingList.value = {
-    "hide-initial-deposit-field": (checkForVaailableSetting?.['hide-initial-deposit-field'] ?? 0),
+    "hide-initial-deposit-field": (checkForVaailableSetting?.['sacco-members-hide-initial-deposit-field'] ?? 0),
     "sacco-members-free-input-code": (checkForVaailableSetting?.['sacco-members-free-input-code'] ?? 0),
     "sacco-share-price-value": parseFloat(checkForVaailableSetting?.['sacco-share-price-value'] ?? 0),
     "sacco-share-on-member-creation-create-share-minimum-value": parseFloat(checkForVaailableSetting?.['sacco-share-on-member-creation-create-share-minimum-value'] ?? 0)
   }
+  console.log( settingList.value);
+  
 }
 
 watch(
@@ -228,7 +230,8 @@ watch(
     const codeIndex = val.findIndex(f => f.name === 'code');
     const fullNameIndex = val.findIndex(f => f.name === 'full_name');
 
-    if (settingList.value?.['hide-initial-deposit-field']) {
+    if ((settingList.value?.['hide-initial-deposit-field']||settingList.value?.['sacco-members-hide-initial-deposit-field'])) { 
+
       const initalDepositIndex = val.findIndex(f => f.name === 'inital_deposit')
       const referredByIndex = val.findIndex(f => f.name === 'referred_by')
       if (initalDepositIndex === -1 && referredByIndex !== 1) {
@@ -270,7 +273,7 @@ onMounted(() => {
 })
 </script>
 <template>
-  <div class="card shadow-md p-4 py-10 bg-white dark:bg-neutral-800 rounded-md">
+  <div class="card shadow-md p-4 py-10 bg-white dark:bg-neutral-800 rounded-md h-[86vh] overflow-y-auto">
     <span v-if='loadingMount'></span>
     <Form :action="data?.action" v-else parentStyle="grid  grid-cols-2 gap-4 md:gap-6" v-model:form="fields" />
     <div v-setting='"sacco-share-on-member-creation-create-share-account-at-the-same-time"'

@@ -152,8 +152,11 @@ async function intializetheData() {
       url: state
     }, Store
   });
-  if (res.payload)
+  if (res.payload){
+    console.log(res.payload);
+    
     storeSettings(Object.values(res.payload))
+  }
 }
 onMounted(() => {
   nextTick(() => {
