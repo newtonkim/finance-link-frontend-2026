@@ -437,6 +437,8 @@ export function getTenantSubdomain(): string | null {
   const hostname = window.location.hostname
   if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) return null
   const parts = hostname.split('.')
+  console.log(parts);
+  
   const subdomain = parts.length >= 2 ? parts[0] : null
   if (!subdomain || ['admin', 'www', 'localhost'].includes(subdomain)) return null
   return subdomain
