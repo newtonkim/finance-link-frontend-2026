@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive, computed, watch } from 'vue';
-import { Form, getSystemSetting, pickAsettingKeyValue } from '@/Global';
+import { Form, getSystemSetting } from '@/Global';
 import { AlertCircle, TrendingUp } from 'lucide-vue-next';
 const emits = defineEmits(['update:form']);
 const OptionList = reactive({
@@ -162,6 +162,10 @@ const fields = ref([
     type: 'money',
     required: true,
     placeholder: 'Enter opening balance',
+   dependsOn: {
+            field: 'inital_deposit',
+            value: (val: any) => parseFloat(val) > 0,
+        },
   },
   {
     label: 'joined date',
@@ -230,8 +234,7 @@ watch(
     const codeIndex = val.findIndex(f => f.name === 'code');
     const fullNameIndex = val.findIndex(f => f.name === 'full_name');
 
-    if ((settingList.value?.['hide-initial-deposit-field']||settingList.value?.['sacco-members-hide-initial-deposit-field'])) { 
-
+    if ((settingList.value?.['hide-initial-deposit-field'])) { 
       const initalDepositIndex = val.findIndex(f => f.name === 'inital_deposit')
       const referredByIndex = val.findIndex(f => f.name === 'referred_by')
       if (initalDepositIndex === -1 && referredByIndex !== 1) {
