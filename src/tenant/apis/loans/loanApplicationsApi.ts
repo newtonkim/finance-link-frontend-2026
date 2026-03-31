@@ -19,6 +19,16 @@ export interface LoanApplicationApproval {
   created_at: string
 }
 
+export interface CommitteeVote {
+  id: number
+  staff_id: number
+  staff_name: string
+  decision: 'approve' | 'decline'
+  comment: string | null
+  abstained: boolean
+  created_at: string
+}
+
 export interface TimelineEvent {
   type: 'created' | 'status_change' | 'document_uploaded' | 'approval_vote'
   title: string
@@ -110,6 +120,12 @@ export interface LoanApplication {
   days_pending?: number | null
   currency_code?: string | null
   approvals_count?: number
+  // Committee voting fields
+  quorum_required?: number | null
+  approval_threshold?: number | null
+  unanimity_required?: boolean | null
+  correction_reason?: string | null
+  committeeVotes?: CommitteeVote[]
 }
 
 export interface EligibilityCheckItem {
@@ -243,6 +259,33 @@ export const loanApplicationsApi = {
     mobile_money_number?: string | null
   }) {
     return tenantClient.post(`/loan-applications/${id}/disburse`, data)
+  },
+
+  // ─── Committee Voting ───────────────────────────────────────────────────────
+  bmRecommend(id: number, bmNotes?: string | null) {
+    return tenantClient.post(`/loan-applications/${id}/bm-recommend`, { bm_notes: bmNotes })
+  },
+  committeeReturnForCorrection(id: number, correctionReason: string) {
+    return tenantClient.post(`/loan-applications/${id}/committee/return-for-correction`, { correction_reason: correctionReason })
+  },
+  castVote(id: number, data: { decision: 'approve' | 'decline'; comment?: string | null }) {
+    return tenantClient.post(`/loan-applications/${id}/votes`, data)
+  },
+  getVotes(id: number) {
+    return tenantClient.get(`/loan-applications/${id}/votes`)
+  },
+  markAbstention(id: number, staffId: number, reason: string) {
+    return tenantClient.patch(`/loan-applications/${id}/votes/${staffId}/abstain`, { reason })
+  },
+  confirmTerms(id: number, data: {
+    final_approved_amount: number | string
+    final_approved_term: number
+    proposed_start_date: string
+  }) {
+    return tenantClient.patch(`/loan-applications/${id}/confirm-terms`, data)
+  },
+  getProposedSchedule(id: number, params?: { amount?: number | string; term?: number; start_date?: string }) {
+    return tenantClient.get(`/loan-applications/${id}/proposed-schedule`, { params })
   },
 
   // ─── Documents ──────────────────────────────────────────────────────────────
