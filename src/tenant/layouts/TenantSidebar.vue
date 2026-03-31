@@ -23,6 +23,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  SidebarSeparator,
+  SidebarTrigger,
   useSidebar,
 
 } from '@/Global'
@@ -56,8 +58,9 @@ const tenant = tenantStore.currentTenant as any
 <template>
   <Sidebar collapsible="icon" variant="inset" class="bg-[#0A2318] text-white border-r-0">
     <!-- Header: SACCO brand -->
-    <SidebarHeader class="p-4">
-      <div class="flex items-center gap-3">
+    <SidebarHeader class="px-4 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
         <!-- Logo: show uploaded logo or fallback icon -->
         <div
           class="flex shrink-0 items-center justify-center rounded-2xl bg-nfuko-yellow text-[#0A2318] shadow-xl transition-all duration-500"
@@ -84,6 +87,13 @@ const tenant = tenantStore.currentTenant as any
           </span>
         </div>
       </div>
+      <SidebarTrigger v-if="state === 'expanded'" class="text-nfuko-nav-text hover:bg-white/10 hover:text-white transition-colors" />
+    </div>
+
+      <!-- Trigger for collapsed state -->
+      <div v-if="state === 'collapsed'" class="flex justify-center w-full mt-2">
+        <SidebarTrigger class="text-nfuko-nav-text hover:bg-white/10 hover:text-white transition-colors" />
+      </div>
 
       <!-- Contact info when expanded -->
       <div v-if="state === 'expanded' && (tenant?.settings?.address || tenant?.settings?.email)"
@@ -103,16 +113,18 @@ const tenant = tenantStore.currentTenant as any
      <div class='flex   flex-col h-full py-2 px-3'>
     <SidebarContent class="flex-1 h-full flex flex-col h-full   overflow-y-auto min-h-0 gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden px-3 flex flex-col flex-1">
       <SidebarGroup >
-        <SidebarGroupLabel class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
+        <SidebarGroupLabel v-if="state === 'expanded'" class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
           Navigation
         </SidebarGroupLabel>
+        <SidebarSeparator v-else class="bg-white/5 mx-2 my-2" />
         <OutClickNav class="flex-1 h-full" :links="tenantRoutes" />
       </SidebarGroup>
       <!-- LOAN SECTION -->
       <SidebarGroup class="mt-2">
-        <SidebarGroupLabel class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
+        <SidebarGroupLabel v-if="state === 'expanded'" class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
           Loan Section
         </SidebarGroupLabel>
+        <SidebarSeparator v-else class="bg-white/5 mx-2 my-2" />
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton :tooltip="'Loan Applications'" @click="router.push('/tenant/loan-applications')"
@@ -148,9 +160,10 @@ const tenant = tenantStore.currentTenant as any
       </SidebarGroup>
       <!-- DATA MIGRATION -->
       <SidebarGroup class="mt-2">
-        <SidebarGroupLabel class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
+        <SidebarGroupLabel v-if="state === 'expanded'" class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
           Data Migration
         </SidebarGroupLabel>
+        <SidebarSeparator v-else class="bg-white/5 mx-2 my-2" />
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton :tooltip="'Migration Hub'" @click="router.push('/tenant/migration')"
@@ -171,9 +184,10 @@ const tenant = tenantStore.currentTenant as any
       </SidebarGroup>
       <!-- CONFIGURATION -->
       <SidebarGroup class="mt-2">
-        <SidebarGroupLabel class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
+        <SidebarGroupLabel v-if="state === 'expanded'" class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
           Configuration
         </SidebarGroupLabel>
+        <SidebarSeparator v-else class="bg-white/5 mx-2 my-2" />
         <SidebarMenu v-auth='"settings-module-link-view"'>
           <SidebarMenuItem>
             <SidebarMenuButton :tooltip="'Settings'" @click="router.push('/tenant/settings')" :class="[
@@ -198,9 +212,10 @@ const tenant = tenantStore.currentTenant as any
     </SidebarContent>
      </div>
 
-    <SidebarFooter class="shrink-0 flex-1 p-4 space-y-3">
+    <SidebarFooter class="shrink-0 p-4 space-y-3">
       <!-- Dark mode toggle — hide label when sidebar is collapsed -->
-      <div class="flex items-center justify-between px-2 bg-white/5 rounded-xl p-3 border border-white/5">
+      <div class="flex items-center justify-between px-2 bg-white/5 rounded-xl p-2.5 border border-white/5 transition-all duration-300"
+        :class="state === 'collapsed' ? 'flex-col gap-3 py-4' : 'px-2 py-3'">
         <div class="flex items-center gap-2.5">
           <Moon v-if="isDark" :size="16" class="text-bg-nfuko-yellow shrink-0" />
           <Sun v-else :size="16" class="text-bg-nfuko-yellow shrink-0" />
@@ -213,9 +228,9 @@ const tenant = tenantStore.currentTenant as any
             :class="isDark ? 'translate-x-5' : 'translate-x-0.5'" />
         </button>
         <!-- Collapsed: icon-only toggle -->
-        <button v-else @click="toggleDarkMode" class="ml-1 rounded-lg p-1 hover:bg-white/10 transition-colors">
+        <button v-else @click="toggleDarkMode" class="rounded-lg p-1 hover:bg-white/10 transition-colors">
           <Moon v-if="!isDark" :size="14" class="text-nfuko-nav-text" />
-          <Sun v-else :size="14" class="text-bg-nfuko-yellow" /> you heard
+          <Sun v-else :size="14" class="text-bg-nfuko-yellow" />
         </button>
       </div>
       <!--<TenantNavUser />-->
