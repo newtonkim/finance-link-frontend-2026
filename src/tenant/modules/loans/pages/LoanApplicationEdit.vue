@@ -5,7 +5,6 @@ import { useRouter } from 'vue-router'
 import { useLoanApplicationEdit } from '../composables/useLoanApplicationEdit'
 import { useLoanApplicationHelpers } from '../composables/useLoanApplicationHelpers'
 import LoanEligibilityPanel from '../components/LoanEligibilityPanel.vue'
-import LoanGuarantorManager from '../components/LoanGuarantorManager.vue'
 import LoanDocumentUploader from '../components/LoanDocumentUploader.vue'
 import LoanFormStepIndicator from '../components/LoanFormStepIndicator.vue'
 import LoanFormRepaymentPreview from '../components/LoanFormRepaymentPreview.vue'
@@ -24,9 +23,7 @@ const {
 
 // ─── Eligibility / guards ─────────────────────────────────────────────────────
 const eligibilityReady   = computed(() => !!(form.value.member_id && form.value.loan_product_id && form.value.requested_amount && form.value.requested_term))
-const guarantorsAdequate = ref(true)
-const minGuarantors      = computed(() => (selectedProduct.value as any)?.min_guarantors ?? 0)
-const canSubmit          = computed(() => (eligibilityResult.value?.failed?.length ?? 0) === 0 && (minGuarantors.value === 0 || guarantorsAdequate.value))
+const canSubmit          = computed(() => (eligibilityResult.value?.failed?.length ?? 0) === 0)
 
 // ─── Member dropdown ──────────────────────────────────────────────────────────
 type MemberOption = { id: number; name: string; member_no: string; savings_account: { account_no: string; balance: number } | null }
@@ -235,7 +232,6 @@ function removeCollateralItem(i: number) { collateralItems.value.splice(i, 1) }
 
                 <!-- Step 3 -->
                 <div v-show="currentStep === 3" class="flex flex-col gap-6">
-                    <LoanGuarantorManager v-if="form.id" :application-id="form.id" :min-guarantors="minGuarantors" :applicant-member-id="form.member_id" :editable="true" @adequacy-change="(v) => { guarantorsAdequate = v }" />
                     <LoanDocumentUploader v-if="form.id" :application-id="form.id" :editable="true" />
                     <LoanEligibilityPanel :result="eligibilityResult" :loading="eligibilityLoading" :ready="eligibilityReady" @retry="triggerEligibilityCheck" />
                     <div class="flex items-center justify-between">

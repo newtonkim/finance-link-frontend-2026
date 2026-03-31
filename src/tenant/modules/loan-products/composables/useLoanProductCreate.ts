@@ -18,8 +18,6 @@ function createDefaultForm(): LoanProduct {
         loan_duration: null,
         duration_type: 'months',
         repayment_cycle: 'monthly',
-        min_guarantors: 0,
-        max_guarantors: 0,
         required_documents: [],
         grace_period: 0,
         savings_appraisal_threshold: 0,
