@@ -11,7 +11,6 @@ import { useRouter } from 'vue-router'
 import { useLoanApplicationShow } from '../composables/useLoanApplicationShow'
 import { useLoanAppraisalActions } from '../composables/useLoanAppraisalActions'
 import { useLoanDisbursement } from '../composables/useLoanDisbursement'
-import LoanGuarantorManager from '../components/LoanGuarantorManager.vue'
 import LoanDocumentUploader from '../components/LoanDocumentUploader.vue'
 import LoanDisbursementDrawer from '../components/LoanDisbursementDrawer.vue'
 
@@ -33,8 +32,6 @@ const {
     openAppraiseModal, submitAppraise,
     showRequestDocsModal, requestingDocs, requestDocsNote, requestDocsError,
     openRequestDocsModal, submitRequestDocs,
-    showRequestGuarantorsModal, requestingGuarantors, requestGuarantorsNote, requestGuarantorsError,
-    openRequestGuarantorsModal, submitRequestGuarantors,
     showReturnModal, returning, returnReason, returnError,
     openReturnModal, submitReturn,
     showRejectModal, rejecting, rejectReason, rejectError,
@@ -61,7 +58,7 @@ function statusBadgeClass(status: string | undefined) {
         case 'submitted':           return 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
         case 'under_review':        return 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
         case 'awaiting_documents':  return 'bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-        case 'awaiting_guarantors': return 'bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+
         case 'recommended':         return 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
         case 'approved':            return 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400'
         case 'disbursement_pending':return 'bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400'
@@ -114,16 +111,15 @@ function timelineIconClass(type: string) {
         case 'created':           return 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800'
         case 'status_change':     return 'bg-blue-50 text-blue-600 dark:bg-blue-900/40'
         case 'document_uploaded': return 'bg-amber-50 text-amber-600 dark:bg-amber-900/40'
-        case 'guarantor_added':   return 'bg-purple-50 text-purple-600 dark:bg-purple-900/40'
+
         case 'approval_vote':     return 'bg-green-50 text-green-600 dark:bg-green-900/40'
         default:                  return 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800'
     }
 }
 
 const editableStatuses          = ['draft']
-const cancellableStatuses       = ['draft', 'submitted', 'under_review', 'awaiting_documents', 'awaiting_guarantors']
+const cancellableStatuses       = ['draft', 'submitted', 'under_review', 'awaiting_documents']
 const reopenableStatuses        = ['cancelled']
-const guarantorEditableStatuses = ['draft', 'awaiting_guarantors']
 const documentEditableStatuses  = ['draft', 'awaiting_documents']
 
 // ─── Workflow pipeline (Gap 4) ────────────────────────────────────────────────
@@ -138,7 +134,7 @@ const workflowSteps = [
 
 const statusOrder: Record<string, number> = {
     draft: 0, submitted: 1,
-    under_review: 2, awaiting_documents: 2, awaiting_guarantors: 2,
+    under_review: 2, awaiting_documents: 2,
     recommended: 3,
     approved: 4, disbursement_pending: 4,
     disbursed: 5,
@@ -159,7 +155,7 @@ function pipelineStepStatus(stepKey: string): 'completed' | 'current' | 'pending
 const pipelineSubLabel = computed(() => {
     switch (application.value?.status) {
         case 'awaiting_documents':   return 'Awaiting Docs'
-        case 'awaiting_guarantors':  return 'Awaiting Guarantors'
+
         case 'disbursement_pending': return 'Pending Disbursement'
         default: return null
     }
@@ -328,12 +324,6 @@ const showAllSchedule = ref(false)
                             Request Documents
                         </button>
                         <button
-                            class="flex items-center gap-2 rounded-xl border border-amber-200 bg-white px-4 py-2 text-sm font-medium text-amber-700 hover:bg-amber-50 transition-colors dark:border-amber-800 dark:bg-transparent dark:text-amber-400 dark:hover:bg-amber-900/20"
-                            @click="openRequestGuarantorsModal">
-                            <Users class="h-4 w-4" />
-                            Request Guarantors
-                        </button>
-                        <button
                             class="flex items-center gap-2 rounded-xl border border-orange-200 bg-white px-4 py-2 text-sm font-medium text-orange-700 hover:bg-orange-50 transition-colors dark:border-orange-800 dark:bg-transparent dark:text-orange-400 dark:hover:bg-orange-900/20"
                             @click="openReturnModal">
                             <Undo2 class="h-4 w-4" />
@@ -348,16 +338,12 @@ const showAllSchedule = ref(false)
                     </div>
                 </div>
 
-                <!-- Awaiting documents/guarantors: resume review once provided -->
-                <div v-else-if="application.status === 'awaiting_documents' || application.status === 'awaiting_guarantors'"
+                <!-- Awaiting documents: resume review once provided -->
+                <div v-else-if="application.status === 'awaiting_documents'"
                     class="rounded-2xl border border-orange-100 bg-orange-50/50 p-5 dark:border-orange-900/40 dark:bg-orange-900/10">
-                    <p class="mb-1 text-sm font-semibold text-orange-800 dark:text-orange-300">
-                        {{ application.status === 'awaiting_documents' ? 'Awaiting Documents' : 'Awaiting Guarantors' }}
-                    </p>
+                    <p class="mb-1 text-sm font-semibold text-orange-800 dark:text-orange-300">Awaiting Documents</p>
                     <p class="mb-4 text-xs text-orange-700 dark:text-orange-400">
-                        Once the member has provided the required
-                        {{ application.status === 'awaiting_documents' ? 'documents' : 'guarantors' }},
-                        resume the review.
+                        Once the member has provided the required documents, resume the review.
                     </p>
                     <button
                         :disabled="resumingReview"
@@ -662,15 +648,6 @@ const showAllSchedule = ref(false)
             <!-- ─── Right column ─────────────────────────────────────────────── -->
             <div class="flex flex-col gap-6">
 
-                <!-- Guarantors -->
-                <LoanGuarantorManager
-                    v-if="application.id"
-                    :application-id="application.id"
-                    :min-guarantors="(application.loan_product as any)?.min_guarantors ?? 0"
-                    :applicant-member-id="application.member_id"
-                    :editable="guarantorEditableStatuses.includes(application.status ?? '')"
-                />
-
                 <!-- Documents -->
                 <LoanDocumentUploader
                     v-if="application.id"
@@ -743,8 +720,7 @@ const showAllSchedule = ref(false)
                                 <CircleDot v-if="event.type === 'created'" class="h-2.5 w-2.5" />
                                 <Clock       v-else-if="event.type === 'status_change'"     class="h-2.5 w-2.5" />
                                 <FileText    v-else-if="event.type === 'document_uploaded'" class="h-2.5 w-2.5" />
-                                <UserCheck   v-else-if="event.type === 'guarantor_added'"   class="h-2.5 w-2.5" />
-                                <ThumbsUp    v-else-if="event.type === 'approval_vote'"     class="h-2.5 w-2.5" />
+                                                <ThumbsUp    v-else-if="event.type === 'approval_vote'"     class="h-2.5 w-2.5" />
                             </div>
                             <p class="text-xs text-neutral-400 dark:text-neutral-500">{{ formatDateTime(event.timestamp) }}</p>
                             <p class="mt-0.5 text-sm font-medium text-neutral-900 dark:text-white">{{ event.title }}</p>
@@ -899,41 +875,6 @@ const showAllSchedule = ref(false)
                             <button class="rounded-xl border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800" @click="showRequestDocsModal = false">Cancel</button>
                             <button :disabled="requestingDocs" class="flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-white hover:bg-amber-600 disabled:opacity-50" @click="submitRequestDocs">
                                 <FileSearch class="h-4 w-4" />{{ requestingDocs ? 'Saving…' : 'Request Documents' }}
-                            </button>
-                        </div>
-                    </div>
-                </Transition>
-            </div>
-        </Transition>
-
-        <!-- ── Request Guarantors modal ── -->
-        <Transition enter-active-class="transition duration-150 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100"
-            leave-active-class="transition duration-100 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
-            <div v-if="showRequestGuarantorsModal"
-                class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
-                @mousedown.self="showRequestGuarantorsModal = false">
-                <Transition enter-active-class="transition duration-150 ease-out" enter-from-class="opacity-0 scale-95" enter-to-class="opacity-100 scale-100" appear>
-                    <div class="w-full max-w-md rounded-2xl border border-neutral-200 bg-white shadow-xl dark:border-neutral-700 dark:bg-neutral-900">
-                        <div class="flex items-center gap-3 border-b border-neutral-100 px-6 py-4 dark:border-neutral-800">
-                            <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-900/30">
-                                <Users class="h-5 w-5 text-amber-600" />
-                            </div>
-                            <div>
-                                <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">Request Guarantors</h3>
-                                <p class="text-xs text-neutral-500">Specify what guarantors are required.</p>
-                            </div>
-                        </div>
-                        <div class="px-6 py-5">
-                            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300">Note <span class="text-red-400">*</span></label>
-                            <textarea v-model="requestGuarantorsNote" rows="4" placeholder="e.g. At least 2 guarantors are required, each guaranteeing a minimum of KES 50,000…"
-                                class="mt-2 w-full rounded-xl border border-neutral-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
-                                :class="requestGuarantorsError ? 'border-red-300' : ''" />
-                            <p v-if="requestGuarantorsError" class="mt-1 text-xs text-red-500">{{ requestGuarantorsError }}</p>
-                        </div>
-                        <div class="flex justify-end gap-3 border-t border-neutral-100 px-6 py-4 dark:border-neutral-800">
-                            <button class="rounded-xl border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800" @click="showRequestGuarantorsModal = false">Cancel</button>
-                            <button :disabled="requestingGuarantors" class="flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-white hover:bg-amber-600 disabled:opacity-50" @click="submitRequestGuarantors">
-                                <Users class="h-4 w-4" />{{ requestingGuarantors ? 'Saving…' : 'Request Guarantors' }}
                             </button>
                         </div>
                     </div>
