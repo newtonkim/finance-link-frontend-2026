@@ -21,7 +21,7 @@
                     </span>
                 </div>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 px-4 py-3 max-h-[58vh] overflow-y-auto custom-scrollbar">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-4 py-3 max-h-[58vh] overflow-y-auto custom-scrollbar">
                 <label v-for="(label, key) in filteredData" :key="key"
                     class="flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer border border-transparent hover:border-nfuko-primary-300 hover:bg-nfuko-primary-50 dark:hover:bg-neutral-800 transition group">
                     <input type="checkbox" :value="key" v-model="selected"
