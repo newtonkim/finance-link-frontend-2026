@@ -8,8 +8,10 @@
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
         <template #drawer="{ action, data }">
-            <Create v-if="['add', 'edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
+        
             <Details v-if="['view'].includes(action)" :data="data" />
+            <Create v-else :data="{ ...data, action }" v-model:form="formData" />
+            <!-- <Create v-if="['add', 'edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" /> -->
         </template>
     </TableDrawer>
 </template>
@@ -26,7 +28,10 @@ const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
         "add": { title: "Create a peer to peer transfer", width: "w-3/4" },
     }
 function saveUser(type: string, data: any) {
-    if (title?.[type]) drawerTitle.value = title?.[type]
+    if (title?.[type])
+     drawerTitle.value = title?.[type]
+    console.log(type);
+    
 }
 const columns = [
     { key: 'code', label: 'transfer code', sticky: 'left', width: '14em', copy: true },

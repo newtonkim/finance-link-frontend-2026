@@ -71,7 +71,7 @@ export function memberAccountApi() {
         time: 0,
         state: 'memberAccountList',
       },
-    });
+    })
     feedback(getCharges, 'withdrawal amount  successfully')
 
     return true
