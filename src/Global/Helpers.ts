@@ -11,6 +11,7 @@ export const keysToUse = {
   loggedInAsStudentOrStaff: 'loggedInAsStudentOrStaff',
   IpEverLoged: 'IpEverLoged',
   activeBranch: 'activeBranch',
+  memberProfile: 'memberProfile',
   SystemBranding: 'SystemBranding' + getSubdomainName(),
 }
 export function dateTime(time: string) {
@@ -108,6 +109,7 @@ export function logoutUser(navigate: any) {
   try {
     removeKey('userPermissions')
     removeKey('loginUserData')
+    removeKey('memberProfile')
     navigate('/login')
   } catch (error) {
     console.error('Error during logout:', error)

@@ -304,7 +304,7 @@ async function saveDrawerData(data: any) {
 
     } else {
         const checker = await automaticCreateFun('create')
-        console.log(checker,'====2');
+        console.log(checker, '====2');
 
         if (checker) {
             // if (!checker) {
@@ -320,7 +320,7 @@ async function saveDrawerData(data: any) {
             submitChanges.value = false
         }, 2000)
         if (props.drawerRemount) {
-            alert("drawerRemount")
+            // alert("drawerRemount")
             toggleDrawer()
             setTimeout(() => {
                 toggleDrawer()
@@ -411,19 +411,23 @@ onMounted(async () => {
 
     callOnmount()
 
+
 });
 
 watch(() => props?.url, () => {
     callOnmount()
 })
 watch(() => drawerOpen.value, (v) => {
-if(!v){
-    //reset the drawer data when the drawer is closed
-    provideDataTotheParent.value = null
-    buttonTypeClicked.value = null
-    drawerWidth.value = null
+    drawerTitle.value = (props.drawerTitle);
+    drawerShooter2.value = (props.drawerShowFooter)
+    drawerWidth.value = (props.drawerWidth)
+    if (!v) {
+        //reset the drawer data when the drawer is closed
+        provideDataTotheParent.value = null
+        buttonTypeClicked.value = null
+        drawerWidth.value = null
 
-}
+    }
 })
 function callOnmount() {
     if (props?.state && props?.url)

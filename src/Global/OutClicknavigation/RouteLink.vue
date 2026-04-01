@@ -4,7 +4,7 @@
         <template v-for="subItem in item" :key="subItem.path">
 
             <div v-auth="subItem.permissions" @click="() => handleClick(subItem)">
-                <RouterLink :to="getRoutePath(subItem)" v-slot="{ isActive }" v-auth="subItem?.permissions">
+                <RouterLink v-if="(subItem?.showSideBar==false)?false:true" :to="getRoutePath(subItem)" v-slot="{ isActive }" v-auth="subItem?.permissions">
                     <div :class="[
                         'flex capitalize p-2 capitalize flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200  transition-all duration-200  text-black/70  hover:text-neutral-800 hover:font-bold  rounded-md hover:font-semibold hover:text-neutral-500    hover:border-b-0',
                         isCurrentUrl(getRoutePath(subItem))

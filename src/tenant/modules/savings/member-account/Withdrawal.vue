@@ -34,11 +34,11 @@ const emits = defineEmits(['update:form']),
 function initialize() {
     fields.value = [
         {
-            label: 'deposit amount',
-            name: 'deposit',
+            label: 'withdraw amount',
+            name: 'amount',
             type: 'money',
             required: true,
-            placeholder: 'select a ',
+            placeholder: 'Amount to withdraw',
             disabled: true,
         },
     ]

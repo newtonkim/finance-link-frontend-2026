@@ -1,5 +1,6 @@
 
 export const status = {
+  pending: { label: "Pending", className: " text-xs font-bold px-2 py-1 rounded-full   bg-yellow-100 text-yellow-700" },
   active: { label: "Active", className: " text-xs font-bold px-2 py-1 rounded-full   bg-green-100 text-green-700" },
   expired: { label: "expired", className: " text-xs font-bold px-2 py-1 rounded-full bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400" },
   "trial": { label: "transit", className: " text-xs font-bold px-2 py-1 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400" },
@@ -84,22 +85,22 @@ const marriageStatus = {
   single: {
     label: "Single",
     className:
-      "inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-teal-100 text-teal-700 border border-teal-200"
+      "inline-flex items-center px-3 py-0 text-sm font-medium rounded-full bg-teal-100 text-teal-700 border border-teal-200"
   },
   married: {
     label: "Married",
     className:
-      "inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-indigo-100 text-indigo-700/60 border border-indigo-200"
+      "inline-flex items-center px-3 py-0 text-sm font-medium rounded-full bg-indigo-100 text-indigo-700/60 border border-indigo-200"
   },
   divorced: {
     label: "Divorced",
     className:
-      "inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-rose-100 text-rose-700 border border-rose-200"
+      "inline-flex items-center px-3 py-0 text-sm font-medium rounded-full bg-rose-100 text-rose-700 border border-rose-200"
   },
   widowed: {
     label: "Widowed",
     className:
-      "inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-700 border border-red-200"
+      "inline-flex items-center px-3 py-0 text-sm font-medium rounded-full bg-red-100 text-red-700 border border-red-200"
   }
 }
 
@@ -107,17 +108,17 @@ const genderOptions = {
   male: {
     label: "Male",
     className:
-      "inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-teal-100 text-teal-700 border border-teal-200"
+      "inline-flex items-center px-3 py-0 text-sm font-medium rounded-full bg-teal-100 text-teal-700 border border-teal-200"
   },
   female: {
     label: "Female",
     className:
-      "inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-amber-100 text-amber-700 border border-amber-200"
+      "inline-flex items-center px-3 py-0 text-sm font-medium rounded-full bg-amber-100 text-amber-700 border border-amber-200"
   },
   other: {
     label: "Other",
     className:
-      "inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-rose-100 text-rose-700 border border-rose-200"
+      "inline-flex items-center px-3 py-0 text-sm font-medium rounded-full bg-rose-100 text-rose-700 border border-rose-200"
   }
 };
 

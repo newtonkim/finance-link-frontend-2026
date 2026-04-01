@@ -227,9 +227,10 @@ async function submitImportData() {
             data,
             saveData: false,
             props: {
+                time:3,
                 ...props,
                 reload: false,// dont refectch data 
-                state: "import-data",
+                state: props.url + "import-data",
                 url: createUrl(props.url, "import-data")
             }, Store
         });

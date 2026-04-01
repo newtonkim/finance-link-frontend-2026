@@ -1,7 +1,7 @@
 <template>
   <div
   :class="class"
-    class="overflow-x-auto h-[64vh] border border-neutral-100 dark:border-neutral-800 rounded-2xl shadow-sm dark:bg-neutral-900 bg-white custom-scrollbar">
+    class="overflow-x-auto max-h-[64vh] border border-neutral-100 dark:border-neutral-800 rounded-2xl shadow-sm dark:bg-neutral-900 bg-white custom-scrollbar">
     <table class="table-auto text-left bo rder-collapse w-full striped-table">
       <thead class="sticky top-0 z-40 bg-white dark:bg-neutral-900 shadow-sm">
         <tr class="border-b border-neutral-100 dark:border-neutral-800">

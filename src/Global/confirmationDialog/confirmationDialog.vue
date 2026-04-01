@@ -49,7 +49,15 @@
 import { ref, computed } from 'vue';
 import { AlertTriangle, Info, Check, Trash2 } from 'lucide-vue-next'
 const emit = defineEmits(['cancel', 'confirm', 'update:show']);
-
+const props = defineProps({
+  type: {
+    type: String,
+    default: "delete"
+  },
+  items: Object,
+  title: { type: String, },
+  show: { type: Boolean, default: false, required: true }
+});
 const deleting = ref(false);
 const memberToDelete = ref(null);
 const currentStyle = computed(() => ACtionStyle.value[props.type] || {})
@@ -103,15 +111,5 @@ defineExpose({
   executeDelete
 });
 
-const props = defineProps({
-  type: {
-    type: String,
-    default: "delete"
-  },
-  items: Object,
 
-
-  title: { type: String, },
-  show: { type: Boolean, default: false, required: true }
-});
 </script>

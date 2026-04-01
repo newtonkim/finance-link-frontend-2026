@@ -11,6 +11,7 @@ const emit = defineEmits<{
     newAccount: [];
     customFee: [account: any];
 }>();
+ 
 </script>
 
 <template>
@@ -36,6 +37,7 @@ const emit = defineEmits<{
                 </thead>
                 <tbody>
                     <tr v-if="!accounts?.length">
+                      
                         <td colspan="4" class="py-8 text-center text-[13px] text-gray-500">No accounts found.</td>
                     </tr>
                     <tr v-for="account in accounts" :key="account.id"
@@ -45,7 +47,7 @@ const emit = defineEmits<{
                                 <div class="w-10 h-10 rounded-full bg-[#fdf8ed] flex items-center justify-center">
                                     <Wallet :size="16" class="text-[#cda434]" />
                                 </div>
-                                <span class="text-[14px] font-bold text-gray-900 font-mono tracking-tight">{{ account.account_no }}</span>
+                                <span class="text-[14px] font-bold text-gray-900 font-mono tracking-tight">{{ account.code }}</span>
                             </div>
                         </td>
                         <td class="py-5 px-6">
@@ -54,7 +56,7 @@ const emit = defineEmits<{
                             </span>
                         </td>
                         <td class="py-5 px-6">
-                            <span class="block text-[18px] font-extrabold text-gray-900 font-mono tracking-tight">{{ account.balance_formatted || formatCurrency(account.balance) }}</span>
+                            <span class="block text-[18px] font-extrabold text-gray-900 font-mono tracking-tight">{{ formatCurrency(account.balance) }}</span>
                             <span class="block text-[11px] text-[#788896] mt-0.5">Last updated today</span>
                         </td>
                         <td class="py-5 px-6">

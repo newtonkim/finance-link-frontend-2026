@@ -1,5 +1,4 @@
 <template>
-  <!-- {{ Store?.groupAccountList.payload.total_analysis.total_groups }} -->
   <TableDrawer :permissions="{
     create: 'group-saving-create',
     view: 'group-saving-details',
