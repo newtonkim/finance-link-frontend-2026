@@ -32,13 +32,23 @@ export interface LoanTransaction {
   amount_paid: string
   amount_paid_formatted: string
   principal_portion: string
-  principal_portion_formatted: string
+  principal_portion_formatted?: string
   interest_portion: string
-  interest_portion_formatted: string
+  interest_portion_formatted?: string
   penalty_portion: string
-  penalty_portion_formatted: string
+  penalty_portion_formatted?: string
   charges_portion: string
-  charges_portion_formatted: string
+  charges_portion_formatted?: string
+  // Alternative field names the API might return
+  principal?: string
+  principal_amount?: string
+  principal_amount_formatted?: string
+  interest?: string
+  interest_amount?: string
+  interest_amount_formatted?: string
+  penalty?: string
+  penalty_amount?: string
+  penalty_amount_formatted?: string
   payment_date: string
   payment_method: string
   reversal_flag: boolean
@@ -172,7 +182,9 @@ export const loansApi = {
   },
 
   getRepayments(id: number, params?: { page?: number; per_page?: number }) {
-    return tenantClient.get<{ data: LoanTransaction[]; meta: object }>(`/loans/${id}/repayments`, { params })
+    return tenantClient.get<{ data: LoanTransaction[]; meta: object }>(`/loans/${id}/repayments`, {
+      params,
+    })
   },
 
   getLedger(id: number, params?: { page?: number; per_page?: number }) {
@@ -181,10 +193,15 @@ export const loansApi = {
 
   // ─── Repayments ───────────────────────────────────────────────────────────
   previewRepayment(id: number, amount: number) {
-    return tenantClient.post<{ data: RepaymentPreview }>(`/loans/${id}/repayments/preview`, { amount })
+    return tenantClient.post<{ data: RepaymentPreview }>(`/loans/${id}/repayments/preview`, {
+      amount,
+    })
   },
 
   postRepayment(id: number, data: PostRepaymentData) {
-    return tenantClient.post<{ message: string; data: LoanTransaction }>(`/loans/${id}/repayments`, data)
+    return tenantClient.post<{ message: string; data: LoanTransaction }>(
+      `/loans/${id}/repayments`,
+      data,
+    )
   },
 }
