@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Search, ChevronLeft, ChevronRight, InboxIcon, Loader2 } from 'lucide-vue-next'
+import { Search, ChevronLeft, ChevronRight, InboxIcon, Loader2, Eye } from 'lucide-vue-next'
 import { useActiveLoans } from '../composables/useActiveLoans'
 import type { LoanTab } from '@/tenant/apis/loans/loansApi'
 
@@ -205,7 +205,7 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value 
                 </td>
                 <td class="px-4 py-3">
                   <button
-                    class="rounded border border-neutral-300 bg-white px-3 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-50 transition-colors dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50 transition-colors dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
                     @click="
                       loan._source === 'application'
                         ? router.push({
@@ -218,7 +218,8 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value 
                           })
                     "
                   >
-                    Action
+                    <Eye class="h-3.5 w-3.5" />
+                    View
                   </button>
                 </td>
               </tr>
