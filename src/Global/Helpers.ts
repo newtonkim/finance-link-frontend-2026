@@ -438,7 +438,7 @@ export function getTenantSubdomain(): string | null {
   if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) return null
   const parts = hostname.split('.')
   // console.log(parts);
-  
+
   const subdomain = parts.length >= 2 ? parts[0] : null
   if (!subdomain || ['admin', 'www', 'localhost'].includes(subdomain)) return null
   return subdomain
@@ -460,7 +460,8 @@ export function RouteStructure(route: any, routePath: string) {
     component: route.component,
   }
 }
-export function checkIfObjectPlain(value: any) {
+export function checkIfObjectPlain(collection: any) {
+ const value= isJSON(collection)
   if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
     return true
   }
@@ -494,15 +495,18 @@ export function feedback(res: any, success: string, fail: string) {
     msg: res.error || success,
     type: 'Error',
     success: successStatus,
-  }
-
-  if (res.error?.message?.includes('422')) {
-    msg = {
-      msg: 'Failed  some fields are missing',
-      type: 'error',
-      success: false,
+  } 
+  if (res?.error) {
+    if (res.error.response?.data?.error) {
+      msg.msg = res.error.response.data.error
+    } else if (res.error.message) {
+      msg.msg = res.error.message
+    } else if (res.error.response?.data?.errors) {
+      const errors = res.error.response.data.errors
+      msg.msg = Object.values(errors)[0][0] || msg.msg
     }
   }
+
   if (res.error?.message?.includes('403') || res.error?.message?.includes('401')) {
     msg = {
       msg: 'You are not authorized to perform this action',

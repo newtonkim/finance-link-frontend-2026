@@ -31,6 +31,10 @@
         </tr>
         <tr v-for="(item, idx) in dataFilter" :key="item?.id ?? idx"
           :class="Number(idx) < dataFilter.length - 1 ? 'border-b border-neutral-50 dark:border-neutral-800' : ''">
+          <td v-if="numberindex" :class="[
+            'px-3 py-3 truncate text-[14px] text-neutral-500 dark:text-neutral-400 capitalize',
+            'sticky z-30 left-0 bg-white dark:bg-neutral-900'
+          ]">{{ idx + 1 }}</td>
           <td v-for="col in localColumns" :key="col.key" :class="[
             'px-3 py-3 truncate text-[14px] text-neutral-500 dark:text-neutral-400 capitalize',
             col.sticky ? `sticky z-30 ${col.sticky}-0 dark:bg-neutral-900 bg-white` : '',
@@ -85,6 +89,7 @@ import { EmptySvg } from '../..'
 import { ref, watch } from 'vue'
 
 const props = defineProps({
+  numberindex: { type: Boolean, required: false },
   class: { type: String, required: false },
   handleAction: { type: Function, required: true },
   dataFilter: { type: Array, required: true },

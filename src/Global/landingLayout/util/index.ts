@@ -118,11 +118,14 @@ export async function fetchTableData({
   const interceptor = subdomain ? tenantClient : apiClient,
     createTheState = props?.state ? props?.state : props?.url.replace(/[^a-z0-9]+/gi, '-')
   const branch_id = getLocalValues(keysToUse.activeBranch)
-  const method = resolveMethod(props?.url, data, props?.method)
+  // const method = resolveMethod(props?.url, data, props?.method)
    const quer=props?.url.includes('?')?`${props?.url}&`:`${props?.url}?`
    const branchQuery = branch_id ? `branch_id=${branch_id}` : ''
+   console.log(data);
+   
   const collection = {
     reload: !!props.reload ? 0 : 1, // dont think am stupid i know that
+    // reload: !!props.reload ? 0 : 1, // dont think am stupid i know that
     StateStore: createTheState,
     time: props?.time ?? 0,
     reqs: {
@@ -138,18 +141,7 @@ export async function fetchTableData({
   return await Store.stateGenaratorApi(collection)
 }
 
-function resolveMethod(url: string, data: any, explicitMethod?: string) {
-  if (explicitMethod) return explicitMethod
-  const normalizedUrl = `${url ?? ''}`.split('?')[0]
-  const isListEndpoint = normalizedUrl.endsWith('/list')
-  const isReadPayload = data == null || (typeof data === 'object' && !Array.isArray(data))
 
-  if (isListEndpoint && isReadPayload) {
-    return 'get'
-  }
-
-  return 'post'
-}
 
 function buildUrlWithQuery(url: string, params: Record<string, any>) {
   const [path, existingQuery = ''] = `${url ?? ''}`.split('?')

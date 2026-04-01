@@ -34,10 +34,10 @@
                 </div>
                 <div class="flex">
                     <div class="flex items-center gap-2 board-r-1 mx-2" v-if="showTableAction">
-                        <button @click="handleExport"
-                            class="p-2 cursor-pointer hover:bg-nfuko-action hover:text-white hover:rounded-full hover:border-1 hover:border-accent bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
-                            <Download :size="18" />
-                        </button>
+                        <Imploading icon="Download" :items="dropdownDownload" @select="handleDownload" />
+
+                        <Imploading :items="dropdownItems" @select="handleImport" />
+
                         <button @click="handlePrint"
                             class="p-2 cursor-pointer hover:bg-nfuko-action hover:text-white hover:rounded-full hover:border-1 hover:border-accent bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
                             <Printer :size="18" />
@@ -67,8 +67,18 @@
         <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShooter2" v-model:open="drawerOpen"
             :title="drawerTitle" @save="saveDrawerData">
             <template #body>
-                <slot :data="provideDataTotheParent" name="drawer" :action="buttonTypeClicked"
-                    :submit="submitChanges" />
+                <div v-if="buttonTypeClicked == 'download-template'">
+                    <UploadTemplateColumn :title="title" :data="provideDataTotheParent" />
+                </div>
+                <div v-else-if="buttonTypeClicked == 'import-data'">
+                    <!-- {{ formData }} -->
+                    <uploadTemplateColumData :title="title" :url="url" />
+
+                </div>
+                <span v-else>
+                    <slot :data="provideDataTotheParent" name="drawer" :action="buttonTypeClicked"
+                        :submit="submitChanges" />
+                </span>
             </template>
         </Drawer>
     </div>
@@ -83,21 +93,30 @@ import Drawer from '../Drawer/Drawer.vue';
 import { Plus } from 'lucide-vue-next';
 import ConfirmationDialog from '../confirmationDialog/confirmationDialog.vue';
 import Searchbar from './Components/Searchbar.vue';
-import { formDataFormatV2, createUrl, feedback, } from '@/Global';
+import { formDataFormatV2, createUrl, feedback, Imploading, UploadTemplateColumn, uploadTemplateColumData, } from '@/Global';
 import Table from './Components/Table.vue';
-import { Download, Printer } from 'lucide-vue-next';
+import { Printer } from 'lucide-vue-next';
 import { pomPinia } from 'septor-store';
 import { ACTION_CONFIG, dataTabelFilter, fetchTableData } from './util';
 const drawerOpen = ref(false);
 const showDelete = ref(false);
 const searchQuery = ref('');
-const emit = defineEmits(['save', 'submit']);
+const emit = defineEmits(['save', 'submit', 'update:title']);
 const selected = ref<Record<string, unknown> | null>(null);
 const Store = pomPinia();
 const buttonTypeClicked = ref<any>(null);
 const DrawerMounted = ref<boolean>(true);
 const submitChanges = ref<any>(null);
 const provideDataTotheParent = ref<any>([]);
+const formData = ref<any>([]);
+const dropdownItems = [
+    { label: "template", value: "template", route: "download-template" },
+    { label: "Import Data", value: "import", route: "import-data" },
+]
+const dropdownDownload = [
+    { label: "PDF", value: "PDF", route: "export-pdf" },
+    { label: "Excel", value: "Excel", route: "export-excel" },
+]
 
 async function createNewRecord() {
     DrawerMounted.value = false
@@ -106,12 +125,16 @@ async function createNewRecord() {
     await toggleDrawer();
     provideDataTotheParent.value = null
     DrawerMounted.value = true
-    // drawerShooter2
-
 }
 
 function handlePrint() {
     window.print();
+}
+function handleDownload(item: any) {
+    handleTableAction(null, item.route)
+}
+function handleImport(item: any) {
+    handleTableAction(null, item.route)
 }
 const props = defineProps({
     addButtonText: {
@@ -138,7 +161,7 @@ const props = defineProps({
     removeInSearch: { type: Array, default: () => ['action'] },
     showTableAction: { type: Boolean, default: false },
     showSearchbar: { type: Boolean, default: true },
-    drawerRemount: { type: Boolean, required: false ,default: true},
+    drawerRemount: { type: Boolean, required: false, default: true },
     state: { type: String, required: false },
     url: { type: String, required: false },
     // module: { type: String, required: false },
@@ -172,23 +195,38 @@ const props = defineProps({
     actionSlot: { type: [String, null, Boolean], default: false },
 
 });
+// const title
 
+const finalSubmitAction = ref<string>("")
+const drawerTitle = ref(props.drawerTitle);
+const drawerShooter2 = ref(props.drawerShowFooter)
+const drawerWidth = ref(props.drawerWidth)
 
-async function handleExport(item: any) {
-    let outerlinks = props?.outerlinks?.['export'] ?? "export"
-    const res = await fetchTableData({
-        data: item,
-        props: {
-            ...props,
-            state: props?.state + "_" + outerlinks,
-            url: createUrl(props.url, outerlinks)
-        }, Store
-    });
-    // const response = feedback(res);
+async function handleTableAction(item: any, action: string) {
+    drawerWidth.value = "w-2/4"
+    if (action == "import-data") {
+        finalSubmitAction.value = "import-data"
+        drawerTitle.value = 'import data'
+    } else {
+        const res = await fetchTableData({
+            data: item,
+            props: {
+                ...props,
+                reload: false,// dont refectch data 
+                state: props?.state + "_" + action,
+                url: createUrl(props.url, action)
+            }, Store
+        });
+        drawerTitle.value = 'import columns'
+        provideDataTotheParent.value = res?.payload ?? res
+    }
+    drawerShooter2.value = false
+    buttonTypeClicked.value = action
+    toggleDrawer();
 }
 
 
-const drawerShooter2 = ref(props.drawerShowFooter)
+
 
 const toggleDrawer = () => {
     (drawerOpen.value = !drawerOpen.value)
@@ -229,7 +267,6 @@ async function automaticCreateFun() {
         } else {
             customeUrl = "create";
         }
-        // console.log(customeUrl);
         const formDataScoping: any = formDataFormatV2((data))
         const res = await fetchTableData({
             data: formDataScoping,
@@ -267,20 +304,23 @@ async function saveDrawerData(data: any) {
 
     } else {
         const checker = await automaticCreateFun('create')
-        // console.log(checker,'====2');
+        console.log(checker,'====2');
 
         if (checker) {
             // if (!checker) {
             return
         }
+        if (finalSubmitAction.value == 'import-data') {
+            return
 
-
-        save(data, 'create')
+        } else
+            save(data, finalSubmitAction.value ?? 'create')
 
         setTimeout(() => {
             submitChanges.value = false
         }, 2000)
         if (props.drawerRemount) {
+            alert("drawerRemount")
             toggleDrawer()
             setTimeout(() => {
                 toggleDrawer()
@@ -364,7 +404,7 @@ const dataPageLinks = computed(() => {
     return (props?.state ? (Store[props.state as keyof typeof Store] as any)?.payload : null) ?? props.data ?? { data: [] }
 })
 function filterDataByString(value: string) {
-    
+
     searchQuery.value = value
 }
 onMounted(async () => {
@@ -375,6 +415,15 @@ onMounted(async () => {
 
 watch(() => props?.url, () => {
     callOnmount()
+})
+watch(() => drawerOpen.value, (v) => {
+if(!v){
+    //reset the drawer data when the drawer is closed
+    provideDataTotheParent.value = null
+    buttonTypeClicked.value = null
+    drawerWidth.value = null
+
+}
 })
 function callOnmount() {
     if (props?.state && props?.url)
