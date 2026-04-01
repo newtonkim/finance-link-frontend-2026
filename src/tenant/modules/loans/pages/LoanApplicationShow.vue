@@ -574,7 +574,9 @@ const loanAccountTabs = [
                                         <div class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
                                             <div class="font-medium text-neutral-500 dark:text-neutral-400">Status</div>
                                             <div class="font-medium capitalize text-neutral-900 dark:text-white">
-                                                <span class="inline-flex rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-400">Active</span>
+                                                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize" :class="statusBadgeClass(application.disbursed_loan?.status)">
+                                                    {{ statusLabel(application.disbursed_loan?.status) || 'Disbursed' }}
+                                                </span>
                                             </div>
                                         </div>
                                         <div class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
