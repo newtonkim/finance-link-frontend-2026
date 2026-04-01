@@ -10,7 +10,8 @@ export function useLoanApplicationHelpers() {
             case 'recommended':          return 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
             case 'approved':             return 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400'
             case 'disbursement_pending': return 'bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400'
-            case 'disbursed':            return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+            case 'disbursed':
+            case 'active':               return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
             case 'rejected':             return 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400'
             case 'cancelled':            return 'bg-neutral-200 text-neutral-500 dark:bg-neutral-700 dark:text-neutral-400'
             default:                     return 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400'
