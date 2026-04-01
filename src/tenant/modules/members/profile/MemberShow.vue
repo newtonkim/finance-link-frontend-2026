@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
 import { toast } from 'vue-sonner';
 import { storeToRefs } from 'pinia';
@@ -51,7 +51,7 @@ async function initialize() {
 
 // ── Tabs ────────────────────────────────────────────────────────────────────
 const activeTab = ref('profile');
-onMounted(() => {
+onBeforeMount(() => {
     profileDetails.value = null
     initialize();
     fetchMember()
