@@ -54,6 +54,8 @@ export interface LoanTransaction {
   reversal_flag: boolean
   reversed_date: string | null
   collected_by: { id: number; name: string } | null
+  loan_officer_id?: number | null
+  loan_officer?: { id: number; name: string } | null
 }
 
 export interface LoanSummary {
@@ -161,6 +163,7 @@ export interface PostRepaymentData {
   receipt_no?: string | null
   transaction_ref?: string | null
   notes?: string | null
+  loan_officer_id?: number | null
 }
 
 export const loansApi = {

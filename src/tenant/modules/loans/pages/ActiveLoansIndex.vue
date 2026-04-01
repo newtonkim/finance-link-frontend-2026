@@ -53,12 +53,12 @@ function statusLabel(status: string) {
   return status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
-const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value }[] = [
-  { key: 'disbursed', label: 'Disbursed Loans', countKey: 'disbursed' },
-  { key: 'approved', label: 'Approved Loans', countKey: 'approved' },
-  { key: 'pending', label: 'Pending Loans', countKey: 'pending' },
-  { key: 'arrears', label: 'In Arrears', countKey: 'arrears' },
-  { key: 'all', label: 'All Loans', countKey: 'all' },
+const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value; color: string }[] = [
+  { key: 'disbursed', label: 'Disbursed Loans', countKey: 'disbursed', color: 'nfuko-action' },
+  { key: 'approved', label: 'Approved Loans', countKey: 'approved', color: 'nfuko-blue' },
+  { key: 'pending', label: 'Pending Loans', countKey: 'pending', color: 'nfuko-accent' },
+  { key: 'arrears', label: 'In Arrears', countKey: 'arrears', color: 'nfuko-danger' },
+  { key: 'all', label: 'All Loans', countKey: 'all', color: 'nfuko-primary' },
 ]
 </script>
 
@@ -72,20 +72,28 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value 
         <button
           v-for="tab in tabs"
           :key="tab.key"
-          class="flex items-center gap-2 whitespace-nowrap px-5 py-3.5 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2"
+          class="flex items-center gap-2 whitespace-nowrap px-5 py-3.5 text-xs font-bold uppercase tracking-wider transition-all border-b-2"
+          :style="{
+            color: activeTab === tab.key ? `var(--color-${tab.color})` : '',
+            borderColor: activeTab === tab.key ? `var(--color-${tab.color})` : 'transparent',
+          }"
           :class="
             activeTab === tab.key
-              ? 'border-neutral-900 text-neutral-900 dark:border-white dark:text-white'
-              : 'border-transparent text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'
+              ? ''
+              : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'
           "
           @click="switchTab(tab.key)"
         >
           {{ tab.label }}
           <span
-            class="rounded px-1.5 py-0.5 text-[11px] font-bold tabular-nums"
+            class="rounded px-2 py-0.5 text-[11px] font-bold tabular-nums transition-colors"
+            :style="{
+              backgroundColor: activeTab === tab.key ? `var(--color-${tab.color})` : '',
+              color: activeTab === tab.key ? 'white' : '',
+            }"
             :class="
               activeTab === tab.key
-                ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900'
+                ? ''
                 : 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400'
             "
           >

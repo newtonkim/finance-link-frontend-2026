@@ -17,10 +17,11 @@ import {
   History,
   CreditCard,
   BookOpen,
+  Eye,
+  CircleMinus,
   FileText,
   Activity,
   AlertTriangle,
-  MoreHorizontal,
   Pencil,
 } from 'lucide-vue-next'
 import {
@@ -32,8 +33,6 @@ import {
 import { formatMoneyValue } from '@/Global'
 import { useTenantUserStore } from '@/stores/tenantUserStore'
 import { useLoanAccount } from '../composables/useLoanAccount'
-import { useRepaymentAllocation } from '../composables/useRepaymentAllocation'
-import PostRepaymentModal from '../components/PostRepaymentModal.vue'
 import ReceiveCashModal from '../components/ReceiveCashModal.vue'
 import { loansApi } from '@/tenant/apis/loans/loansApi'
 
@@ -43,24 +42,6 @@ const router = useRouter()
 const loanId = Number(route.params.id)
 const { loading, loan, schedule, repayments, repaymentsMeta, activeTab, refresh, fetchRepayments } =
   useLoanAccount(loanId)
-
-const {
-  showModal,
-  posting,
-  previewing,
-  form,
-  errors,
-  preview,
-  openModal,
-  closeModal,
-  loadPreview,
-  submit,
-  errMsg: previewErrMsg,
-} = useRepaymentAllocation(loanId)
-
-function onRepaymentSubmit() {
-  void submit(() => refresh())
-}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function fmt(v: number | string | null | undefined) {
@@ -165,7 +146,8 @@ const currency = computed(() => loan.value?.currency_code || 'PHP')
 function canShowMore(row: any, index: number) {
   if (row.status === 'paid') return false
   if (index === 0) return true
-  return schedule.value[index - 1].status === 'paid'
+  const prevRow = schedule.value[index - 1]
+  return prevRow?.status === 'paid'
 }
 
 // ─── Receive Cash Flow ────────────────────────────────────────────────────────
@@ -185,9 +167,7 @@ const selectedInstallment = ref<any>(null)
 function openReceiveCash(row: any) {
   selectedInstallment.value = row
   showReceiveCashModal.value = true
-  if (receiveCashModalRef.value) {
-    receiveCashModalRef.value.reset()
-  }
+  receiveCashModalRef.value?.reset()
 }
 
 async function handleReceiveCashSubmit(data: any) {
@@ -199,6 +179,7 @@ async function handleReceiveCashSubmit(data: any) {
       amount: data.amount,
       payment_method: 'cash',
       payment_date: data.payment_date,
+      loan_officer_id: loan.value.loan_officer_id ?? null,
       notes: data.description,
     }
 
@@ -280,14 +261,6 @@ async function handleReceiveCashSubmit(data: any) {
             </div>
           </div>
           <div class="flex items-center gap-3">
-            <button
-              v-if="loan.status !== 'closed'"
-              class="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors"
-              @click="openModal"
-            >
-              <Banknote class="h-4 w-4" />
-              Post Repayment
-            </button>
           </div>
         </div>
 
@@ -552,7 +525,7 @@ async function handleReceiveCashSubmit(data: any) {
           <div class="overflow-x-auto rounded-xl border border-neutral-100 dark:border-neutral-800">
             <table class="w-full text-xs">
               <thead
-                class="bg-neutral-50 dark:bg-neutral-800/60 font-semibold text-neutral-600 dark:text-neutral-400"
+                class="bg-neutral-50 dark:bg-neutral-800/60 font-bold text-neutral-900 dark:text-neutral-100"
               >
                 <tr>
                   <th class="px-2 py-3 text-left">#ID</th>
@@ -579,12 +552,8 @@ async function handleReceiveCashSubmit(data: any) {
                   <td class="px-3 py-3 text-neutral-700 dark:text-neutral-300">
                     {{ fmtDate(row.due_date) }}
                   </td>
-                  <td class="px-3 py-3 text-right">
-                    {{ currency }} {{ fmt(row.principal_due) }}
-                  </td>
-                  <td class="px-3 py-3 text-right">
-                    {{ currency }} {{ fmt(row.interest_due) }}
-                  </td>
+                  <td class="px-3 py-3 text-right">{{ currency }} {{ fmt(row.principal_due) }}</td>
+                  <td class="px-3 py-3 text-right">{{ currency }} {{ fmt(row.interest_due) }}</td>
                   <td class="px-3 py-3 text-right">
                     <div class="flex items-center justify-end gap-1.5">
                       <span>{{ currency }} {{ fmt(row.penalty_due) }}</span>
@@ -734,12 +703,36 @@ async function handleReceiveCashSubmit(data: any) {
               class="bg-neutral-50 dark:bg-neutral-800/60 border-b border-neutral-100 dark:border-neutral-800"
             >
               <tr>
-                <th class="px-4 py-3 text-left font-medium text-neutral-500">ID</th>
-                <th class="px-4 py-3 text-left font-medium text-neutral-500">Processing Date</th>
-                <th class="px-4 py-3 text-left font-medium text-neutral-500">Transaction Type</th>
-                <th class="px-4 py-3 text-right font-medium text-neutral-500">Amount</th>
-                <th class="px-4 py-3 text-left font-medium text-neutral-500">Officer</th>
-                <th class="px-4 py-3 text-center font-medium text-neutral-500">Action</th>
+                <th class="px-4 py-3 text-left font-bold text-neutral-900 dark:text-neutral-100">
+                  ID
+                </th>
+                <th class="px-4 py-3 text-left font-bold text-neutral-900 dark:text-neutral-100">
+                  Processing Date
+                </th>
+                <th class="px-4 py-3 text-left font-bold text-neutral-900 dark:text-neutral-100">
+                  Transaction Type
+                </th>
+                <th class="px-4 py-3 text-right font-bold text-neutral-900 dark:text-neutral-100">
+                  Loan Portion
+                </th>
+                <th class="px-4 py-3 text-right font-bold text-neutral-900 dark:text-neutral-100">
+                  Interest Portion
+                </th>
+                <th class="px-4 py-3 text-right font-bold text-neutral-900 dark:text-neutral-100">
+                  Penalty Portion
+                </th>
+                <th class="px-4 py-3 text-right font-bold text-neutral-900 dark:text-neutral-100">
+                  Charge Portion
+                </th>
+                <th class="px-4 py-3 text-right font-bold text-neutral-900 dark:text-neutral-100">
+                  Amount
+                </th>
+                <th class="px-4 py-3 text-left font-bold text-neutral-900 dark:text-neutral-100">
+                  Officer
+                </th>
+                <th class="px-4 py-3 text-center font-bold text-neutral-900 dark:text-neutral-100">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
@@ -757,30 +750,49 @@ async function handleReceiveCashSubmit(data: any) {
                 <td class="px-4 py-3 capitalize text-neutral-600 dark:text-neutral-400">
                   {{ txn.payment_method?.replace(/_/g, ' ') ?? '—' }}
                 </td>
+                <td class="px-4 py-3 text-right text-neutral-600 dark:text-neutral-400">
+                  {{ currency }} {{ fmt(txn.principal_portion) }}
+                </td>
+                <td class="px-4 py-3 text-right text-neutral-600 dark:text-neutral-400">
+                  {{ currency }} {{ fmt(txn.interest_portion) }}
+                </td>
+                <td class="px-4 py-3 text-right text-neutral-600 dark:text-neutral-400">
+                  {{ currency }} {{ fmt(txn.penalty_portion) }}
+                </td>
+                <td class="px-4 py-3 text-right text-neutral-600 dark:text-neutral-400">
+                  {{ currency }} {{ fmt(txn.charges_portion) }}
+                </td>
                 <td
                   class="px-4 py-3 text-right font-semibold text-emerald-600 dark:text-emerald-400"
                 >
                   {{ currency }} {{ fmt(txn.amount_paid) }}
                 </td>
                 <td class="px-4 py-3 text-neutral-600 dark:text-neutral-400">
-                  {{ txn.collected_by?.name ?? '—' }}
+                  {{ txn.loan_officer?.name ?? txn.collected_by?.name ?? '—' }}
                 </td>
                 <td class="px-4 py-3 text-center">
                   <DropdownMenu>
                     <DropdownMenuTrigger as-child>
                       <button
-                        class="inline-flex items-center justify-center rounded-lg p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                        class="inline-flex items-center rounded-lg border border-nfuko-action bg-white p-0 text-[11px] font-bold text-nfuko-action overflow-hidden hover:bg-nfuko-action/5 transition-colors shadow-sm"
                       >
-                        <MoreHorizontal class="h-4 w-4" />
+                        <span class="px-2.5 py-1.2">Action</span>
+                        <span class="bg-nfuko-action px-1.5 py-1.5 text-white border-l border-nfuko-action flex items-center justify-center">
+                          <ChevronDown class="h-3 w-3 stroke-[3]" />
+                        </span>
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                       align="end"
-                      class="w-40 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 shadow-xl"
+                      class="w-40 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 shadow-xl rounded-xl p-1"
                     >
-                      <DropdownMenuItem class="cursor-pointer gap-2">
-                        <FileText class="h-4 w-4" />
-                        View Details
+                      <DropdownMenuItem class="cursor-pointer gap-2.5 py-2 px-3 text-nfuko-action focus:text-nfuko-action focus:bg-nfuko-action/10 rounded-lg">
+                        <Eye class="h-4 w-4 stroke-[2.5]" />
+                        <span class="font-bold">View</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem class="cursor-pointer gap-2.5 py-2 px-3 text-nfuko-action focus:text-nfuko-action focus:bg-nfuko-action/10 rounded-lg">
+                        <CircleMinus class="h-4 w-4 stroke-[2.5]" />
+                        <span class="font-bold">Reverse</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -828,18 +840,6 @@ async function handleReceiveCashSubmit(data: any) {
   </div>
 
   <!-- Repayment modals -->
-  <PostRepaymentModal
-    :open="showModal"
-    :posting="posting"
-    :previewing="previewing"
-    :form="form"
-    :preview="preview"
-    :errors="errors"
-    :outstanding-balance="loan?.outstanding_balance_formatted"
-    @close="closeModal"
-    @submit="onRepaymentSubmit"
-    @preview-request="loadPreview"
-  />
 
   <ReceiveCashModal
     ref="receiveCashModalRef"
