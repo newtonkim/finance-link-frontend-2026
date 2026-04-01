@@ -18,7 +18,7 @@ export interface LoanScheduleEntry {
   penalty_paid: string
   outstanding_balance: string
   outstanding_balance_formatted: string
-  status: 'pending' | 'partial' | 'paid' | 'overdue'
+  status: 'pending' | 'paid' | 'partial_pay' | 'arrears' | string
   paid_date: string | null
   is_overdue: boolean
   days_overdue: number
@@ -121,7 +121,7 @@ export interface LoanDetail {
   status: string
   notes: string | null
   currency_code: string
-  loan_product: { id: number; name: string; code: string } | null
+  loan_product: { id: number; name: string; code: string; interest_method?: string } | null
   member: { id: number; name: string; member_number: string | null } | null
   loan_officer: { id: number; name: string } | null
   disbursed_by_staff: { id: number; name: string } | null

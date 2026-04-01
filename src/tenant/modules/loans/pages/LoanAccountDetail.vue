@@ -20,7 +20,15 @@ import {
   FileText,
   Activity,
   AlertTriangle,
+  MoreHorizontal,
+  Pencil,
 } from 'lucide-vue-next'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/Global/ui/dropdown-menu'
 import { formatMoneyValue } from '@/Global'
 import { useLoanAccount } from '../composables/useLoanAccount'
 import { useRepaymentAllocation } from '../composables/useRepaymentAllocation'
@@ -82,11 +90,15 @@ function statusColor(status: string) {
 function scheduleStatusColor(s: string) {
   switch (s) {
     case 'paid':
-      return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+      return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
     case 'overdue':
-      return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+    case 'arrears':
+      return 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
     case 'partial':
-      return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+    case 'partial_pay':
+      return 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+    case 'pending':
+      return 'bg-red-900 text-white dark:bg-red-950 dark:text-red-100'
     default:
       return 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400'
   }
@@ -144,6 +156,14 @@ const hasPrevRepayments = computed(() => repaymentsMeta.value.current_page > 1)
 const hasNextRepayments = computed(
   () => repaymentsMeta.value.current_page < repaymentsMeta.value.last_page,
 )
+
+const currency = computed(() => loan.value?.currency_code || 'PHP')
+
+function canShowMore(row: any, index: number) {
+  if (row.status === 'paid') return false
+  if (index === 0) return true
+  return schedule.value[index - 1].status === 'paid'
+}
 </script>
 
 <template>
@@ -358,6 +378,15 @@ const hasNextRepayments = computed(
                 </div>
               </div>
               <div
+                v-if="loan.loan_product?.interest_method"
+                class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
+              >
+                <div class="font-medium text-neutral-500 dark:text-neutral-400">Interest Method</div>
+                <div class="font-medium capitalize text-neutral-900 dark:text-white">
+                  {{ loan.loan_product.interest_method.replace(/_/g, ' ') }}
+                </div>
+              </div>
+              <div
                 class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
               >
                 <div class="font-medium text-neutral-500 dark:text-neutral-400">Term</div>
@@ -466,163 +495,119 @@ const hasNextRepayments = computed(
           </div>
           <div class="overflow-x-auto rounded-xl border border-neutral-100 dark:border-neutral-800">
             <table class="w-full text-xs">
-              <thead class="bg-neutral-50 dark:bg-neutral-800/60">
+              <thead class="bg-neutral-50 dark:bg-neutral-800/60 font-semibold text-neutral-600 dark:text-neutral-400">
                 <tr>
-                  <th
-                    class="px-3 py-2.5 text-left font-medium text-neutral-500 dark:text-neutral-400"
-                  >
-                    #
-                  </th>
-                  <th
-                    class="px-3 py-2.5 text-left font-medium text-neutral-500 dark:text-neutral-400"
-                  >
-                    Due Date
-                  </th>
-                  <th
-                    class="px-3 py-2.5 text-right font-medium text-neutral-500 dark:text-neutral-400"
-                  >
-                    Principal
-                  </th>
-                  <th
-                    class="px-3 py-2.5 text-right font-medium text-neutral-500 dark:text-neutral-400"
-                  >
-                    Interest
-                  </th>
-                  <th
-                    class="px-3 py-2.5 text-right font-medium text-neutral-500 dark:text-neutral-400"
-                  >
-                    Charges
-                  </th>
-                  <th
-                    class="px-3 py-2.5 text-right font-medium text-neutral-500 dark:text-neutral-400"
-                  >
-                    Penalty
-                  </th>
-                  <th
-                    class="px-3 py-2.5 text-right font-medium text-neutral-500 dark:text-neutral-400"
-                  >
-                    Total Due
-                  </th>
-                  <th
-                    class="px-3 py-2.5 text-right font-medium text-neutral-500 dark:text-neutral-400"
-                  >
-                    Paid
-                  </th>
-                  <th
-                    class="px-3 py-2.5 text-right font-medium text-neutral-500 dark:text-neutral-400"
-                  >
-                    Balance
-                  </th>
-                  <th
-                    class="px-3 py-2.5 text-left font-medium text-neutral-500 dark:text-neutral-400"
-                  >
-                    Paid Date
-                  </th>
-                  <th
-                    class="px-3 py-2.5 text-left font-medium text-neutral-500 dark:text-neutral-400"
-                  >
-                    Status
-                  </th>
+                  <th class="px-2 py-3 text-left">#ID</th>
+                  <th class="px-3 py-3 text-left">Due Date</th>
+                  <th class="px-3 py-3 text-right">Principal</th>
+                  <th class="px-3 py-3 text-right">Interest</th>
+                  <th class="px-3 py-3 text-right">Penalty</th>
+                  <th class="px-3 py-3 text-right">Total</th>
+                  <th class="px-3 py-3 text-right">Paid</th>
+                  <th class="px-3 py-3 text-right">Pending</th>
+                  <th class="px-3 py-3 text-left">Status</th>
+                  <th class="px-3 py-3 text-right">Arrears Days</th>
+                  <th class="px-3 py-3 text-right">Running Balance</th>
+                  <th class="px-3 py-3 text-center">Action</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
                 <tr
-                  v-for="row in showAllSchedule ? schedule : schedule.slice(0, 6)"
+                  v-for="(row, index) in showAllSchedule ? schedule : schedule.slice(0, 10)"
                   :key="row.id"
                   class="hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors"
                 >
-                  <td class="px-3 py-2 text-neutral-500 dark:text-neutral-400">
-                    {{ row.installment_no }}
+                  <td class="px-2 py-3 text-neutral-500">{{ row.installment_no }}</td>
+                  <td class="px-3 py-3 text-neutral-700 dark:text-neutral-300">
+                    {{ fmtDate(row.due_date) }}
                   </td>
-                  <td class="px-3 py-2">
-                    <div class="flex items-center gap-1.5">
-                      <Calendar class="h-3.5 w-3.5 text-neutral-400" />
-                      <span class="text-neutral-700 dark:text-neutral-300">{{
-                        fmtDate(row.due_date)
-                      }}</span>
+                  <td class="px-3 py-3 text-right">
+                    {{ currency }} {{ row.principal_due_formatted }}
+                  </td>
+                  <td class="px-3 py-3 text-right">
+                    {{ currency }} {{ row.interest_due_formatted }}
+                  </td>
+                  <td class="px-3 py-3 text-right">
+                    <div class="flex items-center justify-end gap-1.5">
+                      <span>{{ currency }} {{ fmt(row.penalty_due) }}</span>
+                      <Pencil class="h-3 w-3 text-amber-500 cursor-pointer" />
                     </div>
-                    <p v-if="row.is_overdue" class="text-xs text-red-500 mt-0.5">
-                      {{ row.days_overdue }}d overdue
-                    </p>
                   </td>
-                  <td class="px-3 py-2 text-right text-neutral-700 dark:text-neutral-300">
-                    {{ fmt(row.principal_due_formatted) }}
+                  <td class="px-3 py-3 text-right font-semibold">
+                    {{ currency }} {{ row.total_due_formatted }}
                   </td>
-                  <td class="px-3 py-2 text-right text-neutral-700 dark:text-neutral-300">
-                    {{ fmt(row.interest_due_formatted) }}
+                  <td class="px-3 py-3 text-right">
+                    {{ currency }} {{ fmt(Number(row.principal_paid) + Number(row.interest_paid) + Number(row.charges_paid) + Number(row.penalty_paid)) }}
                   </td>
-                  <td class="px-3 py-2 text-right text-neutral-700 dark:text-neutral-300">
-                    {{ Number(row.charges_due) > 0 ? fmt(row.charges_due) : '—' }}
+                  <td class="px-3 py-3 text-right">
+                    {{ currency }} {{ fmt(Number(row.total_due) - (Number(row.principal_paid) + Number(row.interest_paid) + Number(row.charges_paid) + Number(row.penalty_paid))) }}
                   </td>
-                  <td
-                    class="px-3 py-2 text-right"
-                    :class="
-                      Number(row.penalty_due) > 0
-                        ? 'text-red-600 dark:text-red-400'
-                        : 'text-neutral-700 dark:text-neutral-300'
-                    "
-                  >
-                    {{ Number(row.penalty_due) > 0 ? fmt(row.penalty_due) : '—' }}
-                  </td>
-                  <td class="px-3 py-2 text-right font-medium text-neutral-900 dark:text-white">
-                    {{ fmt(row.total_due_formatted) }}
-                  </td>
-                  <td class="px-3 py-2 text-right text-emerald-600 dark:text-emerald-400">
-                    {{
-                      fmt(
-                        Number(row.principal_paid) +
-                          Number(row.interest_paid) +
-                          Number(row.penalty_paid) +
-                          Number(row.charges_paid),
-                      )
-                    }}
-                  </td>
-                  <td class="px-3 py-2 text-right text-neutral-700 dark:text-neutral-300">
-                    {{ fmt(row.outstanding_balance_formatted) }}
-                  </td>
-                  <td class="px-3 py-2 text-neutral-500 dark:text-neutral-400">
-                    {{ row.paid_date ? fmtDate(row.paid_date) : '—' }}
-                  </td>
-                  <td class="px-3 py-2">
+                  <td class="px-3 py-3">
                     <span
-                      class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize"
+                      class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold transition-all duration-200"
                       :class="scheduleStatusColor(row.status)"
                     >
-                      {{ row.status }}
+                      {{ row.status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) }}
                     </span>
+                  </td>
+                  <td class="px-3 py-3 text-right text-neutral-600">
+                    {{ row.days_overdue || 0 }}
+                  </td>
+                  <td class="px-3 py-3 text-right text-neutral-700 dark:text-neutral-300">
+                    {{ currency }} {{ row.outstanding_balance_formatted }}
+                  </td>
+                  <td class="px-3 py-3 text-center">
+                    <DropdownMenu v-if="canShowMore(row, index)">
+                      <DropdownMenuTrigger as-child>
+                        <button class="inline-flex items-center justify-between gap-1 px-2.5 py-1.5 text-xs font-semibold text-blue-600 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors">
+                          More
+                          <ChevronDown class="h-3 w-3" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" class="w-48 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 shadow-xl">
+                        <DropdownMenuItem class="cursor-pointer gap-2">
+                          <History class="h-4 w-4" />
+                          Mobile Money
+                        </DropdownMenuItem>
+                        <DropdownMenuItem class="cursor-pointer gap-2">
+                          <Banknote class="h-4 w-4" />
+                          Receive Cash
+                        </DropdownMenuItem>
+                        <DropdownMenuItem class="cursor-pointer gap-2">
+                          <CreditCard class="h-4 w-4" />
+                          Card
+                        </DropdownMenuItem>
+                        <DropdownMenuItem class="cursor-pointer gap-2">
+                          <BookOpen class="h-4 w-4" />
+                          Savings Account
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </td>
                 </tr>
               </tbody>
-              <!-- Totals row -->
-              <tfoot
-                class="bg-neutral-50 dark:bg-neutral-800/60 border-t border-neutral-200 dark:border-neutral-700"
-              >
-                <tr class="font-semibold">
-                  <td colspan="2" class="px-3 py-2.5 text-neutral-700 dark:text-neutral-300">
-                    Total
+              <tfoot class="bg-neutral-50 dark:bg-neutral-800/60 font-bold text-neutral-900 dark:text-white border-t border-neutral-200 dark:border-neutral-700">
+                <tr>
+                  <td colspan="2" class="px-3 py-3 font-semibold text-neutral-700">Total Due</td>
+                  <td class="px-3 py-3 text-right">
+                    {{ currency }} {{ fmt(scheduleTotals.principal_due) }}
                   </td>
-                  <td class="px-3 py-2.5 text-right text-neutral-900 dark:text-white">
-                    {{ fmt(scheduleTotals.principal_due) }}
+                  <td class="px-3 py-3 text-right">
+                    {{ currency }} {{ fmt(scheduleTotals.interest_due) }}
                   </td>
-                  <td class="px-3 py-2.5 text-right text-neutral-900 dark:text-white">
-                    {{ fmt(scheduleTotals.interest_due) }}
+                  <td class="px-3 py-3 text-right">
+                    {{ currency }} {{ fmt(scheduleTotals.penalty_due) }}
                   </td>
-                  <td class="px-3 py-2.5 text-right text-neutral-900 dark:text-white">
-                    {{ fmt(scheduleTotals.charges_due) }}
+                  <td class="px-3 py-3 text-right font-bold">
+                    {{ currency }} {{ fmt(scheduleTotals.total_due) }}
                   </td>
-                  <td class="px-3 py-2.5 text-right text-neutral-900 dark:text-white">
-                    {{ fmt(scheduleTotals.penalty_due) }}
+                  <td class="px-3 py-3 text-right">
+                    {{ currency }} {{ fmt(scheduleTotals.total_paid) }}
                   </td>
-                  <td class="px-3 py-2.5 text-right text-neutral-900 dark:text-white">
-                    {{ fmt(scheduleTotals.total_due) }}
+                  <td class="px-3 py-3 text-right">
+                    {{ currency }} {{ fmt(scheduleTotals.total_due - scheduleTotals.total_paid) }}
                   </td>
-                  <td class="px-3 py-2.5 text-right text-emerald-600 dark:text-emerald-400">
-                    {{ fmt(scheduleTotals.total_paid) }}
-                  </td>
-                  <td class="px-3 py-2.5 text-right text-neutral-900 dark:text-white">
-                    {{ fmt(scheduleTotals.outstanding) }}
-                  </td>
-                  <td colspan="2"></td>
+                  <td colspan="4"></td>
                 </tr>
               </tfoot>
             </table>
