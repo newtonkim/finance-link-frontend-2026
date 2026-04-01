@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   ArrowLeft,
@@ -10,6 +10,8 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
+  ChevronDown,
   TrendingDown,
   ClipboardList,
   History,
@@ -106,6 +108,36 @@ const repaidPercent = computed(() => {
   const outstanding = parseFloat(String(loan.value.outstanding_balance)) || 0
   if (principal <= 0) return 0
   return Math.round(((principal - outstanding) / principal) * 100)
+})
+
+const showAllSchedule = ref(false)
+
+const scheduleTotals = computed(() => {
+  return schedule.value.reduce(
+    (acc, row) => {
+      acc.principal_due += Number(row.principal_due) || 0
+      acc.interest_due += Number(row.interest_due) || 0
+      acc.charges_due += Number(row.charges_due) || 0
+      acc.penalty_due += Number(row.penalty_due) || 0
+      acc.total_due += Number(row.total_due) || 0
+      acc.total_paid +=
+        (Number(row.principal_paid) || 0) +
+        (Number(row.interest_paid) || 0) +
+        (Number(row.penalty_paid) || 0) +
+        (Number(row.charges_paid) || 0)
+      acc.outstanding += Number(row.outstanding_balance) || 0
+      return acc
+    },
+    {
+      principal_due: 0,
+      interest_due: 0,
+      charges_due: 0,
+      penalty_due: 0,
+      total_due: 0,
+      total_paid: 0,
+      outstanding: 0,
+    },
+  )
 })
 
 const hasPrevRepayments = computed(() => repaymentsMeta.value.current_page > 1)
@@ -420,76 +452,199 @@ const hasNextRepayments = computed(
       </div>
 
       <!-- ── Schedule ── -->
-      <div
-        v-if="activeTab === 'schedule'"
-        class="rounded-2xl border border-neutral-100 bg-white dark:border-neutral-800 dark:bg-neutral-900 overflow-hidden"
-      >
-        <table class="w-full text-sm">
-          <thead
-            class="bg-neutral-50 dark:bg-neutral-800/60 border-b border-neutral-100 dark:border-neutral-800"
-          >
-            <tr>
-              <th class="px-4 py-3 text-left font-medium text-neutral-500">#</th>
-              <th class="px-4 py-3 text-left font-medium text-neutral-500">Due Date</th>
-              <th class="px-4 py-3 text-right font-medium text-neutral-500">Principal</th>
-              <th class="px-4 py-3 text-right font-medium text-neutral-500">Interest</th>
-              <th class="px-4 py-3 text-right font-medium text-neutral-500">Total Due</th>
-              <th class="px-4 py-3 text-right font-medium text-neutral-500">Paid</th>
-              <th class="px-4 py-3 text-right font-medium text-neutral-500">Balance</th>
-              <th class="px-4 py-3 text-left font-medium text-neutral-500">Status</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
-            <tr
-              v-for="row in schedule"
-              :key="row.id"
-              class="hover:bg-neutral-50 dark:hover:bg-neutral-800/40"
+      <div v-if="activeTab === 'schedule'">
+        <div v-if="schedule.length">
+          <div class="mb-3 flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+              Repayment Schedule
+            </h3>
+            <span
+              class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
             >
-              <td class="px-4 py-3 text-neutral-500">{{ row.installment_no }}</td>
-              <td class="px-4 py-3">
-                <div class="flex items-center gap-1.5">
-                  <Calendar class="h-3.5 w-3.5 text-neutral-400" />
-                  <span class="text-neutral-700 dark:text-neutral-300">{{
-                    fmtDate(row.due_date)
-                  }}</span>
-                </div>
-                <p v-if="row.is_overdue" class="text-xs text-red-500 mt-0.5">
-                  {{ row.days_overdue }}d overdue
-                </p>
-              </td>
-              <td class="px-4 py-3 text-right text-neutral-700 dark:text-neutral-300">
-                {{ fmt(row.principal_due_formatted) }}
-              </td>
-              <td class="px-4 py-3 text-right text-neutral-700 dark:text-neutral-300">
-                {{ fmt(row.interest_due_formatted) }}
-              </td>
-              <td class="px-4 py-3 text-right font-medium text-neutral-900 dark:text-white">
-                {{ fmt(row.total_due_formatted) }}
-              </td>
-              <td class="px-4 py-3 text-right text-emerald-600 dark:text-emerald-400">
-                {{
-                  fmt(
-                    Number(row.principal_paid) +
-                      Number(row.interest_paid) +
-                      Number(row.penalty_paid) +
-                      Number(row.charges_paid),
-                  )
-                }}
-              </td>
-              <td class="px-4 py-3 text-right text-neutral-700 dark:text-neutral-300">
-                {{ fmt(row.outstanding_balance_formatted) }}
-              </td>
-              <td class="px-4 py-3">
-                <span
-                  class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize"
-                  :class="scheduleStatusColor(row.status)"
+              {{ schedule.length }} installments
+            </span>
+          </div>
+          <div class="overflow-x-auto rounded-xl border border-neutral-100 dark:border-neutral-800">
+            <table class="w-full text-xs">
+              <thead class="bg-neutral-50 dark:bg-neutral-800/60">
+                <tr>
+                  <th
+                    class="px-3 py-2.5 text-left font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    #
+                  </th>
+                  <th
+                    class="px-3 py-2.5 text-left font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Due Date
+                  </th>
+                  <th
+                    class="px-3 py-2.5 text-right font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Principal
+                  </th>
+                  <th
+                    class="px-3 py-2.5 text-right font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Interest
+                  </th>
+                  <th
+                    class="px-3 py-2.5 text-right font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Charges
+                  </th>
+                  <th
+                    class="px-3 py-2.5 text-right font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Penalty
+                  </th>
+                  <th
+                    class="px-3 py-2.5 text-right font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Total Due
+                  </th>
+                  <th
+                    class="px-3 py-2.5 text-right font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Paid
+                  </th>
+                  <th
+                    class="px-3 py-2.5 text-right font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Balance
+                  </th>
+                  <th
+                    class="px-3 py-2.5 text-left font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Paid Date
+                  </th>
+                  <th
+                    class="px-3 py-2.5 text-left font-medium text-neutral-500 dark:text-neutral-400"
+                  >
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+                <tr
+                  v-for="row in showAllSchedule ? schedule : schedule.slice(0, 6)"
+                  :key="row.id"
+                  class="hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors"
                 >
-                  {{ row.status }}
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                  <td class="px-3 py-2 text-neutral-500 dark:text-neutral-400">
+                    {{ row.installment_no }}
+                  </td>
+                  <td class="px-3 py-2">
+                    <div class="flex items-center gap-1.5">
+                      <Calendar class="h-3.5 w-3.5 text-neutral-400" />
+                      <span class="text-neutral-700 dark:text-neutral-300">{{
+                        fmtDate(row.due_date)
+                      }}</span>
+                    </div>
+                    <p v-if="row.is_overdue" class="text-xs text-red-500 mt-0.5">
+                      {{ row.days_overdue }}d overdue
+                    </p>
+                  </td>
+                  <td class="px-3 py-2 text-right text-neutral-700 dark:text-neutral-300">
+                    {{ fmt(row.principal_due_formatted) }}
+                  </td>
+                  <td class="px-3 py-2 text-right text-neutral-700 dark:text-neutral-300">
+                    {{ fmt(row.interest_due_formatted) }}
+                  </td>
+                  <td class="px-3 py-2 text-right text-neutral-700 dark:text-neutral-300">
+                    {{ Number(row.charges_due) > 0 ? fmt(row.charges_due) : '—' }}
+                  </td>
+                  <td
+                    class="px-3 py-2 text-right"
+                    :class="
+                      Number(row.penalty_due) > 0
+                        ? 'text-red-600 dark:text-red-400'
+                        : 'text-neutral-700 dark:text-neutral-300'
+                    "
+                  >
+                    {{ Number(row.penalty_due) > 0 ? fmt(row.penalty_due) : '—' }}
+                  </td>
+                  <td class="px-3 py-2 text-right font-medium text-neutral-900 dark:text-white">
+                    {{ fmt(row.total_due_formatted) }}
+                  </td>
+                  <td class="px-3 py-2 text-right text-emerald-600 dark:text-emerald-400">
+                    {{
+                      fmt(
+                        Number(row.principal_paid) +
+                          Number(row.interest_paid) +
+                          Number(row.penalty_paid) +
+                          Number(row.charges_paid),
+                      )
+                    }}
+                  </td>
+                  <td class="px-3 py-2 text-right text-neutral-700 dark:text-neutral-300">
+                    {{ fmt(row.outstanding_balance_formatted) }}
+                  </td>
+                  <td class="px-3 py-2 text-neutral-500 dark:text-neutral-400">
+                    {{ row.paid_date ? fmtDate(row.paid_date) : '—' }}
+                  </td>
+                  <td class="px-3 py-2">
+                    <span
+                      class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium capitalize"
+                      :class="scheduleStatusColor(row.status)"
+                    >
+                      {{ row.status }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+              <!-- Totals row -->
+              <tfoot
+                class="bg-neutral-50 dark:bg-neutral-800/60 border-t border-neutral-200 dark:border-neutral-700"
+              >
+                <tr class="font-semibold">
+                  <td colspan="2" class="px-3 py-2.5 text-neutral-700 dark:text-neutral-300">
+                    Total
+                  </td>
+                  <td class="px-3 py-2.5 text-right text-neutral-900 dark:text-white">
+                    {{ fmt(scheduleTotals.principal_due) }}
+                  </td>
+                  <td class="px-3 py-2.5 text-right text-neutral-900 dark:text-white">
+                    {{ fmt(scheduleTotals.interest_due) }}
+                  </td>
+                  <td class="px-3 py-2.5 text-right text-neutral-900 dark:text-white">
+                    {{ fmt(scheduleTotals.charges_due) }}
+                  </td>
+                  <td class="px-3 py-2.5 text-right text-neutral-900 dark:text-white">
+                    {{ fmt(scheduleTotals.penalty_due) }}
+                  </td>
+                  <td class="px-3 py-2.5 text-right text-neutral-900 dark:text-white">
+                    {{ fmt(scheduleTotals.total_due) }}
+                  </td>
+                  <td class="px-3 py-2.5 text-right text-emerald-600 dark:text-emerald-400">
+                    {{ fmt(scheduleTotals.total_paid) }}
+                  </td>
+                  <td class="px-3 py-2.5 text-right text-neutral-900 dark:text-white">
+                    {{ fmt(scheduleTotals.outstanding) }}
+                  </td>
+                  <td colspan="2"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <button
+            v-if="schedule.length > 6"
+            class="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl border border-neutral-100 py-2 text-xs font-medium text-neutral-500 hover:bg-neutral-50 transition-colors dark:border-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-800/50"
+            @click="showAllSchedule = !showAllSchedule"
+          >
+            <template v-if="showAllSchedule">
+              <ChevronUp class="h-3.5 w-3.5" /> Show less
+            </template>
+            <template v-else>
+              <ChevronDown class="h-3.5 w-3.5" />
+              Show all {{ schedule.length }} installments
+            </template>
+          </button>
+        </div>
+        <div v-else class="flex flex-col items-center justify-center py-12 text-neutral-400 gap-2">
+          <ClipboardList class="h-8 w-8" />
+          <p class="text-sm">No payment schedule available.</p>
+        </div>
       </div>
 
       <!-- ── Transaction History ── -->
