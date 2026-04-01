@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   ArrowLeft,
@@ -170,6 +170,13 @@ function canShowMore(row: any, index: number) {
 
 // ─── Receive Cash Flow ────────────────────────────────────────────────────────
 const userStore = useTenantUserStore()
+
+onMounted(() => {
+  if (!userStore.user) {
+    userStore.load()
+  }
+})
+
 const receiveCashModalRef = ref<any>(null)
 const showReceiveCashModal = ref(false)
 const isPostingCash = ref(false)
@@ -192,9 +199,7 @@ async function handleReceiveCashSubmit(data: any) {
       amount: data.amount,
       payment_method: 'cash',
       payment_date: data.payment_date,
-      notes: [data.non_borrower ? `Non-Borrower: ${data.non_borrower}` : '', data.description]
-        .filter(Boolean)
-        .join('. '),
+      notes: data.description,
     }
 
     await loansApi.postRepayment(loan.value.id, payload)
@@ -575,10 +580,10 @@ async function handleReceiveCashSubmit(data: any) {
                     {{ fmtDate(row.due_date) }}
                   </td>
                   <td class="px-3 py-3 text-right">
-                    {{ currency }} {{ row.principal_due_formatted }}
+                    {{ currency }} {{ fmt(row.principal_due) }}
                   </td>
                   <td class="px-3 py-3 text-right">
-                    {{ currency }} {{ row.interest_due_formatted }}
+                    {{ currency }} {{ fmt(row.interest_due) }}
                   </td>
                   <td class="px-3 py-3 text-right">
                     <div class="flex items-center justify-end gap-1.5">
@@ -587,7 +592,7 @@ async function handleReceiveCashSubmit(data: any) {
                     </div>
                   </td>
                   <td class="px-3 py-3 text-right font-semibold">
-                    {{ currency }} {{ row.total_due_formatted }}
+                    {{ currency }} {{ fmt(row.total_due) }}
                   </td>
                   <td class="px-3 py-3 text-right">
                     {{ currency }}
@@ -624,7 +629,7 @@ async function handleReceiveCashSubmit(data: any) {
                     {{ row.days_overdue || 0 }}
                   </td>
                   <td class="px-3 py-3 text-right text-neutral-700 dark:text-neutral-300">
-                    {{ currency }} {{ row.outstanding_balance_formatted }}
+                    {{ currency }} {{ fmt(row.outstanding_balance) }}
                   </td>
                   <td class="px-3 py-3 text-center">
                     <DropdownMenu v-if="canShowMore(row, index)">
@@ -755,7 +760,7 @@ async function handleReceiveCashSubmit(data: any) {
                 <td
                   class="px-4 py-3 text-right font-semibold text-emerald-600 dark:text-emerald-400"
                 >
-                  {{ fmt(txn.amount_paid_formatted) }}
+                  {{ currency }} {{ fmt(txn.amount_paid) }}
                 </td>
                 <td class="px-4 py-3 text-neutral-600 dark:text-neutral-400">
                   {{ txn.collected_by?.name ?? '—' }}
@@ -840,8 +845,8 @@ async function handleReceiveCashSubmit(data: any) {
     ref="receiveCashModalRef"
     :open="showReceiveCashModal"
     :posting="isPostingCash"
-    :teller-name="userStore.user?.name ?? 'Newton Kimathi'"
-    :borrower-name="loan?.member?.name ?? 'Borrower'"
+    :teller-name="userStore.user?.name ?? '—'"
+    :borrower-name="loan?.member?.name ?? '—'"
     :installment-amount="
       selectedInstallment
         ? Number(selectedInstallment.total_due) -
