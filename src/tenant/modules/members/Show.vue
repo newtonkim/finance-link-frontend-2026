@@ -73,6 +73,7 @@ onMounted(async () => {
 </script>
 
 <template>
+    <!-- {{ data }} -->
     <div v-if="loading">Loading...</div>
     <Details v-else :data="data" :columns="columns" />
 </template>

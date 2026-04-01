@@ -1,5 +1,5 @@
 <template>
-    <TableDrawer :drawerRemount="drawerRemount" :automaticCreate="automaticCreate.actionSlot != 'deposit'" ref="drawer"
+    <TableDrawer :drawerRemount="drawerRemount" :automaticCreate="!automaticCreate.actionSlot" ref="drawer"
         :showTableAction="true" :drawerWidth="drawerTitle?.width" :url="tableUrl" state="memberAccountList"
         :drawerTitle="drawerTitle?.title" :columns="columns" @save="saveUser">
         <template #member_name="{ item }">
@@ -14,8 +14,13 @@
             </div>
         </template>
         <template #actions="{ item }: { item: any }">
-            <TabelActionButtons @action="() => OpenThedrawer(item)" title="deposit" color="danger"
-                icon="CircleDollarSign" />
+            <div class='flex items-center gap-2'>
+
+                <TabelActionButtons @action="() => OpenThedrawer(item, 'withdrawal')" title="withdrawal"
+                    color="secondary" icon="CircleMinus" />
+                <TabelActionButtons @action="() => OpenThedrawer(item, 'deposit')" title="deposit" color="danger"
+                    icon="CircleDollarSign" />
+            </div>
         </template>
         <template #header-action>
             <PainPageHeader title="Members Savings Account"
@@ -27,6 +32,8 @@
         <template #drawer="{ action, data }">
             <Deposit v-if="automaticCreate?.actionSlot == 'deposit'" :data="{ action, ...(automaticCreate ?? {}) }"
                 v-model:form="formData" />
+            <Withdrawal v-if="automaticCreate?.actionSlot == 'withdrawal'"
+                :data="{ action, ...(automaticCreate ?? {}) }" v-model:form="formData" />
             <Create v-else-if="['add', 'edit'].includes(action)" :data="{ ...data, action }" />
             <Details v-else-if="['view'].includes(action)" :data="data" />
         </template>
@@ -34,31 +41,32 @@
 </template>
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { Create, Details, Deposit } from '.'
+import { Create, Details, Deposit, Withdrawal } from '.'
 import { TableDrawer, StatusButtonsHorizontal, PainPageHeader, CopyData, TabelActionButtons } from '@/Global'
 import { memberAccountApi } from '@/tenant/apis'
 const drawer = ref(null), drawerRemount = ref(true),
     automaticCreate = ref({ drawerActions: true, actionSlot: null })
 const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
-    { memebrAccountDepositAmount } = memberAccountApi(),
+    { memebrAccountDepositAmount, memebrAccountWithdrawalAmount } = memberAccountApi(),
     drawerTitle = ref('Create Tenant'), filters = ['all', 'active', 'suspended', 'expired', 'trial'],
     tableUrl = computed(() => `/members-account/list?status=${statusFilter.value}`),
     title: Record<string, string> = {
         "view": { title: "Viewmember saving's Account Details", width: "w-3/5" },
         "edit": { title: "Edit member saving's Account", width: "w-1/3" },
-        "add": { title: "Create a member saving's Account", width: "w-1/3" },
-        "deposit": { width: "w-3/4", title: "deposit Saving's Account", fun: async() => { drawerRemount.value = await memebrAccountDepositAmount(formData.value, automaticCreate.value,) }, },// this will be the deposite
+        "add": { title: "Create a member saving's Account", width: "w-2/4" },
+        "deposit": { width: "w-3/4", title: "deposit Saving's Account", fun: async () => { drawerRemount.value = await memebrAccountDepositAmount(formData.value, automaticCreate.value,) }, },// this will be the deposite
+        "withdrawal": { width: "w-3/4", title: "withdrawal Saving's Account", fun: async () => { drawerRemount.value = await memebrAccountWithdrawalAmount(formData.value, automaticCreate.value,) }, },// this will be the withdrawal
     }
 // automaticCreate.actionSlot// this will help switch off the default drawer actions  and use out side action
 function saveUser(type: string, data: any) {
-    if (['add', 'edit', 'view'].includes(type)) {
-        automaticCreate.value = {}
+    if (title?.[automaticCreate.value.actionSlot]) {// let check if there is an action slot has its own action we use that action instead of the default ones
+        title?.[automaticCreate.value.actionSlot]?.fun?.()
+        return
     }
 
-    if (automaticCreate.value.actionSlot == 'deposit') {
-        title?.['deposit']?.fun?.()
-        return
-    } else if (title?.[type]) {
+    if (['add', 'edit', 'view'].includes(type))
+        automaticCreate.value = {}
+    if (title?.[type]) {
         drawerTitle.value = title?.[type]
     }
     title?.[type]?.fun?.()
@@ -72,11 +80,18 @@ const columns = [
     { key: 'created at', label: 'created at', type: 'status' },
     { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 ]
-function OpenThedrawer(item: any) {
-    automaticCreate.value = { actionSlot: 'deposit', ...item }
-    drawerTitle.value = { title: "deposit member saving's Account", width: "w-2/4" }
+function OpenThedrawer(item: any, action = 'deposit') {
+    automaticCreate.value = { actionSlot: action, ...item }
+    drawerTitle.value = title?.[action];
     setTimeout(() => {
         drawer.value.toggleDrawer()
-    }, 1000)
+    }, 100)
 }
+watch(() => drawer.value?.drawerOpen, (val) => {
+    if (!val) { // drawer is closed
+        automaticCreate.value = {}
+        drawerTitle.value = ''
+    }
+
+})
 </script>

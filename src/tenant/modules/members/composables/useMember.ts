@@ -3,6 +3,7 @@ import { useRoute } from 'vue-router';
 import { toast } from 'vue-sonner';
 import { membersApi } from '@/tenant/apis/members/membersApi';
 import { tenantClient } from '@/tenant/apis/tenantClient';
+import { getLocalValues } from '@/Global';
 
 export type SavingsAccount = {
     id: number;
@@ -71,7 +72,10 @@ export function useMember() {
     const pageLoading = ref(true);
 
     async function fetchMember(silent = false) {
-        const id = Number(route.params.id);
+  const profile =  getLocalValues('memberProfile')
+  
+
+        const id = Number(profile.id);
         if (!id) return;
         if (!silent) pageLoading.value = true;
         try {

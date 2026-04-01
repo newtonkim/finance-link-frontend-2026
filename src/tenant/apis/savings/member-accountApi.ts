@@ -1,4 +1,4 @@
-import { fetchTableData, formDataFormatV2 } from '@/Global'
+import { feedback, fetchTableData, formDataFormatV2 } from '@/Global'
 import { notify } from '@/Global/Toasters'
 import { pomPinia } from 'septor-store'
 export function memberAccountApi() {
@@ -45,9 +45,36 @@ export function memberAccountApi() {
     }
     notify(msg)
 
-      return true
+    return true
 
     // return getCharges.payload
+  }
+  async function memebrAccountWithdrawalAmount(data: any, outletAction: any) {
+    const dataPrepare = data
+    dataPrepare.push({ name: 'account_id', value: outletAction?.id, hidden: true })
+    const unique = Object.values(
+      dataPrepare.reduce(
+        (acc, item) => {
+          acc[item.name] = item
+          return acc
+        },
+        {} as Record<string, any>,
+      ),
+    )
+    const getCharges = await fetchTableData({
+      data: formDataFormatV2(unique),
+      Store,
+      saveData: true,
+      props: {
+        url: 'members-account/withdrawal',
+        method: 'post',
+        time: 0,
+        state: 'memberAccountList',
+      },
+    });
+    feedback(getCharges, 'withdrawal amount  successfully')
+
+    return true
   }
   async function getProductCharges(data: any) {
     const getCharges = await fetchTableData({
@@ -66,5 +93,6 @@ export function memberAccountApi() {
   return {
     getProductCharges,
     memebrAccountDepositAmount,
+    memebrAccountWithdrawalAmount,
   }
 }

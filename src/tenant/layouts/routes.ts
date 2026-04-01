@@ -36,6 +36,13 @@ export const tenantRoutes: MenuRoutes[] = [
             permissions: 'members-list',
           },
           {
+            path: 'member/profile',
+            label: 'member-profile',
+            component: () => import('@/tenant/modules/members/profile/MemberShow.vue'),
+            showSideBar: false,
+            // permissions: 'member-profile',
+          },
+          {
             path: 'members-account',
             label: 'Members Account',
             permissions: 'members-account-module-link-view',

@@ -121,8 +121,6 @@ export async function fetchTableData({
   // const method = resolveMethod(props?.url, data, props?.method)
    const quer=props?.url.includes('?')?`${props?.url}&`:`${props?.url}?`
    const branchQuery = branch_id ? `branch_id=${branch_id}` : ''
-   console.log(data);
-   
   const collection = {
     reload: !!props.reload ? 0 : 1, // dont think am stupid i know that
     // reload: !!props.reload ? 0 : 1, // dont think am stupid i know that

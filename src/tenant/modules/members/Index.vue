@@ -9,10 +9,10 @@
         </template>
         <template #salutation_name="{ item }">
             <span>
-                <router-link :to="`/members/${item?.id}`"
+                <Button @click="navigateToProfile(item)"
                     class="flex items-center gap-2 font-semibold text-nfuko-action text-sm dark:text-white">
                     <span>{{ item?.salutation_name }}</span>
-                </router-link>
+                </Button>
             </span>
         </template>
         <template #searchSideAction>
@@ -20,7 +20,6 @@
         </template>
 
         <template #drawer="{ action, data }">
-            <!-- {{ action }} -->
             <Create v-if="['add', 'edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
             <Details v-if="['view'].includes(action)" :data="data" />
         </template>
@@ -29,7 +28,10 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Create, Details } from '.'
-import { TableDrawer, StatusButtonsHorizontal } from '@/Global'
+import { TableDrawer, StatusButtonsHorizontal, setLocalValues } from '@/Global'
+import { useRouter } from 'vue-router';
+const router = useRouter();
+
 const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
     drawerTitle = ref('Create Tenant'), filters = ['all', 'active', 'suspended', 'expired', 'trial'],
     tableUrl = computed(() => `/members/list?status=${statusFilter.value}`),
@@ -45,7 +47,7 @@ const columns = [
     { key: 'memeber_code', label: 'code', },
     { key: 'salutation_name', label: 'Member', sticky: 'left', width: '14em ', },
     { key: 'member_type', label: 'Member Type' },
-    { key: 'NIN', label: 'national_id', },
+    { key: 'NIN', label: 'national id', },
     { key: 'email', label: 'email', },
     { key: 'primary_contact', label: 'phone', width: '14em ', },
     { key: 'other_contacts', label: 'Other Contacts', width: '14em ', },
@@ -54,4 +56,10 @@ const columns = [
     { key: 'marital_status', label: 'Status', type: 'status' },
     { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 ]
+function navigateToProfile(item: any) {
+    router.push(`/tenant/member/profile`) // navigate to the member profile page
+    // you can also pass the member id or other details as query params or state if needed      `)
+    // navigate to the member profile page
+    setLocalValues('memberProfile', item)
+}
 </script>
