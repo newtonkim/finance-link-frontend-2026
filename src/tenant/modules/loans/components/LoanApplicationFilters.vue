@@ -21,7 +21,6 @@ const statusOptions = [
     { value: 'under_review', label: 'Under Review' },
     { value: 'recommended',  label: 'Recommended' },
     { value: 'awaiting_documents',  label: 'Awaiting Documents' },
-    { value: 'awaiting_guarantors', label: 'Awaiting Guarantors' },
     { value: 'approved',     label: 'Approved' },
     { value: 'rejected',     label: 'Rejected' },
     { value: 'disbursed',    label: 'Disbursed' },

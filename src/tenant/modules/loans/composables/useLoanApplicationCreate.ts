@@ -3,11 +3,13 @@ import { useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
 import { loanApplicationsApi } from '../../../apis/loans/loanApplicationsApi'
 import { useLoanApplicationForm } from './useLoanApplicationForm'
+import { tenantClient } from '../../../apis/tenantClient'
 
 export function useLoanApplicationCreate() {
     const router    = useRouter()
     const saving    = ref(false)
     const submitting = ref(false)
+    const staffOptions = ref<{ id: number; name: string }[]>([])
 
     const {
         form, errors,
@@ -18,6 +20,15 @@ export function useLoanApplicationCreate() {
         onProductChange,
         fieldError,
     } = useLoanApplicationForm()
+
+    async function fetchStaff() {
+        try {
+            const res = await tenantClient.post('/staff/users-drop-down', {})
+            staffOptions.value = res.data?.payload?.data ?? []
+        } catch {
+            // silently fail
+        }
+    }
 
     // ─── Save (draft only) ────────────────────────────────────────────────────
     async function save() {
@@ -62,7 +73,7 @@ export function useLoanApplicationCreate() {
     }
 
     onMounted(async () => {
-        await Promise.all([fetchProducts(), fetchMembers()])
+        await Promise.all([fetchProducts(), fetchMembers(), fetchStaff()])
     })
 
     return {
@@ -70,7 +81,7 @@ export function useLoanApplicationCreate() {
         form,
         selectedProduct, schedulePreview, previewLoading,
         eligibilityResult, eligibilityLoading, triggerEligibilityCheck,
-        members, products,
+        members, products, staffOptions,
         fetchMembers, onProductChange,
         fieldError,
         save, saveAndSubmit,

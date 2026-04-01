@@ -132,39 +132,6 @@ export function useLoanAppraisalActions(
         }
     }
 
-    // ─── Request Guarantors modal ─────────────────────────────────────────────
-    const showRequestGuarantorsModal = ref(false)
-    const requestingGuarantors       = ref(false)
-    const requestGuarantorsNote      = ref('')
-    const requestGuarantorsError     = ref('')
-
-    function openRequestGuarantorsModal() {
-        requestGuarantorsNote.value  = ''
-        requestGuarantorsError.value = ''
-        showRequestGuarantorsModal.value = true
-    }
-
-    async function submitRequestGuarantors() {
-        requestGuarantorsError.value = ''
-        if (requestGuarantorsNote.value.trim().length < 10) {
-            requestGuarantorsError.value = 'Please provide a note of at least 10 characters.'
-            return
-        }
-        requestingGuarantors.value = true
-        try {
-            await loanApplicationsApi.requestGuarantors(id(), requestGuarantorsNote.value.trim())
-            toast.success('Application flagged as awaiting guarantors.')
-            showRequestGuarantorsModal.value = false
-            await reload()
-        } catch (err: any) {
-            requestGuarantorsError.value = err?.response?.data?.errors?.note?.[0]
-                ?? err?.response?.data?.message
-                ?? 'Failed to request guarantors.'
-        } finally {
-            requestingGuarantors.value = false
-        }
-    }
-
     // ─── Return for Correction modal ──────────────────────────────────────────
     const showReturnModal = ref(false)
     const returning       = ref(false)
@@ -288,6 +255,104 @@ export function useLoanAppraisalActions(
         }
     }
 
+    // ─── BM Recommend modal ──────────────────────────────────────────────────
+    const showBMRecommendModal = ref(false)
+    const bmRecommending       = ref(false)
+
+    function openBMRecommendModal() {
+        showBMRecommendModal.value = true
+    }
+
+    async function submitBMRecommend(bmNotes: string) {
+        bmRecommending.value = true
+        try {
+            await loanApplicationsApi.bmRecommend(id(), bmNotes || null)
+            toast.success('Application recommended to committee.')
+            showBMRecommendModal.value = false
+            await reload()
+        } catch (err: any) {
+            toast.error(err?.response?.data?.message ?? 'Failed to recommend application.')
+        } finally {
+            bmRecommending.value = false
+        }
+    }
+
+    // ─── BM Return for Correction modal ──────────────────────────────────────
+    const showBMReturnModal = ref(false)
+    const bmReturning       = ref(false)
+
+    function openBMReturnModal() {
+        showBMReturnModal.value = true
+    }
+
+    async function submitBMReturn(correctionReason: string) {
+        bmReturning.value = true
+        try {
+            await loanApplicationsApi.committeeReturnForCorrection(id(), correctionReason)
+            toast.success('Application returned for correction.')
+            showBMReturnModal.value = false
+            await reload()
+        } catch (err: any) {
+            toast.error(err?.response?.data?.message ?? 'Failed to return application.')
+        } finally {
+            bmReturning.value = false
+        }
+    }
+
+    // ─── Vote Cast modal ─────────────────────────────────────────────────────
+    const showVoteModal = ref(false)
+    const voting        = ref(false)
+
+    function openVoteModal() {
+        showVoteModal.value = true
+    }
+
+    async function submitVote(decision: 'approve' | 'decline', comment: string) {
+        voting.value = true
+        try {
+            await loanApplicationsApi.castVote(id(), { decision, comment: comment || null })
+            toast.success('Vote recorded.')
+            showVoteModal.value = false
+            await reload()
+        } catch (err: any) {
+            toast.error(err?.response?.data?.message ?? 'Failed to record vote.')
+        } finally {
+            voting.value = false
+        }
+    }
+
+    // ─── Vote tally ──────────────────────────────────────────────────────────
+    const voteTally = ref<any>(null)
+    const loadingVotes = ref(false)
+
+    async function loadVotes() {
+        loadingVotes.value = true
+        try {
+            const res = await loanApplicationsApi.getVotes(id())
+            voteTally.value = res.data.data
+        } catch (err: any) {
+            // Silently fail for vote loading
+        } finally {
+            loadingVotes.value = false
+        }
+    }
+
+    // ─── Committee votes ──────────────────────────────────────────────────────
+    const committeeVotes = ref<any[]>([])
+    const loadingCommitteeVotes = ref(false)
+
+    async function loadCommitteeVotes() {
+        loadingCommitteeVotes.value = true
+        try {
+            const res = await loanApplicationsApi.getCommitteeVotes(id())
+            committeeVotes.value = res.data.data
+        } catch (err: any) {
+            // Silently fail for committee votes loading
+        } finally {
+            loadingCommitteeVotes.value = false
+        }
+    }
+
     return {
         // Take for review
         takingForReview, takeForReview,
@@ -299,9 +364,6 @@ export function useLoanAppraisalActions(
         // Request docs
         showRequestDocsModal, requestingDocs, requestDocsNote, requestDocsError,
         openRequestDocsModal, submitRequestDocs,
-        // Request guarantors
-        showRequestGuarantorsModal, requestingGuarantors, requestGuarantorsNote, requestGuarantorsError,
-        openRequestGuarantorsModal, submitRequestGuarantors,
         // Return for correction
         showReturnModal, returning, returnReason, returnError,
         openReturnModal, submitReturn,
@@ -314,5 +376,18 @@ export function useLoanAppraisalActions(
         // Decline
         showDeclineModal, declining, declineReason, declineError,
         openDeclineModal, submitDecline,
+        // BM Recommend
+        showBMRecommendModal, bmRecommending,
+        openBMRecommendModal, submitBMRecommend,
+        // BM Return for Correction
+        showBMReturnModal, bmReturning,
+        openBMReturnModal, submitBMReturn,
+        // Vote Cast
+        showVoteModal, voting,
+        openVoteModal, submitVote,
+        // Vote Tally
+        voteTally, loadingVotes, loadVotes,
+        // Committee Votes
+        committeeVotes,
     }
 }

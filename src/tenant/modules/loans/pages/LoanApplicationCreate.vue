@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { ArrowLeft, HandCoins, ChevronRight } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
-import { toast } from 'vue-sonner'
 import { useLoanApplicationCreate } from '../composables/useLoanApplicationCreate'
 import { useLoanApplicationHelpers } from '../composables/useLoanApplicationHelpers'
 import LoanFormStepIndicator from '../components/LoanFormStepIndicator.vue'
@@ -15,10 +14,10 @@ const router = useRouter()
 const { formatAmount } = useLoanApplicationHelpers()
 
 const {
-    saving, submitting, form, guarantorCount,
+    saving, submitting, form,
     selectedProduct, schedulePreview, previewLoading,
     eligibilityResult, eligibilityLoading, triggerEligibilityCheck,
-    members, products, onProductChange, fieldError,
+    members, products, staffOptions, onProductChange, fieldError,
     save, saveAndSubmit,
 } = useLoanApplicationCreate()
 
@@ -53,10 +52,7 @@ function goToStep(n: number) { currentStep.value = n }
 function nextStep()          { if (currentStep.value < steps.length) currentStep.value++ }
 function prevStep()          { if (currentStep.value > 1) currentStep.value-- }
 
-const step1Valid = computed(() => {
-    const basic = !!(form.value.member_id && form.value.loan_product_id)
-    return basic && (form.value.guarantors?.length ?? 0) >= (selectedProduct.value?.min_guarantors ?? 0)
-})
+const step1Valid = computed(() => !!(form.value.member_id && form.value.loan_product_id))
 
 // ─── Collateral ───────────────────────────────────────────────────────────────
 const collateralItems = ref<any[]>([])
@@ -65,19 +61,6 @@ const step2Valid      = computed(() => {
     if (!form.value.requested_amount || !form.value.requested_term) return false
     return collateralRef.value?.isSecured ?? true
 })
-
-// ─── Guarantors ───────────────────────────────────────────────────────────────
-watch(() => form.value.guarantors?.length ?? 0, (count) => {
-    guarantorCount.value = count
-    void triggerEligibilityCheck()
-})
-
-function selectGuarantor(m: any) {
-    if (form.value.member_id === m.id) { toast.error('The loan applicant cannot be their own guarantor.'); return }
-    if (form.value.guarantors?.find((g: any) => g.member_id === m.id)) { toast.error('Already added as a guarantor.'); return }
-    form.value.guarantors?.push({ member_id: m.id, name: m.name, member_no: m.member_no, guarantee_amount: 0, savings_account: m.savings_account })
-}
-function removeGuarantor(memberId: number) { form.value.guarantors = form.value.guarantors?.filter((g: any) => g.member_id !== memberId) }
 
 const eligibilityReady = computed(() => !!(form.value.member_id && form.value.loan_product_id && form.value.requested_amount && form.value.requested_term))
 const canSubmit        = computed(() => !(eligibilityResult.value && !eligibilityResult.value.eligible && eligibilityResult.value.failed.length > 0))
@@ -102,7 +85,7 @@ const canSubmit        = computed(() => !(eligibilityResult.value && !eligibilit
 
         <LoanFormStepIndicator :steps="steps" :current-step="currentStep" @goto="goToStep" />
 
-        <form @submit.prevent="save(collateralItems)">
+        <form @submit.prevent="save()">
 
             <!-- Step 1 -->
             <LoanCreateStep1Panel
@@ -112,18 +95,13 @@ const canSubmit        = computed(() => !(eligibilityResult.value && !eligibilit
                 :selected-product="selectedProduct"
                 :member-options="memberOptions"
                 :product-options="productOptions"
+                :staff-options="staffOptions"
                 :field-error="fieldError"
-                :eligibility-result="eligibilityResult"
-                :eligibility-loading="eligibilityLoading"
-                :eligibility-ready="eligibilityReady"
                 :step1-valid="step1Valid"
                 @select-member="selectMember"
                 @clear-member="clearMember"
                 @select-product="selectProduct"
                 @next="nextStep"
-                @retry-eligibility="triggerEligibilityCheck"
-                @add-guarantor="selectGuarantor"
-                @remove-guarantor="removeGuarantor"
             />
 
             <!-- Step 2 -->
@@ -194,8 +172,8 @@ const canSubmit        = computed(() => !(eligibilityResult.value && !eligibilit
                 :can-submit="canSubmit"
                 @prev="prevStep"
                 @go-to-step="goToStep"
-                @save="save(collateralItems)"
-                @save-and-submit="saveAndSubmit(collateralItems)"
+                @save="save()"
+                @save-and-submit="saveAndSubmit()"
                 @retry-eligibility="triggerEligibilityCheck"
             />
 

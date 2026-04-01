@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CircleDot, Clock, FileText, UserCheck, ThumbsUp } from 'lucide-vue-next'
+import { CircleDot, Clock, FileText, ThumbsUp } from 'lucide-vue-next'
 import { useLoanApplicationHelpers } from '../composables/useLoanApplicationHelpers'
 import type { TimelineEvent } from '../../../apis/loans/loanApplicationsApi'
 
@@ -23,7 +23,6 @@ const { formatDateTime, timelineIconClass } = useLoanApplicationHelpers()
                     <CircleDot v-if="event.type === 'created'"           class="h-2.5 w-2.5" />
                     <Clock      v-else-if="event.type === 'status_change'"     class="h-2.5 w-2.5" />
                     <FileText   v-else-if="event.type === 'document_uploaded'" class="h-2.5 w-2.5" />
-                    <UserCheck  v-else-if="event.type === 'guarantor_added'"   class="h-2.5 w-2.5" />
                     <ThumbsUp   v-else-if="event.type === 'approval_vote'"     class="h-2.5 w-2.5" />
                 </div>
                 <p class="text-xs text-neutral-400 dark:text-neutral-500">{{ formatDateTime(event.timestamp) }}</p>

@@ -5,15 +5,20 @@ import {
     ClipboardCheck, FileSearch, Users, Undo2, ThumbsUp, ThumbsDown,
     ShieldCheck, Clock, FileText, UserCheck, CheckCircle2, XCircle as XCircleIcon,
     CircleDot, RefreshCw, Banknote, CreditCard, Shield, Check, ChevronDown, ChevronUp,
+    ClipboardList, History, BookOpen, Activity,
 } from 'lucide-vue-next'
 import { formatMoneyValue } from '@/Global'
 import { useRouter } from 'vue-router'
 import { useLoanApplicationShow } from '../composables/useLoanApplicationShow'
 import { useLoanAppraisalActions } from '../composables/useLoanAppraisalActions'
 import { useLoanDisbursement } from '../composables/useLoanDisbursement'
-import LoanGuarantorManager from '../components/LoanGuarantorManager.vue'
 import LoanDocumentUploader from '../components/LoanDocumentUploader.vue'
 import LoanDisbursementDrawer from '../components/LoanDisbursementDrawer.vue'
+import VoteTallyDisplay from '../components/VoteTallyDisplay.vue'
+import VoteCastModal from '../components/VoteCastModal.vue'
+import CommitteeVotesList from '../components/CommitteeVotesList.vue'
+import BMRecommendModal from '../components/BMRecommendModal.vue'
+import BMReturnForCorrectionModal from '../components/BMReturnForCorrectionModal.vue'
 
 const router = useRouter()
 
@@ -33,8 +38,6 @@ const {
     openAppraiseModal, submitAppraise,
     showRequestDocsModal, requestingDocs, requestDocsNote, requestDocsError,
     openRequestDocsModal, submitRequestDocs,
-    showRequestGuarantorsModal, requestingGuarantors, requestGuarantorsNote, requestGuarantorsError,
-    openRequestGuarantorsModal, submitRequestGuarantors,
     showReturnModal, returning, returnReason, returnError,
     openReturnModal, submitReturn,
     showRejectModal, rejecting, rejectReason, rejectError,
@@ -61,13 +64,18 @@ function statusBadgeClass(status: string | undefined) {
         case 'submitted':           return 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
         case 'under_review':        return 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
         case 'awaiting_documents':  return 'bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-        case 'awaiting_guarantors': return 'bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+
         case 'recommended':         return 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
         case 'approved':            return 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400'
         case 'disbursement_pending':return 'bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400'
         case 'disbursed':           return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
         case 'rejected':            return 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400'
         case 'cancelled':           return 'bg-neutral-200 text-neutral-500 dark:bg-neutral-700 dark:text-neutral-400'
+        case 'officer_recommended': return 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400'
+        case 'bm_recommended':      return 'bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400'
+        case 'committee_voting':    return 'bg-fuchsia-50 text-fuchsia-700 dark:bg-fuchsia-900/30 dark:text-fuchsia-400'
+        case 'returned_for_correction': return 'bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+        case 'declined':            return 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400'
         default:                    return 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400'
     }
 }
@@ -114,17 +122,16 @@ function timelineIconClass(type: string) {
         case 'created':           return 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800'
         case 'status_change':     return 'bg-blue-50 text-blue-600 dark:bg-blue-900/40'
         case 'document_uploaded': return 'bg-amber-50 text-amber-600 dark:bg-amber-900/40'
-        case 'guarantor_added':   return 'bg-purple-50 text-purple-600 dark:bg-purple-900/40'
+
         case 'approval_vote':     return 'bg-green-50 text-green-600 dark:bg-green-900/40'
         default:                  return 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800'
     }
 }
 
-const editableStatuses          = ['draft']
-const cancellableStatuses       = ['draft', 'submitted', 'under_review', 'awaiting_documents', 'awaiting_guarantors']
-const reopenableStatuses        = ['cancelled']
-const guarantorEditableStatuses = ['draft', 'awaiting_guarantors']
-const documentEditableStatuses  = ['draft', 'awaiting_documents']
+const editableStatuses          = ['draft', 'returned_for_correction']
+const cancellableStatuses       = ['draft', 'submitted', 'under_review', 'awaiting_documents', 'officer_recommended', 'bm_recommended', 'committee_voting']
+const reopenableStatuses        = ['cancelled', 'declined']
+const documentEditableStatuses  = ['draft', 'awaiting_documents', 'returned_for_correction']
 
 // ─── Workflow pipeline (Gap 4) ────────────────────────────────────────────────
 const workflowSteps = [
@@ -138,14 +145,17 @@ const workflowSteps = [
 
 const statusOrder: Record<string, number> = {
     draft: 0, submitted: 1,
-    under_review: 2, awaiting_documents: 2, awaiting_guarantors: 2,
-    recommended: 3,
-    approved: 4, disbursement_pending: 4,
-    disbursed: 5,
+    under_review: 2, awaiting_documents: 2,
+    recommended: 3, officer_recommended: 3,
+    bm_recommended: 4, committee_voting: 4,
+    approved: 5, disbursement_pending: 5,
+    disbursed: 6,
+    returned_for_correction: 2,
+    declined: 5,
 }
 
 const isTerminalNegative = computed(() =>
-    application.value?.status === 'rejected' || application.value?.status === 'cancelled'
+    application.value?.status === 'rejected' || application.value?.status === 'cancelled' || application.value?.status === 'declined'
 )
 
 function pipelineStepStatus(stepKey: string): 'completed' | 'current' | 'pending' {
@@ -159,7 +169,10 @@ function pipelineStepStatus(stepKey: string): 'completed' | 'current' | 'pending
 const pipelineSubLabel = computed(() => {
     switch (application.value?.status) {
         case 'awaiting_documents':   return 'Awaiting Docs'
-        case 'awaiting_guarantors':  return 'Awaiting Guarantors'
+        case 'officer_recommended':  return 'Officer Recommended'
+        case 'bm_recommended':       return 'BM Recommended'
+        case 'committee_voting':     return 'Committee Voting'
+        case 'returned_for_correction': return 'Returned'
         case 'disbursement_pending': return 'Pending Disbursement'
         default: return null
     }
@@ -167,6 +180,17 @@ const pipelineSubLabel = computed(() => {
 
 // ─── Schedule expansion (Gap 10) ─────────────────────────────────────────────
 const showAllSchedule = ref(false)
+
+// ─── Loan Account Tabs ───────────────────────────────────────────────────────
+const loanAccountTab = ref<'general' | 'transactions' | 'schedule' | 'documents' | 'activities'>('general')
+
+const loanAccountTabs = [
+    { key: 'general' as const,      label: 'General Information', icon: CreditCard },
+    { key: 'transactions' as const, label: 'Transaction History', icon: History },
+    { key: 'schedule' as const,     label: 'Payment Schedule',    icon: ClipboardList },
+    { key: 'documents' as const,    label: 'Documents',           icon: FileText },
+    { key: 'activities' as const,   label: 'Loan Activities',     icon: Activity },
+]
 </script>
 
 <template>
@@ -315,12 +339,7 @@ const showAllSchedule = ref(false)
                     <p class="mb-3 text-sm font-semibold text-amber-800 dark:text-amber-300">Appraisal Actions</p>
                     <p class="mb-4 text-xs text-amber-700 dark:text-amber-400">Review the application details, then choose an action.</p>
                     <div class="flex flex-wrap gap-2">
-                        <button
-                            class="flex items-center gap-2 rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 transition-opacity"
-                            @click="openAppraiseModal">
-                            <ClipboardCheck class="h-4 w-4" />
-                            Appraise & Recommend
-                        </button>
+                        <!-- Requested order: Request Documents → Return for Correction → Appraise & Recommend -->
                         <button
                             class="flex items-center gap-2 rounded-xl border border-amber-200 bg-white px-4 py-2 text-sm font-medium text-amber-700 hover:bg-amber-50 transition-colors dark:border-amber-800 dark:bg-transparent dark:text-amber-400 dark:hover:bg-amber-900/20"
                             @click="openRequestDocsModal">
@@ -328,16 +347,16 @@ const showAllSchedule = ref(false)
                             Request Documents
                         </button>
                         <button
-                            class="flex items-center gap-2 rounded-xl border border-amber-200 bg-white px-4 py-2 text-sm font-medium text-amber-700 hover:bg-amber-50 transition-colors dark:border-amber-800 dark:bg-transparent dark:text-amber-400 dark:hover:bg-amber-900/20"
-                            @click="openRequestGuarantorsModal">
-                            <Users class="h-4 w-4" />
-                            Request Guarantors
-                        </button>
-                        <button
                             class="flex items-center gap-2 rounded-xl border border-orange-200 bg-white px-4 py-2 text-sm font-medium text-orange-700 hover:bg-orange-50 transition-colors dark:border-orange-800 dark:bg-transparent dark:text-orange-400 dark:hover:bg-orange-900/20"
                             @click="openReturnModal">
                             <Undo2 class="h-4 w-4" />
                             Return for Correction
+                        </button>
+                        <button
+                            class="flex items-center gap-2 rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 transition-opacity"
+                            @click="openAppraiseModal">
+                            <ClipboardCheck class="h-4 w-4" />
+                            Appraise & Recommend
                         </button>
                         <button
                             class="flex items-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors dark:border-red-800 dark:bg-transparent dark:text-red-400 dark:hover:bg-red-900/20"
@@ -348,16 +367,12 @@ const showAllSchedule = ref(false)
                     </div>
                 </div>
 
-                <!-- Awaiting documents/guarantors: resume review once provided -->
-                <div v-else-if="application.status === 'awaiting_documents' || application.status === 'awaiting_guarantors'"
+                <!-- Awaiting documents: resume review once provided -->
+                <div v-else-if="application.status === 'awaiting_documents'"
                     class="rounded-2xl border border-orange-100 bg-orange-50/50 p-5 dark:border-orange-900/40 dark:bg-orange-900/10">
-                    <p class="mb-1 text-sm font-semibold text-orange-800 dark:text-orange-300">
-                        {{ application.status === 'awaiting_documents' ? 'Awaiting Documents' : 'Awaiting Guarantors' }}
-                    </p>
+                    <p class="mb-1 text-sm font-semibold text-orange-800 dark:text-orange-300">Awaiting Documents</p>
                     <p class="mb-4 text-xs text-orange-700 dark:text-orange-400">
-                        Once the member has provided the required
-                        {{ application.status === 'awaiting_documents' ? 'documents' : 'guarantors' }},
-                        resume the review.
+                        Once the member has provided the required documents, resume the review.
                     </p>
                     <button
                         :disabled="resumingReview"
@@ -366,6 +381,91 @@ const showAllSchedule = ref(false)
                         <RefreshCw class="h-4 w-4" />
                         {{ resumingReview ? 'Resuming…' : 'Resume Review' }}
                     </button>
+                </div>
+
+                <!-- Officer Recommended: BM actions -->
+                <div v-else-if="application.status === 'officer_recommended'"
+                    class="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-5 dark:border-indigo-900/40 dark:bg-indigo-900/10">
+                    <p class="mb-1 text-sm font-semibold text-indigo-800 dark:text-indigo-300">Branch Manager Review</p>
+                    <p class="mb-4 text-xs text-indigo-600 dark:text-indigo-400">
+                        Loan Officer has recommended
+                        <strong>{{ displayAmount(application.recommended_amount_formatted, application.recommended_amount) }}</strong>
+                        for <strong>{{ application.recommended_term }} months</strong>.
+                        Please review and take action.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <button
+                            class="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
+                            @click="openBMRecommendModal">
+                            <UserCheck class="h-4 w-4" />
+                            Recommend to Committee
+                        </button>
+                        <button
+                            class="flex items-center gap-2 rounded-xl border border-orange-200 bg-white px-4 py-2 text-sm font-medium text-orange-700 hover:bg-orange-50 transition-colors dark:border-orange-800 dark:bg-transparent dark:text-orange-400 dark:hover:bg-orange-900/20"
+                            @click="openBMReturnModal">
+                            <Undo2 class="h-4 w-4" />
+                            Return for Correction
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Returned for Correction: LO can resume -->
+                <div v-else-if="application.status === 'returned_for_correction'"
+                    class="rounded-2xl border border-orange-100 bg-orange-50/50 p-5 dark:border-orange-900/40 dark:bg-orange-900/10">
+                    <p class="mb-1 text-sm font-semibold text-orange-800 dark:text-orange-300">Returned for Correction</p>
+                    <p class="mb-4 text-xs text-orange-700 dark:text-orange-400">
+                        Branch Manager has returned this application for correction.
+                        <span v-if="application.correction_reason" class="block mt-1 italic">"{{ application.correction_reason }}"</span>
+                    </p>
+                    <button
+                        :disabled="resumingReview"
+                        class="flex items-center gap-2 rounded-xl bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600 transition-colors disabled:opacity-50"
+                        @click="resumeReview">
+                        <RefreshCw class="h-4 w-4" />
+                        {{ resumingReview ? 'Resuming…' : 'Resume Review' }}
+                    </button>
+                </div>
+
+                <!-- Committee Voting: vote panel -->
+                <div v-else-if="application.status === 'committee_voting'"
+                    class="rounded-2xl border border-violet-100 bg-violet-50/50 p-5 dark:border-violet-900/40 dark:bg-violet-900/10">
+                    <p class="mb-1 text-sm font-semibold text-violet-800 dark:text-violet-300">Committee Vote</p>
+                    <p class="mb-4 text-xs text-violet-600 dark:text-violet-400">
+                        Recommended <strong>{{ displayAmount(application.recommended_amount_formatted, application.recommended_amount) }}</strong>
+                        for <strong>{{ application.recommended_term }} months</strong>.
+                        Quorum: {{ application.quorum_required }} votes required, {{ application.approval_threshold }} approvals needed.
+                    </p>
+                    
+                    <!-- Vote Tally Display -->
+                    <VoteTallyDisplay 
+                        v-if="voteTally"
+                        :tally="voteTally"
+                        :unanimity-required="application.unanimity_required"
+                        class="mb-4" />
+                    
+                    <div class="flex gap-2">
+                        <button
+                            class="flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors"
+                            @click="openVoteModal">
+                            <ThumbsUp class="h-4 w-4" />
+                            Cast Vote
+                        </button>
+                    </div>
+                    
+                    <!-- Committee Votes List -->
+                    <CommitteeVotesList 
+                        v-if="committeeVotes?.length"
+                        :votes="committeeVotes"
+                        class="mt-4" />
+                </div>
+
+                <!-- Declined: terminal -->
+                <div v-else-if="application.status === 'declined'"
+                    class="rounded-2xl border border-red-100 bg-red-50/50 p-5 dark:border-red-900/40 dark:bg-red-900/10">
+                    <p class="mb-1 text-sm font-semibold text-red-800 dark:text-red-300">Declined by Committee</p>
+                    <p class="mb-4 text-xs text-red-600 dark:text-red-400">
+                        This application was declined by the credit committee.
+                    </p>
                 </div>
 
                 <!-- Recommended: approval panel -->
@@ -411,17 +511,19 @@ const showAllSchedule = ref(false)
                     </button>
                 </div>
 
-                <!-- Disbursed: loan account summary -->
+                <!-- Disbursed: loan account summary with tabs -->
                 <div v-if="application.status === 'disbursed' && application.disbursed_loan"
-                    class="rounded-2xl border border-emerald-100 bg-emerald-50/30 p-6 shadow-sm dark:border-emerald-900/40 dark:bg-emerald-900/10">
-                    <div class="mb-4 flex items-center justify-between gap-2">
-                        <div class="flex items-center gap-2">
-                            <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/40">
+                    class="rounded-2xl border border-emerald-100 bg-white shadow-sm dark:border-emerald-900/40 dark:bg-neutral-900 overflow-hidden">
+
+                    <!-- Loan Account Header -->
+                    <div class="flex items-center justify-between gap-2 bg-emerald-50/50 px-6 py-4 dark:bg-emerald-900/10">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/40">
                                 <CreditCard class="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
                             </div>
                             <div>
                                 <h2 class="text-base font-semibold text-neutral-900 dark:text-white">Loan Account</h2>
-                                <p class="text-xs text-emerald-600 dark:text-emerald-400">{{ application.disbursed_loan.loan_no }}</p>
+                                <p class="text-xs font-medium text-emerald-600 dark:text-emerald-400">{{ application.disbursed_loan.loan_no }}</p>
                             </div>
                         </div>
                         <button
@@ -432,99 +534,319 @@ const showAllSchedule = ref(false)
                             View Loan Account
                         </button>
                     </div>
-                    <dl class="grid gap-4 sm:grid-cols-2">
-                        <div>
-                            <dt class="text-xs font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Principal</dt>
-                            <dd class="mt-1 text-lg font-bold text-neutral-900 dark:text-white">
-                                {{ application.disbursed_loan.principal_formatted ?? formatAmount(application.disbursed_loan.principal) }}
-                            </dd>
-                        </div>
-                        <div>
-                            <dt class="text-xs font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Net Disbursed</dt>
-                            <dd class="mt-1 text-lg font-bold text-emerald-700 dark:text-emerald-400">
-                                {{ application.disbursed_loan.net_disbursed_amount_formatted ?? formatAmount(application.disbursed_loan.net_disbursed_amount) }}
-                            </dd>
-                        </div>
-                        <div v-if="Number(application.disbursed_loan.processing_fee) > 0">
-                            <dt class="text-xs font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Processing Fee</dt>
-                            <dd class="mt-1 font-medium text-neutral-700 dark:text-neutral-300">
-                                {{ application.disbursed_loan.processing_fee_formatted ?? formatAmount(application.disbursed_loan.processing_fee) }}
-                            </dd>
-                        </div>
-                        <div>
-                            <dt class="text-xs font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Interest Rate</dt>
-                            <dd class="mt-1 font-medium text-neutral-700 dark:text-neutral-300">{{ application.disbursed_loan.interest_rate }}%</dd>
-                        </div>
-                        <div>
-                            <dt class="text-xs font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Term</dt>
-                            <dd class="mt-1 font-medium text-neutral-700 dark:text-neutral-300">{{ application.disbursed_loan.term_months }} months</dd>
-                        </div>
-                        <div>
-                            <dt class="text-xs font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Disbursement Method</dt>
-                            <dd class="mt-1 font-medium capitalize text-neutral-700 dark:text-neutral-300">
-                                {{ application.disbursed_loan.disbursement_method?.replace(/_/g, ' ') ?? '—' }}
-                            </dd>
-                        </div>
-                        <div v-if="application.disbursed_loan.disbursement_reference">
-                            <dt class="text-xs font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Reference</dt>
-                            <dd class="mt-1 font-medium text-neutral-700 dark:text-neutral-300">{{ application.disbursed_loan.disbursement_reference }}</dd>
-                        </div>
-                        <div v-if="application.disbursed_loan.disbursed_by_staff">
-                            <dt class="text-xs font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Disbursed By</dt>
-                            <dd class="mt-1 font-medium text-neutral-700 dark:text-neutral-300">{{ application.disbursed_loan.disbursed_by_staff.name }}</dd>
-                        </div>
-                    </dl>
 
-                    <!-- Repayment Schedule (Gap 10 — expandable) -->
-                    <div v-if="application.disbursed_loan.schedules?.length" class="mt-5">
-                        <div class="mb-3 flex items-center justify-between">
-                            <h3 class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Repayment Schedule</h3>
-                            <span class="text-xs text-neutral-400 dark:text-neutral-500">
-                                {{ application.disbursed_loan.schedules.length }} installments
-                            </span>
+                    <!-- Tabs navigation -->
+                    <div class="border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/20">
+                        <nav class="-mb-px flex overflow-x-auto">
+                            <button
+                                v-for="tab in loanAccountTabs"
+                                :key="tab.key"
+                                class="flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold whitespace-nowrap border-b-2 transition-all duration-200 uppercase tracking-wider"
+                                :class="loanAccountTab === tab.key
+                                    ? 'border-emerald-600 text-emerald-700 bg-white dark:text-emerald-400 dark:border-emerald-400 dark:bg-neutral-900'
+                                    : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300 dark:text-neutral-400 dark:hover:text-neutral-200'"
+                                @click="loanAccountTab = tab.key"
+                            >
+                                <component :is="tab.icon" class="h-3.5 w-3.5" />
+                                {{ tab.label }}
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- Tab content -->
+                    <div class="p-6">
+
+                        <!-- ── GENERAL INFORMATION TAB ── -->
+                        <div v-if="loanAccountTab === 'general'" class="grid gap-6 lg:grid-cols-2 items-start">
+                            
+                            <!-- ── LEFT COLUMN ── -->
+                            <div class="space-y-6">
+                                <!-- Loan Details -->
+                                <div class="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+                                    <div class="border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
+                                        <h3 class="text-[13px] font-semibold text-neutral-900 dark:text-white">Loan Details</h3>
+                                    </div>
+                                    <div class="text-[13px] divide-y divide-neutral-100 dark:divide-neutral-800">
+                                        <div class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">No.</div>
+                                            <div class="font-medium text-neutral-900 dark:text-white">{{ application.disbursed_loan.loan_no }}</div>
+                                        </div>
+                                        <div class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Status</div>
+                                            <div class="font-medium capitalize text-neutral-900 dark:text-white">
+                                                <span class="inline-flex rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-400">Active</span>
+                                            </div>
+                                        </div>
+                                        <div class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Loan Product</div>
+                                            <div class="font-medium text-neutral-900 dark:text-white">{{ application.loan_product?.name ?? '—' }}</div>
+                                        </div>
+                                        <div class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Principal Amount</div>
+                                            <div class="font-medium text-neutral-900 dark:text-white">{{ application.disbursed_loan.principal_formatted ?? formatAmount(application.disbursed_loan.principal) }}</div>
+                                        </div>
+                                        <div class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Net Disbursed</div>
+                                            <div class="font-medium text-emerald-700 dark:text-emerald-400">{{ application.disbursed_loan.net_disbursed_amount_formatted ?? formatAmount(application.disbursed_loan.net_disbursed_amount) }}</div>
+                                        </div>
+                                        <div v-if="Number(application.disbursed_loan.processing_fee) > 0" class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Processing Fee</div>
+                                            <div class="font-medium text-neutral-900 dark:text-white">{{ application.disbursed_loan.processing_fee_formatted ?? formatAmount(application.disbursed_loan.processing_fee) }}</div>
+                                        </div>
+                                        <div class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Interest Rate</div>
+                                            <div class="font-medium text-neutral-900 dark:text-white">{{ application.disbursed_loan.interest_rate }}%</div>
+                                        </div>
+                                        <div class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Term</div>
+                                            <div class="font-medium text-neutral-900 dark:text-white">{{ application.disbursed_loan.term_months }} months</div>
+                                        </div>
+                                        <div class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Date Disbursed</div>
+                                            <div class="font-medium text-neutral-900 dark:text-white">{{ application.disbursed_at ? formatDate(application.disbursed_at) : '—' }}</div>
+                                        </div>
+                                        <div class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Disbursement Method</div>
+                                            <div class="font-medium capitalize text-neutral-900 dark:text-white">{{ application.disbursed_loan.disbursement_method?.replace(/_/g, ' ') ?? '—' }}</div>
+                                        </div>
+                                        <div v-if="application.disbursed_loan.disbursement_reference" class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Reference</div>
+                                            <div class="font-medium text-neutral-900 dark:text-white">{{ application.disbursed_loan.disbursement_reference }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Application Details -->
+                                <div class="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+                                    <div class="border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
+                                        <h3 class="text-[13px] font-semibold text-neutral-900 dark:text-white">Application Details</h3>
+                                    </div>
+                                    <div class="text-[13px] divide-y divide-neutral-100 dark:divide-neutral-800">
+                                        <div class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Requested Amount</div>
+                                            <div class="font-bold text-neutral-900 dark:text-white">{{ displayAmount(application.requested_amount_formatted, application.requested_amount) }}</div>
+                                        </div>
+                                        <div class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Requested Term</div>
+                                            <div class="font-medium text-neutral-900 dark:text-white">{{ application.requested_term ?? '—' }} months</div>
+                                        </div>
+                                        <div v-if="application.purpose" class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Purpose</div>
+                                            <div class="font-medium text-neutral-900 dark:text-white">{{ application.purpose }}</div>
+                                        </div>
+                                        <div v-if="application.repayment_source" class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Repayment Source</div>
+                                            <div class="font-medium text-neutral-900 dark:text-white">{{ application.repayment_source }}</div>
+                                        </div>
+                                        <div v-if="application.rejection_reason" class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-red-400">Rejection Reason</div>
+                                            <div class="font-medium text-red-600 dark:text-red-400">{{ application.rejection_reason }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            
+                            <!-- ── RIGHT COLUMN ── -->
+                            <div class="space-y-6">
+                                <!-- Member & People Info -->
+                                <div class="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+                                    <div class="border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
+                                        <h3 class="text-[13px] font-semibold text-neutral-900 dark:text-white">People Information</h3>
+                                    </div>
+                                    <div class="text-[13px] divide-y divide-neutral-100 dark:divide-neutral-800">
+                                        <div v-if="application.member" class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Member Name</div>
+                                            <div class="font-medium text-neutral-900 dark:text-white">{{ application.member.name }}</div>
+                                        </div>
+                                        <div v-if="application.member?.member_no" class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Member No.</div>
+                                            <div class="font-medium text-neutral-900 dark:text-white">{{ application.member.member_no }}</div>
+                                        </div>
+                                        <div v-if="application.disbursed_loan?.disbursed_by_staff" class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Disbursing Officer</div>
+                                            <div class="font-medium text-neutral-900 dark:text-white">{{ application.disbursed_loan.disbursed_by_staff.name }}</div>
+                                        </div>
+                                        <div v-if="application.created_by" class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Created By</div>
+                                            <div class="font-medium text-neutral-900 dark:text-white">{{ application.created_by.name }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Appraisal Summary -->
+                                <div v-if="application.risk_rating || application.recommended_amount" class="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+                                    <div class="flex items-center justify-between border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
+                                        <h3 class="text-[13px] font-semibold text-neutral-900 dark:text-white">Appraisal Summary</h3>
+                                        <span v-if="application.risk_rating"
+                                            class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium capitalize"
+                                            :class="riskBadgeClass(application.risk_rating)">
+                                            <ShieldCheck class="h-3 w-3" />
+                                            {{ application.risk_rating }} risk
+                                        </span>
+                                    </div>
+                                    <div class="text-[13px] divide-y divide-neutral-100 dark:divide-neutral-800">
+                                        <div v-if="application.recommended_amount" class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Recommended Amount</div>
+                                            <div class="font-bold text-purple-700 dark:text-purple-400">{{ displayAmount(application.recommended_amount_formatted, application.recommended_amount) }}</div>
+                                        </div>
+                                        <div v-if="application.recommended_term" class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Recommended Term</div>
+                                            <div class="font-medium text-purple-700 dark:text-purple-400">{{ application.recommended_term }} months</div>
+                                        </div>
+                                        <div v-if="application.approved_amount" class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Approved Amount</div>
+                                            <div class="font-bold text-green-700 dark:text-green-400">{{ displayAmount(application.approved_amount_formatted, application.approved_amount) }}</div>
+                                        </div>
+                                        <div v-if="application.approved_term" class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Approved Term</div>
+                                            <div class="font-medium text-green-700 dark:text-green-400">{{ application.approved_term }} months</div>
+                                        </div>
+                                        <div v-if="application.recommended_by" class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Appraised By</div>
+                                            <div class="font-medium text-neutral-900 dark:text-white">{{ application.recommended_by.name }}</div>
+                                        </div>
+                                        <div v-if="application.appraisal_notes" class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400">Appraisal Notes</div>
+                                            <div class="font-medium text-neutral-700 dark:text-neutral-300">{{ application.appraisal_notes }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Approval Votes / Committee -->
+                                <div v-if="application.approvals?.length || committeeVotes?.length" class="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+                                    <div class="border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
+                                        <h3 class="text-[13px] font-semibold text-neutral-900 dark:text-white">Approval Decisions</h3>
+                                    </div>
+                                    <div v-if="committeeVotes?.length" class="text-[13px] divide-y divide-neutral-100 dark:divide-neutral-800">
+                                        <div v-for="vote in committeeVotes" :key="`cm-${vote.id}`" class="grid grid-cols-2 px-4 py-3 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400 flex flex-col gap-0.5">
+                                                <span class="text-neutral-900 dark:text-white">{{ vote.staff_name ?? 'Unknown' }}</span>
+                                                <span class="text-[11px]">{{ formatDate(vote.created_at) }}</span>
+                                            </div>
+                                            <div class="flex flex-col gap-1 items-start justify-center">
+                                                <div class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                                                    :class="vote.abstained ? 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400' 
+                                                        : vote.decision === 'approve' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                                                        : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'">
+                                                    <CheckCircle2 v-if="!vote.abstained && vote.decision === 'approve'" class="h-3 w-3" />
+                                                    <XCircleIcon v-else-if="!vote.abstained && vote.decision === 'decline'" class="h-3 w-3" />
+                                                    <CircleDot v-else class="h-3 w-3" />
+                                                    {{ vote.abstained ? 'Abstained' : vote.decision === 'approve' ? 'Approved' : 'Declined' }}
+                                                </div>
+                                                <span v-if="vote.comment" class="text-[11px] font-medium text-neutral-600 dark:text-neutral-400 line-clamp-2" :title="vote.comment">{{ vote.comment }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div v-else-if="application.approvals?.length" class="text-[13px] divide-y divide-neutral-100 dark:divide-neutral-800">
+                                        <div v-for="vote in application.approvals" :key="`lg-${vote.id}`" class="grid grid-cols-2 px-4 py-3 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900">
+                                            <div class="font-medium text-neutral-500 dark:text-neutral-400 flex flex-col gap-0.5">
+                                                <span class="text-neutral-900 dark:text-white">{{ vote.approver?.name ?? 'Unknown' }}</span>
+                                                <span class="text-[11px]">{{ formatDate(vote.decided_at) }}</span>
+                                            </div>
+                                            <div class="flex flex-col gap-1 items-start justify-center">
+                                                <div class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                                                    :class="vote.decision === 'approved' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                                                        : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'">
+                                                    <CheckCircle2 v-if="vote.decision === 'approved'" class="h-3 w-3" />
+                                                    <XCircleIcon v-else class="h-3 w-3" />
+                                                    {{ vote.decision === 'approved' ? 'Approved' : 'Declined' }}
+                                                </div>
+                                                <span v-if="vote.comments" class="text-[11px] font-medium text-neutral-600 dark:text-neutral-400 line-clamp-2" :title="vote.comments">{{ vote.comments }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="overflow-x-auto rounded-xl border border-neutral-100 dark:border-neutral-800">
-                            <table class="w-full text-xs">
-                                <thead class="bg-neutral-50 dark:bg-neutral-800/60">
-                                    <tr>
-                                        <th class="px-3 py-2.5 text-left font-medium text-neutral-500 dark:text-neutral-400">#</th>
-                                        <th class="px-3 py-2.5 text-left font-medium text-neutral-500 dark:text-neutral-400">Due Date</th>
-                                        <th class="px-3 py-2.5 text-right font-medium text-neutral-500 dark:text-neutral-400">Principal</th>
-                                        <th class="px-3 py-2.5 text-right font-medium text-neutral-500 dark:text-neutral-400">Interest</th>
-                                        <th class="px-3 py-2.5 text-right font-medium text-neutral-500 dark:text-neutral-400">Total</th>
-                                        <th class="px-3 py-2.5 text-right font-medium text-neutral-500 dark:text-neutral-400">Balance</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
-                                    <tr v-for="row in (showAllSchedule ? application.disbursed_loan.schedules : application.disbursed_loan.schedules.slice(0, 6))"
-                                        :key="row.installment_no"
-                                        class="hover:bg-neutral-50 dark:hover:bg-neutral-800/40">
-                                        <td class="px-3 py-2 text-neutral-500 dark:text-neutral-400">{{ row.installment_no }}</td>
-                                        <td class="px-3 py-2 text-neutral-700 dark:text-neutral-300">{{ formatDate(row.due_date) }}</td>
-                                        <td class="px-3 py-2 text-right text-neutral-700 dark:text-neutral-300">{{ formatAmount(row.principal_due) }}</td>
-                                        <td class="px-3 py-2 text-right text-neutral-700 dark:text-neutral-300">{{ formatAmount(row.interest_due) }}</td>
-                                        <td class="px-3 py-2 text-right font-medium text-neutral-900 dark:text-white">{{ formatAmount(row.total_due) }}</td>
-                                        <td class="px-3 py-2 text-right text-neutral-500 dark:text-neutral-400">{{ formatAmount(row.outstanding_balance) }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+
+                        <!-- ── TRANSACTION HISTORY TAB ── -->
+                        <div v-else-if="loanAccountTab === 'transactions'">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Transaction History</h3>
+                            </div>
+                            <div class="rounded-xl border border-neutral-100 bg-neutral-50/50 p-6 text-center shadow-sm dark:border-neutral-800 dark:bg-neutral-800/30">
+                                <History class="mx-auto mb-3 h-8 w-8 text-neutral-300 dark:text-neutral-600" />
+                                <p class="text-sm font-medium text-neutral-500 dark:text-neutral-400">No transactions yet</p>
+                                <p class="mt-1 text-xs text-neutral-400">Transactions will appear here once the loan involves repayments, penalties, or adjustments.</p>
+                            </div>
                         </div>
-                        <button v-if="application.disbursed_loan.schedules.length > 6"
-                            class="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl border border-neutral-100 py-2 text-xs font-medium text-neutral-500 hover:bg-neutral-50 transition-colors dark:border-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-800/50"
-                            @click="showAllSchedule = !showAllSchedule">
-                            <template v-if="showAllSchedule">
-                                <ChevronUp class="h-3.5 w-3.5" /> Show less
-                            </template>
-                            <template v-else>
-                                <ChevronDown class="h-3.5 w-3.5" />
-                                Show all {{ application.disbursed_loan.schedules.length }} installments
-                            </template>
-                        </button>
+
+                        <!-- ── PAYMENT SCHEDULE TAB ── -->
+                        <div v-else-if="loanAccountTab === 'schedule'">
+                            <div v-if="application.disbursed_loan.schedules?.length">
+                                <div class="mb-3 flex items-center justify-between">
+                                    <h3 class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Repayment Schedule</h3>
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                        {{ application.disbursed_loan.schedules.length }} installments
+                                    </span>
+                                </div>
+                                <div class="overflow-x-auto rounded-xl border border-neutral-100 dark:border-neutral-800">
+                                    <table class="w-full text-xs">
+                                        <thead class="bg-neutral-50 dark:bg-neutral-800/60">
+                                            <tr>
+                                                <th class="px-3 py-2.5 text-left font-medium text-neutral-500 dark:text-neutral-400">#</th>
+                                                <th class="px-3 py-2.5 text-left font-medium text-neutral-500 dark:text-neutral-400">Due Date</th>
+                                                <th class="px-3 py-2.5 text-right font-medium text-neutral-500 dark:text-neutral-400">Principal</th>
+                                                <th class="px-3 py-2.5 text-right font-medium text-neutral-500 dark:text-neutral-400">Interest</th>
+                                                <th class="px-3 py-2.5 text-right font-medium text-neutral-500 dark:text-neutral-400">Total</th>
+                                                <th class="px-3 py-2.5 text-right font-medium text-neutral-500 dark:text-neutral-400">Balance</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+                                            <tr v-for="row in (showAllSchedule ? application.disbursed_loan.schedules : application.disbursed_loan.schedules.slice(0, 6))"
+                                                :key="row.installment_no"
+                                                class="hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors">
+                                                <td class="px-3 py-2 text-neutral-500 dark:text-neutral-400">{{ row.installment_no }}</td>
+                                                <td class="px-3 py-2 text-neutral-700 dark:text-neutral-300">{{ formatDate(row.due_date) }}</td>
+                                                <td class="px-3 py-2 text-right text-neutral-700 dark:text-neutral-300">{{ formatAmount(row.principal_due) }}</td>
+                                                <td class="px-3 py-2 text-right text-neutral-700 dark:text-neutral-300">{{ formatAmount(row.interest_due) }}</td>
+                                                <td class="px-3 py-2 text-right font-medium text-neutral-900 dark:text-white">{{ formatAmount(row.total_due) }}</td>
+                                                <td class="px-3 py-2 text-right text-neutral-500 dark:text-neutral-400">{{ formatAmount(row.outstanding_balance) }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <button v-if="application.disbursed_loan.schedules.length > 6"
+                                    class="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl border border-neutral-100 py-2 text-xs font-medium text-neutral-500 hover:bg-neutral-50 transition-colors dark:border-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-800/50"
+                                    @click="showAllSchedule = !showAllSchedule">
+                                    <template v-if="showAllSchedule">
+                                        <ChevronUp class="h-3.5 w-3.5" /> Show less
+                                    </template>
+                                    <template v-else>
+                                        <ChevronDown class="h-3.5 w-3.5" />
+                                        Show all {{ application.disbursed_loan.schedules.length }} installments
+                                    </template>
+                                </button>
+                            </div>
+                            <div v-else class="flex flex-col items-center justify-center py-12 text-neutral-400 gap-2">
+                                <ClipboardList class="h-8 w-8" />
+                                <p class="text-sm">No payment schedule available.</p>
+                            </div>
+                        </div>
+
+                        <!-- ── DOCUMENTS TAB ── -->
+                        <div v-else-if="loanAccountTab === 'documents'">
+                            <div class="flex flex-col items-center justify-center py-12 text-neutral-400 gap-2">
+                                <FileText class="h-8 w-8" />
+                                <p class="text-sm font-medium text-neutral-500 dark:text-neutral-400">Loan Documents</p>
+                                <p class="text-xs text-neutral-400 dark:text-neutral-500">Documents attached to this loan account will appear here.</p>
+                            </div>
+                        </div>
+
+                        <!-- ── LOAN ACTIVITIES TAB ── -->
+                        <div v-else-if="loanAccountTab === 'activities'">
+                            <div class="flex flex-col items-center justify-center py-12 text-neutral-400 gap-2">
+                                <Activity class="h-8 w-8" />
+                                <p class="text-sm font-medium text-neutral-500 dark:text-neutral-400">Loan Activities</p>
+                                <p class="text-xs text-neutral-400 dark:text-neutral-500">Repayments, adjustments, and other loan activity will appear here.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Application details -->
-                <div class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+                <div v-if="application.status !== 'disbursed'" class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
                     <h2 class="mb-5 text-base font-semibold text-neutral-900 dark:text-white">Application Details</h2>
                     <dl class="grid gap-4 sm:grid-cols-2">
                         <div>
@@ -561,7 +883,7 @@ const showAllSchedule = ref(false)
                 </div>
 
                 <!-- Appraisal summary (visible once appraised) -->
-                <div v-if="application.risk_rating || application.recommended_amount"
+                <div v-if="application.status !== 'disbursed' && (application.risk_rating || application.recommended_amount)"
                     class="rounded-2xl border border-purple-100 bg-white p-6 shadow-sm dark:border-purple-900/40 dark:bg-neutral-900">
                     <div class="mb-4 flex items-center justify-between">
                         <h2 class="text-base font-semibold text-neutral-900 dark:text-white">Appraisal Summary</h2>
@@ -600,7 +922,7 @@ const showAllSchedule = ref(false)
                     </dl>
                 </div>
 
-                <!-- Return for correction notice -->
+                <!-- Return for correction notice (LO level) -->
                 <div v-if="application.status === 'draft' && application.return_reason"
                     class="flex items-start gap-3 rounded-2xl border border-orange-200 bg-orange-50 p-5 dark:border-orange-800 dark:bg-orange-900/20">
                     <Undo2 class="mt-0.5 h-5 w-5 flex-shrink-0 text-orange-500" />
@@ -613,6 +935,16 @@ const showAllSchedule = ref(false)
                         <p class="mt-2 text-xs text-orange-600 dark:text-orange-400">
                             Please address the issues above, then edit and resubmit the application.
                         </p>
+                    </div>
+                </div>
+
+                <!-- BM return for correction notice -->
+                <div v-if="application.status === 'returned_for_correction' && application.correction_reason"
+                    class="flex items-start gap-3 rounded-2xl border border-orange-200 bg-orange-50 p-5 dark:border-orange-800 dark:bg-orange-900/20">
+                    <Undo2 class="mt-0.5 h-5 w-5 flex-shrink-0 text-orange-500" />
+                    <div>
+                        <p class="text-sm font-semibold text-orange-900 dark:text-orange-200">BM Correction Reason</p>
+                        <p class="mt-1 text-sm text-orange-700 dark:text-orange-300">{{ application.correction_reason }}</p>
                     </div>
                 </div>
 
@@ -632,8 +964,8 @@ const showAllSchedule = ref(false)
                     </div>
                 </div>
 
-                <!-- Approval votes (when in recommended / approved / rejected stage) -->
-                <div v-if="application.approvals?.length"
+                <!-- Approval votes (legacy simple flow) -->
+                <div v-if="application.status !== 'disbursed' && application.approvals?.length"
                     class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
                     <h2 class="mb-4 text-base font-semibold text-neutral-900 dark:text-white">Approval Votes</h2>
                     <div class="space-y-3">
@@ -657,19 +989,49 @@ const showAllSchedule = ref(false)
                         </div>
                     </div>
                 </div>
+
+                <!-- Committee votes (three-tier flow) -->
+                <div v-if="application.status !== 'disbursed' && committeeVotes?.length"
+                    class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+                    <h2 class="mb-4 text-base font-semibold text-neutral-900 dark:text-white">Committee Votes</h2>
+                    <div class="mb-3 flex items-center gap-4 text-xs text-neutral-500 dark:text-neutral-400">
+                        <span>Quorum: {{ application.quorum_required ?? '—' }}</span>
+                        <span>Threshold: {{ application.approval_threshold ?? '—' }}</span>
+                        <span v-if="application.unanimity_required" class="text-amber-600 dark:text-amber-400 font-medium">Unanimity Required</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div v-for="vote in committeeVotes" :key="vote.id"
+                            class="flex items-start gap-3 rounded-xl border p-4"
+                            :class="vote.abstained
+                                ? 'border-neutral-100 bg-neutral-50/50 dark:border-neutral-800 dark:bg-neutral-800/10'
+                                : vote.decision === 'approve'
+                                    ? 'border-green-100 bg-green-50/50 dark:border-green-900/30 dark:bg-green-900/10'
+                                    : 'border-red-100 bg-red-50/50 dark:border-red-900/30 dark:bg-red-900/10'">
+                            <div class="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full"
+                                :class="vote.abstained
+                                    ? 'bg-neutral-100 dark:bg-neutral-800'
+                                    : vote.decision === 'approve'
+                                        ? 'bg-green-100 dark:bg-green-900/40'
+                                        : 'bg-red-100 dark:bg-red-900/40'">
+                                <CheckCircle2 v-if="!vote.abstained && vote.decision === 'approve'" class="h-4 w-4 text-green-600 dark:text-green-400" />
+                                <XCircleIcon v-else-if="!vote.abstained && vote.decision === 'decline'" class="h-4 w-4 text-red-500 dark:text-red-400" />
+                                <CircleDot v-else class="h-4 w-4 text-neutral-400" />
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between gap-2">
+                                    <p class="text-sm font-medium text-neutral-900 dark:text-white">{{ vote.staff_name ?? 'Unknown' }}</p>
+                                    <span class="text-xs text-neutral-400 dark:text-neutral-500">{{ formatDate(vote.created_at) }}</span>
+                                </div>
+                                <p v-if="vote.abstained" class="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">Abstained</p>
+                                <p v-if="vote.comment" class="mt-1 text-xs text-neutral-600 dark:text-neutral-400">{{ vote.comment }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- ─── Right column ─────────────────────────────────────────────── -->
             <div class="flex flex-col gap-6">
-
-                <!-- Guarantors -->
-                <LoanGuarantorManager
-                    v-if="application.id"
-                    :application-id="application.id"
-                    :min-guarantors="(application.loan_product as any)?.min_guarantors ?? 0"
-                    :applicant-member-id="application.member_id"
-                    :editable="guarantorEditableStatuses.includes(application.status ?? '')"
-                />
 
                 <!-- Documents -->
                 <LoanDocumentUploader
@@ -743,8 +1105,7 @@ const showAllSchedule = ref(false)
                                 <CircleDot v-if="event.type === 'created'" class="h-2.5 w-2.5" />
                                 <Clock       v-else-if="event.type === 'status_change'"     class="h-2.5 w-2.5" />
                                 <FileText    v-else-if="event.type === 'document_uploaded'" class="h-2.5 w-2.5" />
-                                <UserCheck   v-else-if="event.type === 'guarantor_added'"   class="h-2.5 w-2.5" />
-                                <ThumbsUp    v-else-if="event.type === 'approval_vote'"     class="h-2.5 w-2.5" />
+                                                <ThumbsUp    v-else-if="event.type === 'approval_vote'"     class="h-2.5 w-2.5" />
                             </div>
                             <p class="text-xs text-neutral-400 dark:text-neutral-500">{{ formatDateTime(event.timestamp) }}</p>
                             <p class="mt-0.5 text-sm font-medium text-neutral-900 dark:text-white">{{ event.title }}</p>
@@ -906,41 +1267,6 @@ const showAllSchedule = ref(false)
             </div>
         </Transition>
 
-        <!-- ── Request Guarantors modal ── -->
-        <Transition enter-active-class="transition duration-150 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100"
-            leave-active-class="transition duration-100 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
-            <div v-if="showRequestGuarantorsModal"
-                class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
-                @mousedown.self="showRequestGuarantorsModal = false">
-                <Transition enter-active-class="transition duration-150 ease-out" enter-from-class="opacity-0 scale-95" enter-to-class="opacity-100 scale-100" appear>
-                    <div class="w-full max-w-md rounded-2xl border border-neutral-200 bg-white shadow-xl dark:border-neutral-700 dark:bg-neutral-900">
-                        <div class="flex items-center gap-3 border-b border-neutral-100 px-6 py-4 dark:border-neutral-800">
-                            <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-900/30">
-                                <Users class="h-5 w-5 text-amber-600" />
-                            </div>
-                            <div>
-                                <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">Request Guarantors</h3>
-                                <p class="text-xs text-neutral-500">Specify what guarantors are required.</p>
-                            </div>
-                        </div>
-                        <div class="px-6 py-5">
-                            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300">Note <span class="text-red-400">*</span></label>
-                            <textarea v-model="requestGuarantorsNote" rows="4" placeholder="e.g. At least 2 guarantors are required, each guaranteeing a minimum of KES 50,000…"
-                                class="mt-2 w-full rounded-xl border border-neutral-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
-                                :class="requestGuarantorsError ? 'border-red-300' : ''" />
-                            <p v-if="requestGuarantorsError" class="mt-1 text-xs text-red-500">{{ requestGuarantorsError }}</p>
-                        </div>
-                        <div class="flex justify-end gap-3 border-t border-neutral-100 px-6 py-4 dark:border-neutral-800">
-                            <button class="rounded-xl border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800" @click="showRequestGuarantorsModal = false">Cancel</button>
-                            <button :disabled="requestingGuarantors" class="flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-white hover:bg-amber-600 disabled:opacity-50" @click="submitRequestGuarantors">
-                                <Users class="h-4 w-4" />{{ requestingGuarantors ? 'Saving…' : 'Request Guarantors' }}
-                            </button>
-                        </div>
-                    </div>
-                </Transition>
-            </div>
-        </Transition>
-
         <!-- ── Return for Correction modal ── -->
         <Transition enter-active-class="transition duration-150 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100"
             leave-active-class="transition duration-100 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
@@ -1090,5 +1416,35 @@ const showAllSchedule = ref(false)
         :errors="disburseErrors"
         @close="showDisburseModal = false"
         @submit="submitDisburse"
+    />
+    
+    <!-- Vote Cast Modal -->
+    <VoteCastModal
+        :open="showVoteModal"
+        :voting="voting"
+        :form="voteForm"
+        :errors="voteErrors"
+        @close="showVoteModal = false"
+        @submit="submitVote"
+    />
+    
+    <!-- BM Recommend Modal -->
+    <BMRecommendModal
+        :open="showBMRecommendModal"
+        :submitting="bmRecommending"
+        :form="bmRecommendForm"
+        :errors="bmRecommendErrors"
+        @close="showBMRecommendModal = false"
+        @submit="submitBMRecommend"
+    />
+    
+    <!-- BM Return for Correction Modal -->
+    <BMReturnForCorrectionModal
+        :open="showBMReturnModal"
+        :submitting="bmReturning"
+        :form="bmReturnForm"
+        :errors="bmReturnErrors"
+        @close="showBMReturnModal = false"
+        @submit="submitBMReturn"
     />
 </template>

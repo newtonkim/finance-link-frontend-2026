@@ -31,9 +31,8 @@
                 : ''
 
         ]">
-            <component v-if="item?.icon" :is="item.icon" :size="20" />
-            <span class="flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200 text-nfuko-nav-text group-hover:text-white">
-
+            <component v-if="item?.icon" :is="item.icon" :size="20" class="shrink-0" />
+            <span v-if="state === 'expanded'" class="flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200 text-nfuko-nav-text group-hover:text-white">
                 {{ item?.label }}
             </span>
         </div>
@@ -42,6 +41,9 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
+import { useSidebar } from '@/Global/ui/sidebar/utils';
+
+const { state } = useSidebar();
 const currentRoute = ref(null);
 const props = defineProps({
     item: {
@@ -55,7 +57,7 @@ const props = defineProps({
 
 const handleClick = (item) => {
     currentRoute.value = null
-    props.onClick && props.onClick()
+    if (props.onClick) props.onClick()
     currentRoute.value = item?.path
 }
 const isCurrentUrl = (path, route) => {

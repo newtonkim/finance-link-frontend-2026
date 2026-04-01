@@ -1,6 +1,6 @@
 import { ref, reactive } from 'vue'
 import { toast } from 'vue-sonner'
-import { loanSettingsApi, type LoanSetting } from '../../apis/settings/loanSettingsApi'
+import { loanSettingsApi, type LoanSetting } from '@/tenant/apis/settings/loanSettingsApi'
 
 export function useGeneralLoanSettings() {
   const showDrawer = ref(false)

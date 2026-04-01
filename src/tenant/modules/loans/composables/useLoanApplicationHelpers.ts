@@ -7,7 +7,6 @@ export function useLoanApplicationHelpers() {
             case 'submitted':            return 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
             case 'under_review':         return 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
             case 'awaiting_documents':   return 'bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-            case 'awaiting_guarantors':  return 'bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
             case 'recommended':          return 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
             case 'approved':             return 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400'
             case 'disbursement_pending': return 'bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400'
@@ -60,7 +59,6 @@ export function useLoanApplicationHelpers() {
             case 'created':           return 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800'
             case 'status_change':     return 'bg-blue-50 text-blue-600 dark:bg-blue-900/40'
             case 'document_uploaded': return 'bg-amber-50 text-amber-600 dark:bg-amber-900/40'
-            case 'guarantor_added':   return 'bg-purple-50 text-purple-600 dark:bg-purple-900/40'
             case 'approval_vote':     return 'bg-green-50 text-green-600 dark:bg-green-900/40'
             default:                  return 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800'
         }

@@ -19,8 +19,18 @@ export interface LoanApplicationApproval {
   created_at: string
 }
 
+export interface CommitteeVote {
+  id: number
+  staff_id: number
+  staff_name: string
+  decision: 'approve' | 'decline'
+  comment: string | null
+  abstained: boolean
+  created_at: string
+}
+
 export interface TimelineEvent {
-  type: 'created' | 'status_change' | 'document_uploaded' | 'guarantor_added' | 'approval_vote'
+  type: 'created' | 'status_change' | 'document_uploaded' | 'approval_vote'
   title: string
   description: string
   actor: { id: number; name: string } | null
@@ -98,7 +108,7 @@ export interface LoanApplication {
   created_at?: string
   // Nested
   member?: { id: number; name: string; member_no: string } | null
-  loan_product?: { id: number; name: string; code: string; min_guarantors?: number; max_amount?: number | null; max_amount_formatted?: string | null } | null
+  loan_product?: { id: number; name: string; code: string; max_amount?: number | null; max_amount_formatted?: string | null } | null
   loan_officer?: { id: number; name: string } | null
   appraised_by?: { id: number; name: string } | null
   recommended_by?: { id: number; name: string } | null
@@ -110,6 +120,12 @@ export interface LoanApplication {
   days_pending?: number | null
   currency_code?: string | null
   approvals_count?: number
+  // Committee voting fields
+  quorum_required?: number | null
+  approval_threshold?: number | null
+  unanimity_required?: boolean | null
+  correction_reason?: string | null
+  committeeVotes?: CommitteeVote[]
 }
 
 export interface EligibilityCheckItem {
@@ -131,7 +147,6 @@ export interface LoanApplicationSummary {
   submitted: number
   under_review: number
   awaiting_documents: number
-  awaiting_guarantors: number
   recommended: number
   approved: number
   total_active: number
@@ -202,9 +217,6 @@ export const loanApplicationsApi = {
   requestDocuments(id: number, note: string) {
     return tenantClient.post(`/loan-applications/${id}/request-documents`, { note })
   },
-  requestGuarantors(id: number, note: string) {
-    return tenantClient.post(`/loan-applications/${id}/request-guarantors`, { note })
-  },
   resumeReview(id: number) {
     return tenantClient.post(`/loan-applications/${id}/resume-review`)
   },
@@ -231,20 +243,6 @@ export const loanApplicationsApi = {
     return tenantClient.get<{ data: TimelineEvent[] }>(`/loan-applications/${id}/timeline`)
   },
 
-  // ─── Guarantors ─────────────────────────────────────────────────────────────
-  listGuarantors(applicationId: number) {
-    return tenantClient.get(`/loan-applications/${applicationId}/guarantors`)
-  },
-  addGuarantor(applicationId: number, data: { member_id: number; guarantee_amount: number; notes?: string }) {
-    return tenantClient.post(`/loan-applications/${applicationId}/guarantors`, data)
-  },
-  removeGuarantor(applicationId: number, guarantorId: number) {
-    return tenantClient.delete(`/loan-applications/${applicationId}/guarantors/${guarantorId}`)
-  },
-  validateGuarantors(applicationId: number) {
-    return tenantClient.post(`/loan-applications/${applicationId}/guarantors/validate`)
-  },
-
   // ─── Disbursement queue ──────────────────────────────────────────────────────
   getPendingDisbursements(params?: PendingDisbursementParams) {
     return tenantClient.get('/loan-disbursements/pending', { params })
@@ -261,6 +259,33 @@ export const loanApplicationsApi = {
     mobile_money_number?: string | null
   }) {
     return tenantClient.post(`/loan-applications/${id}/disburse`, data)
+  },
+
+  // ─── Committee Voting ───────────────────────────────────────────────────────
+  bmRecommend(id: number, bmNotes?: string | null) {
+    return tenantClient.post(`/loan-applications/${id}/bm-recommend`, { bm_notes: bmNotes })
+  },
+  committeeReturnForCorrection(id: number, correctionReason: string) {
+    return tenantClient.post(`/loan-applications/${id}/committee/return-for-correction`, { correction_reason: correctionReason })
+  },
+  castVote(id: number, data: { decision: 'approve' | 'decline'; comment?: string | null }) {
+    return tenantClient.post(`/loan-applications/${id}/votes`, data)
+  },
+  getVotes(id: number) {
+    return tenantClient.get(`/loan-applications/${id}/votes`)
+  },
+  markAbstention(id: number, staffId: number, reason: string) {
+    return tenantClient.patch(`/loan-applications/${id}/votes/${staffId}/abstain`, { reason })
+  },
+  confirmTerms(id: number, data: {
+    final_approved_amount: number | string
+    final_approved_term: number
+    proposed_start_date: string
+  }) {
+    return tenantClient.patch(`/loan-applications/${id}/confirm-terms`, data)
+  },
+  getProposedSchedule(id: number, params?: { amount?: number | string; term?: number; start_date?: string }) {
+    return tenantClient.get(`/loan-applications/${id}/proposed-schedule`, { params })
   },
 
   // ─── Documents ──────────────────────────────────────────────────────────────

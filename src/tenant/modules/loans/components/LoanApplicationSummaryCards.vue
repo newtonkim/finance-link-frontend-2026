@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ClipboardList, Clock, FileSearch, FileWarning, Users, ThumbsUp, HandCoins } from 'lucide-vue-next'
+import { ClipboardList, Clock, FileSearch, FileWarning, ThumbsUp, HandCoins } from 'lucide-vue-next'
 
 defineProps<{
     summary: {
@@ -7,7 +7,6 @@ defineProps<{
         submitted: number
         under_review: number
         awaiting_documents: number
-        awaiting_guarantors: number
         recommended: number
         approved: number
     }
@@ -18,7 +17,7 @@ const emit = defineEmits<{ filter: [status: string] }>()
 </script>
 
 <template>
-    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-7">
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <button
             class="group flex flex-col gap-1.5 rounded-2xl border border-neutral-100 bg-white p-4 shadow-sm transition-colors hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-600"
             :class="activeStatus === '' ? 'ring-2 ring-nfuko-primary dark:ring-bg-nfuko-yellow' : ''"
@@ -65,18 +64,6 @@ const emit = defineEmits<{ filter: [status: string] }>()
                 <FileWarning class="h-4 w-4 text-orange-400 dark:text-orange-500" />
             </div>
             <span class="text-2xl font-bold text-orange-700 dark:text-orange-300">{{ summary.awaiting_documents }}</span>
-        </button>
-
-        <button
-            class="group flex flex-col gap-1.5 rounded-2xl border border-yellow-100 bg-yellow-50 p-4 shadow-sm transition-colors hover:border-yellow-300 dark:border-yellow-900/50 dark:bg-yellow-900/20 dark:hover:border-yellow-700"
-            :class="activeStatus === 'awaiting_guarantors' ? 'ring-2 ring-yellow-500 dark:ring-yellow-400' : ''"
-            @click="emit('filter', 'awaiting_guarantors')"
-        >
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-medium text-yellow-600 dark:text-yellow-400">Awaiting Guarantors</span>
-                <Users class="h-4 w-4 text-yellow-400 dark:text-yellow-500" />
-            </div>
-            <span class="text-2xl font-bold text-yellow-700 dark:text-yellow-300">{{ summary.awaiting_guarantors }}</span>
         </button>
 
         <button

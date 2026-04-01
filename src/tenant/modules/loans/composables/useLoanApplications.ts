@@ -29,7 +29,7 @@ export function useLoanApplications() {
     // ─── Summary counts ───────────────────────────────────────────────────────
     const summary = ref<LoanApplicationSummary>({
         submitted: 0, under_review: 0, awaiting_documents: 0,
-        awaiting_guarantors: 0, recommended: 0, approved: 0, total_active: 0,
+        recommended: 0, approved: 0, total_active: 0,
     })
 
     async function fetchSummary() {
