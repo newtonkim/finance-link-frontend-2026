@@ -692,40 +692,10 @@ const hasNextRepayments = computed(
                   {{ fmt(txn.amount_paid_formatted) }}
                 </td>
                 <td class="px-4 py-3 text-right text-neutral-600 dark:text-neutral-400">
-                  {{ fmt(txn.principal_portion ?? txn.principal_amount ?? txn.principal) }}
+                  {{ txn.principal_portion_formatted ?? fmt(txn.principal_portion) }}
                 </td>
                 <td class="px-4 py-3 text-right text-neutral-600 dark:text-neutral-400">
-                  {{ fmt(txn.interest_portion ?? txn.interest_amount ?? txn.interest) }}
-                </td>
-                <td class="px-4 py-3 text-right text-red-500">
-                  {{
-                    Number(txn.penalty_portion ?? txn.penalty_amount ?? txn.penalty) > 0
-                      ? fmt(txn.penalty_portion ?? txn.penalty_amount ?? txn.penalty)
-                      : '—'
-                  }}
-                </td>
-                <td class="px-4 py-3 text-right text-neutral-600 dark:text-neutral-400">
-                  {{
-                    txn.principal_portion_formatted ??
-                    txn.principal_amount_formatted ??
-                    fmt(txn.principal_portion ?? txn.principal_amount ?? txn.principal)
-                  }}
-                </td>
-                <td class="px-4 py-3 text-right text-neutral-600 dark:text-neutral-400">
-                  {{
-                    txn.interest_portion_formatted ??
-                    txn.interest_amount_formatted ??
-                    fmt(txn.interest_portion ?? txn.interest_amount ?? txn.interest)
-                  }}
-                </td>
-                <td class="px-4 py-3 text-right text-red-500">
-                  {{
-                    txn.penalty_portion_formatted ??
-                    txn.penalty_amount_formatted ??
-                    (Number(txn.penalty_portion ?? txn.penalty_amount ?? txn.penalty) > 0
-                      ? fmt(txn.penalty_portion ?? txn.penalty_amount ?? txn.penalty)
-                      : '—')
-                  }}
+                  {{ txn.interest_portion_formatted ?? fmt(txn.interest_portion) }}
                 </td>
                 <td class="px-4 py-3 text-right text-red-500">
                   {{
@@ -733,9 +703,6 @@ const hasNextRepayments = computed(
                       ? (txn.penalty_portion_formatted ?? fmt(txn.penalty_portion))
                       : '—'
                   }}
-                </td>
-                <td class="px-4 py-3 text-right text-red-500">
-                  {{ Number(txn.penalty_portion) > 0 ? fmt(txn.penalty_portion_formatted) : '—' }}
                 </td>
                 <td class="px-4 py-3 capitalize text-neutral-600 dark:text-neutral-400">
                   {{ txn.payment_method?.replace(/_/g, ' ') }}
