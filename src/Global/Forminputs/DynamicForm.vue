@@ -262,6 +262,7 @@ function shouldShowField(field: any) {
                             <template v-if="['text', 'email', 'date', 'tel'].includes(field.type)">
                                 <div class="flex">
                                     <input :id="field.name" v-bind="field" v-model="field.value"
+                                    class="rounded-xl cursor-pointer   hover:border-nfuko-primary-300 hover:bg-nfuko-primary-50 dark:hover:bg-neutral-800 transition group"
                                         :class="[inputClass, field.suffix ? 'flex-1 rounded-xl rounded-r-none border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white' : '']"
                                         @input="() => field?.change && handleChange(field, index)" />
                                     <div v-if="field?.suffix"
@@ -346,6 +347,7 @@ function shouldShowField(field: any) {
                             <template v-else>
                                 <input type="text" v-model="field.value" :class="inputClass"
                                     v-bind="field.props ?? field"
+                                    class="rounded-xl cursor-pointer   hover:border-nfuko-primary-300 hover:bg-nfuko-primary-50 dark:hover:bg-neutral-800 transition group"
                                     @input="() => field?.change && handleChange(field, index)" />
                             </template>
 

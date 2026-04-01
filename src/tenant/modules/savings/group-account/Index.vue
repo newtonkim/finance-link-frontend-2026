@@ -5,11 +5,10 @@
     view: 'group-saving-details',
     edit: 'group-saving-update',
     delete: 'group-saving-delete'
-  }" 
-  :showTableAction="true"
-  :drawerRemount="drawerRemount" :automaticCreate="automaticCreate.actionSlot != 'create-none-member'"
-    :drawerWidth="drawerTitle?.width" :url="tableUrl" state="groupAccountList" :drawerTitle="drawerTitle?.title"
-    :columns="columns" @save="saveUser" ref="drawer">
+  }" :showTableAction="true" :drawerRemount="drawerRemount"
+    :automaticCreate="automaticCreate.actionSlot != 'create-none-member'" :drawerWidth="drawerTitle?.width"
+    :url="tableUrl" state="groupAccountList" :drawerTitle="drawerTitle?.title" :columns="columns" @save="saveUser"
+    ref="drawer">
     <template #header-action>
       <div class="space-y-3">
         <PainPageHeader title="Group Savings"
@@ -50,7 +49,7 @@ const props = defineProps<{
 const statusFilter = ref('all')
 const drawerTitle = ref({
   title: 'Create Tenant',
-  width: 'w-1/3'
+  width: 'w-2/3'
 })
 const filters = ['all', 'active', 'suspended', 'expired', 'trial'], { addNoneExistingMember } = groupSavingsApi()
 const tableUrl = computed(() => {
@@ -134,9 +133,6 @@ async function saveUser(type: string, data: any, sumited: any) {
     automaticCreate.value = { actionSlot: null, item: "" }
     drawerTitle.value = titleMap[type]
   }
-  // if(){
-  //   drawerRemount.value = !drawerRemount.value
-  // }
 
 }
 function OpenThedrawer(item: any) {

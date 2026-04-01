@@ -11,7 +11,7 @@ const steps = [
     title: 'Import Members',
     description: 'Bring all members over from the old system with their personal details, phone numbers, and member numbers.',
     done: true,
-    route: '/tenant/members',
+    route: '/tenant/member',
     action: 'View Members',
   },
   {

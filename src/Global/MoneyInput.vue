@@ -86,6 +86,7 @@ watch(() => props.modelValue, (newVal) => {
             :value="displayValue"
             @input="handleInput"
             type="text"
+            class="rounded-xl cursor-pointer  hover:border-nfuko-primary-300 hover:bg-nfuko-primary-50 dark:hover:bg-neutral-800 transition group"
             inputmode="decimal"
             :placeholder="placeholder"
             :disabled="disabled"

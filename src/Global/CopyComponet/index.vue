@@ -1,18 +1,16 @@
 <template>
-  <div v-if="show??copy" class="w-full flex items-center justify-between   bg-white dark:bg-neutral-900 rounded-lg ">
+  <div v-if="show ?? copy" class="w-full flex items-center justify-between   bg-white dark:bg-neutral-900 rounded-lg ">
     <div class="flex-1 min-w-0">
       <p class="text-sm text-neutral-500 dark:text-neutral-200 truncate line-clamp-2">
-        {{ show??copy }}
+        {{ show ?? copy }}
       </p>
     </div>
 
-    <button
-      @click="handleCopy"
+    <Button @click="handleCopy"
       class="flex items-center justify-center p-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
-      title="Copy"
-    >
+      title="Copy" type="button">
       <Copy class="h-4 w-4 text-neutral-500 hover:text-nfuko-primary" />
-    </button>
+    </Button>
 
   </div>
 </template>
@@ -22,9 +20,9 @@ import { copyToClipboard } from '@/Global'
 import { Copy } from 'lucide-vue-next'
 const props = defineProps({
   show: { type: String, required: true },
-  copy: { type: [String, Number, Object]  , required: true },
+  copy: { type: [String, Number, Object], required: true },
 })
 const handleCopy = () => {
-  copyToClipboard(props.copy??props?.show)
+  copyToClipboard(props.copy ?? props?.show)
 }
 </script>

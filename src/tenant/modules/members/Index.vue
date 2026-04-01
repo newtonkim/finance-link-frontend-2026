@@ -1,6 +1,5 @@
 <template>
-    <TableDrawer drawerWidth=" w-2/3" :url="tableUrl" state="memberList" :drawerTitle="drawerTitle" " :columns="
-        columns" @save="saveUser">
+    <TableDrawer drawerWidth=" w-2/3" :url="tableUrl" state="memberList" :drawerTitle="drawerTitle" " :columns="columns" @save="saveUser" :showTableAction="true">
         <template #header-action>
             <div>
                 <h1 class="text-4xl font-black text-[#0A2318] dark:text-white tracking-tight">
@@ -21,6 +20,7 @@
         </template>
 
         <template #drawer="{ action, data }">
+            <!-- {{ action }} -->
             <Create v-if="['add', 'edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
             <Details v-if="['view'].includes(action)" :data="data" />
         </template>
