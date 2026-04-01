@@ -30,9 +30,12 @@ import {
   DropdownMenuTrigger,
 } from '@/Global/ui/dropdown-menu'
 import { formatMoneyValue } from '@/Global'
+import { useTenantUserStore } from '@/stores/tenantUserStore'
 import { useLoanAccount } from '../composables/useLoanAccount'
 import { useRepaymentAllocation } from '../composables/useRepaymentAllocation'
 import PostRepaymentModal from '../components/PostRepaymentModal.vue'
+import ReceiveCashModal from '../components/ReceiveCashModal.vue'
+import { loansApi } from '@/tenant/apis/loans/loansApi'
 
 const route = useRoute()
 const router = useRouter()
@@ -163,6 +166,52 @@ function canShowMore(row: any, index: number) {
   if (row.status === 'paid') return false
   if (index === 0) return true
   return schedule.value[index - 1].status === 'paid'
+}
+
+// ─── Receive Cash Flow ────────────────────────────────────────────────────────
+const userStore = useTenantUserStore()
+const receiveCashModalRef = ref<any>(null)
+const showReceiveCashModal = ref(false)
+const isPostingCash = ref(false)
+const selectedInstallment = ref<any>(null)
+
+function openReceiveCash(row: any) {
+  selectedInstallment.value = row
+  showReceiveCashModal.value = true
+  if (receiveCashModalRef.value) {
+    receiveCashModalRef.value.reset()
+  }
+}
+
+async function handleReceiveCashSubmit(data: any) {
+  if (!loan.value) return
+  isPostingCash.value = true
+
+  try {
+    const payload = {
+      amount: data.amount,
+      payment_method: 'cash',
+      payment_date: data.payment_date,
+      notes: [data.non_borrower ? `Non-Borrower: ${data.non_borrower}` : '', data.description]
+        .filter(Boolean)
+        .join('. '),
+    }
+
+    await loansApi.postRepayment(loan.value.id, payload)
+
+    // Switch to success view in modal
+    if (receiveCashModalRef.value) {
+      receiveCashModalRef.value.setSuccess()
+    }
+
+    // Refresh data in background
+    refresh()
+  } catch (err) {
+    console.error('Failed to post cash repayment:', err)
+    // Handle error (maybe show a toast)
+  } finally {
+    isPostingCash.value = false
+  }
 }
 </script>
 
@@ -381,7 +430,9 @@ function canShowMore(row: any, index: number) {
                 v-if="loan.loan_product?.interest_method"
                 class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
               >
-                <div class="font-medium text-neutral-500 dark:text-neutral-400">Interest Method</div>
+                <div class="font-medium text-neutral-500 dark:text-neutral-400">
+                  Interest Method
+                </div>
                 <div class="font-medium capitalize text-neutral-900 dark:text-white">
                   {{ loan.loan_product.interest_method.replace(/_/g, ' ') }}
                 </div>
@@ -495,7 +546,9 @@ function canShowMore(row: any, index: number) {
           </div>
           <div class="overflow-x-auto rounded-xl border border-neutral-100 dark:border-neutral-800">
             <table class="w-full text-xs">
-              <thead class="bg-neutral-50 dark:bg-neutral-800/60 font-semibold text-neutral-600 dark:text-neutral-400">
+              <thead
+                class="bg-neutral-50 dark:bg-neutral-800/60 font-semibold text-neutral-600 dark:text-neutral-400"
+              >
                 <tr>
                   <th class="px-2 py-3 text-left">#ID</th>
                   <th class="px-3 py-3 text-left">Due Date</th>
@@ -537,17 +590,34 @@ function canShowMore(row: any, index: number) {
                     {{ currency }} {{ row.total_due_formatted }}
                   </td>
                   <td class="px-3 py-3 text-right">
-                    {{ currency }} {{ fmt(Number(row.principal_paid) + Number(row.interest_paid) + Number(row.charges_paid) + Number(row.penalty_paid)) }}
+                    {{ currency }}
+                    {{
+                      fmt(
+                        Number(row.principal_paid) +
+                          Number(row.interest_paid) +
+                          Number(row.charges_paid) +
+                          Number(row.penalty_paid),
+                      )
+                    }}
                   </td>
                   <td class="px-3 py-3 text-right">
-                    {{ currency }} {{ fmt(Number(row.total_due) - (Number(row.principal_paid) + Number(row.interest_paid) + Number(row.charges_paid) + Number(row.penalty_paid))) }}
+                    {{ currency }}
+                    {{
+                      fmt(
+                        Number(row.total_due) -
+                          (Number(row.principal_paid) +
+                            Number(row.interest_paid) +
+                            Number(row.charges_paid) +
+                            Number(row.penalty_paid)),
+                      )
+                    }}
                   </td>
                   <td class="px-3 py-3">
                     <span
                       class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold transition-all duration-200"
                       :class="scheduleStatusColor(row.status)"
                     >
-                      {{ row.status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) }}
+                      {{ row.status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) }}
                     </span>
                   </td>
                   <td class="px-3 py-3 text-right text-neutral-600">
@@ -559,19 +629,27 @@ function canShowMore(row: any, index: number) {
                   <td class="px-3 py-3 text-center">
                     <DropdownMenu v-if="canShowMore(row, index)">
                       <DropdownMenuTrigger as-child>
-                        <button class="inline-flex items-center justify-between gap-1 px-2.5 py-1.5 text-xs font-semibold text-blue-600 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors">
+                        <button
+                          class="inline-flex items-center justify-between gap-1 px-2.5 py-1.5 text-xs font-semibold text-blue-600 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
+                        >
                           More
                           <ChevronDown class="h-3 w-3" />
                         </button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" class="w-48 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 shadow-xl">
+                      <DropdownMenuContent
+                        align="end"
+                        class="w-48 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 shadow-xl"
+                      >
+                        <DropdownMenuItem
+                          class="cursor-pointer gap-2"
+                          @click="openReceiveCash(row)"
+                        >
+                          <Banknote class="h-4 w-4" />
+                          Receive Cash
+                        </DropdownMenuItem>
                         <DropdownMenuItem class="cursor-pointer gap-2">
                           <History class="h-4 w-4" />
                           Mobile Money
-                        </DropdownMenuItem>
-                        <DropdownMenuItem class="cursor-pointer gap-2">
-                          <Banknote class="h-4 w-4" />
-                          Receive Cash
                         </DropdownMenuItem>
                         <DropdownMenuItem class="cursor-pointer gap-2">
                           <CreditCard class="h-4 w-4" />
@@ -586,7 +664,9 @@ function canShowMore(row: any, index: number) {
                   </td>
                 </tr>
               </tbody>
-              <tfoot class="bg-neutral-50 dark:bg-neutral-800/60 font-bold text-neutral-900 dark:text-white border-t border-neutral-200 dark:border-neutral-700">
+              <tfoot
+                class="bg-neutral-50 dark:bg-neutral-800/60 font-bold text-neutral-900 dark:text-white border-t border-neutral-200 dark:border-neutral-700"
+              >
                 <tr>
                   <td colspan="2" class="px-3 py-3 font-semibold text-neutral-700">Total Due</td>
                   <td class="px-3 py-3 text-right">
@@ -649,14 +729,12 @@ function canShowMore(row: any, index: number) {
               class="bg-neutral-50 dark:bg-neutral-800/60 border-b border-neutral-100 dark:border-neutral-800"
             >
               <tr>
-                <th class="px-4 py-3 text-left font-medium text-neutral-500">Receipt</th>
-                <th class="px-4 py-3 text-left font-medium text-neutral-500">Date</th>
+                <th class="px-4 py-3 text-left font-medium text-neutral-500">ID</th>
+                <th class="px-4 py-3 text-left font-medium text-neutral-500">Processing Date</th>
+                <th class="px-4 py-3 text-left font-medium text-neutral-500">Transaction Type</th>
                 <th class="px-4 py-3 text-right font-medium text-neutral-500">Amount</th>
-                <th class="px-4 py-3 text-right font-medium text-neutral-500">Principal</th>
-                <th class="px-4 py-3 text-right font-medium text-neutral-500">Interest</th>
-                <th class="px-4 py-3 text-right font-medium text-neutral-500">Penalty</th>
-                <th class="px-4 py-3 text-left font-medium text-neutral-500">Method</th>
-                <th class="px-4 py-3 text-left font-medium text-neutral-500">Collected By</th>
+                <th class="px-4 py-3 text-left font-medium text-neutral-500">Officer</th>
+                <th class="px-4 py-3 text-center font-medium text-neutral-500">Action</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
@@ -671,29 +749,36 @@ function canShowMore(row: any, index: number) {
                 <td class="px-4 py-3 text-neutral-700 dark:text-neutral-300">
                   {{ fmtDate(txn.payment_date) }}
                 </td>
+                <td class="px-4 py-3 capitalize text-neutral-600 dark:text-neutral-400">
+                  {{ txn.payment_method?.replace(/_/g, ' ') ?? '—' }}
+                </td>
                 <td
                   class="px-4 py-3 text-right font-semibold text-emerald-600 dark:text-emerald-400"
                 >
                   {{ fmt(txn.amount_paid_formatted) }}
                 </td>
-                <td class="px-4 py-3 text-right text-neutral-600 dark:text-neutral-400">
-                  {{ txn.principal_portion_formatted ?? fmt(txn.principal_portion) }}
-                </td>
-                <td class="px-4 py-3 text-right text-neutral-600 dark:text-neutral-400">
-                  {{ txn.interest_portion_formatted ?? fmt(txn.interest_portion) }}
-                </td>
-                <td class="px-4 py-3 text-right text-red-500">
-                  {{
-                    Number(txn.penalty_portion) > 0
-                      ? (txn.penalty_portion_formatted ?? fmt(txn.penalty_portion))
-                      : '—'
-                  }}
-                </td>
-                <td class="px-4 py-3 capitalize text-neutral-600 dark:text-neutral-400">
-                  {{ txn.payment_method?.replace(/_/g, ' ') }}
-                </td>
                 <td class="px-4 py-3 text-neutral-600 dark:text-neutral-400">
                   {{ txn.collected_by?.name ?? '—' }}
+                </td>
+                <td class="px-4 py-3 text-center">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger as-child>
+                      <button
+                        class="inline-flex items-center justify-center rounded-lg p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                      >
+                        <MoreHorizontal class="h-4 w-4" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="end"
+                      class="w-40 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 shadow-xl"
+                    >
+                      <DropdownMenuItem class="cursor-pointer gap-2">
+                        <FileText class="h-4 w-4" />
+                        View Details
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </td>
               </tr>
             </tbody>
@@ -737,7 +822,7 @@ function canShowMore(row: any, index: number) {
     </template>
   </div>
 
-  <!-- Repayment modal -->
+  <!-- Repayment modals -->
   <PostRepaymentModal
     :open="showModal"
     :posting="posting"
@@ -749,5 +834,25 @@ function canShowMore(row: any, index: number) {
     @close="closeModal"
     @submit="onRepaymentSubmit"
     @preview-request="loadPreview"
+  />
+
+  <ReceiveCashModal
+    ref="receiveCashModalRef"
+    :open="showReceiveCashModal"
+    :posting="isPostingCash"
+    :teller-name="userStore.user?.name ?? 'Newton Kimathi'"
+    :borrower-name="loan?.member?.name ?? 'Borrower'"
+    :installment-amount="
+      selectedInstallment
+        ? Number(selectedInstallment.total_due) -
+          (Number(selectedInstallment.principal_paid) +
+            Number(selectedInstallment.interest_paid) +
+            Number(selectedInstallment.charges_paid) +
+            Number(selectedInstallment.penalty_paid))
+        : 0
+    "
+    :currency="currency"
+    @close="showReceiveCashModal = false"
+    @submit="handleReceiveCashSubmit"
   />
 </template>
