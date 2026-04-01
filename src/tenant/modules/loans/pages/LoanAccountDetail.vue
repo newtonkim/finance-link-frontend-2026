@@ -17,6 +17,7 @@ import {
   BookOpen,
   FileText,
   Activity,
+  AlertTriangle,
 } from 'lucide-vue-next'
 import { formatMoneyValue } from '@/Global'
 import { useLoanAccount } from '../composables/useLoanAccount'
@@ -93,6 +94,7 @@ const tabs = [
   { key: 'general', label: 'General Information', icon: CreditCard },
   { key: 'transactions', label: 'Transaction History', icon: History },
   { key: 'schedule', label: 'Payment Schedule', icon: ClipboardList },
+  { key: 'charges', label: 'Charges & Penalties', icon: AlertTriangle },
   { key: 'documents', label: 'Documents', icon: FileText },
   { key: 'activities', label: 'Loan Activities', icon: Activity },
 ] as const
@@ -246,72 +248,174 @@ const hasNextRepayments = computed(
       </div>
 
       <!-- ── General Information ── -->
-      <div v-if="activeTab === 'general'" class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <div
-          class="rounded-2xl border border-neutral-100 bg-white dark:border-neutral-800 dark:bg-neutral-900 p-5"
-        >
-          <h3
-            class="text-xs font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500 mb-4"
+      <div v-if="activeTab === 'general'" class="grid gap-6 lg:grid-cols-2 items-start">
+        <!-- ── LEFT COLUMN ── -->
+        <div class="space-y-6">
+          <!-- Loan Details -->
+          <div
+            class="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
           >
-            Loan Details
-          </h3>
-          <dl class="space-y-3">
-            <div class="flex justify-between text-sm">
-              <dt class="text-neutral-500 dark:text-neutral-400">Loan Number</dt>
-              <dd class="font-mono text-neutral-900 dark:text-white">{{ loan.loan_no }}</dd>
+            <div class="border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
+              <h3 class="text-[13px] font-semibold text-neutral-900 dark:text-white">
+                Loan Details
+              </h3>
             </div>
-            <div class="flex justify-between text-sm">
-              <dt class="text-neutral-500 dark:text-neutral-400">Product</dt>
-              <dd class="text-neutral-900 dark:text-white">{{ loan.loan_product?.name ?? '—' }}</dd>
+            <div class="text-[13px] divide-y divide-neutral-100 dark:divide-neutral-800">
+              <div
+                class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
+              >
+                <div class="font-medium text-neutral-500 dark:text-neutral-400">No.</div>
+                <div class="font-medium text-neutral-900 dark:text-white">
+                  {{ loan.loan_no }}
+                </div>
+              </div>
+              <div
+                class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
+              >
+                <div class="font-medium text-neutral-500 dark:text-neutral-400">Status</div>
+                <div class="font-medium capitalize text-neutral-900 dark:text-white">
+                  <span
+                    class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize"
+                    :class="statusColor(loan.status)"
+                  >
+                    {{ loan.status === 'active' ? 'Disbursed' : loan.status }}
+                  </span>
+                </div>
+              </div>
+              <div
+                class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
+              >
+                <div class="font-medium text-neutral-500 dark:text-neutral-400">Loan Product</div>
+                <div class="font-medium text-neutral-900 dark:text-white">
+                  {{ loan.loan_product?.name ?? '—' }}
+                </div>
+              </div>
+              <div
+                class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
+              >
+                <div class="font-medium text-neutral-500 dark:text-neutral-400">
+                  Principal Amount
+                </div>
+                <div class="font-medium text-neutral-900 dark:text-white">
+                  {{ loan.principal_formatted ?? fmt(loan.principal) }}
+                </div>
+              </div>
+              <div
+                class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
+              >
+                <div class="font-medium text-neutral-500 dark:text-neutral-400">Net Disbursed</div>
+                <div class="font-medium text-emerald-700 dark:text-emerald-400">
+                  {{ loan.net_disbursed_amount_formatted ?? fmt(loan.net_disbursed_amount) }}
+                </div>
+              </div>
+              <div
+                v-if="Number(loan.processing_fee) > 0"
+                class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
+              >
+                <div class="font-medium text-neutral-500 dark:text-neutral-400">Processing Fee</div>
+                <div class="font-medium text-neutral-900 dark:text-white">
+                  {{ loan.processing_fee_formatted ?? fmt(loan.processing_fee) }}
+                </div>
+              </div>
+              <div
+                class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
+              >
+                <div class="font-medium text-neutral-500 dark:text-neutral-400">Interest Rate</div>
+                <div class="font-medium text-neutral-900 dark:text-white">
+                  {{ loan.interest_rate }}%
+                </div>
+              </div>
+              <div
+                class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
+              >
+                <div class="font-medium text-neutral-500 dark:text-neutral-400">Term</div>
+                <div class="font-medium text-neutral-900 dark:text-white">
+                  {{ loan.term_months }} months
+                </div>
+              </div>
+              <div
+                class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
+              >
+                <div class="font-medium text-neutral-500 dark:text-neutral-400">Date Disbursed</div>
+                <div class="font-medium text-neutral-900 dark:text-white">
+                  {{ loan.disbursed_at ? fmtDate(loan.disbursed_at) : '—' }}
+                </div>
+              </div>
+              <div
+                class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
+              >
+                <div class="font-medium text-neutral-500 dark:text-neutral-400">
+                  Disbursement Method
+                </div>
+                <div class="font-medium capitalize text-neutral-900 dark:text-white">
+                  {{ loan.disbursement_method?.replace(/_/g, ' ') ?? '—' }}
+                </div>
+              </div>
+              <div
+                v-if="loan.disbursement_reference"
+                class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
+              >
+                <div class="font-medium text-neutral-500 dark:text-neutral-400">Reference</div>
+                <div class="font-medium text-neutral-900 dark:text-white">
+                  {{ loan.disbursement_reference }}
+                </div>
+              </div>
             </div>
-            <div class="flex justify-between text-sm">
-              <dt class="text-neutral-500 dark:text-neutral-400">Interest Rate</dt>
-              <dd class="text-neutral-900 dark:text-white">{{ loan.interest_rate }}%</dd>
-            </div>
-            <div class="flex justify-between text-sm">
-              <dt class="text-neutral-500 dark:text-neutral-400">Term</dt>
-              <dd class="text-neutral-900 dark:text-white">{{ loan.term_months }} months</dd>
-            </div>
-            <div class="flex justify-between text-sm">
-              <dt class="text-neutral-500 dark:text-neutral-400">Processing Fee</dt>
-              <dd class="text-neutral-900 dark:text-white">
-                {{ fmt(loan.processing_fee_formatted) }}
-              </dd>
-            </div>
-            <div class="flex justify-between text-sm">
-              <dt class="text-neutral-500 dark:text-neutral-400">Disbursement Method</dt>
-              <dd class="capitalize text-neutral-900 dark:text-white">
-                {{ loan.disbursement_method?.replace(/_/g, ' ') ?? '—' }}
-              </dd>
-            </div>
-            <div v-if="loan.disbursement_reference" class="flex justify-between text-sm">
-              <dt class="text-neutral-500 dark:text-neutral-400">Reference</dt>
-              <dd class="text-neutral-900 dark:text-white">{{ loan.disbursement_reference }}</dd>
-            </div>
-          </dl>
+          </div>
         </div>
-        <div
-          class="rounded-2xl border border-neutral-100 bg-white dark:border-neutral-800 dark:bg-neutral-900 p-5"
-        >
-          <h3
-            class="text-xs font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500 mb-4"
+
+        <!-- ── RIGHT COLUMN ── -->
+        <div class="space-y-6">
+          <!-- People Information -->
+          <div
+            class="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
           >
-            People
-          </h3>
-          <dl class="space-y-3">
-            <div class="flex justify-between text-sm">
-              <dt class="text-neutral-500 dark:text-neutral-400">Member</dt>
-              <dd class="text-neutral-900 dark:text-white">{{ loan.member?.name ?? '—' }}</dd>
+            <div class="border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
+              <h3 class="text-[13px] font-semibold text-neutral-900 dark:text-white">
+                People Information
+              </h3>
             </div>
-            <div v-if="loan.loan_officer" class="flex justify-between text-sm">
-              <dt class="text-neutral-500 dark:text-neutral-400">Loan Officer</dt>
-              <dd class="text-neutral-900 dark:text-white">{{ loan.loan_officer.name }}</dd>
+            <div class="text-[13px] divide-y divide-neutral-100 dark:divide-neutral-800">
+              <div
+                v-if="loan.member"
+                class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
+              >
+                <div class="font-medium text-neutral-500 dark:text-neutral-400">Member Name</div>
+                <div class="font-medium text-neutral-900 dark:text-white">
+                  {{ loan.member.name }}
+                </div>
+              </div>
+              <div
+                v-if="loan.member?.member_number"
+                class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
+              >
+                <div class="font-medium text-neutral-500 dark:text-neutral-400">Member No.</div>
+                <div class="font-medium text-neutral-900 dark:text-white">
+                  {{ loan.member.member_number }}
+                </div>
+              </div>
+              <div
+                v-if="loan.disbursed_by_staff"
+                class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
+              >
+                <div class="font-medium text-neutral-500 dark:text-neutral-400">
+                  Disbursing Officer
+                </div>
+                <div class="font-medium text-neutral-900 dark:text-white">
+                  {{ loan.disbursed_by_staff.name }}
+                </div>
+              </div>
+              <div
+                v-if="loan.loan_officer"
+                class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
+              >
+                <div class="font-medium text-neutral-500 dark:text-neutral-400">Loan Officer</div>
+                <div class="font-medium text-neutral-900 dark:text-white">
+                  {{ loan.loan_officer.name }}
+                </div>
+              </div>
             </div>
-            <div v-if="loan.disbursed_by_staff" class="flex justify-between text-sm">
-              <dt class="text-neutral-500 dark:text-neutral-400">Disbursed By</dt>
-              <dd class="text-neutral-900 dark:text-white">{{ loan.disbursed_by_staff.name }}</dd>
-            </div>
-          </dl>
+          </div>
         </div>
       </div>
 
