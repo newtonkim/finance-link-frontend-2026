@@ -58,6 +58,9 @@ onMounted(async () => {
 })
 </script>
 <template>
-  <div v-if="loading">Loading...</div>
-  <DetailsTable v-else :data="data" :columns="columns" />
+  <div class="h-[83vh] overflow-y-scroll">
+
+    <div v-if="loading">Loading...</div>
+    <DetailsTable v-else :data="data" :columns="columns" />
+  </div>
 </template>

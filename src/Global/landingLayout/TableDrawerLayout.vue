@@ -304,17 +304,18 @@ async function saveDrawerData(data: any) {
 
     } else {
         const checker = await automaticCreateFun('create')
-        console.log(checker, '====2');
 
         if (checker) {
             // if (!checker) {
-            return
-        }
-        if (finalSubmitAction.value == 'import-data') {
+            // return
+        } else if (finalSubmitAction.value == 'import-data') {
             return
 
-        } else
-            save(data, finalSubmitAction.value ?? 'create')
+        }
+        console.log(checker, '====2');
+
+        save(data, finalSubmitAction.value ?? 'create')
+        buttonTypeClicked.value = 'add'
 
         setTimeout(() => {
             submitChanges.value = false

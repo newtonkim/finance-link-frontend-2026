@@ -25,6 +25,7 @@ const props = defineProps<{
     url?: string;
     saveData?: boolean;
     state?: string
+    reload?: string
     dataOnMount?: boolean
 }>();
 
@@ -32,6 +33,8 @@ const emit = defineEmits(['update:modelValue', 'update:itemSelected']);
 const remoteUrl = debounce(async (url: string) => {
     if (!url) return;
     tryCatch(async () => {
+        // console.log(props.reload);
+        
         const data = {}
         if (searchQuery.value?.length >= 3)
             data.search_keyword = searchQuery.value
@@ -39,7 +42,7 @@ const remoteUrl = debounce(async (url: string) => {
         const res = await fetchTableData({
             data: data?.search_keyword ? data : null,
             saveData: props?.saveData ?? true,
-            props: { url, reload: false, state: generateAstate, },
+            props: { url, reload: props.reload?? false, state: generateAstate, },
             Store,
         });
         const checker = await Store?.[generateAstate]?.payload?.data ?? Store?.[generateAstate]?.payload ?? Store?.[generateAstate] ?? [];
@@ -111,12 +114,8 @@ watch(props, async (newVal) => {
         // await toggleDropdown();
     }
 }, { immediate: true, deep: true });
-// watch(isOpen, (newVal) => {
-//     if (newVal) {
-//         // Optional: focus searchable input
-//     }
-// });
-
+ 
+ 
 watch(searchQuery, (newVal) => {
     if (searchQuery.value?.length >= 3 && props.url) {
         remoteUrl(props.url)
@@ -163,7 +162,7 @@ const inputClass =
             leave-active-class="transition duration-75 ease-in" leave-from-class="transform scale-100 opacity-100"
             leave-to-class="transform scale-95 opacity-0">
             <div style="z-index:9999" v-if="isOpen"
-                class="absolute   mt-2 w-full overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xl dark:border-neutral-800 dark:bg-neutral-900">
+                class="absolute   mt-2 w-full o verflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xl dark:border-neutral-800 dark:bg-neutral-900">
                 <div class="p-2 border-b border-neutral-100 dark:border-neutral-800">
                     <div class="relative flex items-center">
                         <Search class="absolute left-3.5 h-4 w-4 text-neutral-400" />

@@ -21,6 +21,7 @@ import { ArrowLeftRight, Loader2, CheckCircle2, AlertCircle, RefreshCw } from 'l
     type: 'select', 
     required: true, 
     placeholder: 'Enter account from',
+    reload: true,
     url:"group-account-savings/savings-accounts-drop-down-list",
         dataOnMount: true,},
    {
@@ -29,6 +30,7 @@ import { ArrowLeftRight, Loader2, CheckCircle2, AlertCircle, RefreshCw } from 'l
     type: 'select', 
     required: true, 
     placeholder: 'Enter account to',
+    reload: true,
         url:"group-account-savings/savings-accounts-drop-down-list",
         dataOnMount: true, 
   },
