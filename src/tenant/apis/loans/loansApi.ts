@@ -18,7 +18,7 @@ export interface LoanScheduleEntry {
   penalty_paid: string
   outstanding_balance: string
   outstanding_balance_formatted: string
-  status: 'pending' | 'partial' | 'paid' | 'overdue'
+  status: 'pending' | 'paid' | 'partial_pay' | 'arrears' | string
   paid_date: string | null
   is_overdue: boolean
   days_overdue: number
@@ -32,18 +32,30 @@ export interface LoanTransaction {
   amount_paid: string
   amount_paid_formatted: string
   principal_portion: string
-  principal_portion_formatted: string
+  principal_portion_formatted?: string
   interest_portion: string
-  interest_portion_formatted: string
+  interest_portion_formatted?: string
   penalty_portion: string
-  penalty_portion_formatted: string
+  penalty_portion_formatted?: string
   charges_portion: string
-  charges_portion_formatted: string
+  charges_portion_formatted?: string
+  // Alternative field names the API might return
+  principal?: string
+  principal_amount?: string
+  principal_amount_formatted?: string
+  interest?: string
+  interest_amount?: string
+  interest_amount_formatted?: string
+  penalty?: string
+  penalty_amount?: string
+  penalty_amount_formatted?: string
   payment_date: string
   payment_method: string
   reversal_flag: boolean
   reversed_date: string | null
   collected_by: { id: number; name: string } | null
+  loan_officer_id?: number | null
+  loan_officer?: { id: number; name: string } | null
 }
 
 export interface LoanSummary {
@@ -111,7 +123,7 @@ export interface LoanDetail {
   status: string
   notes: string | null
   currency_code: string
-  loan_product: { id: number; name: string; code: string } | null
+  loan_product: { id: number; name: string; code: string; interest_method?: string } | null
   member: { id: number; name: string; member_number: string | null } | null
   loan_officer: { id: number; name: string } | null
   disbursed_by_staff: { id: number; name: string } | null
@@ -151,6 +163,7 @@ export interface PostRepaymentData {
   receipt_no?: string | null
   transaction_ref?: string | null
   notes?: string | null
+  loan_officer_id?: number | null
 }
 
 export const loansApi = {
@@ -172,7 +185,9 @@ export const loansApi = {
   },
 
   getRepayments(id: number, params?: { page?: number; per_page?: number }) {
-    return tenantClient.get<{ data: LoanTransaction[]; meta: object }>(`/loans/${id}/repayments`, { params })
+    return tenantClient.get<{ data: LoanTransaction[]; meta: object }>(`/loans/${id}/repayments`, {
+      params,
+    })
   },
 
   getLedger(id: number, params?: { page?: number; per_page?: number }) {
@@ -181,10 +196,15 @@ export const loansApi = {
 
   // ─── Repayments ───────────────────────────────────────────────────────────
   previewRepayment(id: number, amount: number) {
-    return tenantClient.post<{ data: RepaymentPreview }>(`/loans/${id}/repayments/preview`, { amount })
+    return tenantClient.post<{ data: RepaymentPreview }>(`/loans/${id}/repayments/preview`, {
+      amount,
+    })
   },
 
   postRepayment(id: number, data: PostRepaymentData) {
-    return tenantClient.post<{ message: string; data: LoanTransaction }>(`/loans/${id}/repayments`, data)
+    return tenantClient.post<{ message: string; data: LoanTransaction }>(
+      `/loans/${id}/repayments`,
+      data,
+    )
   },
 }

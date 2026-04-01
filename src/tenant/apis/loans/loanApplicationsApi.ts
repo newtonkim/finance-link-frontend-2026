@@ -108,7 +108,13 @@ export interface LoanApplication {
   created_at?: string
   // Nested
   member?: { id: number; name: string; member_no: string } | null
-  loan_product?: { id: number; name: string; code: string; max_amount?: number | null; max_amount_formatted?: string | null } | null
+  loan_product?: {
+    id: number
+    name: string
+    code: string
+    max_amount?: number | null
+    max_amount_formatted?: string | null
+  } | null
   loan_officer?: { id: number; name: string } | null
   appraised_by?: { id: number; name: string } | null
   recommended_by?: { id: number; name: string } | null
@@ -199,19 +205,25 @@ export const loanApplicationsApi = {
     requested_amount: number
     requested_term: number
   }) {
-    return tenantClient.post<{ data: EligibilityResult }>('/loan-applications/eligibility-check', data)
+    return tenantClient.post<{ data: EligibilityResult }>(
+      '/loan-applications/eligibility-check',
+      data,
+    )
   },
 
   // ─── Appraisal ──────────────────────────────────────────────────────────────
   takeForReview(id: number) {
     return tenantClient.post(`/loan-applications/${id}/take-for-review`)
   },
-  appraise(id: number, data: {
-    recommended_amount: number | string
-    recommended_term: number | string
-    risk_rating: string
-    appraisal_notes?: string | null
-  }) {
+  appraise(
+    id: number,
+    data: {
+      recommended_amount: number | string
+      recommended_term: number | string
+      risk_rating: string
+      appraisal_notes?: string | null
+    },
+  ) {
     return tenantClient.post(`/loan-applications/${id}/appraise`, data)
   },
   requestDocuments(id: number, note: string) {
@@ -249,15 +261,18 @@ export const loanApplicationsApi = {
   },
 
   // ─── Disbursement ────────────────────────────────────────────────────────────
-  disburse(id: number, data: {
-    disbursement_method: string
-    disbursement_reference?: string | null
-    disbursement_date?: string | null
-    notes?: string | null
-    savings_account_id?: number | null
-    mobile_money_provider?: string | null
-    mobile_money_number?: string | null
-  }) {
+  disburse(
+    id: number,
+    data: {
+      disbursement_method: string
+      disbursement_reference?: string | null
+      disbursement_date?: string | null
+      notes?: string | null
+      savings_account_id?: number | null
+      mobile_money_provider?: string | null
+      mobile_money_number?: string | null
+    },
+  ) {
     return tenantClient.post(`/loan-applications/${id}/disburse`, data)
   },
 
@@ -266,7 +281,9 @@ export const loanApplicationsApi = {
     return tenantClient.post(`/loan-applications/${id}/bm-recommend`, { bm_notes: bmNotes })
   },
   committeeReturnForCorrection(id: number, correctionReason: string) {
-    return tenantClient.post(`/loan-applications/${id}/committee/return-for-correction`, { correction_reason: correctionReason })
+    return tenantClient.post(`/loan-applications/${id}/committee/return-for-correction`, {
+      correction_reason: correctionReason,
+    })
   },
   castVote(id: number, data: { decision: 'approve' | 'decline'; comment?: string | null }) {
     return tenantClient.post(`/loan-applications/${id}/votes`, data)
@@ -277,14 +294,20 @@ export const loanApplicationsApi = {
   markAbstention(id: number, staffId: number, reason: string) {
     return tenantClient.patch(`/loan-applications/${id}/votes/${staffId}/abstain`, { reason })
   },
-  confirmTerms(id: number, data: {
-    final_approved_amount: number | string
-    final_approved_term: number
-    proposed_start_date: string
-  }) {
+  confirmTerms(
+    id: number,
+    data: {
+      final_approved_amount: number | string
+      final_approved_term: number
+      proposed_start_date: string
+    },
+  ) {
     return tenantClient.patch(`/loan-applications/${id}/confirm-terms`, data)
   },
-  getProposedSchedule(id: number, params?: { amount?: number | string; term?: number; start_date?: string }) {
+  getProposedSchedule(
+    id: number,
+    params?: { amount?: number | string; term?: number; start_date?: string },
+  ) {
     return tenantClient.get(`/loan-applications/${id}/proposed-schedule`, { params })
   },
 
@@ -299,5 +322,10 @@ export const loanApplicationsApi = {
   },
   deleteDocument(applicationId: number, documentId: number) {
     return tenantClient.delete(`/loan-applications/${applicationId}/documents/${documentId}`)
+  },
+  downloadDocument(applicationId: number, documentId: number) {
+    return tenantClient.get(`/loan-applications/${applicationId}/documents/${documentId}/download`, {
+      responseType: 'blob',
+    })
   },
 }
