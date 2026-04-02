@@ -65,6 +65,7 @@ const fields = ref([
             field: 'application',
             value: 'on_loan_application',
         },
+        url: "global/loan-products",
         placeholder: 'Choose loan products',
     },
     // Charge type
@@ -126,6 +127,7 @@ const fields = ref([
         name: 'credit_account_id',
         type: 'select',
         url: "global/chart-of-accounts",
+        data: { account_type: 'INCOME' },
         options: [],
         placeholder: 'Select account',
         
