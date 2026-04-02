@@ -131,6 +131,8 @@ const fields = ref([
         name: 'credit_account_id',
         type: 'select',
         url: "global/chart-of-accounts",
+        data: { account_type: 'INCOME' },
+        dataOnMount: true,
         options: [],
         placeholder: 'Select account',
         

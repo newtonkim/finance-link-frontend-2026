@@ -100,8 +100,8 @@ export function useGeneralCharges() {
     try {
       const [savRes, coaRes, loanRes] = await Promise.allSettled([
         savingsProductsApi.list(),
-        tenantClient.get('/chart-of-accounts', { params: { list: true, account_type: 'INCOME' } }),
-        tenantClient.get('/loan-products'),
+        tenantClient.post('global/chart-of-accounts', { account_type: 'INCOME' }),
+        tenantClient.post('global/loan-products'),
       ])
 
       if (savRes.status === 'fulfilled') {
@@ -112,12 +112,15 @@ export function useGeneralCharges() {
       }
 
       if (coaRes.status === 'fulfilled') {
-        const coa = coaRes.value.data?.data ?? coaRes.value.data ?? []
+        const coa = coaRes.value.data?.payload?.data ?? coaRes.value.data?.data ?? coaRes.value.data ?? []
         creditAccountOptions.value = Array.isArray(coa)
-          ? coa
-              .filter((a: any) => a.account_type?.toString().toLowerCase() === 'income')
-              .map((a: any) => ({ id: a.id, name: a.name ?? 'Account ' + a.id }))
+          ? coa.map((a: any) => ({ id: a.id, name: a.name ?? 'Account ' + a.id }))
           : []
+        
+        // Auto-select the first available income account if nothing is selected
+        if (!form.value.credit_account_id && creditAccountOptions.value.length > 0) {
+          form.value.credit_account_id = creditAccountOptions.value[0].id as any
+        }
       }
 
       if (loanRes.status === 'fulfilled') {

@@ -78,19 +78,25 @@ export interface LoanProduct {
   interest_period?: 'daily' | 'weekly' | 'monthly' | 'yearly' | 'per_month' | 'per_year' | null
   loan_duration?: number | null
   duration_type?: 'days' | 'weeks' | 'months' | 'years' | null
-  repayment_cycle?: 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'quarterly' | 'annually' | 'yearly' | null
+  repayment_cycle?:
+    | 'daily'
+    | 'weekly'
+    | 'biweekly'
+    | 'monthly'
+    | 'quarterly'
+    | 'annually'
+    | 'yearly'
+    | null
   required_documents?: LoanProductRequiredDocument[]
   grace_period?: number | null
   savings_appraisal_threshold?: number | string | null
   warning_days?: number | null
   max_securities?: number | null
   security_value_percentage?: number | string | null
-  allow_sub_schedule?: boolean | null
+
   penalty_rate?: number | string | null
   penalty_type?: 'none' | 'flat' | 'percentage' | string | null
-  requires_approval?: boolean
-  allow_top_up?: boolean
-  allow_reschedule?: boolean
+
   processing_fee_type?: 'none' | 'flat' | 'percentage' | null
   processing_fee_value?: number | string | null
   processing_fee_value_formatted?: string | null
@@ -134,7 +140,12 @@ export const loanProductsApi = {
   update(id: number, data: LoanProduct) {
     return tenantClient.put(`/loan-products/${id}`, data)
   },
-  preview(data: Partial<LoanProduct> & { preview_amount?: number | string | null; preview_term?: number | null }) {
+  preview(
+    data: Partial<LoanProduct> & {
+      preview_amount?: number | string | null
+      preview_term?: number | null
+    },
+  ) {
     return tenantClient.post('/loan-products/preview', data)
   },
   destroy(id: number) {
