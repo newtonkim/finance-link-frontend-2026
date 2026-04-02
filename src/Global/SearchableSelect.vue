@@ -73,7 +73,9 @@ const filteredOptions = computed(() => {
 const selectOption = (option: Option) => {
     emit('update:modelValue', option.id);
     emit('update:itemSelected', option);
-    isOpen.value = false;
+  setTimeout(() => {
+        isOpen.value = false;
+  })
     searchQuery.value = '';
 };
 
