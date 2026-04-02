@@ -62,9 +62,14 @@ const fields = ref([
         name: 'loan_product_ids',
         type: 'multi-select',
         dependsOn: {
-            field: 'application',
-            value: 'on_loan_application',
+            conditions: [
+                { field: 'application', value: 'on_loan_application' },
+                { field: 'where_to_apply', value: 'loans' },
+            ],
+            operator: 'or',
         },
+        url: 'global/loan-products',
+        dataOnMount: true,
         placeholder: 'Choose loan products',
     },
     // Charge type

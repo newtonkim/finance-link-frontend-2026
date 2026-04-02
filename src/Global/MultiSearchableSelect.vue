@@ -27,26 +27,36 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(['update:modelValue', 'update:itemSelected']);
+const isOpen = ref(false);
+const searchQuery = ref('');
+const collection = shallowRef<any[]>([]);
+const containerRef = ref<HTMLElement | null>(null);
+const loading = ref(false);
+const hasFetched = ref(false);
+
 const remoteUrl = debounce(async (url: string) => {
-    if (!url) return;
+    if (!url || loading.value) return;
+    
     tryCatch(async () => {
+        loading.value = true;
         const data: any = {}
         if (searchQuery.value?.length >= 3)
             data.search_keyword = searchQuery.value
+            
         const res = await fetchTableData({
             data: data?.search_keyword ? data : null,
             props: { url, reload: false, state: props?.state },
             Store,
         });
-        if (res.success !== false)
-            collection.value = res?.payload?.data ?? res?.payload ?? res ?? [];
-    })
-}, 1000);
 
-const isOpen = ref(false);
-const searchQuery = ref('');
-const collection = shallowRef<any[]>([]);
-const containerRef = ref<HTMLElement | null>(null);
+        if (res.success !== false) {
+            collection.value = res?.payload?.data ?? res?.payload ?? res ?? [];
+            hasFetched.value = true;
+        }
+    }).finally(() => {
+        loading.value = false;
+    })
+}, 500);
 
 const selectedOptions = computed(() => {
     const options = props?.url ? collection.value : props.options
@@ -79,10 +89,12 @@ const toggleSelectOption = (option: Option) => {
 const toggleDropdown = () => {
     if (props.disabled) return;
     isOpen.value = !isOpen.value;
-    if (isOpen.value) 
+    if (isOpen.value) {
         searchQuery.value = '';
-    if (props.url) 
-        remoteUrl(props.url)
+        if (props.url && collection.value.length === 0 && !loading.value) {
+            remoteUrl(props.url);
+        }
+    }
 };
 
 const closeDropdown = (e: MouseEvent) => {
@@ -93,25 +105,27 @@ const closeDropdown = (e: MouseEvent) => {
 
 onMounted(() => {
     window.addEventListener('click', closeDropdown);
+    if (props.dataOnMount && props.url && !hasFetched.value) {
+        remoteUrl(props.url);
+    }
 });
 
 onUnmounted(() => {
     window.removeEventListener('click', closeDropdown);
 });
 
-watch(props, async(newVal) => {
-    if (newVal?.dataOnMount) { 
-        searchQuery.value = '';
-        await toggleDropdown();
-        await toggleDropdown();
+watch(() => props.url, (newUrl) => {
+    if (newUrl && hasFetched.value) {
+        // Only re-fetch on URL change IF we already did an initial fetch
+        remoteUrl(newUrl);
     }
-}, { immediate: true, deep: true });
+});
 
 watch(searchQuery, (newVal) => {
-    if (searchQuery.value?.length >= 3 && props.url) {
+    if (newVal?.length >= 3 && props.url) {
         remoteUrl(props.url)
     }
-}, { immediate: true, deep: true });
+}, { deep: true });
 
 defineExpose({
     toggleDropdown,
