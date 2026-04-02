@@ -64,7 +64,7 @@ async function submit() {
     result.value = res.data
   } finally {
     loading.value = false
-  }
+  } 
 }
 </script>
 
