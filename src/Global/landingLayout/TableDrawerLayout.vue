@@ -50,7 +50,7 @@
             <div class="rounded-2xl    bg-white pt-0 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]   dark:bg-neutral-900">
                 <div
                     class="overflow-x-auto w-full  custom-scrollbar h-[64vh] border-neutral-100 bg-white dark:bg-neutral-900 shadow-sm dark:border-neutral-800 rounded-2xl">
-                    <Table :handleAction="handleAction" :action_config="ACTION_CONFIG" :dataFilter="dataFilter"
+                    <Table :check="checkBox" :handleAction="handleAction" :action_config="ACTION_CONFIG" :dataFilter="dataFilter"
                         :data="data" :columns="columns" :permissions="permissions">
                         <template v-for="(_, name) in $slots" #[name]="slotProps">
                             <slot :name="name" v-bind="slotProps || {}" />
@@ -63,12 +63,16 @@
             </div>
         </div>
     </div>
+                <slot name="footer" />
+
     <div v-if="DrawerMounted">
         <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShooter2" v-model:open="drawerOpen"
             :title="drawerTitle" @save="saveDrawerData">
             <template #body>
                 <div v-if="buttonTypeClicked == 'download-template'">
-                    <UploadTemplateColumn :title="title" :data="provideDataTotheParent" />
+                    <UploadTemplateColumn
+                    :defaults="importDefaults"
+                    :title="title" :data="provideDataTotheParent" />
                 </div>
                 <div v-else-if="buttonTypeClicked == 'import-data'">
                     <!-- {{ formData }} -->
@@ -141,10 +145,12 @@ const props = defineProps({
         type: Object,
         default: () => ({ icon: Plus, text: 'Add New', link: '#' })
     },
+    checkBox: { type: Boolean, default: true },
     showAddButton: { type: Boolean, default: true },
     drawerShowFooter: { type: Boolean, default: true },
     drawerTitle: { type: String, default: 'Drawer Title' },
     drawerWidth: { type: String, default: '30rem' },
+    importDefaults:{type:Array,default:['id','branch_id']},
     title: { type: String, required: false },
     /**
      * if  u want the drawer to make the create request   automaticly 
@@ -277,6 +283,8 @@ async function automaticCreateFun() {
             }, Store
         });
         const response = feedback(res);
+      
+        
         if (response.success) {
             Store[props?.state] = res
             toggleDrawer()

@@ -15,14 +15,14 @@
                 </p>
                 <input type="file" ref="fileInput" class="hidden" @change="handleFileChange" accept=".xlsx, .xls" />
             </div>
-            <div v-if="duplicates.length" class="mb-4 p-4 bg-red-100 dark:bg-red-800 text-red-700 rounded-lg">
-                Found {{ duplicates.length }} duplicated row(s) by <strong>{{ duplicateKey }}</strong>.
+            <div v-if="duplicates?.length" class="mb-4 p-4 bg-red-100 dark:bg-red-800 text-red-700 rounded-lg">
+                Found {{ duplicates?.length }} duplicated row(s) by <strong>{{ duplicateKey }}</strong>.
             </div>
 
 
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow overflow-x-auto h-[47vh]">
                 <failedUploads :data="failedChunks"  v-if="Store?.['import-data']"/>
-                <Table v-if="excelData.length && excelColumns.length" :dataFilter="excelData" :columns="excelColumns"
+                <Table v-if="excelData?.length && excelColumns?.length" :dataFilter="excelData" :columns="excelColumns"
                     :data="{}" :handleAction="handleAction" :action_config="ACTION_CONFIG" />
                 <div v-else class="py-16 text-center text-gray-400 dark:text-gray-500 text-lg">
                     No data loaded. Upload an Excel file to get started.
@@ -171,7 +171,7 @@ function readExcel(file: File) {
 
         // Chunk data for performance
         excelChunks.value = []
-        for (let i = 0; i < dataRows.length; i += chunkSize) {
+        for (let i = 0; i < dataRows?.length; i += chunkSize) {
             const chunk = dataRows.slice(i, i + chunkSize).map((row: any[]) => {
                 const obj: any = {}
                 headers.forEach((header: string, colIndex: number) => {
@@ -209,7 +209,7 @@ async function submitImportData() {
     const groupedPayload: any[] = []
 
     // console.log(excelData.value);
-    for (let i = 0; i < excelData.value.length; i += 100) { // let chunk size be 100 for example 
+    for (let i = 0; i < excelData.value?.length; i += 100) { // let chunk size be 100 for example 
         const chunk = excelData.value.slice(i, i + 10)
 
         const collectFields: Record<string, any> = {}
