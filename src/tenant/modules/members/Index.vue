@@ -33,7 +33,7 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
-    drawerTitle = ref('Create Tenant'), filters = ['all', 'active', 'suspended', 'expired', 'trial'],
+    drawerTitle = ref('Create Tenant'), filters = ['all', 'active', 'suspended', 'pending', 'trial'],
     tableUrl = computed(() => `/members/list?status=${statusFilter.value}`),
     title: Record<string, string> = {
         "view": "View Member Details",

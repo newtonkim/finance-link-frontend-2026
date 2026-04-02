@@ -5,6 +5,9 @@
     <table class="table-auto text-left bo rder-collapse w-full striped-table">
       <thead class="sticky top-0 z-40 bg-white dark:bg-neutral-900 shadow-sm">
         <tr class="border-b border-neutral-100 dark:border-neutral-800">
+             <th v-if="numberindex" class="p-2 px-3 py-4 text-xs font-semibold tracking-wide text-neutral-700 capitalize">S/N</th>
+             <th v-if="checkBox" class="p-2 px-3 py-4 text-xs font-semibold tracking-wide text-neutral-700 capitalize">check</th>
+
           <th v-for="(col, index) in localColumns" draggable="true" @dragstart="onDragStart(index)" @dragover.prevent
             @drop="onDrop(index)" :key="col.key" :class="[
               'p-2 px-3 py-4 text-xs font-semibold tracking-wide text-neutral-700 capitalize',
@@ -35,6 +38,20 @@
             'px-3 py-3 truncate text-[14px] text-neutral-500 dark:text-neutral-400 capitalize',
             'sticky z-30 left-0 bg-white dark:bg-neutral-900'
           ]">{{ idx + 1 }}</td>
+            <td v-if="checkBox" class="p-2 px-3 py-4 text-xs font-semibold tracking-wide text-neutral-700 capitalize">
+               <!-- <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-4 py-3 max-h-[58vh] overflow-y-auto custom-scrollbar">
+                
+                <label  :key="idx+45"
+                    class="flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer border border-transparent hover:border-nfuko-primary-300 hover:bg-nfuko-primary-50 dark:hover:bg-neutral-800 transition group">
+                    <input type="checkbox" :value="id+23" v-model="selected"
+                        class="w-4 h-4 accent-nfuko-primary-600 cursor-pointer" />
+                    <span
+                        class="text-sm capitalize text-neutral-700 dark:text-neutral-200 group-hover:text-nfuko-primary-600 transition">
+                        {{ label }}
+                    </span>
+                </label>
+            </div> -->
+            </td>
           <td v-for="col in localColumns" :key="col.key" :class="[
             'px-3 py-3 truncate text-[14px] text-neutral-500 dark:text-neutral-400 capitalize',
             col.sticky ? `sticky z-30 ${col.sticky}-0 dark:bg-neutral-900 bg-white` : '',
@@ -90,6 +107,7 @@ import { ref, watch } from 'vue'
 
 const props = defineProps({
   numberindex: { type: Boolean, required: false },
+  checkBox: { type: Boolean, required: false },
   class: { type: String, required: false },
   handleAction: { type: Function, required: true },
   dataFilter: { type: Array, required: true },

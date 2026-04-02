@@ -34,7 +34,7 @@ function saveUser(type: string, data: any) {
     if (title?.[type]) drawerTitle.value = title?.[type]
 }
 const columns = [
-    { key: 'staff_code', label: 'code', copy: true },
+    { key: 'code', label: 'code', copy: true },
     { key: 'staff_fall_name', label: 'Member', sticky: 'left', },
     { key: 'staff_email', label: 'Member Type' },
     { key: 'system_role', label: 'role', },

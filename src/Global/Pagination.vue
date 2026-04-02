@@ -63,7 +63,7 @@ const formatLabel = (label: string) => {
 <template>
     <!-- {{ links }} -->
     <div v-if="links?.length > 1"
-        class="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-neutral-100 dark:border-neutral-800 pt-3 mt-3 px-4">
+        class="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-neutral-100 dark:border-neutral-800 pt-3 mt-0 px-4">
         <!-- Results Summary -->
         <div v-if="links" class="text-sm text-neutral-500 dark:text-neutral-400">
             Showing

@@ -39,7 +39,20 @@ function initialize() {
             type: 'money',
             required: true,
             placeholder: 'select a ',
-            disabled: true,
+        },
+        {
+            label: 'transaction date ',
+            name: 'transaction_date',
+            type: 'datec',
+            required: false,
+            placeholder: 'Amount to withdraw',
+        },
+        {
+            label: 'narration',
+            name: 'transaction_date',
+            type: 'textarea',
+            required: false,
+            placeholder: 'Amount to withdraw reason',
         },
     ]
 }

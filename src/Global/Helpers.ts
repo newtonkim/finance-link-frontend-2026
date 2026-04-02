@@ -3,6 +3,7 @@ import { EncryptStorage } from 'encrypt-storage'
 import { apiClient as customAxios } from '@/central/api/client'
 const encryptStorage = new EncryptStorage(import.meta.env.VITE_ENCRYPT_STORAGE)
 import { notify } from '@/Global/Toasters'
+import * as XLSX from 'xlsx'
 
 export const keysToUse = {
   systemSettings: 'systemSettings',
@@ -558,4 +559,76 @@ export function exptendAformField({ fields, nextto, field }: any) {
   }
 
   return fields
+}
+
+
+
+const formatFileName = (name: string) => {
+    return name
+        .toLowerCase()
+        .replace(/\//g, '_')
+        .replace(/\s+/g, '_')
+        .replace(/[^\w\-]/g, '')
+}
+
+/**
+ * ie,you give headers we ignore the data 
+ * 1. Export Full Data
+ * exportToExcel({
+    data: selected.value,
+    name: 'Users List'
+})
+ * 
+ * 
+ * 2. Export Only Headers (Template File)
+ * exportToExcel({
+    headers: ['name', 'email', 'phone number'],
+    name: 'User Template'
+})
+ **/
+export const   exportToExcel = ({
+    data = [],
+    headers = [],
+    name = 'export',
+    sheetName = 'Sheet1'
+}) => {
+    if (!data.length && !headers.length) {
+        console.warn('No data or headers provided')
+        return
+    }
+
+    const date = new Date().toISOString().slice(0, 10)
+    const fileName = `${formatFileName(name)}_${date}.xlsx`
+
+    const workbook = XLSX.utils.book_new()
+    let worksheet
+
+    // Case 1: Only headers (template)
+    if (headers.length) {
+        const formattedHeaders = headers.map(h =>
+            h.toUpperCase()
+                .replace(/\//g, '_')
+                .replace(/\s+/g, '_')
+                .replace(/[^\w\-]/g, '')
+        )
+
+        worksheet = XLSX.utils.aoa_to_sheet([formattedHeaders])
+    } 
+    // Case 2: Full data export
+    else {
+        worksheet = XLSX.utils.json_to_sheet(data)
+
+        // Auto column width
+        const colWidths = Object.keys(data[0] || {}).map(key => ({
+            wch: Math.max(
+                key.length,
+                ...data.map(row => (row[key]?.toString().length || 10))
+            )
+        }))
+
+        worksheet['!cols'] = colWidths
+    }
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName)
+    XLSX.writeFile(workbook, fileName)
 }
