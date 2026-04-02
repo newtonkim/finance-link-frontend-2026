@@ -27,6 +27,7 @@ const props = defineProps<{
     state?: string
     reload?: string
     dataOnMount?: boolean
+    data?: any
 }>();
 
 const emit = defineEmits(['update:modelValue', 'update:itemSelected']);
@@ -35,12 +36,12 @@ const remoteUrl = debounce(async (url: string) => {
     tryCatch(async () => {
         // console.log(props.reload);
         
-        const data = {}
+        const data = { ...props.data }
         if (searchQuery.value?.length >= 3)
             data.search_keyword = searchQuery.value
         const generateAstate = await props?.state ?? `${url}`.replace(/[^a-zA-Z0-9]/g, "-");
         const res = await fetchTableData({
-            data: data?.search_keyword ? data : null,
+            data: Object.keys(data).length > 0 ? data : null,
             saveData: props?.saveData ?? true,
             props: { url, reload: props.reload?? false, state: generateAstate, },
             Store,
