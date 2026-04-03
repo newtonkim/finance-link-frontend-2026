@@ -126,13 +126,11 @@ const fields = ref([
         label: 'Credit Account',
         name: 'credit_account_id',
         type: 'select',
-        url: "global/chart-of-accounts",
-        data: { account_type: 'INCOME' },
+        url: "global/chart-of-accounts?account_type=INCOME",
         options: [],
-        placeholder: 'Select account',
+        placeholder: 'Select income account',
         
-        condition: (val: string) => ['on_registration', 'on_loan_application'].includes(val)// dispaly if application is on_registration or on_loan_application
-        // condition: (val: string) => ['on_registration', 'on_loan_application'].includes(val)// dispaly if application is on_registration or on_loan_application
+        condition: (val: string) => ['on_registration', 'on_loan_application'].includes(val)
     },
 ])
 // Prefill (edit mode)

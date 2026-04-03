@@ -25,6 +25,7 @@ const Notifications = () => import('./pages/Notifications.vue')
 const TransactionCharges = () => import('./pages/TransactionCharges.vue')
 const BranchList = () => import('@/tenant/modules/settings/branches/Index.vue')
 const GeneralCharges = () => import('@/tenant/modules/settings/general-charges/Index.vue')
+const LoanChargesIndex = () => import('@/tenant/modules/settings/loan-charges/Index.vue')
 
 export const settingsRoutes: RouteRecordRaw[] = [
   {
@@ -61,6 +62,11 @@ export const settingsRoutes: RouteRecordRaw[] = [
         path: 'general-charges',
         name: 'tenant-settings-general-charges-list',
         component: GeneralCharges,
+      },
+      {
+        path: 'loan-charges',
+        name: 'tenant-settings-loan-charges',
+        component: LoanChargesIndex,
       },
       {
         path: 'staff',
