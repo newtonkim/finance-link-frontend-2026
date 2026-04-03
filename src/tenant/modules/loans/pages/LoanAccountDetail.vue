@@ -22,7 +22,6 @@ import {
   FileText,
   Activity,
   AlertTriangle,
-  Pencil,
 } from 'lucide-vue-next'
 import {
   DropdownMenu,
@@ -49,6 +48,17 @@ function fmt(v: number | string | null | undefined) {
   return formatMoneyValue(v)
 }
 
+function toNumber(v: number | string | null | undefined): number | null {
+  if (v == null || v === '') return null
+  if (typeof v === 'number') return Number.isFinite(v) ? v : null
+  const cleaned = String(v)
+    .trim()
+    .replace(/[^0-9.-]/g, '')
+  if (!cleaned || cleaned === '-' || cleaned === '.' || cleaned === '-.') return null
+  const n = Number(cleaned)
+  return Number.isFinite(n) ? n : null
+}
+
 function fmtDate(d: string | null | undefined) {
   if (!d) return '—'
   return new Date(d).toLocaleDateString(undefined, {
@@ -71,6 +81,13 @@ function statusColor(status: string) {
   }
 }
 
+function generalStatusColor(status: string) {
+  if (status === 'closed') {
+    return 'bg-nfuko-primary text-white'
+  }
+  return statusColor(status)
+}
+
 function scheduleStatusColor(s: string) {
   switch (s) {
     case 'paid':
@@ -89,22 +106,13 @@ function scheduleStatusColor(s: string) {
 }
 
 const tabs = [
-  { key: 'general', label: 'General Information', icon: CreditCard },
-  { key: 'transactions', label: 'Transaction History', icon: History },
   { key: 'schedule', label: 'Payment Schedule', icon: ClipboardList },
+  { key: 'transactions', label: 'Transaction History', icon: History },
+  { key: 'general', label: 'General Information', icon: CreditCard },
   { key: 'charges', label: 'Charges & Penalties', icon: AlertTriangle },
   { key: 'documents', label: 'Documents', icon: FileText },
   { key: 'activities', label: 'Loan Activities', icon: Activity },
 ] as const
-
-// Computed progress for the repayment progress bar
-const repaidPercent = computed(() => {
-  if (!loan.value) return 0
-  const principal = parseFloat(String(loan.value.principal)) || 0
-  const outstanding = parseFloat(String(loan.value.outstanding_balance)) || 0
-  if (principal <= 0) return 0
-  return Math.round(((principal - outstanding) / principal) * 100)
-})
 
 const showAllSchedule = ref(false)
 
@@ -142,6 +150,54 @@ const hasNextRepayments = computed(
 )
 
 const currency = computed(() => loan.value?.currency_code || 'PHP')
+
+const principalAmount = computed(() => {
+  if (!loan.value) return 0
+  return toNumber(loan.value.principal) ?? scheduleTotals.value.principal_due ?? 0
+})
+
+const outstandingAmount = computed(() => {
+  if (!loan.value) return 0
+  const fromLoan = toNumber(loan.value.outstanding_balance)
+  if (fromLoan != null) return fromLoan
+  const lastScheduleBalance = schedule.value.length
+    ? toNumber(schedule.value[schedule.value.length - 1]?.outstanding_balance)
+    : null
+  return lastScheduleBalance ?? 0
+})
+
+const netDisbursedAmount = computed(() => {
+  if (!loan.value) return 0
+  const fromLoan = toNumber(loan.value.net_disbursed_amount)
+  if (fromLoan != null) return fromLoan
+  const fee = toNumber(loan.value.processing_fee) ?? 0
+  return Math.max(0, principalAmount.value - fee)
+})
+
+const principalDisplay = computed(() => formatMoneyValue(principalAmount.value))
+const outstandingDisplay = computed(() => formatMoneyValue(outstandingAmount.value))
+const netDisbursedDisplay = computed(() => formatMoneyValue(netDisbursedAmount.value))
+const totalAmountPaid = computed(() => {
+  const schedulePaid = scheduleTotals.value.total_paid
+  if (schedulePaid > 0) return schedulePaid
+  return Math.max(0, principalAmount.value - outstandingAmount.value)
+})
+const totalAmountPaidDisplay = computed(() => formatMoneyValue(totalAmountPaid.value))
+const interestMethodLabel = computed(() => {
+  const method = loan.value?.loan_product?.interest_method
+  if (!method) return 'Interest Method'
+  return method.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+})
+
+// Computed progress for the repayment progress bar
+const repaidPercent = computed(() => {
+  if (!loan.value) return 0
+  if (principalAmount.value <= 0) return 0
+  return Math.max(
+    0,
+    Math.min(100, Math.round(((principalAmount.value - outstandingAmount.value) / principalAmount.value) * 100)),
+  )
+})
 
 function canShowMore(row: any, index: number) {
   if (row.status === 'paid') return false
@@ -225,7 +281,7 @@ async function handleReceiveCashSubmit(data: any) {
     <template v-else-if="loan">
       <!-- Loan header card -->
       <div
-        class="rounded-2xl border border-neutral-100 bg-white dark:border-neutral-800 dark:bg-neutral-900 p-6"
+        class="rounded-2xl border border-neutral-200/70 bg-gradient-to-br from-white via-white to-emerald-50/40 p-6 dark:border-neutral-800 dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-800/70"
       >
         <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div class="flex items-start gap-4">
@@ -254,10 +310,28 @@ async function handleReceiveCashSubmit(data: any) {
                   · {{ loan.member.member_number }}</span
                 >
               </p>
-              <p class="text-xs text-neutral-400 dark:text-neutral-500 mt-0.5">
-                {{ loan.loan_product?.name }} · {{ loan.interest_rate }}% interest ·
-                {{ loan.term_months }} months · Disbursed {{ fmtDate(loan.disbursed_at) }}
-              </p>
+              <div class="mt-2 flex flex-wrap items-center gap-2">
+                <span
+                  class="inline-flex items-center rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+                >
+                  {{ loan.loan_product?.name ?? 'Loan Product' }}
+                </span>
+                <span
+                  class="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-800 dark:border-emerald-800/60 dark:bg-emerald-900/30 dark:text-emerald-300"
+                >
+                  {{ loan.interest_rate }}% · {{ interestMethodLabel }}
+                </span>
+                <span
+                  class="inline-flex items-center rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-medium text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
+                >
+                  {{ loan.term_months }} months
+                </span>
+                <span
+                  class="inline-flex items-center rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-medium text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
+                >
+                  Disbursed {{ fmtDate(loan.disbursed_at) }}
+                </span>
+              </div>
             </div>
           </div>
           <div class="flex items-center gap-3">
@@ -266,39 +340,59 @@ async function handleReceiveCashSubmit(data: any) {
 
         <!-- Stat row -->
         <div class="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div class="rounded-xl bg-neutral-50 dark:bg-neutral-800/40 p-4">
-            <div class="text-xs text-neutral-400 dark:text-neutral-500 mb-1">Principal</div>
-            <div class="font-bold text-neutral-900 dark:text-white">
-              {{ fmt(loan.principal_formatted) }}
+          <div class="rounded-xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50 to-white p-4 dark:border-emerald-800/40 dark:from-emerald-900/20 dark:to-neutral-900">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-emerald-700/80 dark:text-emerald-300/80">
+              Principal
+            </div>
+            <div class="mt-1 text-2xl font-black leading-tight text-neutral-900 dark:text-white">
+              {{ principalDisplay }}
+            </div>
+            <div class="mt-1 text-[11px] text-emerald-700/70 dark:text-emerald-300/70">
+              Original loan amount
             </div>
           </div>
-          <div class="rounded-xl bg-neutral-50 dark:bg-neutral-800/40 p-4">
-            <div class="text-xs text-neutral-400 dark:text-neutral-500 mb-1">Outstanding</div>
+          <div class="rounded-xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50 to-white p-4 dark:border-emerald-800/40 dark:from-emerald-900/20 dark:to-neutral-900">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-emerald-700/80 dark:text-emerald-300/80">
+              Outstanding Balance
+            </div>
             <div
-              class="font-bold"
+              class="mt-1 text-2xl font-black leading-tight"
               :class="
                 loan.status === 'arrears'
                   ? 'text-red-600 dark:text-red-400'
                   : 'text-neutral-900 dark:text-white'
               "
             >
-              {{ fmt(loan.outstanding_balance_formatted) }}
+              {{ outstandingDisplay }}
+            </div>
+            <div class="mt-1 text-[11px] text-emerald-700/70 dark:text-emerald-300/70">
+              Amount remaining to be repaid
             </div>
           </div>
-          <div class="rounded-xl bg-neutral-50 dark:bg-neutral-800/40 p-4">
-            <div class="text-xs text-neutral-400 dark:text-neutral-500 mb-1">Net Disbursed</div>
-            <div class="font-bold text-neutral-900 dark:text-white">
-              {{ fmt(loan.net_disbursed_amount_formatted) }}
+          <div class="rounded-xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50 to-white p-4 dark:border-emerald-800/40 dark:from-emerald-900/20 dark:to-neutral-900">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-emerald-700/80 dark:text-emerald-300/80">
+              Total Amount Paid
+            </div>
+            <div class="mt-1 text-2xl font-black leading-tight text-emerald-700 dark:text-emerald-300">
+              {{ totalAmountPaidDisplay }}
+            </div>
+            <div class="mt-1 text-[11px] text-emerald-700/70 dark:text-emerald-300/70">
+              Total collected so far
             </div>
           </div>
-          <div class="rounded-xl bg-neutral-50 dark:bg-neutral-800/40 p-4">
-            <div class="text-xs text-neutral-400 dark:text-neutral-500 mb-1">Repaid</div>
-            <div class="font-bold text-emerald-600 dark:text-emerald-400">{{ repaidPercent }}%</div>
+          <div class="rounded-xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50 to-white p-4 dark:border-emerald-800/40 dark:from-emerald-900/20 dark:to-neutral-900">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-emerald-700/80 dark:text-emerald-300/80">
+              Repaid
+            </div>
+            <div class="mt-1 text-2xl font-black leading-tight text-emerald-700 dark:text-emerald-300">{{ repaidPercent }}%</div>
             <div class="mt-1.5 h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-700">
               <div
                 class="h-1.5 rounded-full bg-emerald-500 transition-all"
                 :style="{ width: repaidPercent + '%' }"
               />
+            </div>
+            <div class="mt-1 text-[11px] text-emerald-700/70 dark:text-emerald-300/70">
+              Share of principal cleared
             </div>
           </div>
         </div>
@@ -355,7 +449,7 @@ async function handleReceiveCashSubmit(data: any) {
                 <div class="font-medium capitalize text-neutral-900 dark:text-white">
                   <span
                     class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize"
-                    :class="statusColor(loan.status)"
+                    :class="generalStatusColor(loan.status)"
                   >
                     {{ loan.status === 'active' ? 'Disbursed' : loan.status }}
                   </span>
@@ -376,7 +470,7 @@ async function handleReceiveCashSubmit(data: any) {
                   Principal Amount
                 </div>
                 <div class="font-medium text-neutral-900 dark:text-white">
-                  {{ loan.principal_formatted ?? fmt(loan.principal) }}
+                  {{ principalDisplay }}
                 </div>
               </div>
               <div
@@ -384,7 +478,7 @@ async function handleReceiveCashSubmit(data: any) {
               >
                 <div class="font-medium text-neutral-500 dark:text-neutral-400">Net Disbursed</div>
                 <div class="font-medium text-emerald-700 dark:text-emerald-400">
-                  {{ loan.net_disbursed_amount_formatted ?? fmt(loan.net_disbursed_amount) }}
+                  {{ netDisbursedDisplay }}
                 </div>
               </div>
               <div
@@ -555,10 +649,7 @@ async function handleReceiveCashSubmit(data: any) {
                   <td class="px-3 py-3 text-right">{{ currency }} {{ fmt(row.principal_due) }}</td>
                   <td class="px-3 py-3 text-right">{{ currency }} {{ fmt(row.interest_due) }}</td>
                   <td class="px-3 py-3 text-right">
-                    <div class="flex items-center justify-end gap-1.5">
-                      <span>{{ currency }} {{ fmt(row.penalty_due) }}</span>
-                      <Pencil class="h-3 w-3 text-amber-500 cursor-pointer" />
-                    </div>
+                    {{ currency }} {{ fmt(row.penalty_due) }}
                   </td>
                   <td class="px-3 py-3 text-right font-semibold">
                     {{ currency }} {{ fmt(row.total_due) }}
@@ -713,7 +804,7 @@ async function handleReceiveCashSubmit(data: any) {
                   Transaction Type
                 </th>
                 <th class="px-4 py-3 text-right font-bold text-neutral-900 dark:text-neutral-100">
-                  Loan Portion
+                  Principal Portion
                 </th>
                 <th class="px-4 py-3 text-right font-bold text-neutral-900 dark:text-neutral-100">
                   Interest Portion

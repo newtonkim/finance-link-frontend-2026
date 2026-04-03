@@ -100,7 +100,9 @@ export function useGeneralCharges() {
     try {
       const [savRes, coaRes, loanRes] = await Promise.allSettled([
         savingsProductsApi.list(),
-        tenantClient.post('/global/chart-of-accounts', { account_type: 'INCOME' }),
+        tenantClient.get('/chart-of-accounts', {
+          params: { list: true, account_type: 'INCOME', is_postable: true },
+        }),
         tenantClient.post('/global/loan-products'),
       ])
 
@@ -112,11 +114,12 @@ export function useGeneralCharges() {
       }
 
       if (coaRes.status === 'fulfilled') {
-        const coa = coaRes.value.data?.payload?.data ?? coaRes.value.data?.data ?? coaRes.value.data ?? []
+        const coa = coaRes.value.data?.data ?? coaRes.value.data ?? []
         creditAccountOptions.value = Array.isArray(coa)
-          ? coa
-              .filter((a: any) => a.account_type?.toString().toLowerCase() === 'income' || true) // Filter already applied backend
-              .map((a: any) => ({ id: a.id, name: a.name ?? 'Account ' + a.id }))
+          ? coa.map((a: any) => ({
+              id: a.id,
+              name: a.gl_code ? `${a.gl_code} - ${a.name}` : (a.name ?? 'Account ' + a.id),
+            }))
           : []
       }
 
