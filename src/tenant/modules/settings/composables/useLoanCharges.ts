@@ -18,7 +18,7 @@ const DEFAULT_CATEGORY_OPTIONS: ChargeCategoryOption[] = [
   { id: 'penalty', name: 'Penalty' },
   { id: 'late_fee', name: 'Late Fee' },
   { id: 'appraisal_fee', name: 'Appraisal Fee' },
-  { id: 'insurance', name: 'Insurance' },
+  { id: 'disbursement_fee', name: 'Disbursement Fee' },
   { id: 'other', name: 'Other' },
 ]
 
@@ -146,16 +146,27 @@ export function useLoanCharges() {
     }
 
     if (category === 'penalty' || category === 'late_fee') {
+      const penaltyIncome =
+        matchAccountId('INCOME', ['penalty']) ??
+        matchAccountId('INCOME', ['late', 'fee']) ??
+        matchAccountId('INCOME', ['fine'])
+
+      const penaltyReceivable =
+        matchAccountId('ASSET', ['penalty'], ['receivable']) ??
+        matchAccountId('ASSET', ['late', 'fee'], ['receivable']) ??
+        matchAccountId('ASSET', ['fine'], ['receivable']) ??
+        matchAccountId('ASSET', ['charge'], ['receivable'])
+
       return {
-        incomeAccountId: matchAccountId('INCOME', ['penalty', 'fine']),
-        receivableAccountId: matchAccountId('ASSET', ['penalty', 'fine'], ['receivable']),
+        incomeAccountId: penaltyIncome,
+        receivableAccountId: penaltyReceivable,
       }
     }
 
-    if (category === 'insurance') {
+    if (category === 'disbursement_fee') {
       return {
-        incomeAccountId: matchAccountId('INCOME', ['insurance']),
-        receivableAccountId: matchAccountId('ASSET', ['insurance'], ['receivable']),
+        incomeAccountId: matchAccountId('INCOME', ['disbursement', 'fee']),
+        receivableAccountId: matchAccountId('ASSET', ['disbursement', 'fee'], ['receivable']),
       }
     }
 
@@ -251,6 +262,18 @@ export function useLoanCharges() {
     () => form.value.category,
     () => {
       if (!showDrawer.value || editingCharge.value) return
+      applySuggestedGlAccounts(true)
+    },
+  )
+
+  watch(
+    () => form.value.charge_type,
+    (type) => {
+      if (!showDrawer.value || editingCharge.value) return
+      if (type !== 'percentage') return
+
+      // Re-apply mapping after selecting percentage so penalty setups
+      // immediately pick penalty receivable/income defaults.
       applySuggestedGlAccounts(true)
     },
   )

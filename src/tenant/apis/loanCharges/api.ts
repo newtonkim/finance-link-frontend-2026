@@ -5,7 +5,7 @@ export type LoanChargeCategory =
   | 'penalty'
   | 'late_fee'
   | 'appraisal_fee'
-  | 'insurance'
+  | 'disbursement_fee'
   | 'other'
 
 export type LoanChargeType = 'flat' | 'percentage'

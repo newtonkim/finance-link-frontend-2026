@@ -60,7 +60,7 @@ function categoryColor(cat: string): string {
     penalty: 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400',
     late_fee: 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
     appraisal_fee: 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-    insurance: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    disbursement_fee: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
     other: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400',
   }
   return map[cat] ?? map.other
@@ -344,7 +344,7 @@ function categoryColor(cat: string): string {
                     Processing Fee — charged once at disbursement, deducted upfront.<br />
                     Penalty / Late Fee — charged when a repayment is overdue.<br />
                     Appraisal Fee — charged for loan assessment.<br />
-                    Insurance — loan protection premium held as liability.
+                    Disbursement Fee — charged at disbursement as an upfront fee.
                   </p>
                   <p v-if="errors.category" class="text-xs text-red-500">{{ errors.category }}</p>
                 </div>
@@ -465,8 +465,8 @@ function categoryColor(cat: string): string {
                           Processing fee revenue is recognized here. Credits this account at
                           disbursement.
                         </template>
-                        <template v-else-if="form.category === 'insurance'">
-                          Insurance premiums are held as a liability until paid to the insurer.
+                        <template v-else-if="form.category === 'disbursement_fee'">
+                          Disbursement fee revenue is recognized here when the loan is disbursed.
                         </template>
                         <template v-else> Revenue from this charge is posted here. </template>
                       </p>
