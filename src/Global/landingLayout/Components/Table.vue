@@ -33,8 +33,14 @@
           </td>
         </tr>
         <tr v-for="(item, idx) in dataFilter" :key="item?.id ?? idx"
-          :class="Number(idx) < dataFilter.length - 1 ? 'border-b border-neutral-50 dark:border-neutral-800' : ''">
+          :class="[
+            rowClass,
+            Number(idx) < dataFilter.length - 1 ? 'border-b border-neutral-50 dark:border-neutral-800' : ''
+
+          ]"
+          >
           <td v-if="numberindex" :class="[
+
             'px-3 py-3 truncate text-[14px] text-neutral-500 dark:text-neutral-400 capitalize',
             'sticky z-30 left-0 bg-white dark:bg-neutral-900'
           ]">{{ idx + 1 }}</td>
@@ -106,6 +112,7 @@ import { EmptySvg } from '../..'
 import { ref, watch } from 'vue'
 
 const props = defineProps({
+  rowClass: { type: String, required: false },
   numberindex: { type: Boolean, required: false },
   checkBox: { type: Boolean, required: false },
   class: { type: String, required: false },

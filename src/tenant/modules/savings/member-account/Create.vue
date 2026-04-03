@@ -103,7 +103,8 @@ function checkForSettings() {
   }
 }
 watch(() => fields.value, (val) => {
-  if (settingList.value['hide-initial-deposit-field']) {
+  if (true) {
+  // if (settingList.value['hide-initial-deposit-field']) {
     const initalDepositIndex = val.findIndex((f) => f.name === 'in_deposit'),
       referredByIndex = val.findIndex((f) => f.name === 'cm_balance')
     if (initalDepositIndex === -1 && referredByIndex !== 1) {

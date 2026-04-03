@@ -1,6 +1,6 @@
 <template>
   <div class="w-full gap-2 flex items-center justify-center">
-    <Button @click="handleClick"
+    <Button @click="handleClick" type="button"
       class="flex items-center capitalize rounded-full p-2   text-xs font-medium transition-colors duration-200 hover:bg-nfuko-primary/20 dark:text-neutral-700"
       :class="[colorClasses, customClass]">
       <component v-if="icons[icon]" :is="icons[icon]" size="13" class="mx-0" />
