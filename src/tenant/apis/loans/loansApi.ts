@@ -63,10 +63,11 @@ export interface LoanSummary {
   approved: number
   pending: number
   arrears: number
+  closed?: number
   all: number
 }
 
-export type LoanTab = 'disbursed' | 'approved' | 'pending' | 'arrears' | 'all'
+export type LoanTab = 'all' | 'disbursed' | 'arrears' | 'closed' | 'approved' | 'pending'
 
 export interface ActiveLoan {
   id: number

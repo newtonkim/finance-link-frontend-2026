@@ -111,7 +111,7 @@ const exportColumns = () => {
         .toLowerCase()
         .replace(/\//g, '_')
         .replace(/\s+/g, '_')
-        .replace(/[^\w\-]/g, '')
+        .replace(/[^\w-]/g, '')
 
     const fullFileName = `${filename}_template_${date}.xlsx`
     if (!selected.value.length) return
@@ -119,7 +119,7 @@ const exportColumns = () => {
         const headers = selected.value.map(key => key.toLocaleUpperCase()
             .replace(/\//g, '_')
             .replace(/\s+/g, '_')
-            .replace(/[^\w\-]/g, ''))
+            .replace(/[^\w-]/g, ''))
 
         const worksheet = XLSX.utils.aoa_to_sheet([headers])
         const workbook = XLSX.utils.book_new()

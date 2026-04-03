@@ -163,7 +163,7 @@ function getColumnStyle(col: any) {
   const width = typeof col.width === 'number' ? col.width + 'px' : col.width
   return {
     width,
-    ...(col.style || {}),
+    ...col.style,
   }
 }
 

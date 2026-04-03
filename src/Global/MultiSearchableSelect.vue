@@ -79,10 +79,18 @@ const toggleSelectOption = (option: Option) => {
 const toggleDropdown = () => {
     if (props.disabled) return;
     isOpen.value = !isOpen.value;
-    if (isOpen.value) 
+    if (isOpen.value) {
         searchQuery.value = '';
-    if (props.url) 
-        remoteUrl(props.url)
+        
+        const generateAstate = props?.state ?? `${props?.url}`.replace(/[^a-zA-Z0-9]/g, "-");
+        const DataAlreadyCollected = Store[generateAstate]?.payload?.data ?? Store[generateAstate]?.payload
+
+        if (props.url && !DataAlreadyCollected?.length) {
+            remoteUrl(props.url)
+        } else {
+            collection.value = DataAlreadyCollected || [];
+        }
+    }
 };
 
 const closeDropdown = (e: MouseEvent) => {
