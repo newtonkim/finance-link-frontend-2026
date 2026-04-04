@@ -8,7 +8,7 @@
         @save="saveUser">
         <template #header-action>
             <PainPageHeader title="Staff list" dec="Manage SACCO staff accounts and track their onboarding performance" />
-        </template>
+        </template> 
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
