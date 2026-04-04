@@ -49,10 +49,10 @@
             <Withdrawal v-else-if="automaticCreate?.actionSlot == 'withdrawal'"
                 :data="{ action, ...(automaticCreate ?? {}) }" v-model:form="formData" />
             <Details v-else-if="['view'].includes(action)" :data="data" />
-                  <Create v-else :data="{ ...data, action }" />
-                  <!-- <Create v-else="['add', 'edit',''].includes(action)" :data="{ ...data, action }" /> -->
+            <Create v-else :data="{ ...data, action }" />
+            <!-- <Create v-else="['add', 'edit',''].includes(action)" :data="{ ...data, action }" /> -->
 
-          
+
         </template>
     </TableDrawer>
 </template>

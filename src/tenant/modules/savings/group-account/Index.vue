@@ -61,7 +61,7 @@ const titleMap: Record<string, { title: string; width: string }> = {
   },
   edit: {
     title: "Edit Member Savings Account",
-    width: "w-1/3"
+    width: "w-1/2"
   },
   add: {
     title: "Create a Group Savings",

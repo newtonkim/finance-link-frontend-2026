@@ -50,7 +50,7 @@ function initialize() {
         },
         {
             label: 'narration',
-            name: 'transaction_date',
+            name: 'narration',
             type: 'textarea',
             required: false,
             placeholder: 'Amount to withdraw reason',
