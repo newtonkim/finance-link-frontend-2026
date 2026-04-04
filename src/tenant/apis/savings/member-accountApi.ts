@@ -7,7 +7,7 @@ export function memberAccountApi() {
     const dataPrepare = data
     dataPrepare.push(
       { value: 'depositing', name: 'new_account', hidden: true },
-      { name: 'group_id', value: outletAction?.id, hidden: true },
+      { name: 'account_id', value: outletAction?.id, hidden: true },
     )
     const unique = Object.values(
       dataPrepare.reduce(

@@ -1,6 +1,6 @@
 <template>
     <div class="h-[83vh]">
-        <TableDrawer :showAddButton="false" :drawerWidth="drawerTitle?.width" :url="tableUrl" state="members-account"
+        <TableDrawer :showAddButton="false" :drawerWidth="drawerTitle?.width" :url="tableUrl" state="deposit-template"
             :drawerTitle="drawerTitle?.title" " :columns="columns">
             <template #searchSideAction>
                 <TabelActionButtons @action="() => checkall()" title="Select all" color="danger" icon="check"
@@ -9,9 +9,9 @@
             <template #check="{ item }">
                 <div
                     class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-4 py-3 max-h-[58vh] overflow-y-auto custom-scrollbar">
-                    <label :key="item?.code"
+                    <label :key="item?.account_code"
                         class="flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer border border-transparent  transition group">
-                        <input :checked="!!selected[item.code]" type="checkbox" @click="() => selectMember(item)"
+                        <input :checked="!!selected[item.account_code]" type="checkbox" @click="() => selectMember(item)"
                             class="w-4 h-4 accent-nfuko-primary-600 cursor-pointer export-meber-opening-balance" />
                     </label>
                 </div>
@@ -37,21 +37,24 @@ import { pomPinia } from 'septor-store';
 const Store = pomPinia();
 const selected = ref<Record<string, any>>({}),
     drawerTitle = ref('Create Tenant'),
-    tableUrl = computed(() => `members-account/template`)
+    tableUrl = computed(() => `members-account/deposit-template`)
 const columns = [
     { key: 'check', label: 'check', width: '4em', copy: true },
     { key: 'code', label: 'member code', copy: true },
+    { key: 'account_code', label: 'account code', copy: true },
     { key: 'member_name', label: 'Member', },
 ]
 function selectMember(data) {
-    if (selected.value[data.code]) {
-        delete selected.value[data.code]
+    console.log(data);
+    
+    if (selected.value[data.account_code]) {
+        delete selected.value[data.account_code]
         return
     }
-    selected.value[data.code] = { ...data, }
+    selected.value[data.account_code] = { ...data, }
 }
 function checkall() {
-    const theCurrentData = Store['members-account']?.payload?.data ?? []
+    const theCurrentData = Store['deposit-template']?.payload?.data ?? []
     theCurrentData.forEach(element => {
         selectMember(element)
     });
@@ -59,7 +62,7 @@ function checkall() {
 function exportTemplate() {
     exportToExcel({
         data: Object.values(selected.value),
-        name: 'members-account-Template',
+        name: 'deposit-template',
     })
 }
 </script>
