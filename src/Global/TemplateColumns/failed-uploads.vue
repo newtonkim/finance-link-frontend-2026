@@ -1,5 +1,5 @@
 <template>
-  <div class="p-3 space-y-6 bg-nfuko-danger/10 dark:bg-neutral-800 rounded-md shadow">
+  <div class="py-3 px-1 space-y-6 bg-nfuko-danger/10 dark:bg-neutral-800 rounded-md shadow">
     <div class="flex items-center justify-between">
       <h1 class="text-2xl font-bold">Upload Errors</h1>
       <div class="text-sm text-gray-500">
@@ -32,7 +32,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import Table from '../landingLayout/Components/Table.vue'
-// import Table from './Table.vue' // your global Table component
 
 const props = defineProps({
   data: { type: Object, required: true }
@@ -42,7 +41,7 @@ const ACTION_CONFIG = {} // define your actions if needed
 
 // --- organize table data ---
 const tableData = computed(() => {
-  const data = props.data?.payload?.failed || []
+  const data = props.data?.payload?.failed ||props.data|| []
 
   return data.map((row) => {
     const newRow: Record<string, any> = {}

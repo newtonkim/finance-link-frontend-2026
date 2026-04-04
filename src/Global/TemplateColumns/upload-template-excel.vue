@@ -236,7 +236,7 @@ async function submitImportData() {
 
 <template>
     <div>
-        <div class="p-3 max-w-6xl mx-auto h-[80vh] bg-gray-50 dark:bg-gray-900 rounded-xl shadow-lg">
+        <div class="py-3 max-w-6xl mx-auto h-[80vh] bg-gray-50 dark:bg-gray-900 rounded-xl shadow-lg">
 
             <h1 class="text-lg font-bold mb-4 text-center">
                 Excel Upload Table {{ submit }}
@@ -277,7 +277,7 @@ async function submitImportData() {
             </div>
 
             <div class="bg-white rounded shadow overflow-auto h-[46vh]">
-                <failedUploads :data="failedChunks" v-if="Store?.['import-data']" />
+                <failedUploads :data="failedChunks" v-if="failedChunks.length" />
 
                 <Table :rowClass="(row) => row.isDuplicate ? 'bg-red-100 dark:bg-red-900/40' : ''"
                     :dataFilter="paginatedData" :columns="excelColumns" :handleAction="handleAction"

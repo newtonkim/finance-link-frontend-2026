@@ -1,6 +1,6 @@
 <template>
     <TableDrawer :exportItems="exportItems"
-        :drawerShowFooter="!['download-memeber-accounts-template', 'import-accounts'].includes(automaticCreate.actionSlot)"
+        :drawerShowFooter="!['download-memeber-accounts-template', 'import-accounts', 'download-deposit-template','import-deposit-withdrawal'].includes(automaticCreate.actionSlot)"
         :drawerRemount="drawerRemount" :automaticCreate="!automaticCreate.actionSlot" ref="drawer"
         :showTableAction="true" :drawerWidth="drawerTitle?.width" :url="tableUrl" state="memberAccountList"
         :drawerTitle="drawerTitle?.title" :columns="columns" @save="saveUser">
@@ -31,9 +31,17 @@
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
         <template #drawer="{ action, data }">
-            <uploadTemplateColumData upload-trick="row" v-if="['import-accounts'].includes(automaticCreate.actionSlot)"
+            <uploadTemplateColumData upload-trick="row"
+                v-if="['import-accounts', 'import-deposit-withdrawal'].includes(automaticCreate.actionSlot)"
                 :title="automaticCreate?.actionSlot" :url="`/members-account/${automaticCreate?.actionSlot}`"
                 :submit-url="automaticCreate.actionSlot" />
+
+            <DepositTemplate v-if="automaticCreate?.actionSlot == 'download-deposit-template'"
+                :data="{ action, ...(automaticCreate ?? {}) }" />
+
+            <WithdrawalTemplate v-if="automaticCreate?.actionSlot == 'download-withdrawal-template'"
+                :data="{ action, ...(automaticCreate ?? {}) }" />
+
             <Deposit v-if="automaticCreate?.actionSlot == 'deposit'" :data="{ action, ...(automaticCreate ?? {}) }"
                 v-model:form="formData" />
             <ExportTemplate v-if="automaticCreate?.actionSlot == 'download-memeber-accounts-template'"
@@ -48,7 +56,7 @@
 </template>
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { Create, Details, Deposit, Withdrawal, ExportTemplate } from '.'
+import { Create, Details, Deposit, Withdrawal, ExportTemplate, DepositTemplate, WithdrawalTemplate } from '.'
 import { TableDrawer, StatusButtonsHorizontal, PainPageHeader, CopyData, TabelActionButtons, uploadTemplateColumData } from '@/Global'
 import { memberAccountApi } from '@/tenant/apis'
 const drawer = ref(null), drawerRemount = ref(true),
@@ -63,8 +71,7 @@ const drawer = ref(null), drawerRemount = ref(true),
         { label: "deposit template", action: (vl) => { OpenThedrawer(vl, 'download-deposit-template'); automaticCreate.value = { actionSlot: 'download-deposit-template', item: vl } } },
         { label: "withdrawal template", action: (vl) => { OpenThedrawer(vl, 'download-withdrawal-template'); automaticCreate.value = { actionSlot: 'download-withdrawal-template', item: vl } } },
         { label: "Import accounts", action: (vl) => { OpenThedrawer(vl, 'import-accounts'); automaticCreate.value = { actionSlot: 'import-accounts', item: vl } } },
-        { label: "import withdrawal", action: (vl) => { OpenThedrawer(vl, 'import-withdrawal'); automaticCreate.value = { actionSlot: 'download-import-template', item: vl } } },
-        { label: "import deposit", action: (vl) => { OpenThedrawer(vl, 'download-deposit-import'); automaticCreate.value = { actionSlot: 'download-deposit-import', item: vl } } },
+        { label: "import deposit/withdrawal", action: (vl) => { OpenThedrawer(vl, 'import-deposit-withdrawal'); automaticCreate.value = { actionSlot: 'import-deposit-withdrawal', item: vl } } },
     ]);
 const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
     { memebrAccountDepositAmount, memebrAccountWithdrawalAmount } = memberAccountApi(),

@@ -1,5 +1,5 @@
 <template>
-    <div class="flex h-full fle x-1 flex-col  px-10 py-6 ">
+    <div class="flex h-full fle x-1 flex-col  px-10 py-3 ">
         <div class="flex items-center justify-between">
             <div v-if="$slots['header-action']" class='my-2'>
                 <slot name="header-action" />

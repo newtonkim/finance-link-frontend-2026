@@ -4,7 +4,7 @@
       {{ title }}
     </h1>
 
-    <p class="text-sm text-neutral-500 max-w-lg py-4">
+    <p class="text-sm text-neutral-500 max-w-lg py-3">
       {{ dec }}
     </p>
   </div>
