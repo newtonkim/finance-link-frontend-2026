@@ -70,7 +70,7 @@
               ? 'text-center sticky z-30 right-0 dark:bg-neutral-900 bg-white'
               : ''
           ]" :style="getColumnStyle(col)">
-            <div :class="col.class" :style="getColumnStyle(col)">
+            <div :class="[`${col?.class}`,'truncate']" :style="getColumnStyle(col)">
               <div v-if="col.key === 'actions'" class="flex justify-center gap-2 capitalize-table-action">
                 <template v-for="action in col?.show ?? []" :key="action">
                   <button type="button" @click="handleAction(item, action)" v-auth="permissions?.[action]"

@@ -34,30 +34,32 @@ export const paperSizes: Record<string, string> = {
 }
 
 // Size selector list (optional)
-export const sizePapers = [
-  { label: 'Receipts', value: null },
-  { label: '50', value: '50mm' },
-  { label: '58', value: '58mm' },
-  { label: '80', value: '80mm' },
-  { label: '100', value: '100mm' },
-  { label: 'Pages', value: null },
-  { label: 'A0', value: 'A0' },
-  { label: 'A1', value: 'A1' },
-  { label: 'A2', value: 'A2' },
-  { label: 'A3', value: 'A3' },
-  { label: 'A4', value: 'A4' },
-  { label: 'A5', value: 'A5' },
-  { label: 'A6', value: 'A6' },
-  { label: 'A7', value: 'A7' },
-  { label: 'A8', value: 'A8' },
-  { label: 'A9', value: 'A9' },
-  { label: 'A10', value: 'A10' },
-  { label: 'US', value: null },
-  { label: 'Letter', value: 'Letter' },
-  { label: 'Legal', value: 'Legal' },
-  { label: 'Tabloid', value: 'Tabloid' },
+export const sizPapers = [
+  { label: 'Receipts', value: null,type:"Receipts" },
+  { label: '50', value: '50mm',type:"Receipts" },
+  { label: '58', value: '58mm',type:"Receipts" },
+  { label: '80', value: '80mm',type:"Receipts" },
+  { label: '100', value: '100mm',type:"Receipts" },
+  { label: 'Pages', value: null,type:"Pages" },
+  { label: 'A0', value: 'A0',type:"Pages" },
+  { label: 'A1', value: 'A1',type:"Pages" },
+  { label: 'A2', value: 'A2',type:"Pages" },
+  { label: 'A3', value: 'A3',type:"Pages" },
+  { label: 'A4', value: 'A4',type:"Pages" },
+  { label: 'A5', value: 'A5',type:"Pages" },
+  { label: 'A6', value: 'A6',type:"Pages" },
+  { label: 'A7', value: 'A7',type:"Pages" },
+  { label: 'A8', value: 'A8',type:"Pages" },
+  { label: 'A9', value: 'A9',type:"Pages" },
+  { label: 'A10', value: 'A10',type:"Pages" },
+  { label: 'US', value: null ,type:"Us"},
+  { label: 'Letter', value: 'Letter',type:"Us" },
+  { label: 'Legal', value: 'Legal',type:"Us" },
+  { label: 'Tabloid', value: 'Tabloid',type:"Us" },
 ]
-
+export function sizePapers(show = ['Pages', 'US']) {
+  return sizPapers.filter((val) => show.includes(val.type));
+}
 /**
  * Parse width and height from string like "210mm 297mm" or "80mm auto"
  */
