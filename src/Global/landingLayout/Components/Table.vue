@@ -10,6 +10,8 @@
 
           <th v-for="(col, index) in localColumns" draggable="true" @dragstart="onDragStart(index)" @dragover.prevent
             @drop="onDrop(index)" :key="col.key" :class="[
+           `${col.key === 'actions'|| col.key === 'action' ? 'hide-on-print' : ''}`,
+
               'p-2 px-3 py-4 text-xs font-semibold tracking-wide text-neutral-700 capitalize',
               col.key === 'actions' ? 'text-center' : '',
               col.sticky ? `sticky z-30 ${col.sticky}-0 dark:bg-neutral-900 bg-white` : '',
@@ -59,6 +61,8 @@
             </div> -->
             </td>
           <td v-for="col in localColumns" :key="col.key" :class="[
+                      `${col.key === 'actions'|| col.key === 'action' ? 'hide-on-print' : ''}`,
+
             'px-3 py-3 truncate text-[14px] text-neutral-500 dark:text-neutral-400 capitalize',
             col.sticky ? `sticky z-30 ${col.sticky}-0 dark:bg-neutral-900 bg-white` : '',
             col.class || '',

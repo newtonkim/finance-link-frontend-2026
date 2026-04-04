@@ -492,7 +492,7 @@ export function routebuilder(routes = [], prifix = 'central') {
   return collecction
 }
 
-export function feedback(res: any, success: string, fail: string) {
+export function feedback(res: any, success?: string, fail?: string) {
   let successStatus = false
   let msg: Record<string, string> = {
     msg: res.error || success,

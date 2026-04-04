@@ -37,11 +37,12 @@
                         <Imploading icon="Download" :items="dropdownDownload" @select="handleDownload" />
 
                         <Imploading :items="exportItems" @select="handleImport" />
+                        <Imploading icon="Printer" :items="sizePapers" @select="handlePrint" />
 
-                        <button @click="handlePrint"
+                        <!-- <button @click="handlePrint"
                             class="p-2 cursor-pointer hover:bg-nfuko-action hover:text-white hover:rounded-full hover:border-1 hover:border-accent bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
                             <Printer :size="18" />
-                        </button>
+                        </button> -->
                         <div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2"></div>
                     </div>
                     <slot name="searchSideAction" />
@@ -94,9 +95,8 @@ import Drawer from '../Drawer/Drawer.vue';
 import { Plus } from 'lucide-vue-next';
 import ConfirmationDialog from '../confirmationDialog/confirmationDialog.vue';
 import Searchbar from './Components/Searchbar.vue';
-import { formDataFormatV2, createUrl, feedback, Imploading, UploadTemplateColumn, uploadTemplateColumData, } from '@/Global';
+import { formDataFormatV2, createUrl, feedback, Imploading, UploadTemplateColumn, uploadTemplateColumData, sizePapers, printElement, } from '@/Global';
 import Table from './Components/Table.vue';
-import { Printer } from 'lucide-vue-next';
 import { pomPinia } from 'septor-store';
 import { ACTION_CONFIG, dataTabelFilter, fetchTableData } from './util';
 const drawerOpen = ref(false);
@@ -128,12 +128,31 @@ async function createNewRecord() {
     DrawerMounted.value = true
 }
 
-function handlePrint() {
-    window.print();
+async function handlePrint(values: any) {
+    if (values.value) {
+        const res = await fetchTableData({
+            data: {
+                page: currentPage.value,
+                scale: values.value
+            },
+            props: {
+                ...props,
+                state: values.value,
+                url: createUrl(props?.url, 'print')
+            }, Store
+        });
+        const response = feedback(res);
+        console.log(response);
+        
+        if (response.success) {
+            printElement(response.res.payload, { size: values.value, orientation: 'landscape' });
+        }
+        // window.print();
+    }
+
+
 }
 function handleDownload(item: any) {
-
-
     if (item.action) {
         buttonTypeClicked.value = item.value
         item.action(item)
@@ -223,6 +242,7 @@ const finalSubmitAction = ref<string>("")
 const drawerTitle = ref(props.drawerTitle);
 const drawerShooter2 = ref(props.drawerShowFooter)
 const drawerWidth = ref(props.drawerWidth)
+const currentPage = ref(1)
 
 async function handleTableAction(item: any, action: string) {
     drawerWidth.value = "w-2/4"
@@ -405,6 +425,7 @@ const handleAction = async (item: any, action: keyof typeof ACTION_CONFIG) => {
 
 };
 const changeThePage = (page: unknown) => {
+    currentPage.value = page
     if (page && props?.state && props?.url) {
         fetchTableData({
             data: {
