@@ -1,6 +1,6 @@
 <template>
     <TableDrawer :exportItems="exportItems"
-        :drawerShowFooter="!['download-memeber-accounts-template', 'import-accounts', 'download-deposit-template','import-deposit-withdrawal'].includes(automaticCreate.actionSlot)"
+        :drawerShowFooter="!['download-memeber-accounts-template', 'import-accounts', 'download-deposit-template', 'import-deposit-withdrawal'].includes(automaticCreate.actionSlot)"
         :drawerRemount="drawerRemount" :automaticCreate="!automaticCreate.actionSlot" ref="drawer"
         :showTableAction="true" :drawerWidth="drawerTitle?.width" :url="tableUrl" state="memberAccountList"
         :drawerTitle="drawerTitle?.title" :columns="columns" @save="saveUser">
@@ -36,21 +36,23 @@
                 :title="automaticCreate?.actionSlot" :url="`/members-account/${automaticCreate?.actionSlot}`"
                 :submit-url="automaticCreate.actionSlot" />
 
-            <DepositTemplate v-if="automaticCreate?.actionSlot == 'download-deposit-template'"
+            <DepositTemplate v-else-if="automaticCreate?.actionSlot == 'download-deposit-template'"
                 :data="{ action, ...(automaticCreate ?? {}) }" />
 
-            <WithdrawalTemplate v-if="automaticCreate?.actionSlot == 'download-withdrawal-template'"
+            <WithdrawalTemplate v-else-if="automaticCreate?.actionSlot == 'download-withdrawal-template'"
                 :data="{ action, ...(automaticCreate ?? {}) }" />
 
-            <Deposit v-if="automaticCreate?.actionSlot == 'deposit'" :data="{ action, ...(automaticCreate ?? {}) }"
+            <Deposit v-else-if="automaticCreate?.actionSlot == 'deposit'" :data="{ action, ...(automaticCreate ?? {}) }"
                 v-model:form="formData" />
-            <ExportTemplate v-if="automaticCreate?.actionSlot == 'download-memeber-accounts-template'"
+            <ExportTemplate v-else-if="automaticCreate?.actionSlot == 'download-memeber-accounts-template'"
                 :data="{ action, ...(automaticCreate ?? {}) }" />
-            <Withdrawal v-if="automaticCreate?.actionSlot == 'withdrawal'"
+            <Withdrawal v-else-if="automaticCreate?.actionSlot == 'withdrawal'"
                 :data="{ action, ...(automaticCreate ?? {}) }" v-model:form="formData" />
-
-            <Create v-else-if="['add', 'edit'].includes(action)" :data="{ ...data, action }" />
             <Details v-else-if="['view'].includes(action)" :data="data" />
+                  <Create v-else :data="{ ...data, action }" />
+                  <!-- <Create v-else="['add', 'edit',''].includes(action)" :data="{ ...data, action }" /> -->
+
+          
         </template>
     </TableDrawer>
 </template>
@@ -86,8 +88,9 @@ const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
     }
 // automaticCreate.actionSlot// this will help switch off the default drawer actions  and use out side action
 function saveUser(type: string, data: any) {
-    if (title?.[automaticCreate.value.actionSlot]) {// let check if there is an action slot has its own action we use that action instead of the default ones
+    if (!type && title?.[automaticCreate.value.actionSlot]) {// let check if there is an action slot has its own action we use that action instead of the default ones
         title?.[automaticCreate.value.actionSlot]?.fun?.()
+
         return
     }
 
@@ -97,6 +100,8 @@ function saveUser(type: string, data: any) {
         drawerTitle.value = title?.[type]
     }
     title?.[type]?.fun?.()
+
+    // automaticCreate.value.actionSlot=automaticCreate.value.actionSlot
     automaticCreate.value = {}// celan the automatic create
 }
 const columns = [
@@ -114,11 +119,5 @@ function OpenThedrawer(item: any, action = 'deposit') {
         drawer.value.toggleDrawer()
     }, 100)
 }
-watch(() => drawer.value?.drawerOpen, (val) => {
-    if (!val) { // drawer is closed
-        automaticCreate.value = {}
-        drawerTitle.value = ''
-    }
 
-})
 </script>
