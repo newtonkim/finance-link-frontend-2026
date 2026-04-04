@@ -1,0 +1,159 @@
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import { Settings2, X } from 'lucide-vue-next'
+import { Spinner, Label } from '@/Global'
+import { useGeneralLoanSettings } from '../composables/useGeneralLoanSettings'
+
+const { showDrawer, loading, saving, form, fetchSettings, openDrawer, closeDrawer, save } =
+  useGeneralLoanSettings()
+
+onMounted(() => {
+  void fetchSettings()
+})
+
+defineExpose({ openDrawer })
+</script>
+
+<template>
+  <Transition name="drawer-fade">
+    <div v-if="showDrawer" class="fixed inset-0 z-50">
+      <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeDrawer" />
+      <Transition name="drawer-slide">
+        <aside
+          v-show="showDrawer"
+          class="absolute right-0 top-0 h-full w-full max-w-[500px] bg-white shadow-2xl ring-1 ring-black/5 dark:bg-neutral-900"
+          role="dialog"
+          aria-label="Approval Workflow & Limits"
+        >
+          <div class="flex h-full flex-col">
+            <div class="border-b border-neutral-200 px-6 py-5 dark:border-neutral-700">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 dark:bg-orange-900/30">
+                    <Settings2 class="h-4 w-4 text-nfuko-primary dark:text-bg-nfuko-yellow" />
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-bold tracking-tight text-neutral-900 uppercase dark:text-white">
+                      Approval Workflow & Limits
+                    </h3>
+                    <p class="text-xs text-neutral-500">Configure approvers and operational controls</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  @click="closeDrawer"
+                  class="flex h-8 w-8 items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 transition-colors dark:hover:bg-neutral-800"
+                >
+                  <X class="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto px-6 py-6 space-y-8">
+              <div v-if="loading" class="flex items-center justify-center py-10">
+                <Spinner class="h-8 w-8 text-neutral-400" />
+              </div>
+
+              <div v-else class="space-y-6">
+                <div class="space-y-3">
+                  <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300"
+                    >Approval Workflow</Label
+                  >
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-xs font-medium text-neutral-500 mb-1">Minimum Approvers</label>
+                      <input
+                        v-model.number="form.min_approvers"
+                        type="number"
+                        min="1"
+                        class="block w-full rounded-xl border border-neutral-200 bg-white px-3 py-2.5 text-sm outline-none transition-colors focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-medium text-neutral-500 mb-1">Maximum Approvers</label>
+                      <input
+                        v-model.number="form.max_approvers"
+                        type="number"
+                        min="1"
+                        class="block w-full rounded-xl border border-neutral-200 bg-white px-3 py-2.5 text-sm outline-none transition-colors focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="space-y-4">
+                  <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Feature Toggles</Label>
+
+                  <label class="flex items-center gap-3">
+                    <input
+                      v-model="form.allow_top_up"
+                      type="checkbox"
+                      class="h-4 w-4 rounded border-gray-300 text-nfuko-primary focus:ring-nfuko-primary dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-bg-nfuko-yellow"
+                    />
+                    <span class="text-sm text-neutral-700 dark:text-neutral-300">Allow Loan Top-Ups</span>
+                  </label>
+
+                  <label class="flex items-center gap-3">
+                    <input
+                      v-model="form.allow_reschedule"
+                      type="checkbox"
+                      class="h-4 w-4 rounded border-gray-300 text-nfuko-primary focus:ring-nfuko-primary dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-bg-nfuko-yellow"
+                    />
+                    <span class="text-sm text-neutral-700 dark:text-neutral-300">Allow Loan Rescheduling</span>
+                  </label>
+
+                  <label class="flex items-center gap-3">
+                    <input
+                      v-model="form.auto_penalty"
+                      type="checkbox"
+                      class="h-4 w-4 rounded border-gray-300 text-nfuko-primary focus:ring-nfuko-primary dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-bg-nfuko-yellow"
+                    />
+                    <span class="text-sm text-neutral-700 dark:text-neutral-300">Apply Auto Penalties</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 border-t border-neutral-200 px-6 py-4 dark:border-neutral-700">
+              <button
+                type="button"
+                @click="closeDrawer"
+                class="rounded-lg bg-neutral-100 px-5 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-200 transition-colors dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                :disabled="saving"
+                @click="save"
+                class="inline-flex items-center gap-2 rounded-lg bg-nfuko-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#002d32] transition-colors disabled:opacity-60 shadow-sm dark:bg-bg-nfuko-yellow dark:text-nfuko-primary"
+              >
+                <Spinner v-if="saving" class="h-4 w-4" />
+                Save Settings
+              </button>
+            </div>
+          </div>
+        </aside>
+      </Transition>
+    </div>
+  </Transition>
+</template>
+
+<style scoped>
+.drawer-fade-enter-active,
+.drawer-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.drawer-fade-enter-from,
+.drawer-fade-leave-to {
+  opacity: 0;
+}
+.drawer-slide-enter-active,
+.drawer-slide-leave-active {
+  transition: transform 0.25s ease;
+}
+.drawer-slide-enter-from,
+.drawer-slide-leave-to {
+  transform: translateX(100%);
+}
+</style>

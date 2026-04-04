@@ -31,6 +31,7 @@ import {
 } from '@/Global/ui/dropdown-menu'
 import { formatMoneyValue } from '@/Global'
 import { useTenantUserStore } from '@/stores/tenantUserStore'
+import { loanSettingsApi } from '@/tenant/apis/settings/loanSettingsApi'
 import { useLoanAccount } from '../composables/useLoanAccount'
 import ReceiveCashModal from '../components/ReceiveCashModal.vue'
 import { loansApi } from '@/tenant/apis/loans/loansApi'
@@ -219,11 +220,61 @@ const receiveCashModalRef = ref<any>(null)
 const showReceiveCashModal = ref(false)
 const isPostingCash = ref(false)
 const selectedInstallment = ref<any>(null)
+const hasFetchedRepaymentOrder = ref(false)
+const repaymentAllocationOrder = ref<
+  | 'principal_interest_penalties_charges'
+  | 'interest_principal_penalties_charges'
+  | 'penalties_charges_interest_principal'
+  | 'penalties_charges_principal_interest'
+>('penalties_charges_interest_principal')
+
+const allocationOrderDisplay = computed(() => {
+  const map = {
+    principal_interest_penalties_charges: {
+      label: 'Case 1',
+      sequence: 'Principal -> Interest -> Penalties & Charges',
+    },
+    interest_principal_penalties_charges: {
+      label: 'Case 2',
+      sequence: 'Interest -> Principal -> Penalties & Charges',
+    },
+    penalties_charges_interest_principal: {
+      label: 'Case 3',
+      sequence: 'Penalties & Charges -> Interest -> Principal',
+    },
+    penalties_charges_principal_interest: {
+      label: 'Case 4',
+      sequence: 'Penalties & Charges -> Principal -> Interest',
+    },
+  } as const
+  return map[repaymentAllocationOrder.value]
+})
 
 function openReceiveCash(row: any) {
   selectedInstallment.value = row
+  if (!hasFetchedRepaymentOrder.value) {
+    void fetchRepaymentAllocationOrder()
+  }
   showReceiveCashModal.value = true
   receiveCashModalRef.value?.reset()
+}
+
+async function fetchRepaymentAllocationOrder() {
+  try {
+    const res = await loanSettingsApi.get()
+    const order = res.data?.data?.repayment_allocation_order
+    if (
+      order === 'principal_interest_penalties_charges' ||
+      order === 'interest_principal_penalties_charges' ||
+      order === 'penalties_charges_interest_principal' ||
+      order === 'penalties_charges_principal_interest'
+    ) {
+      repaymentAllocationOrder.value = order
+    }
+    hasFetchedRepaymentOrder.value = true
+  } catch {
+    // Keep fallback default; modal still displays deterministic order.
+  }
 }
 
 async function handleReceiveCashSubmit(data: any) {
@@ -948,6 +999,8 @@ async function handleReceiveCashSubmit(data: any) {
         : 0
     "
     :currency="currency"
+    :allocation-order-label="allocationOrderDisplay.label"
+    :allocation-order-sequence="allocationOrderDisplay.sequence"
     @close="showReceiveCashModal = false"
     @submit="handleReceiveCashSubmit"
   />

@@ -6,6 +6,7 @@ import {
   CreditCard,
   Plus,
   Save,
+  Trash2,
   ChevronDown,
   ChevronUp,
 } from 'lucide-vue-next'
@@ -40,6 +41,7 @@ const {
 } = useLoanProductForm()
 
 const showAccountingMapping = ref(true)
+const showFeesAndPenalties = ref(true)
 
 function yesNoClass(enabled: boolean) {
   return enabled
@@ -56,13 +58,43 @@ function previewMoney(
   return formatMoneyValue(raw)
 }
 
+function amountHint(raw: number | string | null | undefined) {
+  if (raw == null || raw === '') return null
+  return formatMoneyValue(raw)
+}
+
+function normalizeAmountInput(raw: string): string {
+  return raw.replace(/[^0-9.]/g, '')
+}
+
+function parseAmountInput(raw: string): number | null {
+  const normalized = normalizeAmountInput(raw)
+  if (!normalized) return null
+  const n = Number(normalized)
+  return Number.isFinite(n) ? n : null
+}
+
+function formatAmountInput(raw: number | string | null | undefined): string {
+  if (raw == null || raw === '') return ''
+  const n = Number(raw)
+  if (!Number.isFinite(n)) return ''
+  return n.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+}
+
+function onAmountInput(field: 'min_amount' | 'max_amount', value: string) {
+  form.value[field] = parseAmountInput(value)
+}
+
 function categoryLabel(cat: string): string {
   const map: Record<string, string> = {
     processing_fee: 'Processing Fee',
     penalty: 'Penalty',
     late_fee: 'Late Fee',
     appraisal_fee: 'Appraisal Fee',
-    insurance: 'Insurance',
+    disbursement_fee: 'Disbursement Fee',
     other: 'Other',
   }
   return map[cat] ?? cat
@@ -74,7 +106,7 @@ function categoryColor(cat: string): string {
     penalty: 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400',
     late_fee: 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
     appraisal_fee: 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-    insurance: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    disbursement_fee: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
     other: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400',
   }
   return map[cat] ?? map.other
@@ -203,15 +235,20 @@ function categoryColor(cat: string): string {
                 >Minimum Amount</label
               >
               <input
-                v-model="form.min_amount"
-                type="number"
+                :value="formatAmountInput(form.min_amount)"
+                type="text"
+                inputmode="decimal"
                 min="0"
                 step="0.01"
                 placeholder="0.00"
                 class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                @input="onAmountInput('min_amount', ($event.target as HTMLInputElement).value)"
               />
               <p v-if="fieldError('min_amount')" class="mt-1 text-xs text-red-500">
                 {{ fieldError('min_amount') }}
+              </p>
+              <p v-else-if="amountHint(form.min_amount)" class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                Formatted: {{ amountHint(form.min_amount) }}
               </p>
             </div>
             <div>
@@ -219,15 +256,20 @@ function categoryColor(cat: string): string {
                 >Maximum Amount</label
               >
               <input
-                v-model="form.max_amount"
-                type="number"
+                :value="formatAmountInput(form.max_amount)"
+                type="text"
+                inputmode="decimal"
                 min="0"
                 step="0.01"
                 placeholder="0.00"
                 class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                @input="onAmountInput('max_amount', ($event.target as HTMLInputElement).value)"
               />
               <p v-if="fieldError('max_amount')" class="mt-1 text-xs text-red-500">
                 {{ fieldError('max_amount') }}
+              </p>
+              <p v-else-if="amountHint(form.max_amount)" class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                Formatted: {{ amountHint(form.max_amount) }}
               </p>
             </div>
             <div>
@@ -593,10 +635,12 @@ function categoryColor(cat: string): string {
                 <div class="sm:col-span-1 flex items-end justify-end">
                   <button
                     type="button"
-                    class="rounded-xl border border-red-200 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950/30"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 text-red-600 transition-colors hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950/30"
+                    aria-label="Remove document"
+                    title="Remove document"
                     @click="removeRequiredDocument(index)"
                   >
-                    Remove
+                    <Trash2 class="h-4 w-4" />
                   </button>
                 </div>
                 <div class="sm:col-span-12">
@@ -628,20 +672,42 @@ function categoryColor(cat: string): string {
         <div
           class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
         >
-          <h2 class="mb-1 text-base font-semibold text-neutral-900 dark:text-white">
-            Fees and Penalties
-          </h2>
-          <p class="mb-5 text-xs text-neutral-500 dark:text-neutral-400">
-            Select the charges and penalties that apply to this loan product.
-            <strong>Processing fees</strong> are deducted at disbursement.
-            <strong>Penalties</strong> are applied when members miss repayment deadlines. Manage
-            charge definitions under
-            <router-link
-              :to="{ name: 'tenant-settings-loan-charges' }"
-              class="text-nfuko-primary underline dark:text-bg-nfuko-yellow"
-              >Settings → Charges & Penalties</router-link
-            >.
-          </p>
+          <div class="mb-5 flex items-center justify-between">
+            <h2 class="text-base font-semibold text-neutral-900 dark:text-white">
+              Fees and Penalties
+            </h2>
+            <button
+              type="button"
+              class="flex items-center gap-1.5 rounded-xl border border-neutral-200 px-3 py-1.5 text-xs font-medium transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+              @click="showFeesAndPenalties = !showFeesAndPenalties"
+            >
+              <component :is="showFeesAndPenalties ? ChevronUp : ChevronDown" class="h-3.5 w-3.5" />
+              {{ showFeesAndPenalties ? 'Hide' : 'Show' }}
+            </button>
+          </div>
+          <template v-if="showFeesAndPenalties">
+          <div
+            class="mb-5 rounded-xl border border-neutral-200 bg-neutral-50/70 p-3.5 text-xs text-neutral-600 dark:border-neutral-700 dark:bg-neutral-800/60 dark:text-neutral-300"
+          >
+            <p class="font-medium text-neutral-700 dark:text-neutral-200">
+              Select the charges and penalties that apply to this loan product.
+            </p>
+            <ul class="mt-2 space-y-1.5 list-disc pl-4">
+              <li><strong class="font-semibold">Processing fees:</strong> deducted at disbursement.</li>
+              <li>
+                <strong class="font-semibold">Penalties:</strong> applied when members miss repayment
+                deadlines.
+              </li>
+            </ul>
+            <div class="mt-2">
+              Manage charge definitions under
+              <router-link
+                :to="{ name: 'tenant-settings-loan-charges' }"
+                class="ml-1 inline-flex items-center gap-1 rounded-md border border-nfuko-primary/30 bg-white px-2.5 py-1 font-semibold text-nfuko-primary transition-all hover:border-nfuko-primary hover:bg-nfuko-primary hover:text-white dark:border-bg-nfuko-yellow/50 dark:bg-neutral-900 dark:text-bg-nfuko-yellow dark:hover:border-bg-nfuko-yellow dark:hover:bg-bg-nfuko-yellow dark:hover:text-nfuko-primary"
+                >Settings → Charges & Penalties</router-link
+              >.
+            </div>
+          </div>
 
           <!-- Charge Selector -->
           <div class="space-y-2">
@@ -765,6 +831,7 @@ function categoryColor(cat: string): string {
               immediate application. This applies to all penalty charges on this product.
             </p>
           </div>
+          </template>
         </div>
 
         <div

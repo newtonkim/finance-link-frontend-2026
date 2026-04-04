@@ -1,4 +1,5 @@
 import { tenantClient } from '@/tenant/apis/tenantClient'
+import { getLocalValues, keysToUse } from '@/Global/Helpers'
 
 export interface Branch {
   id: number
@@ -22,9 +23,20 @@ export interface BranchForm {
   is_active?: boolean
 }
 
+export interface BranchWithDefault {
+  branches: Branch[]
+  default_branch_id: number | null
+}
+
 export const branchesApi = {
   list() {
     return tenantClient.get<{ data: Branch[] }>('/branches')
+  },
+  listWithDefault(): Promise<{ data: BranchWithDefault }> {
+    const activeBranch = getLocalValues(keysToUse.activeBranch)
+    return tenantClient.get<{ data: BranchWithDefault }>('/branches', {
+      params: { include_default: true, default_branch_id: activeBranch },
+    })
   },
   store(data: BranchForm) {
     return tenantClient.post<{ message: string; data: Branch }>('/branches', data)
@@ -36,6 +48,8 @@ export const branchesApi = {
     return tenantClient.delete<{ message: string }>(`/branches/${id}`)
   },
   toggleActive(id: number) {
-    return tenantClient.patch<{ message: string; is_active: boolean }>(`/branches/${id}/toggle-active`)
+    return tenantClient.patch<{ message: string; is_active: boolean }>(
+      `/branches/${id}/toggle-active`,
+    )
   },
 }

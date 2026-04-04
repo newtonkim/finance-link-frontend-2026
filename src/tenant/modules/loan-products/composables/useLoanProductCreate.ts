@@ -71,6 +71,15 @@ export function useLoanProductForm() {
   const documentTypes = ref<DocumentTypeOption[]>([])
   let previewTimer: ReturnType<typeof setTimeout> | null = null
 
+  function normalizePenaltyRules(rules: any[] | null | undefined) {
+    if (!Array.isArray(rules)) return []
+
+    return rules.map((rule) => ({
+      ...rule,
+      grace_days: Math.max(0, Number(rule?.grace_days ?? 0)),
+    }))
+  }
+
   // ─── Accounts (for accounting mapping selectors) ───────────────────────────
   const accounts = ref<{ id: number; name: string }[]>([])
   const rawAccounts = ref<any[]>([])
@@ -182,7 +191,7 @@ export function useLoanProductForm() {
       if (
         charge.category === 'processing_fee' ||
         charge.category === 'appraisal_fee' ||
-        charge.category === 'insurance'
+        charge.category === 'disbursement_fee'
       ) {
         processingFees += amount
       } else if (charge.category === 'penalty' || charge.category === 'late_fee') {
@@ -275,7 +284,7 @@ export function useLoanProductForm() {
     try {
       const res = await loanProductsApi.get(Number(route.params.id))
       const p = res.data?.data ?? res.data
-      const existingRules = p.penalty_rules ?? []
+      const existingRules = normalizePenaltyRules(p.penalty_rules ?? [])
 
       // Migrate global penalty to a penalty rule if the product had one
       // but no rules exist yet (backward compatibility with old system)
@@ -288,7 +297,7 @@ export function useLoanProductForm() {
         existingRules.push({
           penalty_type: p.penalty_type,
           penalty_rate: p.penalty_rate,
-          grace_days: null,
+          grace_days: 0,
           amount: null,
         })
       }
@@ -296,7 +305,7 @@ export function useLoanProductForm() {
       form.value = {
         ...createDefaultForm(),
         ...p,
-        penalty_rules: existingRules,
+        penalty_rules: normalizePenaltyRules(existingRules),
         required_documents: p.required_documents ?? [],
         charge_ids: p.charge_ids ?? p.charges?.map((c: any) => c.id) ?? [],
         // Always reset legacy global penalty fields to safe defaults
@@ -323,7 +332,7 @@ export function useLoanProductForm() {
     form.value.penalty_rules!.push({
       penalty_type: '',
       penalty_rate: null,
-      grace_days: null,
+      grace_days: 0,
       amount: null,
     })
   }
@@ -441,7 +450,7 @@ export function useLoanProductForm() {
       (c) => c.category === 'penalty' || c.category === 'late_fee',
     )
     const hasProcessingFee = selectedCharges.some((c) => c.category === 'processing_fee')
-    const hasInsurance = selectedCharges.some((c) => c.category === 'insurance')
+    const hasDisbursementFee = selectedCharges.some((c) => c.category === 'disbursement_fee')
 
     if (hasPenalty) {
       if (!form.value.penalty_income_account_id) {
@@ -465,10 +474,10 @@ export function useLoanProductForm() {
       }
     }
 
-    if (hasInsurance) {
+    if (hasDisbursementFee) {
       if (!form.value.charges_income_account_id) {
         validationErrors.charges_income_account_id =
-          'Required: An insurance charge is assigned. Map the Insurance Payable Account in Accounting Mapping.'
+          'Required: A disbursement fee charge is assigned. Map the Charges Income Account in Accounting Mapping.'
       }
     }
 
@@ -499,6 +508,7 @@ export function useLoanProductForm() {
         ...form.value,
         penalty_type: 'none',
         penalty_rate: 0,
+        penalty_rules: normalizePenaltyRules(form.value.penalty_rules),
       }
 
       if (isEditing.value) {

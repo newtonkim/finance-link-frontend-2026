@@ -10,6 +10,8 @@ const props = defineProps<{
   borrowerName: string
   installmentAmount: number | string
   currency: string
+  allocationOrderLabel?: string
+  allocationOrderSequence?: string
 }>()
 
 const emit = defineEmits<{
@@ -101,6 +103,20 @@ function fmt(v: number | string | null | undefined) {
 
             <!-- Body -->
             <div class="p-6 space-y-6">
+              <div
+                class="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3.5 dark:border-emerald-800/50 dark:bg-emerald-900/20"
+              >
+                <p class="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
+                  Repayment Allocation Order
+                </p>
+                <p class="mt-1 text-sm font-semibold text-emerald-800 dark:text-emerald-200">
+                  {{ allocationOrderLabel ?? 'Default Allocation Order' }}
+                </p>
+                <p class="mt-1 text-xs text-emerald-700/80 dark:text-emerald-300/80">
+                  {{ allocationOrderSequence ?? 'Penalties & Charges -> Interest -> Principal' }}
+                </p>
+              </div>
+
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Date -->
                 <div class="space-y-1.5">
