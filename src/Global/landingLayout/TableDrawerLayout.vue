@@ -36,7 +36,7 @@
                     <div class="flex items-center gap-2 board-r-1 mx-2" v-if="showTableAction">
                         <Imploading icon="Download" :items="dropdownDownload" @select="handleDownload" />
 
-                        <Imploading :items="dropdownItems" @select="handleImport" />
+                        <Imploading :items="exportItems" @select="handleImport" />
 
                         <button @click="handlePrint"
                             class="p-2 cursor-pointer hover:bg-nfuko-action hover:text-white hover:rounded-full hover:border-1 hover:border-accent bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
@@ -50,8 +50,8 @@
             <div class="rounded-2xl    bg-white pt-0 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]   dark:bg-neutral-900">
                 <div
                     class="overflow-x-auto w-full  custom-scrollbar h-[64vh] border-neutral-100 bg-white dark:bg-neutral-900 shadow-sm dark:border-neutral-800 rounded-2xl">
-                    <Table :handleAction="handleAction" :action_config="ACTION_CONFIG" :dataFilter="dataFilter"
-                        :data="data" :columns="columns" :permissions="permissions">
+                    <Table :check="checkBox" :handleAction="handleAction" :action_config="ACTION_CONFIG"
+                        :dataFilter="dataFilter" :data="data" :columns="columns" :permissions="permissions">
                         <template v-for="(_, name) in $slots" #[name]="slotProps">
                             <slot :name="name" v-bind="slotProps || {}" />
                         </template>
@@ -63,15 +63,16 @@
             </div>
         </div>
     </div>
+    <slot name="footer" />
+
     <div v-if="DrawerMounted">
         <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShooter2" v-model:open="drawerOpen"
             :title="drawerTitle" @save="saveDrawerData">
             <template #body>
                 <div v-if="buttonTypeClicked == 'download-template'">
-                    <UploadTemplateColumn :title="title" :data="provideDataTotheParent" />
+                    <UploadTemplateColumn :defaults="importDefaults" :title="title" :data="provideDataTotheParent" />
                 </div>
                 <div v-else-if="buttonTypeClicked == 'import-data'">
-                    <!-- {{ formData }} -->
                     <uploadTemplateColumData :title="title" :url="url" />
 
                 </div>
@@ -108,11 +109,11 @@ const buttonTypeClicked = ref<any>(null);
 const DrawerMounted = ref<boolean>(true);
 const submitChanges = ref<any>(null);
 const provideDataTotheParent = ref<any>([]);
-const formData = ref<any>([]);
-const dropdownItems = [
-    { label: "template", value: "template", route: "download-template" },
-    { label: "Import Data", value: "import", route: "import-data" },
-]
+// const formData = ref<any>([]);
+// const dropdownItems = [
+//     { label: "template", value: "template", route: "download-template" },
+//     { label: "Import Data", value: "import", route: "import-data" },
+// ]
 const dropdownDownload = [
     { label: "PDF", value: "PDF", route: "export-pdf" },
     { label: "Excel", value: "Excel", route: "export-excel" },
@@ -131,20 +132,41 @@ function handlePrint() {
     window.print();
 }
 function handleDownload(item: any) {
-    handleTableAction(null, item.route)
+
+
+    if (item.action) {
+        buttonTypeClicked.value = item.value
+        item.action(item)
+        // emit("save", type, data, submitChanges.value);
+        return
+    } else
+        handleTableAction(null, item.route)
 }
 function handleImport(item: any) {
-    handleTableAction(null, item.route)
+    if (item.action) {
+        buttonTypeClicked.value = item.value
+        item.action(item)
+        return
+    } else
+        handleTableAction(null, item.route)
 }
 const props = defineProps({
     addButtonText: {
         type: Object,
         default: () => ({ icon: Plus, text: 'Add New', link: '#' })
     },
+    exportItems: {
+        type: Array, default: () => [
+            { label: "template", value: "template", route: "download-template" },
+            { label: "Import Data", value: "import", route: "import-data" },
+        ]
+    },
+    checkBox: { type: Boolean, default: true },
     showAddButton: { type: Boolean, default: true },
     drawerShowFooter: { type: Boolean, default: true },
     drawerTitle: { type: String, default: 'Drawer Title' },
     drawerWidth: { type: String, default: '30rem' },
+    importDefaults: { type: Array, default: ['id', 'branch_id'] },
     title: { type: String, required: false },
     /**
      * if  u want the drawer to make the create request   automaticly 
@@ -277,6 +299,8 @@ async function automaticCreateFun() {
             }, Store
         });
         const response = feedback(res);
+
+
         if (response.success) {
             Store[props?.state] = res
             toggleDrawer()
@@ -287,6 +311,7 @@ async function automaticCreateFun() {
                 toggleDrawer()
             }, 100) //  to make sure the drawer is cleaned 
             Store.currentFormValues = {};
+            buttonTypeClicked.value = buttonTypeClicked.value
             return true
         }
         return false
@@ -312,10 +337,10 @@ async function saveDrawerData(data: any) {
             return
 
         }
-        console.log(checker, '====2');
+        // console.log(checker, '====2');
 
         save(data, finalSubmitAction.value ?? 'create')
-        buttonTypeClicked.value = 'add'
+        buttonTypeClicked.value = buttonTypeClicked.value
 
         setTimeout(() => {
             submitChanges.value = false

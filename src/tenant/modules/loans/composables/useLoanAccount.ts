@@ -15,7 +15,7 @@ export function useLoanAccount(loanId: number) {
   const repaymentsMeta = ref({ current_page: 1, last_page: 1, per_page: 10, total: 0 })
   const activeTab = ref<
     'general' | 'transactions' | 'schedule' | 'charges' | 'documents' | 'activities'
-  >('general')
+  >('schedule')
 
   async function fetchLoan() {
     const res = await loansApi.get(loanId)

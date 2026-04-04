@@ -1,4 +1,9 @@
 import { tenantClient } from '../tenantClient'
+import type {
+  LoanChargeCategory,
+  LoanChargeFrequency,
+  LoanChargeType,
+} from '../loanCharges/api'
 
 export interface AccountSummary {
   id: number
@@ -96,6 +101,10 @@ export interface LoanProduct {
 
   penalty_rate?: number | string | null
   penalty_type?: 'none' | 'flat' | 'percentage' | string | null
+  penalty_grace_days?: number | null
+  requires_approval?: boolean
+  allow_top_up?: boolean
+  allow_reschedule?: boolean
 
   processing_fee_type?: 'none' | 'flat' | 'percentage' | null
   processing_fee_value?: number | string | null
@@ -121,6 +130,16 @@ export interface LoanProduct {
   can_edit_core_fields?: boolean
   is_active: boolean
   penalty_rules?: LoanPenaltyRule[]
+  charge_ids?: number[]
+  charges?: {
+    id: number
+    name: string
+    category?: LoanChargeCategory
+    charge_type?: LoanChargeType
+    value?: number | string
+    frequency?: LoanChargeFrequency
+    grace_days?: number
+  }[]
   currency_code?: string | null
 }
 

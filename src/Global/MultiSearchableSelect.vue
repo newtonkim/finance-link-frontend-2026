@@ -92,8 +92,14 @@ const toggleDropdown = () => {
     isOpen.value = !isOpen.value;
     if (isOpen.value) {
         searchQuery.value = '';
-        if (props.url && collection.value.length === 0 && !loading.value) {
-            remoteUrl(props.url);
+        
+        const generateAstate = props?.state ?? `${props?.url}`.replace(/[^a-zA-Z0-9]/g, "-");
+        const DataAlreadyCollected = Store[generateAstate]?.payload?.data ?? Store[generateAstate]?.payload
+
+        if (props.url && !DataAlreadyCollected?.length) {
+            remoteUrl(props.url)
+        } else {
+            collection.value = DataAlreadyCollected || [];
         }
     }
 };

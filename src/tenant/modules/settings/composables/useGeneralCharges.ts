@@ -100,8 +100,10 @@ export function useGeneralCharges() {
     try {
       const [savRes, coaRes, loanRes] = await Promise.allSettled([
         savingsProductsApi.list(),
-        tenantClient.post('global/chart-of-accounts', { account_type: 'INCOME' }),
-        tenantClient.post('global/loan-products'),
+        tenantClient.get('/chart-of-accounts', {
+          params: { list: true, account_type: 'INCOME', is_postable: true },
+        }),
+        tenantClient.post('/global/loan-products'),
       ])
 
       if (savRes.status === 'fulfilled') {
@@ -114,7 +116,10 @@ export function useGeneralCharges() {
       if (coaRes.status === 'fulfilled') {
         const coa = coaRes.value.data?.payload?.data ?? coaRes.value.data?.data ?? coaRes.value.data ?? []
         creditAccountOptions.value = Array.isArray(coa)
-          ? coa.map((a: any) => ({ id: a.id, name: a.name ?? 'Account ' + a.id }))
+          ? coa.map((a: any) => ({
+              id: a.id,
+              name: a.gl_code ? `${a.gl_code} - ${a.name}` : (a.name ?? 'Account ' + a.id),
+            }))
           : []
         
         // Auto-select the first available income account if nothing is selected
@@ -124,7 +129,7 @@ export function useGeneralCharges() {
       }
 
       if (loanRes.status === 'fulfilled') {
-        const lp = loanRes.value.data?.data ?? loanRes.value.data ?? []
+        const lp = loanRes.value.data?.payload?.data ?? loanRes.value.data?.data ?? loanRes.value.data ?? []
         loanProductOptions.value = Array.isArray(lp)
           ? lp.map((p: any) => ({ id: p.id, name: p.name ?? 'Loan ' + p.id }))
           : []

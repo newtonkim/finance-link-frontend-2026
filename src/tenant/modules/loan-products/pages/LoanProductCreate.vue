@@ -6,15 +6,15 @@ import {
   CreditCard,
   Plus,
   Save,
+  Trash2,
   ChevronDown,
   ChevronUp,
 } from 'lucide-vue-next'
 import { formatMoneyValue } from '@/Global'
 import { useRouter } from 'vue-router'
 import { useLoanProductForm } from '../composables/useLoanProductCreate'
-import PenaltyRuleRow from '../components/PenaltyRuleRow.vue'
 import SearchableSelect from '@/Global/SearchableSelect.vue'
-import MoneyInput from '@/Global/MoneyInput.vue'
+import MultiSearchableSelect from '@/Global/MultiSearchableSelect.vue'
 
 const router = useRouter()
 
@@ -26,12 +26,14 @@ const {
   form,
   accounts,
   documentTypes,
+  charges,
+  chargeOptions,
+  glAccountWarnings,
+  estimatedFees,
   preview,
   previewLoading,
   previewAmount,
   previewTerm,
-  addPenaltyRule,
-  removePenaltyRule,
   addRequiredDocument,
   removeRequiredDocument,
   fieldError,
@@ -39,6 +41,7 @@ const {
 } = useLoanProductForm()
 
 const showAccountingMapping = ref(true)
+const showFeesAndPenalties = ref(true)
 
 function yesNoClass(enabled: boolean) {
   return enabled
@@ -53,6 +56,60 @@ function previewMoney(
   if (formatted) return formatted
   if (raw == null || raw === '') return '—'
   return formatMoneyValue(raw)
+}
+
+function amountHint(raw: number | string | null | undefined) {
+  if (raw == null || raw === '') return null
+  return formatMoneyValue(raw)
+}
+
+function normalizeAmountInput(raw: string): string {
+  return raw.replace(/[^0-9.]/g, '')
+}
+
+function parseAmountInput(raw: string): number | null {
+  const normalized = normalizeAmountInput(raw)
+  if (!normalized) return null
+  const n = Number(normalized)
+  return Number.isFinite(n) ? n : null
+}
+
+function formatAmountInput(raw: number | string | null | undefined): string {
+  if (raw == null || raw === '') return ''
+  const n = Number(raw)
+  if (!Number.isFinite(n)) return ''
+  return n.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+}
+
+function onAmountInput(field: 'min_amount' | 'max_amount', value: string) {
+  form.value[field] = parseAmountInput(value)
+}
+
+function categoryLabel(cat: string): string {
+  const map: Record<string, string> = {
+    processing_fee: 'Processing Fee',
+    penalty: 'Penalty',
+    late_fee: 'Late Fee',
+    appraisal_fee: 'Appraisal Fee',
+    disbursement_fee: 'Disbursement Fee',
+    other: 'Other',
+  }
+  return map[cat] ?? cat
+}
+
+function categoryColor(cat: string): string {
+  const map: Record<string, string> = {
+    processing_fee: 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    penalty: 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+    late_fee: 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+    appraisal_fee: 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+    disbursement_fee: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    other: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400',
+  }
+  return map[cat] ?? map.other
 }
 </script>
 
@@ -177,18 +234,42 @@ function previewMoney(
               <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
                 >Minimum Amount</label
               >
-              <MoneyInput v-model="form.min_amount" placeholder="0.00" />
+              <input
+                :value="formatAmountInput(form.min_amount)"
+                type="text"
+                inputmode="decimal"
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                @input="onAmountInput('min_amount', ($event.target as HTMLInputElement).value)"
+              />
               <p v-if="fieldError('min_amount')" class="mt-1 text-xs text-red-500">
                 {{ fieldError('min_amount') }}
+              </p>
+              <p v-else-if="amountHint(form.min_amount)" class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                Formatted: {{ amountHint(form.min_amount) }}
               </p>
             </div>
             <div>
               <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
                 >Maximum Amount</label
               >
-              <MoneyInput v-model="form.max_amount" placeholder="0.00" />
+              <input
+                :value="formatAmountInput(form.max_amount)"
+                type="text"
+                inputmode="decimal"
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                @input="onAmountInput('max_amount', ($event.target as HTMLInputElement).value)"
+              />
               <p v-if="fieldError('max_amount')" class="mt-1 text-xs text-red-500">
                 {{ fieldError('max_amount') }}
+              </p>
+              <p v-else-if="amountHint(form.max_amount)" class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                Formatted: {{ amountHint(form.max_amount) }}
               </p>
             </div>
             <div>
@@ -338,20 +419,6 @@ function previewMoney(
                 {{ fieldError('interest_rate') }}
               </p>
             </div>
-            <div>
-              <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-                >Rate Period</label
-              >
-              <select
-                v-model="form.interest_period"
-                class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
-              >
-                <option value="per_month">Per Month</option>
-                <option value="per_year">Per Year</option>
-                <option value="monthly">Monthly</option>
-                <option value="yearly">Yearly</option>
-              </select>
-            </div>
             <div v-if="form.interest_method === 'reducing_balance'">
               <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
                 >Repayment Structure</label
@@ -367,6 +434,20 @@ function previewMoney(
               <p v-if="fieldError('repayment_structure')" class="mt-1 text-xs text-red-500">
                 {{ fieldError('repayment_structure') }}
               </p>
+            </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
+                >Rate Period</label
+              >
+              <select
+                v-model="form.interest_period"
+                class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+              >
+                <option value="per_month">Per Month</option>
+                <option value="per_year">Per Year</option>
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+              </select>
             </div>
           </div>
         </div>
@@ -554,10 +635,12 @@ function previewMoney(
                 <div class="sm:col-span-1 flex items-end justify-end">
                   <button
                     type="button"
-                    class="rounded-xl border border-red-200 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950/30"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 text-red-600 transition-colors hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950/30"
+                    aria-label="Remove document"
+                    title="Remove document"
                     @click="removeRequiredDocument(index)"
                   >
-                    Remove
+                    <Trash2 class="h-4 w-4" />
                   </button>
                 </div>
                 <div class="sm:col-span-12">
@@ -589,97 +672,166 @@ function previewMoney(
         <div
           class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
         >
-          <h2 class="mb-5 text-base font-semibold text-neutral-900 dark:text-white">
-            Fees and Penalties
-          </h2>
-          <div class="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-                >Processing Fee Type</label
-              >
-              <select
-                v-model="form.processing_fee_type"
-                class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
-              >
-                <option value="none">None</option>
-                <option value="flat">Flat Amount</option>
-                <option value="percentage">Percentage</option>
-              </select>
-            </div>
-            <div v-if="form.processing_fee_type !== 'none'">
-              <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-                >Processing Fee Value</label
-              >
-              <input
-                v-model="form.processing_fee_value"
-                type="number"
-                min="0"
-                step="0.01"
-                class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
-              />
-            </div>
-            <div>
-              <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-                >Penalty Type</label
-              >
-              <select
-                v-model="form.penalty_type"
-                class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
-              >
-                <option value="none">None</option>
-                <option value="flat">Flat Amount</option>
-                <option value="percentage">Percentage</option>
-              </select>
-            </div>
-            <div v-if="form.penalty_type !== 'none'">
-              <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-                >Penalty Value</label
-              >
-              <input
-                v-model="form.penalty_rate"
-                type="number"
-                min="0"
-                step="0.01"
-                class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
-              />
-            </div>
-          </div>
-
-          <div class="mt-6">
-            <div class="mb-4 flex items-center justify-between">
-              <div>
-                <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">
-                  Penalty Rules
-                </h3>
-                <p class="text-xs text-neutral-500 dark:text-neutral-400">
-                  Optional detailed late-payment rules.
-                </p>
-              </div>
-              <button
-                type="button"
-                class="flex items-center gap-1.5 rounded-xl border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
-                @click="addPenaltyRule"
-              >
-                <Plus class="h-3.5 w-3.5" />
-                Add Rule
-              </button>
-            </div>
-
-            <div v-if="form.penalty_rules?.length" class="flex flex-col gap-3">
-              <PenaltyRuleRow
-                v-for="(rule, index) in form.penalty_rules"
-                :key="index"
-                :rule="rule"
-                @remove="removePenaltyRule(index)"
-              />
-            </div>
-            <div
-              v-else
-              class="rounded-xl border border-dashed border-neutral-200 py-6 text-center text-sm text-neutral-400 dark:border-neutral-700 dark:text-neutral-500"
+          <div class="mb-5 flex items-center justify-between">
+            <h2 class="text-base font-semibold text-neutral-900 dark:text-white">
+              Fees and Penalties
+            </h2>
+            <button
+              type="button"
+              class="flex items-center gap-1.5 rounded-xl border border-neutral-200 px-3 py-1.5 text-xs font-medium transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+              @click="showFeesAndPenalties = !showFeesAndPenalties"
             >
-              No additional penalty rules configured.
+              <component :is="showFeesAndPenalties ? ChevronUp : ChevronDown" class="h-3.5 w-3.5" />
+              {{ showFeesAndPenalties ? 'Hide' : 'Show' }}
+            </button>
+          </div>
+          <template v-if="showFeesAndPenalties">
+          <div
+            class="mb-5 rounded-xl border border-neutral-200 bg-neutral-50/70 p-3.5 text-xs text-neutral-600 dark:border-neutral-700 dark:bg-neutral-800/60 dark:text-neutral-300"
+          >
+            <p class="font-medium text-neutral-700 dark:text-neutral-200">
+              Select the charges and penalties that apply to this loan product.
+            </p>
+            <ul class="mt-2 space-y-1.5 list-disc pl-4">
+              <li><strong class="font-semibold">Processing fees:</strong> deducted at disbursement.</li>
+              <li>
+                <strong class="font-semibold">Penalties:</strong> applied when members miss repayment
+                deadlines.
+              </li>
+            </ul>
+            <div class="mt-2">
+              Manage charge definitions under
+              <router-link
+                :to="{ name: 'tenant-settings-loan-charges' }"
+                class="ml-1 inline-flex items-center gap-1 rounded-md border border-nfuko-primary/30 bg-white px-2.5 py-1 font-semibold text-nfuko-primary transition-all hover:border-nfuko-primary hover:bg-nfuko-primary hover:text-white dark:border-bg-nfuko-yellow/50 dark:bg-neutral-900 dark:text-bg-nfuko-yellow dark:hover:border-bg-nfuko-yellow dark:hover:bg-bg-nfuko-yellow dark:hover:text-nfuko-primary"
+                >Settings → Charges & Penalties</router-link
+              >.
             </div>
           </div>
+
+          <!-- Charge Selector -->
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              Assign Charges
+            </label>
+            <MultiSearchableSelect
+              v-model="form.charge_ids"
+              :options="chargeOptions"
+              placeholder="Select charges and penalties to apply..."
+              state="loan-product-charges"
+            />
+            <p class="text-xs text-neutral-400">
+              Choose one or more predefined charges. Each selected charge will be applied to every
+              loan created under this product. Ensure the corresponding GL accounts are mapped
+              below.
+            </p>
+            <p v-if="fieldError('charge_ids')" class="text-xs text-red-500">
+              {{ fieldError('charge_ids') }}
+            </p>
+          </div>
+
+          <!-- Selected Charges Preview -->
+          <div v-if="form.charge_ids?.length" class="mt-5">
+            <h3 class="mb-3 text-sm font-semibold text-neutral-900 dark:text-white">
+              Selected Charges ({{ form.charge_ids.length }})
+            </h3>
+            <div class="flex flex-col gap-2">
+              <div
+                v-for="chargeId in form.charge_ids"
+                :key="chargeId"
+                class="flex items-center justify-between rounded-xl border border-neutral-100 px-4 py-3 dark:border-neutral-800"
+              >
+                <div class="flex items-center gap-3">
+                  <span
+                    class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold"
+                    :class="
+                      categoryColor(charges.find((c) => c.id === chargeId)?.category ?? 'other')
+                    "
+                  >
+                    {{ categoryLabel(charges.find((c) => c.id === chargeId)?.category ?? 'other') }}
+                  </span>
+                  <div>
+                    <p class="text-sm font-medium text-neutral-900 dark:text-white">
+                      {{ charges.find((c) => c.id === chargeId)?.name ?? 'Unknown' }}
+                    </p>
+                    <p class="text-xs text-neutral-400">
+                      {{
+                        charges.find((c) => c.id === chargeId)?.charge_type === 'percentage'
+                          ? charges.find((c) => c.id === chargeId)?.value + '%'
+                          : formatMoneyValue(
+                              Number(charges.find((c) => c.id === chargeId)?.value ?? 0),
+                            )
+                      }}
+                      ·
+                      {{
+                        charges.find((c) => c.id === chargeId)?.frequency?.replace('_', ' ') ??
+                        'one-time'
+                      }}
+                      <span v-if="charges.find((c) => c.id === chargeId)?.grace_days">
+                        · {{ charges.find((c) => c.id === chargeId)?.grace_days }} day grace
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="rounded-lg p-1.5 text-neutral-400 hover:bg-red-50 hover:text-red-500 transition-colors dark:hover:bg-red-900/20"
+                  @click="form.charge_ids = form.charge_ids?.filter((id) => id !== chargeId)"
+                >
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty state when no charges available -->
+          <div
+            v-if="!charges.length"
+            class="mt-5 rounded-xl border border-dashed border-neutral-200 py-6 text-center dark:border-neutral-700"
+          >
+            <p class="text-sm text-neutral-400 dark:text-neutral-500">No charges configured yet.</p>
+            <router-link
+              :to="{ name: 'tenant-settings-loan-charges' }"
+              class="mt-1 inline-block text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline"
+            >
+              Create charges →
+            </router-link>
+          </div>
+
+          <!-- Product-Level Grace Period -->
+          <div
+            v-if="
+              form.charge_ids?.some(
+                (id) =>
+                  charges.find((c) => c.id === id)?.category === 'penalty' ||
+                  charges.find((c) => c.id === id)?.category === 'late_fee',
+              )
+            "
+            class="mt-5 rounded-xl border border-neutral-100 p-4 dark:border-neutral-800"
+          >
+            <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              Penalty Grace Period (days)
+            </label>
+            <input
+              v-model="form.penalty_grace_days"
+              type="number"
+              min="0"
+              placeholder="0"
+              class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+            />
+            <p class="mt-1 text-xs text-neutral-400">
+              Number of days after a repayment due date before penalties begin. Set to 0 for
+              immediate application. This applies to all penalty charges on this product.
+            </p>
+          </div>
+          </template>
         </div>
 
         <div
@@ -766,6 +918,12 @@ function previewMoney(
                   :error="fieldError('penalty_income_account_id') ?? undefined"
                   :disabled="loading"
                 />
+                <p
+                  v-if="glAccountWarnings.penalty_income_account_id"
+                  class="mt-1 text-xs text-amber-600 dark:text-amber-400"
+                >
+                  {{ glAccountWarnings.penalty_income_account_id }}
+                </p>
               </div>
               <div>
                 <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
@@ -778,6 +936,12 @@ function previewMoney(
                   :error="fieldError('penalty_receivable_account_id') ?? undefined"
                   :disabled="loading"
                 />
+                <p
+                  v-if="glAccountWarnings.penalty_receivable_account_id"
+                  class="mt-1 text-xs text-amber-600 dark:text-amber-400"
+                >
+                  {{ glAccountWarnings.penalty_receivable_account_id }}
+                </p>
               </div>
               <div>
                 <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
@@ -790,6 +954,12 @@ function previewMoney(
                   :error="fieldError('charges_income_account_id') ?? undefined"
                   :disabled="loading"
                 />
+                <p
+                  v-if="glAccountWarnings.charges_income_account_id"
+                  class="mt-1 text-xs text-amber-600 dark:text-amber-400"
+                >
+                  {{ glAccountWarnings.charges_income_account_id }}
+                </p>
               </div>
               <div>
                 <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
@@ -802,6 +972,12 @@ function previewMoney(
                   :error="fieldError('charges_receivable_account_id') ?? undefined"
                   :disabled="loading"
                 />
+                <p
+                  v-if="glAccountWarnings.charges_receivable_account_id"
+                  class="mt-1 text-xs text-amber-600 dark:text-amber-400"
+                >
+                  {{ glAccountWarnings.charges_receivable_account_id }}
+                </p>
               </div>
             </div>
           </template>
@@ -943,6 +1119,60 @@ function previewMoney(
                     </p>
                   </div>
                 </div>
+              </div>
+
+              <!-- Total Cost of Credit -->
+              <div
+                v-if="estimatedFees.breakdown.length"
+                class="rounded-2xl border border-amber-100 bg-amber-50/50 p-4 dark:border-amber-900/30 dark:bg-amber-950/20"
+              >
+                <p
+                  class="text-xs font-medium uppercase tracking-wide text-amber-700 dark:text-amber-400"
+                >
+                  Total Cost of Credit
+                </p>
+                <div class="mt-3 space-y-2">
+                  <div class="flex items-center justify-between text-sm">
+                    <span class="text-neutral-600 dark:text-neutral-400">Principal</span>
+                    <span class="font-medium text-neutral-900 dark:text-white">
+                      {{ formatMoneyValue(Number(previewAmount || form.min_amount || 0)) }}
+                    </span>
+                  </div>
+                  <div class="flex items-center justify-between text-sm">
+                    <span class="text-neutral-600 dark:text-neutral-400">Total Interest</span>
+                    <span class="font-medium text-neutral-900 dark:text-white">
+                      {{ previewMoney(preview?.total_interest_formatted, preview?.total_interest) }}
+                    </span>
+                  </div>
+                  <div
+                    v-for="fee in estimatedFees.breakdown"
+                    :key="fee.name"
+                    class="flex items-center justify-between text-sm"
+                  >
+                    <span class="text-neutral-600 dark:text-neutral-400">{{ fee.name }}</span>
+                    <span class="font-medium text-neutral-900 dark:text-white">
+                      {{ formatMoneyValue(fee.amount) }}
+                    </span>
+                  </div>
+                  <div class="border-t border-amber-200 pt-2 dark:border-amber-800">
+                    <div class="flex items-center justify-between text-sm font-semibold">
+                      <span class="text-amber-800 dark:text-amber-300">Estimated Total Cost</span>
+                      <span class="text-amber-900 dark:text-amber-200">
+                        {{
+                          formatMoneyValue(
+                            Number(previewAmount || form.min_amount || 0) +
+                              Number(preview?.total_interest || 0) +
+                              estimatedFees.totalFees,
+                          )
+                        }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <p class="mt-2 text-xs text-neutral-400 dark:text-neutral-500">
+                  Penalties shown are one-time estimates. Actual penalties depend on repayment
+                  behavior and grace period settings.
+                </p>
               </div>
 
               <div>

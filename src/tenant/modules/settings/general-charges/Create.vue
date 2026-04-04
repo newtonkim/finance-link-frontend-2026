@@ -134,10 +134,9 @@ const fields = ref([
         data: { account_type: 'INCOME' },
         dataOnMount: true,
         options: [],
-        placeholder: 'Select account',
+        placeholder: 'Select income account',
         
-        condition: (val: string) => ['on_registration', 'on_loan_application'].includes(val)// dispaly if application is on_registration or on_loan_application
-        // condition: (val: string) => ['on_registration', 'on_loan_application'].includes(val)// dispaly if application is on_registration or on_loan_application
+        condition: (val: string) => ['on_registration', 'on_loan_application'].includes(val)
     },
 ])
 // Prefill (edit mode)

@@ -11,6 +11,7 @@
 
 1. [Executive Summary](#1-executive-summary)
 2. [Current State — What Exists Today](#2-current-state--what-exists-today)
+   - [2.5 Accounting Treatment — Detailed Breakdown](#25-accounting-treatment--detailed-breakdown)
 3. [Problems with the Current System](#3-problems-with-the-current-system)
 4. [Proposed Changes](#4-proposed-changes)
 5. [Implementation Phases](#5-implementation-phases)
@@ -80,6 +81,126 @@ A dynamic list where each row has:
 | -------------------------- | --------------------------------------------------- |
 | Penalty Income Account     | GL account for penalty revenue                      |
 | Penalty Receivable Account | GL account for penalties owed but not yet collected |
+
+### 2.5 Accounting Treatment — Detailed Breakdown
+
+This section documents the **full double-entry accounting** for every fee and penalty transaction. Each loan charge defines its own `income_account_id` and `receivable_account_id` (GL accounts from the Chart of Accounts). The backend automatically creates journal entries when transactions occur — the frontend only defines the mappings.
+
+#### 2.5.1 Chart of Accounts Affected
+
+| GL Account                           | Type      | Normal Balance | Used For                                                                      |
+| ------------------------------------ | --------- | -------------- | ----------------------------------------------------------------------------- |
+| **Loan Portfolio**                   | ASSET     | DR             | Tracking the principal owed by the member                                     |
+| **Disbursement Account** (Bank/Cash) | ASSET     | DR             | The SACCO's bank or cash account from which loans are disbursed               |
+| **Processing Fee Income**            | INCOME    | CR             | Revenue earned from processing fees                                           |
+| **Charges Receivable**               | ASSET     | DR             | Processing fees owed but not yet collected (when fee is not deducted upfront) |
+| **Penalty Income**                   | INCOME    | CR             | Revenue earned from late payment penalties                                    |
+| **Penalty Receivable**               | ASSET     | DR             | Penalties assessed but not yet collected                                      |
+| **Interest Receivable**              | ASSET     | DR             | Accrued interest not yet received                                             |
+| **Interest Income**                  | INCOME    | CR             | Revenue earned from loan interest                                             |
+| **Excise Duty Payable** _(Phase 3)_  | LIABILITY | CR             | Government excise duty collected on fees (e.g., 20% in Kenya)                 |
+
+#### 2.5.2 Journal Entries by Transaction Type
+
+**A. Loan Disbursement with Processing Fee (Flat Amount, Deducted Upfront)**
+
+Scenario: Member approved for KES 100,000 loan. Processing fee is KES 2,000 (flat). Member receives KES 98,000.
+
+| Line | Account                             | Debit (DR) | Credit (CR) | Description                           |
+| ---- | ----------------------------------- | ---------- | ----------- | ------------------------------------- |
+| 1    | Loan Portfolio (ASSET)              | 100,000    |             | Full loan amount booked as receivable |
+| 2    | Disbursement Account - Bank (ASSET) |            | 98,000      | Net amount disbursed to member        |
+| 3    | Processing Fee Income (INCOME)      |            | 2,000       | Processing fee earned at disbursement |
+
+_Net effect: SACCO's loan book increases by 100,000, bank decreases by 98,000, income increases by 2,000._
+
+**B. Loan Disbursement with Processing Fee (Percentage, Not Deducted Upfront)**
+
+Scenario: KES 100,000 loan. Processing fee is 2% = KES 2,000, payable separately by member.
+
+| Line | Account                             | Debit (DR) | Credit (CR) | Description           |
+| ---- | ----------------------------------- | ---------- | ----------- | --------------------- |
+| 1    | Loan Portfolio (ASSET)              | 100,000    |             | Full loan amount      |
+| 2    | Disbursement Account - Bank (ASSET) |            | 100,000     | Full amount disbursed |
+| 3    | Charges Receivable (ASSET)          | 2,000      |             | Fee owed by member    |
+| 4    | Processing Fee Income (INCOME)      |            | 2,000       | Fee income recognized |
+
+_When member pays the fee later:_
+
+| Line | Account                             | Debit (DR) | Credit (CR) | Description        |
+| ---- | ----------------------------------- | ---------- | ----------- | ------------------ |
+| 1    | Disbursement Account - Bank (ASSET) | 2,000      |             | Fee collected      |
+| 2    | Charges Receivable (ASSET)          |            | 2,000       | Receivable cleared |
+
+**C. Penalty Accrual (When Payment Becomes Overdue)**
+
+Scenario: Member misses a KES 5,000 installment. Penalty is 5% of overdue = KES 250.
+
+| Line | Account                    | Debit (DR) | Credit (CR) | Description                     |
+| ---- | -------------------------- | ---------- | ----------- | ------------------------------- |
+| 1    | Penalty Receivable (ASSET) | 250        |             | Penalty assessed against member |
+| 2    | Penalty Income (INCOME)    |            | 250         | Penalty income recognized       |
+
+_This entry is created each time the penalty accrues (daily/weekly/monthly depending on frequency setting)._
+
+**D. Penalty Collection (When Member Pays the Penalty)**
+
+| Line | Account                             | Debit (DR) | Credit (CR) | Description              |
+| ---- | ----------------------------------- | ---------- | ----------- | ------------------------ |
+| 1    | Disbursement Account - Bank (ASSET) | 250        |             | Penalty amount collected |
+| 2    | Penalty Receivable (ASSET)          |            | 250         | Receivable cleared       |
+
+**E. Loan Repayment Allocation**
+
+When a member makes a KES 10,000 payment on a loan with outstanding penalties, charges, and interest, the system allocates in this priority order:
+
+| Priority | Component | Amount     | Journal Entry                                        |
+| -------- | --------- | ---------- | ---------------------------------------------------- |
+| 1        | Penalties | 250        | DR Bank, CR Penalty Receivable                       |
+| 2        | Charges   | 0          | DR Bank, CR Charges Receivable                       |
+| 3        | Interest  | 2,750      | DR Bank, CR Interest Receivable → CR Interest Income |
+| 4        | Principal | 7,000      | DR Bank, CR Loan Portfolio                           |
+|          | **Total** | **10,000** |                                                      |
+
+**F. Penalty Waiver (Manager Forgive a Penalty)**
+
+| Line | Account                                                 | Debit (DR) | Credit (CR) | Description             |
+| ---- | ------------------------------------------------------- | ---------- | ----------- | ----------------------- |
+| 1    | Penalty Income (INCOME) — or Bad Debt Expense (EXPENSE) | 250        |             | Penalty income reversed |
+| 2    | Penalty Receivable (ASSET)                              |            | 250         | Receivable written off  |
+
+#### 2.5.3 Subledger Mapping
+
+Each charge type maps to a **subledger** within the General Ledger:
+
+| Charge Category | Subledger                                 | GL Control Account                    |
+| --------------- | ----------------------------------------- | ------------------------------------- |
+| Processing Fee  | Member Loan Account → Charges Subledger   | Charges Income Account                |
+| Penalty         | Member Loan Account → Penalty Subledger   | Penalty Income Account                |
+| Late Fee        | Member Loan Account → Penalty Subledger   | Penalty Income Account                |
+| Appraisal Fee   | Member Loan Account → Charges Subledger   | Charges Income Account                |
+| Insurance       | Member Loan Account → Insurance Subledger | Insurance Payable Account (LIABILITY) |
+
+The subledger tracks individual member-level balances. The GL control account tracks the aggregate balance. At month-end, the subledger total should reconcile to the GL control account balance.
+
+#### 2.5.4 Required GL Account Validation Rules
+
+Based on the accounting treatment above, the following validation rules must be enforced when saving a loan product or charge:
+
+| Condition                                                    | Required GL Accounts                                      | Reason                                                      |
+| ------------------------------------------------------------ | --------------------------------------------------------- | ----------------------------------------------------------- |
+| Any charge with category `processing_fee` is assigned        | Charges Income Account, Charges Receivable Account        | Processing fee creates income and may create receivable     |
+| Any charge with category `penalty` or `late_fee` is assigned | Penalty Income Account, Penalty Receivable Account        | Penalty creates income and receivable on accrual            |
+| Any charge with category `insurance` is assigned             | Insurance Payable Account                                 | Insurance is a liability (held for member, paid to insurer) |
+| Processing fee type is "percentage" and not deducted upfront | Charges Receivable Account                                | Fee creates a receivable until collected                    |
+| Penalty frequency is "daily", "weekly", or "monthly"         | Penalty Receivable Account                                | Recurring penalties accrue as receivable before collection  |
+| Charge has `income_account_id` mapped                        | Corresponding `receivable_account_id` must also be mapped | Double-entry requires both sides                            |
+
+**Frontend validation behavior:**
+
+- If a charge is selected in the loan product form but its required GL accounts are not mapped, show a warning: _"This charge requires [Account Name] to be mapped in Accounting Mapping."_
+- The "Save" button should be **disabled** until all required accounts are mapped.
+- In the charge creation drawer, if a charge category is selected, the income and receivable account fields become **required** (marked with red asterisk).
 
 ---
 

@@ -8,6 +8,7 @@ import {
   type LoanProductPreview,
 } from '../../../apis/loanProducts/loanProductsApi'
 import { chartOfAccountsApi } from '../../../apis/chartOfAccounts/chartOfAccountsApi'
+import { loanChargesApi, type LoanCharge } from '../../../apis/loanCharges/api'
 
 function createDefaultForm(): LoanProduct {
   return {
@@ -29,10 +30,13 @@ function createDefaultForm(): LoanProduct {
     warning_days: null,
     max_securities: 3,
     security_value_percentage: 150,
-
+    allow_sub_schedule: false,
     penalty_rate: 0,
     penalty_type: 'none',
-
+    penalty_grace_days: 0,
+    requires_approval: false,
+    allow_top_up: true,
+    allow_reschedule: true,
     processing_fee_type: 'none',
     processing_fee_value: 0,
     loan_portfolio_account_id: null,
@@ -45,6 +49,7 @@ function createDefaultForm(): LoanProduct {
     charges_receivable_account_id: null,
     is_active: false,
     penalty_rules: [],
+    charge_ids: [],
   }
 }
 
@@ -65,6 +70,15 @@ export function useLoanProductForm() {
   const form = ref<LoanProduct>(createDefaultForm())
   const documentTypes = ref<DocumentTypeOption[]>([])
   let previewTimer: ReturnType<typeof setTimeout> | null = null
+
+  function normalizePenaltyRules(rules: any[] | null | undefined) {
+    if (!Array.isArray(rules)) return []
+
+    return rules.map((rule) => ({
+      ...rule,
+      grace_days: Math.max(0, Number(rule?.grace_days ?? 0)),
+    }))
+  }
 
   // ─── Accounts (for accounting mapping selectors) ───────────────────────────
   const accounts = ref<{ id: number; name: string }[]>([])
@@ -94,6 +108,130 @@ export function useLoanProductForm() {
       documentTypes.value = res.data?.data ?? []
     } catch {
       toast.error('Failed to load document types.')
+    }
+  }
+
+  // ─── Charges (for fee/penalty selector) ─────────────────────────────────────
+  const charges = ref<LoanCharge[]>([])
+  const normalizedCharges = computed<LoanCharge[]>(() => {
+    if (Array.isArray(charges.value)) return charges.value
+
+    const fallback = charges.value as any
+    if (Array.isArray(fallback?.data)) return fallback.data
+    if (Array.isArray(fallback?.items)) return fallback.items
+    if (Array.isArray(fallback?.results)) return fallback.results
+
+    return []
+  })
+
+  const chargeOptions = computed(() =>
+    normalizedCharges.value
+      .filter((c) => c.is_active)
+      .map((c) => ({
+        id: c.id,
+        name: `${c.name} (${c.charge_type === 'percentage' ? c.value + '%' : c.value})`,
+      })),
+  )
+
+  const glAccountWarnings = computed(() => {
+    const selectedCharges = normalizedCharges.value.filter((c) =>
+      form.value.charge_ids?.includes(c.id),
+    )
+    const warnings: Record<string, string> = {}
+
+    const hasPenalty = selectedCharges.some(
+      (c) => c.category === 'penalty' || c.category === 'late_fee',
+    )
+    const hasProcessingFee = selectedCharges.some((c) => c.category === 'processing_fee')
+
+    if (hasPenalty) {
+      if (!form.value.penalty_income_account_id) {
+        warnings.penalty_income_account_id =
+          'Required — penalty charges are assigned. Select a Penalty Income Account below.'
+      }
+      if (!form.value.penalty_receivable_account_id) {
+        warnings.penalty_receivable_account_id =
+          'Required — penalty charges are assigned. Select a Penalty Receivable Account below.'
+      }
+    }
+
+    if (hasProcessingFee) {
+      if (!form.value.charges_income_account_id) {
+        warnings.charges_income_account_id =
+          'Required — processing fee is assigned. Select a Charges Income Account below.'
+      }
+      if (!form.value.charges_receivable_account_id) {
+        warnings.charges_receivable_account_id =
+          'Required — processing fee is assigned. Select a Charges Receivable Account below.'
+      }
+    }
+
+    return warnings
+  })
+
+  const estimatedFees = computed(() => {
+    const selectedCharges = normalizedCharges.value.filter((c) =>
+      form.value.charge_ids?.includes(c.id),
+    )
+    const loanAmount = Number(previewAmount.value || form.value.min_amount || 0)
+
+    let processingFees = 0
+    let estimatedPenalties = 0
+    const breakdown: { name: string; category: string; amount: number; type: string }[] = []
+
+    for (const charge of selectedCharges) {
+      const val = Number(charge.value)
+      let amount = 0
+      if (charge.charge_type === 'percentage') {
+        amount = (val / 100) * loanAmount
+      } else {
+        amount = val
+      }
+
+      if (
+        charge.category === 'processing_fee' ||
+        charge.category === 'appraisal_fee' ||
+        charge.category === 'disbursement_fee'
+      ) {
+        processingFees += amount
+      } else if (charge.category === 'penalty' || charge.category === 'late_fee') {
+        estimatedPenalties += amount
+      } else {
+        processingFees += amount
+      }
+
+      breakdown.push({
+        name: charge.name,
+        category: charge.category,
+        amount,
+        type: charge.charge_type,
+      })
+    }
+
+    return {
+      processingFees,
+      estimatedPenalties,
+      totalFees: processingFees,
+      breakdown,
+    }
+  })
+
+  async function fetchCharges() {
+    try {
+      const res = await loanChargesApi.list({ is_active: '1' })
+      const payload = res.data?.data ?? res.data ?? []
+      charges.value = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload?.data)
+          ? payload.data
+          : Array.isArray(payload?.items)
+            ? payload.items
+            : Array.isArray(payload?.results)
+              ? payload.results
+              : []
+    } catch {
+      // Silently fail — charges module may not be deployed yet
+      charges.value = []
     }
   }
 
@@ -146,11 +284,33 @@ export function useLoanProductForm() {
     try {
       const res = await loanProductsApi.get(Number(route.params.id))
       const p = res.data?.data ?? res.data
+      const existingRules = normalizePenaltyRules(p.penalty_rules ?? [])
+
+      // Migrate global penalty to a penalty rule if the product had one
+      // but no rules exist yet (backward compatibility with old system)
+      if (
+        existingRules.length === 0 &&
+        p.penalty_type &&
+        p.penalty_type !== 'none' &&
+        Number(p.penalty_rate) > 0
+      ) {
+        existingRules.push({
+          penalty_type: p.penalty_type,
+          penalty_rate: p.penalty_rate,
+          grace_days: 0,
+          amount: null,
+        })
+      }
+
       form.value = {
         ...createDefaultForm(),
         ...p,
-        penalty_rules: p.penalty_rules ?? [],
+        penalty_rules: normalizePenaltyRules(existingRules),
         required_documents: p.required_documents ?? [],
+        charge_ids: p.charge_ids ?? p.charges?.map((c: any) => c.id) ?? [],
+        // Always reset legacy global penalty fields to safe defaults
+        penalty_type: 'none',
+        penalty_rate: 0,
       }
       previewAmount.value = Number(p.min_amount ?? 0) || null
       previewTerm.value = p.loan_duration ?? null
@@ -163,7 +323,7 @@ export function useLoanProductForm() {
   }
 
   onMounted(async () => {
-    await Promise.all([loadProduct(), fetchAccounts(), fetchDocumentTypes()])
+    await Promise.all([loadProduct(), fetchAccounts(), fetchDocumentTypes(), fetchCharges()])
     autoFillAccounts()
   })
 
@@ -172,7 +332,7 @@ export function useLoanProductForm() {
     form.value.penalty_rules!.push({
       penalty_type: '',
       penalty_rate: null,
-      grace_days: null,
+      grace_days: 0,
       amount: null,
     })
   }
@@ -279,16 +439,83 @@ export function useLoanProductForm() {
     },
   )
 
+  // ─── GL Account Validation ───────────────────────────────────────────────
+  function validateGlAccounts(): boolean {
+    const selectedCharges = normalizedCharges.value.filter((c) =>
+      form.value.charge_ids?.includes(c.id),
+    )
+    const validationErrors: Record<string, string> = {}
+
+    const hasPenalty = selectedCharges.some(
+      (c) => c.category === 'penalty' || c.category === 'late_fee',
+    )
+    const hasProcessingFee = selectedCharges.some((c) => c.category === 'processing_fee')
+    const hasDisbursementFee = selectedCharges.some((c) => c.category === 'disbursement_fee')
+
+    if (hasPenalty) {
+      if (!form.value.penalty_income_account_id) {
+        validationErrors.penalty_income_account_id =
+          'Required: A penalty charge is assigned. Map the Penalty Income Account in Accounting Mapping.'
+      }
+      if (!form.value.penalty_receivable_account_id) {
+        validationErrors.penalty_receivable_account_id =
+          'Required: A penalty charge is assigned. Map the Penalty Receivable Account in Accounting Mapping.'
+      }
+    }
+
+    if (hasProcessingFee) {
+      if (!form.value.charges_income_account_id) {
+        validationErrors.charges_income_account_id =
+          'Required: A processing fee is assigned. Map the Charges Income Account in Accounting Mapping.'
+      }
+      if (!form.value.charges_receivable_account_id) {
+        validationErrors.charges_receivable_account_id =
+          'Required: A processing fee is assigned. Map the Charges Receivable Account in Accounting Mapping.'
+      }
+    }
+
+    if (hasDisbursementFee) {
+      if (!form.value.charges_income_account_id) {
+        validationErrors.charges_income_account_id =
+          'Required: A disbursement fee charge is assigned. Map the Charges Income Account in Accounting Mapping.'
+      }
+    }
+
+    if (Object.keys(validationErrors).length > 0) {
+      errors.value = { ...errors.value, ...validationErrors }
+      toast.error('Please map the required GL accounts in Accounting Mapping.')
+      return false
+    }
+
+    return true
+  }
+
   // ─── Save ─────────────────────────────────────────────────────────────────
   async function save() {
     saving.value = true
     errors.value = {}
+
+    // Validate GL accounts before saving
+    if (!validateGlAccounts()) {
+      saving.value = false
+      return
+    }
+
     try {
+      // Ensure legacy global penalty fields are always reset.
+      // Penalty configuration is now managed entirely through penalty_rules.
+      const payload = {
+        ...form.value,
+        penalty_type: 'none',
+        penalty_rate: 0,
+        penalty_rules: normalizePenaltyRules(form.value.penalty_rules),
+      }
+
       if (isEditing.value) {
-        await loanProductsApi.update(Number(route.params.id), form.value)
+        await loanProductsApi.update(Number(route.params.id), payload)
         toast.success('Loan product updated successfully.')
       } else {
-        await loanProductsApi.create(form.value)
+        await loanProductsApi.create(payload)
         toast.success('Loan product created successfully.')
       }
       router.push({ name: 'tenant-settings-loan-products' })
@@ -311,6 +538,10 @@ export function useLoanProductForm() {
     form,
     accounts,
     documentTypes,
+    charges,
+    chargeOptions,
+    glAccountWarnings,
+    estimatedFees,
     preview,
     previewLoading,
     previewAmount,

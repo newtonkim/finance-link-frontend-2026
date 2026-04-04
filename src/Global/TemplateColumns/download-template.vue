@@ -24,7 +24,10 @@
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-4 py-3 max-h-[58vh] overflow-y-auto custom-scrollbar">
                 <label v-for="(label, key) in filteredData" :key="key"
                     class="flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer border border-transparent hover:border-nfuko-primary-300 hover:bg-nfuko-primary-50 dark:hover:bg-neutral-800 transition group">
-                    <input type="checkbox" :value="key" v-model="selected"
+                    <input 
+                    :checked="defaults.includes(label)"
+                    
+                    type="checkbox" :value="key" v-model="selected"
                         class="w-4 h-4 accent-nfuko-primary-600 cursor-pointer" />
                     <span
                         class="text-sm capitalize text-neutral-700 dark:text-neutral-200 group-hover:text-nfuko-primary-600 transition">
@@ -50,13 +53,18 @@
 
 <script setup lang="ts">
 import { SearchCheck } from 'lucide-vue-next'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import * as XLSX from 'xlsx'
 
 const props = defineProps({
     data: {
         type: Object,
         required: true, // { key: "Label" }
+    },
+    defaults: {
+        type: Object,
+        default:[],
+        required: false, // { key: "Label" }
     },
     rows: {
         type: Array,
@@ -68,8 +76,12 @@ const selected = ref<string[]>([])
 const search = ref('')
 
 const filteredData = computed(() => {
+ 
+  
     if (!search.value) return props.data
 
+    
+   
     return Object.fromEntries(
         Object.entries(props.data).filter(([_, value]) => {
             return String(value).toLowerCase().includes(search.value.toLowerCase())
@@ -89,6 +101,9 @@ const toggleAll = () => {
         selected.value = Object.keys(props.data)
     }
 }
+onMounted(()=>{
+       selected.value=[...(selected.value??[]),...(props.defaults??[])];
+})
 
 const exportColumns = () => {
     const date = new Date().toISOString().slice(0, 10)
@@ -96,17 +111,15 @@ const exportColumns = () => {
         .toLowerCase()
         .replace(/\//g, '_')
         .replace(/\s+/g, '_')
-        .replace(/[^\w\-]/g, '')
+        .replace(/[^\w-]/g, '')
 
     const fullFileName = `${filename}_template_${date}.xlsx`
     if (!selected.value.length) return
-
     if (!props.rows.length) {
-
         const headers = selected.value.map(key => key.toLocaleUpperCase()
             .replace(/\//g, '_')
             .replace(/\s+/g, '_')
-            .replace(/[^\w\-]/g, ''))
+            .replace(/[^\w-]/g, ''))
 
         const worksheet = XLSX.utils.aoa_to_sheet([headers])
         const workbook = XLSX.utils.book_new()

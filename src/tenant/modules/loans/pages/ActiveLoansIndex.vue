@@ -32,11 +32,12 @@ function fmtDate(d: string | null | undefined) {
 function statusBadge(status: string) {
   switch (status) {
     case 'active':
+    case 'disbursed':
       return 'bg-emerald-100 text-emerald-700'
+    case 'closed':
+      return 'bg-nfuko-primary text-white'
     case 'arrears':
       return 'bg-red-100 text-red-700'
-    case 'closed':
-      return 'bg-neutral-100 text-neutral-500'
     case 'approved':
       return 'bg-blue-100 text-blue-700'
     case 'submitted':
@@ -54,11 +55,11 @@ function statusLabel(status: string) {
 }
 
 const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value; color: string }[] = [
-  { key: 'disbursed', label: 'Disbursed Loans', countKey: 'disbursed', color: 'nfuko-action' },
-  { key: 'approved', label: 'Approved Loans', countKey: 'approved', color: 'nfuko-blue' },
-  { key: 'pending', label: 'Pending Loans', countKey: 'pending', color: 'nfuko-accent' },
-  { key: 'arrears', label: 'In Arrears', countKey: 'arrears', color: 'nfuko-danger' },
   { key: 'all', label: 'All Loans', countKey: 'all', color: 'nfuko-primary' },
+  { key: 'disbursed', label: 'Disbursed Loans', countKey: 'disbursed', color: 'nfuko-action' },
+  { key: 'arrears', label: 'In Arrears', countKey: 'arrears', color: 'nfuko-danger' },
+  { key: 'closed', label: 'Closed Loans', countKey: 'closed', color: 'nfuko-primary' },
+  { key: 'approved', label: 'Approved Loans', countKey: 'approved', color: 'nfuko-blue' },
 ]
 </script>
 

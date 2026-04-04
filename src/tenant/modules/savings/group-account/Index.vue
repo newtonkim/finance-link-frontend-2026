@@ -121,12 +121,16 @@ async function saveUser(type: string, data: any, sumited: any) {
 
 
   if (automaticCreate.value.actionSlot == 'create-none-member') {
-    const checker = addNoneExistingMember(formData.value, automaticCreate.value.item)
+    const checker = await addNoneExistingMember(formData.value, automaticCreate.value.item)
+    console.log(checker);
+    
     if (checker == false) {
       formData.value = formData.value
     }
+    drawer.value.toggleDrawer()
     formData.value = {}
     automaticCreate.value = { actionSlot: 'create-none-member', item: automaticCreate.value.item }
+      drawer.value.toggleDrawer()
     return
   } else if (titleMap[type]) {
     automaticCreate.value = { actionSlot: null, item: "" }
