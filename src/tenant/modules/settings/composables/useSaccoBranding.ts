@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
-import { saccoBrandingApi } from '@/tenant/apis/saccobranding/saccoBrandingApi'
+import { saccoBrandingApi, saccoBrandingState } from '@/tenant/apis/saccobranding/saccoBrandingApi'
 
 export function useSaccoBranding() {
   const showDrawer = ref(false)
@@ -46,13 +46,10 @@ export function useSaccoBranding() {
     showDrawer.value = true
     loading.value = true
     try {
-      const res = await saccoBrandingApi.get()
-      const data = res.data?.data ?? res.data ?? null
-      if (data) {
-        name.value = data.sacco_name ?? ''
-        tagline.value = data.tagline ?? ''
-        existingLogoUrl.value = data.logo_url ?? null
-      }
+      await saccoBrandingApi.get()
+      name.value = saccoBrandingState.sacco_name ?? ''
+      tagline.value = saccoBrandingState.tagline ?? ''
+      existingLogoUrl.value = saccoBrandingState.logo_url ?? null
     } catch (err: any) {
       toast.error(err?.response?.data?.message ?? 'Failed to load branding.')
     } finally {
@@ -69,17 +66,14 @@ export function useSaccoBranding() {
   async function save() {
     saving.value = true
     try {
-      const res = await saccoBrandingApi.update({
+      await saccoBrandingApi.update({
         sacco_name: name.value,
         tagline: tagline.value,
         logo: logoFile.value,
       })
-      const data = res.data?.data ?? res.data ?? null
-      if (data) {
-        existingLogoUrl.value = data.logo_url ?? null
-        logoFile.value = null
-        logoPreview.value = null
-      }
+      existingLogoUrl.value = saccoBrandingState.logo_url ?? null
+      logoFile.value = null
+      logoPreview.value = null
       toast.success('Branding saved successfully.')
       closeDrawer()
     } catch (err: any) {

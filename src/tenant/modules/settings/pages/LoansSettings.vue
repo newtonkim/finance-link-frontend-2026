@@ -50,7 +50,7 @@ function openDisbursementSettings() {
             Define different categories of loan products.
           </p>
           <button
-            class="inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-semibold text-nfuko-primary transition-colors hover:border-nfuko-primary/50 hover:bg-[#e8f3f3] dark:border-neutral-700 dark:bg-neutral-800 dark:text-bg-nfuko-yellow dark:hover:border-bg-nfuko-yellow/50 dark:hover:bg-[#3a3212]"
+            class="inline-flex w-fit items-center justify-center gap-1.5 rounded-xl bg-nfuko-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
             @click="router.push({ name: 'tenant-settings-loan-products' })"
           >
             <span>Manage Types</span>
@@ -67,7 +67,7 @@ function openDisbursementSettings() {
             Setup interest rates and calculation methods.
           </p>
           <button
-            class="inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-semibold text-nfuko-primary transition-colors hover:border-nfuko-primary/50 hover:bg-[#e8f3f3] dark:border-neutral-700 dark:bg-neutral-800 dark:text-bg-nfuko-yellow dark:hover:border-bg-nfuko-yellow/50 dark:hover:bg-[#3a3212]"
+            class="inline-flex w-fit items-center justify-center gap-1.5 rounded-xl bg-nfuko-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
           >
             <span>Configure Interest</span>
             <span aria-hidden="true">→</span>
@@ -83,9 +83,10 @@ function openDisbursementSettings() {
             Define schedules and rules for loan repayments.
           </p>
           <button
-            class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline"
+            class="inline-flex w-fit items-center justify-center gap-1.5 rounded-xl bg-nfuko-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
           >
-            Setup Rules →
+            <span>Setup Rules</span>
+            <span aria-hidden="true">→</span>
           </button>
         </div>
         <div
@@ -98,7 +99,7 @@ function openDisbursementSettings() {
             Create and manage fees and penalties that can be assigned to loan products.
           </p>
           <button
-            class="inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-semibold text-nfuko-primary transition-colors hover:border-nfuko-primary/50 hover:bg-[#e8f3f3] dark:border-neutral-700 dark:bg-neutral-800 dark:text-bg-nfuko-yellow dark:hover:border-bg-nfuko-yellow/50 dark:hover:bg-[#3a3212]"
+            class="inline-flex w-fit items-center justify-center gap-1.5 rounded-xl bg-nfuko-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
             @click="router.push({ name: 'tenant-settings-loan-charges' })"
           >
             <span>Manage Charges</span>
@@ -146,7 +147,7 @@ function openDisbursementSettings() {
           </p>
           <button
             @click="openApprovalSettings"
-            class="inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-semibold text-nfuko-primary transition-colors hover:border-nfuko-primary/50 hover:bg-[#e8f3f3] dark:border-neutral-700 dark:bg-neutral-800 dark:text-bg-nfuko-yellow dark:hover:border-bg-nfuko-yellow/50 dark:hover:bg-[#3a3212]"
+            class="inline-flex w-fit items-center justify-center gap-1.5 rounded-xl bg-nfuko-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
           >
             <span>Setup Settings</span>
             <span aria-hidden="true">→</span>
@@ -169,7 +170,7 @@ function openDisbursementSettings() {
           </p>
           <button
             @click="openDisbursementSettings"
-            class="inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-semibold text-nfuko-primary transition-colors hover:border-nfuko-primary/50 hover:bg-[#e8f3f3] dark:border-neutral-700 dark:bg-neutral-800 dark:text-bg-nfuko-yellow dark:hover:border-bg-nfuko-yellow/50 dark:hover:bg-[#3a3212]"
+            class="inline-flex w-fit items-center justify-center gap-1.5 rounded-xl bg-nfuko-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
           >
             <span>Manage Disbursement</span>
             <span aria-hidden="true">→</span>

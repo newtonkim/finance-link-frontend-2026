@@ -24,14 +24,16 @@ onMounted(() => {
   <div class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
     <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Fiscal Year</h3>
     <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Define and manage your organisation's financial periods.</p>
-    <button
-      @click="openListDrawer"
-      :disabled="loading"
-      class="inline-flex items-center gap-1.5 text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline disabled:opacity-60"
-    >
-      <Spinner v-if="loading" class="h-3.5 w-3.5" />
-      {{ loading ? 'Loading…' : 'Set Fiscal Year →' }}
-    </button>
+    <div class="mt-4 flex flex-wrap gap-3">
+      <button
+        @click="openListDrawer"
+        :disabled="loading"
+        class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-nfuko-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-nfuko-action disabled:opacity-60 dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
+      >
+        <Spinner v-if="loading" class="h-3.5 w-3.5" />
+        {{ loading ? 'Loading…' : 'Set Fiscal Year →' }}
+      </button>
+    </div>
   </div>
 
   <!-- ═══ Fiscal Year List Drawer ═══════════════════════════════════════════ -->

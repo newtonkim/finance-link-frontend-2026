@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   LayoutGrid,
@@ -30,10 +30,9 @@ import {
 } from '@/Global'
 import TenantNavUser from './TenantNavUser.vue'
 import { useTenantContextStore } from '@/stores/tenantContext'
-import { membersApi } from '@/tenant/apis/members/membersApi'
 import { tenantRoutes } from "@/tenant/layouts/routes.ts";
 import { OutClickNav } from '@/Global/OutClicknavigation';
-import { saccoBrandingApi, saccoBrandingState } from '@/tenant/apis/saccobranding/saccoBrandingApi'
+import { saccoBrandingState } from '@/tenant/apis/saccobranding/saccoBrandingApi'
 
 const route = useRoute()
 const router = useRouter()
@@ -46,7 +45,6 @@ function toggleDarkMode() {
   document.documentElement.classList.toggle('dark', isDark.value)
 }
 
-const isActive = (path: string) => route.path === path
 const isSettingsActive = computed(() => route.path.startsWith('/tenant/settings'))
 
  
@@ -63,18 +61,18 @@ const tenant = tenantStore.currentTenant as any
         <div class="flex items-center gap-3">
         <!-- Logo: show uploaded logo or fallback icon -->
         <div
-          class="flex shrink-0 items-center justify-center rounded-2xl bg-nfuko-yellow text-[#0A2318] shadow-xl transition-all duration-500"
-          :class="state === 'expanded' ? 'h-14 w-14' : 'h-8 w-8'">
+          class="flex shrink-0 items-center justify-center rounded-2xl transition-all duration-500 overflow-hidden"
+          :class="[
+            state === 'expanded' ? 'h-14 w-14' : 'h-8 w-8',
+            saccoBrandingState.logo_url ? '' : 'bg-nfuko-yellow text-[#0A2318] shadow-xl'
+          ]">
           <img
             v-if="saccoBrandingState.logo_url"
             :src="saccoBrandingState.logo_url"
             alt="Sacco logo"
             class="h-full w-full object-contain"
           />
-          <div v-else
-            class="flex h-full w-full items-center justify-center rounded-2xl bg-bg-nfuko-yellow text-[#0A2318] shadow-xl">
-            <LayoutGrid :class="state === 'expanded' ? 'h-7 w-7' : 'h-5 w-5'" />
-          </div>
+          <LayoutGrid v-else :class="state === 'expanded' ? 'h-7 w-7' : 'h-5 w-5'" />
         </div>
 
         <div v-if="state === 'expanded'" class="flex flex-col min-w-0">
