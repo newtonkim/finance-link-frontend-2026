@@ -98,13 +98,14 @@ export interface LoanProduct {
   warning_days?: number | null
   max_securities?: number | null
   security_value_percentage?: number | string | null
-  allow_sub_schedule?: boolean | null
+
   penalty_rate?: number | string | null
   penalty_type?: 'none' | 'flat' | 'percentage' | string | null
   penalty_grace_days?: number | null
   requires_approval?: boolean
   allow_top_up?: boolean
   allow_reschedule?: boolean
+
   processing_fee_type?: 'none' | 'flat' | 'percentage' | null
   processing_fee_value?: number | string | null
   processing_fee_value_formatted?: string | null
