@@ -19,8 +19,8 @@
 import { copyToClipboard } from '@/Global'
 import { Copy } from 'lucide-vue-next'
 const props = defineProps({
-  show: { type: String, required: true },
-  copy: { type: [String, Number, Object], required: true },
+  show: { type: String, required: false },
+  copy: { type: [String, Number, Object], required: false },
 })
 const handleCopy = () => {
   copyToClipboard(props.copy ?? props?.show)

@@ -14,6 +14,12 @@ export default function useTableHelpers(props: any, emit: any) {
   const DrawerMounted = ref<boolean>(true)
   const submitChanges = ref<any>(null)
   const provideDataTotheParent = ref<any>([])
+
+  const finalSubmitAction = ref<string>('')
+  const drawerTitle = ref(props.drawerTitle)
+  const drawerShooter2 = ref(props.drawerShowFooter)
+  const drawerWidth = ref(props.drawerWidth)
+  const currentPage = ref(1)
   const dropdownDownload = [
     { label: 'PDF', value: 'PDF', route: 'export-pdf' },
     { label: 'Excel', value: 'Excel', route: 'export-excel' },
@@ -44,7 +50,6 @@ export default function useTableHelpers(props: any, emit: any) {
         Store,
       })
       const response = feedback(res)
-      console.log(response)
 
       if (response.success) {
         printElement(response.res.payload, { size: values.value, orientation: 'landscape' })
@@ -61,6 +66,7 @@ export default function useTableHelpers(props: any, emit: any) {
     } else handleTableAction(null, item.route)
   }
   function handleImport(item: any) {
+  
     if (item.action) {
       buttonTypeClicked.value = item.value
       item.action(item)
@@ -70,11 +76,6 @@ export default function useTableHelpers(props: any, emit: any) {
 
   // const title
 
-  const finalSubmitAction = ref<string>('')
-  const drawerTitle = ref(props.drawerTitle)
-  const drawerShooter2 = ref(props.drawerShowFooter)
-  const drawerWidth = ref(props.drawerWidth)
-  const currentPage = ref(1)
 
   async function handleTableAction(item: any, action: string) {
     drawerWidth.value = 'w-2/4'
@@ -83,7 +84,7 @@ export default function useTableHelpers(props: any, emit: any) {
       drawerTitle.value = 'import data'
     } else {
       const res = await fetchTableData({
-        data: item,
+        data: {...item,page: currentPage.value,search_keyword:searchQuery.value},
         props: {
           ...props,
           reload: false, // dont refectch data
@@ -95,9 +96,9 @@ export default function useTableHelpers(props: any, emit: any) {
       drawerTitle.value = 'import columns'
       provideDataTotheParent.value = res?.payload ?? res
     }
-    drawerShooter2.value = false
     buttonTypeClicked.value = action
     toggleDrawer()
+    drawerShooter2.value = false
   }
 
   const toggleDrawer = () => {
@@ -297,7 +298,7 @@ export default function useTableHelpers(props: any, emit: any) {
     () => drawerOpen.value,
     (v) => {
       drawerTitle.value = props.drawerTitle
-      drawerShooter2.value = props.drawerShowFooter
+    //   drawerShooter2.value = props.drawerShowFooter
       drawerWidth.value = props.drawerWidth
       if (!v) {
         //reset the drawer data when the drawer is closed
@@ -338,6 +339,7 @@ export default function useTableHelpers(props: any, emit: any) {
     refresh,
     currentPage,
     haspermission,
+    searchQuery,
     selected,
     provideDataTotheParent,
     buttonTypeClicked,
