@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Plus, Trash2, Shield, Check, X } from 'lucide-vue-next'
+import { Plus, Trash2, Shield, Check, X, Eye } from 'lucide-vue-next'
 import SearchableSelect from '@/Global/SearchableSelect.vue'
+import { ConfirmDialog } from '@/Global'
 import { useLoanApplicationHelpers } from '../composables/useLoanApplicationHelpers'
 import { computed } from 'vue'
 
@@ -10,6 +11,8 @@ interface CollateralItem {
     description: string
     estimated_value: number | null
     notes: string
+    proof_document?: File | null
+    proof_preview?: string | null
 }
 
 const props = defineProps<{
@@ -38,18 +41,78 @@ const totalProvided = computed(() =>
 const securityGap = computed(() => Math.max(0, totalRequired.value - totalProvided.value))
 
 const isSecured = computed(() => {
-    if (totalRequired.value <= 0) return true
-    return totalProvided.value >= totalRequired.value
+    const noValueRequired = totalRequired.value <= 0
+    const thresholdCount = props.selectedProduct?.max_securities || 0
+    const noCountRequired = thresholdCount <= 0
+    
+    if (noValueRequired && noCountRequired) return true
+
+    const valueSecured = noValueRequired || totalProvided.value >= totalRequired.value
+    const countSecured = noCountRequired || items.value.length >= thresholdCount
+    
+    return valueSecured && countSecured
 })
 
 defineExpose({ isSecured })
 
 // Modal
 const modalOpen   = ref(false)
-const newItem     = ref<CollateralItem>({ asset_type: '', description: '', estimated_value: null, notes: '' })
+const newItem     = ref<CollateralItem>({ asset_type: '', description: '', estimated_value: null, notes: '', proof_document: null, proof_preview: null })
+
+// Document Preview Modal
+const previewModalOpen = ref(false)
+const previewFileUrl   = ref('')
+const previewFileType  = ref('')
+
+const formattedAmount = computed({
+    get: () => {
+        if (newItem.value.estimated_value == null) return ''
+        return newItem.value.estimated_value.toLocaleString('en-US')
+    },
+    set: (val: string) => {
+        const numericStr = val.replace(/[^0-9.]/g, '')
+        const num = parseFloat(numericStr)
+        newItem.value.estimated_value = isNaN(num) ? null : num
+    }
+})
+
+function handleFileUpload(event: Event) {
+    const target = event.target as HTMLInputElement
+    if (target.files && target.files.length > 0) {
+        const file = target.files[0]
+        newItem.value.proof_document = file
+        if (file.type.startsWith('image/')) {
+            newItem.value.proof_preview = URL.createObjectURL(file)
+        } else {
+            newItem.value.proof_preview = null
+        }
+    } else {
+        newItem.value.proof_document = null
+        newItem.value.proof_preview = null
+    }
+}
+
+function previewDocument(file: File) {
+    if (file) {
+        previewFileUrl.value = URL.createObjectURL(file)
+        previewFileType.value = file.type
+        previewModalOpen.value = true
+    }
+}
+
+function closePreviewModal() {
+    previewModalOpen.value = false
+    setTimeout(() => {
+        if (previewFileUrl.value) {
+            URL.revokeObjectURL(previewFileUrl.value)
+        }
+        previewFileUrl.value = ''
+        previewFileType.value = ''
+    }, 200)
+}
 
 function openModal() {
-    newItem.value = { asset_type: '', description: '', estimated_value: null, notes: '' }
+    newItem.value = { asset_type: '', description: '', estimated_value: null, notes: '', proof_document: null, proof_preview: null }
     modalOpen.value = true
 }
 
@@ -66,8 +129,17 @@ function addItem() {
     modalOpen.value = false
 }
 
-function removeItem(idx: number) {
-    items.value = items.value.filter((_, i) => i !== idx)
+const itemToDeleteIdx = ref<number | null>(null)
+
+function promptRemoveItem(idx: number) {
+    itemToDeleteIdx.value = idx
+}
+
+function confirmRemoveItem() {
+    if (itemToDeleteIdx.value !== null) {
+        items.value = items.value.filter((_, i) => i !== itemToDeleteIdx.value)
+        itemToDeleteIdx.value = null
+    }
 }
 </script>
 
@@ -80,9 +152,12 @@ function removeItem(idx: number) {
                 <span class="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
                     Required: {{ selectedProduct?.security_value_percentage }}%
                 </span>
+                <span v-if="selectedProduct?.max_securities" class="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium" :class="items.length >= selectedProduct.max_securities ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 dark:text-emerald-400' : 'text-amber-500 bg-amber-50 dark:bg-amber-900/30 dark:text-amber-400'">
+                    Count: {{ items.length }} / {{ selectedProduct.max_securities }}
+                </span>
             </div>
             <button type="button" class="flex items-center gap-1.5 rounded-lg bg-nfuko-primary/10 px-3 py-1.5 text-xs font-bold text-nfuko-primary hover:bg-nfuko-primary/20 transition-colors" @click="openModal">
-                <Plus class="h-3.5 w-3.5" /> Add Collateral
+                <Plus class="h-3.5 w-3.5" /> Add Security
             </button>
         </div>
 
@@ -108,18 +183,26 @@ function removeItem(idx: number) {
         <div v-if="items.length" class="space-y-4">
             <div v-for="(item, idx) in items" :key="idx"
                 class="flex items-center justify-between rounded-xl border border-neutral-100 bg-white p-4 hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900">
-                <div class="min-w-0 flex-1">
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-bold text-neutral-600 dark:bg-neutral-800 font-mono">{{ item.asset_type }}</span>
-                        <p class="truncate text-sm font-semibold text-neutral-900 dark:text-white">{{ item.description }}</p>
+                <div class="flex items-center gap-3 min-w-0 flex-1">
+                    <img v-if="item.proof_preview" :src="item.proof_preview" class="h-10 w-12 flex-shrink-0 cursor-pointer rounded-lg bg-neutral-100 object-cover border border-neutral-200 dark:border-neutral-700 hover:opacity-80 transition-opacity" @click="previewDocument(item.proof_document!)" title="Click to view full image" />
+                    <div class="min-w-0 flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-bold text-neutral-600 dark:bg-neutral-800 font-mono">{{ item.asset_type }}</span>
+                            <p class="truncate text-sm font-semibold text-neutral-900 dark:text-white">{{ item.description }}</p>
+                        </div>
+                        <p v-if="item.notes" class="text-xs text-neutral-500 line-clamp-1">{{ item.notes }}</p>
                     </div>
-                    <p v-if="item.notes" class="text-xs text-neutral-500 line-clamp-1">{{ item.notes }}</p>
                 </div>
                 <div class="ml-4 flex items-center gap-4">
                     <p class="text-sm font-bold text-neutral-900 dark:text-white">{{ formatAmount(item.estimated_value) }}</p>
-                    <button type="button" class="rounded-lg p-1.5 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 transition-colors" @click="removeItem(idx)">
-                        <Trash2 class="h-4 w-4" />
-                    </button>
+                    <div class="flex items-center gap-1">
+                        <button v-if="item.proof_document" type="button" class="rounded-lg p-1.5 text-neutral-400 hover:bg-sky-50 hover:text-sky-500 dark:hover:bg-sky-900/20 transition-colors" @click="previewDocument(item.proof_document)" title="View Proof">
+                            <Eye class="h-4 w-4" />
+                        </button>
+                        <button type="button" class="rounded-lg p-1.5 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 transition-colors" @click="promptRemoveItem(idx)">
+                            <Trash2 class="h-4 w-4" />
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -140,7 +223,7 @@ function removeItem(idx: number) {
             <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" @click="modalOpen = false" />
             <div class="relative w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl dark:bg-neutral-950 dark:border dark:border-neutral-800">
                 <div class="mb-6 flex items-center justify-between">
-                    <h3 class="text-xl font-bold text-neutral-900 dark:text-white">Add New Collateral</h3>
+                    <h3 class="text-xl font-bold text-neutral-900 dark:text-white">Add New Security</h3>
                     <button class="rounded-full p-1 text-neutral-400 hover:bg-neutral-100 transition-colors" @click="modalOpen = false">
                         <X class="h-6 w-6" />
                     </button>
@@ -163,8 +246,14 @@ function removeItem(idx: number) {
                     </div>
                     <div>
                         <label class="mb-1.5 block text-sm font-semibold text-neutral-700 dark:text-neutral-300">Amount Value</label>
-                        <input v-model.number="newItem.estimated_value" type="number" min="0" step="0.01" placeholder="0.00"
+                        <input v-model="formattedAmount" type="text" placeholder="0.00"
                             class="w-full rounded-xl border border-neutral-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-semibold text-neutral-700 dark:text-neutral-300">Proof of Document</label>
+                        <input type="file" accept="image/*,.pdf" @change="handleFileUpload"
+                            class="w-full rounded-xl border border-neutral-200 px-4 py-2.5 text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-nfuko-primary/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-nfuko-primary hover:file:bg-nfuko-primary/20 focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
+                        <p class="mt-1 text-xs text-neutral-400">Upload a clear image or PDF of the security document.</p>
                     </div>
                     <div>
                         <label class="mb-1.5 block text-sm font-semibold text-neutral-700 dark:text-neutral-300">Description / Notes</label>
@@ -181,4 +270,36 @@ function removeItem(idx: number) {
             </div>
         </div>
     </Transition>
+
+    <!-- Document Preview Modal -->
+    <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0 scale-95" enter-to-class="opacity-100 scale-100" leave-active-class="transition duration-150 ease-in" leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
+        <div v-if="previewModalOpen" class="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6">
+            <div class="absolute inset-0 bg-neutral-900/80 backdrop-blur-sm" @click="closePreviewModal" />
+            <div class="relative w-full max-w-xl flex flex-col items-center justify-center pointer-events-none">
+                <button type="button" class="pointer-events-auto absolute -top-12 right-0 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition-colors" @click="closePreviewModal">
+                    <X class="h-6 w-6" />
+                </button>
+                <div class="pointer-events-auto w-full overflow-hidden rounded-2xl bg-black shadow-2xl">
+                    <img v-if="previewFileType.startsWith('image/')" :src="previewFileUrl" class="max-h-[65vh] w-full object-contain" />
+                    <iframe v-else-if="previewFileType === 'application/pdf'" :src="previewFileUrl" class="h-[65vh] w-full border-0 bg-white"></iframe>
+                    <div v-else class="flex h-[40vh] items-center justify-center bg-white dark:bg-neutral-950 rounded-2xl">
+                        <p class="text-neutral-500 font-medium">Preview not available for this file type.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </Transition>
+
+    <ConfirmDialog
+        :show="itemToDeleteIdx !== null"
+        type="delete"
+        title="Remove Security Item"
+        @confirm="confirmRemoveItem"
+        @cancel="itemToDeleteIdx = null"
+        @update:show="val => { if (!val) itemToDeleteIdx = null }"
+    >
+        <template #message>
+            Are you sure you want to remove this security item?
+        </template>
+    </ConfirmDialog>
 </template>

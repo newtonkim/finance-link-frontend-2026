@@ -6,6 +6,8 @@ import CurrencySettingsDrawer from '../components/CurrencySettingsDrawer.vue'
 import FiscalYearsCard from '../components/FiscalYearsCard.vue' 
 import { SettingCard } from '@/tenant/components/globals' 
 const fiscalYearsCard = ref<InstanceType<typeof FiscalYearsCard> | null>(null)
+const brandingDrawer = ref<InstanceType<typeof SaccoBrandingDrawer> | null>(null)
+const currencyDrawer = ref<InstanceType<typeof CurrencySettingsDrawer> | null>(null)
 const settingsCards = [
     {
         title: "General Charges",
@@ -47,14 +49,16 @@ const settingsCards = [
         <!-- ─── Quick-action cards grid ─────────────────────────────────────── -->
         <SettingCard :settingsCards="settingsCards">
             <template #general-settings>
-                <button @click="fiscalYearsCard?.openBrandingDrawer()"
-                    class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">
-                    Sacco Branding Config →
-                </button>
-                <button @click="fiscalYearsCard?.openCurrencyDrawer()"
-                    class="mt-2 block w-fit text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">
-                    Currency configuration →
-                </button>
+                <div class="mt-2 flex flex-wrap gap-3">
+                    <button @click="brandingDrawer?.openDrawer()"
+                        class="inline-flex items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white">
+                        Sacco Branding Config →
+                    </button>
+                    <button @click="currencyDrawer?.openDrawer()"
+                        class="inline-flex items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white">
+                        Currency configuration →
+                    </button>
+                </div>
             </template>
         </SettingCard>
 

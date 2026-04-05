@@ -328,4 +328,19 @@ export const loanApplicationsApi = {
       responseType: 'blob',
     })
   },
+
+  // ─── Collaterals ────────────────────────────────────────────────────────────
+  listCollaterals(applicationId: number) {
+    return tenantClient.get(`/loan-applications/${applicationId}/collaterals`)
+  },
+  addCollateral(applicationId: number, data: Record<string, any>) {
+    const form = new FormData()
+    Object.entries(data).forEach(([k, v]) => { if (v !== undefined && v !== null) form.append(k, v) })
+    return tenantClient.post(`/loan-applications/${applicationId}/collaterals`, form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
+  removeCollateral(applicationId: number, collateralId: number) {
+    return tenantClient.delete(`/loan-applications/${applicationId}/collaterals/${collateralId}`)
+  },
 }
