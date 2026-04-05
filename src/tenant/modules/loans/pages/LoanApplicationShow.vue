@@ -7,6 +7,7 @@ import {
   XCircle,
   RotateCcw,
   AlertTriangle,
+  AlertCircle,
   ClipboardCheck,
   FileSearch,
   Users,
@@ -38,6 +39,7 @@ import { useLoanApplicationShow } from '../composables/useLoanApplicationShow'
 import { useLoanAppraisalActions } from '../composables/useLoanAppraisalActions'
 import { useLoanDisbursement } from '../composables/useLoanDisbursement'
 import LoanDocumentUploader from '../components/LoanDocumentUploader.vue'
+import LoanCollateralManager from '../components/LoanCollateralManager.vue'
 import LoanDisbursementDrawer from '../components/LoanDisbursementDrawer.vue'
 import VoteTallyDisplay from '../components/VoteTallyDisplay.vue'
 import VoteCastModal from '../components/VoteCastModal.vue'
@@ -237,7 +239,25 @@ const cancellableStatuses = [
   'committee_voting',
 ]
 const reopenableStatuses = ['cancelled', 'declined']
-const documentEditableStatuses = ['draft', 'awaiting_documents', 'returned_for_correction']
+const documentEditableStatuses = ['draft', 'submitted', 'awaiting_documents', 'returned_for_correction']
+
+const documentUploaderRef = ref<InstanceType<typeof LoanDocumentUploader> | null>(null)
+
+
+const currentDocStage = computed(() => {
+  switch (application.value?.status) {
+    case 'draft': return 'draft'
+    case 'submitted':
+    case 'awaiting_documents': return 'submission'
+    case 'under_review': return 'review'
+    case 'officer_recommended':
+    case 'bm_recommended':
+    case 'committee_voting': return 'approval'
+    case 'approved':
+    case 'disbursement_pending': return 'disbursement'
+    default: return 'submission'
+  }
+})
 
 // ─── Workflow pipeline (Gap 4) ────────────────────────────────────────────────
 const workflowSteps = [
@@ -507,16 +527,23 @@ const loanAccountTabs = [
             Ready for Review
           </p>
           <p class="mb-4 text-xs text-blue-600 dark:text-blue-400">
-            This application has been submitted and is awaiting a credit officer to take it for
+            This application has been submitted and is awaiting an officer to submit it for
             review.
           </p>
+          <p
+            v-if="documentUploaderRef?.hasMissingForStage('submission')"
+            class="mb-3 flex items-center gap-1.5 text-xs font-medium text-red-500 dark:text-red-400"
+          >
+            <AlertCircle class="h-3.5 w-3.5 shrink-0" />
+            Upload all required submission documents before proceeding.
+          </p>
           <button
-            :disabled="takingForReview"
-            class="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
+            :disabled="takingForReview || !!documentUploaderRef?.hasMissingForStage('submission')"
+            class="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             @click="takeForReview"
           >
             <ClipboardCheck class="h-4 w-4" />
-            {{ takingForReview ? 'Taking…' : 'Take for Review' }}
+            {{ takingForReview ? 'Submitting…' : 'Submit for Review' }}
           </button>
         </div>
 
@@ -819,6 +846,10 @@ const loanAccountTabs = [
               >
                 <component :is="tab.icon" class="h-3.5 w-3.5" />
                 {{ tab.label }}
+                <span
+                  v-if="tab.key === 'documents' && documentUploaderRef?.hasMissing"
+                  class="ml-0.5 inline-flex h-2 w-2 rounded-full bg-red-500 animate-pulse"
+                />
               </button>
             </nav>
           </div>
@@ -1427,14 +1458,18 @@ const loanAccountTabs = [
 
             <!-- ── DOCUMENTS TAB ── -->
             <div v-else-if="loanAccountTab === 'documents'">
-              <div class="flex flex-col items-center justify-center py-12 text-neutral-400 gap-2">
+              <LoanDocumentUploader
+                v-if="application.disbursed_loan?.id"
+                ref="documentUploaderRef"
+                :application-id="application.disbursed_loan.id"
+                :editable="documentEditableStatuses.includes(application.status ?? '')"
+                :current-stage="currentDocStage"
+                @updated="loadApplication"
+              />
+              <div v-else class="flex flex-col items-center justify-center py-12 text-neutral-400 gap-2">
                 <FileText class="h-8 w-8" />
-                <p class="text-sm font-medium text-neutral-500 dark:text-neutral-400">
-                  Loan Documents
-                </p>
-                <p class="text-xs text-neutral-400 dark:text-neutral-500">
-                  Documents attached to this loan account will appear here.
-                </p>
+                <p class="text-sm font-medium text-neutral-500 dark:text-neutral-400">Loan Documents</p>
+                <p class="text-xs text-neutral-400 dark:text-neutral-500">Documents attached to this loan account will appear here.</p>
               </div>
             </div>
 
@@ -1837,31 +1872,20 @@ const loanAccountTabs = [
         <!-- Documents -->
         <LoanDocumentUploader
           v-if="application.id"
+          ref="documentUploaderRef"
           :application-id="application.id"
           :editable="documentEditableStatuses.includes(application.status ?? '')"
+          :current-stage="currentDocStage"
           @updated="loadApplication"
         />
 
-        <!-- Collateral & Securities (Gap 17) -->
-        <div
-          class="rounded-2xl border border-neutral-100 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
-        >
-          <div class="mb-4 flex items-center gap-2">
-            <Shield class="h-4 w-4 text-neutral-400 dark:text-neutral-500" />
-            <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">
-              Collateral & Securities
-            </h3>
-          </div>
-          <div
-            class="flex flex-col items-center justify-center rounded-xl border border-dashed border-neutral-200 py-6 text-center dark:border-neutral-700"
-          >
-            <Shield class="mb-2 h-5 w-5 text-neutral-300 dark:text-neutral-600" />
-            <p class="text-sm text-neutral-500 dark:text-neutral-400">No collateral recorded.</p>
-            <p class="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">
-              Collateral items can be added when creating or editing the application.
-            </p>
-          </div>
-        </div>
+        <!-- Collateral & Securities -->
+        <LoanCollateralManager
+          v-if="application.id"
+          :application-id="application.id"
+          :editable="editableStatuses.includes(application.status ?? '')"
+          @updated="loadApplication"
+        />
 
         <!-- Key dates -->
         <div

@@ -62,10 +62,14 @@ const fields = ref([
         name: 'loan_product_ids',
         type: 'multi-select',
         dependsOn: {
-            field: 'application',
-            value: 'on_loan_application',
+            conditions: [
+                { field: 'application', value: 'on_loan_application' },
+                { field: 'where_to_apply', value: 'loans' },
+            ],
+            operator: 'or',
         },
-        url: "global/loan-products",
+        url: 'global/loan-products',
+        dataOnMount: true,
         placeholder: 'Choose loan products',
     },
     // Charge type
@@ -126,7 +130,9 @@ const fields = ref([
         label: 'Credit Account',
         name: 'credit_account_id',
         type: 'select',
-        url: "global/chart-of-accounts?account_type=INCOME",
+        url: "global/chart-of-accounts",
+        data: { account_type: 'INCOME' },
+        dataOnMount: true,
         options: [],
         placeholder: 'Select income account',
         

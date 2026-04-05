@@ -62,8 +62,7 @@ export function useGeneralLoanSettings() {
     repayment_allocation_order: 'penalties_charges_interest_principal',
     min_approvers: 1,
     max_approvers: 3,
-    allow_top_up: true,
-    allow_reschedule: true,
+
     auto_penalty: true,
     penalty_grace_days: 0,
     loan_cycle_limit: 1,

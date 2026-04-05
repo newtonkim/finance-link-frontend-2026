@@ -114,13 +114,18 @@ export function useGeneralCharges() {
       }
 
       if (coaRes.status === 'fulfilled') {
-        const coa = coaRes.value.data?.data ?? coaRes.value.data ?? []
+        const coa = coaRes.value.data?.payload?.data ?? coaRes.value.data?.data ?? coaRes.value.data ?? []
         creditAccountOptions.value = Array.isArray(coa)
           ? coa.map((a: any) => ({
               id: a.id,
               name: a.gl_code ? `${a.gl_code} - ${a.name}` : (a.name ?? 'Account ' + a.id),
             }))
           : []
+        
+        // Auto-select the first available income account if nothing is selected
+        if (!form.value.credit_account_id && creditAccountOptions.value.length > 0) {
+          form.value.credit_account_id = creditAccountOptions.value[0].id as any
+        }
       }
 
       if (loanRes.status === 'fulfilled') {

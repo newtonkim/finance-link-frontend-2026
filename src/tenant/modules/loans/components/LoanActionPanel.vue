@@ -36,12 +36,12 @@ const { displayAmount } = useLoanApplicationHelpers()
     <div v-if="application.status === 'submitted'"
         class="rounded-2xl border border-blue-100 bg-blue-50/50 p-5 dark:border-blue-900/40 dark:bg-blue-900/10">
         <p class="mb-1 text-sm font-semibold text-blue-800 dark:text-blue-300">Ready for Review</p>
-        <p class="mb-4 text-xs text-blue-600 dark:text-blue-400">This application has been submitted and is awaiting a credit officer to take it for review.</p>
+        <p class="mb-4 text-xs text-blue-600 dark:text-blue-400">This application has been submitted and is awaiting an officer to submit it for review.</p>
         <button :disabled="takingForReview"
             class="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
             @click="emit('takeForReview')">
             <ClipboardCheck class="h-4 w-4" />
-            {{ takingForReview ? 'Taking…' : 'Take for Review' }}
+            {{ takingForReview ? 'Submitting…' : 'Submit for Review' }}
         </button>
     </div>
 

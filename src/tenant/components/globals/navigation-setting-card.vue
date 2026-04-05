@@ -12,37 +12,38 @@
             <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
                 {{ card.description }}
             </p>
-            <!-- Primary link -->
-            <RouterLink
-                v-if="card.type === 'link'"
-                :to="card.route" 
-                v-bind="card.route"
-                class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline"
-            >
-                {{ card.action }}
-            </RouterLink>
-            <!-- Secondary actions -->
-            <template v-if="card?.outClicks">
-                <span
-                    v-for="(value, key) in card.outClicks" :key="key" >
-                    <RouterLink
-                        v-if="value.type === 'link'"
-                        :to="value.route"
-                        v-bind="value"
-                        class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline"
-                    >
-                        {{ value.label }}
-                    </RouterLink>
+            <!-- Primary action container -->
+            <div class="mt-4 flex flex-wrap gap-3">
+                <RouterLink
+                    v-if="card.type === 'link'"
+                    :to="card.route" 
+                    v-bind="card.route"
+                    class="inline-flex items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
+                >
+                    {{ card.action }}
+                </RouterLink>
+                <!-- Secondary actions -->
+                <template v-if="card?.outClicks">
+                    <span v-for="(value, key) in card.outClicks" :key="key">
+                        <RouterLink
+                            v-if="value.type === 'link'"
+                            :to="value.route"
+                            v-bind="value"
+                            class="inline-flex items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
+                        >
+                            {{ value.label }}
+                        </RouterLink>
 
-                    <button
-                        v-else-if="value.type === 'button'"
-                        @click="value.action"
-                        class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline"
-                    >
-                        {{ value.label }}
-                    </button>
-                </span>
-            </template>
+                        <button
+                            v-else-if="value.type === 'button'"
+                            @click="value.action"
+                            class="inline-flex items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
+                        >
+                            {{ value.label }}
+                        </button>
+                    </span>
+                </template>
+            </div>
 
             <!-- Dynamic slot -->
             <slot
