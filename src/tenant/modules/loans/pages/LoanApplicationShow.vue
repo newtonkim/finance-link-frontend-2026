@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import {
   ArrowLeft,
   HandCoins,
@@ -107,6 +107,23 @@ const {
   declineError,
   openDeclineModal,
   submitDecline,
+  showBMRecommendModal,
+  bmRecommending,
+  openBMRecommendModal,
+  submitBMRecommend,
+  showBMReturnModal,
+  bmReturning,
+  openBMReturnModal,
+  submitBMReturn,
+  showVoteModal,
+  voting,
+  openVoteModal,
+  submitVote,
+  voteTally,
+  loadingVotes,
+  loadVotes,
+  committeeVotes,
+  committeeMembers,
 } = useLoanAppraisalActions(application, loadApplication)
 
 const {
@@ -258,6 +275,17 @@ const currentDocStage = computed(() => {
     default: return 'submission'
   }
 })
+
+// ─── Load votes when entering committee_voting ────────────────────────────────
+watch(
+  () => application.value?.status,
+  (status) => {
+    if (status === 'committee_voting') {
+      loadVotes()
+    }
+  },
+  { immediate: true },
+)
 
 // ─── Workflow pipeline (Gap 4) ────────────────────────────────────────────────
 const workflowSteps = [
@@ -499,7 +527,7 @@ const loanAccountTabs = [
                 v-if="idx < workflowSteps.length - 1"
                 class="mx-1 mt-4 h-px min-w-[1rem] flex-1 transition-colors"
                 :class="
-                  pipelineStepStatus(workflowSteps[idx + 1].key) !== 'pending'
+                  pipelineStepStatus(workflowSteps[idx + 1]?.key ?? '') !== 'pending'
                     ? 'bg-emerald-400 dark:bg-emerald-600'
                     : 'bg-neutral-200 dark:bg-neutral-700'
                 "
@@ -673,38 +701,70 @@ const loanAccountTabs = [
           </button>
         </div>
 
-        <!-- Committee Voting: vote panel -->
-        <div
-          v-else-if="application.status === 'committee_voting'"
-          class="rounded-2xl border border-violet-100 bg-violet-50/50 p-5 dark:border-violet-900/40 dark:bg-violet-900/10"
-        >
-          <p class="mb-1 text-sm font-semibold text-violet-800 dark:text-violet-300">
-            Committee Vote
-          </p>
-          <p class="mb-4 text-xs text-violet-600 dark:text-violet-400">
-            Recommended
-            <strong>{{
-              displayAmount(
-                application.recommended_amount_formatted,
-                application.recommended_amount,
-              )
-            }}</strong>
-            for <strong>{{ application.recommended_term }} months</strong>. Quorum:
-            {{ application.quorum_required }} votes required,
-            {{ application.approval_threshold }} approvals needed.
-          </p>
+        <!-- ══════════════════════════════════════════════════════════════════
+             COMMITTEE VOTING PANEL
+             Status: committee_voting
+        ═══════════════════════════════════════════════════════════════════ -->
+        <div v-else-if="application.status === 'committee_voting'" class="space-y-4">
 
-          <!-- Vote Tally Display -->
+          <!-- Header card -->
+          <div class="rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-50 to-white p-5 dark:border-violet-800 dark:from-violet-950/30 dark:to-neutral-900">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="mb-1 flex items-center gap-2">
+                  <div class="flex h-6 w-6 items-center justify-center rounded-full bg-violet-100 dark:bg-violet-900/40">
+                    <Users class="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
+                  </div>
+                  <p class="text-sm font-semibold text-violet-800 dark:text-violet-300">Committee Voting Open</p>
+                </div>
+                <p class="text-xs text-violet-600 dark:text-violet-400">
+                  Amount:
+                  <strong class="text-violet-800 dark:text-violet-200">{{
+                    displayAmount(application.recommended_amount_formatted, application.recommended_amount)
+                  }}</strong>
+                  · Term: <strong class="text-violet-800 dark:text-violet-200">{{ application.recommended_term }} months</strong>
+                </p>
+              </div>
+              <!-- Quorum badge -->
+              <div class="shrink-0 rounded-xl bg-violet-100 px-3 py-1.5 text-center dark:bg-violet-900/40">
+                <p class="text-lg font-bold leading-none text-violet-700 dark:text-violet-300">
+                  {{ voteTally?.total_cast ?? 0 }}<span class="text-sm font-medium text-violet-400">/{{ application.quorum_required }}</span>
+                </p>
+                <p class="mt-0.5 text-[10px] font-medium uppercase tracking-wide text-violet-500 dark:text-violet-400">Votes cast</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live tally -->
           <VoteTallyDisplay
             v-if="voteTally"
             :tally="voteTally"
-            :unanimity-required="application.unanimity_required"
-            class="mb-4"
+            :unanimity-required="application.unanimity_required ?? undefined"
           />
 
-          <div class="flex gap-2">
+          <!-- Cast vote or already-voted notice -->
+          <div
+            v-if="voteTally?.has_voted"
+            class="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 dark:border-emerald-800 dark:bg-emerald-950/30"
+          >
+            <CheckCircle2 class="h-5 w-5 shrink-0 text-emerald-500" />
+            <div>
+              <p class="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Vote recorded</p>
+              <p class="text-xs text-emerald-600 dark:text-emerald-500">Your vote has been cast. The outcome will be determined once quorum is reached.</p>
+            </div>
+          </div>
+
+          <div v-else class="flex items-center gap-3 rounded-2xl border border-violet-100 bg-white p-4 dark:border-violet-900/40 dark:bg-neutral-900">
+            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-100 dark:bg-violet-900/40">
+              <ThumbsUp class="h-4 w-4 text-violet-600 dark:text-violet-400" />
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-neutral-900 dark:text-white">Your vote is pending</p>
+              <p class="text-xs text-neutral-500 dark:text-neutral-400">Cast your vote to contribute to the committee decision.</p>
+            </div>
             <button
-              class="flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors"
+              class="flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
+              :disabled="loadingVotes"
               @click="openVoteModal"
             >
               <ThumbsUp class="h-4 w-4" />
@@ -712,56 +772,80 @@ const loanAccountTabs = [
             </button>
           </div>
 
-          <!-- Committee Votes List -->
-          <CommitteeVotesList v-if="committeeVotes?.length" :votes="committeeVotes" class="mt-4" />
+          <!-- Individual votes -->
+          <CommitteeVotesList
+            v-if="committeeVotes?.length"
+            :votes="committeeVotes"
+            :quorum-required="application.quorum_required ?? undefined"
+            :approval-threshold="application.approval_threshold ?? undefined"
+            :unanimity-required="application.unanimity_required ?? undefined"
+          />
         </div>
 
-        <!-- Declined: terminal -->
+        <!-- ══════════════════════════════════════════════════════════════════
+             DECLINED by committee — terminal
+        ═══════════════════════════════════════════════════════════════════ -->
         <div
           v-else-if="application.status === 'declined'"
-          class="rounded-2xl border border-red-100 bg-red-50/50 p-5 dark:border-red-900/40 dark:bg-red-900/10"
+          class="rounded-2xl border border-red-200 bg-red-50/60 p-5 dark:border-red-900/40 dark:bg-red-950/20"
         >
-          <p class="mb-1 text-sm font-semibold text-red-800 dark:text-red-300">
-            Declined by Committee
-          </p>
-          <p class="mb-4 text-xs text-red-600 dark:text-red-400">
-            This application was declined by the credit committee.
-          </p>
+          <div class="flex items-start gap-3">
+            <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/40">
+              <XCircle class="h-4 w-4 text-red-600 dark:text-red-400" />
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-red-800 dark:text-red-300">Declined by Committee</p>
+              <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">This application did not meet the required approval threshold.</p>
+            </div>
+          </div>
         </div>
 
-        <!-- Recommended: approval panel -->
+        <!-- ══════════════════════════════════════════════════════════════════
+             RECOMMENDED (legacy simple flow) — direct approve / decline
+        ═══════════════════════════════════════════════════════════════════ -->
         <div
           v-else-if="application.status === 'recommended'"
-          class="rounded-2xl border border-purple-100 bg-purple-50/50 p-5 dark:border-purple-900/40 dark:bg-purple-900/10"
+          class="space-y-4"
         >
-          <p class="mb-1 text-sm font-semibold text-purple-800 dark:text-purple-300">
-            Approval Decision
-          </p>
-          <p class="mb-4 text-xs text-purple-600 dark:text-purple-400">
-            Recommended
-            <strong>{{
-              displayAmount(
-                application.recommended_amount_formatted,
-                application.recommended_amount,
-              )
-            }}</strong>
-            for <strong>{{ application.recommended_term }} months</strong>. Cast your vote below.
-          </p>
-          <div class="flex gap-2">
-            <button
-              class="flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors"
-              @click="openApproveModal"
-            >
-              <ThumbsUp class="h-4 w-4" />
-              Approve
-            </button>
-            <button
-              class="flex items-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors dark:border-red-800 dark:bg-transparent dark:text-red-400 dark:hover:bg-red-900/20"
-              @click="openDeclineModal"
-            >
-              <ThumbsDown class="h-4 w-4" />
-              Decline
-            </button>
+          <!-- Summary card -->
+          <div class="rounded-2xl border border-purple-200 bg-gradient-to-br from-purple-50 to-white p-5 dark:border-purple-800 dark:from-purple-950/30 dark:to-neutral-900">
+            <div class="mb-1 flex items-center gap-2">
+              <div class="flex h-6 w-6 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/40">
+                <ShieldCheck class="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
+              </div>
+              <p class="text-sm font-semibold text-purple-800 dark:text-purple-300">Awaiting Approval Decision</p>
+            </div>
+            <p class="text-xs text-purple-600 dark:text-purple-400">
+              Recommended
+              <strong class="text-purple-800 dark:text-purple-200">{{
+                displayAmount(application.recommended_amount_formatted, application.recommended_amount)
+              }}</strong>
+              for <strong class="text-purple-800 dark:text-purple-200">{{ application.recommended_term }} months</strong>.
+            </p>
+          </div>
+
+          <!-- Action row -->
+          <div class="flex items-center gap-3 rounded-2xl border border-neutral-100 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-neutral-900 dark:text-white">Cast your approval decision</p>
+              <p class="text-xs text-neutral-500 dark:text-neutral-400">This will finalise the application outcome.</p>
+            </div>
+            <div class="flex gap-2">
+              <button
+                class="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700"
+                @click="openApproveModal"
+              >
+                <ThumbsUp class="h-4 w-4" />
+                Approve
+              </button>
+              <button
+                class="flex items-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 shadow-sm transition-colors hover:bg-red-50 dark:border-red-800 dark:bg-transparent dark:text-red-400 dark:hover:bg-red-900/20"
+                @click="openDeclineModal"
+              >
+                <ThumbsDown class="h-4 w-4" />
+                Decline
+              </button>
+            </div>
           </div>
         </div>
 
@@ -2598,9 +2682,8 @@ const loanAccountTabs = [
   <!-- Vote Cast Modal -->
   <VoteCastModal
     :open="showVoteModal"
-    :voting="voting"
-    :form="voteForm"
-    :errors="voteErrors"
+    :submitting="voting"
+    :committee-members="committeeMembers"
     @close="showVoteModal = false"
     @submit="submitVote"
   />
@@ -2609,8 +2692,6 @@ const loanAccountTabs = [
   <BMRecommendModal
     :open="showBMRecommendModal"
     :submitting="bmRecommending"
-    :form="bmRecommendForm"
-    :errors="bmRecommendErrors"
     @close="showBMRecommendModal = false"
     @submit="submitBMRecommend"
   />
@@ -2619,8 +2700,6 @@ const loanAccountTabs = [
   <BMReturnForCorrectionModal
     :open="showBMReturnModal"
     :submitting="bmReturning"
-    :form="bmReturnForm"
-    :errors="bmReturnErrors"
     @close="showBMReturnModal = false"
     @submit="submitBMReturn"
   />

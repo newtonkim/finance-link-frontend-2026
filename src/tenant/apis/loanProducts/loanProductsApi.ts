@@ -141,6 +141,16 @@ export interface LoanProduct {
     grace_days?: number
   }[]
   currency_code?: string | null
+  committee_voting?: {
+    enabled: boolean
+    quorum_size: number | null
+    approval_threshold: number | null
+  }
+  approval_setting?: {
+    enabled: boolean
+    quorum_size: number | null
+    approval_threshold: number | null
+  } | null
 }
 
 export const loanProductsApi = {
