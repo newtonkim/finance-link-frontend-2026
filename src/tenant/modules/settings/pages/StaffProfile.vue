@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { onMounted, computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { ChevronLeft, UserCog, Mail, ShieldCheck, Download, Users, Briefcase } from 'lucide-vue-next'
+import { ChevronLeft, UserCog, Mail, ShieldCheck, Download, Users, Briefcase, Vote, GitBranch, CheckSquare, ToggleLeft, ToggleRight } from 'lucide-vue-next'
 import { useStaffStore } from '@/stores/staffStore'
-import {
-} from '@/Global'
+import { toast } from 'vue-sonner'
 
 const route = useRoute()
 const staffStore = useStaffStore()
@@ -31,6 +30,50 @@ const formatDate = (value?: string | null): string => {
     if (isNaN(d.getTime())) return '—'
     return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 }
+
+// ─── Permissions ─────────────────────────────────────────────────────────────
+const savingPermission = ref<string | null>(null)
+
+async function togglePermission(field: 'can_vote_on_loans' | 'can_manage_branch' | 'can_finalise_loan') {
+    if (!staff.value?.id) return
+    savingPermission.value = field
+    const newVal = !staff.value[field]
+    try {
+        await staffStore.updateStaff(staff.value.id, { [field]: newVal })
+        toast.success('Permission updated.')
+    } catch {
+        // error toast handled by store
+    } finally {
+        savingPermission.value = null
+    }
+}
+
+const permissions = computed(() => [
+    {
+        field: 'can_vote_on_loans' as const,
+        icon: Vote,
+        label: 'Vote on loan applications',
+        description: 'Can cast approve/decline votes during committee voting rounds.',
+        value: staff.value?.can_vote_on_loans ?? false,
+        color: 'violet',
+    },
+    {
+        field: 'can_manage_branch' as const,
+        icon: GitBranch,
+        label: 'Manage branch (Branch Manager)',
+        description: 'Can recommend loan applications and return them for correction.',
+        value: staff.value?.can_manage_branch ?? false,
+        color: 'indigo',
+    },
+    {
+        field: 'can_finalise_loan' as const,
+        icon: CheckSquare,
+        label: 'Finalise loan terms',
+        description: 'Can confirm final loan terms and lock the repayment schedule before disbursement.',
+        value: staff.value?.can_finalise_loan ?? false,
+        color: 'emerald',
+    },
+])
 
 const exportData = () => {
     if (!referredMembers.value.length) return
@@ -121,19 +164,31 @@ const exportData = () => {
                         :class="[
                             'px-2 py-3 font-medium transition-colors border-b-2',
                             activeTab === 'overview'
-                                ? ' border-nfuko-primary dark:border-bg-nfuko-yellow  text-nfuko-primary dark:text-bg-nfuko-yellow'
-                                : 'border-transparent text-neutral-500 hover: text-nfuko-primary dark:hover:text-bg-nfuko-yellow'
+                                ? 'border-nfuko-primary dark:border-bg-nfuko-yellow text-nfuko-primary dark:text-bg-nfuko-yellow'
+                                : 'border-transparent text-neutral-500 hover:text-nfuko-primary dark:hover:text-bg-nfuko-yellow'
                         ]"
                     >
                         Overview & KPI
+                    </button>
+                    <button
+                        @click="activeTab = 'permissions'"
+                        :class="[
+                            'flex items-center gap-2 px-2 py-3 font-medium transition-colors border-b-2',
+                            activeTab === 'permissions'
+                                ? 'border-nfuko-primary dark:border-bg-nfuko-yellow text-nfuko-primary dark:text-bg-nfuko-yellow'
+                                : 'border-transparent text-neutral-500 hover:text-nfuko-primary dark:hover:text-bg-nfuko-yellow'
+                        ]"
+                    >
+                        <ShieldCheck class="h-4 w-4" />
+                        Permissions
                     </button>
                     <button
                         @click="activeTab = 'onboarded'"
                         :class="[
                             'flex items-center gap-2 px-2 py-3 font-medium transition-colors border-b-2',
                             activeTab === 'onboarded'
-                                ? ' border-nfuko-primary dark:border-bg-nfuko-yellow  text-nfuko-primary dark:text-bg-nfuko-yellow'
-                                : 'border-transparent text-neutral-500 hover: text-nfuko-primary dark:hover:text-bg-nfuko-yellow'
+                                ? 'border-nfuko-primary dark:border-bg-nfuko-yellow text-nfuko-primary dark:text-bg-nfuko-yellow'
+                                : 'border-transparent text-neutral-500 hover:text-nfuko-primary dark:hover:text-bg-nfuko-yellow'
                         ]"
                     >
                         Onboarded Members
@@ -159,6 +214,56 @@ const exportData = () => {
                                     {{ staff.is_tenant_admin ? 'Has administrative privileges' : 'Standard privileges' }}
                                 </p>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Permissions Tab -->
+                    <div v-show="activeTab === 'permissions'" class="w-full space-y-3">
+                        <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
+                            Loan workflow permissions control what actions this staff member can take during the loan approval process.
+                            Changes take effect immediately.
+                        </p>
+                        <div
+                            v-for="perm in permissions"
+                            :key="perm.field"
+                            class="flex items-center justify-between gap-4 rounded-xl border border-neutral-100 bg-neutral-50/50 p-4 dark:border-neutral-800 dark:bg-neutral-800/30"
+                        >
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+                                    :class="{
+                                        'bg-violet-100 dark:bg-violet-900/40': perm.color === 'violet',
+                                        'bg-indigo-100 dark:bg-indigo-900/40': perm.color === 'indigo',
+                                        'bg-emerald-100 dark:bg-emerald-900/40': perm.color === 'emerald',
+                                    }"
+                                >
+                                    <component
+                                        :is="perm.icon"
+                                        class="h-4 w-4"
+                                        :class="{
+                                            'text-violet-600 dark:text-violet-400': perm.color === 'violet',
+                                            'text-indigo-600 dark:text-indigo-400': perm.color === 'indigo',
+                                            'text-emerald-600 dark:text-emerald-400': perm.color === 'emerald',
+                                        }"
+                                    />
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-neutral-900 dark:text-white">{{ perm.label }}</p>
+                                    <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ perm.description }}</p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                :disabled="savingPermission === perm.field"
+                                class="flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-50"
+                                :class="perm.value
+                                    ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                                    : 'border border-neutral-200 text-neutral-500 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800'"
+                                @click="togglePermission(perm.field)"
+                            >
+                                <component :is="perm.value ? ToggleRight : ToggleLeft" class="h-4 w-4" />
+                                {{ savingPermission === perm.field ? 'Saving…' : perm.value ? 'Enabled' : 'Disabled' }}
+                            </button>
                         </div>
                     </div>
 

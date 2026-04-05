@@ -30,7 +30,6 @@ function createDefaultForm(): LoanProduct {
     warning_days: null,
     max_securities: 3,
     security_value_percentage: 150,
-    allow_sub_schedule: false,
     penalty_rate: 0,
     penalty_type: 'none',
     penalty_grace_days: 0,
@@ -50,6 +49,11 @@ function createDefaultForm(): LoanProduct {
     is_active: false,
     penalty_rules: [],
     charge_ids: [],
+    committee_voting: {
+      enabled: false,
+      quorum_size: 3 as number | null,
+      approval_threshold: 2 as number | null,
+    },
   }
 }
 
@@ -302,6 +306,7 @@ export function useLoanProductForm() {
         })
       }
 
+      const setting = p.approval_setting ?? null
       form.value = {
         ...createDefaultForm(),
         ...p,
@@ -311,6 +316,11 @@ export function useLoanProductForm() {
         // Always reset legacy global penalty fields to safe defaults
         penalty_type: 'none',
         penalty_rate: 0,
+        committee_voting: {
+          enabled: !!setting,
+          quorum_size: setting?.quorum_size ?? 3,
+          approval_threshold: setting?.approval_threshold ?? 2,
+        },
       }
       previewAmount.value = Number(p.min_amount ?? 0) || null
       previewTerm.value = p.loan_duration ?? null
@@ -504,11 +514,15 @@ export function useLoanProductForm() {
     try {
       // Ensure legacy global penalty fields are always reset.
       // Penalty configuration is now managed entirely through penalty_rules.
+      const cv = form.value.committee_voting
       const payload = {
         ...form.value,
         penalty_type: 'none',
         penalty_rate: 0,
         penalty_rules: normalizePenaltyRules(form.value.penalty_rules),
+        approval_setting: cv?.enabled
+          ? { enabled: true, quorum_size: cv.quorum_size, approval_threshold: cv.approval_threshold }
+          : { enabled: false },
       }
 
       if (isEditing.value) {

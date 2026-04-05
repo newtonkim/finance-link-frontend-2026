@@ -9,7 +9,11 @@ export interface Staff {
   status: 'active' | 'inactive'
   is_tenant_admin?: boolean
   branch_id?: number | null
+  can_vote_on_loans?: boolean
+  can_manage_branch?: boolean
+  can_finalise_loan?: boolean
   created_at?: string
+  updated_at?: string
 }
 
 export const staffApi = {

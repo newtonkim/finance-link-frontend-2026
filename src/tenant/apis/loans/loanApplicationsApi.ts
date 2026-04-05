@@ -291,6 +291,10 @@ export const loanApplicationsApi = {
   getVotes(id: number) {
     return tenantClient.get(`/loan-applications/${id}/votes`)
   },
+  // alias used by loadCommitteeVotes — same endpoint, returns tally + individual votes
+  getCommitteeVotes(id: number) {
+    return tenantClient.get(`/loan-applications/${id}/votes`)
+  },
   markAbstention(id: number, staffId: number, reason: string) {
     return tenantClient.patch(`/loan-applications/${id}/votes/${staffId}/abstain`, { reason })
   },

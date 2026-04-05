@@ -1,10 +1,10 @@
 <template>
     <TableDrawer :permissions="{
-        // create: 'staff-create',
-        // view: 'staff-details',
-        // edit: 'staff-update',
-        // delete: 'staff-delete'
-    }" drawerWidth=" w-2/4" :url="tableUrl" state="staffList" :drawerTitle="drawerTitle" " :columns="columns"
+        create: '',
+        view: '',
+        edit: '',
+        delete: ''
+    }" drawerWidth=" w-2/4" :url="tableUrl" state="staffList" :drawerTitle="drawerTitle" :columns="columns"
         @save="saveUser">
         <template #header-action>
             <PainPageHeader title="Staff list" dec="Manage SACCO staff accounts and track their onboarding performance" />
@@ -23,7 +23,7 @@ import { ref, computed } from 'vue'
 import { Create, Details } from '.'
 import { TableDrawer, StatusButtonsHorizontal, PainPageHeader } from '@/Global'
 const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
-    drawerTitle = ref('Create Tenant'), filters = ['active', 'pendding'],
+    drawerTitle = ref('Create a sacco staff'), filters = ['active', 'pendding'],
     tableUrl = computed(() => `/staff/list?status=${statusFilter.value}`),
     title: Record<string, string> = {
         "view": "View  Details",
@@ -35,11 +35,11 @@ function saveUser(type: string, data: any) {
 }
 const columns = [
     { key: 'code', label: 'code', copy: true },
-    { key: 'staff_fall_name', label: 'Member', sticky: 'left', },
-    { key: 'staff_email', label: 'Member Type' },
+    { key: 'staff_fall_name', label: 'Full Name', sticky: 'left', },
+    { key: 'staff_email', label: 'Email Address' },
     { key: 'system_role', label: 'role', },
     { key: 'status', label: 'status', type: 'status' },
-    { key: 'created_at', label: 'created_at', },
+    { key: 'created_at', label: 'created_at', type: 'date' },
     { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 ]
 </script>

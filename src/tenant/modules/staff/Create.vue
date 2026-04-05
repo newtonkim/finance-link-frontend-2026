@@ -20,12 +20,13 @@ const loadingMount = computed(() => loading.value), emits = defineEmits(['update
         required: true,
     },
     {
-        label: 'Email adress',
+        label: 'Email address',
         name: 'staff_email',
         type: 'email',
         required: true,
         value: '',
         props: { placeholder: 'Select Start & End Dates' },
+        options: [] as any[], // Add options property to avoid type errors when spreading
     },
     {
         label: 'password',
@@ -45,27 +46,34 @@ const loadingMount = computed(() => loading.value), emits = defineEmits(['update
 ]);
 async function promtValueOnUpdate() {
     loading.value = true
-    if (props.data) {
-        const data = { tenant_id: props.data.tenant_id, plan: props.data.plan_id, date: [props.data.starts, props.data.expires], status: props.data.status }
-        await Object.entries(data).forEach(([key, value]) => {
-            const field = fields.value.find((f: any) => f.name === key)
-            if (field) field.value = value
+    if (props.data && props.data.action !== 'add') {
+        const data: any = { 
+            staff_fall_name: props.data.staff_fall_name, 
+            staff_email: props.data.staff_email,
+            system_role: props.data.system_role_id || props.data.role_id,
+            status: props.data.status 
+        }
+        fields.value.forEach((field: any) => {
+            if (data[field.name] !== undefined) {
+                field.value = data[field.name];
+            }
         });
     }
     loading.value = false
 }
 function checkForSettings() {
     const checkForVaailableSetting = getSystemSetting()
-    settingList.value = {
-        "sacco-members-require-approval-before-members-becomes-active": parseFloat(checkForVaailableSetting?.['sacco-members-require-approval-before-members-becomes-active'] ?? 0),
-    }
+    const settings: any = {};
+    settings["sacco-members-require-approval-before-members-becomes-active"] = parseFloat(checkForVaailableSetting?.['sacco-members-require-approval-before-members-becomes-active'] ?? 0);
+    settingList.value = settings;
 }
 watch(
     () => fields.value,
     (val) => {
         const statusIndex = val.findIndex(f => f.name === 'status')
-        const fullNameIndex = val.findIndex(f => f.name === 'full_name')
-        if (settingList.value?.['sacco-members-require-approval-before-members-becomes-active']) {
+        const fullNameIndex = val.findIndex(f => f.name === 'staff_fall_name')
+        const currentSettings = settingList.value as any;
+        if (currentSettings?.['sacco-members-require-approval-before-members-becomes-active']) {
             if (statusIndex === -1 && fullNameIndex !== -1) {
                 fields.value.splice(fullNameIndex + 1, 0, {
                     label: 'free input code',
