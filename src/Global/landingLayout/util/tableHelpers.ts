@@ -337,7 +337,7 @@ export default function useTableHelpers(props: any, emit: any) {
     toggleDrawer,
     filterDataByString,
     refresh,
-    currentPage,
+    currentPage,saveDrawerData,
     haspermission,
     searchQuery,
     selected,

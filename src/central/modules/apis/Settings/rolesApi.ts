@@ -10,7 +10,7 @@ export function rolesApi() {
             msg:success ,
             type: 'Error',
         };
-        alert()
+        // alert()
         if (!res || res.status == 200) {
             msg = {
                 msg: fail,

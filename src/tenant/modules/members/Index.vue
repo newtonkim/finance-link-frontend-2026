@@ -46,7 +46,7 @@ function saveUser(type: string, data: any) {
     if (title?.[type]) drawerTitle.value = title?.[type]
 }
 const columns = [
-    { key: 'memeber_code', label: 'code', },
+    { key: 'memeber_code', label: 'code', sticky: 'left', width: '14em', copy: true },
     { key: 'salutation_name', label: 'Member', sticky: 'left', width: '14em ', },
     { key: 'member_type', label: 'Member Type' },
     { key: 'NIN', label: 'national id', },

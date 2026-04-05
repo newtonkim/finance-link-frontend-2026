@@ -191,6 +191,7 @@ const emit = defineEmits(['save', 'submit', 'update:title']);
     handleImport,
     handleTableAction,
     handlePrint,
+    saveDrawerData,
     showDelete,ACTION_CONFIG,
     createNewRecord,dropdownDownload,DrawerMounted
 }= useTableHelpers(props,emit);
@@ -198,6 +199,7 @@ const emit = defineEmits(['save', 'submit', 'update:title']);
 
 defineExpose({
     toggleDrawer,
+    saveDrawerData,
     callNewPage,
     drawerOpen,
     changeThePage,
