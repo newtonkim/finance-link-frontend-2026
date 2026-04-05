@@ -4,7 +4,7 @@ import { storeToRefs } from 'pinia';
 import { useCurrencyStore } from '@/stores/currency';
 
 const props = defineProps<{
-    modelValue: string | number | null;
+    modelValue: any;
     placeholder?: string;
     disabled?: boolean;
     class?: string;

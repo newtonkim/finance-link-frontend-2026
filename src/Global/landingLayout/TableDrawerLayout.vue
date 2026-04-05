@@ -35,16 +35,9 @@
                 <div class="flex">
                     <div class="flex items-center gap-2 board-r-1 mx-2" v-if="showTableAction">
                         <Imploading icon="Download" :items="dropdownDownload" @select="handleDownload" />
-
                         <Imploading :items="exportItems" @select="handleImport" />
-                        <!-- {{ sizePapers(printSizes??[]) }} -->
                         <Imploading v-if="printSizes?.length" icon="Printer" :items="sizePapers(printSizes ?? [])"
-                            @select="handlePrint" />
-
-                        <!-- <button @click="handlePrint"
-                            class="p-2 cursor-pointer hover:bg-nfuko-action hover:text-white hover:rounded-full hover:border-1 hover:border-accent bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all">
-                            <Printer :size="18" />
-                        </button> -->
+                            @select="handlePrint" /> 
                         <div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2"></div>
                     </div>
                     <slot name="searchSideAction" />
@@ -67,7 +60,6 @@
         </div>
     </div>
     <slot name="footer" />
-
     <div v-if="DrawerMounted">
         <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShooter2" v-model:open="drawerOpen"
             :title="drawerTitle" @save="saveDrawerData">
@@ -77,7 +69,6 @@
                 </div>
                 <div v-else-if="buttonTypeClicked == 'import-data'">
                     <uploadTemplateColumData :title="title" :url="url" />
-
                 </div>
                 <span v-else>
                     <slot :data="provideDataTotheParent" name="drawer" :action="buttonTypeClicked"
@@ -123,7 +114,7 @@ const props = defineProps({
     drawerShowFooter: { type: Boolean, default: true },
     drawerTitle: { type: String, default: 'Drawer Title' },
     drawerWidth: { type: String, default: '30rem' },
-    importDefaults: { type: Array, default: ['id', 'branch_id'] },
+    importDefaults: { type: Array, default: ['id', 'branch_id'],required: false },
     title: { type: String, required: false },
     /**
      * if  u want the drawer to make the create request   automaticly 

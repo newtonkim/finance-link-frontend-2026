@@ -1,16 +1,19 @@
 <template>
-  <div
-  :class="class"
+  <div :class="class"
     class="overflow-x-auto max-h-[64vh] border-0 border-neutral-100 dark:border-neutral-800 rounded-2xl sh adow-sm dark:bg-neutral-900 bg-white custom-scrollbar">
-    <table class="table-auto text-left bo rder-collapse w-full striped-table">
+    <tableLoader v-if="!Array.isArray(dataFilter)" :numberindex="numberindex" :columns="localColumns" />
+   
+    <table v-else class="table-auto text-left bo rder-collapse w-full striped-table">
       <thead class="sticky top-0 z-40 bg-white dark:bg-neutral-900 shadow-sm">
         <tr class="border-b border-neutral-100 dark:border-neutral-800">
-             <th v-if="numberindex" class="p-2 px-3 py-4 text-xs font-semibold tracking-wide text-neutral-700 capitalize">S/N</th>
-             <th v-if="checkBox" class="p-2 px-3 py-4 text-xs font-semibold tracking-wide text-neutral-700 capitalize">check</th>
+          <th v-if="numberindex" class="p-2 px-3 py-4 text-xs font-semibold tracking-wide text-neutral-700 capitalize">
+            S/N</th>
+          <th v-if="checkBox" class="p-2 px-3 py-4 text-xs font-semibold tracking-wide text-neutral-700 capitalize">
+            check</th>
 
           <th v-for="(col, index) in localColumns" draggable="true" @dragstart="onDragStart(index)" @dragover.prevent
             @drop="onDrop(index)" :key="col.key" :class="[
-           `${col.key === 'actions'|| col.key === 'action' ? 'hide-on-print' : ''}`,
+              `${col.key === 'actions' || col.key === 'action' ? 'hide-on-print' : ''}`,
 
               'p-2 px-3 py-4 text-xs font-semibold tracking-wide text-neutral-700 capitalize',
               col.key === 'actions' ? 'text-center' : '',
@@ -34,21 +37,18 @@
             <EmptySvg />
           </td>
         </tr>
-        <tr v-for="(item, idx) in dataFilter" :key="item?.id ?? idx"
-          :class="[
-            rowClass,
-            Number(idx) < dataFilter.length - 1 ? 'border-b border-neutral-50 dark:border-neutral-800' : ''
+        <tr v-for="(item, idx) in dataFilter" :key="item?.id ?? idx" :class="[
+          rowClass,
+          Number(idx) < dataFilter.length - 1 ? 'border-b border-neutral-50 dark:border-neutral-800' : ''
 
-          ]"
-          >
+        ]">
           <td v-if="numberindex" :class="[
 
             'px-3 py-3 truncate text-[14px] text-neutral-500 dark:text-neutral-400 capitalize',
             'sticky z-30 left-0 bg-white dark:bg-neutral-900'
           ]">{{ idx + 1 }}</td>
-            <td v-if="checkBox" class="p-2 px-3 py-4 text-xs font-semibold tracking-wide text-neutral-700 capitalize">
-               <!-- <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-4 py-3 max-h-[58vh] overflow-y-auto custom-scrollbar">
-                
+          <td v-if="checkBox" class="p-2 px-3 py-4 text-xs font-semibold tracking-wide text-neutral-700 capitalize">
+            <!-- <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-4 py-3 max-h-[58vh] overflow-y-auto custom-scrollbar">
                 <label  :key="idx+45"
                     class="flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer border border-transparent hover:border-nfuko-primary-300 hover:bg-nfuko-primary-50 dark:hover:bg-neutral-800 transition group">
                     <input type="checkbox" :value="id+23" v-model="selected"
@@ -59,9 +59,9 @@
                     </span>
                 </label>
             </div> -->
-            </td>
+          </td>
           <td v-for="col in localColumns" :key="col.key" :class="[
-                      `${col.key === 'actions'|| col.key === 'action' ? 'hide-on-print' : ''}`,
+            `${col.key === 'actions' || col.key === 'action' ? 'hide-on-print' : ''}`,
 
             'px-3 py-3 truncate text-[14px] text-neutral-500 dark:text-neutral-400 capitalize',
             col.sticky ? `sticky z-30 ${col.sticky}-0 dark:bg-neutral-900 bg-white` : '',
@@ -70,7 +70,7 @@
               ? 'text-center sticky z-30 right-0 dark:bg-neutral-900 bg-white'
               : ''
           ]" :style="getColumnStyle(col)">
-            <div :class="[`${col?.class}`,'truncate']" :style="getColumnStyle(col)">
+            <div :class="[`${col?.class}`, 'truncate']" :style="getColumnStyle(col)">
               <div v-if="col.key === 'actions'" class="flex justify-center gap-2 capitalize-table-action">
                 <template v-for="action in col?.show ?? []" :key="action">
                   <button type="button" @click="handleAction(item, action)" v-auth="permissions?.[action]"
@@ -93,7 +93,7 @@
                     <tbody>
                       <tr v-for="[key, value] in Object.entries(item[col.key])" :key="key">
                         <td v-if="value"><span>{{ key }}</span></td>
-                        <td v-if="value" class="px-1 ">:<span  class="px-2 ">{{ value }}</span></td>
+                        <td v-if="value" class="px-1 ">:<span class="px-2 ">{{ value }}</span></td>
                       </tr>
                     </tbody>
                   </table>
@@ -113,6 +113,7 @@ import type { PropType } from 'vue'
 import { dataFomater } from '../util'
 import { CopyData, checkIfObjectPlain } from '@/Global'
 import { EmptySvg } from '../..'
+import tableLoader from './tableLoader.vue'
 import { ref, watch } from 'vue'
 
 const props = defineProps({

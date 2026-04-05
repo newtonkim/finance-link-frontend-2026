@@ -3,16 +3,13 @@
         :drawerTitle="drawerTitle?.title" " :columns="columns" @save="saveUser">
         <template #code="{ item }">
             <div class=" items-center gap-2">
-                <!-- Copy code button -->
                 <CopyData :show="item.code" />
-                <div class="flex">
+                <div class="flex items-center justify-between">
 
-                    <!-- Status text -->
                     <div class="text-[11px] uppercase tracking-wide">{{ item.status }}</div>
 
-                    <!-- Badge count -->
                     <div v-if="item.count >1"
-                        class="bg-red-500 text-white text-[10px] font-bold px-0 py-0.5 rounded-full min-w-[20px] text-center mx-2 " title=" contains more transaction in it">
+                        class="mx-10 bg-red-500 text-white text-[10px] font-bold px-0 py-0.5 rounded-full min-w-[20px] text-center mx-2 " title=" contains more transaction in it">
                         {{ item.count }}
                     </div>
                 </div>
@@ -27,8 +24,8 @@
         <template #drawer="{ action, data }">
 
             <Details v-if="['view'].includes(action)" :data="data" />
-            <!-- <Create v-else :data="{ ...data, action }" v-model:form="formData" /> -->
-            <Create v-if="['add', 'edit','',' '].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
+            <!-- <Create v-if="['add', 'edit','',' '].includes(action)" :data="{ ...data, action }" v-model:form="formData" /> -->
+            <Create v-else :data="{ ...data, action }" v-model:form="formData" />
         </template>
     </TableDrawer>
 </template>
