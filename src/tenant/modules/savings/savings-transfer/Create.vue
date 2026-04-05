@@ -14,6 +14,7 @@ import { ArrowLeftRight, Loader2, CheckCircle2, AlertCircle, RefreshCw } from 'l
     type: 'date',
     required: true,
     placeholder: 'Enter transfer date', 
+    value: new Date().toISOString().split('T')[0],
   },
   {
     label: 'select From',
@@ -39,7 +40,7 @@ import { ArrowLeftRight, Loader2, CheckCircle2, AlertCircle, RefreshCw } from 'l
     name: 'amount',
     type: 'money',
     required: true, 
-    suffix: 'UGX',
+    // suffix: 'UGX',
     placeholder: 'Enter amount to transfer',
   },
   {
@@ -47,7 +48,7 @@ import { ArrowLeftRight, Loader2, CheckCircle2, AlertCircle, RefreshCw } from 'l
     name: 'norration',
     type: 'textarea',
     required: true, 
-    porefix: 'UGX',
+
     placeholder: 'Enter amount to transfer',
     rows:"10"
   },

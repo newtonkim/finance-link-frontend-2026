@@ -113,8 +113,10 @@ onUnmounted(() => {
 watch(props, async (newVal) => {
     if (newVal?.dataOnMount) {
         searchQuery.value = props.modelValue ?? '';
+        // opens
         await toggleDropdown();
-        // await toggleDropdown();
+        // close
+        await toggleDropdown();
     }
 }, { immediate: true, deep: true });
  
@@ -124,6 +126,7 @@ watch(searchQuery, (newVal) => {
         remoteUrl(props.url)
     }
 }, { immediate: true, deep: true });
+
 
 defineExpose({
     toggleDropdown,

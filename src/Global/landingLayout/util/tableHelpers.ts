@@ -66,7 +66,6 @@ export default function useTableHelpers(props: any, emit: any) {
     } else handleTableAction(null, item.route)
   }
   function handleImport(item: any) {
-  
     if (item.action) {
       buttonTypeClicked.value = item.value
       item.action(item)
@@ -76,7 +75,6 @@ export default function useTableHelpers(props: any, emit: any) {
 
   // const title
 
-
   async function handleTableAction(item: any, action: string) {
     drawerWidth.value = 'w-2/4'
     if (action == 'import-data') {
@@ -84,7 +82,7 @@ export default function useTableHelpers(props: any, emit: any) {
       drawerTitle.value = 'import data'
     } else {
       const res = await fetchTableData({
-        data: {...item,page: currentPage.value,search_keyword:searchQuery.value},
+        data: { ...item, page: currentPage.value, search_keyword: searchQuery.value },
         props: {
           ...props,
           reload: false, // dont refectch data
@@ -298,7 +296,7 @@ export default function useTableHelpers(props: any, emit: any) {
     () => drawerOpen.value,
     (v) => {
       drawerTitle.value = props.drawerTitle
-    //   drawerShooter2.value = props.drawerShowFooter
+      //   drawerShooter2.value = props.drawerShowFooter
       drawerWidth.value = props.drawerWidth
       if (!v) {
         //reset the drawer data when the drawer is closed
@@ -337,7 +335,8 @@ export default function useTableHelpers(props: any, emit: any) {
     toggleDrawer,
     filterDataByString,
     refresh,
-    currentPage,saveDrawerData,
+    currentPage,
+    saveDrawerData,
     haspermission,
     searchQuery,
     selected,

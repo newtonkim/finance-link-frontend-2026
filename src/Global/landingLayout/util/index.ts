@@ -50,7 +50,7 @@ export const dataFomater = (data: any, type: string) => {
       const verifyTheStatus =
         statusMap?.[`${data}`] ??
         statusMap?.[`${data}`?.toLowerCase()] ??
-        statusMap?.[`${data}`?.toUpperCase()]
+        statusMap?.[`${data}`?.toUpperCase()]??data
       return `<span class="${verifyTheStatus?.className}">${verifyTheStatus?.label}</span>`
     },
     number: () => {

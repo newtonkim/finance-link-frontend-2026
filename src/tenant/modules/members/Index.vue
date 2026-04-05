@@ -1,7 +1,6 @@
 <template>
-    <TableDrawer
-    :importDefaults="['id','branch_id','dob']"
-     drawerWidth=" w-2/3" :url="tableUrl" state="memberList" :drawerTitle="drawerTitle" " :columns="columns" @save="saveUser" :showTableAction="true">
+    <TableDrawer :importDefaults="['id', 'branch_id', 'dob']" drawerWidth=" w-2/3" :url="tableUrl" state="memberList"
+        :drawerTitle="drawerTitle" " :columns="columns" @save="saveUser" :showTableAction="true">
         <template #header-action>
             <div>
                 <h1 class="text-4xl font-black text-[#0A2318] dark:text-white tracking-tight">
@@ -59,7 +58,8 @@ const columns = [
     { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 ]
 function navigateToProfile(item: any) {
-    router.push(`/tenant/member/profile`) // navigate to the member profile page
+    router.push(`/tenant/member/profile`)
+    // navigate to the member profile page
     // you can also pass the member id or other details as query params or state if needed      `)
     // navigate to the member profile page
     setLocalValues('memberProfile', item)
