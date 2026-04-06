@@ -2,7 +2,7 @@
   <div :class="class"
     class="overflow-x-auto max-h-[64vh] border-0 border-neutral-100 dark:border-neutral-800 rounded-2xl sh adow-sm dark:bg-neutral-900 bg-white custom-scrollbar">
     <tableLoader v-if="!Array.isArray(dataFilter)" :numberindex="numberindex" :columns="localColumns" />
-   
+
     <table v-else class="table-auto text-left bo rder-collapse w-full striped-table">
       <thead class="sticky top-0 z-40 bg-white dark:bg-neutral-900 shadow-sm">
         <tr class="border-b border-neutral-100 dark:border-neutral-800">
@@ -73,7 +73,11 @@
             <div :class="[`${col?.class}`, 'truncate']" :style="getColumnStyle(col)">
               <div v-if="col.key === 'actions'" class="flex justify-center gap-2 capitalize-table-action">
                 <template v-for="action in col?.show ?? []" :key="action">
-                  <button type="button" @click="handleAction(item, action)" v-auth="permissions?.[action]"
+                  <Imploading v-if="action == 'share'"
+                    class="p-2 cursor-pointer hover:bg-nfuko-default hover:text-gray-400  hover:border hover:border-accent bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all"
+                    :items='sharedropdown' @select="(v)=>handleAction({...item,action:v?.value}, 'share')" icon="LucideSend" />
+
+                  <button v-else type="button" @click="() => handleAction(item, action)" v-auth="permissions?.[action]"
                     :class="action_config?.[action]?.class" class="py-2">
                     <component :is="action_config?.[action]?.icon" class="h-2.5 w-2.5" />
                     <span v-if="action !== 'delete'">{{ action }}</span>
@@ -111,7 +115,7 @@
 <script setup lang="ts">
 import type { PropType } from 'vue'
 import { dataFomater } from '../util'
-import { CopyData, checkIfObjectPlain } from '@/Global'
+import { CopyData, checkIfObjectPlain, Imploading } from '@/Global'
 import { EmptySvg } from '../..'
 import tableLoader from './tableLoader.vue'
 import { ref, watch } from 'vue'
@@ -128,6 +132,12 @@ const props = defineProps({
   action_config: { type: Object as PropType<any>, required: true },
   permissions: { type: Object, required: false },
 })
+const sharedropdown = ref<any>([
+  { label: "whats app", value: "whats-app", },
+  { label: "sms", value: "sms", },
+  { label: "gmail", value: "gmail", },
+
+])
 const resizingCol = ref<number | null>(null)
 const startX = ref(0)
 const startWidth = ref(0)

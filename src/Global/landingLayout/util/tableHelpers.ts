@@ -210,6 +210,17 @@ export default function useTableHelpers(props: any, emit: any) {
       if (props?.state && props?.url) {
         return // dont send the  action to the parent
       }
+    } else if (['share'].includes(action)) {
+      const act = props?.outerlinks?.[action] ?? action
+      const res = await fetchTableData({
+        data: item,
+        props: {
+          ...props,
+          state: props?.state + '_' + act,
+          url: createUrl(props?.url, act),
+        },
+        Store,
+      })
     } else if (['edit', 'view'].includes(action)) {
       DrawerMounted.value = false
       if (fn) fn(item)

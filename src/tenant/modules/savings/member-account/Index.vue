@@ -24,8 +24,7 @@
             </div>
         </template>
         <template #header-action>
-            <PainPageHeader title="Members Savings Account"
-                dec="Manage all member savings accounts and their balances." />
+            <PainPageHeader title="Members Savings Account" dec="Manage all member savings accounts and their balances." />
         </template>
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
@@ -35,13 +34,10 @@
                 v-if="['import-accounts', 'import-deposit-withdrawal'].includes(automaticCreate.actionSlot)"
                 :title="automaticCreate?.actionSlot" :url="`/members-account/${automaticCreate?.actionSlot}`"
                 :submit-url="automaticCreate.actionSlot" />
-
             <DepositTemplate v-else-if="automaticCreate?.actionSlot == 'download-deposit-template'"
                 :data="{ action, ...(automaticCreate ?? {}) }" />
-
             <WithdrawalTemplate v-else-if="automaticCreate?.actionSlot == 'download-withdrawal-template'"
                 :data="{ action, ...(automaticCreate ?? {}) }" />
-
             <Deposit v-else-if="automaticCreate?.actionSlot == 'deposit'" :data="{ action, ...(automaticCreate ?? {}) }"
                 v-model:form="formData" />
             <ExportTemplate v-else-if="automaticCreate?.actionSlot == 'download-memeber-accounts-template'"
@@ -51,8 +47,6 @@
             <Details v-else-if="['view'].includes(action)" :data="data" />
             <Create v-else :data="{ ...data, action }" />
             <!-- <Create v-else="['add', 'edit',''].includes(action)" :data="{ ...data, action }" /> -->
-
-
         </template>
     </TableDrawer>
 </template>
@@ -90,22 +84,19 @@ const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
 function saveUser(type: string, data: any) {
     if (!type && title?.[automaticCreate.value.actionSlot]) {// let check if there is an action slot has its own action we use that action instead of the default ones
         title?.[automaticCreate.value.actionSlot]?.fun?.()
-
         return
     }
-
     if (['add', 'edit', 'view'].includes(type))
         automaticCreate.value = {}
     if (title?.[type]) {
         drawerTitle.value = title?.[type]
     }
     title?.[type]?.fun?.()
-
-    // automaticCreate.value.actionSlot=automaticCreate.value.actionSlot
+    // // // // automaticCreate.value.actionSlot=automaticCreate.value.actionSlot
     automaticCreate.value = {}// celan the automatic create
 }
 const columns = [
-    { key: 'member_name', label: 'Member', sticky: 'left', width: '16em ', },
+    { key: 'member_name', label: 'Member', sticky: 'left', width: '14em ', },
     { key: 'product', label: 'product', sticky: 'left', width: '14em ', },
     { key: 'status', label: 'status', type: 'status' },
     { key: 'blc', label: 'balance', type: 'money' },

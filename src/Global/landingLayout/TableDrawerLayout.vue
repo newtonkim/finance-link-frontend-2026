@@ -34,9 +34,9 @@
                 </div>
                 <div class="flex">
                     <div class="flex items-center gap-2 board-r-1 mx-2" v-if="showTableAction">
-                        <Imploading icon="Download" :items="dropdownDownload" @select="handleDownload" />
-                        <Imploading :items="exportItems" @select="handleImport" />
-                        <Imploading v-if="printSizes?.length" icon="Printer" :items="sizePapers(printSizes ?? [])"
+                        <Imploading v-if="showTableAction==true || (Array.isArray(showTableAction) && showTableAction.includes('download'))" icon="Download" :items="dropdownDownload" @select="handleDownload" />
+                        <Imploading v-if="showTableAction==true || (Array.isArray(showTableAction) && showTableAction.includes('migrate'))" :items="exportItems" @select="handleImport" />
+                        <Imploading v-if="printSizes?.length && (showTableAction==true || (Array.isArray(showTableAction) && showTableAction.includes('print')))" icon="Printer" :items="sizePapers(printSizes ?? [])"
                             @select="handlePrint" /> 
                         <div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2"></div>
                     </div>
@@ -129,7 +129,7 @@ const props = defineProps({
     },
     columns: { type: Array, required: true },
     removeInSearch: { type: Array, default: () => ['action'] },
-    showTableAction: { type: Boolean, default: false },
+    showTableAction: { type: [Boolean,Array], default: false,required: false },
     showSearchbar: { type: Boolean, default: true },
     drawerRemount: { type: Boolean, required: false, default: true },
     state: { type: String, required: false },

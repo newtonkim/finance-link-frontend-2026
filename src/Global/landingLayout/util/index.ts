@@ -6,7 +6,7 @@ import {
   keysToUse,
   addNumberCommas,
 } from '../../Helpers'
-import { Eye, Edit, Trash, X } from 'lucide-vue-next'
+import { Eye, Edit, Trash, X,Send } from 'lucide-vue-next'
 import { tenantClient } from '@/tenant/apis/tenantClient'
 import { apiClient } from '@/central/api/client'
 
@@ -94,6 +94,18 @@ export const ACTION_CONFIG = {
     class:
       'flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py- text-xs font-bold text-indigo-600 transition-colors hover:bg-indigo-100 dark:bg-indigo-900/40 dark:text-indigo-300 dark:hover:bg-indigo-900/60',
   },
+    share: {
+    icon: Send,
+    action: (row) => {
+      // you can pass row data here
+      return {
+        type: 'share',
+        // data: row
+      }
+    },
+    class:
+      'flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-600 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/40 dark:text-emerald-300 dark:hover:bg-emerald-900/60',
+  }
 }
 
 export const dataTabelFilter = (collection: any, searchQuery: any) => {

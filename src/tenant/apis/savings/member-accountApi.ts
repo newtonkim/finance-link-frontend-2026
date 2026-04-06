@@ -29,25 +29,11 @@ export function memberAccountApi() {
         state: 'memberAccountList',
       },
     })
-    let msg: any = {
-      msg: 'deposit amount added successfully',
-      type: 'Success',
-      success: true,
+    const response = feedback(getCharges)
+    if (response.success) {
+      return true
     }
-    if (getCharges?.error?.response?.data?.payload?.code == '422') {
-      msg = {
-        msg: getCharges.error.response.data.payload.message,
-        type: 'Error',
-        success: false,
-      }
-      notify(msg)
-      return false
-    }
-    notify(msg)
-
-    return true
-
-    // return getCharges.payload
+    return false
   }
   async function memebrAccountWithdrawalAmount(data: any, outletAction: any) {
     const dataPrepare = data
