@@ -381,5 +381,4 @@ export function useLoanAppraisalActions(
         // Committee Votes + Members
         committeeVotes, committeeMembers,
     }
-    }
 }

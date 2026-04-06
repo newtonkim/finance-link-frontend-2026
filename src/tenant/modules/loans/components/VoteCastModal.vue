@@ -40,9 +40,6 @@ function handleSubmit() {
     commentError.value = ''
     emit('submit', decision.value, comment.value.trim())
 }
-
-const votedCount = computed(() => props.committeeMembers?.filter(m => m.has_voted).length ?? 0)
-const totalCount = computed(() => props.committeeMembers?.length ?? 0)
 </script>
 
 <template>
