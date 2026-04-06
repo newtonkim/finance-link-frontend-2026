@@ -11,6 +11,7 @@ import {
   DatabaseZap,
   HandCoins,
   Wallet,
+  Vote,
 } from 'lucide-vue-next'
 import {
   Sidebar,
@@ -136,6 +137,21 @@ const tenant = tenantStore.currentTenant as any
                 </span>
               </div>
               <div v-if="route.path.startsWith('/tenant/loan-applications')"
+                class="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-[3px] bg-bg-nfuko-yellow rounded-r-full shadow-[0_0_10px_rgba(201,168,76,0.5)]" />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton :tooltip="'Pending Votes'" @click="router.push('/tenant/loan-applications/pending-votes')"
+              class="relative px-0 py-2.5 hover:bg-white/5 transition-all duration-200 group">
+              <div class="flex w-full items-center gap-3 pl-4 pr-3">
+                <Vote class="h-4 w-4 transition-colors duration-200"
+                  :class="route.path === '/tenant/loan-applications/pending-votes' ? 'text-bg-nfuko-yellow' : 'text-nfuko-nav-text group-hover:text-bg-nfuko-yellow'" />
+                <span class="flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200"
+                  :class="route.path === '/tenant/loan-applications/pending-votes' ? 'text-bg-nfuko-yellow' : 'text-nfuko-nav-text group-hover:text-white'">
+                  Pending Votes
+                </span>
+              </div>
+              <div v-if="route.path === '/tenant/loan-applications/pending-votes'"
                 class="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-[3px] bg-bg-nfuko-yellow rounded-r-full shadow-[0_0_10px_rgba(201,168,76,0.5)]" />
             </SidebarMenuButton>
           </SidebarMenuItem>
