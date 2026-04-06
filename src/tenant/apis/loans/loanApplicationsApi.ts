@@ -114,6 +114,14 @@ export interface LoanApplication {
     code: string
     max_amount?: number | null
     max_amount_formatted?: string | null
+    interest_rate?: number | string | null
+    interest_method?: string | null
+    interest_period?: string | null
+    processing_fee_type?: string | null
+    processing_fee_value?: number | string | null
+    portfolio_account_name?: string | null
+    disbursement_account_name?: string | null
+    fee_income_account_name?: string | null
   } | null
   loan_officer?: { id: number; name: string } | null
   appraised_by?: { id: number; name: string } | null

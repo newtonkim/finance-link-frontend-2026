@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { ThumbsUp, ThumbsDown, Check, Minus } from 'lucide-vue-next'
 
 interface CommitteeMember {
     id: number
     name: string
     has_voted: boolean
-    decision: 'approve' | 'decline' | null
-    abstained: boolean
+    decision?: 'approve' | 'decline' | null
+    abstained?: boolean
 }
 
 const props = defineProps<{
@@ -33,13 +33,16 @@ watch(() => props.open, (isOpen) => {
     }
 })
 
+const votedCount = computed(() => props.committeeMembers?.filter(m => m.has_voted).length ?? 0)
+const totalCount = computed(() => props.committeeMembers?.length ?? 0)
+
 function handleSubmit() {
     commentError.value = ''
     emit('submit', decision.value, comment.value.trim())
 }
 
-const votedCount = () => props.committeeMembers?.filter(m => m.has_voted).length ?? 0
-const totalCount = () => props.committeeMembers?.length ?? 0
+const votedCount = computed(() => props.committeeMembers?.filter(m => m.has_voted).length ?? 0)
+const totalCount = computed(() => props.committeeMembers?.length ?? 0)
 </script>
 
 <template>
@@ -73,7 +76,7 @@ const totalCount = () => props.committeeMembers?.length ?? 0
                             <div class="mb-2 flex items-center justify-between">
                                 <span class="text-xs font-medium text-neutral-600 dark:text-neutral-400">Committee voters</span>
                                 <span class="text-xs font-semibold text-violet-600 dark:text-violet-400">
-                                    {{ votedCount() }}/{{ totalCount() }} voted
+                                    {{ votedCount }}/{{ totalCount }} voted
                                 </span>
                             </div>
                             <div class="divide-y divide-neutral-100 rounded-xl border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-700 overflow-hidden">
@@ -117,7 +120,7 @@ const totalCount = () => props.committeeMembers?.length ?? 0
 
                         <!-- Decision selector -->
                         <div>
-                            <label class="mb-2 block text-xs font-medium text-neutral-600 dark:text-neutral-400">Decision</label>
+                            <label class="mb-2 block text-xs font-medium text-neutral-600 dark:text-neutral-400">Your Decision</label>
                             <div class="grid grid-cols-2 gap-2">
                                 <button type="button"
                                     class="flex items-center justify-center gap-2 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-colors"
@@ -142,8 +145,8 @@ const totalCount = () => props.committeeMembers?.length ?? 0
 
                         <!-- Comment -->
                         <div>
-                            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                                Comment <span class="font-normal text-neutral-400">(optional)</span>
+                            <label class="block text-xs font-medium text-neutral-600 dark:text-neutral-400">
+                                Comment <span class="text-neutral-400 font-normal">(optional)</span>
                             </label>
                             <textarea v-model="comment" rows="3"
                                 placeholder="Add any comments about your decision…"
