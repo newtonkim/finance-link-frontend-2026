@@ -64,6 +64,8 @@
         <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShooter2" v-model:open="drawerOpen"
             :title="drawerTitle" @save="saveDrawerData">
             <template #body>
+                <!-- {{ drawerShowFooter }}{{ drawerShooter2 }} -->
+            
                 <div v-if="buttonTypeClicked == 'download-template'">
                     <UploadTemplateColumn :defaults="importDefaults" :title="title" :data="provideDataTotheParent" />
                 </div>

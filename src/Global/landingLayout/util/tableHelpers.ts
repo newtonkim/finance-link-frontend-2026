@@ -17,7 +17,7 @@ export default function useTableHelpers(props: any, emit: any) {
 
   const finalSubmitAction = ref<string>('')
   const drawerTitle = ref(props.drawerTitle)
-  const drawerShooter2 = ref(props.drawerShowFooter)
+  const drawerShooter2 = ref()
   const drawerWidth = ref(props.drawerWidth)
   const currentPage = ref(1)
   const dropdownDownload = [
@@ -122,7 +122,7 @@ export default function useTableHelpers(props: any, emit: any) {
         submitChanges.value = false
       }, 1000)
     }
-    drawerShooter2.value = type !== 'view'
+    // drawerShooter2.value = type !== 'view'
     emit('save', type, data, submitChanges.value)
   }
 
@@ -243,7 +243,12 @@ export default function useTableHelpers(props: any, emit: any) {
           },
           Store,
         })
-        provideDataTotheParent.value = res?.payload ?? res
+
+        if (!res?.error) {
+          provideDataTotheParent.value = res?.payload ?? res
+        } else {
+          provideDataTotheParent.value = item
+        }
       }
       if (action == 'view') {
         drawerShooter2.value = false
@@ -307,11 +312,12 @@ export default function useTableHelpers(props: any, emit: any) {
     () => drawerOpen.value,
     (v) => {
       drawerTitle.value = props.drawerTitle
-      //   drawerShooter2.value = props.drawerShowFooter
+      drawerShooter2.value = props.drawerShowFooter
       drawerWidth.value = props.drawerWidth
       if (!v) {
         //reset the drawer data when the drawer is closed
         provideDataTotheParent.value = null
+        drawerShooter2.value = null
         buttonTypeClicked.value = null
         drawerWidth.value = null
       }
