@@ -1,28 +1,34 @@
 <template>
     <TableDrawer :permissions="{
         // create: 'staff-create',
-        // view: 'staff-details',
+        view: 'staff-details',
         // edit: 'staff-update',
-        // delete: 'staff-delete'
-    }" 
-    :importDefaults="['name','email','role']"
-    drawerWidth=" w-2/4" :url="tableUrl" state="staffList" :drawerTitle="drawerTitle" :showTableAction="['migrate','download']" :columns="columns"
-        @save="saveUser">
+        delete: 'staff-delete'
+    }" drawerWidth=" w-2/4"
+    :drawerShowFooter="false"
+    
+     :showAddButton="false" :url="tableUrl" state="staffList" :drawerTitle="drawerTitle"
+        :showTableAction="false" :columns="columns" @save="saveUser">
         <template #header-action>
-            <PainPageHeader title="Staff list" dec="Manage SACCO staff accounts and track their onboarding performance" />
-        </template> 
+            <PainPageHeader title="Staff list"
+                dec="Manage SACCO staff accounts and track their onboarding performance" />
+
+
+        </template>
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
         <template #drawer="{ action, data }">
-            <Create v-if="['add', 'edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
+            <!-- --- -->
+            <Create v-if="['add'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
+            <Edit v-if="['edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
             <Details v-if="['view'].includes(action)" :data="data" />
         </template>
     </TableDrawer>
 </template>
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { Create, Details } from '.'
+import { Create, Details, Edit } from '.'
 import { TableDrawer, StatusButtonsHorizontal, PainPageHeader } from '@/Global'
 const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
     drawerTitle = ref('Create a sacco staff'), filters = ['active', 'pendding'],
@@ -42,6 +48,6 @@ const columns = [
     { key: 'system_role', label: 'role', },
     { key: 'status', label: 'status', type: 'status' },
     { key: 'created_at', label: 'created_at', },
-    { key: 'actions', label: 'Actions', show: ['view', 'edit', 'share','delete'] }
+    { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 ]
 </script>

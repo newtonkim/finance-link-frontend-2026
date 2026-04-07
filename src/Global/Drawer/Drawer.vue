@@ -1,7 +1,7 @@
 <template>
     <Sheet :open="props.open" @update:open="emit('update:open', $event)">
         <SheetContent side="right" :class="[
-            props.width,
+            
             'sm:max-w-none bg-white dark:bg-neutral-900',
             'transition-all duration-300 ease-in-out',
             props.open ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
@@ -19,6 +19,7 @@
                     </div>
                     <SheetFooter v-if="props.showFooter"
                         class="p-2 z-50 sticky bottom-0 border-0 border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-900/50">
+                    
                         <div v-if="$slots.actions">
                             <slot name="actions"></slot>
                         </div>
