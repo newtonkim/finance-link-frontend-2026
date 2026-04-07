@@ -60,6 +60,11 @@ const cancellableStatuses       = ['draft', 'submitted', 'under_review', 'awaiti
 const reopenableStatuses        = ['cancelled', 'declined']
 const documentEditableStatuses  = ['draft', 'submitted', 'awaiting_documents', 'returned_for_correction']
 
+const hasMissingDocsForStage = ref(false)
+function handleDocStatusChange(missing: boolean) {
+  hasMissingDocsForStage.value = missing
+}
+
 const documentUploaderRef = ref<InstanceType<typeof LoanDocumentUploader> | null>(null)
 
 const currentDocStage = computed(() => {
@@ -119,7 +124,7 @@ const showDetailsSection = computed(() => !isApproved.value && !isDisbursed.valu
           @open-vote="openVoteModal"
         />
         <LoanActionPanel
-          v-else
+          v-else-if="!isApproved"
           :application="application"
           :taking-for-review="takingForReview"
           :resuming-review="resumingReview"
@@ -134,6 +139,7 @@ const showDetailsSection = computed(() => !isApproved.value && !isDisbursed.valu
           @open-b-m-recommend="openBMRecommendModal"
           @open-b-m-return-for-correction="openBMReturnModal"
           @open-vote="openVoteModal"
+          :submit-disabled="hasMissingDocsForStage"
         />
 
         <!-- Approved: full tabbed section -->
@@ -181,6 +187,7 @@ const showDetailsSection = computed(() => !isApproved.value && !isDisbursed.valu
           :editable="documentEditableStatuses.includes(application.status ?? '')"
           :current-stage="currentDocStage"
           @updated="loadApplication"
+          @status-change="handleDocStatusChange"
         />
         <LoanCollateralManager
           v-if="application.id && !isApproved"
@@ -243,7 +250,7 @@ const showDetailsSection = computed(() => !isApproved.value && !isDisbursed.valu
     :application="application"
     :open="showDisburseModal"
     :disbursing="disbursing"
-    :form="disburseForm"
+    v-model:form="disburseForm"
     :errors="disburseErrors"
     @close="showDisburseModal = false"
     @submit="submitDisburse"

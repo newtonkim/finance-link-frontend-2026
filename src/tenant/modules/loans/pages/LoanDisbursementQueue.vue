@@ -175,7 +175,7 @@ const hasNext = computed(() => meta.current_page < meta.last_page)
         :application="activeApplication"
         :open="showDrawer"
         :disbursing="disbursing"
-        :form="disburseForm"
+        v-model:form="disburseForm"
         :errors="disburseErrors"
         @close="closeDrawer"
         @submit="submitDisburse"

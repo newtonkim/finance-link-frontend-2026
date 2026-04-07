@@ -98,6 +98,30 @@ export interface ActiveLoan {
   _source?: 'loan' | 'application'
 }
 
+export interface LoanAppliedCharge {
+  id: number
+  name: string
+  charge_type: 'flat' | 'percentage'
+  application_timing: 'on_disbursement' | 'on_repayment' | string
+  charge_amount: string
+  charge_amount_formatted: string
+  used_amount: string
+  remaining_amount: number
+  is_waived: boolean
+  is_mandatory: boolean
+  waiver_reason: string | null
+}
+
+export interface LoanPenaltyRule {
+  id: number
+  system_type: string
+  penalty_type: string | null
+  penalty_rate: string | number
+  grace_days: number
+  amount: string | number
+  applies_to: string | null
+}
+
 export interface LoanDetail {
   id: number
   loan_no: string
@@ -112,6 +136,9 @@ export interface LoanDetail {
   principal_formatted: string
   processing_fee: string
   processing_fee_formatted: string
+  total_charges_deducted?: string
+  total_charges_deducted_formatted?: string
+  charge_deduction_mode?: string | null
   net_disbursed_amount: string
   net_disbursed_amount_formatted: string
   outstanding_balance: string
@@ -124,10 +151,20 @@ export interface LoanDetail {
   status: string
   notes: string | null
   currency_code: string
-  loan_product: { id: number; name: string; code: string; interest_method?: string } | null
+  loan_product: {
+    id: number
+    name: string
+    code: string
+    interest_method?: string
+    penalty_type?: string | null
+    penalty_rate?: string | number | null
+    penalty_grace_days?: number | null
+    penalty_rules?: LoanPenaltyRule[]
+  } | null
   member: { id: number; name: string; member_number: string | null } | null
   loan_officer: { id: number; name: string } | null
   disbursed_by_staff: { id: number; name: string } | null
+  applied_charges?: LoanAppliedCharge[]
 }
 
 export interface RepaymentPreview {

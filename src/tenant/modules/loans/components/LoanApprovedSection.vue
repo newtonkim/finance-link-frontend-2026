@@ -35,12 +35,13 @@ const emit = defineEmits<{ openDisburse: []; loadApplication: [] }>()
 const { displayAmount, riskBadgeClass, formatDate, formatDateTime, timelineIconClass } = useLoanApplicationHelpers()
 
 // ─── Tabs ─────────────────────────────────────────────────────────────────────
-type TabKey = 'general' | 'schedule' | 'documents' | 'audit'
+type TabKey = 'general' | 'schedule' | 'documents' | 'audit' | 'charges'
 const approvedTab = ref<TabKey>('general')
 const approvedTabs = [
     { key: 'general' as const,   label: 'General Information',       icon: BookOpen },
     { key: 'schedule' as const,  label: 'Proposed Schedule',         icon: Table2 },
     { key: 'documents' as const, label: 'Documents',                 icon: FileText },
+    { key: 'charges' as const,   label: 'Charges & Fees',            icon: Banknote },
     { key: 'audit' as const,     label: 'Loan Activity Audit Trail', icon: History },
 ]
 
@@ -235,6 +236,7 @@ function fmt(val: number) { return formatMoneyValue(val) }
                     </div>
                 </div>
 
+
                 <!-- Committee / Approval Votes -->
                 <div v-if="committeeVotes?.length || application.approvals?.length" class="px-6 py-5">
                     <div class="mb-4 flex items-center justify-between">
@@ -417,6 +419,67 @@ function fmt(val: number) { return formatMoneyValue(val) }
                         </div>
                     </li>
                 </ol>
+            </div>
+
+            <!-- ── CHARGES & FEES TAB ── -->
+            <div v-else-if="approvedTab === 'charges'" class="p-6">
+                <!-- Heading -->
+                <p class="mb-4 text-[10px] font-bold uppercase tracking-[0.16em] text-neutral-400 dark:text-neutral-500">Charges &amp; Fees breakdown</p>
+
+                <div v-if="application.product_charges?.items?.length" class="overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
+                    <!-- Charge rows -->
+                    <table class="w-full text-xs">
+                        <thead>
+                            <tr class="border-b border-neutral-100 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-800/50">
+                                <th class="px-4 py-2.5 text-left font-semibold text-neutral-500 dark:text-neutral-400">Charge</th>
+                                <th class="px-4 py-2.5 text-left font-semibold text-neutral-500 dark:text-neutral-400">Rate</th>
+                                <th class="px-4 py-2.5 text-left font-semibold text-neutral-500 dark:text-neutral-400">When</th>
+                                <th class="px-4 py-2.5 text-right font-semibold text-neutral-500 dark:text-neutral-400">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+                            <tr v-for="charge in application.product_charges.items" :key="String(charge.id)"
+                                class="bg-white dark:bg-neutral-900">
+                                <td class="px-4 py-2.5 font-medium text-neutral-800 dark:text-neutral-200">{{ charge.name }}</td>
+                                <td class="px-4 py-2.5 text-neutral-500 dark:text-neutral-400">
+                                    <span v-if="charge.charge_type === 'percentage'">{{ charge.value }}%</span>
+                                    <span v-else>{{ charge.computed_amount_formatted }}</span>
+                                </td>
+                                <td class="px-4 py-2.5">
+                                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                                        :class="charge.application_timing === 'on_disbursement'
+                                            ? 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                                            : 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'">
+                                        {{ charge.application_timing === 'on_disbursement' ? 'On Disbursement' : 'On Repayment' }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-2.5 text-right font-semibold tabular-nums text-neutral-800 dark:text-neutral-200">
+                                    −{{ charge.computed_amount_formatted }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Net disbursement summary -->
+                    <div class="divide-y divide-neutral-100 border-t border-neutral-200 dark:divide-neutral-800 dark:border-neutral-700">
+                        <div class="flex items-center justify-between px-4 py-2.5">
+                            <span class="text-xs text-neutral-500 dark:text-neutral-400">Gross Amount (Approved)</span>
+                            <span class="tabular-nums text-xs font-semibold text-neutral-700 dark:text-neutral-300">{{ application.product_charges.summary.gross_amount_formatted }}</span>
+                        </div>
+                        <div class="flex items-center justify-between px-4 py-2.5">
+                            <span class="text-xs text-neutral-500 dark:text-neutral-400">Total Charges on Disbursement</span>
+                            <span class="tabular-nums text-xs font-semibold text-amber-600 dark:text-amber-400">−{{ application.product_charges.summary.total_on_disbursement_formatted }}</span>
+                        </div>
+                        <div class="flex items-center justify-between bg-emerald-50/60 px-4 py-3 dark:bg-emerald-900/10">
+                            <span class="text-xs font-bold text-emerald-800 dark:text-emerald-300">Net Cash to Member</span>
+                            <span class="tabular-nums text-sm font-bold text-emerald-700 dark:text-emerald-400">{{ application.product_charges.summary.net_disbursed_formatted }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div v-else class="flex flex-col items-center justify-center gap-3 py-16 text-neutral-400">
+                    <Banknote class="h-8 w-8 opacity-20" />
+                    <p class="text-sm italic">No charges or fees defined for this application.</p>
+                </div>
             </div>
         </div>
     </div>

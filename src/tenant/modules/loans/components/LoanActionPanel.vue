@@ -12,6 +12,7 @@ defineProps<{
     takingForReview: boolean
     resumingReview: boolean
     permittedActions?: string[]
+    submitDisabled?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -37,7 +38,7 @@ const { displayAmount } = useLoanApplicationHelpers()
         class="rounded-2xl border border-blue-100 bg-blue-50/50 p-5 dark:border-blue-900/40 dark:bg-blue-900/10">
         <p class="mb-1 text-sm font-semibold text-blue-800 dark:text-blue-300">Ready for Review</p>
         <p class="mb-4 text-xs text-blue-600 dark:text-blue-400">This application has been submitted and is awaiting an officer to submit it for review.</p>
-        <button :disabled="takingForReview"
+        <button :disabled="takingForReview || submitDisabled"
             class="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
             @click="emit('takeForReview')">
             <ClipboardCheck class="h-4 w-4" />
@@ -60,11 +61,13 @@ const { displayAmount } = useLoanApplicationHelpers()
                 @click="emit('openReturn')">
                 <Undo2 class="h-4 w-4" /> Return for Correction
             </button>
-            <button class="flex items-center gap-2 rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+            <button v-if="permittedActions?.includes('appraise') || permittedActions?.includes('officer_recommend')"
+                class="flex items-center gap-2 rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
                 @click="emit('openAppraise')">
                 <ClipboardCheck class="h-4 w-4" /> Appraise & Recommend
             </button>
-            <button class="flex items-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-800 dark:bg-transparent dark:text-red-400 dark:hover:bg-red-900/20"
+            <button v-if="permittedActions?.includes('reject_at_appraisal')"
+                class="flex items-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-800 dark:bg-transparent dark:text-red-400 dark:hover:bg-red-900/20"
                 @click="emit('openReject')">
                 <XCircleIcon class="h-4 w-4" /> Reject
             </button>
@@ -78,7 +81,7 @@ const { displayAmount } = useLoanApplicationHelpers()
         <p class="mb-4 text-xs text-orange-700 dark:text-orange-400">
             Once the member has provided the required documents, resume the review.
         </p>
-        <button :disabled="resumingReview"
+        <button :disabled="resumingReview || submitDisabled"
             class="flex items-center gap-2 rounded-xl bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 disabled:opacity-50"
             @click="emit('takeForReview')">
             <RefreshCw class="h-4 w-4" />
@@ -116,7 +119,7 @@ const { displayAmount } = useLoanApplicationHelpers()
             Branch Manager has returned this application for correction.
             <span v-if="application.correction_reason" class="block mt-1 italic">"{{ application.correction_reason }}"</span>
         </p>
-        <button :disabled="resumingReview"
+        <button :disabled="resumingReview || submitDisabled"
             class="flex items-center gap-2 rounded-xl bg-orange-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600 disabled:opacity-50"
             @click="emit('takeForReview')">
             <RefreshCw class="h-4 w-4" />

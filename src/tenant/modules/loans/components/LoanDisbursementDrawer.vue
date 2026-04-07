@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, watch, ref } from 'vue'
-import { Banknote, X, Hash, Calendar, AlertTriangle, ArrowRight } from 'lucide-vue-next'
+import { Banknote, X, Hash, Calendar, AlertTriangle, ChevronDown } from 'lucide-vue-next'
 import { formatMoneyValue } from '@/Global'
 import type { LoanApplication } from '@/tenant/apis/loans/loanApplicationsApi'
 import { savingsAccountsApi } from '@/tenant/apis/savingsAccounts/savingsAccountsApi'
@@ -13,15 +13,17 @@ interface DisburseForm {
     savings_account_id?: number | null
     mobile_money_provider?: string | null
     mobile_money_number?: string | null
+    charge_deduction_mode?: string | null
 }
 
 const props = defineProps<{
     application: LoanApplication | null
     open: boolean
     disbursing: boolean
-    form: DisburseForm
     errors: Record<string, string | string[]>
 }>()
+
+const form = defineModel<DisburseForm>('form', { required: true })
 
 const emit = defineEmits<{
     close: []
@@ -31,55 +33,72 @@ const emit = defineEmits<{
 // ─── Derived numbers ──────────────────────────────────────────────────────────
 const principal = computed(() => Number(props.application?.approved_amount ?? 0))
 
-const processingFee = computed(() => {
-    const type = props.application?.loan_product?.processing_fee_type ?? 'flat'
-    const value = Number(props.application?.loan_product?.processing_fee_value ?? 0)
-    if (value <= 0 || principal.value <= 0) return 0
-    return type === 'percentage'
-        ? Math.round((principal.value * value / 100) * 100) / 100
-        : Math.round(value * 100) / 100
-})
+const productCharges = computed(() => props.application?.product_charges ?? null)
 
-const netDisbursed = computed(() => Math.round((principal.value - processingFee.value) * 100) / 100)
-
-const portfolioAccountName = computed(() =>
-    props.application?.loan_product?.portfolio_account_name ?? 'Loan Portfolio Account',
+// Processing fee item (always deducted from principal)
+const processingFeeItem = computed(() =>
+    productCharges.value?.items.find(c => c.id === 'processing_fee') ?? null
 )
-const disbursementAccountName = computed(() => {
-    if (props.form.disbursement_method === 'savings_account') {
-        return 'Member Savings Liability (2111)'
+const processingFeeAmount = computed(() => processingFeeItem.value?.computed_amount ?? 0)
+
+// Other on-disbursement charges (subject to deduction mode)
+const onDisbursementCharges = computed(() =>
+    (productCharges.value?.items ?? []).filter(
+        c => c.id !== 'processing_fee' && c.application_timing === 'on_disbursement'
+    )
+)
+const onDisbursementChargesTotal = computed(() =>
+    onDisbursementCharges.value.reduce((sum, c) => sum + Number(c.computed_amount), 0)
+)
+
+const hasExtraCharges = computed(() => onDisbursementCharges.value.length > 0)
+
+// Net disbursed preview — changes with deduction mode
+const netDisbursed = computed(() => {
+    const base = principal.value - processingFeeAmount.value
+    const mode = form.value.charge_deduction_mode ?? 'deduct_from_principal'
+    if (mode === 'deduct_from_principal') {
+        return Math.round((base - onDisbursementChargesTotal.value) * 100) / 100
     }
-    return props.application?.loan_product?.disbursement_account_name ?? 'Disbursement Account'
+    // debit_savings / pay_cash / capitalize → charges not deducted from cash disbursement
+    return Math.round(base * 100) / 100
 })
-const feeIncomeAccountName = computed(() =>
-    props.application?.loan_product?.fee_income_account_name ?? 'Processing Fee Income',
-)
 
+// ─── Savings accounts ─────────────────────────────────────────────────────────
 const savingsAccounts = ref<any[]>([])
 const loadingSavings = ref(false)
 
 async function fetchSavingsAccounts() {
-    if (!props.application?.member_id) return
+    const memberId = props.application?.member_id
+    if (!memberId) return
     loadingSavings.value = true
     try {
-        const res = await savingsAccountsApi.list({ member_id: props.application.member_id, status: 'active' })
-        savingsAccounts.value = res.data?.data || []
+        const res = await savingsAccountsApi.list({ member_id: Number(memberId), status: 'active' })
+        const payload = res.data?.data
+        savingsAccounts.value = Array.isArray(payload) ? payload : []
     } catch (e) {
         console.error('Failed to fetch savings accounts', e)
+        savingsAccounts.value = []
     } finally {
         loadingSavings.value = false
     }
 }
 
-// Reset form date when drawer opens
 watch(() => props.open, (open) => {
-    if (open) {
-        props.form.disbursement_date = new Date().toISOString().slice(0, 10)
-        props.form.disbursement_method = props.form.disbursement_method || 'cash'
+    if (open) fetchSavingsAccounts()
+})
+
+watch(() => form.value.disbursement_method, (method) => {
+    if (method === 'savings_account' && props.open && savingsAccounts.value.length === 0) {
         fetchSavingsAccounts()
     }
 })
 
+watch(() => props.application?.member_id, (id) => {
+    if (id && props.open) fetchSavingsAccounts()
+})
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 function fmt(v: number | string | null | undefined) {
     if (v == null || v === '') return '—'
     return formatMoneyValue(v)
@@ -88,6 +107,13 @@ function fmt(v: number | string | null | undefined) {
 function errMsg(field: string) {
     const e = props.errors[field]
     return e ? (Array.isArray(e) ? e[0] : e) : null
+}
+
+const deductionModeLabel: Record<string, string> = {
+    deduct_from_principal: 'Deduct from Principal',
+    debit_savings: 'Debit Savings Account',
+    pay_cash: 'Pay in Cash',
+    capitalize: 'Capitalize (Add to Loan)',
 }
 </script>
 
@@ -141,20 +167,58 @@ function errMsg(field: string) {
                         <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Disbursement Summary</h3>
                         <div class="rounded-2xl border border-neutral-100 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-800/40">
                             <div class="divide-y divide-neutral-100 dark:divide-neutral-800">
+                                <!-- Gross amount -->
                                 <div class="flex items-center justify-between px-4 py-3">
                                     <span class="text-sm text-neutral-600 dark:text-neutral-400">Gross Amount (Approved)</span>
                                     <span class="font-semibold text-neutral-900 dark:text-white">{{ fmt(principal) }}</span>
                                 </div>
-                                <div v-if="processingFee > 0" class="flex items-center justify-between px-4 py-3">
+
+                                <!-- Processing fee — always deducted -->
+                                <div v-if="processingFeeAmount > 0" class="flex items-center justify-between px-4 py-3">
                                     <span class="text-sm text-neutral-600 dark:text-neutral-400">
                                         Processing Fee
-                                        <span v-if="application?.loan_product?.processing_fee_type === 'percentage'" class="text-xs text-neutral-400 dark:text-neutral-500">
-                                            ({{ application?.loan_product?.processing_fee_value }}%)
+                                        <span v-if="processingFeeItem?.charge_type === 'percentage'" class="text-xs text-neutral-400 dark:text-neutral-500">
+                                            ({{ processingFeeItem?.value }}%)
                                         </span>
                                     </span>
-                                    <span class="font-medium text-amber-600 dark:text-amber-400">−{{ fmt(processingFee) }}</span>
+                                    <span class="font-medium text-amber-600 dark:text-amber-400">−{{ fmt(processingFeeAmount) }}</span>
                                 </div>
-                                <div class="flex items-center justify-between bg-emerald-50/60 px-4 py-3 dark:bg-emerald-900/10">
+
+                                <!-- Other on-disbursement charges -->
+                                <template v-if="hasExtraCharges">
+                                    <div v-for="charge in onDisbursementCharges" :key="String(charge.id)"
+                                        class="flex items-center justify-between px-4 py-2.5">
+                                        <span class="text-sm text-neutral-600 dark:text-neutral-400">
+                                            {{ charge.name }}
+                                            <span v-if="charge.charge_type === 'percentage'" class="text-xs text-neutral-400 dark:text-neutral-500">
+                                                ({{ charge.value }}%)
+                                            </span>
+                                        </span>
+                                        <span class="font-medium"
+                                            :class="form.charge_deduction_mode === 'deduct_from_principal'
+                                                ? 'text-amber-600 dark:text-amber-400'
+                                                : 'text-neutral-500 dark:text-neutral-400 line-through'">
+                                            <template v-if="form.charge_deduction_mode === 'deduct_from_principal'">
+                                                −{{ fmt(charge.computed_amount) }}
+                                            </template>
+                                            <template v-else>
+                                                {{ fmt(charge.computed_amount) }}
+                                            </template>
+                                        </span>
+                                    </div>
+
+                                    <!-- Charges deduction mode note -->
+                                    <div class="px-4 py-2.5 bg-neutral-100/60 dark:bg-neutral-800/60">
+                                        <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                                            <span class="font-medium">{{ onDisbursementCharges.length }} charge{{ onDisbursementCharges.length > 1 ? 's' : '' }}</span>
+                                            ({{ fmt(onDisbursementChargesTotal) }} total) collected via
+                                            <span class="font-medium text-neutral-700 dark:text-neutral-300">{{ deductionModeLabel[form.charge_deduction_mode ?? 'deduct_from_principal'] }}</span>
+                                        </p>
+                                    </div>
+                                </template>
+
+                                <!-- Net to member -->
+                                <div class="flex items-center justify-between rounded-b-2xl bg-emerald-50/60 px-4 py-3 dark:bg-emerald-900/10">
                                     <span class="text-sm font-semibold text-emerald-800 dark:text-emerald-300">Net to Member</span>
                                     <span class="text-lg font-bold text-emerald-700 dark:text-emerald-400">{{ fmt(netDisbursed) }}</span>
                                 </div>
@@ -162,6 +226,40 @@ function errMsg(field: string) {
                         </div>
                     </div>
 
+                    <!-- ── Charge deduction method (only when extra charges exist) ── -->
+                    <div v-if="hasExtraCharges">
+                        <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Charge Collection Method</h3>
+                        <div class="relative">
+                            <select v-model="form.charge_deduction_mode"
+                                class="w-full appearance-none rounded-xl border border-neutral-200 bg-white px-3 py-2.5 pr-9 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white">
+                                <option value="deduct_from_principal">Deduct from Principal — member receives less cash</option>
+                                <option value="debit_savings">Debit Savings Account — deduct from member's savings</option>
+                                <option value="pay_cash">Pay in Cash — member pays charges separately</option>
+                                <option value="capitalize">Capitalize — add to loan balance</option>
+                            </select>
+                            <ChevronDown class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                        </div>
+
+                        <!-- Debit savings warning -->
+                        <div v-if="form.charge_deduction_mode === 'debit_savings'"
+                            class="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-800 dark:bg-amber-900/20">
+                            <AlertTriangle class="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-500" />
+                            <p class="text-xs text-amber-700 dark:text-amber-300">
+                                Charges will be debited from the member's highest-balance active savings account.
+                                If the balance is insufficient, charges will fall back to being deducted from the principal.
+                            </p>
+                        </div>
+
+                        <!-- Capitalize warning -->
+                        <div v-if="form.charge_deduction_mode === 'capitalize'"
+                            class="mt-3 flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-800 dark:bg-blue-900/20">
+                            <AlertTriangle class="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-500" />
+                            <p class="text-xs text-blue-700 dark:text-blue-300">
+                                Charges ({{ fmt(onDisbursementChargesTotal) }}) will be added to the loan principal.
+                                The repayment schedule will be recalculated on the higher balance.
+                            </p>
+                        </div>
+                    </div>
 
                     <!-- ── Disbursement form ── -->
                     <div>
@@ -201,7 +299,7 @@ function errMsg(field: string) {
                                     </template>
                                     <template v-else>
                                         <option v-for="acc in savingsAccounts" :key="acc.id" :value="acc.id">
-                                            {{ acc.savings_product?.name }} — {{ acc.account_number }} (Bal: {{ acc.balance_formatted }})
+                                            {{ acc.savings_product?.name }} — {{ acc.account_no }} (Bal: {{ acc.balance_formatted }})
                                         </option>
                                     </template>
                                 </select>
