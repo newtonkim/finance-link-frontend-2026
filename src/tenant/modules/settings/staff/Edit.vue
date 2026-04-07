@@ -1,9 +1,9 @@
 <template>
-    <div class="relati ve z-10 flex  w-full flex-col">
-
-
+    <div class="relative z-10 flex  w-full flex-col " style="
+        height: 88vh;
+">
         <!-- Body -->
-        <div class="flex-1 overflow-y-auto px-4 py-2 space-y-4">
+        <div class="  overflow-y-auto px-4 space-y-2 flex-1 ">
             <!-- Name -->
             <div>
                 <label class="mb-1 block text-xs font-medium text-neutral-700 dark:text-neutral-300">Name <span
@@ -95,7 +95,7 @@
                         <button type="button"
                             class="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
                             :class="form[perm.field]
-                                ? { violet: 'bg-violet-600 text-white', indigo: 'bg-indigo-600 text-white', emerald: 'bg-emerald-600 text-white' }[perm.color]
+                                ? { violet: 'bg-nfuko-primary-600 text-white', indigo: 'bg-nfuko-primary-600 text-white', emerald: 'bg-nfuko-primary-600 text-white' }[perm.color]
                                 : 'border border-neutral-200 text-neutral-500 dark:border-neutral-700 dark:text-neutral-400'"
                             @click="form[perm.field] = !form[perm.field]">
                             <Check v-if="form[perm.field]" class="h-3 w-3" />
@@ -105,9 +105,9 @@
                 </div>
             </div>
         </div>
-        
+
         <SheetFooter
-            class="p-2 z-50 sticky bottom-0 border-0 border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-900/50">
+            class="absolute  p-2 z-50 sticky bottom-0 border-0 border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-900/50">
             <div class="flex w-full gap-3 items-center justify-between">
                 <div>
                     <Button variant="outline"
@@ -140,11 +140,7 @@ import { tenantClient } from '@/tenant/apis/tenantClient'
 import { branchesApi } from '@/tenant/apis/branches/branchesApi'
 import type { Branch } from '@/tenant/apis/branches/branchesApi'
 import { toast } from 'vue-sonner'
-import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
+import { 
     SheetFooter,
 } from '@/Global';
 const router = useRouter()
@@ -198,22 +194,7 @@ onMounted(async () => {
     openEdit(props.data)
 })
 
-const filtered = computed(() => {
-    const q = search.value.toLowerCase()
-    return (staffStore.staffList as Staff[])
-        .filter((s) => !q || s.name.toLowerCase().includes(q) || s.email.toLowerCase().includes(q))
-        .slice()
-        .sort((a, b) => (b.id ?? 0) - (a.id ?? 0))
-})
-
-function openCreate() {
-    isEditing.value = false
-    currentId.value = null
-    form.value = defaultForm()
-}
-
 function openEdit(staff: Staff) {
-
     isEditing.value = true
     currentId.value = staff.id!
     form.value = {
@@ -260,28 +241,9 @@ function viewStaff(staff: Staff) {
     router.push({ name: 'tenant-settings-staff-profile', params: { id: staff.id } })
 }
 
-async function confirmDelete() {
-    if (!deleteTarget.value?.id) return
-    deleting.value = true
-    try {
-        await staffStore.deleteStaff(deleteTarget.value.id)
-        deleteTarget.value = null
-    } catch {
-        // error shown by store
-    } finally {
-        deleting.value = false
-    }
-}
 
-function branchName(id: number | null | undefined) {
-    if (!id) return '—'
-    return branches.value.find((b) => b.id === id)?.name ?? '—'
-}
 
-function formatDate(d?: string | null) {
-    if (!d) return '—'
-    return new Date(d).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
-}
+
 
 const loanPermissions = [
     { field: 'can_vote_on_loans' as const, icon: Vote, label: 'Vote on loan applications', description: 'Can cast approve/decline votes in committee rounds.', color: 'violet' },

@@ -1,6 +1,6 @@
 <template>
     <TableDrawer :exportItems="exportItems"
-        :drawerShowFooter="!['download-memeber-accounts-template', 'import-accounts', 'download-deposit-template', 'import-deposit-withdrawal'].includes(automaticCreate.actionSlot)"
+        :drawerShowFooter="!['download-memeber-accounts-template', 'import-accounts', 'download-deposit-template', 'import-deposit-withdrawal','download-withdrawal-template'].includes(automaticCreate.actionSlot)"
         :drawerRemount="drawerRemount" :automaticCreate="!automaticCreate.actionSlot" ref="drawer"
         :showTableAction="true" :drawerWidth="drawerTitle?.width" :url="tableUrl" state="memberAccountList"
         :drawerTitle="drawerTitle?.title" :columns="columns" @save="saveUser">
