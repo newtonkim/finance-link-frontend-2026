@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-2 h-sc reen f lex flex-col overflow-hidden">
     
-    <section
+    <div
       v-for="(section, sIndex) in columns"
       :key="sIndex"
       class="flex flex-col rounded-2xl  
@@ -31,7 +31,12 @@
           :data="section?.list"
           :columns="section.column"
           class="shadow-lg"
-        />
+        >
+         <template v-for="(_, name) in $slots" #[name]="slotProps">
+       
+                            <slot :name="name" v-bind="slotProps || {}" />
+                        </template>
+        </Table>
       </div>
       <!-- DESCRIPTIONS -->
       <div
@@ -134,10 +139,10 @@
           </div>
         </div>
       </div>
-    </section>
+    </div>
 
     <!-- Actions -->
-    <slot name="actions" :item="data" />
+    <!-- <slot name="actions" :item="data" /> -->
   </div>
 </template>
 

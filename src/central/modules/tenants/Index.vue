@@ -1,5 +1,5 @@
 <template>
-    <TableDrawer ref="tableRef" drawerWidth="w-1/2" :url="tableUrl" state="tanents_list" :drawerShowFooter="Store.showSaveButton"
+    <TableDrawer ref="tableRef" drawerWidth="w-1/2" :url="tableUrl" state="tanents_list" :drawerShowFooter="showFooter"
         :drawerTitle="drawerTitle" title="Tenants" :columns="columns" @save="saveUser">
         <template #expiry="{ item }: { item: any }">
             <div v-if="item?.license_expires_at" class="flex items-center gap-1.5">
@@ -21,7 +21,7 @@
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
         <template #drawer="{ action, data }">
-            <StaffForm v-if="['add', 'edit'].includes(action)" :watcher="{ action, data }" v-model:form="formData" />
+            <StaffForm v-if="['add', 'edit'].includes(action)" :watcher="{ action, data }" v-model:form="formData"  @changedStep="changedStep"/>
             <Show v-if="['view'].includes(action)" :data="data" />
         </template>
     </TableDrawer>
@@ -47,6 +47,7 @@ import { toast } from 'vue-sonner';
 const Store = pomPinia()
 
 const tableUrl = computed(() => `/central/tenants/list?status=${statusFilter.value}`)
+const showFooter=ref(0)
 const triggerAction: Record<string, Function> = {
     delete: Erase,
     async create() {
@@ -59,6 +60,12 @@ const title: Record<string, string> = {
     "view": "View Tenant",
     "edit": "Edit Tenant",
     "add": "Create Tenant",
+}
+function changedStep(vl) {
+    console.log(vl);
+    
+showFooter.value=vl
+
 }
 function saveUser(type: string, data: any) {
     triggerAction[type]?.(data)

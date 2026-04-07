@@ -4,7 +4,9 @@
         // view: 'staff-details',
         // edit: 'staff-update',
         // delete: 'staff-delete'
-    }" drawerWidth=" w-2/4" :url="tableUrl" state="staffList" :drawerTitle="drawerTitle" :showTableAction="['migrate','download']" :columns="columns"
+    }" 
+    :importDefaults="['name','email','role']"
+    drawerWidth=" w-2/4" :url="tableUrl" state="staffList" :drawerTitle="drawerTitle" :showTableAction="['migrate','download']" :columns="columns"
         @save="saveUser">
         <template #header-action>
             <PainPageHeader title="Staff list" dec="Manage SACCO staff accounts and track their onboarding performance" />

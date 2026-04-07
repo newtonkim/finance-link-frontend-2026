@@ -17,7 +17,7 @@ export default function useTableHelpers(props: any, emit: any) {
 
   const finalSubmitAction = ref<string>('')
   const drawerTitle = ref(props.drawerTitle)
-  const drawerShooter2 = ref()
+  const drawerShooter2 = ref(true)
   const drawerWidth = ref(props.drawerWidth)
   const currentPage = ref(1)
   const dropdownDownload = [
@@ -81,16 +81,20 @@ export default function useTableHelpers(props: any, emit: any) {
       finalSubmitAction.value = 'import-data'
       drawerTitle.value = 'import data'
     } else {
+       
       const res = await fetchTableData({
         data: { ...item, page: currentPage.value, search_keyword: searchQuery.value },
         props: {
           ...props,
           reload: false, // dont refectch data
-          state: props?.state + '_' + action,
+        //   reload: false, // dont refectch data
+          state: props.url + '_' + action,
           url: createUrl(props.url, action),
         },
         Store,
       })
+    //   console.log(createUrl(props.url, action),res);
+      
       drawerTitle.value = 'import columns'
       provideDataTotheParent.value = res?.payload ?? res
     }
@@ -309,10 +313,17 @@ export default function useTableHelpers(props: any, emit: any) {
     },
   )
   watch(
+    () =>  props.drawerShowFooter,
+    (vl) => {
+        // alert(vl)
+    drawerShooter2.value = vl
+    },
+  )
+  watch(
     () => drawerOpen.value,
     (v) => {
       drawerTitle.value = props.drawerTitle
-      drawerShooter2.value = props.drawerShowFooter
+    //   drawerShooter2.value = props.drawerShowFooter
       drawerWidth.value = props.drawerWidth
       if (!v) {
         //reset the drawer data when the drawer is closed

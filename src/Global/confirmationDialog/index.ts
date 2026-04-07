@@ -1,12 +1,14 @@
 import { h, ref, watch, render } from 'vue'
 import ConfirmationDialog from './ConfirmationDialog.vue'
 
-export function Confirm({ items, show = true, confirm, cancel, type }: {
+export function Confirm({ items, show = true, confirm, cancel, type,title ,des}: {
   items?: any[],
   show?: boolean,
   confirm: (item: any) => void,
   cancel?: () => void,
   type?: string
+  title?: string
+  des?: string
 }) {
   const showDialog = ref(show)
 
@@ -21,6 +23,8 @@ export function Confirm({ items, show = true, confirm, cancel, type }: {
   const vnode = h(ConfirmationDialog, {
     items,
     type,
+    title,
+    des,
     show: showDialog.value,
     'onUpdate:show': (val: boolean) => showDialog.value = val,
     onConfirm: (item: any) => {

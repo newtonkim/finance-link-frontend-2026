@@ -21,6 +21,8 @@
                     </span>
                 </div>
             </div>
+            <div class=" h-[65vh]">
+
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-4 py-3 max-h-[58vh] overflow-y-auto custom-scrollbar">
                 <label v-for="(label, key) in filteredData" :key="key"
                     class="flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer border border-transparent hover:border-nfuko-primary-300 hover:bg-nfuko-primary-50 dark:hover:bg-neutral-800 transition group">
@@ -35,8 +37,9 @@
                     </span>
                 </label>
             </div>
+            </div>
             <div
-                class="flex items-center justify-between px-5 py-1 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 sticky bottom-0">
+                class="flex items-center justify-between px-5 py-1 bottom-0 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 sticky bottom-0">
                 <span class="text-xs text-neutral-500">
                     {{ selected.length }} selected
                 </span>

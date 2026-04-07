@@ -1,4 +1,4 @@
-import { feedback, fetchTableData, formDataFormatV2 } from '@/Global'
+import { feedback, fetchTableData, formDataFormatV2 ,Confirm} from '@/Global'
 import { notify } from '@/Global/Toasters'
 import { pomPinia } from 'septor-store'
 export function memberAccountApi() {
@@ -35,6 +35,24 @@ export function memberAccountApi() {
     }
     return false
   }
+  async function memebrAccountReversalAmount(data: any, ) {
+     Confirm({title:"Transaction reversal" ,des:"Are you sure this will effect the account" ,type:'delete', confirm: async() => {
+
+       const getCharges = await fetchTableData({
+         data: data,
+         Store,
+         saveData: true,
+         props: {
+           url: 'members-account/reversal',
+           method: 'post',
+           time: 0,
+           state: 'memberAccountList',
+         },
+       })
+       feedback(getCharges, 'withdrawal amount  successfully')
+       return true
+ }, cancel: () => {} })
+  }
   async function memebrAccountWithdrawalAmount(data: any, outletAction: any) {
     const dataPrepare = data
     dataPrepare.push({ name: 'account_id', value: outletAction?.id, hidden: true })
@@ -59,7 +77,6 @@ export function memberAccountApi() {
       },
     })
     feedback(getCharges, 'withdrawal amount  successfully')
-
     return true
   }
   async function getProductCharges(data: any) {
@@ -78,7 +95,7 @@ export function memberAccountApi() {
 
   return {
     getProductCharges,
-    memebrAccountDepositAmount,
+    memebrAccountDepositAmount,memebrAccountReversalAmount,
     memebrAccountWithdrawalAmount,
   }
 }

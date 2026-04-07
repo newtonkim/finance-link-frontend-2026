@@ -1,6 +1,10 @@
 <script setup>
-import {DetailsTable} from '@/Global';
+import {DetailsTable,TabelActionButtons} from '@/Global';
+import { memberAccountApi } from '@/tenant/apis'
+
+
 import { onMounted, ref } from 'vue'
+const { memebrAccountReversalAmount } = memberAccountApi()
 const loading = ref(true)
 const props = defineProps({
     data: {
@@ -39,6 +43,7 @@ const columns = [
             { key: 'ntransfer Byarration', label: 'transfer By' },
             { key: 'transaction_date', label: 'transaction date',width:"10em" },
             { key: 'created_at', label: 'created at',sticky:"right",width:"10em",type:"dateTime" },
+            { key: 'actions', label: 'actions',sticky:"right",width:"10em",  },
         ],
         list: []
     }
@@ -57,6 +62,13 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div v-if="loading">Loading...</div>
-    <DetailsTable v-else :data="data" :columns="columns" />
+   <div class="h-[90vh] overflow-auto">
+     <div v-if="loading">Loading...</div>
+    <DetailsTable v-else :data="data" :columns="columns" >
+        <template #actions="{ item }">
+            <TabelActionButtons :disabled="item.type=='reversed'" :data="item" @action="() => memebrAccountReversalAmount(item)" :color="item.type=='reversed'?'secondary':'danger'" icon="Undo" title="reversal"/>
+            <!-- <TabelActionButtons :disabled="item.type!='reversed'" :data="item" @action="() => memebrAccountReversalAmount(item)" color="danger" icon="Undo" title="reversal"/> -->
+        </template>
+    </DetailsTable>
+   </div>
 </template>

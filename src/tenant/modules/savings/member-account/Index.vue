@@ -1,9 +1,8 @@
 <template>
-    <TableDrawer :exportItems="exportItems"
-        :drawerShowFooter="!['download-memeber-accounts-template', 'import-accounts', 'download-deposit-template', 'import-deposit-withdrawal','download-withdrawal-template'].includes(automaticCreate.actionSlot)"
-        :drawerRemount="drawerRemount" :automaticCreate="!automaticCreate.actionSlot" ref="drawer"
-        :showTableAction="true" :drawerWidth="drawerTitle?.width" :url="tableUrl" state="memberAccountList"
-        :drawerTitle="drawerTitle?.title" :columns="columns" @save="saveUser">
+    <TableDrawer :exportItems="exportItems" :drawerShowFooter="showFooter" :drawerRemount="drawerRemount"
+        :automaticCreate="!automaticCreate.actionSlot" ref="drawer" :showTableAction="true"
+        :drawerWidth="drawerTitle?.width" :url="tableUrl" state="memberAccountList" :drawerTitle="drawerTitle?.title"
+        :columns="columns" @save="saveUser">
         <template #member_name="{ item }">
             <div class="-1">
                 <div class="font-semibold text-nfuko-action text-sm dark:text-white">
@@ -24,12 +23,14 @@
             </div>
         </template>
         <template #header-action>
-            <PainPageHeader title="Members Savings Account" dec="Manage all member savings accounts and their balances." />
+            <PainPageHeader title="Members Savings Account"
+                dec="Manage all member savings accounts and their balances." />
         </template>
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
         <template #drawer="{ action, data }">
+            ( {{ showFooter }})
             <uploadTemplateColumData upload-trick="row"
                 v-if="['import-accounts', 'import-deposit-withdrawal'].includes(automaticCreate.actionSlot)"
                 :title="automaticCreate?.actionSlot" :url="`/members-account/${automaticCreate?.actionSlot}`"
@@ -69,7 +70,8 @@ const drawer = ref(null), drawerRemount = ref(true),
         { label: "Import accounts", action: (vl) => { OpenThedrawer(vl, 'import-accounts'); automaticCreate.value = { actionSlot: 'import-accounts', item: vl } } },
         { label: "import deposit/withdrawal", action: (vl) => { OpenThedrawer(vl, 'import-deposit-withdrawal'); automaticCreate.value = { actionSlot: 'import-deposit-withdrawal', item: vl } } },
     ]);
-const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
+const formData = ref<Record<string, any>>({}), statusFilter = ref('all'), showFooter = ref(true),
+
     { memebrAccountDepositAmount, memebrAccountWithdrawalAmount } = memberAccountApi(),
     drawerTitle = ref('Create Tenant'), filters = ['all', 'active', 'suspended', 'expired', 'trial'],
     tableUrl = computed(() => `/members-account/list?status=${statusFilter.value}`),
@@ -94,7 +96,8 @@ function saveUser(type: string, data: any) {
     title?.[type]?.fun?.()
     // // // // automaticCreate.value.actionSlot=automaticCreate.value.actionSlot
     automaticCreate.value = {}// celan the automatic create
-}
+} 
+
 const columns = [
     { key: 'member_name', label: 'Member', sticky: 'left', width: '14em ', },
     { key: 'product', label: 'product', sticky: 'left', width: '14em ', },
@@ -103,8 +106,16 @@ const columns = [
     { key: 'created at', label: 'created at', type: 'status' },
     { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 ]
+watch(() => drawer.value?.drawerOpen, (val) => {
+    if (!val) {
+        automaticCreate.value = {}
+        showFooter.value = false
+    }
+
+}, { immediate: true, deep: true })
 function OpenThedrawer(item: any, action = 'deposit') {
     automaticCreate.value = { actionSlot: action, ...item }
+    showFooter.value = ['withdrawal', 'deposit'].includes(action)
     drawerTitle.value = title?.[action];
     setTimeout(() => {
         drawer.value.toggleDrawer()

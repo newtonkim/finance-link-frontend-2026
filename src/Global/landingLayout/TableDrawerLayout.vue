@@ -1,5 +1,6 @@
 <template>
     <div class="flex h-full fle x-1 flex-col  px-10 py-3 ">
+        
         <div class="flex items-center justify-between">
             <div v-if="$slots['header-action']" class='my-2'>
                 <slot name="header-action" />
@@ -64,6 +65,7 @@
         <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShooter2" v-model:open="drawerOpen"
             :title="drawerTitle" @save="saveDrawerData">
             <template #body>
+                <!-- {{ drawerShooter2 }}== -->
                 <!-- {{ drawerShowFooter }}{{ drawerShooter2 }} -->
             
                 <div v-if="buttonTypeClicked == 'download-template'">

@@ -1,7 +1,7 @@
 <template>
     <Sheet :open="props.open" @update:open="emit('update:open', $event)">
         <SheetContent side="right" :class="[
-            props.width,
+            
             'sm:max-w-none bg-white dark:bg-neutral-900',
             'transition-all duration-300 ease-in-out',
             props.open ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
