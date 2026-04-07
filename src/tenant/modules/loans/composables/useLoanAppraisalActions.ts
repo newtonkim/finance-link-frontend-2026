@@ -325,14 +325,17 @@ export function useLoanAppraisalActions(
     // ─── Vote tally ──────────────────────────────────────────────────────────
     const voteTally = ref<any>(null)
     const loadingVotes = ref(false)
+    const committeeMembers = ref<any[]>([])
+    const committeeVotes = ref<any[]>([])
 
     async function loadVotes() {
         loadingVotes.value = true
         try {
             const res = await loanApplicationsApi.getVotes(id())
-            voteTally.value = res.data.data
-            committeeVotes.value   = res.data.data?.votes ?? []
-            committeeMembers.value = res.data.data?.committee_members ?? []
+            const data = res.data.data
+            voteTally.value = data
+            committeeVotes.value   = data?.votes ?? []
+            committeeMembers.value = data?.committee_members ?? []
         } catch (err: any) {
             // Silently fail for vote loading
         } finally {
@@ -340,9 +343,6 @@ export function useLoanAppraisalActions(
         }
     }
 
-    // ─── Committee votes + members (populated by loadVotes) ──────────────────
-    const committeeVotes   = ref<any[]>([])
-    const committeeMembers = ref<any[]>([])
 
     return {
         // Take for review

@@ -162,61 +162,6 @@ function errMsg(field: string) {
                         </div>
                     </div>
 
-                    <!-- ── Journal preview ── -->
-                    <div>
-                        <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Journal Preview</h3>
-                        <div class="rounded-2xl border border-neutral-100 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-800/40 overflow-hidden">
-                            <table class="w-full text-xs">
-                                <thead class="bg-neutral-100/70 dark:bg-neutral-800">
-                                    <tr>
-                                        <th class="px-3 py-2 text-left font-medium text-neutral-500 dark:text-neutral-400">Account</th>
-                                        <th class="px-3 py-2 text-right font-medium text-neutral-500 dark:text-neutral-400">DR</th>
-                                        <th class="px-3 py-2 text-right font-medium text-neutral-500 dark:text-neutral-400">CR</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
-                                    <!-- DR Loan Portfolio -->
-                                    <tr>
-                                        <td class="px-3 py-2.5">
-                                            <div class="flex items-center gap-1.5">
-                                                <ArrowRight class="h-3 w-3 flex-shrink-0 text-blue-500" />
-                                                <span class="text-neutral-700 dark:text-neutral-300">{{ portfolioAccountName }}</span>
-                                            </div>
-                                        </td>
-                                        <td class="px-3 py-2.5 text-right font-medium text-blue-700 dark:text-blue-400">{{ fmt(principal) }}</td>
-                                        <td class="px-3 py-2.5 text-right text-neutral-400">—</td>
-                                    </tr>
-                                    <!-- CR Disbursement Account -->
-                                    <tr>
-                                        <td class="px-3 py-2.5">
-                                            <div class="flex items-center gap-1.5 pl-4">
-                                                <span class="text-neutral-700 dark:text-neutral-300">{{ disbursementAccountName }}</span>
-                                            </div>
-                                        </td>
-                                        <td class="px-3 py-2.5 text-right text-neutral-400">—</td>
-                                        <td class="px-3 py-2.5 text-right font-medium text-emerald-700 dark:text-emerald-400">{{ fmt(netDisbursed) }}</td>
-                                    </tr>
-                                    <!-- CR Processing Fee Income (conditional) -->
-                                    <tr v-if="processingFee > 0">
-                                        <td class="px-3 py-2.5">
-                                            <div class="flex items-center gap-1.5 pl-4">
-                                                <span class="text-neutral-700 dark:text-neutral-300">{{ feeIncomeAccountName }}</span>
-                                            </div>
-                                        </td>
-                                        <td class="px-3 py-2.5 text-right text-neutral-400">—</td>
-                                        <td class="px-3 py-2.5 text-right font-medium text-emerald-700 dark:text-emerald-400">{{ fmt(processingFee) }}</td>
-                                    </tr>
-                                </tbody>
-                                <tfoot class="border-t border-neutral-200 bg-neutral-100/50 dark:border-neutral-700 dark:bg-neutral-800/60">
-                                    <tr>
-                                        <td class="px-3 py-2 text-xs font-semibold text-neutral-600 dark:text-neutral-400">Total</td>
-                                        <td class="px-3 py-2 text-right text-xs font-bold text-neutral-800 dark:text-neutral-200">{{ fmt(principal) }}</td>
-                                        <td class="px-3 py-2 text-right text-xs font-bold text-neutral-800 dark:text-neutral-200">{{ fmt(principal) }}</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
 
                     <!-- ── Disbursement form ── -->
                     <div>
