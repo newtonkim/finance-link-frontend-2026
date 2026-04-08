@@ -227,5 +227,5 @@ function OpenThedrawer(item: any, action = "deposit") {
   setTimeout(() => {
     drawer.value.toggleDrawer();
   }, 100);
-}
+} 
 </script>
