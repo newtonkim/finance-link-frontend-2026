@@ -252,7 +252,7 @@ function shouldShowField(field: any) {
                             :form="field.fields" :action="field.action" @results="emits('results', $event)"
                             @field-changed="emits('field-changed', $event)" />
                     </template>
-                    <FormField v-else class="capitalize"
+                    <FormField v-else class="capitalize" :class="[field.hidden?'hidden':'']"
                         :label="field?.label?.toLowerCase().replace(/^./, c => c.toUpperCase())"
                         :required="field.required" :html-for="field.name" :error="field.error"
                         :showError="field?.showError">

@@ -108,7 +108,7 @@ export const tenantRoutes: MenuRoutes[] = [
     icon: HandCoins,
     // permissions: 'chart-of-accounts-module-link-view',
     showSideBar: true,
-    component: () => import("@/tenant/modules/accounting/pages/ChartOfAccounts.vue"),
+    component: () => import("@/tenant/modules/loans/pages/LoanApplicationsIndex.vue"),
   },
   {
     path: "pending-votes",
