@@ -9,6 +9,9 @@ import LoanFormRepaymentPreview from '../components/LoanFormRepaymentPreview.vue
 import LoanFormCollateralSection from '../components/LoanFormCollateralSection.vue'
 import LoanCreateStep1Panel from '../components/LoanCreateStep1Panel.vue'
 import LoanCreateStep3Panel from '../components/LoanCreateStep3Panel.vue'
+import { type MemberOption } from '../composables/useLoanApplicationForm'
+import { type LoanProduct } from '@/tenant/apis/loanProducts/loanProductsApi'
+import { type CollateralItem } from '../components/LoanFormCollateralSection.vue'
 
 const router = useRouter()
 const { formatAmount } = useLoanApplicationHelpers()
@@ -35,7 +38,7 @@ const {
 } = useLoanApplicationCreate()
 
 // ─── Member / Product selection ───────────────────────────────────────────────
-const selectedMember = ref<any>(null)
+const selectedMember = ref<MemberOption | null>(null)
 const memberOptions = computed(() =>
   members.value.map((m) => ({ ...m, name: `${m.name} (${m.member_no})` })),
 )
@@ -43,7 +46,7 @@ const productOptions = computed(() =>
   products.value.map((p) => ({ ...p, name: `${p.name} (${p.code})` })),
 )
 
-function selectMember(m: any) {
+function selectMember(m: MemberOption) {
   form.value.member_id = m.id
   selectedMember.value = m
 }
@@ -51,7 +54,7 @@ function clearMember() {
   form.value.member_id = null
   selectedMember.value = null
 }
-function selectProduct(p: any) {
+function selectProduct(p: LoanProduct) {
   form.value.loan_product_id = p.id
   void onProductChange()
 }
@@ -95,11 +98,13 @@ function prevStep() {
   if (currentStep.value > 1) currentStep.value--
 }
 
-const step1Valid = computed(() => !!(form.value.member_id && form.value.loan_product_id))
+const step1Valid = computed(
+  () => !!(form.value.member_id && form.value.loan_product_id && form.value.loan_officer_id),
+)
 
 // ─── Collateral ───────────────────────────────────────────────────────────────
-const collateralItems = ref<any[]>([])
-const collateralRef = ref<any>(null)
+const collateralItems = ref<CollateralItem[]>([])
+const collateralRef = ref<InstanceType<typeof LoanFormCollateralSection> | null>(null)
 const step2Valid = computed(() => {
   if (!form.value.requested_amount || !form.value.requested_term) return false
   return collateralRef.value?.isSecured ?? true
@@ -213,7 +218,7 @@ const canSubmit = computed(
               </div>
               <div>
                 <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-                  >Requested Term <span class="text-red-500">*</span></label
+                  >Loan Duration <span class="text-red-500">*</span></label
                 >
                 <div class="flex items-center gap-2">
                   <input
@@ -240,7 +245,7 @@ const canSubmit = computed(
               </div>
               <div class="sm:col-span-2">
                 <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-                  >Purpose</label
+                  >Purpose <span class="text-red-500">*</span></label
                 >
                 <textarea
                   v-model="form.purpose"

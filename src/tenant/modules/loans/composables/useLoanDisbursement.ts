@@ -1,4 +1,5 @@
 import { ref, reactive, type Ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
 import { loanApplicationsApi, type LoanApplication } from '@/tenant/apis/loans/loanApplicationsApi'
 
@@ -10,12 +11,14 @@ interface DisburseForm {
     savings_account_id?: number | null
     mobile_money_provider?: string | null
     mobile_money_number?: string | null
+    charge_deduction_mode?: string | null
 }
 
 export function useLoanDisbursement(
     application: Ref<LoanApplication | null>,
     onSuccess: () => void,
 ) {
+    const router = useRouter()
 
     const showDisburseModal = ref(false)
     const disbursing = ref(false)
@@ -29,6 +32,7 @@ export function useLoanDisbursement(
         savings_account_id: null,
         mobile_money_provider: null,
         mobile_money_number: null,
+        charge_deduction_mode: 'deduct_from_principal',
     })
 
     function openDisburseModal() {
@@ -39,6 +43,7 @@ export function useLoanDisbursement(
         disburseForm.savings_account_id = null
         disburseForm.mobile_money_provider = null
         disburseForm.mobile_money_number = null
+        disburseForm.charge_deduction_mode = 'deduct_from_principal'
         Object.keys(disburseErrors).forEach(k => delete disburseErrors[k])
         showDisburseModal.value = true
     }
@@ -54,11 +59,13 @@ export function useLoanDisbursement(
                 disbursement_reference: disburseForm.disbursement_reference || null,
                 disbursement_date: disburseForm.disbursement_date || null,
                 notes: disburseForm.notes || null,
+                charge_deduction_mode: disburseForm.charge_deduction_mode || null,
                 ...(disburseForm.disbursement_method === 'savings_account' ? { savings_account_id: disburseForm.savings_account_id } : {}),
                 ...(disburseForm.disbursement_method === 'mobile_money' ? { mobile_money_provider: disburseForm.mobile_money_provider, mobile_money_number: disburseForm.mobile_money_number } : {}),
             })
 
-            const warnings = res.data?.data?.disbursement_warnings || []
+            const loan = res.data?.data
+            const warnings = loan?.disbursement_warnings || []
             if (warnings.length > 0) {
                 warnings.forEach((w: string) => toast.warning(w, { duration: 8000 }))
             } else {
@@ -67,6 +74,11 @@ export function useLoanDisbursement(
 
             showDisburseModal.value = false
             onSuccess()
+
+            // Navigate to the created loan account
+            if (loan?.id) {
+                router.push({ name: 'tenant-loan-account', params: { id: loan.id } })
+            }
         } catch (e: any) {
             const errs = e?.response?.data?.errors ?? {}
             Object.assign(disburseErrors, errs)

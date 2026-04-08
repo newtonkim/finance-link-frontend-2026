@@ -6,7 +6,10 @@ import { ConfirmDialog } from '@/Global'
 import { useLoanApplicationHelpers } from '../composables/useLoanApplicationHelpers'
 import { computed } from 'vue'
 
-interface CollateralItem {
+import { type LoanProduct } from '@/tenant/apis/loanProducts/loanProductsApi'
+import { type MemberOption } from '../composables/useLoanApplicationForm'
+
+export interface CollateralItem {
     asset_type: string
     description: string
     estimated_value: number | null
@@ -16,8 +19,8 @@ interface CollateralItem {
 }
 
 const props = defineProps<{
-    selectedProduct: any
-    selectedMember: any
+    selectedProduct: LoanProduct | null
+    selectedMember: MemberOption | null
     requestedAmount: number | null
 }>()
 
@@ -30,7 +33,7 @@ const assetTypeOptions = computed(() => assetTypes.map(t => ({ id: t, name: t })
 
 const totalRequired = computed(() => {
     const amt = props.requestedAmount || 0
-    const pct = props.selectedProduct?.security_value_percentage || 0
+    const pct = Number(props.selectedProduct?.security_value_percentage ?? 0)
     return (amt * pct) / 100
 })
 
@@ -78,8 +81,9 @@ const formattedAmount = computed({
 
 function handleFileUpload(event: Event) {
     const target = event.target as HTMLInputElement
-    if (target.files && target.files.length > 0) {
-        const file = target.files[0]
+    const file = target.files?.[0]
+    
+    if (file) {
         newItem.value.proof_document = file
         if (file.type.startsWith('image/')) {
             newItem.value.proof_preview = URL.createObjectURL(file)
@@ -92,7 +96,7 @@ function handleFileUpload(event: Event) {
     }
 }
 
-function previewDocument(file: File) {
+function previewDocument(file: File | null | undefined) {
     if (file) {
         previewFileUrl.value = URL.createObjectURL(file)
         previewFileType.value = file.type
@@ -184,7 +188,7 @@ function confirmRemoveItem() {
             <div v-for="(item, idx) in items" :key="idx"
                 class="flex items-center justify-between rounded-xl border border-neutral-100 bg-white p-4 hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900">
                 <div class="flex items-center gap-3 min-w-0 flex-1">
-                    <img v-if="item.proof_preview" :src="item.proof_preview" class="h-10 w-12 flex-shrink-0 cursor-pointer rounded-lg bg-neutral-100 object-cover border border-neutral-200 dark:border-neutral-700 hover:opacity-80 transition-opacity" @click="previewDocument(item.proof_document!)" title="Click to view full image" />
+                    <img v-if="item.proof_preview" :src="item.proof_preview" class="h-10 w-12 flex-shrink-0 cursor-pointer rounded-lg bg-neutral-100 object-cover border border-neutral-200 dark:border-neutral-700 hover:opacity-80 transition-opacity" @click="previewDocument(item.proof_document)" title="Click to view full image" />
                     <div class="min-w-0 flex-1">
                         <div class="flex items-center gap-2 mb-1">
                             <span class="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-bold text-neutral-600 dark:bg-neutral-800 font-mono">{{ item.asset_type }}</span>

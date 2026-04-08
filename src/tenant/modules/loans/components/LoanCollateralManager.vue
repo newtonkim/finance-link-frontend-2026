@@ -153,7 +153,7 @@ onMounted(load)
                     <label class="mb-1 block text-xs text-neutral-500 dark:text-neutral-400">Asset Type <span class="text-red-500">*</span></label>
                     <select
                         v-model="assetType"
-                        class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-indigo-400 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+                        class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-blue-400 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
                     >
                         <option value="">Select type…</option>
                         <option v-for="t in ASSET_TYPES" :key="t" :value="t">{{ t }}</option>
@@ -167,7 +167,7 @@ onMounted(load)
                         type="number"
                         min="0"
                         placeholder="0.00"
-                        class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-indigo-400 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+                        class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-blue-400 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
                     />
                     <p v-if="formErrors.estimated_value" class="mt-1 text-xs text-red-500">{{ formErrors.estimated_value }}</p>
                 </div>
@@ -177,7 +177,7 @@ onMounted(load)
                         v-model="description"
                         type="text"
                         placeholder="e.g. 1/4 acre plot in Nakuru"
-                        class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-indigo-400 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+                        class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-blue-400 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
                     />
                 </div>
                 <div class="sm:col-span-2">
@@ -186,7 +186,7 @@ onMounted(load)
                         v-model="notes"
                         rows="2"
                         placeholder="Additional notes…"
-                        class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-indigo-400 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+                        class="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-blue-400 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
                     />
                 </div>
             </div>
@@ -197,7 +197,7 @@ onMounted(load)
                 >Cancel</button>
                 <button
                     :disabled="adding"
-                    class="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700 disabled:opacity-60"
+                    class="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-60"
                     @click="submit"
                 >
                     <Loader2 v-if="adding" class="h-3 w-3 animate-spin" />
@@ -230,7 +230,7 @@ onMounted(load)
             >
                 <div class="flex min-w-0 flex-1 flex-col gap-0.5">
                     <div class="flex items-center gap-2">
-                        <span class="rounded-md bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400">
+                        <span class="rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
                             {{ item.asset_type }}
                         </span>
                         <span class="text-sm font-semibold text-neutral-900 dark:text-white">

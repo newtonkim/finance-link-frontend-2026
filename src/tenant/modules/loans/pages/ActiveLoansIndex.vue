@@ -218,7 +218,7 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
                     @click="
                       loan._source === 'application'
                         ? router.push({
-                            name: 'tenant-loan-application-show',
+                            name: 'tenant-loans-show',
                             params: { id: String(loan.id) },
                           })
                         : router.push({
