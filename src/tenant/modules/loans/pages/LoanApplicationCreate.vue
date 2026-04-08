@@ -98,7 +98,9 @@ function prevStep() {
   if (currentStep.value > 1) currentStep.value--
 }
 
-const step1Valid = computed(() => !!(form.value.member_id && form.value.loan_product_id))
+const step1Valid = computed(
+  () => !!(form.value.member_id && form.value.loan_product_id && form.value.loan_officer_id),
+)
 
 // ─── Collateral ───────────────────────────────────────────────────────────────
 const collateralItems = ref<CollateralItem[]>([])
@@ -216,7 +218,7 @@ const canSubmit = computed(
               </div>
               <div>
                 <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-                  >Requested Term <span class="text-red-500">*</span></label
+                  >Loan Duration <span class="text-red-500">*</span></label
                 >
                 <div class="flex items-center gap-2">
                   <input
@@ -243,7 +245,7 @@ const canSubmit = computed(
               </div>
               <div class="sm:col-span-2">
                 <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-                  >Purpose</label
+                  >Purpose <span class="text-red-500">*</span></label
                 >
                 <textarea
                   v-model="form.purpose"

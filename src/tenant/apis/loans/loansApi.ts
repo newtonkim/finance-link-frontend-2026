@@ -156,6 +156,7 @@ export interface LoanDetail {
     name: string
     code: string
     interest_method?: string
+    grace_period?: number | null
     penalty_type?: string | null
     penalty_rate?: string | number | null
     penalty_grace_days?: number | null

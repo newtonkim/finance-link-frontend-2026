@@ -12,7 +12,8 @@ import {
     ShieldCheck,
     Bell,
     Shield,
-    ChevronRight
+    ChevronRight,
+    CalendarDays
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -29,6 +30,7 @@ const modules = [
     {permission:"settings-Compliance-Audit-link-view", name: 'Compliance & Audit', icon: ShieldCheck, path: '/tenant/settings/compliance' },
     {permission:"settings-notifications-link-view", name: 'Notifications', icon: Bell, path: '/tenant/settings/notifications' },
     {permission:"settings-System-Security-link-view", name: 'System & Security', icon: Shield, path: '/tenant/settings/system' },
+    {permission:"settings-module-link-view", name: 'Public Holidays & Leave', icon: CalendarDays, path: '/tenant/settings/public-holidays' },
 ]
 
 const isActive = (path: string) => route.path.startsWith(path)

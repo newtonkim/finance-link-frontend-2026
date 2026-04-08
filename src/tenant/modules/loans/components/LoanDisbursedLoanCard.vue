@@ -29,7 +29,7 @@ const showAllSchedule = ref(false)
             </div>
             <button
                 class="flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50"
-                @click="router.push({ name: 'tenant-loan-account', params: { id: loanApplicationId } })">
+                @click="router.push({ name: 'tenant-loan-account', params: { id: loan.id } })">
                 <CreditCard class="h-3.5 w-3.5" />
                 View Loan Account
             </button>

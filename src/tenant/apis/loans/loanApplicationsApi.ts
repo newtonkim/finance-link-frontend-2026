@@ -117,6 +117,8 @@ export interface LoanApplication {
     interest_rate?: number | string | null
     interest_method?: string | null
     interest_period?: string | null
+    grace_period?: number | null
+    penalty_grace_days?: number | null
     processing_fee_type?: string | null
     processing_fee_value?: number | string | null
     portfolio_account_name?: string | null
