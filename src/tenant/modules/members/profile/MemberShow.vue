@@ -153,7 +153,7 @@ const columns = [
             { key: 'opb', label: 'opening balance' },
             { key: 'referred_by', label: 'Referred By' },
             { key: 'created_by', label: 'Created By' },
-            { key: 'joined_date', label: 'Joined Date' },
+            { key: 'joined_date', label: 'Joined Date',type: 'date' },
             { key: 'created_at', label: 'Created At' },
         ]
     },

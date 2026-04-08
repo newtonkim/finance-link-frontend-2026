@@ -47,6 +47,7 @@ const colorClasses = computed(() => {
     // status-like (very useful for your table errors)
     error: 'hover:text-red-700 bg-red-200 hover:bg-red-300 text-red-700 text-sm font-medium',
     neutral: 'hover:text-neutral-600 bg-neutral-100 hover:bg-neutral-200 text-neutral-500 text-sm',
+    custom: 'flex items-center gap-2 px-[14px] py-1.5 text-[12px] font-bold rounded-full border border-amber-200 text-amber-700 bg-amber-50 hover:bg-amber-100 transition-colors hover:text-amber-600',
   }
 
   return map[props.color] || 'text-gray-600 bg-gray-100'

@@ -14,7 +14,6 @@ export default function useTableHelpers(props: any, emit: any) {
   const DrawerMounted = ref<boolean>(true)
   const submitChanges = ref<any>(null)
   const provideDataTotheParent = ref<any>([])
-
   const finalSubmitAction = ref<string>('')
   const drawerTitle = ref(props.drawerTitle)
   const drawerShooter2 = ref(true)
@@ -166,6 +165,7 @@ export default function useTableHelpers(props: any, emit: any) {
           toggleDrawer()
         }, 100) //  to make sure the drawer is cleaned
         Store.currentFormValues = {}
+        // alert(buttonTypeClicked.value)
         buttonTypeClicked.value = buttonTypeClicked.value
         return true
       }
@@ -186,7 +186,7 @@ export default function useTableHelpers(props: any, emit: any) {
 
       if (checker) {
         // if (!checker) {
-        // return
+        return
       } else if (finalSubmitAction.value == 'import-data') {
         return
       }
@@ -332,9 +332,9 @@ export default function useTableHelpers(props: any, emit: any) {
       if (!v) {
         //reset the drawer data when the drawer is closed
         provideDataTotheParent.value = null
-        drawerShooter2.value = null
-        buttonTypeClicked.value = null
-        drawerWidth.value = null
+        // drawerShooter2.value = null
+        // buttonTypeClicked.value = null
+        // drawerWidth.value = null
       }
     },
   )

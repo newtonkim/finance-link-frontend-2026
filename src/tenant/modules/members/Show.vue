@@ -22,7 +22,7 @@ const columns = [
         { key: 'full_name', label: 'Full Name' },
         { key: 'profile', label: 'Profile' },
         { key: 'NIN', label: 'NIN' },
-        { key: 'joined_date', label: 'Joined Date' },
+        { key: 'joined_date', label: 'Joined Date',type: 'date' },
         { key: 'email', label: 'Email' },
         { key: 'sex', label: 'Sex' },
         { key: 'primary_contact', label: 'Primary Contact' },
