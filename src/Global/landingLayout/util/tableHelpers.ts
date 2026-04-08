@@ -312,18 +312,18 @@ export default function useTableHelpers(props: any, emit: any) {
       callOnmount()
     },
   )
-  watch(
-    () =>  props.drawerShowFooter,
-    (vl) => {
-        // alert(vl)
-    drawerShooter2.value = vl
-    },
-  )
+//   watch(
+//     () =>  props.drawerShowFooter,
+//     (vl) => {
+//         // alert(vl)
+//     drawerShooter2.value = vl
+//     },
+//   )
   watch(
     () => drawerOpen.value,
     (v) => {
       drawerTitle.value = props.drawerTitle
-    //   drawerShooter2.value = props.drawerShowFooter
+      drawerShooter2.value = props.drawerShowFooter
       drawerWidth.value = props.drawerWidth
       if (!v) {
         //reset the drawer data when the drawer is closed
