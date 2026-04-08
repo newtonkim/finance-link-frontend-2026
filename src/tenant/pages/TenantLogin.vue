@@ -56,6 +56,8 @@ async function submit() {
       { headers },
     );
     const data=JSON.parse(atob(res?.data)) 
+    console.log(data,'====');
+    
 
     setSystemBranding(data.data.branding)
 

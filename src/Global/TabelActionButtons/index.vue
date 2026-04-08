@@ -1,7 +1,7 @@
 <template>
   <div class="w-full gap-1 flex items-center justify-center">
     <Button @click="handleClick" type="button" v-bind="$attrs"
-      class="flex items-center capitalize rounded-full p-0   text-xs font-medium transition-colors duration-200 hover:bg-nfuko-primary/20 dark:text-neutral-700"
+      class="flex items-center px-2 capitalize rounded-full    text-xs font-medium transition-colors duration-200 hover:bg-nfuko-primary/20 dark:text-neutral-700"
       :class="[colorClasses, customClass]">
       <component v-if="icons[icon]" :is="icons[icon]" size="10" class="mx-0" />
       {{ title }}
