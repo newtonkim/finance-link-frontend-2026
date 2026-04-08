@@ -458,7 +458,7 @@ export function getSubdomainName() {
 
 export function RouteStructure(route: any, routePath: string) {
   return {
-    name: routePath.replaceAll('/', '-'),
+    name: `${routePath}`.replaceAll('/', '-'),
     path: `/${routePath}`,
     component: route.component,
   }

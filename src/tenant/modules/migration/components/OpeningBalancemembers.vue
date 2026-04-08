@@ -9,9 +9,9 @@
             </template>
             <template #id="{ item }">
                 <div
-                    class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-4 py-3 max-h-[58vh] overflow-y-auto custom-scrollbar">
+                    class=" sm:grid-cols-3 gap-2 px-4 py-2">
                     <label :key="item?.id"
-                        class="flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer border border-transparent  transition group">
+                        class="flex items-center gap-3 px-3 rounded-xl cursor-pointer border border-transparent  transition group">
                         <input :checked="!!selected[item.id]" type="checkbox" @click="() => selectMember(item)"
                             class="w-4 h-4 accent-nfuko-primary-600 cursor-pointer export-meber-opening-balance" />
                     </label>
@@ -41,8 +41,8 @@ const selected = ref<Record<string, any>>({}),
     drawerTitle = ref('Create Tenant'),
     tableUrl = computed(() => `members/download-members-import-template/list`)
 const columns = [
-    { key: 'id', label: 'check', copy: true },
-    { key: 'salutation_name', label: 'Member', width: '14em ', },
+    { key: 'id', label: 'check', copy: true,width:"3em" },
+    { key: 'salutation_name', label: 'Member', width: '12em ', },
     { key: 'memeber_code', label: 'member code', width: '14em', copy: true },
     { key: 'account_number', label: 'member code', width: '14em', copy: true },
 ]

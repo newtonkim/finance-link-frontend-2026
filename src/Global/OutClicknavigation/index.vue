@@ -4,16 +4,14 @@
         <!-- Main nav items -->
         <div class="flex flex-col gap-1 flex-1">
             <template v-for="item in mainLinks" :key="item.path ?? item.label">
-            <span v-if='!item?.children && item?.showSideBar === true' class='item'>
+            <span v-if='!item?.children && item?.showSideBar === true' class='item '>
                 <SidebarGroupLabel
                 
-                v-if="item.type == 'label' && item?.showSideBar === true"
-                    class="ring-sidebar-ring flex h-8 shrink-0 items-center rounded-md outline-hidden transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0 group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
+                v-if="item.type == 'label' && item?.showSideBar === true" class="ring-sidebar-ring flex h-5 shrink-0 items-center rounded-md outline-hidden mt-6 transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0 group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 px-4  text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
                     {{ item.label }}
                 </SidebarGroupLabel>
 
-                <RouteLink v-else-if="!item?.children && item?.showSideBar === true" :item="item"
-                    @click="() => toggleSubmenu(null)" />
+                <RouteLink v-else-if="!item?.children && item?.showSideBar === true" :item="item" @click="() => toggleSubmenu(null)" />
             </span>
         <div v-else  >
         
@@ -84,3 +82,8 @@ onUnmounted(() => {
     window.removeEventListener('click', ()=> toggleSubmenu(null));
 });
 </script>
+<style scoped>
+.item:empty {
+  display: none !important;
+}
+</style>
