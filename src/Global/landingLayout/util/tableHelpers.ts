@@ -104,6 +104,8 @@ export default function useTableHelpers(props: any, emit: any) {
   }
 
   const toggleDrawer = () => {
+    console.log(  drawerOpen.value );
+    
     drawerOpen.value = !drawerOpen.value
     if (drawerOpen.value) {
       //////
@@ -111,6 +113,7 @@ export default function useTableHelpers(props: any, emit: any) {
     }
   }
   function save(data: unknown, type = 'save') {
+    // alert(type)
     if (type == 'search' && props?.state && props?.url) {
       fetchTableData({ data, props, Store })
       return
@@ -227,6 +230,7 @@ export default function useTableHelpers(props: any, emit: any) {
       })
     } else if (['edit', 'view'].includes(action)) {
       DrawerMounted.value = false
+    //   alert()
       if (fn) fn(item)
       toggleDrawer() // open the drawer on this action clicked
       if (props?.state && props?.url && ['edit', 'view'].includes(action)) {
