@@ -54,7 +54,7 @@
       />
     </template>
     <template #drawer="{ action, data }">
-      ( {{ showFooter }})
+      <!-- ( {{ automaticCreate }}) -->
       <uploadTemplateColumData
         upload-trick="row"
         v-if="
@@ -89,6 +89,7 @@
         v-model:form="formData"
       />
       <Details v-else-if="['view'].includes(action)" :data="data" />
+      <Edit v-else-if="action === 'edit'" :data="{ ...data, action }" />
       <Create v-else :data="{ ...data, action }" />
       <!-- <Create v-else="['add', 'edit',''].includes(action)" :data="{ ...data, action }" /> -->
     </template>
@@ -103,6 +104,7 @@ import {
   Withdrawal,
   ExportTemplate,
   DepositTemplate,
+  Edit,
   WithdrawalTemplate,
 } from ".";
 import {
@@ -196,16 +198,16 @@ function saveUser(type: string, data: any) {
     title?.[automaticCreate.value.actionSlot]?.fun?.();
     return;
   }
-  if (["add", "edit", "view"].includes(type)) automaticCreate.value = {};
+  if (["add", "edit", "view", "edit"].includes(type)) automaticCreate.value = {};
   if (title?.[type]) {
     drawerTitle.value = title?.[type];
   }
   title?.[type]?.fun?.();
-  if (!["withdrawal", "deposit", "add", "view"].includes(type)) {
+  if (!["withdrawal", "deposit", "edit", "add", "view"].includes(type)) {
     drawer.value.toggleDrawer(); // close the drawer
   }
   // // // // automaticCreate.value.actionSlot=automaticCreate.value.actionSlot
-  automaticCreate.value = {}; // celan the automatic create
+  //   automaticCreate.value = {}; // celan the automatic create
 }
 
 const columns = [
@@ -216,18 +218,11 @@ const columns = [
   { key: "created at", label: "created at", type: "status" },
   { key: "actions", label: "Actions", show: ["view", "edit", "delete"] },
 ];
-watch(
-  () => drawer.value?.drawerOpen,
-  (val) => {
-    if (!val) {
-      showFooter.value = false;
-    }
-  },
-  { immediate: true, deep: true }
-);
+
 function OpenThedrawer(item: any, action = "deposit") {
   automaticCreate.value = { actionSlot: action, ...item };
   showFooter.value = ["withdrawal", "deposit"].includes(action);
+  //   showFooter.value = ["withdrawal", "deposit"].includes(action);
   drawerTitle.value = title?.[action];
   setTimeout(() => {
     drawer.value.toggleDrawer();

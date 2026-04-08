@@ -1,6 +1,6 @@
 <template>
     <div class="flex h-full fle x-1 flex-col  px-10 py-3 ">
-        
+        <!-- {{ drawerOpen }} -->
         <div class="flex items-center justify-between">
             <div v-if="$slots['header-action']" class='my-2'>
                 <slot name="header-action" />
@@ -179,7 +179,7 @@ const emit = defineEmits(['save', 'submit', 'update:title']);
     changeThePage,
     callNewPage,
     onSearch,
-    drawerTitle,
+    // drawerTitle,
     drawerShooter2,
     drawerWidth,
     drawerOpen,

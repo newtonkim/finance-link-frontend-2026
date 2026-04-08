@@ -86,6 +86,13 @@ export const tenantRoutes: MenuRoutes[] = [
     // component: () => import('@/tenant/modules/savings/pages/SavingsTransfer.vue'),
   },
 
+
+  {
+    type: "label",
+    label: "LEAN SEATION",
+    icon: BookOpen,
+    showSideBar: true,
+  },
   {
     path: "chart-of-accounts",
     label: "chart of accounts",
@@ -93,12 +100,6 @@ export const tenantRoutes: MenuRoutes[] = [
     permissions: "chart-of-accounts-module-link-view",
     showSideBar: true,
     component: () => import("@/tenant/modules/accounting/pages/ChartOfAccounts.vue"),
-  },
-  {
-    type: "label",
-    label: "LEAN SEATION",
-    icon: BookOpen,
-    showSideBar: true,
   },
 
   {
