@@ -117,6 +117,8 @@ export interface LoanApplication {
     interest_rate?: number | string | null
     interest_method?: string | null
     interest_period?: string | null
+    grace_period?: number | null
+    penalty_grace_days?: number | null
     processing_fee_type?: string | null
     processing_fee_value?: number | string | null
     portfolio_account_name?: string | null
@@ -140,6 +142,31 @@ export interface LoanApplication {
   unanimity_required?: boolean | null
   correction_reason?: string | null
   committeeVotes?: CommitteeVote[]
+  // Product charges (resolved at approval/disbursement stage)
+  product_charges?: {
+    items: ProductCharge[]
+    summary: {
+      gross_amount: number
+      gross_amount_formatted: string
+      total_on_disbursement: number
+      total_on_disbursement_formatted: string
+      net_disbursed: number
+      net_disbursed_formatted: string
+    }
+  } | null
+}
+
+export interface ProductCharge {
+  id: number | string
+  name: string
+  charge_type: 'flat' | 'percentage'
+  value: number | string
+  computed_amount: number
+  computed_amount_formatted: string
+  application_timing: string
+  category?: string | null
+  is_mandatory: boolean
+  description?: string | null
 }
 
 export interface EligibilityCheckItem {
@@ -276,6 +303,7 @@ export const loanApplicationsApi = {
       disbursement_reference?: string | null
       disbursement_date?: string | null
       notes?: string | null
+      charge_deduction_mode?: string | null
       savings_account_id?: number | null
       mobile_money_provider?: string | null
       mobile_money_number?: string | null

@@ -13,6 +13,7 @@ const AccountingSettings = () => import('./pages/AccountingSettings.vue')
 const ComplianceSettings = () => import('./pages/ComplianceSettings.vue')
 const NotificationsSettings = () => import('./pages/NotificationsSettings.vue')
 const SystemSettings = () => import('./pages/SystemSettings.vue')
+const PublicHolidaysSettings = () => import('./pages/PublicHolidaysSettings.vue')
 const SavingsProducts = () => import('./pages/SavingsProducts.vue')
 const SavingsProductForm = () => import('./pages/SavingsProductForm.vue')
 const LoanProductIndex = () => import('../loan-products/pages/LoanProductIndex.vue')
@@ -157,6 +158,11 @@ export const settingsRoutes: RouteRecordRaw[] = [
         path: 'system',
         name: 'tenant-settings-system',
         component: SystemSettings,
+      },
+      {
+        path: 'public-holidays',
+        name: 'tenant-settings-public-holidays',
+        component: PublicHolidaysSettings,
       },
       {
         path: 'transaction-charges',

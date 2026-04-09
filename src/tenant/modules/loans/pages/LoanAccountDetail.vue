@@ -34,6 +34,7 @@ import { useTenantUserStore } from '@/stores/tenantUserStore'
 import { loanSettingsApi } from '@/tenant/apis/settings/loanSettingsApi'
 import { useLoanAccount } from '../composables/useLoanAccount'
 import ReceiveCashModal from '../components/ReceiveCashModal.vue'
+import LoanDocumentUploader from '../components/LoanDocumentUploader.vue'
 import { loansApi } from '@/tenant/apis/loans/loansApi'
 
 const route = useRoute()
@@ -196,8 +197,70 @@ const repaidPercent = computed(() => {
   if (principalAmount.value <= 0) return 0
   return Math.max(
     0,
-    Math.min(100, Math.round(((principalAmount.value - outstandingAmount.value) / principalAmount.value) * 100)),
+    Math.min(
+      100,
+      Math.round(((principalAmount.value - outstandingAmount.value) / principalAmount.value) * 100),
+    ),
   )
+})
+
+// ─── Charges & Penalties computed ─────────────────────────────────────────────
+const disbursementCharges = computed(() =>
+  (loan.value?.applied_charges ?? []).filter((c) => c.application_timing === 'on_disbursement'),
+)
+const repaymentCharges = computed(() =>
+  (loan.value?.applied_charges ?? []).filter((c) => c.application_timing !== 'on_disbursement'),
+)
+const totalChargesAmount = computed(() =>
+  (loan.value?.applied_charges ?? []).reduce((s, c) => s + Number(c.charge_amount), 0),
+)
+const totalChargesCollected = computed(() =>
+  (loan.value?.applied_charges ?? []).reduce((s, c) => s + Number(c.used_amount), 0),
+)
+const totalChargesRemaining = computed(() =>
+  (loan.value?.applied_charges ?? []).reduce((s, c) => s + Number(c.remaining_amount), 0),
+)
+
+const overdueRows = computed(() =>
+  schedule.value.filter((r) => r.is_overdue || Number(r.penalty_due) > 0),
+)
+const totalPenaltyAccrued = computed(() => scheduleTotals.value.penalty_due)
+const totalPenaltyPaid = computed(() =>
+  schedule.value.reduce((s, r) => s + Number(r.penalty_paid), 0),
+)
+const totalPenaltyOutstanding = computed(() =>
+  Math.max(0, totalPenaltyAccrued.value - totalPenaltyPaid.value),
+)
+const totalProductCharges = computed(() => {
+  return (loan.value?.loan_product?.charges ?? []).reduce((acc, charge) => {
+    if (charge.charge_type === 'flat') {
+      return acc + (Number(charge.value) || 0)
+    }
+    return acc
+  }, 0)
+})
+
+const penaltyRuleLabel = computed(() => {
+  const p = loan.value?.loan_product
+  if (!p) return null
+  if (p.penalty_rules && p.penalty_rules.length > 0) {
+    const r = p.penalty_rules[0]
+    const type = r.penalty_type ?? 'flat'
+    const rate =
+      Number(r.penalty_rate) > 0
+        ? `${r.penalty_rate}% ${type}`
+        : r.amount && Number(r.amount) > 0
+          ? `${currency.value} ${r.amount} flat`
+          : null
+    const grace = Number(r.grace_days) > 0 ? ` after ${r.grace_days} grace days` : ''
+    return rate ? `${rate}${grace} on ${r.applies_to ?? 'outstanding balance'}` : null
+  }
+  if (p.penalty_rate && Number(p.penalty_rate) > 0) {
+    const grace =
+      Number(p.penalty_grace_days) > 0 ? ` after ${p.penalty_grace_days} grace days` : ''
+    return `${p.penalty_rate}% ${p.penalty_type ?? 'monthly'}${grace}`
+  }
+  return null
 })
 
 function canShowMore(row: any, index: number) {
@@ -284,6 +347,9 @@ async function handleReceiveCashSubmit(data: any) {
   try {
     const payload = {
       amount: data.amount,
+      penalty_charges: data.penalty_charges || 0,
+      interest: data.interest || 0,
+      principal: data.principal || 0,
       payment_method: 'cash',
       payment_date: data.payment_date,
       loan_officer_id: loan.value.loan_officer_id ?? null,
@@ -385,25 +451,51 @@ async function handleReceiveCashSubmit(data: any) {
               </div>
             </div>
           </div>
-          <div class="flex items-center gap-3">
-          </div>
+          <div class="flex items-center gap-3"></div>
         </div>
 
         <!-- Stat row -->
-        <div class="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div class="rounded-xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50 to-white p-4 dark:border-emerald-800/40 dark:from-emerald-900/20 dark:to-neutral-900">
-            <div class="text-[11px] font-semibold uppercase tracking-wider text-emerald-700/80 dark:text-emerald-300/80">
-              Principal
+        <div class="mt-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div
+            class="rounded-xl border border-blue-200/80 bg-gradient-to-br from-blue-50 to-white p-4 dark:border-blue-800/40 dark:from-blue-900/20 dark:to-neutral-900"
+          >
+            <div
+              class="text-[11px] font-semibold uppercase tracking-wider text-blue-700/80 dark:text-blue-300/80"
+            >
+              Total Principal
             </div>
             <div class="mt-1 text-2xl font-black leading-tight text-neutral-900 dark:text-white">
               {{ principalDisplay }}
             </div>
-            <div class="mt-1 text-[11px] text-emerald-700/70 dark:text-emerald-300/70">
-              Original loan amount
+            <div class="mt-1 text-[11px] text-blue-700/70 dark:text-blue-300/70">
+              Loan amount requested
             </div>
           </div>
-          <div class="rounded-xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50 to-white p-4 dark:border-emerald-800/40 dark:from-emerald-900/20 dark:to-neutral-900">
-            <div class="text-[11px] font-semibold uppercase tracking-wider text-emerald-700/80 dark:text-emerald-300/80">
+
+          <div
+            class="rounded-xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50 to-white p-4 dark:border-emerald-800/40 dark:from-emerald-900/20 dark:to-neutral-900"
+          >
+            <div
+              class="text-[11px] font-semibold uppercase tracking-wider text-emerald-700/80 dark:text-emerald-300/80"
+            >
+              Net Disbursed
+            </div>
+            <div
+              class="mt-1 text-2xl font-black leading-tight text-emerald-700 dark:text-emerald-400"
+            >
+              {{ netDisbursedDisplay }}
+            </div>
+            <div class="mt-1 text-[11px] text-emerald-700/70 dark:text-emerald-300/70">
+              Actual amount paid out
+            </div>
+          </div>
+
+          <div
+            class="rounded-xl border border-neutral-200/80 bg-gradient-to-br from-neutral-50 to-white p-4 dark:border-neutral-800/40 dark:from-neutral-900/20 dark:to-neutral-900"
+          >
+            <div
+              class="text-[11px] font-semibold uppercase tracking-wider text-neutral-700/80 dark:text-neutral-300/80"
+            >
               Outstanding Balance
             </div>
             <div
@@ -416,26 +508,40 @@ async function handleReceiveCashSubmit(data: any) {
             >
               {{ outstandingDisplay }}
             </div>
-            <div class="mt-1 text-[11px] text-emerald-700/70 dark:text-emerald-300/70">
-              Amount remaining to be repaid
+            <div class="mt-1 text-[11px] text-neutral-700/70 dark:text-neutral-300/70">
+              Remaining debt
             </div>
           </div>
-          <div class="rounded-xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50 to-white p-4 dark:border-emerald-800/40 dark:from-emerald-900/20 dark:to-neutral-900">
-            <div class="text-[11px] font-semibold uppercase tracking-wider text-emerald-700/80 dark:text-emerald-300/80">
-              Total Amount Paid
+
+          <div
+            class="rounded-xl border border-neutral-200/80 bg-gradient-to-br from-neutral-50 to-white p-4 dark:border-neutral-800/40 dark:from-neutral-900/20 dark:to-neutral-900"
+          >
+            <div
+              class="text-[11px] font-semibold uppercase tracking-wider text-neutral-700/80 dark:text-neutral-300/80"
+            >
+              Total Paid
             </div>
-            <div class="mt-1 text-2xl font-black leading-tight text-emerald-700 dark:text-emerald-300">
+            <div class="mt-1 text-2xl font-black leading-tight text-neutral-900 dark:text-white">
               {{ totalAmountPaidDisplay }}
             </div>
-            <div class="mt-1 text-[11px] text-emerald-700/70 dark:text-emerald-300/70">
-              Total collected so far
+            <div class="mt-1 text-[11px] text-neutral-700/70 dark:text-neutral-300/70">
+              Collected so far
             </div>
           </div>
-          <div class="rounded-xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50 to-white p-4 dark:border-emerald-800/40 dark:from-emerald-900/20 dark:to-neutral-900">
-            <div class="text-[11px] font-semibold uppercase tracking-wider text-emerald-700/80 dark:text-emerald-300/80">
-              Repaid
+
+          <div
+            class="rounded-xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50 to-white p-4 dark:border-emerald-800/40 dark:from-emerald-900/20 dark:to-neutral-900"
+          >
+            <div
+              class="text-[11px] font-semibold uppercase tracking-wider text-emerald-700/80 dark:text-emerald-300/80"
+            >
+              Repaid %
             </div>
-            <div class="mt-1 text-2xl font-black leading-tight text-emerald-700 dark:text-emerald-300">{{ repaidPercent }}%</div>
+            <div
+              class="mt-1 text-2xl font-black leading-tight text-emerald-700 dark:text-emerald-300"
+            >
+              {{ repaidPercent }}%
+            </div>
             <div class="mt-1.5 h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-700">
               <div
                 class="h-1.5 rounded-full bg-emerald-500 transition-all"
@@ -443,7 +549,7 @@ async function handleReceiveCashSubmit(data: any) {
               />
             </div>
             <div class="mt-1 text-[11px] text-emerald-700/70 dark:text-emerald-300/70">
-              Share of principal cleared
+              Principal cleared
             </div>
           </div>
         </div>
@@ -518,7 +624,7 @@ async function handleReceiveCashSubmit(data: any) {
                 class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
               >
                 <div class="font-medium text-neutral-500 dark:text-neutral-400">
-                  Principal Amount
+                  Total Principal
                 </div>
                 <div class="font-medium text-neutral-900 dark:text-white">
                   {{ principalDisplay }}
@@ -527,18 +633,20 @@ async function handleReceiveCashSubmit(data: any) {
               <div
                 class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
               >
-                <div class="font-medium text-neutral-500 dark:text-neutral-400">Net Disbursed</div>
-                <div class="font-medium text-emerald-700 dark:text-emerald-400">
+                <div class="font-medium text-neutral-500 dark:text-neutral-400">
+                  Net Cash Disbursed
+                </div>
+                <div class="font-bold text-emerald-700 dark:text-emerald-400">
                   {{ netDisbursedDisplay }}
                 </div>
               </div>
               <div
-                v-if="Number(loan.processing_fee) > 0"
+                v-if="toNumber(loan.processing_fee) > 0"
                 class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
               >
                 <div class="font-medium text-neutral-500 dark:text-neutral-400">Processing Fee</div>
                 <div class="font-medium text-neutral-900 dark:text-white">
-                  {{ loan.processing_fee_formatted ?? fmt(loan.processing_fee) }}
+                  {{ currency }} {{ fmt(loan.processing_fee) }}
                 </div>
               </div>
               <div
@@ -546,7 +654,7 @@ async function handleReceiveCashSubmit(data: any) {
               >
                 <div class="font-medium text-neutral-500 dark:text-neutral-400">Interest Rate</div>
                 <div class="font-medium text-neutral-900 dark:text-white">
-                  {{ loan.interest_rate }}%
+                  {{ loan.interest_rate }}% ({{ interestMethodLabel }})
                 </div>
               </div>
               <div
@@ -566,6 +674,18 @@ async function handleReceiveCashSubmit(data: any) {
                 <div class="font-medium text-neutral-500 dark:text-neutral-400">Term</div>
                 <div class="font-medium text-neutral-900 dark:text-white">
                   {{ loan.term_months }} months
+                </div>
+              </div>
+              <div
+                class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
+              >
+                <div class="font-medium text-neutral-500 dark:text-neutral-400">Grace Period</div>
+                <div class="font-medium text-neutral-900 dark:text-white">
+                  {{
+                    (loan.loan_product?.grace_period ?? 0) > 0
+                      ? `${loan.loan_product?.grace_period} days`
+                      : 'None'
+                  }}
                 </div>
               </div>
               <div
@@ -677,6 +797,7 @@ async function handleReceiveCashSubmit(data: any) {
                   <th class="px-3 py-3 text-left">Due Date</th>
                   <th class="px-3 py-3 text-right">Principal</th>
                   <th class="px-3 py-3 text-right">Interest</th>
+                  <th class="px-3 py-3 text-right">Charges</th>
                   <th class="px-3 py-3 text-right">Penalty</th>
                   <th class="px-3 py-3 text-right">Total</th>
                   <th class="px-3 py-3 text-right">Paid</th>
@@ -700,8 +821,15 @@ async function handleReceiveCashSubmit(data: any) {
                   <td class="px-3 py-3 text-right">{{ currency }} {{ fmt(row.principal_due) }}</td>
                   <td class="px-3 py-3 text-right">{{ currency }} {{ fmt(row.interest_due) }}</td>
                   <td class="px-3 py-3 text-right">
-                    {{ currency }} {{ fmt(row.penalty_due) }}
+                    <span
+                      v-if="Number(row.charges_due) > 0"
+                      class="text-amber-600 dark:text-amber-400"
+                    >
+                      {{ currency }} {{ fmt(row.charges_due) }}
+                    </span>
+                    <span v-else class="text-neutral-400">—</span>
                   </td>
+                  <td class="px-3 py-3 text-right">{{ currency }} {{ fmt(row.penalty_due) }}</td>
                   <td class="px-3 py-3 text-right font-semibold">
                     {{ currency }} {{ fmt(row.total_due) }}
                   </td>
@@ -757,7 +885,7 @@ async function handleReceiveCashSubmit(data: any) {
                         class="w-48 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 shadow-xl"
                       >
                         <DropdownMenuItem
-                          class="cursor-pointer gap-2"
+                          class="cursor-pointer gap-2 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30"
                           @click="openReceiveCash(row)"
                         >
                           <Banknote class="h-4 w-4" />
@@ -790,6 +918,9 @@ async function handleReceiveCashSubmit(data: any) {
                   </td>
                   <td class="px-3 py-3 text-right">
                     {{ currency }} {{ fmt(scheduleTotals.interest_due) }}
+                  </td>
+                  <td class="px-3 py-3 text-right">
+                    {{ currency }} {{ fmt(scheduleTotals.charges_due) }}
                   </td>
                   <td class="px-3 py-3 text-right">
                     {{ currency }} {{ fmt(scheduleTotals.penalty_due) }}
@@ -919,7 +1050,9 @@ async function handleReceiveCashSubmit(data: any) {
                         class="inline-flex items-center rounded-lg border border-nfuko-action bg-white p-0 text-[11px] font-bold text-nfuko-action overflow-hidden hover:bg-nfuko-action/5 transition-colors shadow-sm"
                       >
                         <span class="px-2.5 py-1.2">Action</span>
-                        <span class="bg-nfuko-action px-1.5 py-1.5 text-white border-l border-nfuko-action flex items-center justify-center">
+                        <span
+                          class="bg-nfuko-action px-1.5 py-1.5 text-white border-l border-nfuko-action flex items-center justify-center"
+                        >
                           <ChevronDown class="h-3 w-3 stroke-[3]" />
                         </span>
                       </button>
@@ -928,11 +1061,15 @@ async function handleReceiveCashSubmit(data: any) {
                       align="end"
                       class="w-40 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 shadow-xl rounded-xl p-1"
                     >
-                      <DropdownMenuItem class="cursor-pointer gap-2.5 py-2 px-3 text-nfuko-action focus:text-nfuko-action focus:bg-nfuko-action/10 rounded-lg">
+                      <DropdownMenuItem
+                        class="cursor-pointer gap-2.5 py-2 px-3 text-nfuko-action focus:text-nfuko-action focus:bg-nfuko-action/10 rounded-lg"
+                      >
                         <Eye class="h-4 w-4 stroke-[2.5]" />
                         <span class="font-bold">View</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem class="cursor-pointer gap-2.5 py-2 px-3 text-nfuko-action focus:text-nfuko-action focus:bg-nfuko-action/10 rounded-lg">
+                      <DropdownMenuItem
+                        class="cursor-pointer gap-2.5 py-2 px-3 text-nfuko-action focus:text-nfuko-action focus:bg-nfuko-action/10 rounded-lg"
+                      >
                         <CircleMinus class="h-4 w-4 stroke-[2.5]" />
                         <span class="font-bold">Reverse</span>
                       </DropdownMenuItem>
@@ -968,15 +1105,414 @@ async function handleReceiveCashSubmit(data: any) {
         </div>
       </div>
 
-      <!-- ── Documents, Activities — placeholder tabs ── -->
+      <!-- ── Charges & Penalties ── -->
+      <div v-if="activeTab === 'charges'" class="space-y-6">
+        <!-- Charge Stats -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div
+            class="rounded-xl border border-neutral-100 bg-neutral-50/60 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-800/40"
+          >
+            <p class="text-[10px] font-semibold uppercase tracking-wide text-neutral-500">
+              Total Applied Charges
+            </p>
+            <p class="mt-1 text-base font-bold text-neutral-900 dark:text-white">
+              {{ currency }} {{ fmt(totalChargesAmount) }}
+            </p>
+          </div>
+          <div
+            class="rounded-xl border border-emerald-100 bg-emerald-50/60 px-4 py-3 dark:border-emerald-900/30 dark:bg-emerald-900/10"
+          >
+            <p class="text-[10px] font-semibold uppercase tracking-wide text-emerald-500">
+              Charges Collected
+            </p>
+            <p class="mt-1 text-base font-bold text-emerald-700 dark:text-emerald-400">
+              {{ currency }} {{ fmt(totalChargesCollected) }}
+            </p>
+          </div>
+          <div
+            class="rounded-xl border border-amber-100 bg-amber-50/60 px-4 py-3 dark:border-amber-900/30 dark:bg-amber-900/10"
+          >
+            <p class="text-[10px] font-semibold uppercase tracking-wide text-amber-500">
+              Charges Outstanding
+            </p>
+            <p class="mt-1 text-base font-bold text-amber-700 dark:text-amber-400">
+              {{ currency }} {{ fmt(totalChargesRemaining) }}
+            </p>
+          </div>
+          <div
+            class="rounded-xl border border-red-100 bg-red-50/60 px-4 py-3 dark:border-red-900/30 dark:bg-red-900/10"
+          >
+            <p class="text-[10px] font-semibold uppercase tracking-wide text-red-500">
+              Penalty Balance
+            </p>
+            <p class="mt-1 text-base font-bold text-red-700 dark:text-red-400">
+              {{ currency }} {{ fmt(totalPenaltyOutstanding) }}
+            </p>
+          </div>
+        </div>
+
+
+
+        <!-- ── Product Charges & Fees ── -->
+        <div v-if="loan.loan_product?.charges?.length">
+          <div class="flex items-center justify-between mb-2">
+            <h3
+              class="text-xs font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500"
+            >
+              Product Charges & Fees
+              <span class="ml-1 normal-case font-normal text-neutral-400"
+                >— template from loan product</span
+              >
+            </h3>
+          </div>
+          <div class="overflow-x-auto rounded-xl border border-neutral-100 dark:border-neutral-800">
+            <table class="w-full text-xs">
+              <thead
+                class="bg-neutral-50 dark:bg-neutral-800/60 font-semibold text-neutral-600 dark:text-neutral-400"
+              >
+                <tr>
+                  <th class="px-4 py-2.5 text-left">Charge Name</th>
+                  <th class="px-4 py-2.5 text-left">Type</th>
+                  <th class="px-4 py-2.5 text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+                <tr
+                  v-for="charge in loan.loan_product.charges"
+                  :key="charge.id"
+                  class="hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors"
+                >
+                  <td class="px-4 py-2.5 font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ charge.name }}
+                  </td>
+                  <td class="px-4 py-2.5 capitalize text-neutral-500">
+                    {{ charge.charge_type?.replace(/_/g, ' ') }}
+                  </td>
+                  <td class="px-4 py-2.5 text-right font-medium">
+                    <template v-if="charge.charge_type === 'flat'">
+                      {{ currency }} {{ fmt(charge.value) }}
+                    </template>
+                    <template v-else-if="charge.charge_type === 'percentage'">
+                      {{ charge.value }}%
+                    </template>
+                    <template v-else>
+                      {{ charge.value }}
+                    </template>
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot v-if="loan.loan_product?.charges?.length">
+                <tr
+                  class="bg-neutral-50/50 dark:bg-neutral-800/30 font-bold border-t border-neutral-100 dark:border-neutral-800"
+                >
+                  <td class="px-4 py-2.5 text-left" colspan="2">Sum Total</td>
+                  <td class="px-4 py-2.5 text-right">
+                    {{ currency }} {{ fmt(totalProductCharges) }}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── On-Disbursement Charges ── -->
+        <div v-if="disbursementCharges.length">
+          <h3
+            class="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500"
+          >
+            Disbursement Charges
+            <span class="ml-1 normal-case font-normal text-neutral-400"
+              >— collected at time of disbursement</span
+            >
+          </h3>
+          <div class="overflow-x-auto rounded-xl border border-neutral-100 dark:border-neutral-800">
+            <table class="w-full text-xs">
+              <thead
+                class="bg-neutral-50 dark:bg-neutral-800/60 font-semibold text-neutral-600 dark:text-neutral-400"
+              >
+                <tr>
+                  <th class="px-4 py-2.5 text-left">Charge</th>
+                  <th class="px-4 py-2.5 text-left">Type</th>
+                  <th class="px-4 py-2.5 text-right">Amount</th>
+                  <th class="px-4 py-2.5 text-right">Collected</th>
+                  <th class="px-4 py-2.5 text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+                <tr
+                  v-for="charge in disbursementCharges"
+                  :key="charge.id"
+                  class="hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors"
+                  :class="charge.is_waived ? 'opacity-50' : ''"
+                >
+                  <td class="px-4 py-2.5 font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ charge.name }}
+                    <span v-if="charge.is_mandatory" class="ml-1 text-[10px] text-neutral-400"
+                      >(mandatory)</span
+                    >
+                  </td>
+                  <td class="px-4 py-2.5 capitalize text-neutral-500">{{ charge.charge_type }}</td>
+                  <td class="px-4 py-2.5 text-right">
+                    {{ currency }} {{ fmt(charge.charge_amount) }}
+                  </td>
+                  <td class="px-4 py-2.5 text-right text-emerald-600 dark:text-emerald-400">
+                    {{ currency }} {{ fmt(charge.used_amount) }}
+                  </td>
+                  <td class="px-4 py-2.5 text-center">
+                    <span
+                      v-if="charge.is_waived"
+                      class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold bg-neutral-100 text-neutral-500 dark:bg-neutral-800"
+                      >Waived</span
+                    >
+                    <span
+                      v-else
+                      class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                      >Collected</span
+                    >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p
+            v-if="loan?.charge_deduction_mode"
+            class="mt-2 text-[11px] text-neutral-400 dark:text-neutral-500"
+          >
+            Method:
+            <span class="font-medium text-neutral-600 dark:text-neutral-300">{{
+              loan.charge_deduction_mode === 'deduct_from_principal'
+                ? 'Deducted from principal'
+                : loan.charge_deduction_mode === 'debit_savings'
+                  ? 'Debited from savings account'
+                  : loan.charge_deduction_mode === 'pay_cash'
+                    ? 'Paid in cash'
+                    : loan.charge_deduction_mode === 'capitalize'
+                      ? 'Capitalized into loan balance'
+                      : loan.charge_deduction_mode
+            }}</span>
+          </p>
+        </div>
+
+        <!-- ── On-Repayment Charges ── -->
+        <div v-if="repaymentCharges.length">
+          <h3
+            class="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500"
+          >
+            Repayment Charges
+            <span class="ml-1 normal-case font-normal text-neutral-400"
+              >— collected with each installment</span
+            >
+          </h3>
+          <div class="overflow-x-auto rounded-xl border border-neutral-100 dark:border-neutral-800">
+            <table class="w-full text-xs">
+              <thead
+                class="bg-neutral-50 dark:bg-neutral-800/60 font-semibold text-neutral-600 dark:text-neutral-400"
+              >
+                <tr>
+                  <th class="px-4 py-2.5 text-left">Charge</th>
+                  <th class="px-4 py-2.5 text-left">Type</th>
+                  <th class="px-4 py-2.5 text-right">Total Amount</th>
+                  <th class="px-4 py-2.5 text-right">Collected</th>
+                  <th class="px-4 py-2.5 text-right">Remaining</th>
+                  <th class="px-4 py-2.5 text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+                <tr
+                  v-for="charge in repaymentCharges"
+                  :key="charge.id"
+                  class="hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors"
+                  :class="charge.is_waived ? 'opacity-50' : ''"
+                >
+                  <td class="px-4 py-2.5 font-medium text-neutral-800 dark:text-neutral-200">
+                    {{ charge.name }}
+                  </td>
+                  <td class="px-4 py-2.5 capitalize text-neutral-500">{{ charge.charge_type }}</td>
+                  <td class="px-4 py-2.5 text-right">
+                    {{ currency }} {{ fmt(charge.charge_amount) }}
+                  </td>
+                  <td class="px-4 py-2.5 text-right text-emerald-600 dark:text-emerald-400">
+                    {{ currency }} {{ fmt(charge.used_amount) }}
+                  </td>
+                  <td
+                    class="px-4 py-2.5 text-right"
+                    :class="
+                      charge.remaining_amount > 0
+                        ? 'text-amber-600 dark:text-amber-400'
+                        : 'text-neutral-400'
+                    "
+                  >
+                    {{
+                      charge.remaining_amount > 0
+                        ? `${currency} ${fmt(charge.remaining_amount)}`
+                        : '—'
+                    }}
+                  </td>
+                  <td class="px-4 py-2.5 text-center">
+                    <span
+                      v-if="charge.is_waived"
+                      class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold bg-neutral-100 text-neutral-500 dark:bg-neutral-800"
+                      >Waived</span
+                    >
+                    <span
+                      v-else-if="charge.remaining_amount <= 0"
+                      class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                      >Collected</span
+                    >
+                    <span
+                      v-else
+                      class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                      >Pending</span
+                    >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── Empty state for charges ── -->
+        <div
+          v-if="!loan?.applied_charges?.length"
+          class="flex flex-col items-center justify-center rounded-xl border border-dashed border-neutral-200 py-10 text-neutral-400 gap-2 dark:border-neutral-700"
+        >
+          <AlertTriangle class="h-7 w-7" />
+          <p class="text-sm">No charges applied to this loan.</p>
+        </div>
+
+        <!-- ── Penalty Timeline ── -->
+        <div>
+          <div class="mb-2 flex items-center justify-between">
+            <h3
+              class="text-xs font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500"
+            >
+              Penalty Timeline
+            </h3>
+            <span
+              v-if="penaltyRuleLabel"
+              class="text-[11px] text-neutral-400 dark:text-neutral-500"
+            >
+              Rule:
+              <span class="font-medium text-neutral-600 dark:text-neutral-300">{{
+                penaltyRuleLabel
+              }}</span>
+            </span>
+          </div>
+
+          <div
+            v-if="overdueRows.length"
+            class="overflow-x-auto rounded-xl border border-neutral-100 dark:border-neutral-800"
+          >
+            <table class="w-full text-xs">
+              <thead
+                class="bg-neutral-50 dark:bg-neutral-800/60 font-semibold text-neutral-600 dark:text-neutral-400"
+              >
+                <tr>
+                  <th class="px-4 py-2.5 text-left">#</th>
+                  <th class="px-4 py-2.5 text-left">Due Date</th>
+                  <th class="px-4 py-2.5 text-right">Days Overdue</th>
+                  <th class="px-4 py-2.5 text-right">Principal Outstanding</th>
+                  <th class="px-4 py-2.5 text-right">Penalty Accrued</th>
+                  <th class="px-4 py-2.5 text-right">Penalty Paid</th>
+                  <th class="px-4 py-2.5 text-right">Penalty Due</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+                <tr
+                  v-for="row in overdueRows"
+                  :key="row.id"
+                  class="hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors"
+                >
+                  <td class="px-4 py-2.5 text-neutral-500">{{ row.installment_no }}</td>
+                  <td class="px-4 py-2.5 text-neutral-700 dark:text-neutral-300">
+                    {{ fmtDate(row.due_date) }}
+                  </td>
+                  <td class="px-4 py-2.5 text-right">
+                    <span class="font-semibold text-red-600 dark:text-red-400">{{
+                      row.days_overdue || 0
+                    }}</span>
+                  </td>
+                  <td class="px-4 py-2.5 text-right text-neutral-600 dark:text-neutral-400">
+                    {{ currency }} {{ fmt(row.outstanding_balance) }}
+                  </td>
+                  <td class="px-4 py-2.5 text-right font-medium text-red-600 dark:text-red-400">
+                    {{ Number(row.penalty_due) > 0 ? `${currency} ${fmt(row.penalty_due)}` : '—' }}
+                  </td>
+                  <td class="px-4 py-2.5 text-right text-emerald-600 dark:text-emerald-400">
+                    {{
+                      Number(row.penalty_paid) > 0 ? `${currency} ${fmt(row.penalty_paid)}` : '—'
+                    }}
+                  </td>
+                  <td
+                    class="px-4 py-2.5 text-right font-semibold"
+                    :class="
+                      Number(row.penalty_due) - Number(row.penalty_paid) > 0
+                        ? 'text-red-700 dark:text-red-400'
+                        : 'text-neutral-400'
+                    "
+                  >
+                    {{
+                      Number(row.penalty_due) - Number(row.penalty_paid) > 0
+                        ? `${currency} ${fmt(Number(row.penalty_due) - Number(row.penalty_paid))}`
+                        : '—'
+                    }}
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot
+                class="bg-neutral-50 dark:bg-neutral-800/60 border-t border-neutral-200 dark:border-neutral-700 font-semibold text-xs"
+              >
+                <tr>
+                  <td colspan="4" class="px-4 py-2.5 text-neutral-700 dark:text-neutral-300">
+                    Totals
+                  </td>
+                  <td class="px-4 py-2.5 text-right text-red-600">
+                    {{ currency }} {{ fmt(totalPenaltyAccrued) }}
+                  </td>
+                  <td class="px-4 py-2.5 text-right text-emerald-600">
+                    {{ currency }} {{ fmt(totalPenaltyPaid) }}
+                  </td>
+                  <td class="px-4 py-2.5 text-right text-red-700">
+                    {{ currency }} {{ fmt(totalPenaltyOutstanding) }}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <!-- No penalties yet -->
+          <div
+            v-else
+            class="flex flex-col items-center justify-center rounded-xl border border-dashed border-neutral-200 py-8 text-neutral-400 gap-2 dark:border-neutral-700"
+          >
+            <CheckCircle2 class="h-7 w-7 text-emerald-400" />
+            <p class="text-sm">No overdue installments — no penalties accrued.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Documents tab ── -->
+      <div v-if="activeTab === 'documents'" class="p-5">
+        <LoanDocumentUploader
+          v-if="loan?.loan_application_id"
+          :application-id="loan.loan_application_id"
+          :editable="false"
+          :current-stage="'disbursed'"
+          @updated="refresh"
+        />
+        <div v-else-if="!loading" class="flex flex-col items-center justify-center py-16 text-neutral-400 gap-2">
+          <FileText class="h-8 w-8" />
+          <p class="text-sm">No linked loan application found.</p>
+        </div>
+      </div>
+
+      <!-- ── Activities tab (placeholder) ── -->
       <div
-        v-if="activeTab === 'documents' || activeTab === 'activities'"
+        v-else-if="activeTab === 'activities'"
         class="flex flex-col items-center justify-center py-16 text-neutral-400 gap-2"
       >
-        <component :is="tabs.find((t) => t.key === activeTab)?.icon" class="h-8 w-8" />
-        <p class="text-sm capitalize">
-          {{ activeTab === 'documents' ? 'Documents' : 'Loan Activities' }} — coming soon
-        </p>
+        <Activity class="h-8 w-8" />
+        <p class="text-sm capitalize">Loan Activities — coming soon</p>
       </div>
     </template>
   </div>
@@ -1001,6 +1537,26 @@ async function handleReceiveCashSubmit(data: any) {
     :currency="currency"
     :allocation-order-label="allocationOrderDisplay.label"
     :allocation-order-sequence="allocationOrderDisplay.sequence"
+    :penalty-charges="
+      selectedInstallment
+        ? Number(selectedInstallment.charges_due || 0) -
+          Number(selectedInstallment.charges_paid || 0) +
+          (Number(selectedInstallment.penalty_due || 0) -
+            Number(selectedInstallment.penalty_paid || 0))
+        : 0
+    "
+    :pending-interest="
+      selectedInstallment
+        ? Number(selectedInstallment.interest_due || 0) -
+          Number(selectedInstallment.interest_paid || 0)
+        : 0
+    "
+    :pending-principal="
+      selectedInstallment
+        ? Number(selectedInstallment.principal_due || 0) -
+          Number(selectedInstallment.principal_paid || 0)
+        : 0
+    "
     @close="showReceiveCashModal = false"
     @submit="handleReceiveCashSubmit"
   />

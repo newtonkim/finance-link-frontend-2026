@@ -44,6 +44,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   updated: []
+  'status-change': [hasMissing: boolean]
 }>()
 
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -211,6 +212,10 @@ const hasMissingForStage = (stage: string) =>
   required.value.some((r) => !r.uploaded && r.required && (r.stage ?? 'submission') === stage)
 
 defineExpose({ hasMissing, hasMissingForStage })
+
+watch(hasMissing, (val) => {
+  emit('status-change', val)
+}, { immediate: true })
 
 watch(() => props.applicationId, load, { immediate: true })
 </script>
