@@ -1,6 +1,6 @@
 <!-- this used in more than one place -->
 <template>
-  <div v-if='fields?.length > 0' class="">
+  <div v-if='fields?.length > 0' class=" h-[90vh]">
 
     <div class="mb-4 " v-for="field in fields">
 
@@ -15,8 +15,7 @@
             {{ field.description }}
           </p>
         </div>
-        <button
-          class="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-all duration-300"
+        <button class="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-all duration-300"
           type="button"
           @click="() => storeLocalChanages(field.id, field.settings_action.action = !field.settings_action.action, field,)"
           :class="[
@@ -89,7 +88,7 @@ const props = defineProps({
 });
 
 const fields = computed(() => {
-  const theListData = stateGenerator(props?.outerlinks?.['list']??props?.state ?? "settings-list");
+  const theListData = stateGenerator(props?.outerlinks?.['list'] ?? props?.state ?? "settings-list");
   return Object.values(Store[theListData]?.payload ?? {})
 })
 const emit = defineEmits(["update:modelValue"]);
@@ -111,11 +110,11 @@ function storeLocalChanages(id: string, value: string, action: string) {
 async function confirmAndSaveChanges(data: any) {
   const customeUrl = props?.outerlinks?.['create'] ?? "save-changed-settings";
   const { id, settings_action } = collectedData.value
-  const url= createUrl(props?.url, customeUrl)
-    const generateAstate = props?.state ?? `${url}`.replace(/[^a-zA-Z0-9]/g, "-");
+  const url = createUrl(props?.url, customeUrl)
+  const generateAstate = props?.state ?? `${url}`.replace(/[^a-zA-Z0-9]/g, "-");
 
   const res = await fetchTableData({
-    data: { id, settings_action,from: props?.from },
+    data: { id, settings_action, from: props?.from },
     props: {
       ...props,
       state: generateAstate,
@@ -143,7 +142,7 @@ function stateGenerator(name: string) {
 async function intializetheData() {
   const customeUrl = props?.outerlinks?.['list'] ?? "settings-list";
   const state = createUrl(props?.url, customeUrl);
-  const theListData = stateGenerator(props?.outerlinks?.['list']??props?.state ?? "settings-list");
+  const theListData = stateGenerator(props?.outerlinks?.['list'] ?? props?.state ?? "settings-list");
   const res = await fetchTableData({
     data: {},
     props: {
@@ -152,9 +151,9 @@ async function intializetheData() {
       url: state
     }, Store
   });
-  if (res.payload){
+  if (res.payload) {
     console.log(res.payload);
-    
+
     storeSettings(Object.values(res.payload))
   }
 }

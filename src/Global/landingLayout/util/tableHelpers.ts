@@ -133,6 +133,8 @@ export default function useTableHelpers(props: any, emit: any) {
   }
 
   async function automaticCreateFun() {
+    // console.log(props.automaticCreate,"props.automaticCreate");
+    
     if (props.automaticCreate) {
       const data = Store.currentFormValues
       let customeUrl = props?.actionSlot ?? props?.outerlinks?.['create'] ?? 'create'
@@ -185,16 +187,17 @@ export default function useTableHelpers(props: any, emit: any) {
       const checker = await automaticCreateFun('create')
 
       if (checker) {
+        // alert(checker)
         // if (!checker) {
         return
       } else if (finalSubmitAction.value == 'import-data') {
         return
       }
-      // console.log(checker, '====2');
+    //   console.log(data, '====2');
 
       save(data, finalSubmitAction.value ?? 'create')
       buttonTypeClicked.value = buttonTypeClicked.value
-
+// alert()
       setTimeout(() => {
         submitChanges.value = false
       }, 2000)
@@ -359,6 +362,7 @@ export default function useTableHelpers(props: any, emit: any) {
     changeThePage,
     callNewPage,
     onSearch,
+    save,
     drawerTitle,
     drawerShooter2,
     drawerWidth,

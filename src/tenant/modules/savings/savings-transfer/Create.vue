@@ -2,6 +2,8 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { Form, getSystemSetting, pickAsettingKeyValue, UploadLogo, formatMoneyValue } from '@/Global';
 import { ArrowLeftRight, Loader2, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-vue-next'
+import { pomPinia } from 'septor-store';
+const Store = pomPinia();
 const props = defineProps({
   data: {
     type: Object,
@@ -61,6 +63,10 @@ const props = defineProps({
     amount: get('amount')?.value
   }
 })
+function fetchAccounts(){
+Store['group-account-savings-savings-accounts-drop-down-list']=[]
+}
+defineExpose({ fetchAccounts })
 </script>
 <template>
   <div class="">
@@ -72,7 +78,7 @@ const props = defineProps({
         <h1 class="text-xl font-bold text-neutral-900">Fund Transfer</h1>
         <p class="text-[13px] text-neutral-500">Move funds between savings accounts</p>
       </div>
-      <button @click="fetchAccounts" :disabled="loadingAccounts"
+      <button type="button" @click="fetchAccounts" :disabled="loadingAccounts"
         class="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium text-neutral-500 hover:bg-neutral-200 transition-all disabled:opacity-50">
         <RefreshCw :size="13" :class="loadingAccounts ? 'animate-spin' : ''" />
         Refresh

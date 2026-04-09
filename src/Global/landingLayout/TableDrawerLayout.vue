@@ -177,6 +177,7 @@ const emit = defineEmits(['save', 'submit', 'update:title']);
     changeThePage,
     callNewPage,
     onSearch,
+    save,
     // drawerTitle,
     drawerShooter2,
     drawerWidth,

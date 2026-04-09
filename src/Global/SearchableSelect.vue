@@ -35,7 +35,7 @@ const remoteUrl = debounce(async (url: string) => {
     if (!url) return;
     tryCatch(async () => {
         // console.log(props.reload);
-        
+
         const data = { ...props.data }
         if (searchQuery.value?.length >= 3)
             data.search_keyword = searchQuery.value
@@ -43,7 +43,7 @@ const remoteUrl = debounce(async (url: string) => {
         const res = await fetchTableData({
             data: Object.keys(data).length > 0 ? data : null,
             saveData: props?.saveData ?? true,
-            props: { url, reload: props.reload?? false, state: generateAstate, },
+            props: { url, reload: props.reload ?? false, state: generateAstate, },
             Store,
         });
         const checker = await Store?.[generateAstate]?.payload?.data ?? Store?.[generateAstate]?.payload ?? Store?.[generateAstate] ?? [];
@@ -74,9 +74,9 @@ const filteredOptions = computed(() => {
 const selectOption = (option: Option) => {
     emit('update:modelValue', option.id);
     emit('update:itemSelected', option);
-  setTimeout(() => {
+    setTimeout(() => {
         isOpen.value = false;
-  })
+    })
     searchQuery.value = '';
 };
 
@@ -119,8 +119,8 @@ watch(props, async (newVal) => {
         await toggleDropdown();
     }
 }, { immediate: true, deep: true });
- 
- 
+
+
 watch(searchQuery, (newVal) => {
     if (searchQuery.value?.length >= 3 && props.url) {
         remoteUrl(props.url)

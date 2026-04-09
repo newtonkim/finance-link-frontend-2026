@@ -17,7 +17,7 @@
             <div v-if="duplicates.length" class="mb-4 p-4 bg-red-100 dark:bg-red-800 text-red-700 rounded-lg">
                 Found {{ duplicates.length }} duplicated row(s) by <strong>{{ duplicateKey }}</strong>.
             </div>
-
+ 
 
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow overflow-x-auto h-[47vh]">
                 <failedUploads :data="failedChunks"  v-if="Store?.['import-data']"/>

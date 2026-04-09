@@ -50,7 +50,7 @@ const props = withDefaults(defineProps<{
 const emit = defineEmits(['update:open', 'save', 'cancel', 'submit']);
 
 const handleSave = () => {
-    emit('save');
+    emit('save','create');
     emit('submit')
 };
 
