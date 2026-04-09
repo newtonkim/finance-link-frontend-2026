@@ -1,7 +1,7 @@
 <template>
     <div class="h-[83vh]">
         <TableDrawer :showAddButton="false" :drawerWidth="drawerTitle?.width" :url="tableUrl" state="members-account"
-            :drawerTitle="drawerTitle?.title" " :columns="columns">
+            :drawerTitle="drawerTitle?.title"  :columns="columns">
             <template #searchSideAction>
                 <TabelActionButtons @action="() => checkall()" title="Select all" color="danger" icon="check"
                     class="mx-1" />
@@ -9,9 +9,9 @@
             <template #check="{ item }">
                 <div
                     class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-4 py-3 max-h-[58vh] overflow-y-auto custom-scrollbar">
-                    <label :key="item?.code"
+                    <label :key="item?.account_code"
                         class="flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer border border-transparent  transition group">
-                        <input :checked="!!selected[item.code]" type="checkbox" @click="() => selectMember(item)"
+                        <input :checked="!!selected[item.account_code]" type="checkbox" @click="() => selectMember(item)"
                             class="w-4 h-4 accent-nfuko-primary-600 cursor-pointer export-meber-opening-balance" />
                     </label>
                 </div>
@@ -41,14 +41,15 @@ const selected = ref<Record<string, any>>({}),
 const columns = [
     { key: 'check', label: 'check', width: '4em', copy: true },
     { key: 'code', label: 'member code', copy: true },
+    { key: 'account_code', label: 'Account code', copy: true },
     { key: 'member_name', label: 'Member', },
 ]
 function selectMember(data) {
-    if (selected.value[data.code]) {
-        delete selected.value[data.code]
+    if (selected.value[data.account_code]) {
+        delete selected.value[data.account_code]
         return
     }
-    selected.value[data.code] = { ...data, }
+    selected.value[data.account_code] = { ...data, }
 }
 function checkall() {
     const theCurrentData = Store['members-account']?.payload?.data ?? []

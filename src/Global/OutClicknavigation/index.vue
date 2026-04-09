@@ -19,8 +19,8 @@
                 <div class="relative" v-if="item?.showSideBar === true">
                     
                     <div v-auth="item?.permissions" :to="item?.path" @click="toggleSubmenu(item.label)"
-                        class="w-full hover:px-2 flex items-center   py-2 rounded-xl transition-all duration-200 text-nfuko-nav-text/60 hover:bg-white/5 hover:text-white cursor-pointer">
-                        <div class="flex justify-between w-full items-center">
+                        class="w-full hover:px-2 flex items-center   py-2 rounded-xl transition-all duration-200 text-nfuko-nav-text hover:bg-white/5 hover:text-white cursor-pointer hover:px-2 peer/menu-button flex w-full items-center gap-2 overflow-hidden  text-left outline-hidden ring-sidebar-ring focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground     [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 h-9 text-sm rounded-xl transition-all duration-200 text-nfuko-nav-text/60 hover:bg-white/5 hover:text-white capitalize font-medium tracking-wide text-nfuko-nav-text group-hover:text-white flex">
+                        <div class="flex justify-between  items-center" :class="state === 'expanded' ? 'w-full' : ''">
                             <div class="flex w-full items-center gap-3">
                                 <component :is="item.icon" :size="20" />
                                 <span class="text-sm font-medium capitalize">{{ item.label }}</span>
@@ -56,12 +56,14 @@
 
 <script setup>
 import { computed,onMounted ,onUnmounted} from 'vue';
+ 
 defineOptions({ inheritAttrs: false })
 import RouteLink from "./RouteLink.vue";
-import { SidebarGroupLabel } from '@/Global';
+import { SidebarGroupLabel,useSidebar } from '@/Global';
 import { pomPinia } from 'septor-store';
 const props = defineProps(['links']);
 const Store = pomPinia();
+const { state } = useSidebar()
 
 const mainLinks = computed(() => props.links)
 //const mainLinks = computed(() => props.links?.filter(item => !item?.children) ?? [])

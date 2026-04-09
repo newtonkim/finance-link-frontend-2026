@@ -6,4 +6,5 @@ export { default as Withdrawal } from './Withdrawal.vue';
 export { default as ExportTemplate } from './account-template.vue';
 export { default as DepositTemplate } from './deposite-template.vue';
 export { default as WithdrawalTemplate } from './withdrawal-template.vue';
+export { default as OpeningBalanceTemplate } from './opening-balance-template.vue';
 export { default as Edit } from './Edit.vue';

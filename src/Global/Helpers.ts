@@ -1,36 +1,36 @@
 // import Swal from "sweetalert2";
-import { EncryptStorage } from 'encrypt-storage'
-import { apiClient as customAxios } from '@/central/api/client'
-const encryptStorage = new EncryptStorage(import.meta.env.VITE_ENCRYPT_STORAGE)
-import { notify } from '@/Global/Toasters'
-import * as XLSX from 'xlsx'
+import { EncryptStorage } from "encrypt-storage";
+import { apiClient as customAxios } from "@/central/api/client";
+const encryptStorage = new EncryptStorage(import.meta.env.VITE_ENCRYPT_STORAGE);
+import { notify } from "@/Global/Toasters";
+import * as XLSX from "xlsx";
 
 export const keysToUse = {
-  systemSettings: 'systemSettings',
-  userPermissions: 'userPermissions',
-  loginUserData: 'loginUserData',
-  loggedInAsStudentOrStaff: 'loggedInAsStudentOrStaff',
-  IpEverLoged: 'IpEverLoged',
-  activeBranch: 'activeBranch',
-  memberProfile: 'memberProfile',
-  SystemBranding: 'SystemBranding' + getSubdomainName(),
-}
+  systemSettings: "systemSettings",
+  userPermissions: "userPermissions",
+  loginUserData: "loginUserData",
+  loggedInAsStudentOrStaff: "loggedInAsStudentOrStaff",
+  IpEverLoged: "IpEverLoged",
+  activeBranch: "activeBranch",
+  memberProfile: "memberProfile",
+  SystemBranding: "SystemBranding" + getSubdomainName(),
+};
 export function dateTime(time: string) {
   return tryCatch(() => {
-    if (`${time}`.trim()?.length < 9) return ''
-    const date = new Date(time)
-    const formatted = date.toISOString().replace('T', ' ').substring(0, 19)
-    return formatted
-  })
+    if (`${time}`.trim()?.length < 9) return "";
+    const date = new Date(time);
+    const formatted = date.toISOString().replace("T", " ").substring(0, 19);
+    return formatted;
+  });
 }
 export function date(time: string) {
   return tryCatch(() => {
-    if (`${time}`.trim()?.length < 9) return ''
+    if (`${time}`.trim()?.length < 9) return "";
 
-    const date = new Date(time)
-    const formatted = date.toISOString().split('T')[0]
-    return formatted
-  })
+    const date = new Date(time);
+    const formatted = date.toISOString().split("T")[0];
+    return formatted;
+  });
 }
 
 // ============================================================
@@ -39,541 +39,544 @@ export function date(time: string) {
  * ****/
 export function tryCatch<T>(callback: () => Promise<T> | T) {
   try {
-    return callback()
+    return callback();
   } catch (error) {
-    console.error(error)
-    return null
+    console.error(error);
+    return null;
   }
 }
 export function formatDateUs(dateStr?: string): string {
-  if (!dateStr) return '—'
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
+  if (!dateStr) return "—";
+  return new Date(dateStr).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 export function daysLeft(expiresAt?: string): number | null {
-  if (!expiresAt) return null
-  const diff = new Date(expiresAt).getTime() - Date.now()
-  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)))
+  if (!expiresAt) return null;
+  const diff = new Date(expiresAt).getTime() - Date.now();
+  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 }
 
-export function storeUserLogedinData(data: any, key: string = 'loginUserData') {
+export function storeUserLogedinData(data: any, key: string = "loginUserData") {
   try {
-    encryptStorage.setItem(keysToUse[key as keyof typeof keysToUse], data)
+    encryptStorage.setItem(keysToUse[key as keyof typeof keysToUse], data);
   } catch (error) {
-    console.error(`Failed to store key "${keysToUse[key as keyof typeof keysToUse]}":`, error)
-    return false
+    console.error(
+      `Failed to store key "${keysToUse[key as keyof typeof keysToUse]}":`,
+      error
+    );
+    return false;
   }
 }
 export function setIpEverLoged(data: any): void {
   try {
-    encryptStorage.setItem(keysToUse['IpEverLoged'], data)
+    encryptStorage.setItem(keysToUse["IpEverLoged"], data);
   } catch (error) {
-    console.error(`Failed to store key "${keysToUse['IpEverLoged']}":`, error)
+    console.error(`Failed to store key "${keysToUse["IpEverLoged"]}":`, error);
   }
 }
 export function setLocalValues(key: any, data: any): void {
   try {
-    encryptStorage.setItem(keysToUse[key], data)
+    encryptStorage.setItem(keysToUse[key], data);
   } catch (error) {
-    console.error(`Failed to store key "${keysToUse['IpEverLoged']}":`, error)
+    console.error(`Failed to store key "${keysToUse["IpEverLoged"]}":`, error);
   }
 }
 export function getLocalValues(key: any) {
   try {
-    return encryptStorage.getItem(keysToUse[key])
+    return encryptStorage.getItem(keysToUse[key]);
   } catch (error) {
-    console.error(`Failed to store key "${keysToUse['IpEverLoged']}":`, error)
+    console.error(`Failed to store key "${keysToUse["IpEverLoged"]}":`, error);
   }
 }
 export function getIpEverLoged() {
   try {
-    return encryptStorage.getItem(keysToUse['IpEverLoged'])
+    return encryptStorage.getItem(keysToUse["IpEverLoged"]);
   } catch (error) {
-    console.error(`Failed to store key "${keysToUse['IpEverLoged']}":`, error)
-    return false
+    console.error(`Failed to store key "${keysToUse["IpEverLoged"]}":`, error);
+    return false;
   }
 }
 
 export function removeKey(key: string) {
   try {
-    encryptStorage.removeItem(keysToUse[key as keyof typeof keysToUse])
-    return true
+    encryptStorage.removeItem(keysToUse[key as keyof typeof keysToUse]);
+    return true;
   } catch (error) {
-    console.error(`Failed to remove key "${keysToUse}":`, error)
-    return false
+    console.error(`Failed to remove key "${keysToUse}":`, error);
+    return false;
   }
 }
 export function logoutUser(navigate: any) {
   try {
-    removeKey('userPermissions')
-    removeKey('loginUserData')
-    removeKey('memberProfile')
-    navigate('/login')
+    removeKey("userPermissions");
+    removeKey("loginUserData");
+    removeKey("memberProfile");
+    navigate("/login");
   } catch (error) {
-    console.error('Error during logout:', error)
+    console.error("Error during logout:", error);
   }
 }
 
 export function getUserData() {
   try {
-    const data = encryptStorage.getItem(keysToUse['loginUserData'])
-    return data || {}
+    const data = encryptStorage.getItem(keysToUse["loginUserData"]);
+    return data || {};
   } catch (error) {
-    console.error('Error retrieving user data:', error)
-    return {}
+    console.error("Error retrieving user data:", error);
+    return {};
   }
 }
 
 export function getUserToken() {
   try {
-    const userData = getUserData()
+    const userData = getUserData();
 
-    return userData?.token ?? null
+    return userData?.token ?? null;
   } catch (error) {
-    console.error(error, '009')
+    console.error(error, "009");
   }
 }
 
 export function logoutUserTokenExpireTime(navigate: any) {
-  const timestamp = getUserTokenExpireTime()
-  const currentTime = Date.now()
+  const timestamp = getUserTokenExpireTime();
+  const currentTime = Date.now();
   if (currentTime >= timestamp) {
-    logoutUser(navigate)
+    logoutUser(navigate);
   }
 }
 
 export function getUserTokenExpireTime() {
-  const userData = getUserData()
-  return userData?.expiresIn ?? null
+  const userData = getUserData();
+  return userData?.expiresIn ?? null;
 }
 
 export function storeUserCretiria(data = null) {
   try {
-    encryptStorage.setItem('userCreatiria', JSON.stringify(data))
+    encryptStorage.setItem("userCreatiria", JSON.stringify(data));
   } catch (error) {
-    console.error('Error storing user permissions:', error)
+    console.error("Error storing user permissions:", error);
   }
 }
 export function getSystemSetting() {
   try {
-    return encryptStorage.getItem(keysToUse.systemSettings)
+    return encryptStorage.getItem(keysToUse.systemSettings);
   } catch (error) {
-    console.error('Error storing user permissions:', error)
+    console.error("Error storing user permissions:", error);
   }
 }
 export function setSystemBranding(data = null) {
   try {
-    return encryptStorage.setItem(keysToUse.SystemBranding, data)
+    return encryptStorage.setItem(keysToUse.SystemBranding, data);
   } catch (error) {
-    console.error('Error storing systemBranding', error)
+    console.error("Error storing systemBranding", error);
   }
 }
 export function getetSystemBranding() {
   try {
-    return encryptStorage.getItem(keysToUse.SystemBranding)
+    return encryptStorage.getItem(keysToUse.SystemBranding);
   } catch (error) {
-    console.error('Error storing systemBranding', error)
+    console.error("Error storing systemBranding", error);
   }
 }
 
 export function pickAsettingKeyValue(key: string) {
   try {
-    const data = encryptStorage.getItem(keysToUse.systemSettings)
-    return data[key]
+    const data = encryptStorage.getItem(keysToUse.systemSettings);
+    return data[key];
   } catch (error) {
-    console.error('failed to get this  key:', error)
+    console.error("failed to get this  key:", error);
   }
 }
 export function storeUserPermissions(props: { data: any } = { data: null }) {
-  const { data } = props
+  const { data } = props;
   try {
-    encryptStorage.setItem(keysToUse.userPermissions, JSON.stringify(data))
+    encryptStorage.setItem(keysToUse.userPermissions, JSON.stringify(data));
   } catch (error) {
-    console.error('Error storing user permissions:', error)
+    console.error("Error storing user permissions:", error);
   }
 }
 export function hasPermission(permission: string) {
   try {
     if (!`${permission}`.trim()?.length) {
-      return true /// means its a global permission to be accessed
+      return true; /// means its a global permission to be accessed
     }
-    const list = localStoragePicker(keysToUse.userPermissions)
-    const userPermissions = Array.isArray(list) ? list : JSON.parse(list || '[]')
-    return !userPermissions.includes(permission)
+    const list = localStoragePicker(keysToUse.userPermissions);
+    const userPermissions = Array.isArray(list) ? list : JSON.parse(list || "[]");
+    return !userPermissions.includes(permission);
   } catch (error) {
-    console.error('Error :', error)
+    console.error("Error :", error);
   }
 }
-export function appendOnAjsonStore(props: { data: any; key: string } = { data: {}, key: '' }) {
-  const { data, key } = props
+export function appendOnAjsonStore(
+  props: { data: any; key: string } = { data: {}, key: "" }
+) {
+  const { data, key } = props;
 
   try {
-    const prevDta = encryptStorage.getItem(key)
-    const collection = isJSON(prevDta)
-    const newDateSet = { ...collection, ...data }
-    encryptStorage.setItem(key, JSON.stringify(newDateSet))
+    const prevDta = encryptStorage.getItem(key);
+    const collection = isJSON(prevDta);
+    const newDateSet = { ...collection, ...data };
+    encryptStorage.setItem(key, JSON.stringify(newDateSet));
   } catch (error) {
-    console.error('Error storing user ' + key + ':', error)
+    console.error("Error storing user " + key + ":", error);
   }
 }
-export function localStoragePicker(key = '') {
+export function localStoragePicker(key = "") {
   try {
-    const data = encryptStorage.getItem(key)
-    return data || []
+    const data = encryptStorage.getItem(key);
+    return data || [];
   } catch (error) {
-    console.error('Error fetching from storage:', error)
-    return []
+    console.error("Error fetching from storage:", error);
+    return [];
   }
 }
 /////////
-export function addNumberCommas(number: any, delimeter = ',') {
-  return `${number}`.toString().replace(/\B(?=(\d{3})+(?!\d))/g, delimeter)
+export function addNumberCommas(number: any, delimeter = ",") {
+  return `${number}`.toString().replace(/\B(?=(\d{3})+(?!\d))/g, delimeter);
 }
-export const formatCurrency = (amount: number | string, currencyCode = 'UGX') => {
-  return new Intl.NumberFormat('en-UG', {
-    style: 'currency',
+export const formatCurrency = (amount: number | string, currencyCode = "UGX") => {
+  return new Intl.NumberFormat("en-UG", {
+    style: "currency",
     currency: currencyCode,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(Number(amount || 0))
-}
+  }).format(Number(amount || 0));
+};
 export const formatMoneyValue = (amount: number | string, minimumFractionDigits = 2) => {
-  return new Intl.NumberFormat('en-UG', {
+  return new Intl.NumberFormat("en-UG", {
     minimumFractionDigits,
     maximumFractionDigits: minimumFractionDigits,
-  }).format(Number(amount || 0))
-}
+  }).format(Number(amount || 0));
+};
 export function addMinutesToTime(startTime: string, minutesToAdd: number | string = 40) {
-  const [hours = 0, minutes = 0] = startTime.split(':').map(Number)
-  const totalMinutes = hours * 60 + minutes + parseFloat(String(minutesToAdd))
-  const endHours = Math.floor(totalMinutes / 60) % 24 // keep within 24h
-  const endMinutes = totalMinutes % 60
-  return `${String(endHours).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}`
+  const [hours = 0, minutes = 0] = startTime.split(":").map(Number);
+  const totalMinutes = hours * 60 + minutes + parseFloat(String(minutesToAdd));
+  const endHours = Math.floor(totalMinutes / 60) % 24; // keep within 24h
+  const endMinutes = totalMinutes % 60;
+  return `${String(endHours).padStart(2, "0")}:${String(endMinutes).padStart(2, "0")}`;
 }
 
-export async function downloadFile(url: string, Action = 'download', type = 'pdf') {
-  const appName = import.meta.env.VITE_APP_NAME // Example of accessing environment variable
-  const valueres = await customAxios.get(url, { responseType: 'blob' })
+export async function downloadFile(url: string, Action = "download", type = "pdf") {
+  const appName = import.meta.env.VITE_APP_NAME; // Example of accessing environment variable
+  const valueres = await customAxios.get(url, { responseType: "blob" });
   const fileType: Record<string, string> = {
-    pdf: 'application/pdf',
-    docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    doc: 'application/msword',
-    xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    xslx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    xls: 'application/vnd.ms-excel',
-    csv: 'text/csv',
-    txt: 'text/plain',
-    png: 'image/png',
-    jpg: 'image/jpeg',
-    jpeg: 'image/jpeg',
-    gif: 'image/gif',
-    bmp: 'image/bmp',
-    tiff: 'image/tiff',
-    zip: 'application/zip',
-    rar: 'application/x-rar-compressed',
-  }
-  const filename = `${appName}${Date.now()}.` + type
+    pdf: "application/pdf",
+    docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    doc: "application/msword",
+    xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    xslx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    xls: "application/vnd.ms-excel",
+    csv: "text/csv",
+    txt: "text/plain",
+    png: "image/png",
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    gif: "image/gif",
+    bmp: "image/bmp",
+    tiff: "image/tiff",
+    zip: "application/zip",
+    rar: "application/x-rar-compressed",
+  };
+  const filename = `${appName}${Date.now()}.` + type;
   const blob = new Blob([valueres.data], {
-    type: fileType[type] || 'application/octet-stream',
-  })
-  const blobUrl = window.URL.createObjectURL(blob)
+    type: fileType[type] || "application/octet-stream",
+  });
+  const blobUrl = window.URL.createObjectURL(blob);
 
-  if (Action === 'download') downloadPDF(blobUrl, filename)
+  if (Action === "download") downloadPDF(blobUrl, filename);
   else {
-    downloadPDF(url, filename)
-    return blobUrl
+    downloadPDF(url, filename);
+    return blobUrl;
   }
 }
 
 export function viewPDF(url: any) {
-  const iframe = document.createElement('iframe')
-  iframe.src = url
-  iframe.style.width = '100%'
-  iframe.style.height = '600px'
-  document.body.appendChild(iframe)
+  const iframe = document.createElement("iframe");
+  iframe.src = url;
+  iframe.style.width = "100%";
+  iframe.style.height = "600px";
+  document.body.appendChild(iframe);
 }
 export function downloadPDF(url: string, filename: string) {
-  const link = document.createElement('a')
-  link.href = url
-  link.setAttribute('download', filename) // Set the file name
-  document.body.appendChild(link)
-  link.click() // Trigger the download
-  document.body.removeChild(link) // Clean up
-  window.URL.revokeObjectURL(url)
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", filename); // Set the file name
+  document.body.appendChild(link);
+  link.click(); // Trigger the download
+  document.body.removeChild(link); // Clean up
+  window.URL.revokeObjectURL(url);
 }
 export function NameInitials(strings: string) {
-  if (!strings || typeof strings !== 'string') return ''
-  const parts = strings.trim().split(/\s+/) // handles multiple spaces
-  if (parts.length === 0) return ''
-  const firstInitial = parts[0]?.[0]?.toUpperCase() || ''
-  const lastInitial = parts[parts.length - 1]?.[0]?.toUpperCase() || ''
-  return firstInitial + lastInitial
+  if (!strings || typeof strings !== "string") return "";
+  const parts = strings.trim().split(/\s+/); // handles multiple spaces
+  if (parts.length === 0) return "";
+  const firstInitial = parts[0]?.[0]?.toUpperCase() || "";
+  const lastInitial = parts[parts.length - 1]?.[0]?.toUpperCase() || "";
+  return firstInitial + lastInitial;
 }
 
 export function scopeValues(data: any) {
   return tryCatch(() => {
-    const values: any = {}
+    const values: any = {};
     data.forEach((vl: any) => {
-      const value = vl?.value ?? null
+      const value = vl?.value ?? null;
 
       if (value instanceof File) {
-        values[vl.name] = value
+        values[vl.name] = value;
       } else {
-        values[vl.name] = value
+        values[vl.name] = value;
       }
-    })
+    });
 
-    return values
-  })
+    return values;
+  });
 }
 
 export function isJSON(jsonString: string) {
   try {
-    return JSON.parse(jsonString)
+    return JSON.parse(jsonString);
   } catch (e) {}
-  return jsonString
+  return jsonString;
 }
 export function formDataFormatV2(fields: any[]) {
-  const fd = new FormData()
+  const fd = new FormData();
 
   fields.forEach((field) => {
-    const key = `${field.name}`.toLocaleLowerCase().replace('+S', '_')
-    const value = field.value
-    if (value === undefined) return
+    const key = `${field.name}`.toLocaleLowerCase().replace("+S", "_");
+    const value = field.value;
+    if (value === undefined) return;
 
     if (value instanceof File) {
-      fd.append(key, value)
-      return
+      fd.append(key, value);
+      return;
     }
 
-    if (value && typeof value === 'object' && !Array.isArray(value)) {
-      if ('id' in value) {
-        fd.append(key, value.id)
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      if ("id" in value) {
+        fd.append(key, value.id);
       } else {
-        fd.append(key, JSON.stringify(value))
+        fd.append(key, JSON.stringify(value));
       }
-      return
+      return;
     }
 
     if (value !== null) {
-      fd.append(key, value)
+      fd.append(key, value);
     }
-  })
-  fd.append('branch_id', getLocalValues(keysToUse.activeBranch))
+  });
+  fd.append("branch_id", getLocalValues(keysToUse.activeBranch));
 
-  return fd
+  return fd;
 }
 
 function isISODate(value: any) {
   return (
-    typeof value === 'string' &&
+    typeof value === "string" &&
     /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(value) &&
     !isNaN(new Date(value).getTime())
-  )
+  );
 }
 export function formDataFormat(data: any) {
   // first version
-  let formData = new FormData()
+  let formData = new FormData();
 
   for (let key in data) {
-    let value = data[key]
+    let value = data[key];
 
     if (Array.isArray(value)) {
       // Handle arrays
       value.forEach((element, index) => {
-        const lowerCaseKeys = `${key}[${index}]`.toLocaleLowerCase().replace('+S', '_')
-        if (element && typeof element === 'object' && element.file instanceof File) {
-          formData.append(lowerCaseKeys, element.file) // Use index for clarity
+        const lowerCaseKeys = `${key}[${index}]`.toLocaleLowerCase().replace("+S", "_");
+        if (element && typeof element === "object" && element.file instanceof File) {
+          formData.append(lowerCaseKeys, element.file); // Use index for clarity
         } else if (
           element &&
-          typeof element === 'object' &&
+          typeof element === "object" &&
           element?.lastModified &&
           element?.name &&
           element?.lastModifiedDate &&
           element?.type
         ) {
-          formData.append(lowerCaseKeys, element) // Use index for clarity
+          formData.append(lowerCaseKeys, element); // Use index for clarity
         } else {
-          formData.append(lowerCaseKeys, JSON.stringify(element))
+          formData.append(lowerCaseKeys, JSON.stringify(element));
         }
-      })
-    } else if (typeof value === 'object' && !(value instanceof File)) {
-      const lowerCaseKeys = `${key}`.toLocaleLowerCase().replace('+S', '_')
-      formData.append(`${lowerCaseKeys}`.toLocaleLowerCase(), JSON.stringify(value))
+      });
+    } else if (typeof value === "object" && !(value instanceof File)) {
+      const lowerCaseKeys = `${key}`.toLocaleLowerCase().replace("+S", "_");
+      formData.append(`${lowerCaseKeys}`.toLocaleLowerCase(), JSON.stringify(value));
     } else {
-      const lowerCaseKeys = `${key}`.toLocaleLowerCase().replace('+S', '_')
+      const lowerCaseKeys = `${key}`.toLocaleLowerCase().replace("+S", "_");
       // Handle primitive values and Files
 
-      formData.append(lowerCaseKeys, value)
+      formData.append(lowerCaseKeys, value);
     }
   }
-  formData.append('branch_id', getLocalValues(keysToUse.activeBranch))
+  formData.append("branch_id", getLocalValues(keysToUse.activeBranch));
 
-  return formData
+  return formData;
 }
 
 export type UseInitialsReturn = {
-  getInitials: (fullName?: string) => string
-}
+  getInitials: (fullName?: string) => string;
+};
 
 export function getInitials(fullName?: string): string {
-  if (!fullName) return ''
+  if (!fullName) return "";
 
-  const names = fullName.trim().split(/\s+/).filter(Boolean)
+  const names = fullName.trim().split(/\s+/).filter(Boolean);
 
-  if (names.length === 0) return ''
-  if (names.length === 1) return names[0]?.charAt(0).toUpperCase() ?? ''
+  if (names.length === 0) return "";
+  if (names.length === 1) return names[0]?.charAt(0).toUpperCase() ?? "";
 
-  const first = names[0]?.charAt(0) ?? ''
-  const last = names[names.length - 1]?.charAt(0) ?? ''
-  return `${first}${last}`.toUpperCase()
+  const first = names[0]?.charAt(0) ?? "";
+  const last = names[names.length - 1]?.charAt(0) ?? "";
+  return `${first}${last}`.toUpperCase();
 }
 
 export function useInitials(): UseInitialsReturn {
-  return { getInitials }
+  return { getInitials };
 }
 
 export function getTenantSubdomain(): string | null {
-  const hostname = window.location.hostname
-  if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) return null
-  const parts = hostname.split('.')
+  const hostname = window.location.hostname;
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) return null;
+  const parts = hostname.split(".");
   // console.log(parts);
 
-  const subdomain = parts.length >= 2 ? parts[0] : null
-  if (!subdomain || ['admin', 'www', 'localhost'].includes(subdomain)) return null
-  return subdomain
+  const subdomain = parts.length >= 2 ? parts[0] : null;
+  if (!subdomain || ["admin", "www", "localhost"].includes(subdomain)) return null;
+  return subdomain;
 }
 
 export function getSubdomainName() {
   const subdomain =
     getTenantSubdomain() ??
-    localStorage.getItem('tenant_subdomain') ??
+    localStorage.getItem("tenant_subdomain") ??
     (import.meta.env.VITE_TENANT_SUBDOMAIN as string | undefined) ??
-    null
-  return subdomain
+    null;
+  return subdomain;
 }
 
 export function RouteStructure(route: any, routePath: string) {
   return {
-    name: `${routePath}`.replaceAll('/', '-'),
+    name: `${routePath}`.replaceAll("/", "-"),
     path: `/${routePath}`,
     component: route.component,
-  }
+  };
 }
 export function checkIfObjectPlain(collection: any) {
- const value= isJSON(collection)
-  if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-    return true
+  const value = isJSON(collection);
+  if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+    return true;
   }
 }
-export function routebuilder(routes = [], prifix = 'central') {
-  const collecction: any = []
+export function routebuilder(routes = [], prifix = "central") {
+  const collecction: any = [];
   routes.forEach((route) => {
     if (!route?.children) {
-      const routePath = route.path ? `${prifix}/${route.path}` : null
+      const routePath = route.path ? `${prifix}/${route.path}` : null;
       //  if(hasPermission(route?.permissions))
-      collecction.push(RouteStructure(route, routePath))
+      collecction.push(RouteStructure(route, routePath));
     } else if (Array.isArray(route.children)) {
       route.children.forEach((child) => {
         if (child?.items) {
           child.items.forEach((item) => {
             // const childRoutePath = `${prifix}/${item.path}`
-            const childRoutePath = item.path ? `${prifix}/${item.path}` : null
+            const childRoutePath = item.path ? `${prifix}/${item.path}` : null;
             // if (hasPermission(route?.permissions))
-            collecction.push(RouteStructure(item, childRoutePath))
-          })
+            collecction.push(RouteStructure(item, childRoutePath));
+          });
         }
-      })
+      });
     }
-  })
-  return collecction
+  });
+  return collecction;
 }
 
 export function feedback(res: any, success?: string, fail?: string) {
-  let successStatus = false
+  let successStatus = false;
   let msg: Record<string, string> = {
     msg: res.error || success,
-    type: 'Error',
+    type: "Error",
     success: successStatus,
-  } 
+  };
 
   if (res?.error) {
     if (res.error.response?.data?.error) {
-      msg.msg = res.error.response.data.error
+      msg.msg = res.error.response.data.error;
     } else if (res.error.message) {
-      msg.msg = res.error.message
+      msg.msg = res.error.message;
     } else if (res.error.response?.data?.errors) {
-      const errors = res.error.response.data.errors
-      msg.msg = Object.values(errors)[0][0] || msg.msg
-    } 
-     if (res.error.response.data.payload.message) {
-    msg.msg = res.error.response.data.payload.message
-  }
+      const errors = res.error.response.data.errors;
+      msg.msg = Object.values(errors)[0][0] || msg.msg;
+    }
+    if (res.error.response.data.payload.message) {
+      msg.msg = res.error.response.data.payload.message;
+    }
   }
 
-  if (res.error?.message?.includes('403') || res.error?.message?.includes('401')) {
+  if (res.error?.message?.includes("403") || res.error?.message?.includes("401")) {
     msg = {
-      msg: 'You are not authorized to perform this action',
-      type: 'error',
+      msg: "You are not authorized to perform this action",
+      type: "error",
       success: false,
-    }
+    };
   }
 
   if (!res || res.code == 200) {
-    successStatus = true
+    successStatus = true;
     msg = {
       msg: fail,
-      type: 'Success',
+      type: "Success",
       success: successStatus,
-    }
+    };
   }
-  notify(msg)
+  notify(msg);
   return {
     success: successStatus,
     msg,
     res,
-  }
+  };
 }
 
 export function createUrl(url: string, action: string) {
-  const url2 = url.split('/')
-  url2.length = url2.length - 1
-  return url2.join('/') + `/${action}`
+  const url2 = url.split("/");
+  url2.length = url2.length - 1;
+  return url2.join("/") + `/${action}`;
 }
 
 export async function copyToClipboard(text: string) {
   try {
-    await navigator.clipboard.writeText(text)
-    notify({ pos: 'br', type: 'Info', msg: 'Copied!' })
+    await navigator.clipboard.writeText(text);
+    notify({ pos: "br", type: "Info", msg: "Copied!" });
   } catch (err) {
-    notify({ pos: 'br', type: 'warning', message: 'failed to copy' })
-    console.error('Failed to copy:', err)
+    notify({ pos: "br", type: "warning", message: "failed to copy" });
+    console.error("Failed to copy:", err);
   }
 }
 
 export function exptendAformField({ fields, nextto, field }: any) {
-  const existsIndex = fields.value.findIndex((f) => f.name === nextto)
+  const existsIndex = fields.value.findIndex((f) => f.name === nextto);
   if (existsIndex === 1) {
-    fields.value.splice(existsIndex + 1, 0, { ...field })
+    fields.value.splice(existsIndex + 1, 0, { ...field });
   } else {
-    fields.value.splice(existsIndex + 1, 1)
+    fields.value.splice(existsIndex + 1, 1);
   }
 
-  return fields
+  return fields;
 }
-
-
 
 const formatFileName = (name: string) => {
-    return name
-        .toLowerCase()
-        .replace(/\//g, '_')
-        .replace(/\s+/g, '_')
-        .replace(/[^\w\-]/g, '')
-}
+  return name
+    .toLowerCase()
+    .replace(/\//g, "_")
+    .replace(/\s+/g, "_")
+    .replace(/[^\w\-]/g, "");
+};
 
 /**
  * ie,you give headers we ignore the data 
@@ -590,49 +593,50 @@ const formatFileName = (name: string) => {
     name: 'User Template'
 })
  **/
-export const   exportToExcel = ({
-    data = [],
-    headers = [],
-    name = 'export',
-    sheetName = 'Sheet1'
+export const exportToExcel = ({
+  data = [],
+  headers = [],
+  name = "export",
+  sheetName = "Sheet1",
 }) => {
-    if (!data.length && !headers.length) {
-        console.warn('No data or headers provided')
-        return
-    }
+  if (!data.length && !headers.length) {
+    console.warn("No data or headers provided");
 
-    const date = new Date().toISOString().slice(0, 10)
-    const fileName = `${formatFileName(name)}_${date}.xlsx`
+    notify({ msg: "No data or headers provided", type: "error" });
+    return;
+  }
 
-    const workbook = XLSX.utils.book_new()
-    let worksheet
+  const date = new Date().toISOString().slice(0, 10);
+  const fileName = `${formatFileName(name)}_${date}.xlsx`;
 
-    // Case 1: Only headers (template)
-    if (headers.length) {
-        const formattedHeaders = headers.map(h =>
-            h.toUpperCase()
-                .replace(/\//g, '_')
-                .replace(/\s+/g, '_')
-                .replace(/[^\w\-]/g, '')
-        )
+  const workbook = XLSX.utils.book_new();
+  let worksheet;
 
-        worksheet = XLSX.utils.aoa_to_sheet([formattedHeaders])
-    } 
-    // Case 2: Full data export
-    else {
-        worksheet = XLSX.utils.json_to_sheet(data)
+  // Case 1: Only headers (template)
+  if (headers.length) {
+    const formattedHeaders = headers.map((h) =>
+      h
+        .toUpperCase()
+        .replace(/\//g, "_")
+        .replace(/\s+/g, "_")
+        .replace(/[^\w\-]/g, "")
+    );
 
-        // Auto column width
-        const colWidths = Object.keys(data[0] || {}).map(key => ({
-            wch: Math.max(
-                key.length,
-                ...data.map(row => (row[key]?.toString().length || 10))
-            )
-        }))
+    worksheet = XLSX.utils.aoa_to_sheet([formattedHeaders]);
+  }
+  // Case 2: Full data export
+  else {
+    worksheet = XLSX.utils.json_to_sheet(data);
 
-        worksheet['!cols'] = colWidths
-    }
+    // Auto column width
+    const colWidths = Object.keys(data[0] || {}).map((key) => ({
+      wch: Math.max(key.length, ...data.map((row) => row[key]?.toString().length || 10)),
+    }));
 
-    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName)
-    XLSX.writeFile(workbook, fileName)
-}
+    worksheet["!cols"] = colWidths;
+  }
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+  XLSX.writeFile(workbook, fileName);
+  notify({ msg: "template downloaded successfuly \n ", type: "info" });
+};

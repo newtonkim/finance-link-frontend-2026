@@ -3,12 +3,13 @@ import { routebuilder } from "@/Global";
 import {
   LayoutGrid,
   Users,
-  Wallet,
+  Wallet,Coins,
   HandCoins,
   ArrowUpDown,
   Vote,
   BookOpen,
   ArrowLeftRight,
+  Library
 } from "lucide-vue-next";
 import type { MenuRoutes } from "@/Global/types/helpers";
 
@@ -28,6 +29,7 @@ export const tenantRoutes: MenuRoutes[] = [
     showSideBar: true,
     prifix: "tenant",
     children: [
+     
       {
         title: "SACCO MEMBERS",
         items: [
@@ -73,7 +75,7 @@ export const tenantRoutes: MenuRoutes[] = [
     path: "group-savings",
     label: "Group Savings",
     permissions: "group-savings-module-link-view",
-    icon: Users,
+    icon: Coins,
     showSideBar: true,
     component: () => import("@/tenant/modules/savings/group-account/Index.vue"),
   },
@@ -95,37 +97,71 @@ export const tenantRoutes: MenuRoutes[] = [
     showSideBar: true,
   },
   {
+    label: "Loans",
+    icon: Library,
+    // permissions: "loan-module-link-view",
+    showSideBar: true,
+    prifix: "tenant",
+    children: [
+      
+      {
+        title: "LOANS",
+        items: [
+          {
+            path: "loan-applications",
+            label: "Loan Applications",
+            // icon: HandCoins,
+            // permissions: 'chart-of-accounts-module-link-view',
+            showSideBar: true,
+            component: () =>
+              import("@/tenant/modules/loans/pages/LoanApplicationsIndex.vue"),
+          },
+          {
+            path: "Loan",
+            label: "Loan",
+            // icon: Wallet,
+            // permissions: 'chart-of-accounts-module-link-view',
+            showSideBar: true,
+            component: () => import("@/tenant/modules/loans/pages/ActiveLoansIndex.vue"),
+          },
+          {
+            path: "pending-votes",
+            label: "pending votes",
+            // icon: Vote,
+            // permissions: 'chart-of-accounts-module-link-view',
+            showSideBar: true,
+            component: () => import("@/tenant/modules/loans/pages/PendingVotes.vue"),
+          },
+        ],
+      },
+        {
+        title: "LOAN TRANSACTION",
+        items: [
+          {
+            path: "loan-transaction",
+            label: "Transaction",
+            component: () => import("@/tenant/modules/members/index.vue"),
+            // permissions: "view-transactions-list",
+          },
+        ],},
+      
+    ],
+  },
+
+  {
+    type: "label",
+    label: "ACCOUNT SECTION",
+    icon: BookOpen,
+    showSideBar: true,
+  },
+
+  {
     path: "chart-of-accounts",
     label: "chart of accounts",
     icon: BookOpen,
     permissions: "chart-of-accounts-module-link-view",
     showSideBar: true,
     component: () => import("@/tenant/modules/accounting/pages/ChartOfAccounts.vue"),
-  },
-
-  {
-    path: "loan-applications",
-    label: "Loan Applications",
-    icon: HandCoins,
-    // permissions: 'chart-of-accounts-module-link-view',
-    showSideBar: true,
-    component: () => import("@/tenant/modules/loans/pages/LoanApplicationsIndex.vue"),
-  },
-  {
-    path: "pending-votes",
-    label: "pending votes",
-    icon: Vote,
-    // permissions: 'chart-of-accounts-module-link-view',
-    showSideBar: true,
-    component: () => import("@/tenant/modules/loans/pages/PendingVotes.vue"),
-  },
-  {
-    path: "Loan",
-    label: "Loan",
-    icon: Wallet,
-    // permissions: 'chart-of-accounts-module-link-view',
-    showSideBar: true,
-    component: () => import("@/tenant/modules/loans/pages/ActiveLoansIndex.vue"),
   },
 ];
 export const tenantRoutesList = routebuilder(tenantRoutes, "tenant") as RouteRecordRaw[];

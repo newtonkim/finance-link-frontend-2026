@@ -46,6 +46,14 @@ function initialize() {
             type: 'datec',
             required: false,
             placeholder: 'Amount to withdraw',
+            value: new Date().toISOString().split('T')[0],
+        },
+         {
+            label: 'deposited by',
+            name: 'deposited_by',
+            type: 'text',
+            required: false,
+            placeholder: 'who withdrawed',
         },
         {
             label: 'narration',

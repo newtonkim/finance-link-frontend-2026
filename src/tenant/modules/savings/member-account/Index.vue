@@ -54,17 +54,24 @@
       />
     </template>
     <template #drawer="{ action, data }">
-      <!-- ( {{ automaticCreate }}) -->
+      <!-- ( {{ drawerTitle?.width }}) -->
+
       <uploadTemplateColumData
         upload-trick="row"
         v-if="
-          ['import-accounts', 'import-deposit-withdrawal'].includes(
+          ['import-accounts', 'import-deposit-withdrawal','import-opening-balance'].includes(
             automaticCreate.actionSlot
           )
         "
         :title="automaticCreate?.actionSlot"
         :url="`/members-account/${automaticCreate?.actionSlot}`"
         :submit-url="automaticCreate.actionSlot"
+      />
+      <OpeningBalanceTemplate
+        v-else-if="
+          automaticCreate?.actionSlot == 'download-account-opening-balance-template'
+        "
+        :data="{ action, ...(automaticCreate ?? {}) }"
       />
       <DepositTemplate
         v-else-if="automaticCreate?.actionSlot == 'download-deposit-template'"
@@ -106,6 +113,7 @@ import {
   DepositTemplate,
   Edit,
   WithdrawalTemplate,
+  OpeningBalanceTemplate,
 } from ".";
 import {
   TableDrawer,
@@ -120,6 +128,16 @@ const drawer = ref(null),
   drawerRemount = ref(true),
   automaticCreate = ref({ drawerActions: true, actionSlot: null }),
   exportItems = ref([
+    {
+      label: "opening balance template",
+      action: (vl) => {
+        automaticCreate.value = {
+          actionSlot: "download-account-opening-balance-template",
+          item: vl,
+        };
+        OpenThedrawer(vl, "download-account-opening-balance-template");
+      },
+    },
     {
       label: "accounts template",
       action: (vl) => {
@@ -142,6 +160,16 @@ const drawer = ref(null),
       action: (vl) => {
         OpenThedrawer(vl, "download-withdrawal-template");
         automaticCreate.value = { actionSlot: "download-withdrawal-template", item: vl };
+      },
+    },
+     {
+      label: "import opening balance",
+      action: (vl) => {
+        automaticCreate.value = {
+          actionSlot: "import-opening-balance",
+          item: vl,
+        };
+        OpenThedrawer(vl, "import-opening-balance");
       },
     },
     {
@@ -167,11 +195,11 @@ const formData = ref<Record<string, any>>({}),
   filters = ["all", "active", "suspended", "expired", "trial"],
   tableUrl = computed(() => `/members-account/list?status=${statusFilter.value}`),
   title: Record<string, string> = {
-    view: { title: "Viewmember saving's Account Details", width: "w-3/5" },
-    edit: { title: "Edit member saving's Account", width: "w-1/3" },
+    view: { title: "Viewmember saving's Account Details", width: "w-2/3" },
+    edit: { title: "Edit member saving's Account", width: "w-2/4" },
     add: { title: "Create a member saving's Account", width: "w-2/4" },
     deposit: {
-      width: "w-3/4",
+      width: "w-1/4",
       title: "deposit Saving's Account",
       fun: async () => {
         drawerRemount.value = await memebrAccountDepositAmount(
@@ -181,7 +209,7 @@ const formData = ref<Record<string, any>>({}),
       },
     }, // this will be the deposite
     withdrawal: {
-      width: "w-3/4",
+      width: "w-1/3",
       title: "withdrawal Saving's Account",
       fun: async () => {
         drawerRemount.value = await memebrAccountWithdrawalAmount(
@@ -227,5 +255,5 @@ function OpenThedrawer(item: any, action = "deposit") {
   setTimeout(() => {
     drawer.value.toggleDrawer();
   }, 100);
-} 
+}
 </script>

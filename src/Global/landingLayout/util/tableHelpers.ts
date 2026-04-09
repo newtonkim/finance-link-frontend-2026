@@ -135,7 +135,7 @@ export default function useTableHelpers(props: any, emit: any) {
   async function automaticCreateFun() {
     // console.log(props.automaticCreate,"props.automaticCreate");
     
-    if (props.automaticCreate) {
+    // if (props.automaticCreate) {
       const data = Store.currentFormValues
       let customeUrl = props?.actionSlot ?? props?.outerlinks?.['create'] ?? 'create'
       if (props?.actionSlot) {
@@ -156,6 +156,8 @@ export default function useTableHelpers(props: any, emit: any) {
         Store,
       })
       const response = feedback(res)
+    //   console.log(response);
+      
 
       if (response.success) {
         Store[props?.state] = res
@@ -172,7 +174,7 @@ export default function useTableHelpers(props: any, emit: any) {
         return true
       }
       return false
-    }
+    // }
   }
   async function saveDrawerData(data: any) {
     // alert()
@@ -184,11 +186,11 @@ export default function useTableHelpers(props: any, emit: any) {
     // } else
     if (AnyErrorsFoundInTheFOrm) {
     } else {
-      const checker = await automaticCreateFun('create')
-
-      if (checker) {
-        // alert(checker)
-        // if (!checker) {
+        
+      if (props.automaticCreate) {
+        await automaticCreateFun('create')
+        // no matter what stop  here 
+       
         return
       } else if (finalSubmitAction.value == 'import-data') {
         return
