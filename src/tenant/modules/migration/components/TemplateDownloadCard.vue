@@ -6,6 +6,7 @@ import OpeningBalancemembers from './OpeningBalancemembers.vue';
 
 const props = defineProps<{
   title: string
+  from:string,
   description: string
   filename: string
   downloadFn: () => Promise<{ data: Blob }>
@@ -53,7 +54,8 @@ function saveDrawerData() {
   <Drawer v-if="drawerOpen" width="w-2/3" :showFooter="false" title="select members to import" @save="saveDrawerData"
     v-model:open="drawerOpen">
     <template #body>
-      <OpeningBalancemembers/>
+      <OpeningBalancemembers v-if="from == 'transactions-template'"/>
+      <OpeningBalancemembers v-else/>
     </template>
   </Drawer>
 

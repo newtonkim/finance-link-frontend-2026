@@ -160,7 +160,7 @@ const fields = ref([
   {
     label: 'joined date',
     name: 'joined_date',
-    type: 'text',
+    type: 'date',
     required: true,
     placeholder: 'join date ',
   },

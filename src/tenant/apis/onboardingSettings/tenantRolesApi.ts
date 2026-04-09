@@ -1,24 +1,11 @@
-import { formDataFormat, scopeValues } from '@/Global'
+import { formDataFormat, scopeValues,feedback } from '@/Global'
 import { notify } from '@/Global/Toasters'
 import { pomPinia } from 'septor-store'
 import { fetchTableData } from '@/Global'
 
 export function tenantRolesApi() {
   const Store = pomPinia()
-  function feedback(res: any, success: string, fail: string) {
-    let msg: Record<string, string> = {
-      msg: success,
-      type: 'Error',
-    }
-    if (!res || res.code == 200) {
-      msg = {
-        msg: fail,
-        type: 'Success',
-      }
-    }
-    notify(msg)
-    return res
-  }
+  
 
   async function create(data: any) {
     const formDataScoping: any = formDataFormat(scopeValues(data))
@@ -28,6 +15,7 @@ export function tenantRolesApi() {
       Store,
       saveData: false,
     })
+    
     feedback(res, 'roles created successfully', 'Failed to create roles')
   }
 

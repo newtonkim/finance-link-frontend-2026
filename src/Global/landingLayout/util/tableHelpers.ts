@@ -14,7 +14,6 @@ export default function useTableHelpers(props: any, emit: any) {
   const DrawerMounted = ref<boolean>(true)
   const submitChanges = ref<any>(null)
   const provideDataTotheParent = ref<any>([])
-
   const finalSubmitAction = ref<string>('')
   const drawerTitle = ref(props.drawerTitle)
   const drawerShooter2 = ref(true)
@@ -134,6 +133,8 @@ export default function useTableHelpers(props: any, emit: any) {
   }
 
   async function automaticCreateFun() {
+    // console.log(props.automaticCreate,"props.automaticCreate");
+    
     if (props.automaticCreate) {
       const data = Store.currentFormValues
       let customeUrl = props?.actionSlot ?? props?.outerlinks?.['create'] ?? 'create'
@@ -166,6 +167,7 @@ export default function useTableHelpers(props: any, emit: any) {
           toggleDrawer()
         }, 100) //  to make sure the drawer is cleaned
         Store.currentFormValues = {}
+        // alert(buttonTypeClicked.value)
         buttonTypeClicked.value = buttonTypeClicked.value
         return true
       }
@@ -185,16 +187,17 @@ export default function useTableHelpers(props: any, emit: any) {
       const checker = await automaticCreateFun('create')
 
       if (checker) {
+        // alert(checker)
         // if (!checker) {
-        // return
+        return
       } else if (finalSubmitAction.value == 'import-data') {
         return
       }
-      // console.log(checker, '====2');
+    //   console.log(data, '====2');
 
       save(data, finalSubmitAction.value ?? 'create')
       buttonTypeClicked.value = buttonTypeClicked.value
-
+// alert()
       setTimeout(() => {
         submitChanges.value = false
       }, 2000)
@@ -332,9 +335,9 @@ export default function useTableHelpers(props: any, emit: any) {
       if (!v) {
         //reset the drawer data when the drawer is closed
         provideDataTotheParent.value = null
-        drawerShooter2.value = null
-        buttonTypeClicked.value = null
-        drawerWidth.value = null
+        // drawerShooter2.value = null
+        // buttonTypeClicked.value = null
+        // drawerWidth.value = null
       }
     },
   )
@@ -359,6 +362,7 @@ export default function useTableHelpers(props: any, emit: any) {
     changeThePage,
     callNewPage,
     onSearch,
+    save,
     drawerTitle,
     drawerShooter2,
     drawerWidth,

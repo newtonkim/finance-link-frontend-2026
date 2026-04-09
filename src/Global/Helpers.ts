@@ -499,6 +499,7 @@ export function feedback(res: any, success?: string, fail?: string) {
     type: 'Error',
     success: successStatus,
   } 
+
   if (res?.error) {
     if (res.error.response?.data?.error) {
       msg.msg = res.error.response.data.error
@@ -507,7 +508,10 @@ export function feedback(res: any, success?: string, fail?: string) {
     } else if (res.error.response?.data?.errors) {
       const errors = res.error.response.data.errors
       msg.msg = Object.values(errors)[0][0] || msg.msg
-    }
+    } 
+     if (res.error.response.data.payload.message) {
+    msg.msg = res.error.response.data.payload.message
+  }
   }
 
   if (res.error?.message?.includes('403') || res.error?.message?.includes('401')) {

@@ -98,6 +98,7 @@ async function submit() {
         description="Fill in member number, account, type (deposit/withdrawal), amount, and date for each transaction."
         filename="transaction-history-template.xlsx"
         :download-fn="migrationApi.downloadTransactionHistoryTemplate"
+        url=''
       />
       <MigrationFileStep :file="file" :parse-error="parseError" @change="onFileSelected" />
     </template>

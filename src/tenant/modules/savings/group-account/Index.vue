@@ -119,10 +119,9 @@ const stats = computed(() => [
 
 async function saveUser(type: string, data: any, sumited: any) {
 
-
   if (automaticCreate.value.actionSlot == 'create-none-member') {
     const checker = await addNoneExistingMember(formData.value, automaticCreate.value.item)
-    console.log(checker);
+    // console.log(checker);
     
     if (checker == false) {
       formData.value = formData.value
@@ -142,7 +141,7 @@ function OpenThedrawer(item: any) {
   automaticCreate.value = { actionSlot: 'create-none-member', item }
   drawerTitle.value = { title: "add member to group", width: "w-2/4" }
   drawer.value.toggleDrawer()
-
+  drawer.value.buttonTypeClicked= automaticCreate.value.actionSlot
 }
 watch(() => drawer.value?.drawerOpen, (val) => {
   if (!val) {

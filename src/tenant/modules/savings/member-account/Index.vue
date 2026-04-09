@@ -35,7 +35,7 @@
         <TabelActionButtons
           @action="() => OpenThedrawer(item, 'deposit')"
           title="deposit"
-          color="danger"
+          color="custom"
           icon="CircleDollarSign"
         />
       </div>

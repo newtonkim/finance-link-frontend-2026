@@ -1,6 +1,6 @@
 <template>
     <TableDrawer :importDefaults="['id', 'branch_id', 'dob']" drawerWidth=" w-2/3" :url="tableUrl" state="memberList"
-        :drawerTitle="drawerTitle" " :columns="columns" @save="saveUser" :showTableAction="true">
+        :drawerTitle="drawerTitle"  :columns="columns" @save="saveUser" :showTableAction="true">
         <template #header-action>
             <div>
                 <h1 class="text-4xl font-black text-[#0A2318] dark:text-white tracking-tight">
@@ -21,6 +21,7 @@
         </template>
 
         <template #drawer="{ action, data }">
+         
             <Create v-if="['add', 'edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
             <Details v-if="['view'].includes(action)" :data="data" />
         </template>
@@ -43,6 +44,8 @@ const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
     }
 function saveUser(type: string, data: any) {
     if (title?.[type]) drawerTitle.value = title?.[type]
+  ;
+    
 }
 const columns = [
     { key: 'memeber_code', label: 'code', sticky: 'left', width: '14em', copy: true },

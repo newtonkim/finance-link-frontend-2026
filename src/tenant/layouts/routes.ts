@@ -2,9 +2,11 @@ import type { RouteRecordRaw } from "vue-router";
 import { routebuilder } from "@/Global";
 import {
   LayoutGrid,
-  Users,Wallet,
+  Users,
+  Wallet,
   HandCoins,
-  ArrowUpDown,Vote,
+  ArrowUpDown,
+  Vote,
   BookOpen,
   ArrowLeftRight,
 } from "lucide-vue-next";
@@ -86,10 +88,9 @@ export const tenantRoutes: MenuRoutes[] = [
     // component: () => import('@/tenant/modules/savings/pages/SavingsTransfer.vue'),
   },
 
-
   {
     type: "label",
-    label: "LEAN SEATION",
+    label: "LOAN SECTION",
     icon: BookOpen,
     showSideBar: true,
   },

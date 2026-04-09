@@ -4,7 +4,7 @@
         // view: 'branch-details',
         // edit: 'branch-update',
         delete: 'branch-delete'
-    }" drawerWidth=" w-2/4" :url="tableUrl" state="branchList" :drawerTitle="drawerTitle" " :columns="columns"
+    }" drawerWidth=" w-2/4" :url="tableUrl" state="branchList" :drawerTitle="drawerTitle" :columns="columns"
         @save="saveUser">
         <template #header-action>
             <PainPageHeader title="Branch list" dec="Manage SACCO Branches" />
@@ -32,11 +32,10 @@ function saveUser(type: string, data: any) {
     if (title?.[type]) drawerTitle.value = title?.[type]
 }
 const columns = [
-    { key: 'name', label: 'name', sticky: 'left', width: '14em ', },
-    { key: 'branch_code', label: 'code' },
+    { key: 'branch_code', label: 'code', sticky: 'left', copy: true, width: '10em', },
+    { key: 'name', label: 'name', width: '14em ', },
     { key: 'contact_number', label: 'phone' },
-    { key: 'created_at', label: 'created_at', width: '14em ', },
+    { key: 'created_at', label: 'created_at', },
     { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
-
 ]
 </script>
