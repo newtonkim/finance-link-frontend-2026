@@ -1,5 +1,6 @@
 <template>
-  <div class="card shadow-md p-4 py-10 bg-white dark:bg-neutral-800 rounded-md">
+  <div class="card shadow-md p-4 py-10 bg-white dark:bg-neutral-800 rounded-md h-[84vh] overflow-auto">
+    
     <span v-if="loading"></span>
     <Form
       :action="data?.action"
@@ -77,7 +78,22 @@ const emits = defineEmits(["update:form"]),
       options: yesNoOptions,
       placeholder: "Enter consider Minimun Balance",
     },
-
+    {
+        label: "inital deposit",
+            name: "in_deposit",
+            type: "number",
+            value: 0,
+            required: true,
+            placeholder: "Select initial deposit",
+             dependsOn: {
+            conditions: [
+              {
+                field: 'product_id',
+                condition: (val: any) => settingList.value['hide-initial-deposit-field'],
+              }
+            ],
+          }
+    },
     {
       label: "Status",
       name: "Status",
@@ -90,6 +106,14 @@ const emits = defineEmits(["update:form"]),
       ],
       placeholder: "Enter account Status",
     },
+    {
+      label: "Opening Balance",
+      name: "opening_balance",
+      type: "number",
+      required: true,
+      placeholder: "Enter Opening Balance",
+    },
+    // ,
   ]);
 async function promtValueOnUpdate() {
   loading.value = true;
@@ -98,6 +122,7 @@ async function promtValueOnUpdate() {
     const data = {
       product_id: props.data.savings_product_id,
       member: props.data.member_id,
+      opening_balance: props.data.opening_balance,
       cm_balance: props.data.consider_min_balance,
       status: props.data.status,
     };
@@ -115,35 +140,35 @@ function checkForSettings() {
       checkForVaailableSetting["hide-initial-deposit-field"] ?? 0,
   };
 }
-watch(
-  () => fields.value,
-  (val) => {
-    if (true) {
-      // if (settingList.value['hide-initial-deposit-field']) {
-      const initalDepositIndex = val.findIndex((f) => f.name === "in_deposit"),
-        referredByIndex = val.findIndex((f) => f.name === "cm_balance");
-      if (initalDepositIndex === -1 && referredByIndex !== 1) {
-        exptendAformField({
-          fields,
-          nextto: "cm_balance",
-          field: {
-            label: "inital deposit",
-            name: "in_deposit",
-            type: "number",
-            value: 0,
-            required: true,
-            placeholder: "Select initial deposit",
-            onChange: async (val) => {
-              const amount = val?.target ? val.target.value : val;
-              watchChangeInProductOrCharges(fields, amount);
-            },
-          },
-        });
-      }
-    }
-  },
-  { deep: true }
-);
+// watch(
+//   () => fields.value,
+//   (val) => {
+//     if (true) {
+//       // if (settingList.value['hide-initial-deposit-field']) {
+//       const initalDepositIndex = val.findIndex((f) => f.name === "in_deposit"),
+//         referredByIndex = val.findIndex((f) => f.name === "cm_balance");
+//       if (initalDepositIndex === -1 && referredByIndex !== 1) {
+//         exptendAformField({
+//           fields,
+//           nextto: "cm_balance",
+//           field: {
+//             label: "inital deposit",
+//             name: "in_deposit",
+//             type: "number",
+//             value: 0,
+//             required: true,
+//             placeholder: "Select initial deposit",
+//             onChange: async (val) => {
+//               const amount = val?.target ? val.target.value : val;
+//               watchChangeInProductOrCharges(fields, amount);
+//             },
+//           },
+//         });
+//       }
+//     }
+//   },
+//   { deep: true }
+// );
 function watchChangeInProductOrCharges(fields: any, amount: any) {
   const finedProduct = fields.value.find((f) => f.name === "product_id");
   const chargeField = fields.value.find((f) => f.name === "charges");
