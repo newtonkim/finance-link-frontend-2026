@@ -214,7 +214,7 @@ function checkForSettings() {
     "sacco-share-price-value": parseFloat(checkForVaailableSetting?.['sacco-share-price-value'] ?? 0),
     "sacco-share-on-member-creation-create-share-minimum-value": parseFloat(checkForVaailableSetting?.['sacco-share-on-member-creation-create-share-minimum-value'] ?? 0)
   }
-  console.log(settingList.value);
+  // console.log(settingList.value);
 
 }
 
@@ -234,23 +234,31 @@ watch(
           type: 'number',
           required: true,
           placeholder: 'Select initial deposit',
-        },  {
-    label: 'opening balance',
-    name: 'opening_balance',
-    type: 'money',
-    required: true,
-    placeholder: 'Enter opening balance',
-    dependsOn: {
-      conditions: [
-        {
-          field: 'inital_deposit',
-          condition: (val: any) => Number(val) > 0
-        }
-      ],
+          dependsOn: {
+            conditions: [
+              {
+                field: 'member_type',
+                condition: (val: any) => val === 'existing_member'
+              }
+            ],
+          }
+        }, {
+          label: 'opening balance',
+          name: 'opening_balance',
+          type: 'money',
+          required: true,
+          placeholder: 'Enter opening balance',
+          dependsOn: {
+            conditions: [
+              {
+                field: 'member_type',
+                condition: (val: any) => val === 'new_member'
+              }
+            ],
 
 
-    },
-  },)
+          },
+        },)
       }
     }
 

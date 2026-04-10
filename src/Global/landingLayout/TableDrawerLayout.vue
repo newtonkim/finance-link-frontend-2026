@@ -180,7 +180,7 @@ const emit = defineEmits(['save', 'submit', 'update:title']);
     save,
     // drawerTitle,
     drawerShooter2,
-    drawerWidth,
+    // drawerWidth,
     drawerOpen,
     toggleDrawer,
     filterDataByString,

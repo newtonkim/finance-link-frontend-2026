@@ -35,15 +35,17 @@ const columns = [
         header: 'Account Transactions Details',
         type: 'Table',
         column: [
-            { key: 'type', label: 'type',sticky:"left" },
-            { key: 'amount', label: 'amount',type:"money",sticky:"left" },
-            { key: 'mode', label: 'mode',type:"status",sticky:"left" },
             { key: 'reference', label: 'reference',sticky:"left" },
+            { key: 'total', label: 'total',type:"money" },
+            { key: 'charge', label: 'charge',type:"money",sticky:"left" },
+            { key: 'amount', label: 'balance',type:"money",sticky:"left" },
+            { key: 'type', label: 'type',sticky:"left" },
+            { key: 'mode', label: 'mode',type:"status",sticky:"left" },
             { key: 'narration', label: 'narration' },
-            { key: 'ntransfer Byarration', label: 'transfer By' },
+            { key: 'transfer_by', label: 'transfer By' },
             { key: 'transaction_date', label: 'transaction date',width:"10em" },
             { key: 'created_at', label: 'created at',sticky:"right",width:"10em",type:"dateTime" },
-            { key: 'actions', label: 'actions',sticky:"right",width:"10em",  },
+            { key: 'actions', label: 'actions',sticky:"right",  },
         ],
         list: []
     }
@@ -52,7 +54,7 @@ async function prepareTheFeaturesData() {
     loading.value = true
     if (props.data.transactionList)
         props.data.transactionList.forEach(element => {
-            columns[1].list.push({amount:element.amount,created_at:element.created_at,"narration":element.narration,transaction_date:element.transaction_date, type: element.type, mode: element.mode,"transfer By":element.by,reference:element.reference })
+            columns[1].list.push({amount:element.amount,total:element.total,charge:element.charge,created_at:element.created_at,"narration":element.narration,transaction_date:element.transaction_date, type: element.type, mode: element.mode,"transfer_by":element.by,reference:element.reference })
         });
     loading.value = false
 }
@@ -66,7 +68,11 @@ onMounted(async () => {
      <div v-if="loading">Loading...</div>
     <DetailsTable v-else :data="data" :columns="columns" >
         <template #actions="{ item }">
-            <TabelActionButtons :disabled="item.type=='reversed'" :data="item" @action="() => memebrAccountReversalAmount(item)" :color="item.type=='reversed'?'secondary':'danger'" icon="Undo" title="reversal"/>
+            <div class="flex gap-2 ">
+
+            <TabelActionButtons :disabled="item.type=='reversed'" :data="item" @action="() => memebrAccountReversalAmount({...item,charge_reversal: true})" :color="item.type=='reversed'?'secondary':'default'" icon="Undo" title="charge reversal"/>
+            <TabelActionButtons :disabled="item.type=='reversed'" :data="item" @action="() => memebrAccountReversalAmount(item)" :color="item.type=='reversed'?'secondary':'danger'" icon="Undo" title="full reversal"/>
+            </div>
             <!-- <TabelActionButtons :disabled="item.type!='reversed'" :data="item" @action="() => memebrAccountReversalAmount(item)" color="danger" icon="Undo" title="reversal"/> -->
         </template>
     </DetailsTable>
