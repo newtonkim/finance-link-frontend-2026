@@ -35,7 +35,7 @@ const handleDelete = () => {
 
 <template>
     <!-- Pending approval banner -->
-    <div v-if="member.status === 'pending'"
+    <div v-if="member?.status === 'pending'"
         class="flex items-start gap-4 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 mb-1">
         <Clock class="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
         <div class="flex-1 min-w-0">

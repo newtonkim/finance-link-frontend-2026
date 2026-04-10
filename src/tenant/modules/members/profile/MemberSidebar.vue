@@ -87,17 +87,17 @@ const formatCleanDate = (date) => {
                 <p class="text-[13px] text-[#788896] mt-0.5 tracking-tight">{{ member.email || '—' }}</p>
 
                 <div class="mt-4">
-                    <span v-if="member.status === 'active'"
+                    <span v-if="member?.status === 'active'"
                         class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-[#ebf7ee] text-[#22a053]">
                         <span class="w-1.5 h-1.5 rounded-full bg-[#22a053]"></span>
                         Active Member
                     </span>
-                    <span v-else-if="member.status === 'pending'"
+                    <span v-else-if="member?.status === 'pending'"
                         class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-amber-50 text-amber-600">
                         <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                         Pending Approval
                     </span>
-                    <span v-else-if="member.status === 'rejected'"
+                    <span v-else-if="member?.status === 'rejected'"
                         class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-red-50 text-red-500">
                         <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
                         Rejected
@@ -105,7 +105,7 @@ const formatCleanDate = (date) => {
                     <span v-else
                         class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500">
                         <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
-                        {{ member.status || 'Unknown' }}
+                        {{ member?.status || 'Unknown' }}
                     </span>
                 </div>
             </div>
