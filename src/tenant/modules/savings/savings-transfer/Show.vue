@@ -15,8 +15,8 @@ const columns = [
     list: [
       { key: 'code', label: 'code', copy: true, sticky: 'left' },
       { key: 'member_name', label: 'memeber name' },
-      { key: 'transfer_amount', label: 'transfer' },
-      { key: 'status', label: 'status', type: 'status' },
+      // { key: 'status', label: 'status', type: 'status' },
+      { key: 'total_transfer', label: 'transfer' },
       { key: 'account_balance', label: 'balance' },
       { key: 'transfer_to_product', label: 'to' },
       { key: 'transfer_from_product', label: 'from' },

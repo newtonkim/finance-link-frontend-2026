@@ -1,6 +1,6 @@
 <template>
     <TableDrawer :importDefaults="['id', 'branch_id', 'dob']" drawerWidth=" w-2/3" :url="tableUrl" state="memberList"
-        :drawerTitle="drawerTitle"  :columns="columns" @save="saveUser" :showTableAction="true">
+        :drawerTitle="drawerTitle" :columns="columns" @save="saveUser" :showTableAction="true">
         <template #header-action>
             <div>
                 <h1 class="text-4xl font-black text-[#0A2318] dark:text-white tracking-tight">
@@ -21,15 +21,16 @@
         </template>
 
         <template #drawer="{ action, data }">
-         
-            <Create v-if="['add', 'edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
+
+            <Create v-if="['add'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
+            <Edit v-if="[ 'edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
             <Details v-if="['view'].includes(action)" :data="data" />
         </template>
     </TableDrawer>
 </template>
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { Create, Details } from '.'
+import { Create, Details ,Edit} from '.'
 import { TableDrawer, StatusButtonsHorizontal, setLocalValues } from '@/Global'
 import { useRouter } from 'vue-router';
 const router = useRouter();
@@ -44,8 +45,6 @@ const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
     }
 function saveUser(type: string, data: any) {
     if (title?.[type]) drawerTitle.value = title?.[type]
-  ;
-    
 }
 const columns = [
     { key: 'memeber_code', label: 'code', sticky: 'left', width: '14em', copy: true },
@@ -61,10 +60,7 @@ const columns = [
     { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 ]
 function navigateToProfile(item: any) {
-    router.push(`/tenant/member/profile`)
-    // navigate to the member profile page
-    // you can also pass the member id or other details as query params or state if needed      `)
-    // navigate to the member profile page
+    router.push(`/tenant/member/profile`) 
     setLocalValues('memberProfile', item)
 }
 </script>

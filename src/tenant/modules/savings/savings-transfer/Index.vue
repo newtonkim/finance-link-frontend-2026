@@ -1,13 +1,14 @@
 <template>
     <TableDrawer :drawerWidth="drawerTitle?.width" :url="tableUrl" state="transferList"
-        :drawerTitle="drawerTitle?.title"  :columns="columns" @save="saveUser">
+        :drawerTitle="drawerTitle?.title" :columns="columns" @save="saveUser">
         <template #code="{ item }">
             <div class=" items-center gap-2">
                 <CopyData :show="item.code" />
                 <div class="flex items-center justify-between">
-                    <div class="text-[11px] uppercase tracking-wide">{{ item.status }}</div>
+                    <div :class="statusMap[item.status]?.className" class="text-[11px] uppercase tracking-wide">{{
+                        item.status }}</div>
                     <div v-if="item.count > 1"
-                        class="mx-10 bg-red-500 text-white text-[10px] font-bold px-0 py-0.5 rounded-full min-w-[20px] text-center mx-2 "
+                        class="mx-10 bg-nfuko-primary text-white text-[10px] font-bold px-0 py-0.5 rounded-full min-w-[20px] text-center mx-2 "
                         title=" contains more transaction in it">
                         {{ item.count }}
                     </div>
@@ -30,14 +31,14 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Create, Details } from '.'
-import { TableDrawer, StatusButtonsHorizontal, PainPageHeader, CopyData, } from '@/Global'
+import { TableDrawer, StatusButtonsHorizontal, PainPageHeader, CopyData, statusMap } from '@/Global'
 const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
     createComponent = ref(''),
     drawerTitle = ref('Create Tenant'),
     filters = ["All", "rejected", "pending", "approved", "cancelled", "completed", "failed",],
     tableUrl = computed(() => `/savings-transfer/list?status=${statusFilter.value}`),
     title: Record<string, string> = {
-        "view": { title: "View Savings Transfer Details", width: "w-1/2" },
+        "view": { title: "View Savings Transfer Details", width: "w-2/3" },
         "add": { title: "Create a peer to peer transfer", width: "w-3/4" },
     }
 function saveUser(type: string, data: any) {

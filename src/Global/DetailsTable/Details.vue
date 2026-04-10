@@ -50,7 +50,7 @@
             v-for="item in section.list"
             :key="item.key"
             class="rounded-xl border border-neutral-200 dark:border-neutral-800 
-                   bg-neutral-50 dark:bg-neutral-900 
+                   bg-neutral-50/10 dark:bg-neutral-900 
                    p-3 hover:bg-nfuko-action/5 dark:hover:bg-neutral-800  hover:shadow-md hover:-translate-y-1  
                    transition-all duration-200"
           >
