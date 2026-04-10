@@ -36,7 +36,8 @@ export function memberAccountApi() {
     return false
   }
   async function memebrAccountReversalAmount(data: any, ) {
-     Confirm({title:"Transaction reversal" ,des:"Are you sure this will effect the account" ,type:'delete', confirm: async() => {
+    console.log(data);
+     Confirm({title:"Transaction reversal" ,des:(`Are you sure this will effect the account ${data?.charge_reversal?data.charge:data.amount}`) ,type:'delete', confirm: async() => {
 
        const getCharges = await fetchTableData({
          data: data,

@@ -59,9 +59,11 @@
       <uploadTemplateColumData
         upload-trick="row"
         v-if="
-          ['import-accounts', 'import-deposit-withdrawal','import-opening-balance'].includes(
-            automaticCreate.actionSlot
-          )
+          [
+            'import-accounts',
+            'import-deposit-withdrawal',
+            'import-opening-balance',
+          ].includes(automaticCreate.actionSlot)
         "
         :title="automaticCreate?.actionSlot"
         :url="`/members-account/${automaticCreate?.actionSlot}`"
@@ -162,7 +164,7 @@ const drawer = ref(null),
         automaticCreate.value = { actionSlot: "download-withdrawal-template", item: vl };
       },
     },
-     {
+    {
       label: "import opening balance",
       action: (vl) => {
         automaticCreate.value = {
@@ -196,10 +198,10 @@ const formData = ref<Record<string, any>>({}),
   tableUrl = computed(() => `/members-account/list?status=${statusFilter.value}`),
   title: Record<string, string> = {
     view: { title: "Viewmember saving's Account Details", width: "w-2/3" },
-    edit: { title: "Edit member saving's Account", width: "w-2/4" },
+    edit: { title: "Edit member saving's Account", width: "w-2/3" },
     add: { title: "Create a member saving's Account", width: "w-2/4" },
     deposit: {
-      width: "w-1/4",
+      width: "w-2/3",
       title: "deposit Saving's Account",
       fun: async () => {
         drawerRemount.value = await memebrAccountDepositAmount(
@@ -209,7 +211,7 @@ const formData = ref<Record<string, any>>({}),
       },
     }, // this will be the deposite
     withdrawal: {
-      width: "w-1/3",
+      width: "w-2/3",
       title: "withdrawal Saving's Account",
       fun: async () => {
         drawerRemount.value = await memebrAccountWithdrawalAmount(
