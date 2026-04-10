@@ -1,6 +1,8 @@
 import { ref, reactive, onMounted } from 'vue'
 import { toast } from 'vue-sonner'
 import { loansApi, type ActiveLoan, type ActiveLoanParams, type LoanSummary, type LoanTab } from '@/tenant/apis/loans/loansApi'
+import { branchesApi } from '@/tenant/apis/branches/branchesApi'
+import { loanProductsApi } from '@/tenant/apis/loanProducts/loanProductsApi'
 
 interface Meta {
     current_page: number
@@ -13,7 +15,7 @@ export function useActiveLoans() {
     const loading        = ref(false)
     const summaryLoading = ref(false)
     const loans          = ref<ActiveLoan[]>([])
-    const meta           = reactive<Meta>({ current_page: 1, last_page: 1, per_page: 25, total: 0 })
+    const meta           = reactive<Meta>({ current_page: 1, last_page: 1, per_page: 10, total: 0 })
     const activeTab      = ref<LoanTab>('all')
     const summary        = ref<LoanSummary>({
         disbursed: 0,
@@ -23,7 +25,20 @@ export function useActiveLoans() {
         closed: 0,
         all: 0,
     })
-    const filters        = reactive<ActiveLoanParams>({ search: '', per_page: 25 })
+    const filters        = reactive<ActiveLoanParams>({
+        search: '',
+        per_page: 10,
+        member_name: '',
+        loan_product_id: '',
+        status: '',
+        approved_date_from: '',
+        approved_date_to: '',
+        disbursed_date_from: '',
+        disbursed_date_to: '',
+    })
+
+    const products = ref<{ id: number; name: string; code: string }[]>([])
+    const branches = ref<{ id: number; name: string }[]>([])
 
     async function fetchSummary() {
         summaryLoading.value = true
@@ -58,6 +73,24 @@ export function useActiveLoans() {
         } catch {
             return 0
         }
+    }
+
+    async function fetchBranches() {
+        try {
+            const res = await branchesApi.list()
+            branches.value = res.data.data ?? []
+        } catch { /* silent fail */ }
+    }
+
+    async function fetchProducts() {
+        try {
+            const res = await loanProductsApi.list()
+            products.value = (res.data.data ?? []).map((p: any) => ({
+                id: p.id,
+                name: p.name,
+                code: p.code,
+            }))
+        } catch { /* silent fail */ }
     }
 
     async function fetch(page = 1) {
@@ -102,8 +135,25 @@ export function useActiveLoans() {
         void fetch(1)
     }
 
+    function clearFilters() {
+        Object.assign(filters, {
+            search: '',
+            per_page: 10,
+            member_name: '',
+            loan_product_id: '',
+            status: '',
+            approved_date_from: '',
+            approved_date_to: '',
+            disbursed_date_from: '',
+            disbursed_date_to: '',
+        })
+        void fetch(1)
+    }
+
     onMounted(() => {
         void fetchSummary()
+        void fetchBranches()
+        void fetchProducts()
         void fetch()
     })
 
@@ -111,6 +161,7 @@ export function useActiveLoans() {
         loading, summaryLoading,
         loans, meta, filters,
         activeTab, summary,
-        fetch, fetchSummary, switchTab, applyFilters,
+        products, branches,
+        fetch, fetchSummary, switchTab, applyFilters, clearFilters,
     }
 }

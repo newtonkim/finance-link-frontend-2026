@@ -27,8 +27,23 @@
                     <span v-if="isEditing" class="font-normal text-neutral-400">(leave blank to keep current)</span>
                     <span v-else class="text-red-500"> *</span>
                 </label>
-                <input v-model="form.password" type="password" placeholder="••••••••"
-                    class="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-nfuko-primary focus:outline-none focus:ring-1 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
+                <div class="relative">
+                    <input
+                        v-model="form.password"
+                        :type="showPassword ? 'text' : 'password'"
+                        placeholder="••••••••"
+                        class="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 pr-10 text-sm text-neutral-900 focus:border-nfuko-primary focus:outline-none focus:ring-1 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                    />
+                    <button
+                        type="button"
+                        @click="showPassword = !showPassword"
+                        class="absolute inset-y-0 right-2 flex items-center text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-white"
+                        :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                    >
+                        <EyeOff v-if="showPassword" class="h-4 w-4" />
+                        <Eye v-else class="h-4 w-4" />
+                    </button>
+                </div>
             </div>
 
             <!-- Role + Status in 2 cols -->
@@ -131,9 +146,8 @@
     </div>
 </template>
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { UserCog, Plus, Search, X, Check, Pencil, Vote, GitBranch, CheckSquare, Eye, Trash2 } from 'lucide-vue-next'
+import { ref, onMounted, watch } from 'vue'
+import { Check, Vote, GitBranch, CheckSquare, Eye, EyeOff } from 'lucide-vue-next'
 import { useStaffStore } from '@/stores/staffStore'
 import type { Staff } from '@/tenant/apis/staff/api'
 import { tenantClient } from '@/tenant/apis/tenantClient'
@@ -143,10 +157,8 @@ import { toast } from 'vue-sonner'
 import { 
     SheetFooter,
 } from '@/Global';
-const router = useRouter()
 const staffStore = useStaffStore()
 
-const search = ref('')
 const branches = ref<Branch[]>([])
 const roles = ref<{ id: number; name: string }[]>([])
 const props = defineProps({
@@ -156,14 +168,11 @@ const props = defineProps({
     },
 })
 
-// ─── Delete confirm ────────────────────────────────────────────────────────────
-const deleteTarget = ref<Staff | null>(null)
-const deleting = ref(false)
-
 // ─── Drawer state ─────────────────────────────────────────────────────────────
 const isEditing = ref(false)
 const saving = ref(false)
 const currentId = ref<number | null>(null)
+const showPassword = ref(false)
 
 const defaultForm = () => ({
     name: '',
@@ -180,6 +189,12 @@ const defaultForm = () => ({
 
 const form = ref(defaultForm())
 
+function normalizeBoolean(value: unknown): boolean {
+    if (value === true || value === 1 || value === '1') return true
+    if (value === false || value === 0 || value === '0' || value == null) return false
+    return Boolean(value)
+}
+
 onMounted(async () => {
     await staffStore.fetchStaffList()
     try {
@@ -191,23 +206,33 @@ onMounted(async () => {
         roles.value = roleRes.data?.payload?.data ?? roleRes.data?.payload ?? []
     } catch { }
 
-    openEdit(props.data)
 })
 
+watch(
+    () => props.data,
+    (staff) => {
+        if (staff) openEdit(staff as Staff)
+    },
+    { immediate: true }
+)
+
 function openEdit(staff: Staff) {
+    if (!staff) return
     isEditing.value = true
-    currentId.value = staff.id!
+    const recordId = Number((staff as any).id ?? (staff as any).staff_id ?? 0)
+    currentId.value = Number.isFinite(recordId) && recordId > 0 ? recordId : null
+    showPassword.value = false
     form.value = {
-        name: staff.staff_fall_name,
-        email: staff.staff_email,
-        role: staff.system_role,
+        name: (staff as any).staff_fall_name ?? staff.name ?? '',
+        email: (staff as any).staff_email ?? staff.email ?? '',
+        role: (staff as any).system_role ?? staff.role ?? 'Staff',
         password: '',
-        status: staff.status,
-        is_tenant_admin: staff.is_tenant_admin ?? false,
-        branch_id: staff.branch_id ?? null,
-        can_vote_on_loans: staff.can_vote_on_loans ?? false,
-        can_manage_branch: staff.can_manage_branch ?? false,
-        can_finalise_loan: staff.can_finalise_loan ?? false,
+        status: (staff as any).status ?? 'active',
+        is_tenant_admin: normalizeBoolean((staff as any).is_tenant_admin),
+        branch_id: (staff as any).branch_id ?? null,
+        can_vote_on_loans: normalizeBoolean((staff as any).can_vote_on_loans),
+        can_manage_branch: normalizeBoolean((staff as any).can_manage_branch),
+        can_finalise_loan: normalizeBoolean((staff as any).can_finalise_loan),
     }
 }
 
@@ -223,7 +248,18 @@ async function save() {
     saving.value = true
     try {
         if (isEditing.value && currentId.value) {
-            const payload: Partial<Staff> = { ...form.value }
+            const payload: Partial<Staff> = {
+                name: form.value.name,
+                email: form.value.email,
+                role: form.value.role,
+                status: form.value.status,
+                is_tenant_admin: Boolean(form.value.is_tenant_admin),
+                branch_id: form.value.branch_id ?? null,
+                can_vote_on_loans: Boolean(form.value.can_vote_on_loans),
+                can_manage_branch: Boolean(form.value.can_manage_branch),
+                can_finalise_loan: Boolean(form.value.can_finalise_loan),
+                password: form.value.password,
+            }
             if (!payload.password) delete payload.password
             await staffStore.updateStaff(currentId.value, payload)
         } else {
@@ -236,14 +272,6 @@ async function save() {
         saving.value = false
     }
 }
-
-function viewStaff(staff: Staff) {
-    router.push({ name: 'tenant-settings-staff-profile', params: { id: staff.id } })
-}
-
-
-
-
 
 const loanPermissions = [
     { field: 'can_vote_on_loans' as const, icon: Vote, label: 'Vote on loan applications', description: 'Can cast approve/decline votes in committee rounds.', color: 'violet' },

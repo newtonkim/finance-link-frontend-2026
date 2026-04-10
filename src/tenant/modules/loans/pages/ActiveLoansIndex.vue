@@ -1,14 +1,82 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Search, ChevronLeft, ChevronRight, InboxIcon, Loader2, Eye } from 'lucide-vue-next'
+import { Search, ChevronLeft, ChevronRight, InboxIcon, Loader2, Eye, Filter, FileText, Download, X, FileSpreadsheet } from 'lucide-vue-next'
 import { useActiveLoans } from '../composables/useActiveLoans'
 import type { LoanTab } from '@/tenant/apis/loans/loansApi'
+import { ref } from 'vue'
+import { loansApi } from '@/tenant/apis/loans/loansApi'
+import { jsPDF } from 'jspdf'
+import autoTable from 'jspdf-autotable'
 
 const router = useRouter()
 
-const { loading, loans, meta, filters, activeTab, summary, fetch, switchTab, applyFilters } =
-  useActiveLoans()
+const {
+    loading, loans, meta, filters, activeTab, summary,
+    products, branches,
+    fetch, fetchSummary, switchTab, applyFilters, clearFilters,
+} = useActiveLoans()
+
+const showFilters = ref(false)
+
+const statusOptions = [
+    { value: 'disbursed', label: 'Disbursed' },
+    { value: 'active',    label: 'Active' },
+    { value: 'arrears',   label: 'In Arrears' },
+    { value: 'closed',    label: 'Closed' },
+    { value: 'approved',  label: 'Approved' },
+]
+
+async function exportToExcel() {
+    try {
+        const res = await loansApi.export({ ...filters, tab: activeTab.value })
+        const url = window.URL.createObjectURL(new Blob([res.data]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `loans_export_${new Date().toISOString().slice(0, 10)}.xlsx`)
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+    } catch {
+        // Handle error
+    }
+}
+
+function exportToPdf() {
+    const doc = new jsPDF('l', 'mm', 'a4')
+
+    doc.setFontSize(18)
+    doc.text('Loans Report', 14, 22)
+    doc.setFontSize(11)
+    doc.setTextColor(100)
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30)
+
+    const tableHeaders = [
+        ['#ID', 'Customer Name', 'Principal', 'Current Balance', 'Approval Date', 'Disbursement Date', 'Product', 'Status']
+    ]
+
+    const tableRows = loans.value.map(loan => [
+        loan.loan_no,
+        loan.member?.name ?? '—',
+        loan.principal_formatted,
+        loan.outstanding_balance_formatted,
+        fmtDate(loan.approved_at),
+        fmtDate(loan.disbursed_at),
+        loan.loan_product?.name ?? '—',
+        statusLabel(loan.status)
+    ])
+
+    autoTable(doc, {
+        head: tableHeaders,
+        body: tableRows,
+        startY: 35,
+        theme: 'striped',
+        headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+        styles: { fontSize: 8 },
+    })
+
+    doc.save(`loans_report_${new Date().toISOString().slice(0, 10)}.pdf`)
+}
 
 const hasPrev = computed(() => meta.current_page > 1)
 const hasNext = computed(() => meta.current_page < meta.last_page)
@@ -106,24 +174,133 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
 
     <!-- Content -->
     <div class="flex-1 overflow-auto p-4 sm:p-6 space-y-4">
-      <!-- Search bar -->
-      <div class="flex items-center gap-3">
-        <div class="relative">
-          <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+      <!-- Search bar & Export -->
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="relative">
+            <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+            <input
+              v-model="filters.search"
+              type="text"
+              placeholder="Search by ID or customer name…"
+              class="pl-9 pr-4 py-2 text-sm rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-300/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white w-72"
+              @keyup.enter="applyFilters"
+            />
+          </div>
+          <button
+            class="px-4 py-2 text-sm font-medium rounded-xl bg-neutral-900 text-white hover:bg-neutral-800 transition-colors dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100"
+            @click="applyFilters"
+          >
+            Search
+          </button>
+          <button
+            class="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl border border-neutral-200 bg-white hover:bg-neutral-50 transition-colors dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
+            :class="{ 'border-neutral-900 bg-neutral-50 ring-2 ring-neutral-900/10': showFilters }"
+            @click="showFilters = !showFilters"
+          >
+            <Filter class="h-4 w-4" />
+            Filters
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button
+              class="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl border border-neutral-200 bg-white hover:bg-neutral-50 transition-colors dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
+              @click="exportToExcel"
+            >
+              <FileSpreadsheet class="h-4 w-4 text-emerald-600" />
+              Excel
+            </button>
+            <button
+              class="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl border border-neutral-200 bg-white hover:bg-neutral-50 transition-colors dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
+              @click="exportToPdf"
+            >
+              <FileText class="h-4 w-4 text-rose-600" />
+              PDF
+            </button>
+        </div>
+      </div>
+
+      <!-- Advanced Filters -->
+      <div
+        v-if="showFilters"
+        class="p-4 bg-neutral-50 dark:bg-neutral-800/50 rounded-2xl border border-neutral-100 dark:border-neutral-800 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
+      >
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Customer Name</label>
           <input
-            v-model="filters.search"
+            v-model="filters.member_name"
             type="text"
-            placeholder="Search by ID or customer name…"
-            class="pl-9 pr-4 py-2 text-sm rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-300/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white w-72"
-            @keyup.enter="applyFilters"
+            placeholder="Name..."
+            class="px-3 py-2 text-sm rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-300/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
           />
         </div>
-        <button
-          class="px-4 py-2 text-sm font-medium rounded-xl bg-neutral-900 text-white hover:bg-neutral-800 transition-colors dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100"
-          @click="applyFilters"
-        >
-          Search
-        </button>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Loan Product</label>
+          <select
+            v-model="filters.loan_product_id"
+            class="px-3 py-2 text-sm rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-300/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+          >
+            <option value="">All Products</option>
+            <option v-for="p in products" :key="p.id" :value="p.id">{{ p.name }} ({{ p.code }})</option>
+          </select>
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Status</label>
+          <select
+            v-model="filters.status"
+            class="px-3 py-2 text-sm rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-300/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+          >
+            <option value="">All Statuses</option>
+            <option v-for="opt in statusOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+          </select>
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Approved Date (From)</label>
+          <input
+            v-model="filters.approved_date_from"
+            type="date"
+            class="px-3 py-2 text-sm rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-300/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+          />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Approved Date (To)</label>
+          <input
+            v-model="filters.approved_date_to"
+            type="date"
+            class="px-3 py-2 text-sm rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-300/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+          />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Disbursed Date (From)</label>
+          <input
+            v-model="filters.disbursed_date_from"
+            type="date"
+            class="px-3 py-2 text-sm rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-300/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+          />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Disbursed Date (To)</label>
+          <input
+            v-model="filters.disbursed_date_to"
+            type="date"
+            class="px-3 py-2 text-sm rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-neutral-300/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+          />
+        </div>
+        <div class="flex items-end gap-2 lg:col-span-3">
+          <button
+            class="px-6 py-2 text-sm font-medium rounded-xl bg-neutral-900 text-white hover:bg-neutral-800 transition-colors dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100"
+            @click="applyFilters"
+          >
+            Apply Filters
+          </button>
+          <button
+            class="px-4 py-2 text-sm font-medium rounded-xl border border-neutral-200 hover:bg-neutral-100 transition-colors dark:border-neutral-700 dark:hover:bg-neutral-800 dark:text-neutral-300"
+            @click="clearFilters"
+          >
+            Clear
+          </button>
+        </div>
       </div>
 
       <!-- Table card -->

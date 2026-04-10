@@ -189,10 +189,15 @@ export interface ActiveLoanParams {
   tab?: LoanTab
   status?: string
   member_id?: number
-  loan_product_id?: number
+  member_name?: string
+  loan_product_id?: number | string
   search?: string
   page?: number
   per_page?: number
+  approved_date_from?: string
+  approved_date_to?: string
+  disbursed_date_from?: string
+  disbursed_date_to?: string
 }
 
 export interface PostRepaymentData {
@@ -212,7 +217,11 @@ export const loansApi = {
   },
 
   list(params?: ActiveLoanParams) {
-    return tenantClient.get<{ data: ActiveLoan[]; meta: object }>('/loans', { params })
+    return tenantClient.get<{ data: { data: ActiveLoan[]; meta: object } }>('/loans', { params })
+  },
+
+  export(params?: ActiveLoanParams) {
+    return tenantClient.get('/loans/export', { params, responseType: 'blob' })
   },
 
   get(id: number) {
