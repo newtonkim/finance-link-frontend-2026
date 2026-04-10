@@ -991,8 +991,8 @@ function categoryColor(cat: string): string {
           <!-- Header with toggle -->
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-900/40">
-                <Users class="h-4 w-4 text-violet-600 dark:text-violet-400" />
+              <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/40">
+                <Users class="h-4 w-4 text-nfuko-blue dark:text-blue-400" />
               </div>
               <div>
                 <h2 class="text-sm font-semibold text-neutral-900 dark:text-white">Committee Voting</h2>
@@ -1005,7 +1005,7 @@ function categoryColor(cat: string): string {
               type="button"
               class="flex items-center gap-2 rounded-xl px-3 py-1.5 text-sm font-medium transition-colors"
               :class="form.committee_voting?.enabled
-                ? 'bg-violet-600 text-white hover:bg-violet-700'
+                ? 'bg-nfuko-blue text-white hover:bg-nfuko-blue/90'
                 : 'border border-neutral-200 text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800'"
               @click="form.committee_voting!.enabled = !form.committee_voting?.enabled"
             >
@@ -1016,8 +1016,8 @@ function categoryColor(cat: string): string {
 
           <!-- Settings (shown when enabled) -->
           <div v-if="form.committee_voting?.enabled" class="mt-5 space-y-4">
-            <div class="rounded-xl border border-violet-100 bg-violet-50/50 p-4 dark:border-violet-900/30 dark:bg-violet-950/20">
-              <p class="mb-4 text-xs text-violet-700 dark:text-violet-400">
+            <div class="rounded-xl border border-blue-100 bg-blue-50/50 p-4 dark:border-blue-900/30 dark:bg-blue-950/20">
+              <p class="mb-4 text-xs text-blue-700 dark:text-blue-400">
                 When enabled, appraised applications go to committee voting before final approval.
                 A vote passes once the quorum is reached and the approval threshold is met.
               </p>
@@ -1032,7 +1032,7 @@ function categoryColor(cat: string): string {
                     type="number"
                     min="1"
                     placeholder="e.g. 3"
-                    class="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder-neutral-500"
+                    class="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:border-nfuko-blue focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder-neutral-500"
                   />
                   <p class="mt-1 text-xs text-neutral-400 dark:text-neutral-500">
                     Total committee members who must cast a vote.
@@ -1050,7 +1050,7 @@ function categoryColor(cat: string): string {
                     min="1"
                     :max="form.committee_voting?.quorum_size ?? undefined"
                     placeholder="e.g. 2"
-                    class="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:border-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-100 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder-neutral-500"
+                    class="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 focus:border-nfuko-blue focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:placeholder-neutral-500"
                   />
                   <p class="mt-1 text-xs text-neutral-400 dark:text-neutral-500">
                     Minimum "approve" votes needed to pass.
@@ -1061,7 +1061,7 @@ function categoryColor(cat: string): string {
               <!-- Summary pill -->
               <div
                 v-if="form.committee_voting?.quorum_size && form.committee_voting?.approval_threshold"
-                class="mt-4 inline-flex items-center gap-1.5 rounded-full bg-violet-100 px-3 py-1 text-xs font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300"
+                class="mt-4 inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-nfuko-blue dark:bg-blue-900/40 dark:text-blue-300"
               >
                 <Users class="h-3 w-3" />
                 {{ form.committee_voting.approval_threshold }} of {{ form.committee_voting.quorum_size }} votes needed to approve

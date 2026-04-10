@@ -40,7 +40,13 @@ import { loansApi } from '@/tenant/apis/loans/loansApi'
 const route = useRoute()
 const router = useRouter()
 
-const loanId = Number(route.params.id)
+const parsedLoanId = Number(route.params.id)
+const loanId = Number.isFinite(parsedLoanId) && parsedLoanId > 0 ? parsedLoanId : null
+
+if (loanId === null) {
+  router.replace({ name: 'tenant-active-loans' })
+}
+
 const { loading, loan, schedule, repayments, repaymentsMeta, activeTab, refresh, fetchRepayments } =
   useLoanAccount(loanId)
 
@@ -94,7 +100,6 @@ function scheduleStatusColor(s: string) {
   switch (s) {
     case 'paid':
       return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-    case 'overdue':
     case 'arrears':
       return 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
     case 'partial':
@@ -221,7 +226,7 @@ const totalChargesRemaining = computed(() =>
   (loan.value?.applied_charges ?? []).reduce((s, c) => s + Number(c.remaining_amount), 0),
 )
 
-const overdueRows = computed(() =>
+const arrearsRows = computed(() =>
   schedule.value.filter((r) => r.is_overdue || Number(r.penalty_due) > 0),
 )
 const totalPenaltyAccrued = computed(() => scheduleTotals.value.penalty_due)
@@ -691,6 +696,14 @@ async function handleReceiveCashSubmit(data: any) {
               <div
                 class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
               >
+                <div class="font-medium text-neutral-500 dark:text-neutral-400">Approval Date</div>
+                <div class="font-medium text-neutral-900 dark:text-white">
+                  {{ loan.approved_at ? fmtDate(loan.approved_at) : '—' }}
+                </div>
+              </div>
+              <div
+                class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
+              >
                 <div class="font-medium text-neutral-500 dark:text-neutral-400">Date Disbursed</div>
                 <div class="font-medium text-neutral-900 dark:text-white">
                   {{ loan.disbursed_at ? fmtDate(loan.disbursed_at) : '—' }}
@@ -776,28 +789,30 @@ async function handleReceiveCashSubmit(data: any) {
 
       <!-- ── Schedule ── -->
       <div v-if="activeTab === 'schedule'">
-        <div v-if="schedule.length">
-          <div class="mb-3 flex items-center justify-between">
-            <h3 class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+        <div
+          v-if="schedule.length"
+          class="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
+        >
+          <div class="border-b border-neutral-200 px-4 py-3 dark:border-neutral-800 flex items-center justify-between">
+            <h3 class="text-[13px] font-semibold text-neutral-900 dark:text-white">
               Repayment Schedule
             </h3>
             <span
-              class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+              class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
             >
               {{ schedule.length }} installments
             </span>
           </div>
-          <div class="overflow-x-auto rounded-xl border border-neutral-100 dark:border-neutral-800">
-            <table class="w-full text-xs">
+          <div class="overflow-x-auto">
+            <table class="w-full text-[13px]">
               <thead
-                class="bg-neutral-50 dark:bg-neutral-800/60 font-bold text-neutral-900 dark:text-neutral-100"
+                class="bg-neutral-50/80 dark:bg-neutral-800/60 font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider text-[11px] border-b border-neutral-100 dark:border-neutral-800"
               >
                 <tr>
                   <th class="px-2 py-3 text-left">#ID</th>
                   <th class="px-3 py-3 text-left">Due Date</th>
                   <th class="px-3 py-3 text-right">Principal</th>
                   <th class="px-3 py-3 text-right">Interest</th>
-                  <th class="px-3 py-3 text-right">Charges</th>
                   <th class="px-3 py-3 text-right">Penalty</th>
                   <th class="px-3 py-3 text-right">Total</th>
                   <th class="px-3 py-3 text-right">Paid</th>
@@ -809,31 +824,22 @@ async function handleReceiveCashSubmit(data: any) {
                 </tr>
               </thead>
               <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
-                <tr
-                  v-for="(row, index) in showAllSchedule ? schedule : schedule.slice(0, 10)"
-                  :key="row.id"
-                  class="hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors"
-                >
+                  <tr
+                    v-for="(row, index) in showAllSchedule ? schedule : schedule.slice(0, 10)"
+                    :key="row.id"
+                    class="even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900 hover:bg-neutral-100/50 dark:hover:bg-neutral-800/50 transition-colors"
+                  >
                   <td class="px-2 py-3 text-neutral-500">{{ row.installment_no }}</td>
                   <td class="px-3 py-3 text-neutral-700 dark:text-neutral-300">
                     {{ fmtDate(row.due_date) }}
                   </td>
                   <td class="px-3 py-3 text-right">{{ currency }} {{ fmt(row.principal_due) }}</td>
                   <td class="px-3 py-3 text-right">{{ currency }} {{ fmt(row.interest_due) }}</td>
-                  <td class="px-3 py-3 text-right">
-                    <span
-                      v-if="Number(row.charges_due) > 0"
-                      class="text-amber-600 dark:text-amber-400"
-                    >
-                      {{ currency }} {{ fmt(row.charges_due) }}
-                    </span>
-                    <span v-else class="text-neutral-400">—</span>
-                  </td>
                   <td class="px-3 py-3 text-right">{{ currency }} {{ fmt(row.penalty_due) }}</td>
                   <td class="px-3 py-3 text-right font-semibold">
                     {{ currency }} {{ fmt(row.total_due) }}
                   </td>
-                  <td class="px-3 py-3 text-right">
+                  <td class="px-3 py-3 text-right font-bold text-emerald-600 dark:text-emerald-400">
                     {{ currency }}
                     {{
                       fmt(
@@ -920,18 +926,15 @@ async function handleReceiveCashSubmit(data: any) {
                     {{ currency }} {{ fmt(scheduleTotals.interest_due) }}
                   </td>
                   <td class="px-3 py-3 text-right">
-                    {{ currency }} {{ fmt(scheduleTotals.charges_due) }}
-                  </td>
-                  <td class="px-3 py-3 text-right">
                     {{ currency }} {{ fmt(scheduleTotals.penalty_due) }}
                   </td>
                   <td class="px-3 py-3 text-right font-bold">
                     {{ currency }} {{ fmt(scheduleTotals.total_due) }}
                   </td>
-                  <td class="px-3 py-3 text-right">
+                  <td class="px-3 py-3 text-right text-emerald-600 dark:text-emerald-400">
                     {{ currency }} {{ fmt(scheduleTotals.total_paid) }}
                   </td>
-                  <td class="px-3 py-3 text-right">
+                  <td class="px-3 py-3 text-right font-bold">
                     {{ currency }} {{ fmt(scheduleTotals.total_due - scheduleTotals.total_paid) }}
                   </td>
                   <td colspan="4"></td>
@@ -962,8 +965,19 @@ async function handleReceiveCashSubmit(data: any) {
       <!-- ── Transaction History ── -->
       <div v-if="activeTab === 'transactions'" class="space-y-4">
         <div
-          class="rounded-2xl border border-neutral-100 bg-white dark:border-neutral-800 dark:bg-neutral-900 overflow-hidden"
+          class="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
         >
+          <div class="border-b border-neutral-200 px-4 py-3 dark:border-neutral-800 flex items-center justify-between">
+            <h3 class="text-[13px] font-semibold text-neutral-900 dark:text-white">
+              Transaction History
+            </h3>
+            <span
+              v-if="repayments.length"
+              class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+            >
+              {{ repaymentsMeta.total }} transactions
+            </span>
+          </div>
           <div
             v-if="!repayments.length"
             class="flex flex-col items-center justify-center py-12 text-neutral-400 gap-2"
@@ -1012,7 +1026,7 @@ async function handleReceiveCashSubmit(data: any) {
               <tr
                 v-for="txn in repayments"
                 :key="txn.id"
-                class="hover:bg-neutral-50 dark:hover:bg-neutral-800/40"
+                class="even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900 hover:bg-neutral-100/50 dark:hover:bg-neutral-800/50 transition-colors"
               >
                 <td class="px-4 py-3 font-mono text-xs text-neutral-500">
                   {{ txn.receipt_no ?? txn.payment_id }}
@@ -1154,38 +1168,33 @@ async function handleReceiveCashSubmit(data: any) {
 
 
         <!-- ── Product Charges & Fees ── -->
-        <div v-if="loan.loan_product?.charges?.length">
-          <div class="flex items-center justify-between mb-2">
-            <h3
-              class="text-xs font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500"
-            >
+        <div v-if="loan.loan_product?.charges?.length" class="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+          <div class="border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
+            <h3 class="text-[13px] font-semibold text-neutral-900 dark:text-white">
               Product Charges & Fees
-              <span class="ml-1 normal-case font-normal text-neutral-400"
-                >— template from loan product</span
-              >
             </h3>
           </div>
-          <div class="overflow-x-auto rounded-xl border border-neutral-100 dark:border-neutral-800">
-            <table class="w-full text-xs">
+          <div class="overflow-x-auto">
+            <table class="w-full text-[13px]">
               <thead
-                class="bg-neutral-50 dark:bg-neutral-800/60 font-semibold text-neutral-600 dark:text-neutral-400"
+                class="bg-neutral-50 dark:bg-neutral-800/60 border-b border-neutral-100 dark:border-neutral-800"
               >
                 <tr>
-                  <th class="px-4 py-2.5 text-left">Charge Name</th>
-                  <th class="px-4 py-2.5 text-left">Type</th>
-                  <th class="px-4 py-2.5 text-right">Amount</th>
+                  <th class="px-4 py-3 text-left font-bold text-neutral-900 dark:text-neutral-100">Charge Name</th>
+                  <th class="px-4 py-3 text-left font-bold text-neutral-900 dark:text-neutral-100">Type</th>
+                  <th class="px-4 py-3 text-right font-bold text-neutral-900 dark:text-neutral-100">Amount</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
                 <tr
                   v-for="charge in loan.loan_product.charges"
                   :key="charge.id"
-                  class="hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors"
+                  class="even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900 hover:bg-neutral-100/50 dark:hover:bg-neutral-800/50 transition-colors"
                 >
-                  <td class="px-4 py-2.5 font-medium text-neutral-800 dark:text-neutral-200">
+                  <td class="px-4 py-3 font-medium text-neutral-800 dark:text-neutral-200">
                     {{ charge.name }}
                   </td>
-                  <td class="px-4 py-2.5 capitalize text-neutral-500">
+                  <td class="px-4 py-3 capitalize text-neutral-500">
                     {{ charge.charge_type?.replace(/_/g, ' ') }}
                   </td>
                   <td class="px-4 py-2.5 text-right font-medium">
@@ -1216,19 +1225,16 @@ async function handleReceiveCashSubmit(data: any) {
         </div>
 
         <!-- ── On-Disbursement Charges ── -->
-        <div v-if="disbursementCharges.length">
-          <h3
-            class="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500"
-          >
-            Disbursement Charges
-            <span class="ml-1 normal-case font-normal text-neutral-400"
-              >— collected at time of disbursement</span
-            >
-          </h3>
-          <div class="overflow-x-auto rounded-xl border border-neutral-100 dark:border-neutral-800">
-            <table class="w-full text-xs">
+        <div v-if="disbursementCharges.length" class="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+          <div class="border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
+            <h3 class="text-[13px] font-semibold text-neutral-900 dark:text-white">
+              Disbursement Charges
+            </h3>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-[13px]">
               <thead
-                class="bg-neutral-50 dark:bg-neutral-800/60 font-semibold text-neutral-600 dark:text-neutral-400"
+                class="bg-neutral-50/80 dark:bg-neutral-800/60 font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider text-[11px] border-b border-neutral-100 dark:border-neutral-800"
               >
                 <tr>
                   <th class="px-4 py-2.5 text-left">Charge</th>
@@ -1239,12 +1245,12 @@ async function handleReceiveCashSubmit(data: any) {
                 </tr>
               </thead>
               <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
-                <tr
-                  v-for="charge in disbursementCharges"
-                  :key="charge.id"
-                  class="hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors"
-                  :class="charge.is_waived ? 'opacity-50' : ''"
-                >
+                  <tr
+                    v-for="charge in disbursementCharges"
+                    :key="charge.id"
+                    class="even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900 hover:bg-neutral-100/50 dark:hover:bg-neutral-800/50 transition-colors"
+                    :class="charge.is_waived ? 'opacity-50' : ''"
+                  >
                   <td class="px-4 py-2.5 font-medium text-neutral-800 dark:text-neutral-200">
                     {{ charge.name }}
                     <span v-if="charge.is_mandatory" class="ml-1 text-[10px] text-neutral-400"
@@ -1294,19 +1300,16 @@ async function handleReceiveCashSubmit(data: any) {
         </div>
 
         <!-- ── On-Repayment Charges ── -->
-        <div v-if="repaymentCharges.length">
-          <h3
-            class="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500"
-          >
-            Repayment Charges
-            <span class="ml-1 normal-case font-normal text-neutral-400"
-              >— collected with each installment</span
-            >
-          </h3>
-          <div class="overflow-x-auto rounded-xl border border-neutral-100 dark:border-neutral-800">
-            <table class="w-full text-xs">
+        <div v-if="repaymentCharges.length" class="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+          <div class="border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
+            <h3 class="text-[13px] font-semibold text-neutral-900 dark:text-white">
+              Repayment Charges
+            </h3>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-[13px]">
               <thead
-                class="bg-neutral-50 dark:bg-neutral-800/60 font-semibold text-neutral-600 dark:text-neutral-400"
+                class="bg-neutral-50/80 dark:bg-neutral-800/60 font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider text-[11px] border-b border-neutral-100 dark:border-neutral-800"
               >
                 <tr>
                   <th class="px-4 py-2.5 text-left">Charge</th>
@@ -1318,12 +1321,12 @@ async function handleReceiveCashSubmit(data: any) {
                 </tr>
               </thead>
               <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
-                <tr
-                  v-for="charge in repaymentCharges"
-                  :key="charge.id"
-                  class="hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors"
-                  :class="charge.is_waived ? 'opacity-50' : ''"
-                >
+                  <tr
+                    v-for="charge in repaymentCharges"
+                    :key="charge.id"
+                    class="even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900 hover:bg-neutral-100/50 dark:hover:bg-neutral-800/50 transition-colors"
+                    :class="charge.is_waived ? 'opacity-50' : ''"
+                  >
                   <td class="px-4 py-2.5 font-medium text-neutral-800 dark:text-neutral-200">
                     {{ charge.name }}
                   </td>
@@ -1381,47 +1384,38 @@ async function handleReceiveCashSubmit(data: any) {
         </div>
 
         <!-- ── Penalty Timeline ── -->
-        <div>
-          <div class="mb-2 flex items-center justify-between">
-            <h3
-              class="text-xs font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500"
-            >
+        <div v-if="arrearsRows.length" class="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+          <div class="border-b border-neutral-200 px-4 py-3 dark:border-neutral-800 flex items-center justify-between">
+            <h3 class="text-[13px] font-semibold text-neutral-900 dark:text-white">
               Penalty Timeline
             </h3>
             <span
               v-if="penaltyRuleLabel"
-              class="text-[11px] text-neutral-400 dark:text-neutral-500"
+              class="inline-flex items-center gap-1 rounded-full bg-orange-50 px-2.5 py-0.5 text-[11px] font-bold text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
             >
-              Rule:
-              <span class="font-medium text-neutral-600 dark:text-neutral-300">{{
-                penaltyRuleLabel
-              }}</span>
+              Arrears Rule: {{ penaltyRuleLabel }}
             </span>
           </div>
-
-          <div
-            v-if="overdueRows.length"
-            class="overflow-x-auto rounded-xl border border-neutral-100 dark:border-neutral-800"
-          >
-            <table class="w-full text-xs">
+          <div class="overflow-x-auto">
+            <table class="w-full text-[13px]">
               <thead
-                class="bg-neutral-50 dark:bg-neutral-800/60 font-semibold text-neutral-600 dark:text-neutral-400"
+                class="bg-neutral-50/80 dark:bg-neutral-800/60 font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider text-[11px] border-b border-neutral-100 dark:border-neutral-800"
               >
                 <tr>
-                  <th class="px-4 py-2.5 text-left">#</th>
-                  <th class="px-4 py-2.5 text-left">Due Date</th>
-                  <th class="px-4 py-2.5 text-right">Days Overdue</th>
-                  <th class="px-4 py-2.5 text-right">Principal Outstanding</th>
-                  <th class="px-4 py-2.5 text-right">Penalty Accrued</th>
-                  <th class="px-4 py-2.5 text-right">Penalty Paid</th>
-                  <th class="px-4 py-2.5 text-right">Penalty Due</th>
+                  <th class="px-4 py-3 text-left">#</th>
+                  <th class="px-4 py-3 text-left">Due Date</th>
+                  <th class="px-4 py-3 text-right">Arrears Days</th>
+                  <th class="px-4 py-3 text-right">Principal Outstanding</th>
+                  <th class="px-4 py-3 text-right">Penalty Accrued</th>
+                  <th class="px-4 py-3 text-right">Penalty Paid</th>
+                  <th class="px-4 py-3 text-right">Penalty Due</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
                 <tr
-                  v-for="row in overdueRows"
+                  v-for="row in arrearsRows"
                   :key="row.id"
-                  class="hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors"
+                  class="even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900 hover:bg-neutral-100/50 dark:hover:bg-neutral-800/50 transition-colors"
                 >
                   <td class="px-4 py-2.5 text-neutral-500">{{ row.installment_no }}</td>
                   <td class="px-4 py-2.5 text-neutral-700 dark:text-neutral-300">
@@ -1479,15 +1473,12 @@ async function handleReceiveCashSubmit(data: any) {
               </tfoot>
             </table>
           </div>
-
-          <!-- No penalties yet -->
-          <div
-            v-else
-            class="flex flex-col items-center justify-center rounded-xl border border-dashed border-neutral-200 py-8 text-neutral-400 gap-2 dark:border-neutral-700"
-          >
-            <CheckCircle2 class="h-7 w-7 text-emerald-400" />
-            <p class="text-sm">No overdue installments — no penalties accrued.</p>
-          </div>
+        </div><div
+          v-else
+          class="flex flex-col items-center justify-center rounded-xl border border-dashed border-neutral-200 py-8 text-neutral-400 gap-2 dark:border-neutral-700"
+        >
+          <CheckCircle2 class="h-7 w-7 text-emerald-400" />
+          <p class="text-sm">No arrears installments — no penalties accrued.</p>
         </div>
       </div>
 

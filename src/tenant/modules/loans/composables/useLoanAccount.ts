@@ -7,7 +7,10 @@ import {
   type LoanTransaction,
 } from '@/tenant/apis/loans/loansApi'
 
-export function useLoanAccount(loanId: number) {
+export function useLoanAccount(loanId: number | null) {
+  const resolvedLoanId =
+    typeof loanId === 'number' && Number.isFinite(loanId) && loanId > 0 ? loanId : null
+
   const loading = ref(false)
   const loan = ref<LoanDetail | null>(null)
   const schedule = ref<LoanScheduleEntry[]>([])
@@ -18,17 +21,20 @@ export function useLoanAccount(loanId: number) {
   >('schedule')
 
   async function fetchLoan() {
-    const res = await loansApi.get(loanId)
+    if (!resolvedLoanId) return
+    const res = await loansApi.get(resolvedLoanId)
     loan.value = res.data.data
   }
 
   async function fetchSchedule() {
-    const res = await loansApi.getSchedule(loanId)
+    if (!resolvedLoanId) return
+    const res = await loansApi.getSchedule(resolvedLoanId)
     schedule.value = res.data.data ?? []
   }
 
   async function fetchRepayments(page = 1) {
-    const res = await loansApi.getRepayments(loanId, {
+    if (!resolvedLoanId) return
+    const res = await loansApi.getRepayments(resolvedLoanId, {
       page,
       per_page: repaymentsMeta.value.per_page,
     })
@@ -37,6 +43,7 @@ export function useLoanAccount(loanId: number) {
   }
 
   async function load() {
+    if (!resolvedLoanId) return
     loading.value = true
     try {
       await Promise.all([fetchLoan(), fetchSchedule(), fetchRepayments()])
@@ -48,6 +55,7 @@ export function useLoanAccount(loanId: number) {
   }
 
   async function refresh() {
+    if (!resolvedLoanId) return
     try {
       await Promise.all([
         fetchLoan(),

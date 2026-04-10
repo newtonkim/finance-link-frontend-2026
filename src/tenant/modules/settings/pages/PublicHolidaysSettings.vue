@@ -8,6 +8,8 @@ import { toast } from 'vue-sonner'
 const holidays = ref<(PublicHoliday & { isNew?: boolean; isDeleted?: boolean })[]>([])
 const initialHolidays = ref<string>('')
 const pushHolidays = ref(false)
+const pushHolidaysWeekdaysOnly = ref(false)
+const relativeScheduling = ref(false)
 const isLoading = ref(false)
 const isSaving = ref(false)
 
@@ -27,7 +29,17 @@ async function fetchHolidays() {
   try {
     const response = await publicHolidaysApi.list()
     holidays.value = response.data.data
-    pushHolidays.value = response.data.settings.push_installments_on_holidays
+    const settings = response.data.settings
+    pushHolidays.value = settings.push_installments_on_holidays
+
+    if (typeof settings.push_installments_on_holidays_weekdays_only === 'boolean') {
+      pushHolidaysWeekdaysOnly.value = settings.push_installments_on_holidays_weekdays_only
+    }
+
+    if (typeof settings.relative_scheduling === 'boolean') {
+      relativeScheduling.value = settings.relative_scheduling
+    }
+
     initialHolidays.value = JSON.stringify(holidays.value)
   } catch (error) {
     console.error('Failed to fetch holidays:', error)
@@ -41,7 +53,7 @@ function addHoliday() {
   holidays.value.push({
     id: Date.now(), // Temporary ID for Vue :key
     name: 'New Holiday',
-    date: new Date().toISOString().split('T')[0],
+    date: new Date().toISOString().slice(0, 10),
     recurring: false,
     isNew: true
   })
@@ -58,7 +70,7 @@ function removeHoliday(h: any) {
 
 async function confirmDelete() {
   if (!holidayToDelete.value) return
-  
+
   try {
     const h = holidayToDelete.value
     await publicHolidaysApi.delete(h.id)
@@ -78,7 +90,9 @@ async function saveAll() {
   try {
     // 1. Save global settings
     await publicHolidaysApi.updateSettings({
-      push_installments_on_holidays: pushHolidays.value
+      push_installments_on_holidays: pushHolidays.value,
+      push_installments_on_holidays_weekdays_only: pushHolidaysWeekdaysOnly.value,
+      relative_scheduling: relativeScheduling.value
     })
 
     // 2. Sync holidays
@@ -117,7 +131,7 @@ function formatDisplayDate(h: PublicHoliday) {
     const d = new Date(h.date)
     const month = d.toLocaleString('en-US', { month: 'short' })
     const day = d.getDate()
-    
+
     // Add ordinal suffix (1st, 2nd, 3rd, 4th...)
     const suffix = (day: number) => {
         if (day > 3 && day < 21) return 'th';
@@ -128,10 +142,34 @@ function formatDisplayDate(h: PublicHoliday) {
             default: return "th";
         }
     }
-    
+
     return `Every ${month} ${day}${suffix(day)}`
   }
   return h.date
+}
+
+function togglePushHolidays() {
+  pushHolidays.value = !pushHolidays.value
+  if (pushHolidays.value) {
+    pushHolidaysWeekdaysOnly.value = false
+    relativeScheduling.value = false
+  }
+}
+
+function togglePushHolidaysWeekdaysOnly() {
+  pushHolidaysWeekdaysOnly.value = !pushHolidaysWeekdaysOnly.value
+  if (pushHolidaysWeekdaysOnly.value) {
+    pushHolidays.value = false
+    relativeScheduling.value = false
+  }
+}
+
+function toggleRelativeScheduling() {
+  relativeScheduling.value = !relativeScheduling.value
+  if (relativeScheduling.value) {
+    pushHolidays.value = false
+    pushHolidaysWeekdaysOnly.value = false
+  }
 }
 
 onMounted(fetchHolidays)
@@ -160,7 +198,7 @@ const selectCls =
             </p>
             </div>
         </div>
-        
+
         <div v-if="isSaving" class="flex items-center gap-2 text-xs text-neutral-500 animate-pulse">
             <Loader2 class="h-4 w-4 animate-spin" />
             Saving changes...
@@ -168,33 +206,93 @@ const selectCls =
       </div>
     </div>
 
-    <!-- Scheduling Automation Setting (Top Priority Setting) -->
-    <div
-      class="rounded-2xl border border-nfuko-primary/10 bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)] dark:border-neutral-800 dark:bg-neutral-900"
-    >
-      <div class="flex items-center justify-between">
-        <div class="flex items-start gap-3">
-          <div class="mt-1 rounded-lg bg-nfuko-primary/5 p-2 dark:bg-nfuko-yellow/5">
-            <ShieldCheck class="h-5 w-5 text-nfuko-primary dark:text-nfuko-yellow" />
+    <!-- Scheduling Automation Settings -->
+    <div class="space-y-4">
+      <div
+        class="rounded-2xl border border-nfuko-primary/10 bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)] dark:border-neutral-800 dark:bg-neutral-900"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-start gap-3">
+            <div class="mt-1 rounded-lg bg-nfuko-primary/5 p-2 dark:bg-nfuko-yellow/5">
+              <ShieldCheck class="h-5 w-5 text-nfuko-primary dark:text-nfuko-yellow" />
+            </div>
+            <div>
+              <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">Repayment Scheduling Logic <span class="text-orange-500">(push also weekends)</span></h3>
+              <p class="text-xs text-neutral-500 dark:text-neutral-400 max-w-lg">
+                When enabled, any loan repayment installment that falls on a public holiday (or weekend) will be automatically pushed to the next available working day.
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">Repayment Scheduling Logic</h3>
-            <p class="text-xs text-neutral-500 dark:text-neutral-400 max-w-lg">
-              When enabled, any loan repayment installment that falls on a public holiday (or weekend) will be automatically pushed to the next available working day.
-            </p>
-          </div>
+          <button
+            type="button"
+            @click="togglePushHolidays"
+            class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300"
+            :class="pushHolidays ? 'bg-nfuko-primary dark:bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'"
+          >
+            <span
+              class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-300"
+              :class="pushHolidays ? 'translate-x-6' : 'translate-x-1'"
+            />
+          </button>
         </div>
-        <button
-          type="button"
-          @click="pushHolidays = !pushHolidays"
-          class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300"
-          :class="pushHolidays ? 'bg-nfuko-primary dark:bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'"
-        >
-          <span
-            class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-300"
-            :class="pushHolidays ? 'translate-x-6' : 'translate-x-1'"
-          />
-        </button>
+      </div>
+
+      <div
+        class="rounded-2xl border border-nfuko-primary/10 bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)] dark:border-neutral-800 dark:bg-neutral-900"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-start gap-3">
+            <div class="mt-1 rounded-lg bg-nfuko-primary/5 p-2 dark:bg-nfuko-yellow/5">
+              <ShieldCheck class="h-5 w-5 text-nfuko-primary dark:text-nfuko-yellow" />
+            </div>
+            <div>
+              <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">Repayment Scheduling Logic <span class="text-orange-500">(Only Public Holidays No Weekends)</span></h3>
+              <p class="text-xs text-neutral-500 dark:text-neutral-400 max-w-lg">
+                When enabled, any loan repayment installment that falls on a public holiday will be automatically pushed to the next available working day. No pushing weekends.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            @click="togglePushHolidaysWeekdaysOnly"
+            class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300"
+            :class="pushHolidaysWeekdaysOnly ? 'bg-nfuko-primary dark:bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'"
+          >
+            <span
+              class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-300"
+              :class="pushHolidaysWeekdaysOnly ? 'translate-x-6' : 'translate-x-1'"
+            />
+          </button>
+        </div>
+      </div>
+
+      <div
+        class="rounded-2xl border border-nfuko-primary/10 bg-white p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)] dark:border-neutral-800 dark:bg-neutral-900"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-start gap-3">
+            <div class="mt-1 rounded-lg bg-nfuko-primary/5 p-2 dark:bg-nfuko-yellow/5">
+              <ShieldCheck class="h-5 w-5 text-nfuko-primary dark:text-nfuko-yellow" />
+            </div>
+            <div>
+              <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">Repayment Scheduling Logic <span class="text-orange-500">(Relative Scheduling) Rearranges schedule when public holiday is reached</span></h3>
+              <p class="text-xs text-neutral-500 dark:text-neutral-400 max-w-lg">
+                This setting, when enabled, implements relative scheduling logic: if Instalment 1 shifts from April 3 to April 7, Instalment 2 becomes May 7, Instalment 3 becomes June 7, and so on. This schedule creep causes drifting due dates that can disrupt member salary cycles.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            @click="toggleRelativeScheduling"
+            class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300"
+            :class="relativeScheduling ? 'bg-nfuko-primary dark:bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'"
+          >
+            <span
+              class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-300"
+              :class="relativeScheduling ? 'translate-x-6' : 'translate-x-1'"
+            />
+          </button>
+        </div>
       </div>
     </div>
 

@@ -124,9 +124,7 @@ const { displayAmount } = useLoanApplicationHelpers()
     v-else-if="application.status === 'officer_recommended'"
     class="rounded-2xl border border-blue-100 bg-blue-50/50 p-5 dark:border-blue-900/40 dark:bg-blue-900/10"
   >
-    <p class="mb-1 text-sm font-semibold text-blue-800 dark:text-blue-300">
-      Branch Manager Review
-    </p>
+    <p class="mb-1 text-sm font-semibold text-blue-800 dark:text-blue-300">Branch Manager Review</p>
     <p class="mb-4 text-xs text-blue-600 dark:text-blue-400">
       Loan Officer has recommended
       <strong>{{
@@ -208,10 +206,10 @@ const { displayAmount } = useLoanApplicationHelpers()
   <!-- Recommended (legacy simple flow): approval panel -->
   <div
     v-else-if="application.status === 'recommended'"
-    class="rounded-2xl border border-purple-100 bg-purple-50/50 p-5 dark:border-purple-900/40 dark:bg-purple-900/10"
+    class="rounded-2xl border border-blue-100 bg-blue-50/50 p-5 dark:border-blue-900/40 dark:bg-blue-900/10"
   >
-    <p class="mb-1 text-sm font-semibold text-purple-800 dark:text-purple-300">Approval Decision</p>
-    <p class="mb-4 text-xs text-purple-600 dark:text-purple-400">
+    <p class="mb-1 text-sm font-semibold text-[#0047AB] dark:text-blue-300">Approval Decision</p>
+    <p class="mb-4 text-xs text-blue-600 dark:text-blue-400">
       Recommended
       <strong>{{
         displayAmount(application.recommended_amount_formatted, application.recommended_amount)

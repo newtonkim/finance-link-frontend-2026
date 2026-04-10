@@ -9,6 +9,8 @@ export interface PublicHoliday {
 
 export interface HolidaySettings {
   push_installments_on_holidays: boolean
+  push_installments_on_holidays_weekdays_only?: boolean
+  relative_scheduling?: boolean
 }
 
 export const publicHolidaysApi = {
