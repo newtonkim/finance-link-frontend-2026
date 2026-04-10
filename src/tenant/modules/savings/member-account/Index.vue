@@ -197,7 +197,7 @@ const formData = ref<Record<string, any>>({}),
   filters = ["all", "active", "suspended", "expired", "trial"],
   tableUrl = computed(() => `/members-account/list?status=${statusFilter.value}`),
   title: Record<string, string> = {
-    view: { title: "Viewmember saving's Account Details", width: "w-2/3" },
+    view: { title: "View member saving's Account Details", width: "w-2/3" },
     edit: { title: "Edit member saving's Account", width: "w-2/3" },
     add: { title: "Create a member saving's Account", width: "w-2/4" },
     deposit: {

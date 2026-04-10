@@ -25,7 +25,7 @@ export function memberAccountApi() {
       props: {
         url: 'members-account/create',
         method: 'post',
-        time: 0,
+      time: 0,
         state: 'memberAccountList',
       },
     })

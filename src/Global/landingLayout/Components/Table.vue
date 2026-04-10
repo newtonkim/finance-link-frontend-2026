@@ -37,6 +37,7 @@
           </td>
         </tr>
         <tr v-for="(item, idx) in dataFilter" :key="item?.id ?? idx" :class="[
+        'hover:bg-nfuko-action/2 dark:hover:bg-neutral-800  hover:shadow-sm  hover:cursor-pointer transition-all duration-200',
           rowClass,
           Number(idx) < dataFilter.length - 1 ? 'border-b border-neutral-50 dark:border-neutral-800' : ''
 

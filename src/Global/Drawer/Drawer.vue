@@ -4,13 +4,13 @@
       side="right"
       :class="[
         props.width,
-        'sm:max-w-none bg-white dark:bg-neutral-900',
+        'sm:max-w-none bg-gray-50 dark:bg-neutral-900',
         'transition-all duration-300 ease-in-out',
         props.open ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0',
       ]"
       @click.stop
     >
-      <SheetHeader class="p-6 border-b border-neutral-100 dark:border-neutral-800">
+      <SheetHeader class="py-4 border-b border-neutral-100 dark:border-neutral-800">
         <SheetTitle class="text-xl font-bold text-neutral-900 dark:text-white capitalize">
           {{ props.title ? `${props.title}`.toLocaleLowerCase() : "" }}
         </SheetTitle>
@@ -18,7 +18,7 @@
       <div class="">
         <form @submit.prevent="handleSave" class="flex flex-col h-screen">
           <div
-            class="flex- overflow-auto p-5 py-2 border-b border-neutral-100 dark:border-neutral-800 h-[96vh] overflow-auto"
+            class="flex- overflow-auto px-4 py-1  border-b border-neutral-100 dark:border-neutral-800 h-[96vh] overflow-auto"
           >
             <slot name="body" />
           </div>
