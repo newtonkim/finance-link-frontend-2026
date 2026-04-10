@@ -83,7 +83,7 @@ const triggerAction: Record<string, Function> = {
       return item;
     });
 
-    if(selectedpermission.length == 0) return
+    if(selectedpermission?.length == 0) return
     await create(formData.value);
     formData.value = {};
   },

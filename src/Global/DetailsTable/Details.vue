@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-4 h-screen flex flex-col overflow-hidden p-2">
+  <div class="space-y-4 flex flex-col overflow-hidden p-2">
 
     <div
       v-for="(section, sIndex) in columns"

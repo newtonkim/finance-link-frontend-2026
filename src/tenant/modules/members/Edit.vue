@@ -20,7 +20,29 @@ const props = defineProps({
   },
 })
 const fields = ref([
+  
+])
+watch(() => additionalForm.value, (val) => {
+  const field = fields.value.find(f => f.name === 'shares_quantity')
+  if (field) {
+    field.value = val.shares_quantity
+  } else {
+    fields.value.push({
+      name: 'shares_quantity',
+      value: val.shares_quantity,
+      required: true,
+      type: 'text',
+      hidden: true
+    })
+  }
+}, { deep: true })
+
+async function promtValueOnUpdate() {
+  loading.value = true
+  if (props.data) {
+  fields.value=  [
    {
+    hidden:true,
     label: 'id',
     name: 'id',
     type: 'text',
@@ -215,35 +237,10 @@ const fields = ref([
     placeholder: 'Referred by',
     dataOnMount: true,
   },
-]);
-
-watch(() => additionalForm.value, (val) => {
-  const field = fields.value.find(f => f.name === 'shares_quantity')
-  if (field) {
-    field.value = val.shares_quantity
-  } else {
-    fields.value.push({
-      name: 'shares_quantity',
-      value: val.shares_quantity,
-      required: true,
-      type: 'text',
-      hidden: true
-    })
-  }
-}, { deep: true })
-
-async function promtValueOnUpdate() {
-  loading.value = true
-  if (props.data) {
-    const data = { tenant_id: props.data.tenant_id, plan: props.data.plan_id, date: [props.data.starts, props.data.expires], status: props.data.status }
-    await Object.entries(data).forEach(([key, value]) => {
-      const field = fields.value.find((f: any) => f.name === key)
-      if (field) field.value = value
-    });
-
-  } else {
-    additionalForm.value = {}
-  }
+]
+   
+additionalForm.shares_quantity=props.data?.share_no
+  }  
   loading.value = false
 }
 
@@ -284,25 +281,25 @@ watch(
               }
             ],
           }
-        },
-         {
-          label: 'opening balance',
-          name: 'opening_balance',
-          type: 'money',
-          value:props.data.opening_balnace,
-          required: true,
-          placeholder: 'Enter opening balance',
-          dependsOn: {
-            conditions: [
-              {
-                field: 'member_type',
-                condition: (val: any) => val === 'new_member'
-              }
-            ],
-
-
-          },
         }
+        //  {
+        //   label: 'opening balance',
+        //   name: 'opening_balance',
+        //   type: 'money',
+        //   value:props.data.opening_balnace,
+        //   required: true,
+        //   placeholder: 'Enter opening balance',
+        //   dependsOn: {
+        //     conditions: [
+        //       {
+        //         field: 'member_type',
+        //         condition: (val: any) => val === 'new_member'
+        //       }
+        //     ],
+
+
+        //   },
+        // }
         ,)
       }
     }
@@ -332,11 +329,12 @@ watch(
 onMounted(() => {
   promtValueOnUpdate()
   checkForSettings()
-  console.log(props.data);
+  // console.log(props.data);
   
 })
 </script>
-<template>{{ props.data }}
+<template>
+<!-- {{ props.data }} -->
   <div class="card shadow-md p-4  bg-white dark:bg-neutral-800 rounded-md h-[85vh] overflow-y-auto">
     <span v-if='loadingMount'></span>
     <Form :action="data?.action" v-else parentStyle="grid  grid-cols-2 gap-4 md:gap-6" v-model:form="fields" />
