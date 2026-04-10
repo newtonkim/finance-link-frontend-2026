@@ -53,6 +53,7 @@ const formatCleanDate = (date) => {
 }
 </script>
 <template>
+    
     <div class="w-full lg:w-[280px] shrink-0 flex flex-col gap-6">
         <!-- Member Card -->
         <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
