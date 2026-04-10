@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router';
-import { Edit, Star } from 'lucide-vue-next';
-import { formatCurrency, NameInitials } from '@/Global';
 import { computed } from 'vue';
+import { Edit, Star } from 'lucide-vue-next';
+import { formatCurrency, NameInitials,SearchableSelect } from '@/Global';
+import { memberProfileApi } from '@/tenant/apis/savings/member-profileApi';
 
 const props = defineProps<{
     member: Record<string, any>;
@@ -12,9 +13,26 @@ const props = defineProps<{
     formatDate: (d?: string) => string;
 }>();
 
+const { ChangMemberStatus } = memberProfileApi();
+
+// 0759919211
 const emit = defineEmits<{
     avatarClick: [];
 }>();
+const memberStatues = computed(() => [
+      {
+        name: "Rejected",
+        id: 'rejected',
+    },
+    {
+        name: "Pending",
+        id: 'pending',
+    },
+    {
+        name: "Active",
+        id: 'active',
+    },
+])
 const quickInfo = computed(() => [
     {
         label: "Date of Birth",
@@ -137,15 +155,7 @@ const formatCleanDate = (date) => {
                     </div>
                 </div>
             </div>
-
-            <!-- Edit Profile Button -->
-            <div class="px-5 pb-6">
-                <RouterLink :to="`/tenant/members/${member.id}/edit`"
-                    class="flex items-center justify-center gap-2 w-full py-[11px] rounded-[20px] text-[13px] font-semibold text-[#546576] border border-gray-200 hover:bg-gray-50 transition-all">
-                    <Edit :size="15" />
-                    Edit Profile
-                </RouterLink>
-            </div>
+ 
         </div>
         <div class="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
             <h3 class="text-[12px] font-bold text-[#64748b] uppercase tracking-wider mb-5">
@@ -153,6 +163,19 @@ const formatCleanDate = (date) => {
             </h3>
 
             <div class="space-y-[18px]">
+                 <SearchableSelect
+                label="status"
+                name="status"
+                type="select"
+                required 
+                :options="memberStatues"
+                v-model="member.status"
+                :value="member.status"
+                 @update:modelValue="(val) => ChangMemberStatus({id:member.id,code:member.memeber_code,status:val})"
+                placeholder="Select status"
+                dataOnMount
+            
+             />
                 <div v-for="(item, index) in quickInfo" :key="index" :class="[
                     'flex justify-between items-center',
                     item.border ? 'pt-1 border-t border-gray-100 mt-1' : ''
@@ -165,6 +188,7 @@ const formatCleanDate = (date) => {
                         {{ item.value }}
                     </span>
                 </div>
+                
             </div>
         </div>
 

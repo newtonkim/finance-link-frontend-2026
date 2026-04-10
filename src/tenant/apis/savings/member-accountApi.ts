@@ -3,7 +3,7 @@ import { notify } from '@/Global/Toasters'
 import { pomPinia } from 'septor-store'
 export function memberAccountApi() {
   const Store = pomPinia()
-  async function memebrAccountDepositAmount(data: any, outletAction: any) {
+  async function memberAccountDepositAmount(data: any, outletAction: any) {
     const dataPrepare = data
     dataPrepare.push(
       { value: 'depositing', name: 'new_account', hidden: true },
@@ -54,7 +54,7 @@ export function memberAccountApi() {
        return true
  }, cancel: () => {} })
   }
-  async function memebrAccountWithdrawalAmount(data: any, outletAction: any) {
+  async function memberAccountWithdrawalAmount(data: any, outletAction: any) {
     const dataPrepare = data
     dataPrepare.push({ name: 'account_id', value: outletAction?.id, hidden: true })
     const unique = Object.values(
@@ -96,7 +96,7 @@ export function memberAccountApi() {
 
   return {
     getProductCharges,
-    memebrAccountDepositAmount,memebrAccountReversalAmount,
-    memebrAccountWithdrawalAmount,
+    memberAccountDepositAmount,memebrAccountReversalAmount,
+    memberAccountWithdrawalAmount,
   }
 }

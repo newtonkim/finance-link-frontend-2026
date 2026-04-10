@@ -42,10 +42,7 @@ async function initialize() {
         const element = member_details[key];
         data[key] = element;
     }
-    console.log(member_details);
-
     profileDetails.value = { details: data, accounts: member_accounts };
-
     pageLoading.value = false;
 }
 
@@ -197,7 +194,7 @@ const columns = [
                     <!-- Accounts table -->
                     <div v-if="profileDetails?.accounts">
 
-                        <MemberAccountsTable :accounts="profileDetails.accounts ?? []" :currency-code="currencyCode"
+                        <MemberAccountsTable @reload="initialize" :member="profileDetails?.details ?? {}"   :accounts="profileDetails.accounts ?? []" :currency-code="currencyCode"
                             :format-currency="formatCurrency" @new-account="newAccountDrawer?.openDrawer()"
                             @custom-fee="(account) => customFeeDrawer?.openDrawer(account)" />
                     </div>
