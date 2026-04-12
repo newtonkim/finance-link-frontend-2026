@@ -56,7 +56,7 @@ function toggleDarkMode() {
         </SidebarHeader>
 
         <SidebarContent class="px-3 flex flex-col flex-1">
-            <OutClickNav class="flex-1 h-full" :links="centarRoutes" />
+            <OutClickNav class="flex-1 h-full" :links="centarRoutes" prefix="central" />
         </SidebarContent>
 
         <SidebarFooter class="p-4 mt-auto">
