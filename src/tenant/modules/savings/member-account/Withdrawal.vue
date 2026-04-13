@@ -1,9 +1,9 @@
 <template>
-    <div class="card shadow-md px-4 h-full bg-white dark:bg-neutral-800 rounded-md" v-if="fields?.length">
+    <div class="card shadow-sm px-4 h-full bg-white dark:bg-neutral-800 rounded-md" v-if="fields?.length">
         <div class="  mb-6">
             <DetailsTable :data="props.data" :columns="columns" />
         </div>
-        <Form :action="data.action" parentStyle="grid  grid-cols-1 gap-4 md:gap-6" v-model:form="fields" />
+        <Form :action="data.action" parentStyle="grid  grid-cols-2 gap-4 px-2 md:gap-6" v-model:form="fields" />
     </div>
 </template>
 <script setup lang="ts">
@@ -31,6 +31,14 @@ const emits = defineEmits(['update:form']),
     },
     ],
     fields = ref<any>([]);
+const paymentModeOptions = [
+    { id: 'cash', name: 'Cash' },
+    { id: 'bank_transfer', name: 'Bank Transfer' },
+    { id: 'mobile_money', name: 'Mobile Money' },
+    { id: 'cheque', name: 'Cheque' },
+    { id: 'teller', name: 'Teller' },
+    { id: 'ussd', name: 'USSD' },
+];
 function initialize() {
     fields.value = [
         {
@@ -49,6 +57,21 @@ function initialize() {
             placeholder: 'Amount to withdraw',
             value: new Date().toISOString().split('T')[0],
 
+        },
+        {
+            label: 'payment mode',
+            name: 'payment_method',
+            type: 'select',
+            required: false,
+            options: paymentModeOptions,
+            placeholder: 'method of payment',
+        },
+        {
+            label: 'Transaction Reference',
+            name: 'transaction_reference',
+            type: 'text',
+            required: false,
+            placeholder: 'Transaction Reference',
         },
         {
             label: 'withdrawal by',

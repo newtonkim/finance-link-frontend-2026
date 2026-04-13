@@ -26,7 +26,6 @@ const loadingMount = computed(() => loading.value), emits = defineEmits(['update
         required: true,
         value: '',
         props: { placeholder: 'Select Start & End Dates' },
-        options: [] as any[], // Add options property to avoid type errors when spreading
     },
     {
         label: 'password',

@@ -103,7 +103,7 @@ export default function useTableHelpers(props: any, emit: any) {
   }
 
   const toggleDrawer = () => {
-    console.log(  drawerOpen.value );
+    // console.log(  drawerOpen.value );
     
     drawerOpen.value = !drawerOpen.value
     if (drawerOpen.value) {
@@ -295,12 +295,13 @@ export default function useTableHelpers(props: any, emit: any) {
     save(data, type)
   }
   const dataFilter = computed(() => {
+    // alert(props?.state)
     const collection = (props?.state
       ? (Store[props.state as keyof typeof Store] as any)?.payload
       : null) ??
       props.data ?? { data: [] }
 
-    return dataTabelFilter(collection?.data, searchQuery.value)
+    return dataTabelFilter(collection?.data??collection, searchQuery.value)
   })
   const dataPageLinks = computed(() => {
     return (

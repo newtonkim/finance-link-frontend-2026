@@ -54,7 +54,6 @@
       />
     </template>
     <template #drawer="{ action, data }">
-      <!-- ( {{ drawerTitle?.width }}) -->
 
       <uploadTemplateColumData
         upload-trick="row"
@@ -192,7 +191,7 @@ const drawer = ref(null),
 const formData = ref<Record<string, any>>({}),
   statusFilter = ref("all"),
   showFooter = ref(true),
-  { memebrAccountDepositAmount, memebrAccountWithdrawalAmount } = memberAccountApi(),
+  { memberAccountDepositAmount, memberAccountWithdrawalAmount } = memberAccountApi(),
   drawerTitle = ref("Create Tenant"),
   filters = ["all", "active", "suspended", "expired", "trial"],
   tableUrl = computed(() => `/members-account/list?status=${statusFilter.value}`),
@@ -201,20 +200,20 @@ const formData = ref<Record<string, any>>({}),
     edit: { title: "Edit member saving's Account", width: "w-2/3" },
     add: { title: "Create a member saving's Account", width: "w-2/4" },
     deposit: {
-      width: "w-2/3",
+      width: "w-2/4",
       title: "deposit Saving's Account",
       fun: async () => {
-        drawerRemount.value = await memebrAccountDepositAmount(
+        drawerRemount.value = await memberAccountDepositAmount(
           formData.value,
           automaticCreate.value
         );
       },
     }, // this will be the deposite
     withdrawal: {
-      width: "w-2/3",
+      width: "w-2/4",
       title: "withdrawal Saving's Account",
       fun: async () => {
-        drawerRemount.value = await memebrAccountWithdrawalAmount(
+        drawerRemount.value = await memberAccountWithdrawalAmount(
           formData.value,
           automaticCreate.value
         );
@@ -235,9 +234,7 @@ function saveUser(type: string, data: any) {
   title?.[type]?.fun?.();
   if (!["withdrawal", "deposit", "edit", "add", "view"].includes(type)) {
     drawer.value.toggleDrawer(); // close the drawer
-  }
-  // // // // automaticCreate.value.actionSlot=automaticCreate.value.actionSlot
-  //   automaticCreate.value = {}; // celan the automatic create
+  } 
 }
 
 const columns = [
@@ -245,7 +242,7 @@ const columns = [
   { key: "product", label: "product", sticky: "left", width: "14em " },
   { key: "status", label: "status", type: "status" },
   { key: "blc", label: "balance", type: "money" },
-  { key: "created at", label: "created at", type: "status" },
+  { key: "created_at", label: "created at", type: "status" },
   { key: "actions", label: "Actions", show: ["view", "edit", "delete"] },
 ];
 

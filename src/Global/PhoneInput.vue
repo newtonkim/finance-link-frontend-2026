@@ -48,10 +48,10 @@ const countries: Country[] = [
 ];
 const DEFAULT_COUNTRY: Country = { code: 'UG', name: 'Uganda', dial: '+256', flag: '🇺🇬' };
 
-//const selectedCountry = ref(DEFAULT_COUNTRY);
-const selectedCountry = computed(() => {
-    return countries.find(c => c.code === (props.countryCode || 'UG')) || countries[0] || DEFAULT_COUNTRY;
-});
+const selectedCountry = ref(DEFAULT_COUNTRY);
+// const selectedCountry = computed(() => {
+//     return countries.find(c => c.code === (props.countryCode || 'UG')) || countries[0] || DEFAULT_COUNTRY;
+// });
 
 const filteredCountries = computed(() => {
     if (!searchQuery.value) return countries;
@@ -64,10 +64,11 @@ const filteredCountries = computed(() => {
 });
 
 const selectCountry = (country: Country) => {
-    emit('update:countryCode', country.code);
     isOpen.value = false;
     searchQuery.value = '';
-    // selectedCountry.value = country;
+    selectedCountry.value = country;
+    // console.log(selectedCountry);
+    emit('update:countryCode', country.code);
 };
 
 const toggleDropdown = () => {
@@ -147,8 +148,8 @@ const handleInput = (e: Event) => {
     target.value = formatted;
     const CCode = selectedCountry.value.dial
 
-    emit('update:modelValue', CCode + digits);
-    // emit('update:modelValue',  digits);
+    // emit('update:modelValue', CCode + digits);
+    emit('update:modelValue',  digits);
 };
 
 const maxLength = computed(() => {

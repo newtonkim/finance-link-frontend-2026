@@ -514,7 +514,7 @@ export function feedback(res: any, success?: string, fail?: string) {
       const errors = res.error.response.data.errors;
       msg.msg = Object.values(errors)[0][0] || msg.msg;
     }
-    if (res.error.response.data.payload.message) {
+    if (res?.error?.response?.data?.payload?.message) {
       msg.msg = res.error.response.data.payload.message;
     }
   }

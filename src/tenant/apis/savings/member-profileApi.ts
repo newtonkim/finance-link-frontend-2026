@@ -1,4 +1,4 @@
-import { feedback, fetchTableData, formDataFormatV2, getLocalValues } from '@/Global'
+import { feedback, fetchTableData, formDataFormatV2, getLocalValues,Confirm } from '@/Global'
 import { notify } from '@/Global/Toasters'
 import { pomPinia } from 'septor-store'
 export function memberProfileApi() {
@@ -18,6 +18,20 @@ export function memberProfileApi() {
     })
     return getCharges?.payload
   }
+    function ChangMemberStatus(data?: object) {
+     Confirm({title:"change member status "  ,type:'delete', confirm: async() => {
+
+       fetchTableData({
+           data: data,
+           props: { url: '/members/charge-status', state: 'charge-status' },
+           Store,
+           saveData: false,
+         })
+     }})
+      
+ 
+    }
+    
   async function DeleteMemberAccount(data: any={}) {
     const getCharges = await fetchTableData({
       data:{...data, member_id:     getLocalValues('memberProfile').id},
@@ -36,7 +50,7 @@ export function memberProfileApi() {
   }
 
   return {
-    getMemberProfileDetail,
+    getMemberProfileDetail,ChangMemberStatus,
     DeleteMemberAccount
 
   }

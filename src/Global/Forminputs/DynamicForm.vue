@@ -49,7 +49,9 @@ const remountComponent = ref<any>(true);
 
 onMounted(() => {
     if (Array.isArray(props.form))
-        prfields.value = [...(props.form)];
+    prfields.value = [...(props.form)];
+    //   prfields.value = [...(props.form)].filter((field: any) => shouldShowField(prfields.value));
+
     if (props.action == 'add')
         prfields.value = prfields.value.map((f: any) => ({ value: null, ...f }))
     remountComponent.value = false
@@ -85,7 +87,7 @@ function DatawhistleBlower(newFields) {
 watch(
     prfields,
     (newFields) => {
-        DatawhistleBlower(newFields)
+        DatawhistleBlower(newFields);
     },
     { deep: true }
 );
@@ -101,8 +103,8 @@ const handleChange = (field: any, index: number) => {
         field.change?.(field.value, field, index);
 };
 function FormValidate() {
-    const data = prfields.value || [];
-    // console.log(prfields.value);
+    const data = prfields.value.filter((field: any) => shouldShowField(field)) || [];
+    // console.log(data);
     
     if (isTriggered) {
         data.forEach((field: any) => {
@@ -241,7 +243,7 @@ function shouldShowField(field: any) {
 <template>
     <div>
 
-        <div :class="(parentStyle || '') + ' space-y-2'">
+        <div :class="(parentStyle || '') + ' space-y-2  '">
 
             <template v-for="(field, index) in prfields" :key="index" class="pom ">
                 <template v-if="shouldShowField(field)">
