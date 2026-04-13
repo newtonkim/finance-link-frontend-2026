@@ -150,14 +150,26 @@ function formatDisplayDate(h: PublicHoliday) {
 
 function togglePushHolidays() {
   pushHolidays.value = !pushHolidays.value
+  if (pushHolidays.value) {
+    pushHolidaysWeekdaysOnly.value = false
+    relativeScheduling.value = false
+  }
 }
 
 function togglePushHolidaysWeekdaysOnly() {
   pushHolidaysWeekdaysOnly.value = !pushHolidaysWeekdaysOnly.value
+  if (pushHolidaysWeekdaysOnly.value) {
+    pushHolidays.value = false
+    relativeScheduling.value = false
+  }
 }
 
 function toggleRelativeScheduling() {
   relativeScheduling.value = !relativeScheduling.value
+  if (relativeScheduling.value) {
+    pushHolidays.value = false
+    pushHolidaysWeekdaysOnly.value = false
+  }
 }
 
 onMounted(fetchHolidays)
