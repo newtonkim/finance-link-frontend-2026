@@ -125,6 +125,12 @@ export const tenantRoutes: MenuRoutes[] = [
             component: () => import("@/tenant/modules/loans/pages/ActiveLoansIndex.vue"),
           },
           {
+            path: "loan-transaction",
+            label: "Transaction",
+            component: () => import("@/tenant/modules/members/index.vue"),
+            // permissions: "view-transactions-list",
+          },
+          {
             path: "pending-votes",
             label: "pending votes",
             // icon: Vote,
@@ -134,16 +140,10 @@ export const tenantRoutes: MenuRoutes[] = [
           },
         ],
       },
-        {
-        title: "LOAN TRANSACTION",
-        items: [
-          {
-            path: "loan-transaction",
-            label: "Transaction",
-            component: () => import("@/tenant/modules/members/index.vue"),
-            // permissions: "view-transactions-list",
-          },
-        ],},
+      {
+        title: "LOAN REPORTS",
+        items: [],
+      },
       
     ],
   },
