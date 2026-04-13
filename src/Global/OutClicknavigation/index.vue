@@ -11,7 +11,7 @@
                     {{ item.label }}
                 </SidebarGroupLabel>
 
-                <RouteLink v-else-if="!item?.children && item?.showSideBar === true" :item="item" @click="() => toggleSubmenu(null)" />
+                <RouteLink v-else-if="!item?.children && item?.showSideBar === true" :item="item" :prifix="prefix" @click="() => toggleSubmenu(null)" />
             </span>
         <div v-else  >
         
@@ -61,7 +61,7 @@ defineOptions({ inheritAttrs: false })
 import RouteLink from "./RouteLink.vue";
 import { SidebarGroupLabel,useSidebar } from '@/Global';
 import { pomPinia } from 'septor-store';
-const props = defineProps(['links']);
+const props = defineProps(['links', 'prefix']);
 const Store = pomPinia();
 const { state } = useSidebar()
 
