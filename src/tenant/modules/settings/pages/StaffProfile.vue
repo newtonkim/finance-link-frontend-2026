@@ -306,11 +306,11 @@ const exportData = () => {
                                             <td class="whitespace-nowrap px-6 py-3 text-center">
                                                 <span :class="[
                                                     'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium uppercase',
-                                                    member.status === 'active'
+                                                    member?.status === 'active'
                                                         ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'
                                                         : 'bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-400'
                                                 ]">
-                                                    {{ member.status }}
+                                                    {{ member?.status }}
                                                 </span>
                                             </td>
                                         </tr>

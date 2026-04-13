@@ -218,7 +218,7 @@ const columns = [
 
                         <!-- Profile tab -->
                         <div v-show="activeTab === 'profile'" class="p-1">
-                            <span v-if="Object.keys(profileDetails?.details).length"
+                            <span v-if="Object.keys(profileDetails?.details ?? {}).length"
                                 class="border border-gray-100 rounded-2xl overflow-hidden bg-white">
                                 <Details :data="profileDetails.details" :columns="columns" />
                             </span>

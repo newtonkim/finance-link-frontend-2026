@@ -13,7 +13,7 @@ const columns = [
    {
     header: 'Plan Details',
     type: 'Descriptions',
-    column: 5,
+    column: 3,
     list: [
         { key: 'memeber_code', label: 'Member Code',copy:1 },
         { key: 'salutation_name', label: 'Salutation Name' },
@@ -40,21 +40,21 @@ const columns = [
         { key: 'updated_at', label: 'Updated At' },
     ]
 },
-    {
-        header: 'Transaction List Details',
-        type: 'Table',
-        column: [
+    // {
+    //     header: 'Transaction List Details',
+    //     type: 'Table',
+    //     column: [
           
-        ],
-        list: []
-    }
+    //     ],
+    //     list: []
+    // }
 ]
 async function prepareTheFeaturesData() {
     loading.value = true
-    if(props.data.features)
-    for (const key in props.data.features) {
-        columns[1].list.push({ feature: key, accessbility: key })
-    }
+    // if(props.data.features)
+    // for (const key in props.data.features) {
+    //     columns[1].list.push({ feature: key, accessbility: key })
+    // }
     loading.value = false
 }
 onMounted(async () => {

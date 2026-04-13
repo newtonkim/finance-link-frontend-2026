@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { CreditCard, GitPullRequestArrow, HandCoins, Settings2 } from 'lucide-vue-next'
+import { AlertTriangle, CreditCard, GitPullRequestArrow, HandCoins, Settings2 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import ApprovalWorkflowDrawer from '../components/ApprovalWorkflowDrawer.vue'
 import DisbursementRepaymentOrderDrawer from '../components/DisbursementRepaymentOrderDrawer.vue'
+import ArrearsSettingsDrawer from '../components/ArrearsSettingsDrawer.vue'
 
 const router = useRouter()
 const approvalDrawerRef = ref<InstanceType<typeof ApprovalWorkflowDrawer> | null>(null)
 const disbursementDrawerRef = ref<InstanceType<typeof DisbursementRepaymentOrderDrawer> | null>(null)
+const arrearsDrawerRef = ref<InstanceType<typeof ArrearsSettingsDrawer> | null>(null)
 
 function openApprovalSettings() {
   if (approvalDrawerRef.value) {
@@ -18,6 +20,12 @@ function openApprovalSettings() {
 function openDisbursementSettings() {
   if (disbursementDrawerRef.value) {
     disbursementDrawerRef.value.openDrawer()
+  }
+}
+
+function openArrearsSettings() {
+  if (arrearsDrawerRef.value) {
+    arrearsDrawerRef.value.openDrawer()
   }
 }
 </script>
@@ -54,38 +62,6 @@ function openDisbursementSettings() {
             @click="router.push({ name: 'tenant-settings-loan-products' })"
           >
             <span>Manage Types</span>
-            <span aria-hidden="true">→</span>
-          </button>
-        </div>
-        <div
-          class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
-        >
-          <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">
-            Interest Settings
-          </h3>
-          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
-            Setup interest rates and calculation methods.
-          </p>
-          <button
-            class="inline-flex w-fit items-center justify-center gap-1.5 rounded-xl bg-nfuko-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
-          >
-            <span>Configure Interest</span>
-            <span aria-hidden="true">→</span>
-          </button>
-        </div>
-        <div
-          class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
-        >
-          <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">
-            Repayment Rules
-          </h3>
-          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
-            Define schedules and rules for loan repayments.
-          </p>
-          <button
-            class="inline-flex w-fit items-center justify-center gap-1.5 rounded-xl bg-nfuko-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
-          >
-            <span>Setup Rules</span>
             <span aria-hidden="true">→</span>
           </button>
         </div>
@@ -176,10 +152,34 @@ function openDisbursementSettings() {
             <span aria-hidden="true">→</span>
           </button>
         </div>
+
+        <div
+          class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
+        >
+          <h3 class="mb-4 flex items-center gap-2 text-base font-semibold text-neutral-900 dark:text-white">
+            <span
+              class="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+            >
+              <AlertTriangle class="h-4 w-4" />
+            </span>
+            Arrears Penalty settings
+          </h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">
+            Configure global arrears categorization and automated penalty rules.
+          </p>
+          <button
+            class="inline-flex w-fit items-center justify-center gap-1.5 rounded-xl bg-nfuko-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
+            @click="openArrearsSettings"
+          >
+            <span>Manage Arrears</span>
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
       </div>
     </div>
 
     <ApprovalWorkflowDrawer ref="approvalDrawerRef" />
     <DisbursementRepaymentOrderDrawer ref="disbursementDrawerRef" />
+    <ArrearsSettingsDrawer ref="arrearsDrawerRef" />
   </div>
 </template>

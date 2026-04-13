@@ -24,6 +24,23 @@
             <Edit v-if="['edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
             <Details v-if="['view'].includes(action)" :data="data" />
         </template>
+        <template #workflow_permissions="{ item }">
+            <div class="flex flex-wrap gap-1.5">
+                <span
+                    v-for="permission in permissionTags(item)"
+                    :key="permission"
+                    class="inline-flex items-center rounded-md bg-neutral-100 px-2 py-0.5 text-[11px] font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+                >
+                    {{ permission }}
+                </span>
+                <span
+                    v-if="permissionTags(item).length === 0"
+                    class="text-xs text-neutral-400 dark:text-neutral-500"
+                >
+                    —
+                </span>
+            </div>
+        </template>
     </TableDrawer>
 </template>
 <script setup lang="ts">
@@ -41,11 +58,22 @@ const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
 function saveUser(type: string, data: any) {
     if (title?.[type]) drawerTitle.value = title?.[type]
 }
+
+function permissionTags(item: any): string[] {
+    const permissions: string[] = []
+    const isEnabled = (value: unknown) => value === true || value === 1 || value === '1'
+    if (isEnabled(item?.can_vote_on_loans)) permissions.push('Vote')
+    if (isEnabled(item?.can_manage_branch)) permissions.push('Manage Branch')
+    if (isEnabled(item?.can_finalise_loan)) permissions.push('Finalise Loan')
+    return permissions
+}
+
 const columns = [
     { key: 'code', label: 'code', copy: true },
     { key: 'staff_fall_name', label: 'Full Name', sticky: 'left', },
     { key: 'staff_email', label: 'Email Address' },
     { key: 'system_role', label: 'role', },
+    { key: 'workflow_permissions', label: 'Permissions', width: '220px' },
     { key: 'status', label: 'status', type: 'status' },
     { key: 'created_at', label: 'created_at', },
     { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }

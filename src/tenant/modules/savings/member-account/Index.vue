@@ -54,7 +54,6 @@
       />
     </template>
     <template #drawer="{ action, data }">
-      <!-- ( {{ drawerTitle?.width }}) -->
 
       <uploadTemplateColumData
         upload-trick="row"

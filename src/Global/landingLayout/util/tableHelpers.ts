@@ -389,6 +389,5 @@ export default function useTableHelpers(props: any, emit: any) {
     ACTION_CONFIG,
     createNewRecord,
     dropdownDownload,
-    DrawerMounted,
   }
 }

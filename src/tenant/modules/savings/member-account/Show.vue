@@ -57,7 +57,7 @@ async function prepareTheFeaturesData() {
     loading.value = false
 }
 onMounted(async () => {
-    await prepareTheFeaturesData()
+    // await prepareTheFeaturesData()
 })
 </script>
 <template>

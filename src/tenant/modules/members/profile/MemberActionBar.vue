@@ -75,7 +75,7 @@ const handleDelete = () => {
     </div>
 
     <!-- Rejected banner -->
-    <div v-if="member.status === 'rejected'"
+    <div v-if="member?.status === 'rejected'"
         class="flex items-start gap-4 rounded-2xl border border-red-200 bg-red-50 px-5 py-2 absolute   left-0  mx-4 mb-1">
         <ShieldX class="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
         <div class="flex-1 min-w-0">
@@ -93,17 +93,17 @@ const handleDelete = () => {
             Member Groups
         </button>
 
-        <button @click="emit('withdraw')" :disabled="member.status !== 'active'"
-            :title="member.status !== 'active' ? 'Member must be approved before withdrawals' : ''"
-            :class="member.status !== 'active'
+        <button @click="emit('withdraw')" :disabled="member?.status !== 'active'"
+            :title="member?.status !== 'active' ? 'Member must be approved before withdrawals' : ''"
+            :class="member?.status !== 'active'
                 ? 'flex items-center gap-2 px-[18px] py-[9px] text-[13px] font-bold rounded-full bg-gray-200 text-gray-400 cursor-not-allowed'
                 : 'flex items-center gap-2 px-[18px] py-[9px] text-[13px] font-bold rounded-full bg-[#f97316] text-white hover:bg-[#ea580c] transition-colors shadow-sm'">
             <MinusCircle :size="15" stroke-width="2.5" />
             Withdraw
         </button>
-        <button @click="emit('deposit')" :disabled="member.status !== 'active'"
-            :title="member.status !== 'active' ? 'Member must be approved before deposits' : ''"
-            :class="member.status !== 'active'
+        <button @click="emit('deposit')" :disabled="member?.status !== 'active'"
+            :title="member?.status !== 'active' ? 'Member must be approved before deposits' : ''"
+            :class="member?.status !== 'active'
                 ? 'flex items-center gap-2 px-[18px] py-[9px] text-[13px] font-bold rounded-full bg-gray-200 text-gray-400 cursor-not-allowed'
                 : 'flex items-center gap-2 px-[18px] py-[9px] text-[13px] font-bold rounded-full bg-[#16a34a] text-white hover:bg-[#15803d] transition-colors shadow-sm'">
             <PlusCircle :size="15" stroke-width="2.5" />

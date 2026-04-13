@@ -6,7 +6,7 @@ const { currencyCode } = useCurrencyStore()
 const charges = [
     { name: 'Loan Processing Fee', type: 'Percentage', value: '2.0%', appliesTo: 'All Loans' },
     { name: 'Withdrawal Fee', type: 'Flat', value: `${currencyCode} 50`, appliesTo: 'Savings Withdrawals' },
-    { name: 'Late Payment Penalty', type: 'Percentage', value: '3.0%', appliesTo: 'Overdue Loans' },
+    { name: 'Late Payment Penalty', type: 'Percentage', value: '3.0%', appliesTo: 'Arrears Loans' },
     { name: 'Account Statement Fee', type: 'Flat', value: `${currencyCode} 100`, appliesTo: 'On Request' },
     { name: 'Transfer Fee', type: 'Flat', value: `${currencyCode} 30`, appliesTo: 'Inter-Account Transfers' },
 ]
