@@ -22,6 +22,7 @@ import {
   FileText,
   Activity,
   AlertTriangle,
+  Wallet,
 } from 'lucide-vue-next'
 import {
   DropdownMenu,
@@ -35,6 +36,7 @@ import { loanSettingsApi } from '@/tenant/apis/settings/loanSettingsApi'
 import { useLoanAccount } from '../composables/useLoanAccount'
 import ReceiveCashModal from '../components/ReceiveCashModal.vue'
 import LoanDocumentUploader from '../components/LoanDocumentUploader.vue'
+import RepayFromSavingsModal from '../components/RepayFromSavingsModal.vue'
 import { loansApi } from '@/tenant/apis/loans/loansApi'
 
 const route = useRoute()
@@ -375,6 +377,45 @@ async function handleReceiveCashSubmit(data: any) {
     // Handle error (maybe show a toast)
   } finally {
     isPostingCash.value = false
+  }
+}
+
+// ─── Repay from Savings Flow ──────────────────────────────────────────────────
+const savingsRepayModalRef = ref<any>(null)
+const showSavingsRepayModal = ref(false)
+const isPostingSavings = ref(false)
+const selectedSavingsInstallment = ref<any>(null)
+
+function openSavingsRepayment(row: any) {
+  selectedSavingsInstallment.value = row
+  if (!hasFetchedRepaymentOrder.value) {
+    void fetchRepaymentAllocationOrder()
+  }
+  showSavingsRepayModal.value = true
+  savingsRepayModalRef.value?.reset()
+}
+
+async function handleSavingsRepaySubmit(data: {
+  savings_account_id: number
+  amount: number
+  payment_date: string
+  description: string
+}) {
+  if (!loan.value) return
+  isPostingSavings.value = true
+  try {
+    await loansApi.repayFromSavings(loan.value.id, {
+      savings_account_id: data.savings_account_id,
+      amount: data.amount,
+      payment_date: data.payment_date,
+      notes: data.description,
+    })
+    savingsRepayModalRef.value?.setSuccess()
+    refresh()
+  } catch (err: any) {
+    console.error('Failed to post savings repayment:', err)
+  } finally {
+    isPostingSavings.value = false
   }
 }
 </script>
@@ -905,9 +946,12 @@ async function handleReceiveCashSubmit(data: any) {
                           <CreditCard class="h-4 w-4" />
                           Card
                         </DropdownMenuItem>
-                        <DropdownMenuItem class="cursor-pointer gap-2">
-                          <BookOpen class="h-4 w-4" />
-                          Savings Account
+                        <DropdownMenuItem
+                          class="cursor-pointer gap-2 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30"
+                          @click="openSavingsRepayment(row)"
+                        >
+                          <Wallet class="h-4 w-4" />
+                          Receive from Savings
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -1550,5 +1594,47 @@ async function handleReceiveCashSubmit(data: any) {
     "
     @close="showReceiveCashModal = false"
     @submit="handleReceiveCashSubmit"
+  />
+
+  <RepayFromSavingsModal
+    ref="savingsRepayModalRef"
+    :open="showSavingsRepayModal"
+    :posting="isPostingSavings"
+    :member-name="loan?.member?.name ?? '—'"
+    :currency="currency"
+    :installment-amount="
+      selectedSavingsInstallment
+        ? Number(selectedSavingsInstallment.total_due) -
+          (Number(selectedSavingsInstallment.principal_paid) +
+            Number(selectedSavingsInstallment.interest_paid) +
+            Number(selectedSavingsInstallment.charges_paid) +
+            Number(selectedSavingsInstallment.penalty_paid))
+        : 0
+    "
+    :allocation-order-label="allocationOrderDisplay.label"
+    :allocation-order-sequence="allocationOrderDisplay.sequence"
+    :penalty-charges="
+      selectedSavingsInstallment
+        ? Number(selectedSavingsInstallment.charges_due || 0) -
+          Number(selectedSavingsInstallment.charges_paid || 0) +
+          (Number(selectedSavingsInstallment.penalty_due || 0) -
+            Number(selectedSavingsInstallment.penalty_paid || 0))
+        : 0
+    "
+    :pending-interest="
+      selectedSavingsInstallment
+        ? Number(selectedSavingsInstallment.interest_due || 0) -
+          Number(selectedSavingsInstallment.interest_paid || 0)
+        : 0
+    "
+    :pending-principal="
+      selectedSavingsInstallment
+        ? Number(selectedSavingsInstallment.principal_due || 0) -
+          Number(selectedSavingsInstallment.principal_paid || 0)
+        : 0
+    "
+    :member-id="loan?.member_id ?? null"
+    @close="showSavingsRepayModal = false"
+    @submit="handleSavingsRepaySubmit"
   />
 </template>

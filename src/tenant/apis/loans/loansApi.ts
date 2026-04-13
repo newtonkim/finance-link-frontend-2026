@@ -210,6 +210,13 @@ export interface PostRepaymentData {
   loan_officer_id?: number | null
 }
 
+export interface SavingsRepaymentData {
+  savings_account_id: number | null
+  amount: number | string
+  payment_date: string
+  notes?: string | null
+}
+
 export const loansApi = {
   // ─── Loan portfolio ───────────────────────────────────────────────────────
   summary() {
@@ -252,6 +259,13 @@ export const loansApi = {
   postRepayment(id: number, data: PostRepaymentData) {
     return tenantClient.post<{ message: string; data: LoanTransaction }>(
       `/loans/${id}/repayments`,
+      data,
+    )
+  },
+
+  repayFromSavings(id: number, data: SavingsRepaymentData) {
+    return tenantClient.post<{ message: string; data: LoanTransaction }>(
+      `/loans/${id}/repay-from-savings`,
       data,
     )
   },
