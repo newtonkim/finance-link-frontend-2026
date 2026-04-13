@@ -126,7 +126,7 @@ export const tenantRoutes: MenuRoutes[] = [
           },
           {
             path: "loan-transaction",
-            label: "Transaction",
+            label: "Loan Transactions",
             component: () => import("@/tenant/modules/members/index.vue"),
             // permissions: "view-transactions-list",
           },
@@ -142,7 +142,26 @@ export const tenantRoutes: MenuRoutes[] = [
       },
       {
         title: "LOAN REPORTS",
-        items: [],
+        items: [
+          {
+            path: "loan-balances-report",
+            label: "Loan Balances Report",
+            showSideBar: true,
+            component: () => import("@/tenant/modules/loans/pages/LoanApplicationsIndex.vue"),
+          },
+          {
+            path: "arrears-report",
+            label: "Arrears Report",
+            showSideBar: true,
+            component: () => import("@/tenant/modules/loans/pages/LoanApplicationsIndex.vue"),
+          },
+          {
+            path: "aging-report",
+            label: "Aging Report",
+            showSideBar: true,
+            component: () => import("@/tenant/modules/loans/pages/LoanApplicationsIndex.vue"),
+          },
+        ],
       },
       
     ],
