@@ -32,11 +32,11 @@ const router = useRouter()
       <div class="icon-ring">
         <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-svg">
           <rect x="8" y="36" width="8" height="20" rx="2" fill="#FCDC04" opacity="0.9"/>
-          <rect x="20" y="26" width="8" height="30" rx="2" fill="#39B588" opacity="0.8"/>
+          <rect x="20" y="26" width="8" height="30" rx="2" fill="#ffffff" opacity="0.8"/>
           <rect x="32" y="16" width="8" height="40" rx="2" fill="#FCDC04" opacity="0.7"/>
-          <rect x="44" y="30" width="8" height="26" rx="2" fill="#9BB5A5" opacity="0.6"/>
-          <path d="M6 54 L58 54" stroke="#9BB5A5" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
-          <path d="M14 10 L26 20 L38 8 L50 18" stroke="#39B588" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+          <rect x="44" y="30" width="8" height="26" rx="2" fill="#ffffff" opacity="0.5"/>
+          <path d="M6 54 L58 54" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+          <path d="M14 10 L26 20 L38 8 L50 18" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
         </svg>
         <div class="ring-pulse" />
       </div>
@@ -111,13 +111,13 @@ const router = useRouter()
   flex: 1;
   max-width: 56px;
   border-radius: 4px 4px 0 0;
-  background: linear-gradient(to top, rgba(57,181,136,0.18), rgba(252,220,4,0.06));
+  background: linear-gradient(to top, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
   animation: bar-pulse 3s ease-in-out infinite;
   animation-delay: calc(var(--i) * 0.22s);
 }
 .bar:nth-child(odd)  { height: clamp(60px, 14vh, 180px); }
 .bar:nth-child(even) { height: clamp(100px, 22vh, 280px); }
-.bar:nth-child(3n)   { height: clamp(80px, 18vh, 240px); background: linear-gradient(to top, rgba(252,220,4,0.14), rgba(57,181,136,0.04)); }
+.bar:nth-child(3n)   { height: clamp(80px, 18vh, 240px); background: linear-gradient(to top, rgba(252,220,4,0.12), rgba(255,255,255,0.02)); }
 .bar:nth-child(4n)   { height: clamp(50px, 10vh, 140px); }
 
 @keyframes bar-pulse {
@@ -130,8 +130,8 @@ const router = useRouter()
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(155,181,165,0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(155,181,165,0.06) 1px, transparent 1px);
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
   background-size: 48px 48px;
   pointer-events: none;
 }
@@ -147,7 +147,7 @@ const router = useRouter()
   background: rgba(10, 35, 24, 0.72);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(57,181,136,0.18);
+  border: 1px solid rgba(255,255,255,0.12);
   border-radius: 24px;
   padding: clamp(2rem, 5vw, 3.5rem) clamp(2rem, 6vw, 4.5rem);
   max-width: 560px;
@@ -155,7 +155,7 @@ const router = useRouter()
   box-shadow:
     0 0 0 1px rgba(252,220,4,0.04),
     0 32px 80px rgba(0,0,0,0.5),
-    0 0 120px rgba(57,181,136,0.06) inset;
+    0 0 120px rgba(255,255,255,0.03) inset;
   animation: card-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 @keyframes card-in {
@@ -215,13 +215,13 @@ const router = useRouter()
   height: 88px;
   position: relative;
   z-index: 2;
-  filter: drop-shadow(0 0 16px rgba(57,181,136,0.3));
+  filter: drop-shadow(0 0 16px rgba(255,255,255,0.15));
 }
 .ring-pulse {
   position: absolute;
   inset: -8px;
   border-radius: 50%;
-  border: 1.5px solid rgba(57,181,136,0.25);
+  border: 1.5px solid rgba(255,255,255,0.2);
   animation: ring-expand 2.2s ease-out infinite;
 }
 @keyframes ring-expand {
@@ -258,14 +258,14 @@ const router = useRouter()
 .divider-line {
   flex: 1;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(57,181,136,0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
 }
 .divider-diamond {
   width: 6px;
   height: 6px;
-  background: #39B588;
+  background: #ffffff;
   transform: rotate(45deg);
-  opacity: 0.7;
+  opacity: 0.5;
   flex-shrink: 0;
 }
 
@@ -274,7 +274,7 @@ const router = useRouter()
   font-family: 'DM Mono', monospace;
   font-size: 13px;
   line-height: 1.7;
-  color: #9BB5A5;
+  color: #ffffff;
   max-width: 380px;
   margin: 0 0 2rem;
   animation: fade-in 0.5s 0.45s both;
@@ -291,12 +291,12 @@ const router = useRouter()
   justify-content: space-between;
   font-family: 'DM Mono', monospace;
   font-size: 11px;
-  color: rgba(155,181,165,0.6);
+  color: rgba(255,255,255,0.6);
   margin-bottom: 8px;
   letter-spacing: 0.06em;
 }
 .progress-pct {
-  color: #39B588;
+  color: #ffffff;
   animation: text-blink 2s ease-in-out infinite;
 }
 @keyframes text-blink {
@@ -306,14 +306,14 @@ const router = useRouter()
 .progress-track {
   height: 4px;
   border-radius: 999px;
-  background: rgba(155,181,165,0.12);
+  background: rgba(255,255,255,0.12);
   overflow: hidden;
 }
 .progress-fill {
   height: 100%;
   width: 42%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #39B588, #FCDC04);
+  background: linear-gradient(90deg, #ffffff, #FCDC04);
   position: relative;
   animation: progress-shimmer 2.5s ease-in-out infinite;
 }
@@ -349,9 +349,9 @@ const router = useRouter()
   gap: 8px;
   padding: 10px 22px;
   border-radius: 10px;
-  background: rgba(57,181,136,0.12);
-  border: 1px solid rgba(57,181,136,0.25);
-  color: #39B588;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #ffffff;
   font-family: 'DM Mono', monospace;
   font-size: 13px;
   font-weight: 500;
@@ -360,8 +360,8 @@ const router = useRouter()
   letter-spacing: 0.04em;
 }
 .btn-back:hover {
-  background: rgba(57,181,136,0.22);
-  border-color: rgba(57,181,136,0.5);
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.4);
   color: #fff;
   transform: translateX(-2px);
 }
