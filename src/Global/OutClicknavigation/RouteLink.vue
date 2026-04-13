@@ -21,12 +21,12 @@
 
     </template>
     <!-- If item is a single object -->
-    <RouterLink v-else :to="'/tenant/' + item?.path" v-slot="{ isActive }" @click="() => handleClick(item)"
+    <RouterLink v-else :to="'/' + (props.prifix ?? 'tenant') + '/' + item?.path" v-slot="{ isActive }" @click="() => handleClick(item)"
         v-auth="item?.permissions">
 
         <div :class="[
             'hover:px-2 peer/menu-button flex w-full items-center gap-2 overflow-hidden  text-left outline-hidden ring-sidebar-ring focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground     [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 h-9 text-sm rounded-xl transition-all duration-200 text-nfuko-nav-text/60 hover:bg-white/5 hover:text-white capitalize font-medium tracking-wide text-nfuko-nav-text group-hover:text-white flex',
-            isCurrentUrl('/tenant/' + item?.path, currentRoute)
+            isCurrentUrl('/' + (props.prifix ?? 'tenant') + '/' + item?.path, currentRoute)
                 ? 'bg-nfuko-nav-active text-white'
                 : ''
 
