@@ -30,22 +30,22 @@
               <slot name="actions"></slot>
             </div>
 
-            <div v-else class="flex w-full gap-3 items-center justify-between">
-              <div>
+            <div v-else class="flex w-full gap-2   items-center justify-between">
+              <div class="w-1/3 ">
                 <Button
                   variant="outline"
-                  class="flex-1 h-11 w-full font-bold border-neutral-200 dark:border-neutral-800"
+                  class="flex-1 h-11 w-full mx-2 font-bold border-neutral-200 dark:border-neutral-800"
                   @click="handleCancel"
                 >
                   Close
                 </Button>
               </div>
 
-              <div>
+              <div class="w-1/3 ">
                 <!-- @click="handleSave" -->
                 <Button
                   type="submit"
-                  class="flex-1 h-11 w-full font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors"
+                  class="flex-1 h-11  mr-5 w-full font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors"
                 >
                   Save
                 </Button>
@@ -77,7 +77,6 @@ const emit = defineEmits(["update:open", "save", "cancel", "submit"]);
 
 const handleSave = () => {
   emit("save", "create");
-
   emit("submit");
 };
 

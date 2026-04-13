@@ -1,5 +1,6 @@
 import { tenantClient } from '@/tenant/apis/tenantClient'
-
+import { fetchTableData, Confirm } from '@/Global';
+import { pomPinia } from 'septor-store';
 export const membersApi = {
   list(params?: { search?: string; page?: number }) {
     return tenantClient.get('/members', { params })
@@ -40,3 +41,25 @@ export const membersApi = {
     return tenantClient.delete(`/members/${id}`)
   },
 }
+
+
+export function membersFunApi() {
+    const Store = pomPinia();
+    function ChangMemberStatus(data?: object) {
+     Confirm({title:"change member status "  ,type:'delete', confirm: async() => {
+
+       fetchTableData({
+           data: data,
+           props: { url: '/members/charge-status', state: 'charge-status' },
+           Store,
+           saveData: false,
+         })
+     }})
+      
+ 
+    }
+    
+    return {ChangMemberStatus
+    };
+}
+

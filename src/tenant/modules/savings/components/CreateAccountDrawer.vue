@@ -229,7 +229,7 @@ defineExpose({ openDrawer })
                 <InputError v-if="errors.member_id" :message="errors.member_id" />
                 <div v-if="selectedMember" class="mt-3 rounded-xl border border-neutral-100 bg-neutral-50 px-4 py-3">
                   <div class="text-sm font-semibold text-neutral-900">{{ selectedMember.name }}</div>
-                  <div class="text-xs text-neutral-500">Member #{{ selectedMember.member_number }} · {{ selectedMember.status }}</div>
+                  <div class="text-xs text-neutral-500">Member #{{ selectedMember.member_number }} · {{ selectedmember?.status }}</div>
                   <p v-if="memberHasAccounts" class="mt-2 text-xs font-semibold text-amber-600">
                     This member already has {{ selectedMember.savings_accounts.length }} savings account(s).
                   </p>

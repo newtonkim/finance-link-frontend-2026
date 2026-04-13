@@ -74,8 +74,8 @@ function formatDate(d: string | null) {
             <td class="px-6 py-4 text-neutral-600 dark:text-neutral-400 col-email">{{ member.email ?? '—' }}</td>
             <td class="px-6 py-4 capitalize text-neutral-600 dark:text-neutral-400 col-gender">{{ member.gender }}</td>
             <td class="px-6 py-4 col-status">
-              <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize" :class="statusClass(member.status)">
-                {{ member.status }}
+              <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize" :class="statusClass(member?.status)">
+                {{ member?.status }}
               </span>
             </td>
             <td class="px-6 py-4 text-neutral-500 dark:text-neutral-400 col-joined">{{ formatDate(member.joined_at) }}</td>

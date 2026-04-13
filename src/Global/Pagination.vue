@@ -85,12 +85,12 @@ const formatLabel = (label: string) => {
         <nav class="flex items-center gap-1.5">
             <!-- Previous -->
             <button @click="prevPage" :disabled="currentPage <= 1"
-                class="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg transition" :class="currentPage <= 1
+                class="flex items-center gap-1 p x-3 p -1.5 p-2 border-1 text-sm round ed-lg rounded-full transition" :class="currentPage <= 1
                         ? 'text-neutral-300 cursor-not-allowed'
                         : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
                     ">
                 <ChevronLeft :size="16" />
-                <span class="hidden sm:inline">Prev</span>
+                <!-- <span class="hidden sm:inline">Prev</span> -->
             </button>
 
             <!-- Page Numbers -->
@@ -103,7 +103,7 @@ const formatLabel = (label: string) => {
                     !link.label.includes('Previous') &&
                     !link.label.includes('Next')
                 " @click="goToPage(Number(link.label))"
-                    class="min-w-[32px] h-8 px-2 text-sm font-medium rounded-lg transition" :class="link.active
+                    class="min-w-[32px] h-8 px-2 text-sm font-medium rounde d-lg transition rounded-full" :class="link.active
                             ? ' bg-nfuko-primary/80 text-white'
                             : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800'
                         ">
@@ -113,11 +113,11 @@ const formatLabel = (label: string) => {
 
             <!-- Next -->
             <button @click="nextPage" :disabled="links && currentPage >= links.last_page"
-                class="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg transition" :class="links && currentPage >= links.last_page
+                class="flex items-center gap-1 px -3 p y-1.5 p-2 text-sm rounded-full border-1 transition" :class="links && currentPage >= links.last_page
                         ? 'text-neutral-300 cursor-not-allowed'
                         : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
                     ">
-                <span class="hidden sm:inline">Next</span>
+                <!-- <span class="hidden sm:inline">Next</span> -->
                 <ChevronRight :size="16" />
             </button>
 

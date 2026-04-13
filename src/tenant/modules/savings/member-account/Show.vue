@@ -57,7 +57,7 @@ async function prepareTheFeaturesData() {
     loading.value = false
 }
 onMounted(async () => {
-    await prepareTheFeaturesData()
+    // await prepareTheFeaturesData()
 })
 </script>
 <template>
@@ -66,11 +66,11 @@ onMounted(async () => {
         <DetailsTable v-else :data="data" :columns="columns">
             <template #actions="{ item }">
                 <div class="flex gap-2 ">
-                    <TabelActionButtons :disabled="['charge-reversal', 'reversed'].includes(item.type)" :data="item"
+                    <TabelActionButtons :disabled="['true','1',true].includes(item.reversed)" :data="item"
                         @action="() => memebrAccountReversalAmount({ ...item, charge_reversal: true })"
                         :color="['charge-reversal', 'reversed'].includes(item.type) ? 'secondary' : 'default'" icon="Undo"
                         title="charge reversal" />
-                    <TabelActionButtons :disabled="['charge-reversal', 'reversed'].includes(item.type)" :data="item"
+                    <TabelActionButtons :disabled="['true','1',true].includes(item.reversed)" :data="item"
                         @action="() => memebrAccountReversalAmount(item)"
                         :color="['charge-reversal', 'reversed'].includes(item.type) ? 'secondary' : 'danger'" icon="Undo"
                         title="full reversal" />

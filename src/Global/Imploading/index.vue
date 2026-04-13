@@ -1,31 +1,32 @@
 <template>
-  <div ref="dropdownRef" class="relative inline-block">
+  <div ref="dropdownRef" class="relative inline-block relative group inline-block">
     <!-- Button -->
     <button @click="toggleDropdown" :class="class">
       <component :is="resolvedIcon" :size="18" />
+      <div class="absolute top-full mt-2 opacity-0 group-hover:opacity-100
+              transition duration-300
+              bg-nfuko-primary/90 text-white text-xs px-3 py-1 rounded z-50 whitespace-nowrap">
+
+        {{ tooltip ?? icon }}
+
+        <div class="absolute  transform -translate-x-1/2 bottom-full border-4 border-transparent border-b-gray-900">
+        </div>
+      </div>
     </button>
   </div>
 
-  <!-- TELEPORT DROPDOWN -->
+
   <Teleport to="body">
-    <div
-      v-if="isOpen"
-      :style="dropdownStyle"
-      class="fixed nazil-here max-h-[300px] overflow-auto w-44 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-[9999]"
-    >
-    <!-- {{ items }} -->
+    <div v-if="isOpen" :style="dropdownStyle"
+      class="fixed nazil-here max-h-[300px] overflow-auto w-44 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-[9999]">
+      <!-- {{ items }} -->
       <ul class="py-2 text-sm text-slate-700 dark:text-slate-200">
-        <li
-          v-for="(item, index) in items"
-          :key="index"
-          @click="onItemClick(item)"
-          :class="[
-            'px-4 py-2 cursor-pointer rounded-lg capitalize text-sm truncate transition-colors',
-            item?.danger
-              ? 'text-red-500 hover:bg-red-100 dark:hover:bg-red-800'
-              : 'hover:bg-slate-100 dark:hover:bg-slate-800'
-          ]"
-        >
+        <li v-for="(item, index) in items" :key="index" @click="onItemClick(item)" :class="[
+          'px-4 py-2 cursor-pointer rounded-lg capitalize text-sm truncate transition-colors',
+          item?.danger
+            ? 'text-red-500 hover:bg-red-100 dark:hover:bg-red-800'
+            : 'hover:bg-slate-100 dark:hover:bg-slate-800'
+        ]">
           {{ item.label }}
         </li>
       </ul>
@@ -45,6 +46,10 @@ const props = defineProps({
   icon: {
     type: String,
     default: "Upload"
+  },
+  tooltip: {
+    type: String,
+    default: null
   },
   class: {
     default:

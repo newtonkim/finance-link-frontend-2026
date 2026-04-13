@@ -1,5 +1,7 @@
 export * from "./staff/staffApi";
 export * from "./savings";
+export * from '@/tenant/apis/savings/member-profileApi';
+
 // export * from "./memberApi";
 // export * from "./loanApi";
 // export * from "./shareApi";

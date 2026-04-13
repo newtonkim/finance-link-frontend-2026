@@ -1,5 +1,5 @@
 <template>
-    <div class="flex h-full fle x-1 flex-col  px-10 py-3 ">
+    <div class="flex h-full fle x-1 flex-col  px-1 py-3 ">
         <!-- {{ drawerOpen }} -->
         <div class="flex items-center justify-between">
             <div v-if="$slots['header-action']" class='my-2'>
@@ -13,7 +13,12 @@
                 </div>
             </div>
             <span>
-                <span v-auth="haspermission('create')">
+            <span v-if="$slots['add-action']" class=''>
+                <slot name="add-action" />
+
+            </span>
+
+                <span v-auth="haspermission('create')" v-else>
                     <button v-if="showAddButton" @click="createNewRecord"
                         class="justify-center  bg-nfuko-primary hover: bg-nfuko-primary/90 whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive  h-9 has-[>svg]:px-3 flex items-center gap-2 rounded-xl  px-4 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90 shadow-sm ">
                         <component :is="addButtonText.icon" :size="16" />
@@ -46,7 +51,8 @@
             </div>
             <div class="rounded-2xl    bg-white pt-0 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]   dark:bg-neutral-900">
                 <div
-                    class="overflow-x-auto w-full  custom-scrollbar h-[64vh] border-neutral-100 bg-white dark:bg-neutral-900 shadow-sm dark:border-neutral-800 rounded-2xl">
+                :class='tableDetaultHeight'
+                    class="overflow-x-auto w-full  custom-scrollbar  border-neutral-100 bg-white dark:bg-neutral-900 shadow-sm dark:border-neutral-800 rounded-2xl">
                     <Table :check="checkBox" :handleAction="handleAction" :action_config="ACTION_CONFIG"
                         :dataFilter="dataFilter" :data="data" :columns="columns" :permissions="permissions">
                         <template v-for="(_, name) in $slots" #[name]="slotProps">
@@ -111,6 +117,7 @@ const props = defineProps({
             { label: "Import Data", value: "import", route: "import-data" },
         ]
     },
+    tableDetaultHeight: { type: String, default: 'h-[64vh]' },
     checkBox: { type: Boolean, default: true },
     showAddButton: { type: Boolean, default: true },
     drawerShowFooter: { type: Boolean, default: true },

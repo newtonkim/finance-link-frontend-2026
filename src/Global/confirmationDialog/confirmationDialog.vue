@@ -49,7 +49,7 @@
 
             <div
               v-if="!$slots.message && !$slots.body"
-              class="text-[12px] text-neutral-500 dark:text-neutral-200 ml-3"
+              class="text-[12px] text-neutral-500 dark:text-neutral-200 ml-3 capitalize"
             >
               {{ des ?? `Are you sure you want to delete` }}
               <strong>{{ items?.name }}</strong>?

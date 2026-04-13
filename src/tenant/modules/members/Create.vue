@@ -26,27 +26,93 @@ const fields = ref([
     type: 'select',
     required: true,
     placeholder: 'Search member type',
-    change: (value: any, field: any, index: number) => {
-      const existsIndex = fields.value.findIndex(f => f.name === 'member_id')
-      if (value === 'existing_member') {
-        if (existsIndex === -1) {
-          fields.value.splice(index + 1, 0, {
-            label: 'products',
-            name: 'product_id',
-            type: 'select',
-            required: true,
-            placeholder: 'Search products',
-            url: "global/savings-products",
-          });
-        }
-      } else {
-        if (existsIndex !== -1) {
-          fields.value.splice(existsIndex, 1);
-        }
-      }
-    },
+    // change: (value: any, field: any, index: number) => {
+    //   const existsIndex = fields.value.findIndex(f => f.name === 'member_id')
+    //   if (value === 'existing_member') {
+    //     if (existsIndex === -1) {
+    //       fields.value.splice(index + 1, 0, {
+    //         label: 'products',
+    //         name: 'product_id',
+    //         type: 'select',
+    //         required: true,
+    //         placeholder: 'Search products',
+    //         url: "global/savings-products",
+    //       });
+    //     }
+    //   } else {
+    //     if (existsIndex !== -1) {
+    //       fields.value.splice(existsIndex, 1);
+    //     }
+    //   }
+    // },
 
     options: OptionList.memberTypeOptions
+  },
+  {
+    label: 'products',
+    name: 'product_id',
+    type: 'select',
+    required: false,
+    placeholder: 'Search products',
+    url: "global/savings-products",
+    dependsOn: {
+      conditions: [
+        {
+          field: 'member_type',
+          condition: (val: any) => val === 'existing_member'
+        }
+      ],
+    },
+  },
+  {
+    label: 'is share holder',
+    name: 'is_share_holder',
+    type: 'select',
+    required: false,
+    placeholder: 'Search products',
+    options: [
+      { id: '1', name: 'Yes' },
+      { id: '0', name: 'No' },
+    ],
+    dependsOn: {
+      conditions: [
+        {
+          field: 'member_type',
+          condition: (val: any) => val === 'existing_member'
+        }
+      ],
+    },
+
+  },
+  {
+    label: 'inital deposit',
+    name: 'inital_deposit',
+    type: 'number',
+    required: true,
+    placeholder: 'Select initial deposit',
+    dependsOn: {
+      conditions: [
+        {
+          field: 'member_type',
+          condition: (val: any) => val === 'existing_member'
+        }
+      ],
+    }
+  },
+  {
+    label: 'opening balance',
+    name: 'opening_balance',
+    type: 'money',
+    required: true,
+    placeholder: 'Enter opening balance',
+    dependsOn: {
+      conditions: [
+        {
+          field: 'member_type',
+          condition: (val: any) => val === 'new_member'
+        }
+      ],
+    },
   },
   {
     label: 'Full Name',
@@ -214,76 +280,8 @@ function checkForSettings() {
     "sacco-share-price-value": parseFloat(checkForVaailableSetting?.['sacco-share-price-value'] ?? 0),
     "sacco-share-on-member-creation-create-share-minimum-value": parseFloat(checkForVaailableSetting?.['sacco-share-on-member-creation-create-share-minimum-value'] ?? 0)
   }
-  // console.log(settingList.value);
-
 }
-
-watch(
-  () => fields.value,
-  (val) => {
-    const codeIndex = val.findIndex(f => f.name === 'code');
-    const fullNameIndex = val.findIndex(f => f.name === 'full_name');
-
-    if ((settingList.value?.['hide-initial-deposit-field'])) {
-      const initalDepositIndex = val.findIndex(f => f.name === 'inital_deposit')
-      const referredByIndex = val.findIndex(f => f.name === 'referred_by')
-      if (initalDepositIndex === -1 && referredByIndex !== 1) {
-        fields.value.splice(referredByIndex + 1, 0, {
-          label: 'inital deposit',
-          name: 'inital_deposit',
-          type: 'number',
-          required: true,
-          placeholder: 'Select initial deposit',
-          dependsOn: {
-            conditions: [
-              {
-                field: 'member_type',
-                condition: (val: any) => val === 'existing_member'
-              }
-            ],
-          }
-        }, {
-          label: 'opening balance',
-          name: 'opening_balance',
-          type: 'money',
-          required: true,
-          placeholder: 'Enter opening balance',
-          dependsOn: {
-            conditions: [
-              {
-                field: 'member_type',
-                condition: (val: any) => val === 'new_member'
-              }
-            ],
-
-
-          },
-        },)
-      }
-    }
-
-    ///////
-    if (settingList.value?.['sacco-members-free-input-code']) {
-      if (codeIndex === -1 && fullNameIndex !== -1) {
-        fields.value.splice(fullNameIndex + 1, 0, {
-          label: 'free input code',
-          name: 'code',
-          type: 'text',
-          value: 'BDP-',
-          required: true,
-          placeholder: 'Enter code',
-        })
-      }
-
-    } else {
-      if (codeIndex !== -1) {
-        fields.value.splice(codeIndex, 1)
-      }
-    }
-  },
-  { deep: true }
-)
-
+ 
 onMounted(() => {
   promtValueOnUpdate()
   checkForSettings()

@@ -64,7 +64,10 @@ const selectedOption = computed(() => {
 
 const filteredOptions = computed(() => {
     const options = props?.url ? collection.value : props.options
+    // console.log(options);
+    
     if (!searchQuery.value) return options;
+
     const query = searchQuery.value.toLowerCase();
     return options.filter(opt =>
         opt.name.toLowerCase().includes(query)
@@ -150,7 +153,7 @@ const inputClass =
             error ? 'border-red-500 focus-within:ring-red-500/10' : 'border-neutral-200 focus-within: border-nfuko-primary',
             disabled ? 'opacity-50 cursor-not-allowed bg-neutral-50 dark:bg-neutral-950' : 'hover:border-neutral-300 dark:hover:border-neutral-700'
         ]">
-            <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center justify-between gap -2">
                 <span v-if="selectedOption?.id"
                     class="block truncate text-neutral-900 dark:text-neutral-100 font-medium">
                     {{ selectedOption.name }}
