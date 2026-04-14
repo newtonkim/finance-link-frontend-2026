@@ -67,7 +67,15 @@ function amountHint(raw: number | string | null | undefined) {
 }
 
 function normalizeAmountInput(raw: string): string {
-  return raw.replace(/[^0-9.]/g, '')
+  const stripped = raw.replace(/[^0-9.,]/g, '')
+  const lastComma = stripped.lastIndexOf(',')
+  const lastDot = stripped.lastIndexOf('.')
+  if (lastComma > lastDot) {
+    // European format (e.g. "1.234.567,89") — comma is the decimal separator
+    return stripped.replace(/\./g, '').replace(',', '.')
+  }
+  // en-US format (e.g. "1,234,567.89") or plain integer — strip commas
+  return stripped.replace(/,/g, '')
 }
 
 function parseAmountInput(raw: string): number | null {
@@ -81,7 +89,7 @@ function formatAmountInput(raw: number | string | null | undefined): string {
   if (raw == null || raw === '') return ''
   const n = Number(raw)
   if (!Number.isFinite(n)) return ''
-  return n.toLocaleString(undefined, {
+  return n.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })
