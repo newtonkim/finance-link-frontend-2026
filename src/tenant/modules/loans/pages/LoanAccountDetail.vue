@@ -37,6 +37,7 @@ import { useLoanAccount } from '../composables/useLoanAccount'
 import ReceiveCashModal from '../components/ReceiveCashModal.vue'
 import LoanDocumentUploader from '../components/LoanDocumentUploader.vue'
 import RepayFromSavingsModal from '../components/RepayFromSavingsModal.vue'
+import LoanAuditTrail from '../components/LoanAuditTrail.vue'
 import { loansApi } from '@/tenant/apis/loans/loansApi'
 
 const route = useRoute()
@@ -49,7 +50,7 @@ if (loanId === null) {
   router.replace({ name: 'tenant-active-loans' })
 }
 
-const { loading, loan, schedule, repayments, repaymentsMeta, activeTab, refresh, fetchRepayments } =
+const { loading, loan, schedule, repayments, repaymentsMeta, activeTab, refresh, fetchRepayments, activities } =
   useLoanAccount(loanId)
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -878,7 +879,7 @@ async function handleSavingsRepaySubmit(data: {
                   <td class="px-3 py-3 text-right">{{ currency }} {{ fmt(row.interest_due) }}</td>
                   <td class="px-3 py-3 text-right">{{ currency }} {{ fmt(row.penalty_due) }}</td>
                   <td class="px-3 py-3 text-right font-semibold">
-                    {{ currency }} {{ fmt(row.total_due) }}
+                    {{ currency }} {{ fmt(Number(row.total_due) + Number(row.penalty_due)) }}
                   </td>
                   <td class="px-3 py-3 text-right font-bold text-emerald-600 dark:text-emerald-400">
                     {{ currency }}
@@ -895,7 +896,8 @@ async function handleSavingsRepaySubmit(data: {
                     {{ currency }}
                     {{
                       fmt(
-                        Number(row.total_due) -
+                        Number(row.total_due) +
+                          Number(row.penalty_due) -
                           (Number(row.principal_paid) +
                             Number(row.interest_paid) +
                             Number(row.charges_paid) +
@@ -973,13 +975,13 @@ async function handleSavingsRepaySubmit(data: {
                     {{ currency }} {{ fmt(scheduleTotals.penalty_due) }}
                   </td>
                   <td class="px-3 py-3 text-right font-bold">
-                    {{ currency }} {{ fmt(scheduleTotals.total_due) }}
+                    {{ currency }} {{ fmt(scheduleTotals.total_due + scheduleTotals.penalty_due) }}
                   </td>
                   <td class="px-3 py-3 text-right text-emerald-600 dark:text-emerald-400">
                     {{ currency }} {{ fmt(scheduleTotals.total_paid) }}
                   </td>
                   <td class="px-3 py-3 text-right font-bold">
-                    {{ currency }} {{ fmt(scheduleTotals.total_due - scheduleTotals.total_paid) }}
+                    {{ currency }} {{ fmt(scheduleTotals.total_due + scheduleTotals.penalty_due - scheduleTotals.total_paid) }}
                   </td>
                   <td colspan="4"></td>
                 </tr>
@@ -1541,13 +1543,9 @@ async function handleSavingsRepaySubmit(data: {
         </div>
       </div>
 
-      <!-- ── Activities tab (placeholder) ── -->
-      <div
-        v-else-if="activeTab === 'activities'"
-        class="flex flex-col items-center justify-center py-16 text-neutral-400 gap-2"
-      >
-        <Activity class="h-8 w-8" />
-        <p class="text-sm capitalize">Loan Activities — coming soon</p>
+      <!-- ── Activities tab ── -->
+      <div v-else-if="activeTab === 'activities'" class="p-4">
+        <LoanAuditTrail :timeline="activities" :loading="loading" />
       </div>
     </template>
   </div>
@@ -1562,11 +1560,14 @@ async function handleSavingsRepaySubmit(data: {
     :borrower-name="loan?.member?.name ?? '—'"
     :installment-amount="
       selectedInstallment
-        ? Number(selectedInstallment.total_due) -
-          (Number(selectedInstallment.principal_paid) +
-            Number(selectedInstallment.interest_paid) +
-            Number(selectedInstallment.charges_paid) +
-            Number(selectedInstallment.penalty_paid))
+        ? (Number(selectedInstallment.principal_due || 0) +
+           Number(selectedInstallment.interest_due || 0) +
+           Number(selectedInstallment.charges_due || 0) +
+           Number(selectedInstallment.penalty_due || 0)) -
+          (Number(selectedInstallment.principal_paid || 0) +
+           Number(selectedInstallment.interest_paid || 0) +
+           Number(selectedInstallment.charges_paid || 0) +
+           Number(selectedInstallment.penalty_paid || 0))
         : 0
     "
     :currency="currency"
@@ -1604,11 +1605,14 @@ async function handleSavingsRepaySubmit(data: {
     :currency="currency"
     :installment-amount="
       selectedSavingsInstallment
-        ? Number(selectedSavingsInstallment.total_due) -
-          (Number(selectedSavingsInstallment.principal_paid) +
-            Number(selectedSavingsInstallment.interest_paid) +
-            Number(selectedSavingsInstallment.charges_paid) +
-            Number(selectedSavingsInstallment.penalty_paid))
+        ? (Number(selectedSavingsInstallment.principal_due || 0) +
+           Number(selectedSavingsInstallment.interest_due || 0) +
+           Number(selectedSavingsInstallment.charges_due || 0) +
+           Number(selectedSavingsInstallment.penalty_due || 0)) -
+          (Number(selectedSavingsInstallment.principal_paid || 0) +
+           Number(selectedSavingsInstallment.interest_paid || 0) +
+           Number(selectedSavingsInstallment.charges_paid || 0) +
+           Number(selectedSavingsInstallment.penalty_paid || 0))
         : 0
     "
     :allocation-order-label="allocationOrderDisplay.label"
