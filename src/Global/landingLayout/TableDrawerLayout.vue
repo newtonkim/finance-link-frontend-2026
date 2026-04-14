@@ -118,6 +118,7 @@ const props = defineProps({
     },
     printItems: {
         type: Array, 
+        default: () => []
     },
     downloadItems: {
         type: Array, default: () => [

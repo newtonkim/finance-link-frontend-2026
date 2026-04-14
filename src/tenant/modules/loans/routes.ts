@@ -8,46 +8,52 @@ const LoanDisbursementQueue = () => import('./pages/LoanDisbursementQueue.vue')
 const PendingVotes = () => import('./pages/PendingVotes.vue')
 const ActiveLoansIndex = () => import('./pages/ActiveLoansIndex.vue')
 const LoanAccountDetail = () => import('./pages/LoanAccountDetail.vue')
+const LoanBalancesReport = () => import('./pages/LoanBalancesReport.vue')
 
 export const loanRoutes: RouteRecordRaw[] = [
-    {
-        path: 'loan-applications',
-        name: 'tenant-loans',
-        component: LoanApplicationsIndex,
-    },
-    {
-        path: 'loan-applications/create',
-        name: 'tenant-loans-create',
-        component: LoanApplicationCreate,
-    },
-    {
-        path: 'loan-applications/pending-votes',
-        name: 'tenant-loans-pending-votes',
-        component: PendingVotes,
-    },
-    {
-        path: 'loan-applications/:id/edit',
-        name: 'tenant-loans-edit',
-        component: LoanApplicationEdit,
-    },
-    {
-        path: 'loan-applications/:id',
-        name: 'tenant-loans-show',
-        component: LoanApplicationShow,
-    },
-    {
-        path: 'loan-disbursements',
-        name: 'tenant-loan-disbursements',
-        component: LoanDisbursementQueue,
-    },
-    {
-        path: 'loans',
-        name: 'tenant-active-loans',
-        component: ActiveLoansIndex,
-    },
-    {
-        path: 'loans/:id',
-        name: 'tenant-loan-account',
-        component: LoanAccountDetail,
-    },
+  {
+    path: 'loan-applications',
+    name: 'tenant-loans',
+    component: LoanApplicationsIndex,
+  },
+  {
+    path: 'loan-applications/create',
+    name: 'tenant-loans-create',
+    component: LoanApplicationCreate,
+  },
+  {
+    path: 'loan-applications/pending-votes',
+    name: 'tenant-loans-pending-votes',
+    component: PendingVotes,
+  },
+  {
+    path: 'loan-applications/:id/edit',
+    name: 'tenant-loans-edit',
+    component: LoanApplicationEdit,
+  },
+  {
+    path: 'loan-applications/:id',
+    name: 'tenant-loans-show',
+    component: LoanApplicationShow,
+  },
+  {
+    path: 'loan-disbursements',
+    name: 'tenant-loan-disbursements',
+    component: LoanDisbursementQueue,
+  },
+  {
+    path: 'loans',
+    name: 'tenant-active-loans',
+    component: ActiveLoansIndex,
+  },
+  {
+    path: 'loans/:id',
+    name: 'tenant-loan-account',
+    component: LoanAccountDetail,
+  },
+  {
+    path: 'loan-balances-report',
+    name: 'tenant-loan-balances-report',
+    component: LoanBalancesReport,
+  },
 ]

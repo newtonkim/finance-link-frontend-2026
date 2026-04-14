@@ -67,7 +67,15 @@ function amountHint(raw: number | string | null | undefined) {
 }
 
 function normalizeAmountInput(raw: string): string {
-  return raw.replace(/[^0-9.]/g, '')
+  const stripped = raw.replace(/[^0-9.,]/g, '')
+  const lastComma = stripped.lastIndexOf(',')
+  const lastDot = stripped.lastIndexOf('.')
+  if (lastComma > lastDot) {
+    // European format (e.g. "1.234.567,89") — comma is the decimal separator
+    return stripped.replace(/\./g, '').replace(',', '.')
+  }
+  // en-US format (e.g. "1,234,567.89") or plain integer — strip commas
+  return stripped.replace(/,/g, '')
 }
 
 function parseAmountInput(raw: string): number | null {
@@ -81,7 +89,7 @@ function formatAmountInput(raw: number | string | null | undefined): string {
   if (raw == null || raw === '') return ''
   const n = Number(raw)
   if (!Number.isFinite(n)) return ''
-  return n.toLocaleString(undefined, {
+  return n.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })
@@ -314,11 +322,13 @@ function categoryColor(cat: string): string {
               >
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
-                <option value="biweekly">Biweekly</option>
+                <option value="biweekly">Bi-weekly</option>
                 <option value="monthly">Monthly</option>
-                <option value="quarterly">Quarterly</option>
-                <option value="annually">Annually</option>
+                <option value="yearly">Yearly</option>
               </select>
+              <p class="mt-1 text-xs text-neutral-400 dark:text-neutral-500">
+                Period used to create repayment schedules eg payment is per week etc.
+              </p>
             </div>
             <div>
               <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"

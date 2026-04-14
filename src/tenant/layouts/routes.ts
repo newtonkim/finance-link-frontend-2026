@@ -167,7 +167,7 @@ export const tenantRoutes: MenuRoutes[] = [
             path: "aging-report",
             label: "Aging Report",
             showSideBar: true,
-            component: () => import("@/tenant/modules/loans/pages/AgingReport.vue"),
+            component: () => import("@/tenant/modules/reports/pages/AgingReport.vue"),
           },
         ],
       },
