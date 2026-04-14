@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import {
     Banknote, RefreshCw, BookOpen, Table2, FileText, History,
     CheckCircle2, XCircle as XCircleIcon, CircleDot, CalendarDays,
-    ShieldCheck, UserCheck,
+    ShieldCheck, UserCheck, Printer, Download
 } from 'lucide-vue-next'
 import { formatMoneyValue } from '@/Global'
 import { useLoanApplicationHelpers } from '../composables/useLoanApplicationHelpers'
@@ -47,6 +47,8 @@ const approvedTabs = [
 
 // ─── Proposed Schedule ────────────────────────────────────────────────────────
 const scheduleLoading   = ref(false)
+const isPrinting        = ref(false)
+const isDownloading     = ref(false)
 const scheduleError     = ref<string | null>(null)
 const scheduleData      = ref<ScheduleData | null>(null)
 const scheduleStartDate = ref('')
@@ -70,12 +72,65 @@ async function loadProposedSchedule() {
     }
 }
 
+async function exportProposedSchedule(mode: 'download' | 'print') {
+    if (!props.application?.id) return
+    
+    const params: any = {}
+    if (scheduleStartDate.value) params.start_date = scheduleStartDate.value
+    
+    const amount = props.application.approved_amount ?? props.application.recommended_amount
+    const term = props.application.approved_term ?? props.application.recommended_term
+    
+    if (amount) params.amount = String(amount)
+    if (term) params.term = String(term)
+
+    try {
+        if (mode === 'print') isPrinting.value = true
+        else isDownloading.value = true
+
+        const res = await loanApplicationsApi.exportProposedSchedule(props.application.id, params)
+        const blob = new Blob([res.data], { type: 'application/pdf' })
+        const url = window.URL.createObjectURL(blob)
+
+        if (mode === 'print') {
+            // Open the PDF blob in a new tab — the browser's native PDF viewer
+            // has a print button and responds to keyboard shortcuts (Ctrl+P / Cmd+P).
+            // Programmatic iframe.contentWindow.print() is blocked in Chrome/Edge
+            // because the PDF renderer runs in a sandboxed process.
+            const tab = window.open(url, '_blank')
+            if (!tab) window.URL.revokeObjectURL(url)
+            // Revoke after a short delay to give the tab time to load the blob.
+            else setTimeout(() => window.URL.revokeObjectURL(url), 10_000)
+        } else {
+            const link = document.createElement('a')
+            link.href = url
+            const filename = `proposed_schedule_${props.application.member?.name || 'loan'}.pdf`
+            link.setAttribute('download', filename)
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+            window.URL.revokeObjectURL(url)
+        }
+    } catch (error) {
+        console.error('Export failed:', error)
+    } finally {
+        isPrinting.value = false
+        isDownloading.value = false
+    }
+}
+
 function switchTab(key: TabKey) {
     approvedTab.value = key
     if (key === 'schedule' && !scheduleData.value) loadProposedSchedule()
 }
 
 function fmt(val: number) { return formatMoneyValue(val) }
+
+function formatRepaymentCycle(val: string | null | undefined) {
+    if (!val) return '—'
+    if (val.toLowerCase() === 'biweekly') return 'Bi-weekly'
+    return val.charAt(0).toUpperCase() + val.slice(1).toLowerCase()
+}
 </script>
 
 <template>
@@ -212,6 +267,12 @@ function fmt(val: number) { return formatMoneyValue(val) }
                                     <dd class="text-sm font-bold text-amber-700 dark:text-amber-300">
                                         {{ application.loan_product.grace_period }}
                                         <span class="ml-1 text-[11px] font-normal text-amber-500">days</span>
+                                    </dd>
+                                </div>
+                                <div v-if="application.loan_product?.repayment_cycle" class="rounded-xl border border-blue-100 bg-blue-50/60 p-3 dark:border-blue-900/30 dark:bg-blue-900/10">
+                                    <dt class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-blue-500 dark:text-blue-400">Repayment Cycle</dt>
+                                    <dd class="text-sm font-bold text-blue-700 dark:text-blue-300">
+                                        {{ formatRepaymentCycle(application.loan_product.repayment_cycle) }}
                                     </dd>
                                 </div>
                             </div>
@@ -364,6 +425,22 @@ function fmt(val: number) { return formatMoneyValue(val) }
                         @click="loadProposedSchedule">
                         <RefreshCw class="h-3 w-3" :class="{ 'animate-spin': scheduleLoading }" /> Recalculate
                     </button>
+
+                    <div class="ml-auto flex items-center gap-2">
+                        <button v-if="scheduleData" :disabled="isPrinting || isDownloading"
+                            class="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 transition-colors hover:bg-neutral-50 disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
+                            @click="exportProposedSchedule('print')">
+                            <RefreshCw v-if="isPrinting" class="h-3.5 w-3.5 animate-spin" />
+                            <Printer v-else class="h-3.5 w-3.5" /> Print
+                        </button>
+                        <button v-if="scheduleData" :disabled="isDownloading || isPrinting"
+                            class="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 transition-colors hover:bg-neutral-50 disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
+                            @click="exportProposedSchedule('download')">
+                            <RefreshCw v-if="isDownloading" class="h-3.5 w-3.5 animate-spin" />
+                            <Download v-else class="h-3.5 w-3.5" /> Download PDF
+                        </button>
+                    </div>
+
                 </div>
                 <div v-if="scheduleLoading" class="flex items-center justify-center py-16 text-sm text-neutral-400">
                     <RefreshCw class="mr-2 h-4 w-4 animate-spin" /> Calculating schedule…

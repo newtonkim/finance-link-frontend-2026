@@ -33,7 +33,7 @@
                     <div v-if="Store.showSubmenu === item?.label && item?.children"
                         class="border border-neutral-100 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)] dark:border-neutral-800 dark:bg-neutral-900 max-w-[50em] flex absolute left-full bottom-0 mb-0 ml-6 rounded-xl py-2 shadow-md shadow-black/20 transition-all z-[9999]">
                         <template v-for="(child, index) in item.children" :key="index">
-                            
+
                             <div v-auth="child?.permissions" class="w-[40em] items-center gap-4 px-6 py-1">
                                 <div
                                     class="w-full flex items-center my-1 gap-0 px-4 py-2 rounded-md bg-nfuko-primary/90 dark:text-white flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200 text-nfuko-nav-text group-hover:text-white">
