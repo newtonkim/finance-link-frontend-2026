@@ -5,10 +5,13 @@ import { pomPinia } from 'septor-store'
 import { SidebarProvider, SidebarInset, TopBar, Toaster } from '@/Global'
 import TenantSidebar from './TenantSidebar.vue'
 import { useCurrencyStore } from '@/stores/currency'
+import { saccoBrandingApi } from '@/tenant/apis/saccobranding/saccoBrandingApi'
+
 const currencyStore = useCurrencyStore()
 
 onMounted(() => {
   currencyStore.load()
+  saccoBrandingApi.get()
 })
 const Store = pomPinia(), route = useRoute()
 const routeKey = computed(() => {

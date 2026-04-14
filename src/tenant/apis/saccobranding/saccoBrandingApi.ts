@@ -59,9 +59,25 @@ function signNewData(res: BrandingCache) {
 
 export const saccoBrandingApi = {
     async get() {
+        // Show cached data immediately so the sidebar renders without a flash
         const cached = getetSystemBranding()
         if (cached) {
             signNewData(cached)
+        }
+        // Then fetch fresh data from the server to pick up any changes
+        try {
+            const res = await tenantClient.get('/sacco-branding')
+            const data = res.data?.data ?? res.data ?? null
+            if (data) {
+                setSystemBranding({
+                    sacco_name: data.sacco_name ?? null,
+                    tagline:    data.tagline    ?? null,
+                    logo_path:  data.logo_path  ?? null,
+                })
+                signNewData(data)
+            }
+        } catch {
+            // Silently fall back to the cached data already applied above
         }
     },
 

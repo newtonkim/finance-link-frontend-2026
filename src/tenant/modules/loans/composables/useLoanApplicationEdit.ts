@@ -29,8 +29,9 @@ export function useLoanApplicationEdit() {
             const res  = await loanApplicationsApi.get(Number(route.params.id))
             const data = res.data?.data ?? res.data
 
-            if (data.status && data.status !== 'draft') {
-                toast.error('Only draft applications can be edited.')
+            const editableStatuses = ['draft', 'returned_for_correction']
+            if (data.status && !editableStatuses.includes(data.status)) {
+                toast.error('Only draft or returned-for-correction applications can be edited.')
                 router.replace({ name: 'tenant-loans-show', params: { id: route.params.id } })
                 return
             }

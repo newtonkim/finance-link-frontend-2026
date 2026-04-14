@@ -124,6 +124,7 @@ export interface LoanApplication {
     portfolio_account_name?: string | null
     disbursement_account_name?: string | null
     fee_income_account_name?: string | null
+    repayment_cycle?: string | null
   } | null
   loan_officer?: { id: number; name: string } | null
   appraised_by?: { id: number; name: string } | null
@@ -349,6 +350,15 @@ export const loanApplicationsApi = {
     params?: { amount?: number | string; term?: number; start_date?: string },
   ) {
     return tenantClient.get(`/loan-applications/${id}/proposed-schedule`, { params })
+  },
+  exportProposedSchedule(
+    id: number,
+    params?: { amount?: number | string; term?: number; start_date?: string },
+  ) {
+    return tenantClient.get(`/loan-applications/${id}/proposed-schedule/export`, {
+      params,
+      responseType: 'blob',
+    })
   },
 
   // ─── Documents ──────────────────────────────────────────────────────────────
