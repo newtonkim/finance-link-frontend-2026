@@ -73,7 +73,7 @@ function navigateToMemberProfile(item: any) {
             <template #actions="{ item }">
                 <TabelActionButtons v-if="item?.total_loan_balance > 0" @action="() => navigateIntoLoanDetails(item)"
                     title="loan details" color="danger" icon="CirclePile" />
-                <TabelActionButtons v-else @action="() => navigateIntoLoanDetails(item)" title="loan details"
+                <TabelActionButtons v-else   title="loan details"
                     color="default" icon="CirclePile" />
             </template>
 
