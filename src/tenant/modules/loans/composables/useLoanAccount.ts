@@ -2,6 +2,7 @@ import { ref, onMounted } from 'vue'
 import { toast } from 'vue-sonner'
 import {
   loansApi,
+  type LoanActivityEvent,
   type LoanDetail,
   type LoanScheduleEntry,
   type LoanTransaction,
@@ -16,6 +17,7 @@ export function useLoanAccount(loanId: number | null) {
   const schedule = ref<LoanScheduleEntry[]>([])
   const repayments = ref<LoanTransaction[]>([])
   const repaymentsMeta = ref({ current_page: 1, last_page: 1, per_page: 10, total: 0 })
+  const activities = ref<LoanActivityEvent[]>([])
   const activeTab = ref<
     'general' | 'transactions' | 'schedule' | 'charges' | 'documents' | 'activities'
   >('schedule')
@@ -42,11 +44,17 @@ export function useLoanAccount(loanId: number | null) {
     Object.assign(repaymentsMeta.value, (res.data as any).meta ?? {})
   }
 
+  async function fetchActivities() {
+    if (!resolvedLoanId) return
+    const res = await loansApi.getActivities(resolvedLoanId)
+    activities.value = res.data.data ?? []
+  }
+
   async function load() {
     if (!resolvedLoanId) return
     loading.value = true
     try {
-      await Promise.all([fetchLoan(), fetchSchedule(), fetchRepayments()])
+      await Promise.all([fetchLoan(), fetchSchedule(), fetchRepayments(), fetchActivities()])
     } catch {
       toast.error('Failed to load loan account.')
     } finally {
@@ -61,6 +69,7 @@ export function useLoanAccount(loanId: number | null) {
         fetchLoan(),
         fetchSchedule(),
         fetchRepayments(repaymentsMeta.value.current_page),
+        fetchActivities(),
       ])
     } catch {
       toast.error('Failed to refresh loan.')
@@ -75,9 +84,11 @@ export function useLoanAccount(loanId: number | null) {
     schedule,
     repayments,
     repaymentsMeta,
+    activities,
     activeTab,
     load,
     refresh,
     fetchRepayments,
+    fetchActivities,
   }
 }
