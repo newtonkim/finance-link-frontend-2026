@@ -35,7 +35,7 @@ function getValue(item: any, key: string) {
         :key="index"
         class="flex items-center justify-between px-3 py-2 my-1 rounded-lg bg-neutral-50 dark:bg-neutral-800"
       >
-        <span class="text-sm text-neutral-800 dark:text-neutral-200 truncate">
+        <span class="text-[14px] text-neutral-800 dark:text-neutral-200 truncate">
           {{ getValue(item, labelKey) }}
         </span>
 

@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useLoanApplicationHelpers } from '../composables/useLoanApplicationHelpers'
 import type { LoanApplication } from '../../../apis/loans/loanApplicationsApi'
-import { CopyData, formatCurrency, TabelActionButtons, Table } from '@/Global';
-
+import { CopyData, formatCurrency, setLocalValues, TabelActionButtons, Table } from '@/Global';
+import { useRouter } from 'vue-router';
+const router = useRouter();
 defineProps<{ application: LoanApplication }>()
 
 const { displayAmount } = useLoanApplicationHelpers()
@@ -16,9 +17,20 @@ const columns = [
 ]
 
 function navigateIntoLoanDetails(item: any) {
-    alert('navigate to loan details')
-    // window.open(`/loans/${item?.running_loan_id}/details`, '_blank')
+    router.push(`/tenant/loans/${item?.loan_id}`)
+
 }
+function navigateInGroupDetails(item: any) {
+    router.push(`/tenant/group-savings/profile`)
+    setLocalValues('groupProfile', item)
+
+}
+function navigateToMemberProfile(item: any) {
+    router.push(`/tenant/member/profile`)
+    setLocalValues('memberProfile', { ...item, id: item?.member_id })
+}
+
+
 </script>
 
 <template>
@@ -27,9 +39,30 @@ function navigateIntoLoanDetails(item: any) {
             class="mb-2 text-base font-semibold text-neutral-900 dark:text-white border-b-1 border-neutral-300 pb-1 dark:border-neutral-800">
             Group Members</h2>
         <Table :dataFilter="Object.values(application?.my_groups_member ?? {})" :columns="columns">
+            <template #member_code="{ item }">
+
+                <span>
+                    <CopyData :show="item?.member_code" :copy="item?.member_code">
+                        <template #text>
+                            <button @click="navigateToMemberProfile(item)"
+                                class=" font-semibold text-nfuko-action text-sm dark:text-white  cursor-pointer">
+                                <span>{{ item?.member_code }}</span>
+                            </button>
+                        </template>
+                    </CopyData>
+                </span>
+            </template>
             <template #group_code="{ item }">
-                <span class="text-sm text-neutral-800 dark:text-neutral-200 truncate" :class="item?.total_loan_balance>0 ? 'text-red-500' : '' ">
-              <CopyData :copy="item?.group_code" />
+
+                <span>
+                    <CopyData :show="item?.group_code" :copy="item?.group_code">
+                        <template #text>
+                            <button @click="navigateInGroupDetails(item)"
+                                class=" font-semibold text-nfuko-action text-sm dark:text-white  cursor-pointer">
+                                <span>{{ item?.group_code }}</span>
+                            </button>
+                        </template>
+                    </CopyData>
                 </span>
             </template>
             <template #total_loan_balance="{ item }">
@@ -38,14 +71,10 @@ function navigateIntoLoanDetails(item: any) {
                 </span>
             </template>
             <template #actions="{ item }">
-                <TabelActionButtons v-if="item?.total_loan_balance >0"
-                    @action="() => navigateIntoLoanDetails(item)" title="loan details" color="danger"
-                    icon="CirclePile" />
-                <TabelActionButtons v-else
-                    @action="() => navigateIntoLoanDetails(item)" title="loan details" color="default"
-                    icon="CirclePile" />
-
-
+                <TabelActionButtons v-if="item?.total_loan_balance > 0" @action="() => navigateIntoLoanDetails(item)"
+                    title="loan details" color="danger" icon="CirclePile" />
+                <TabelActionButtons v-else @action="() => navigateIntoLoanDetails(item)" title="loan details"
+                    color="default" icon="CirclePile" />
             </template>
 
         </Table>
@@ -53,7 +82,6 @@ function navigateIntoLoanDetails(item: any) {
 
     <div
         class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-
         <h2
             class="mb-2 text-base font-semibold text-neutral-900 dark:text-white border-b-1 border-neutral-300 pb-1 dark:border-neutral-800">
             Application Details</h2>

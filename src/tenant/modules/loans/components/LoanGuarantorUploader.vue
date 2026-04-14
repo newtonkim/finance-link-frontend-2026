@@ -61,7 +61,7 @@ function saveLoanGuarantors() {
           groups,individuals on loan
         </p>
       </div>
- 
+
     </div>
 
     <!-- Toggle -->
@@ -70,11 +70,11 @@ function saveLoanGuarantors() {
     <!-- Select Area -->
     <div class="mt-5 space-y-3">
       <MultiSearchableSelect v-if="statusFilter === 'Group'" v-model="selected" :url="application?.group_memberships === 'allowed_to_be_guaranteed_by_other_groups'
-          ? 'group-account-savings/groups-drop-down-list'
-          : undefined
+        ? 'group-account-savings/groups-drop-down-list'
+        : undefined
         " :options="application?.group_memberships !== 'allowed_to_be_guaranteed_by_other_groups'
-            ? application?.group_memberships
-            : undefined
+          ? application?.group_memberships
+          : undefined
           " placeholder="Select groups" @update:itemSelected="handleSelected" />
 
       <MultiSearchableSelect v-else v-model="memberSelected" url="global/member-dropdown-list"
@@ -106,5 +106,10 @@ function saveLoanGuarantors() {
     <!-- Current Guarantors -->
     <GuatorsListWithType title="Current Guarantors" :items="application?.loan_guarantors"
       empty-text="No guarantors added yet" label-key="name" type-key="type" />
+
+    <div v-if="application?.loan_guarantors && application?.loan_guarantors.length ==0" class="mb-1 flex animate-pulse items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 dark:border-red-800 dark:bg-red-950/40 mt-4 text-[10px] text-neutral-400  dark:text-neutral-500 text-red-500 capitalize">
+       This loan application currently has no guarantors.
+      guarantors are Required for this loan application. Please add guarantors before submitting the application.
+    </div>
   </div>
 </template>

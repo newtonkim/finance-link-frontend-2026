@@ -44,15 +44,18 @@ const { displayAmount } = useLoanApplicationHelpers()
   <!-- Submitted: take for review -->
   <div
     v-if="application.status === 'submitted'"
-    class="rounded-2xl border border-blue-100 bg-blue-50/50 p-5 dark:border-blue-900/40 dark:bg-blue-900/10"
+    class="rounded-2xl border border-nfuko-primary-100 bg-nfuko-primary-50/50 p-5 dark:border-nfuko-primary-900/40 dark:bg-nfuko-primary-900/10"
   >
-    <p class="mb-1 text-sm font-semibold text-blue-800 dark:text-blue-300">Ready for Review</p>
-    <p class="mb-4 text-xs text-blue-600 dark:text-blue-400">
+    <p class="mb-1 text-sm font-semibold text-nfuko-primary-800 dark:text-nfuko-primary-300">Ready for Review</p>
+    <p class="mb-4 text-xs text-nfuko-primary-600 dark:text-nfuko-primary-400">
       This application has been submitted and is awaiting an officer to submit it for review.
     </p>
+    <!-- {{ takingForReview }}
+    {{ submitDisabled }} -->
     <button
+    :title="takingForReview || submitDisabled ? 'Please add required guarantors/files before submitting for review' : 'Submit for review'"
       :disabled="takingForReview || submitDisabled"
-      class="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+      class="flex items-center gap-2 rounded-xl bg-nfuko-action px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-nfuko-primary-700 disabled:opacity-50"
       @click="emit('takeForReview')"
     >
       <ClipboardCheck class="h-4 w-4" />
@@ -122,10 +125,10 @@ const { displayAmount } = useLoanApplicationHelpers()
   <!-- Officer Recommended: BM actions -->
   <div
     v-else-if="application.status === 'officer_recommended'"
-    class="rounded-2xl border border-blue-100 bg-blue-50/50 p-5 dark:border-blue-900/40 dark:bg-blue-900/10"
+    class="rounded-2xl border border-nfuko-primary-100 bg-nfuko-primary-50/50 p-5 dark:border-nfuko-primary-900/40 dark:bg-nfuko-primary-900/10"
   >
-    <p class="mb-1 text-sm font-semibold text-blue-800 dark:text-blue-300">Branch Manager Review</p>
-    <p class="mb-4 text-xs text-blue-600 dark:text-blue-400">
+    <p class="mb-1 text-sm font-semibold text-nfuko-primary-800 dark:text-nfuko-primary-300">Branch Manager Review</p>
+    <p class="mb-4 text-xs text-nfuko-primary-600 dark:text-nfuko-primary-400">
       Loan Officer has recommended
       <strong>{{
         displayAmount(application.recommended_amount_formatted, application.recommended_amount)
@@ -134,7 +137,7 @@ const { displayAmount } = useLoanApplicationHelpers()
     </p>
     <div class="flex flex-wrap gap-2">
       <button
-        class="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+        class="flex items-center gap-2 rounded-xl bg-nfuko-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-nfuko-primary-700"
         @click="emit('openBMRecommend')"
       >
         <UserCheck class="h-4 w-4" /> Recommend to Committee
@@ -206,10 +209,10 @@ const { displayAmount } = useLoanApplicationHelpers()
   <!-- Recommended (legacy simple flow): approval panel -->
   <div
     v-else-if="application.status === 'recommended'"
-    class="rounded-2xl border border-blue-100 bg-blue-50/50 p-5 dark:border-blue-900/40 dark:bg-blue-900/10"
+    class="rounded-2xl border border-nfuko-primary-100 bg-nfuko-primary-50/50 p-5 dark:border-nfuko-primary-900/40 dark:bg-nfuko-primary-900/10"
   >
-    <p class="mb-1 text-sm font-semibold text-[#0047AB] dark:text-blue-300">Approval Decision</p>
-    <p class="mb-4 text-xs text-blue-600 dark:text-blue-400">
+    <p class="mb-1 text-sm font-semibold text-[#0047AB] dark:text-nfuko-primary-300">Approval Decision</p>
+    <p class="mb-4 text-xs text-nfuko-primary-600 dark:text-nfuko-primary-400">
       Recommended
       <strong>{{
         displayAmount(application.recommended_amount_formatted, application.recommended_amount)

@@ -140,7 +140,7 @@ const showDetailsSection = computed(() => !isApproved.value && !isDisbursed.valu
           @open-b-m-recommend="openBMRecommendModal"
           @open-b-m-return-for-correction="openBMReturnModal"
           @open-vote="openVoteModal"
-          :submit-disabled="hasMissingDocsForStage"
+          :submit-disabled="hasMissingDocsForStage && Array.isArray(application?.loan_guarantors) && application?.loan_guarantors.length <= 0"
         />
 
         <!-- Approved: full tabbed section -->
