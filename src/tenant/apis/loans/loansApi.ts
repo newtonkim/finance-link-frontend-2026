@@ -122,6 +122,16 @@ export interface LoanPenaltyRule {
   applies_to: string | null
 }
 
+export interface LoanActivityEvent {
+  type: 'disbursed' | 'status_change' | 'repayment' | 'penalty_assessed'
+  title: string
+  description: string
+  amount: string | null
+  actor: { id: number; name: string } | null
+  notes: string | null
+  timestamp: string
+}
+
 export interface LoanDetail {
   id: number
   loan_no: string
@@ -210,6 +220,13 @@ export interface PostRepaymentData {
   loan_officer_id?: number | null
 }
 
+export interface SavingsRepaymentData {
+  savings_account_id: number | null
+  amount: number | string
+  payment_date: string
+  notes?: string | null
+}
+
 export const loansApi = {
   // ─── Loan portfolio ───────────────────────────────────────────────────────
   summary() {
@@ -242,6 +259,10 @@ export const loansApi = {
     return tenantClient.get(`/loans/${id}/ledger`, { params })
   },
 
+  getActivities(id: number) {
+    return tenantClient.get<{ data: LoanActivityEvent[] }>(`/loans/${id}/activities`)
+  },
+
   // ─── Repayments ───────────────────────────────────────────────────────────
   previewRepayment(id: number, amount: number) {
     return tenantClient.post<{ data: RepaymentPreview }>(`/loans/${id}/repayments/preview`, {
@@ -252,6 +273,13 @@ export const loansApi = {
   postRepayment(id: number, data: PostRepaymentData) {
     return tenantClient.post<{ message: string; data: LoanTransaction }>(
       `/loans/${id}/repayments`,
+      data,
+    )
+  },
+
+  repayFromSavings(id: number, data: SavingsRepaymentData) {
+    return tenantClient.post<{ message: string; data: LoanTransaction }>(
+      `/loans/${id}/repay-from-savings`,
       data,
     )
   },

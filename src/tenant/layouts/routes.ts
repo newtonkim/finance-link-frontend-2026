@@ -133,6 +133,12 @@ export const tenantRoutes: MenuRoutes[] = [
             component: () => import("@/tenant/modules/loans/pages/ActiveLoansIndex.vue"),
           },
           {
+            path: "loan-transaction",
+            label: "Loan Transactions",
+            component: () => import("@/tenant/modules/members/index.vue"),
+            // permissions: "view-transactions-list",
+          },
+          {
             path: "pending-votes",
             label: "pending votes",
             // icon: Vote,
@@ -142,16 +148,29 @@ export const tenantRoutes: MenuRoutes[] = [
           },
         ],
       },
-        {
-        title: "LOAN TRANSACTION",
+      {
+        title: "LOAN REPORTS",
         items: [
           {
-            path: "loan-transaction",
-            label: "Transaction",
-            component: () => import("@/tenant/modules/members/index.vue"),
-            // permissions: "view-transactions-list",
+            path: "loan-balances-report",
+            label: "Loan Balances Report",
+            showSideBar: true,
+            component: () => import("@/tenant/modules/loans/pages/LoanBalancesReport.vue"),
           },
-        ],},
+          {
+            path: "arrears-report",
+            label: "Arrears Report",
+            showSideBar: true,
+            component: () => import("@/tenant/modules/loans/pages/ArrearsReport.vue"),
+          },
+          {
+            path: "aging-report",
+            label: "Aging Report",
+            showSideBar: true,
+            component: () => import("@/tenant/modules/loans/pages/AgingReport.vue"),
+          },
+        ],
+      },
       
     ],
   },
