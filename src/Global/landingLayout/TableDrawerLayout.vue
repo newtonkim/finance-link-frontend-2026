@@ -49,7 +49,7 @@
                             :items="exportItems" @select="handleImport" />
                         <Imploading
                             v-if="printSizes?.length && (showTableAction == true || (Array.isArray(showTableAction) && showTableAction.includes('print')))"
-                            icon="Printer" :items="printItems.length?printItems:sizePapers(printSizes ?? [])" @select="handlePrint" />
+                            icon="Printer" :items="printItems?.length?printItems:sizePapers(printSizes ?? [])" @select="handlePrint" />
                         <div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2"></div>
                     </div>
                     <slot name="searchSideAction" />

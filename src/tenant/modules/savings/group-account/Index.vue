@@ -19,10 +19,14 @@
     </template>
       <template #group_code="{ item }">
             <span>
-                <Button @click="navigateToProfile(item)"
-                    class="flex items-center gap-2 font-semibold text-nfuko-action text-sm dark:text-white">
+              <CopyData :show="item?.group_code" :copy="item?.group_code">
+                <template #text>
+                <button @click="navigateToProfile(item)"
+                    class=" font-semibold text-nfuko-action text-sm dark:text-white  cursor-pointer">
                     <span>{{ item?.group_code }}</span>
-                </Button>
+                </button>
+                </template>
+              </CopyData>
             </span>
         </template>
     <template #actions="{ item }: { item: any }">
@@ -43,7 +47,7 @@
 import { ref, computed, watch } from 'vue'
 import { pomPinia } from 'septor-store';
 import { Create, Details, AddGroupTab } from '.'
-import { TableDrawer, StatusButtonsHorizontal, addNumberCommas, AnalysisTile, PainPageHeader, TabelActionButtons,setLocalValues } from '@/Global'
+import { TableDrawer, StatusButtonsHorizontal, addNumberCommas, AnalysisTile, PainPageHeader, TabelActionButtons,setLocalValues, CopyData } from '@/Global'
 import { useRouter } from 'vue-router';
 import { groupSavingsApi } from '@/tenant/apis/savings/group-savingsApi';
 const Store = pomPinia();
@@ -79,7 +83,7 @@ const titleMap: Record<string, { title: string; width: string }> = {
   }
 }
 const columns = [
-  { key: 'group_code', label: 'group code', copy: true, sticky: 'left', width: '14em' },
+  { key: 'group_code', label: 'group code', copy: true, sticky: 'left',   },
   { key: 'group_name', label: 'name', sticky: 'left', width: '14em' },
   { key: 'phone', label: 'admin phone', sticky: 'left', width: '14em' },
   { key: 'status', label: 'Status', type: 'status' },

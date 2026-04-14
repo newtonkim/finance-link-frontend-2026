@@ -59,11 +59,13 @@ const remoteUrl = debounce(async (url: string) => {
     })
 }, 500);
 
-const selectedOptions = computed(() => {
-    const options = props?.url ? collection.value : props.options
-    if (!props.modelValue || !Array.isArray(props.modelValue)) return [];
-    return options.filter(opt => props.modelValue.includes(opt.id));
-});
+// const selectedOptions = computed(() => {
+//     const options = props?.url ? collection.value : props.options
+//     if (!props.modelValue || !Array.isArray(props.modelValue)) return [];
+//     return options.filter(opt => props.modelValue.includes(opt.id));
+// });
+
+const selectedOptions=ref<Option[]>([]);
 
 const filteredOptions = computed(() => {
     const options = props?.url ? collection.value : props.options
@@ -82,7 +84,10 @@ const toggleSelectOption = (option: Option) => {
     } else {
         current.splice(index, 1);
     }
+    selectedOptions.value=[...selectedOptions.value.filter(o=>o.id!==option.id), option];  
     emit('update:modelValue', current);
+    // console.log(selectedOptions.value);
+    
     emit('update:itemSelected', selectedOptions.value); // emit all selected
     // don't close, let them select multiple
 };

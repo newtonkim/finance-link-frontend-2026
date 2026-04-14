@@ -49,7 +49,7 @@ const remountComponent = ref<any>(true);
 
 onMounted(() => {
     if (Array.isArray(props.form))
-    prfields.value = [...(props.form)];
+        prfields.value = [...(props.form)];
     //   prfields.value = [...(props.form)].filter((field: any) => shouldShowField(prfields.value));
 
     if (props.action == 'add')
@@ -105,7 +105,7 @@ const handleChange = (field: any, index: number) => {
 function FormValidate() {
     const data = prfields.value.filter((field: any) => shouldShowField(field)) || [];
     // console.log(data);
-    
+
     if (isTriggered) {
         data.forEach((field: any) => {
             if (field?.fields) {
@@ -142,13 +142,13 @@ function FormValidate() {
     }
     Store.isFormSubmitted = false
     return data.some((field: any) => {
-        if(field.error){
+        if (field.error) {
             console.log(field);
-        
-            
+
+
         }
-return field.error
-        
+        return field.error
+
     });
 }
 
@@ -254,7 +254,7 @@ function shouldShowField(field: any) {
                             :form="field.fields" :action="field.action" @results="emits('results', $event)"
                             @field-changed="emits('field-changed', $event)" />
                     </template>
-                    <FormField v-else class="capitalize" :class="[field.hidden?'hidden':'']"
+                    <FormField v-else class="capitalize" :class="[field.hidden ? 'hidden' : '']"
                         :label="field?.label?.toLowerCase().replace(/^./, c => c.toUpperCase())"
                         :required="field.required" :html-for="field.name" :error="field.error"
                         :showError="field?.showError">
@@ -264,7 +264,7 @@ function shouldShowField(field: any) {
                             <template v-if="['text', 'email', 'date', 'tel'].includes(field.type)">
                                 <div class="flex">
                                     <input :id="field.name" v-bind="field" v-model="field.value"
-                                    class="rounded-xl cursor-pointer   hover:border-nfuko-primary-300 hover:bg-nfuko-primary-50 dark:hover:bg-neutral-800 transition group"
+                                        class="rounded-xl cursor-pointer   hover:border-nfuko-primary-300 hover:bg-nfuko-primary-50 dark:hover:bg-neutral-800 transition group"
                                         :class="[inputClass, field.suffix ? 'flex-1 rounded-xl rounded-r-none border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white' : '']"
                                         @input="() => field?.change && handleChange(field, index)" />
                                     <div v-if="field?.suffix"
@@ -314,8 +314,9 @@ function shouldShowField(field: any) {
                                     <MoneyInput :class="[field.suffix ? ' rounded-xl rounded-l-none ' : '']"
                                         :id="field.name" v-model="field.value" :placeholder="field?.placeholder || ''"
                                         @input="() => field?.change && handleChange(field, index)" />
-                                        <!-- {{ field.error }} -->
-                                            <div v-if="field.error" class="mt-2 px-1 text-xs text-red-500 font-medium">{{ field.error }}</div>
+                                    <!-- {{ field.error }} -->
+                                    <div v-if="field.error" class="mt-2 px-1 text-xs text-red-500 font-medium">{{
+                                        field.error }}</div>
                                 </div>
                             </template>
                             <!-- date -->
@@ -342,7 +343,8 @@ function shouldShowField(field: any) {
                                         <p class="text-xs text-neutral-400 mt-1">Recommended: Square image, max 2MB.</p>
                                     </div>
                                 </div>
-                                <div v-if="field.error" class="mt-2 px-1 text-xs text-red-500 font-medium">{{ field.error }}</div>
+                                <div v-if="field.error" class="mt-2 px-1 text-xs text-red-500 font-medium">{{
+                                    field.error }}</div>
                             </template>
 
                             <!-- Default -->

@@ -84,7 +84,7 @@ export const ACTION_CONFIG = {
     icon: Trash,
 
     class:
-      'flex h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-600 transition-colors hover:bg-red-100 dark:bg-red-900/40 dark:text-red-400 dark:hover:bg-red-900/60',
+      'flex h-7 w-7 items-center justify-center rounded-full bg-red-50 text-red-600 transition-colors hover:bg-red-100 dark:bg-red-900/40 dark:text-red-400 dark:hover:bg-red-900/60',
   },
   view: {
     icon: Eye,
@@ -104,7 +104,7 @@ export const ACTION_CONFIG = {
       }
     },
     class:
-      'flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-600 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/40 dark:text-emerald-300 dark:hover:bg-emerald-900/60',
+      'flex items-center gap-1 px-3 py-2 text-center rounded-full text-[14px] font-small text-gray-600 transition-all duration-200 leading-none whitespace-nowrap text-blue-600 bg-blue-50 hover:bg-blue-100 border-0',
   }
 }
 

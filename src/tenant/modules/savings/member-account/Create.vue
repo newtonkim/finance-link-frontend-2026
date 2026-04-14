@@ -1,5 +1,6 @@
 <template>
   <div class="card shadow-md p-4 py-10 bg-white dark:bg-neutral-800 rounded-md">
+
     <span v-if="loading"></span>
     <Form :action="data?.action" v-else parentStyle="grid  grid-cols-1 gap-4 md:gap-6" v-model:form="fields" />
   </div>
@@ -8,6 +9,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { exptendAformField, Form, getSystemSetting, tryCatch } from '@/Global'
 import { memberAccountApi } from '@/tenant/apis'
+import debounce from 'lodash/debounce'
 const { getProductCharges } = memberAccountApi()
 
 const emits = defineEmits(['update:form']),
@@ -49,6 +51,7 @@ const emits = defineEmits(['update:form']),
 
       }
     },
+   
     {
       label: 'is New Account',
       name: 'new_account',
@@ -66,6 +69,51 @@ const emits = defineEmits(['update:form']),
       required: true,
       options: yesNoOptions,
       placeholder: 'Enter consider Minimun Balance',
+    },
+    {
+      label: 'inital deposit',
+      name: 'in_deposit',
+      type: 'number',
+      value: 0,
+      required: true,
+      placeholder: 'Select initial deposit',
+
+      dependsOn: {
+        conditions: [
+          {
+            field: 'new_account',
+            condition: (val: any) => Number(val) === 1 && settingList.value['hide-initial-deposit-field'],
+          },
+          {
+            field: 'cm_balance',
+            condition: (val: any) => Number(val) >= 0
+          },
+        ],
+      },
+      change: async (val) => {
+        const amount = val?.target ? val.target.value : val
+        watchChangeInProductOrCharges(fields, amount)
+      },
+    },
+     {
+      label: 'charges',
+      name: 'charges',
+      type: 'text',
+      required: true,
+      disabled: true,
+      placeholder: 'Enter charges',
+      dependsOn: {
+        conditions: [
+          {
+            field: 'in_deposit',
+            condition: (val: any) => Number(val) > 0 && settingList.value['hide-initial-deposit-field'],
+          },
+          {
+            field: 'product_id',
+            condition: (val: any) => !!val,
+          },
+        ],
+      }
     },
     {
       label: 'Status',
@@ -98,65 +146,32 @@ async function promtValueOnUpdate() {
 }
 function checkForSettings() {
   const checkForVaailableSetting = getSystemSetting()
+  console.log(checkForVaailableSetting);
+  
   settingList.value = {
-    'hide-initial-deposit-field': checkForVaailableSetting['hide-initial-deposit-field'] ?? 0,
+    'hide-initial-deposit-field': checkForVaailableSetting?.['sacco-members-hide-initial-deposit-field'] ?? 0,
   }
-}
-watch(() => fields.value, (val) => {
-  if (true) {
-  // if (settingList.value['hide-initial-deposit-field']) {
-    const initalDepositIndex = val.findIndex((f) => f.name === 'in_deposit'),
-      referredByIndex = val.findIndex((f) => f.name === 'cm_balance')
-    if (initalDepositIndex === -1 && referredByIndex !== 1) {
-      exptendAformField({
-        fields, nextto: 'cm_balance', field: {
-          label: 'inital deposit',
-          name: 'in_deposit',
-          type: 'number',
-          value: 0,
-          required: true,
-          placeholder: 'Select initial deposit',
-          onChange: async (val) => {
-            const amount = val?.target ? val.target.value : val
-            watchChangeInProductOrCharges(fields, amount)
-          },
-        }
-      });
-    }
-  }
-},
-  { deep: true },
-)
-function watchChangeInProductOrCharges(fields: any, amount: any) {
+} 
+const watchChangeInProductOrCharges=debounce(async (fields: any, amount: any) => {
   const finedProduct = fields.value.find((f) => f.name === 'product_id')
   const chargeField = fields.value.find((f) => f.name === 'charges')
-  const existsIndex = fields.value.findIndex(f => f.name === 'product_id')
+
   if (!finedProduct || !finedProduct.value) return
+
   tryCatch(async () => {
-    if (existsIndex > 0 && amount > 0) {
-      exptendAformField({
-        fields, nextto: 'product_id', field: {
-          label: 'charges',
-          name: 'text',
-          type: 'select',
-          required: true,
-          disabled: true,
-          placeholder: 'Enter charges',
-        }
-      })
-    }
     const res: any = await getProductCharges({
       product_id: finedProduct.value,
       amount: amount,
       type: 'deposit',
     })
+
     if (chargeField) {
-      chargeField.value = (res?.cost ?? 0) + ' (charges)'
+      chargeField.value = `${res?.cost ?? 0} (charges)`
       chargeField.hidden = false
       chargeField.label = 'charges'
     }
   })
-}
+}, 900) 
 
 onMounted(() => {
   promtValueOnUpdate()
