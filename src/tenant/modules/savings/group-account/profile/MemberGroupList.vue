@@ -1,41 +1,49 @@
 <template>
-  <TableDrawer
-    ref="drawer"
-    :showAddButton="false"
-    :data="accounts"
-    :columns="columns"
-    :drawerTitle="drawerTitle?.title"
-    :drawerWidth="drawerTitle?.width"
-    :drawerShowFooter="showFooter"
-    :drawerRemount="drawerRemount"
-    :automaticCreate="false"
-    :showTableAction="false"
-    :showSearchbar="false"
-    tableDetaultHeight=""
-    @save="handleSave"
-  >
-   
+  <TableDrawer ref="drawer" :showAddButton="false" :data="accounts" :columns="columns" :drawerTitle="drawerTitle?.title"
+    :drawerWidth="drawerTitle?.width" :drawerShowFooter="showFooter" :drawerRemount="drawerRemount"
+    :automaticCreate="false" :showTableAction="false" :showSearchbar="false" tableDetaultHeight="" @save="handleSave">
+    <template #member_code="{ item }">
+
+      <span>
+        <CopyData :show="item?.member_code" :copy="item?.member_code">
+          <template #text>
+            <button @click="navigateToMemberProfile(item)"
+              class=" font-semibold text-nfuko-action text-sm dark:text-white  cursor-pointer">
+              <span>{{ item?.member_code }}</span>
+            </button>
+          </template>
+        </CopyData>
+      </span>
+    </template>
+
     <template #actions="{ item }">
       <div class="flex items-center gap-2">
-       
-        <TabelActionButtons
-          title="view"
-          color="secondary"
-          icon="CircleMinus"
-          @action="() => openDrawer(item, 'withdrawal')"
-        /> 
+
+        <TabelActionButtons v-if="item?.total_loan_balance > 0" @action="() => navigateIntoLoanDetails(item)"
+          title="loan details" color="danger" icon="CirclePile" />
+        <TabelActionButtons v-else title="loan details" color="default" icon="CirclePile" />
       </div>
     </template>
     <template #drawer="{ action, data }">
-     
+
     </template>
   </TableDrawer>
 </template>
 <script setup lang="ts">
-import { ref, computed } from "vue"; 
-import { TableDrawer, TabelActionButtons } from "@/Global";
-import { memberAccountApi,memberProfileApi } from "@/tenant/apis";
+import { ref, computed } from "vue";
+import { TableDrawer, TabelActionButtons, CopyData, setLocalValues } from "@/Global";
+import { memberAccountApi, memberProfileApi } from "@/tenant/apis";
+import { useRouter } from 'vue-router';
+const router = useRouter();
+function navigateIntoLoanDetails(item: any) {
+  console.log(item);
+  router.push(`/tenant/loans/${item?.loan_id}`)
 
+}
+function navigateToMemberProfile(item: any) {
+  router.push(`/tenant/member/profile`)
+  setLocalValues('memberProfile', { ...item, id: item?.id })
+}
 
 const props = defineProps<{
   accounts: any[];
@@ -56,7 +64,7 @@ const formData = ref<Record<string, any>>({});
 const showFooter = ref(true);
 const automaticCreate = ref<any>({});
 const currentAction = computed(() => automaticCreate.value?.actionSlot);
-const { memberAccountDepositAmount, memberAccountWithdrawalAmount } =memberAccountApi();
+const { memberAccountDepositAmount, memberAccountWithdrawalAmount } = memberAccountApi();
 
 const drawerConfigs: Record<string, any> = {
   deposit: {
@@ -71,18 +79,18 @@ const drawerConfigs: Record<string, any> = {
   },
 };
 const drawerTitle = ref<any>(drawerConfigs.deposit);
- 
+
 async function handleSave(type?: string) {
   const actionKey = currentAction.value;
   const config = drawerConfigs[actionKey];
-  
+
   if (!config) return;
 
   drawerRemount.value = await config.action(
     formData.value,
     automaticCreate.value
   );
-  emit('reload',drawer.value.drawerOpen)
+  emit('reload', drawer.value.drawerOpen)
 }
 
 function openDrawer(item: any, action: "deposit" | "withdrawal") {
@@ -99,9 +107,9 @@ function openDrawer(item: any, action: "deposit" | "withdrawal") {
   drawerTitle.value = drawerConfigs[action];
   setTimeout(() => drawer.value?.toggleDrawer(), 100);
 }
- 
+
 const columns = [
-  { key: "member_code", label: "Member Code", sticky: "left", width: "14em",copy:true },
+  { key: "member_code", label: "Member Code", sticky: "left", width: "14em", copy: true },
   { key: "member_name", label: "Member Name", sticky: "left", width: "14em" },
   { key: "member_status", label: "Status", type: "status" },
   { key: "total_loan_balance", label: "Active loan balance", type: "money" },

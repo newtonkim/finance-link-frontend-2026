@@ -71,7 +71,7 @@
           ]" :style="getColumnStyle(col)">
             <div :class="[`${col?.class}`, 'truncate']" :style="getColumnStyle(col)">
             
-              <div v-if="col.key === 'actions'" class="flex justify-center gap-2 capitalize-table-action">
+              <div v-if="col.key === 'actions'" class="flex justify-center gap-2 capitalize-table-action text-[14px]">
                 <template v-for="action in col?.show ?? []" :key="action">
                   <Imploading v-if="action == 'share'"
                     class="p-2 cursor-pointer hover:bg-nfuko-default hover:text-gray-400  hover:border hover:border-accent bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all"
@@ -87,7 +87,7 @@
                   <slot name="actions" :item="item" />
                 </div>
               </div>
-              <template v-else>
+              <div v-else class="text-[14px]">
                 <slot v-if="$slots[col.key]" :name="col.key" :item="item" />
                 <span v-else-if="col.copy">
                   <CopyData :show="item[col?.key]" :copy="item[col?.key]" />
@@ -103,7 +103,7 @@
                   </table>
                 </span>
                 <span v-else v-html="col.type ? dataFomater(item[col?.key], col.type) : item[col.key]"></span>
-              </template>
+              </div>
             </div>
           </td>
         </tr>
@@ -210,6 +210,9 @@ th {
 
 th:active {
   cursor: grabbing;
+}
+tbody td *{
+  font-size: 14px;
 }
 
 .resizer {
