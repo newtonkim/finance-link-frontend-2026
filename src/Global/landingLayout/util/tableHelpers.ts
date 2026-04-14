@@ -1,6 +1,6 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { Plus } from 'lucide-vue-next'
-import { formDataFormatV2, createUrl, feedback, printElement } from '@/Global'
+import { formDataFormatV2, createUrl, feedback, printElement, downloadFile } from '@/Global'
 import { pomPinia } from 'septor-store'
 import { ACTION_CONFIG, dataTabelFilter, fetchTableData } from './index'
 export default function useTableHelpers(props: any, emit: any) {
@@ -14,14 +14,14 @@ export default function useTableHelpers(props: any, emit: any) {
   const DrawerMounted = ref<boolean>(true)
   const submitChanges = ref<any>(null)
   const provideDataTotheParent = ref<any>([])
-  const finalSubmitAction = ref<string>('')
+  const finalSubmitAction = ref<string>(null)
   const drawerTitle = ref(props.drawerTitle)
   const drawerShooter2 = ref(true)
   const drawerWidth = ref(props.drawerWidth)
   const currentPage = ref(1)
   const dropdownDownload = [
     { label: 'PDF', value: 'PDF', route: 'export-pdf' },
-    { label: 'Excel', value: 'Excel', route: 'export-excel' },
+    { label: 'Excel', value: 'xlsx', route: 'export-excel' },
   ]
 
   async function createNewRecord() {
@@ -38,8 +38,10 @@ export default function useTableHelpers(props: any, emit: any) {
     if (values.value) {
       const res = await fetchTableData({
         data: {
+
           page: currentPage.value,
           scale: values.value,
+          ...values
         },
         props: {
           ...props,
@@ -49,37 +51,40 @@ export default function useTableHelpers(props: any, emit: any) {
         Store,
       })
       const response = feedback(res)
-
-      if (response.success) {
-        printElement(response.res.payload, { size: values.value, orientation: 'landscape' })
+      if (response.success || response.res) {
+        printElement(response.res.payload??response.res, { size: values.value, orientation: 'landscape' })
       }
       // window.print();
     }
   }
-  function handleDownload(item: any) {
+  async function handleDownload(item: any) {
     if (item.action) {
       buttonTypeClicked.value = item.value
       item.action(item)
       // emit("save", type, data, submitChanges.value);
       return
-    } else handleTableAction(null, item.route)
+    } else {
+    // downloadFile(Store,url: string,data: any, Action = "download", type = "pdf", name = null) 
+      downloadFile({Store,url: createUrl(props.url, item.route, 'download'), data: { ...item, page: currentPage.value, search_keyword: searchQuery.value }, Action: 'download', type: item.value})
+    }
   }
   function handleImport(item: any) {
     if (item.action) {
       buttonTypeClicked.value = item.value
       item.action(item)
       return
-    } else handleTableAction(null, item.route)
+    } else handleTableAction(null, item.route,false)
   }
 
   // const title
 
-  async function handleTableAction(item: any, action: string) {
+  async function handleTableAction(item: any, action: string,drawer = true) {
     drawerWidth.value = 'w-2/4'
     if (action == 'import-data') {
       finalSubmitAction.value = 'import-data'
       drawerTitle.value = 'import data'
     } else {
+
        
       const res = await fetchTableData({
         data: { ...item, page: currentPage.value, search_keyword: searchQuery.value },
@@ -92,13 +97,12 @@ export default function useTableHelpers(props: any, emit: any) {
         },
         Store,
       })
-    //   console.log(createUrl(props.url, action),res);
-      
       drawerTitle.value = 'import columns'
       provideDataTotheParent.value = res?.payload ?? res
     }
     buttonTypeClicked.value = action
-    toggleDrawer()
+    if(drawer)
+   toggleDrawer()
     drawerShooter2.value = false
   }
 
@@ -132,11 +136,11 @@ export default function useTableHelpers(props: any, emit: any) {
     emit('save', type, data, submitChanges.value)
   }
 
-  async function automaticCreateFun() {
+  async function automaticCreateFun(data) {
     // console.log(props.automaticCreate,"props.automaticCreate");
     
     // if (props.automaticCreate) {
-      const data = Store.currentFormValues
+      // const data = Store.currentFormValues
       let customeUrl = props?.actionSlot ?? props?.outerlinks?.['create'] ?? 'create'
       if (props?.actionSlot) {
         customeUrl = props?.actionSlot
@@ -180,6 +184,7 @@ export default function useTableHelpers(props: any, emit: any) {
     // alert()
     Store.isFormSubmitted = true
     const AnyErrorsFoundInTheFOrm = Store.AnyErrorsFoundInTheFOrm
+       const formdata = Store.currentFormValues
 
     // if (AnyErrorsFoundInTheFOrm == undefined) {
 
@@ -188,7 +193,7 @@ export default function useTableHelpers(props: any, emit: any) {
     } else {
         
       if (props.automaticCreate) {
-        await automaticCreateFun('create')
+        await automaticCreateFun(formdata)
         // no matter what stop  here 
        
         return
@@ -197,19 +202,20 @@ export default function useTableHelpers(props: any, emit: any) {
       }
     //   console.log(data, '====2');
 
-      save(data, finalSubmitAction.value ?? 'create')
+      save(formdata, finalSubmitAction.value ?? 'create')
+      // save(data, finalSubmitAction.value ?? 'create')
       buttonTypeClicked.value = buttonTypeClicked.value
 // alert()
-      setTimeout(() => {
-        submitChanges.value = false
-      }, 2000)
-      if (props.drawerRemount) {
-        // alert("drawerRemount")
-        toggleDrawer()
-        setTimeout(() => {
-          toggleDrawer()
-        }, 100)
-      }
+      // setTimeout(() => {
+      //   submitChanges.value = false
+      // }, 2000)
+      // if (props.drawerRemount) {
+      //   // alert("drawerRemount")
+      //   toggleDrawer()
+      //   setTimeout(() => {
+      //     toggleDrawer()
+      //   }, 100)
+      // }
       // if all it ok
       //Store.isSubmitted==false;
     }

@@ -9,7 +9,8 @@ import {
   Vote,
   BookOpen,
   ArrowLeftRight,
-  Library
+  Library,
+  Handshake
 } from "lucide-vue-next";
 import type { MenuRoutes } from "@/Global/types/helpers";
 
@@ -75,10 +76,17 @@ export const tenantRoutes: MenuRoutes[] = [
     path: "group-savings",
     label: "Group Savings",
     permissions: "group-savings-module-link-view",
-    icon: Coins,
+    icon: Handshake,
     showSideBar: true,
     component: () => import("@/tenant/modules/savings/group-account/Index.vue"),
   },
+  {
+            path: "group-savings/profile",
+            label: "group-profile",
+            component: () => import("@/tenant/modules/savings/group-account/profile/Group-profile.vue"),
+            showSideBar: false,
+            // permissions: 'member-profile',
+          },
   ///////////
   {
     path: "savings-transfer",
@@ -98,7 +106,7 @@ export const tenantRoutes: MenuRoutes[] = [
   },
   {
     label: "Loans",
-    icon: Library,
+    icon: Coins,
     // permissions: "loan-module-link-view",
     showSideBar: true,
     prifix: "tenant",

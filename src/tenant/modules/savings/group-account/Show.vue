@@ -16,9 +16,9 @@ const columns = [
         list: [
             { key: 'group_code', label: 'code',copy:true },
             { key: 'group_name', label: 'group name' },
+            { key: 'total_members', label: 'total members', slot:(value) => `<span class="text-primary fw-bold px-4  text-xs font-bold px-2 py-1 rounded-full   bg-nfuko-action text-white">${value.total_members}</span>` },
             { key: 'blc', label: 'Account balance', type: "money" },
             { key: 'status', label: 'status', type: "status" },
-            { key: 'total_members', label: 'total members', type: "number" },
             { key: 'phone', label: 'phone' },
             { key: 'phone2', label: 'phone2' },
             { key: 'dcreated', label: 'joined Date' },
@@ -56,6 +56,13 @@ onMounted(async () => {
 </script>
 <template>
     <div v-if="loading">Loading...</div>
-    <DetailsTable v-else :data="data" :columns="columns" />
+    <DetailsTable v-else :data="data" :columns="columns" >
+        <template #total_members="{ data }">
+            {{ data?.memebers?.length || 0 }}
+            <div class="text-center py-10">
+                <p class="text-gray-500">No members found in this group.</p>
+            </div>
+        </template>
+    </DetailsTable>
     <br/>
 </template>

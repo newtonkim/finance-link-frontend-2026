@@ -1,47 +1,88 @@
-import { fetchTableData, formDataFormatV2 } from '@/Global'
+import { feedback, fetchTableData, formDataFormatV2, getLocalValues } from '@/Global'
 import { pomPinia } from 'septor-store'
 import { notify } from '@/Global/Toasters'
+import type { group } from 'console'
 
 export function groupSavingsApi() {
   const Store = pomPinia()
 
   async function addNoneExistingMember(data: any, outletData: any) {
-    const dataPrepare = data??[]
-    
-    if(Array.isArray(dataPrepare)){
-        dataPrepare.push({ name: 'group_id', value: outletData?.id, type: 'hidden',hidden:true })
-        const getCharges = await fetchTableData({
-          data: formDataFormatV2(dataPrepare),
-          Store,
-          saveData: true,
-          props: {
-            url: 'group-account-savings/none-existing/create',
-            method: 'post',
-            state: 'groupAccountList',
-            time: 0,
-          },
-        })
-        let msg = {
-          msg: 'member added successfully',
-          type: 'Success',
-          success: true,
-        }
-    
-        if (getCharges?.error?.response?.data?.payload?.status == 'FAILED') {
-          msg = {
-            msg: getCharges.error.response.data.payload.message,
-            type: 'Error',
-            success: false,
-          }
-          notify(msg)
-          return false
-        }
-        notify(msg)
-        return getCharges.payload
+    const dataPrepare = data ?? []
+
+    if (Array.isArray(dataPrepare)) {
+      dataPrepare.push({ name: 'group_id', value: outletData?.id, type: 'hidden', hidden: true })
+      const getCharges = await fetchTableData({
+        data: formDataFormatV2(dataPrepare),
+        Store,
+        saveData: true,
+        props: {
+          url: 'group-account-savings/none-existing/create',
+          method: 'post',
+          state: 'groupAccountList',
+          time: 0,
+        },
+      })
+      let msg = {
+        msg: 'member added successfully',
+        type: 'Success',
+        success: true,
+      }
+
+   const res=await  feedback(getCharges, msg.msg, 'Failed to add member')
+   console.log(res,'===');
+   
+      return getCharges.payload
     }
+  }
+  async function getGroupProfileDetail(data: any = {}) {
+    const getDetails = await fetchTableData({
+      data: { ...data, group_id: getLocalValues('groupProfile').id },
+      Store,
+      saveData: true,
+      props: {
+        url: 'group-account-savings/profile-completeness',
+        method: 'post',
+        time: 0,
+        state: 'groupProfileList',
+      },
+    })
+    return getDetails?.payload
+  }
+  async function createAgroupSavingAccount(data: any = {}) {
+    const dataPrepare = data ?? []
+      dataPrepare.push({ name: 'group_id', value: getLocalValues('groupProfile').id, type: 'hidden', hidden: true })
+    const getDetails = await fetchTableData({
+      data:  formDataFormatV2(dataPrepare),
+      Store, 
+      props: {
+        url: 'group-account-savings/create-group-saving-account',
+        method: 'post',
+        time: 0,
+        state: 'create-group-account',
+      },
+    })
+    return getDetails?.payload
+  }
+  async function DepositAndWithdrawAgroupSavingAccount(data: any = {},type:string,account?:any) {
+    // console.log(account);
+    
+    const dataPrepare = data ?? []
+      dataPrepare.push({ name: 'group_account_id', value: account.id, type: 'hidden', hidden: true },{ name: 'type', value: type, type: 'hidden', hidden: true })
+    const getDetails = await fetchTableData({
+      data:  formDataFormatV2(dataPrepare),
+      Store, 
+      props: {
+        url: 'group-account-savings/group-saving-account-deposit-withdrawal',
+        method: 'post',
+        time: 0,
+        state: 'create-group-account',
+      },
+    })
+  const res=await  feedback(getDetails,)
+   return res?.success
   }
 
   return {
-    addNoneExistingMember,
+    addNoneExistingMember,getGroupProfileDetail,createAgroupSavingAccount,DepositAndWithdrawAgroupSavingAccount
   }
 }

@@ -17,6 +17,14 @@
     <template #sub-header>
       <AnalysisTile :data="stats" grid-class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3" />
     </template>
+      <template #group_code="{ item }">
+            <span>
+                <Button @click="navigateToProfile(item)"
+                    class="flex items-center gap-2 font-semibold text-nfuko-action text-sm dark:text-white">
+                    <span>{{ item?.group_code }}</span>
+                </Button>
+            </span>
+        </template>
     <template #actions="{ item }: { item: any }">
       <TabelActionButtons @action="() => OpenThedrawer(item)" title="add to group " color="primary" icon="CirclePile" />
     </template>
@@ -35,7 +43,8 @@
 import { ref, computed, watch } from 'vue'
 import { pomPinia } from 'septor-store';
 import { Create, Details, AddGroupTab } from '.'
-import { TableDrawer, StatusButtonsHorizontal, addNumberCommas, AnalysisTile, PainPageHeader, TabelActionButtons } from '@/Global'
+import { TableDrawer, StatusButtonsHorizontal, addNumberCommas, AnalysisTile, PainPageHeader, TabelActionButtons,setLocalValues } from '@/Global'
+import { useRouter } from 'vue-router';
 import { groupSavingsApi } from '@/tenant/apis/savings/group-savingsApi';
 const Store = pomPinia();
 const props = defineProps<{
@@ -50,6 +59,7 @@ const drawerTitle = ref({
   title: 'Create Tenant',
   width: 'w-2/3'
 })
+const router = useRouter();
 const filters = ['all', 'active', 'suspended', 'expired', 'trial'], { addNoneExistingMember } = groupSavingsApi()
 const tableUrl = computed(() => {
   return `/group-account-savings/list?status=${statusFilter.value}`
@@ -151,5 +161,9 @@ watch(() => drawer.value?.drawerOpen, (val) => {
   immediate: true,
   deep: true
 })
-
+function navigateToProfile(item: any) {
+  
+    router.push(`/tenant/group-savings/profile`) 
+    setLocalValues('groupProfile', item)
+}
 </script>
