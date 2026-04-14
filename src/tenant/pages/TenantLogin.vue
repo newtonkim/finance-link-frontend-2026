@@ -3,14 +3,7 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { isAxiosError } from 'axios';
 import { Eye, EyeOff, Building2 } from 'lucide-vue-next';
-import {
-  Button,
-  Input,
-  Label,
-  InputError,
-  Spinner,
-  AuthBase,storeUserLogedinData, storeUserPermissions,setSystemBranding
-} from '@/Global';
+import {  Button,  Input,  Label,  InputError,  Spinner,  AuthBase,storeUserLogedinData, storeUserPermissions,setSystemBranding,  keysToUse,  appendOnAjsonStore} from '@/Global';
 import { tenantClient } from '@/tenant/apis/tenantClient';
 import { setBearerToken } from 'septor-store';
 import { useBranchStore } from '@/stores/branchStore';
@@ -56,7 +49,10 @@ async function submit() {
       { headers },
     );
     const data=JSON.parse(atob(res?.data)) 
-    console.log(data,'====');
+    console.log(data.data);
+    
+  if(data.data.Setting)
+     appendOnAjsonStore({ data: data.data.Setting, key: keysToUse.systemSettings })
     
 
     setSystemBranding(data.data.branding)

@@ -44,10 +44,13 @@ const quickInfo = computed(() => [
         value: (props.data.group_name)
     }, 
     {
+        label: "Blc for all",
+        value:formatCurrency (props.data.available_balance)
+    },
+    {
         label: "status",
         value: (props.data.status)
     },
-   ,
     {
         label: "created by",
         value: (props.data.created_by)

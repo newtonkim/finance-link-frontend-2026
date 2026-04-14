@@ -64,7 +64,6 @@ export default function useTableHelpers(props: any, emit: any) {
       // emit("save", type, data, submitChanges.value);
       return
     } else {
-    // downloadFile(Store,url: string,data: any, Action = "download", type = "pdf", name = null) 
       downloadFile({Store,url: createUrl(props.url, item.route, 'download'), data: { ...item, page: currentPage.value, search_keyword: searchQuery.value }, Action: 'download', type: item.value})
     }
   }

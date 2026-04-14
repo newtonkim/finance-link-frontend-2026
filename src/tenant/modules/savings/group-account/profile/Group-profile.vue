@@ -1,21 +1,13 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeMount } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, onBeforeMount } from 'vue';
 import { toast } from 'vue-sonner';
 import { storeToRefs } from 'pinia';
-import { UserCircle2, FileText, TrendingUp, MinusCircle, Wallet, BarChart3, RotateCcw, Printer, Users } from 'lucide-vue-next';
+import {   FileText,   Wallet, BarChart3, RotateCcw, Users } from 'lucide-vue-next';
 import { formatMoneyValue } from '@/Global';
 import { tenantClient } from '@/tenant/apis/tenantClient';
-import { useCurrencyStore } from '@/stores/currency';
-// import { useMember } from '../composables/useMember';
-import MemberSidebar from './MemberSidebar.vue';
-import MemberAccountsTable from './MemberAccountsTable.vue';
-import MemberTransactionsTab from './MemberTransactionsTab.vue';
-import DepositWithdrawDrawer from './DepositWithdrawDrawer.vue';
-import NewAccountDrawer from './NewAccountDrawer.vue';
-import CustomFeeDrawer from './CustomFeeDrawer.vue'; 
+import { useCurrencyStore } from '@/stores/currency'; 
 import { groupSavingsApi } from '@/tenant/apis/savings/group-savingsApi';
-import MemberGroupList from './MemberGroupList.vue';
+import {GroupMembersGurranttedTab,MemberAccountsTable,MemberTransactionsTab,MemberGroupList,MemberSidebar} from './index.ts';
 const { getGroupProfileDetail } = groupSavingsApi(); 
 const { currencyCode } = storeToRefs(useCurrencyStore()); 
 const pageLoading = ref<any>(null)
@@ -214,7 +206,19 @@ const formatCurrency = (amount?: string | number) =>
                             :format-date-time="formatDateTime"
                             :format-currency="formatCurrency"
                             @print="printReceipt"
-                            @reverse="confirmDeleteTxn"
+                          
+                        />
+                    </div>
+                    <div class="w-full overflow-x-auto"      v-if="activeTab === 'loans'">
+                        <GroupMembersGurranttedTab 
+                       
+                            mode="all"
+                            action-color="bg-[#cda434]"
+                            :format-date="formatDate"
+                            :format-date-time="formatDateTime"
+                            :format-currency="formatCurrency"
+                            @print="printReceipt"
+                           
                         />
                     </div>
 
@@ -229,61 +233,12 @@ const formatCurrency = (amount?: string | number) =>
                         </p>
                     </div>
 
-                    <!-- Loans -->
-                    <div v-show="activeTab === 'loans'" class="p-12 text-center">
-                        <div class="w-12 h-12 rounded-full bg-[#eff6ff] flex items-center justify-center mx-auto mb-3">
-                            <Wallet :size="20" class="text-[#2563eb]" />
-                        </div>
-                        <h4 class="text-[15px] font-bold text-[#0f172a]">Loans Management</h4>
-                        <p class="text-[13px] text-[#64748b] mt-1 max-w-sm mx-auto">
-                            Manage loan applications, disbursements, and repayments for this member.
-                        </p>
-                    </div>
+                  
                 </div>
             </div>
         </div>
 
-        <!-- Dialog -->
-        <Teleport to="body">
-            <Transition name="fade">
-                <div v-if="showTxnDeleteDialog" class="fixed inset-0 z-50 flex items-center justify-center">
-
-                    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                        @click="showTxnDeleteDialog = false"></div>
-
-                    <div class="relative z-10 w-full max-w-md mx-4 rounded-2xl bg-white p-6 shadow-2xl">
-                        <div class="flex items-start gap-4">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100">
-                                <RotateCcw :size="20" class="text-amber-600" />
-                            </div>
-
-                            <div>
-                                <h3 class="text-base font-semibold">Reverse Transaction</h3>
-                                <p class="mt-1 text-sm text-neutral-500">
-                                    Reverse transaction
-                                    <strong>{{ txnToDelete?.reference }}</strong>?
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="mt-6 flex justify-end gap-3">
-                            <button @click="showTxnDeleteDialog = false"
-                                class="rounded-lg border px-4 py-2 text-sm">
-                                Cancel
-                            </button>
-
-                            <button @click="executeDeleteTxn" :disabled="isDeletingTxn"
-                                class="flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm text-white">
-                                <span v-if="isDeletingTxn"
-                                    class="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white"></span>
-                                <RotateCcw v-else :size="14" />
-                                Confirm Reversal
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </Transition>
-        </Teleport>
+      
     </div>
 </div>
 

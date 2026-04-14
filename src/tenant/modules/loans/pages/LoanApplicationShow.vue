@@ -22,6 +22,7 @@ import LoanDisbursementDrawer from '../components/LoanDisbursementDrawer.vue'
 import VoteCastModal from '../components/VoteCastModal.vue'
 import BMRecommendModal from '../components/BMRecommendModal.vue'
 import BMReturnForCorrectionModal from '../components/BMReturnForCorrectionModal.vue'
+import LoanGuarantorUploader from '../components/LoanGuarantorUploader.vue'
 
 const {
   loading, cancelling, reopening, application, timeline, timelineLoading,
@@ -180,6 +181,16 @@ const showDetailsSection = computed(() => !isApproved.value && !isDisbursed.valu
 
       <!-- ── Right column ── -->
       <div class="flex flex-col gap-6">
+        <!-- {{ application }} -->
+        <LoanGuarantorUploader
+          v-if="application.id && !isApproved" 
+          :application-id="application.id"
+          :application="application"
+          :editable="documentEditableStatuses.includes(application.status ?? '')"
+          :current-stage="currentDocStage"
+          @updated="loadApplication"
+          @status-change="handleDocStatusChange"
+        />
         <LoanDocumentUploader
           v-if="application.id && !isApproved"
           ref="documentUploaderRef"

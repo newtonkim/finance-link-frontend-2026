@@ -100,11 +100,11 @@ function openDrawer(item: any, action: "deposit" | "withdrawal") {
 }
 
 const columns = [
-  { key: "code", label: "code", sticky: "left", },
-  { key: "product", label: "Product", sticky: "left", },
-  { key: "blc", label: "Balance", type: "money", },
-  { key: "initial_deposit", label: "Initial Deposit", type: "money", },
-  { key: "opening_balance", label: "Opening Balance", type: "money", },
+  { key: "code", label: "Account code", sticky: "left", copy: true, width: "14em",  },
+  { key: "product", label: "Product",   },
+  { key: "blc", label: "Balance", type: "money",width: "10em", },
+  { key: "initial_deposit", label: "Initial Deposit", type: "money",width: "10em", },
+  { key: "opening_balance", label: "Opening Balance", type: "money",width: "10em", },
   { key: "status", label: "Status", type: "status" },
   { key: "created_at", label: "Created At", type: "date", },
   { key: "actions", label: "Actions" },
