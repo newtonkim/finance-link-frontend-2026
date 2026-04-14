@@ -122,6 +122,16 @@ export interface LoanPenaltyRule {
   applies_to: string | null
 }
 
+export interface LoanActivityEvent {
+  type: 'disbursed' | 'status_change' | 'repayment' | 'penalty_assessed'
+  title: string
+  description: string
+  amount: string | null
+  actor: { id: number; name: string } | null
+  notes: string | null
+  timestamp: string
+}
+
 export interface LoanDetail {
   id: number
   loan_no: string
@@ -247,6 +257,10 @@ export const loansApi = {
 
   getLedger(id: number, params?: { page?: number; per_page?: number }) {
     return tenantClient.get(`/loans/${id}/ledger`, { params })
+  },
+
+  getActivities(id: number) {
+    return tenantClient.get<{ data: LoanActivityEvent[] }>(`/loans/${id}/activities`)
   },
 
   // ─── Repayments ───────────────────────────────────────────────────────────
