@@ -13,10 +13,10 @@
                 </div>
             </div>
             <span>
-            <span v-if="$slots['add-action']" class=''>
-                <slot name="add-action" />
+                <span v-if="$slots['add-action']" class=''>
+                    <slot name="add-action" />
 
-            </span>
+                </span>
 
                 <span v-auth="haspermission('create')" v-else>
                     <button v-if="showAddButton" @click="createNewRecord"
@@ -40,18 +40,23 @@
                 </div>
                 <div class="flex">
                     <div class="flex items-center gap-2 board-r-1 mx-2" v-if="showTableAction">
-                        <Imploading v-if="showTableAction==true || (Array.isArray(showTableAction) && showTableAction.includes('download'))" icon="Download" :items="dropdownDownload" @select="handleDownload" />
-                        <Imploading v-if="showTableAction==true || (Array.isArray(showTableAction) && showTableAction.includes('migrate'))" :items="exportItems" @select="handleImport" />
-                        <Imploading v-if="printSizes?.length && (showTableAction==true || (Array.isArray(showTableAction) && showTableAction.includes('print')))" icon="Printer" :items="sizePapers(printSizes ?? [])"
-                            @select="handlePrint" /> 
+                        <!-- {{ downloadItems }} -->
+                        <Imploading
+                            v-if="showTableAction == true || (Array.isArray(showTableAction) && showTableAction.includes('download'))"
+                            icon="Download" :items="downloadItems" @select="handleDownload" />
+                        <Imploading
+                            v-if="showTableAction == true || (Array.isArray(showTableAction) && showTableAction.includes('migrate'))"
+                            :items="exportItems" @select="handleImport" />
+                        <Imploading
+                            v-if="printSizes?.length && (showTableAction == true || (Array.isArray(showTableAction) && showTableAction.includes('print')))"
+                            icon="Printer" :items="printItems.length?printItems:sizePapers(printSizes ?? [])" @select="handlePrint" />
                         <div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2"></div>
                     </div>
                     <slot name="searchSideAction" />
                 </div>
             </div>
             <div class="rounded-2xl    bg-white pt-0 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]   dark:bg-neutral-900">
-                <div
-                :class='tableDetaultHeight'
+                <div :class='tableDetaultHeight'
                     class="overflow-x-auto w-full  custom-scrollbar  border-neutral-100 bg-white dark:bg-neutral-900 shadow-sm dark:border-neutral-800 rounded-2xl">
                     <Table :check="checkBox" :handleAction="handleAction" :action_config="ACTION_CONFIG"
                         :dataFilter="dataFilter" :data="data" :columns="columns" :permissions="permissions">
@@ -70,8 +75,8 @@
     <div v-if="DrawerMounted">
         <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShooter2" v-model:open="drawerOpen"
             :title="drawerTitle" @save="saveDrawerData">
-            <template #body> 
-            
+            <template #body>
+
                 <div v-if="buttonTypeClicked == 'download-template'">
                     <UploadTemplateColumn :defaults="importDefaults" :title="title" :data="provideDataTotheParent" />
                 </div>
@@ -89,15 +94,15 @@
         @confirm="() => save(selected ?? {}, 'delete')" />
 </template>
 
-<script setup >
+<script setup>
 import Pagination from '@/Global/Pagination.vue';
 import Drawer from '../Drawer/Drawer.vue';
 import { Plus } from 'lucide-vue-next';
 import ConfirmationDialog from '../confirmationDialog/confirmationDialog.vue';
 import Searchbar from './Components/Searchbar.vue';
-import {  Imploading, UploadTemplateColumn, uploadTemplateColumData, sizePapers, } from '@/Global';
+import { Imploading, UploadTemplateColumn, uploadTemplateColumData, sizePapers, } from '@/Global';
 import Table from './Components/Table.vue';
-import useTableHelpers  from './util/tableHelpers.ts';
+import useTableHelpers from './util/tableHelpers.ts';
 
 const props = defineProps({
     addButtonText: {
@@ -111,6 +116,15 @@ const props = defineProps({
         ]
 
     },
+    printItems: {
+        type: Array, 
+    },
+    downloadItems: {
+        type: Array, default: () => [
+            { label: 'PDF', value: 'PDF', route: 'export-pdf' },
+            { label: 'Excel', value: 'xlsx', route: 'export-excel' },
+        ]
+    },
     exportItems: {
         type: Array, default: () => [
             { label: "template", value: "template", route: "download-template" },
@@ -123,7 +137,7 @@ const props = defineProps({
     drawerShowFooter: { type: Boolean, default: true },
     drawerTitle: { type: String, default: 'Drawer Title' },
     drawerWidth: { type: String, default: '30rem' },
-    importDefaults: { type: Array, default: ['id', 'branch_id'],required: false },
+    importDefaults: { type: Array, default: ['id', 'branch_id'], required: false },
     title: { type: String, required: false },
     /**
      * if  u want the drawer to make the create request   automaticly 
@@ -138,7 +152,7 @@ const props = defineProps({
     },
     columns: { type: Array, required: true },
     removeInSearch: { type: Array, default: () => ['action'] },
-    showTableAction: { type: [Boolean,Array], default: false,required: false },
+    showTableAction: { type: [Boolean, Array], default: false, required: false },
     showSearchbar: { type: Boolean, default: true },
     drawerRemount: { type: Boolean, required: false, default: true },
     state: { type: String, required: false },
@@ -177,7 +191,7 @@ const props = defineProps({
 
 
 const emit = defineEmits(['save', 'submit', 'update:title']);
- const {    dataPageLinks,
+const { dataPageLinks,
     submitChanges,
     dataFilter,
     handleAction,
@@ -202,9 +216,9 @@ const emit = defineEmits(['save', 'submit', 'update:title']);
     handleTableAction,
     handlePrint,
     saveDrawerData,
-    showDelete,ACTION_CONFIG,
-    createNewRecord,dropdownDownload,DrawerMounted
-}= useTableHelpers(props,emit);
+    showDelete, ACTION_CONFIG,
+    createNewRecord, dropdownDownload, DrawerMounted
+} = useTableHelpers(props, emit);
 
 
 defineExpose({
@@ -219,5 +233,3 @@ defineExpose({
     refresh,
 })
 </script>
-
-

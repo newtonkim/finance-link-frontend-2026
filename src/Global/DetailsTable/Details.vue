@@ -60,8 +60,11 @@
               {{ t(item.label) }}
             </span>
 
+          <div v-if="item.slot" > 
+            <span v-html="item.slot(data)"></span>
+          </div>
             <!-- Value -->
-            <div
+            <div v-else
               class="mt-1 text-sm text-neutral-700 dark:text-neutral-200 break-words"
               :class="{
                 'text-right': item.align === 'right',

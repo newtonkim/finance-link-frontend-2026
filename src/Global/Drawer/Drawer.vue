@@ -12,7 +12,7 @@
     >
       <SheetHeader class="py-4 border-b border-neutral-100 dark:border-neutral-800">
         <SheetTitle class="text-xl font-bold text-neutral-900 dark:text-white capitalize">
-          {{ props.title ? `${props.title}`.toLocaleLowerCase() : "" }}
+          {{ props.title ? `${props.title}`.toLocaleLowerCase() : "" }} 
         </SheetTitle>
       </SheetHeader>
       <div class="">

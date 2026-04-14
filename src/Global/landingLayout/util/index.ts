@@ -144,6 +144,7 @@ export async function fetchTableData({
       method: 'post',
       data,
     },
+    config: props?.config,
     axiosInstance: interceptor,
     mStore: { mUse: saveData ?? true },
   }
