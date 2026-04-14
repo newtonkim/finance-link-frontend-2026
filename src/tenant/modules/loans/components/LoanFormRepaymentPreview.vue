@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { Calculator } from 'lucide-vue-next'
+import { Calculator, Printer, FileDown } from 'lucide-vue-next'
 import { useLoanApplicationHelpers } from '../composables/useLoanApplicationHelpers'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 
-defineProps<{
+const props = defineProps<{
     schedulePreview: {
         installment_amount: number
         total_interest: number
@@ -13,6 +15,105 @@ defineProps<{
 }>()
 
 const { formatAmount } = useLoanApplicationHelpers()
+
+function printSchedule() {
+    if (!props.schedulePreview) return
+    const rows = props.schedulePreview.schedule_preview
+        .map(
+            (r) =>
+                `<tr>
+                    <td>${r.period}</td>
+                    <td>${formatAmount(r.principal)}</td>
+                    <td>${formatAmount(r.interest)}</td>
+                    <td><strong>${formatAmount(r.installment)}</strong></td>
+                    <td>${formatAmount(r.balance)}</td>
+                </tr>`,
+        )
+        .join('')
+
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Repayment Schedule Preview</title>
+<style>
+  body { font-family: Arial, sans-serif; font-size: 12px; color: #111; margin: 24px; }
+  h2 { font-size: 16px; margin-bottom: 4px; }
+  .summary { display: flex; gap: 32px; margin-bottom: 16px; padding: 12px; background: #f5f5f5; border-radius: 6px; }
+  .summary div { text-align: center; }
+  .summary .label { font-size: 11px; color: #666; }
+  .summary .value { font-size: 14px; font-weight: bold; margin-top: 2px; }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: #f0f0f0; }
+  th { padding: 6px 10px; text-align: right; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: #555; border-bottom: 2px solid #ddd; }
+  th:first-child { text-align: left; }
+  td { padding: 5px 10px; text-align: right; border-bottom: 1px solid #eee; }
+  td:first-child { text-align: left; color: #666; }
+  @media print { body { margin: 0; } }
+</style>
+</head>
+<body>
+<h2>Repayment Schedule Preview</h2>
+<div class="summary">
+  <div><div class="label">Installment</div><div class="value">${formatAmount(props.schedulePreview.installment_amount)}</div></div>
+  <div><div class="label">Total Interest</div><div class="value">${formatAmount(props.schedulePreview.total_interest)}</div></div>
+  <div><div class="label">Total Repayment</div><div class="value">${formatAmount(props.schedulePreview.total_repayment)}</div></div>
+</div>
+<table>
+  <thead><tr><th>#</th><th>Principal</th><th>Interest</th><th>Installment</th><th>Balance</th></tr></thead>
+  <tbody>${rows}</tbody>
+</table>
+</body>
+</html>`
+
+    const win = window.open('', '_blank', 'width=800,height=600')
+    if (!win) return
+    win.document.write(html)
+    win.document.close()
+    win.focus()
+    win.print()
+}
+
+function exportPdf() {
+    if (!props.schedulePreview) return
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Repayment Schedule Preview', 14, 18)
+
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(100)
+    doc.text(`Installment: ${formatAmount(props.schedulePreview.installment_amount)}`, 14, 26)
+    doc.text(`Total Interest: ${formatAmount(props.schedulePreview.total_interest)}`, 80, 26)
+    doc.text(`Total Repayment: ${formatAmount(props.schedulePreview.total_repayment)}`, 146, 26)
+    doc.setTextColor(0)
+
+    autoTable(doc, {
+        startY: 32,
+        head: [['#', 'Principal', 'Interest', 'Installment', 'Balance']],
+        body: props.schedulePreview.schedule_preview.map((r) => [
+            r.period,
+            formatAmount(r.principal),
+            formatAmount(r.interest),
+            formatAmount(r.installment),
+            formatAmount(r.balance),
+        ]),
+        headStyles: { fillColor: [30, 100, 60], textColor: 255, fontSize: 8, fontStyle: 'bold' },
+        bodyStyles: { fontSize: 8 },
+        columnStyles: {
+            0: { halign: 'left', cellWidth: 12 },
+            1: { halign: 'right' },
+            2: { halign: 'right' },
+            3: { halign: 'right', fontStyle: 'bold' },
+            4: { halign: 'right' },
+        },
+        alternateRowStyles: { fillColor: [245, 248, 246] },
+    })
+
+    doc.save('repayment-schedule.pdf')
+}
 </script>
 
 <template>
@@ -20,6 +121,26 @@ const { formatAmount } = useLoanApplicationHelpers()
         <div class="mb-4 flex items-center gap-2">
             <Calculator class="h-4 w-4 text-nfuko-primary dark:text-bg-nfuko-yellow" />
             <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">Repayment Preview</h3>
+            <div v-if="schedulePreview && !previewLoading" class="ml-auto flex items-center gap-1.5">
+                <button
+                    type="button"
+                    title="Print schedule"
+                    class="flex items-center gap-1.5 rounded-lg border border-neutral-200 px-2.5 py-1.5 text-xs font-medium text-neutral-600 hover:bg-neutral-50 transition-colors dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                    @click="printSchedule"
+                >
+                    <Printer class="h-3.5 w-3.5" />
+                    Print
+                </button>
+                <button
+                    type="button"
+                    title="Export as PDF"
+                    class="flex items-center gap-1.5 rounded-lg bg-nfuko-primary px-2.5 py-1.5 text-xs font-medium text-white hover:bg-nfuko-primary/90 transition-colors"
+                    @click="exportPdf"
+                >
+                    <FileDown class="h-3.5 w-3.5" />
+                    PDF
+                </button>
+            </div>
         </div>
         <div v-if="previewLoading" class="space-y-2">
             <div v-for="n in 4" :key="n" class="h-4 animate-pulse rounded bg-neutral-100 dark:bg-neutral-800" />
