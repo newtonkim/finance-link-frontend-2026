@@ -16,9 +16,7 @@ const guarantors = ref<Record<string, any>>({})
 const selected = ref<any[]>([])
 const memberSelected = ref<any[]>([])
 const filters = ['Group', 'Individual']
-function getLabel(item: any) {
-  return item?.name || ''
-}
+ 
 function handleSelected(item: any) {
   const type = statusFilter.value === 'Group' ? 'group' : 'individual'
   for (const i of item) {
@@ -80,7 +78,7 @@ function SetGuarantorContribution(item: any) {
           : undefined
           " placeholder="Select groups" @update:itemSelected="handleSelected" />
 
-      <MultiSearchableSelect v-else v-model="memberSelected" url="global/member-dropdown-list"
+      <MultiSearchableSelect v-else v-model="memberSelected" url="global/member-dropdown-list-total-balance-accouts"  
         placeholder="Select members" @update:itemSelected="handleSelected" />
     </div>
 
