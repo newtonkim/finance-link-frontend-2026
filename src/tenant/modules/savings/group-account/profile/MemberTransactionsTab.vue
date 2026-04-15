@@ -1,4 +1,5 @@
 <template>
+    
     <TableDrawer :downloadItems="downloadItems" :printItems="printItems" :showAddButton="false"
         :importDefaults="['id', 'branch_id', 'dob']" drawerWidth=" w-2/3" :url="tableUrl"
         state="groupdAccountTransactions" :drawerTitle="drawerTitle" :columns="columns"
@@ -29,6 +30,7 @@ const downloadItems = [
     { label: 'PDF', value: 'PDF', route: 'export-pdf', status: statusFilter.value, group_id: groupId },
     { label: 'Excel', value: 'xlsx', route: 'export-excel', status: statusFilter.value, group_id: groupId },
     { label: 'CSV', value: 'csv', route: 'export-csv', status: statusFilter.value, group_id: groupId },];
+    
 const printItems = [
     { label: 'print', value: 'print', route: 'export-print', status: statusFilter.value, group_id: groupId },];
 const columns = [
