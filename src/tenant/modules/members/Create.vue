@@ -94,7 +94,7 @@ const fields = ref([
       conditions: [
         {
           field: 'member_type',
-          condition: (val: any) => val === 'existing_member'
+          condition: (val: any) => val === 'new_member'
         }
       ],
     }
@@ -109,7 +109,7 @@ const fields = ref([
       conditions: [
         {
           field: 'member_type',
-          condition: (val: any) => val === 'new_member'
+          condition: (val: any) => val === 'existing_member'
         }
       ],
     },
