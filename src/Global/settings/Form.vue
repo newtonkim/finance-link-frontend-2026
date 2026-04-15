@@ -1,10 +1,13 @@
 <!-- this used in more than one place -->
 <template>
   <div v-if='fields?.length > 0' class=" h-[90vh]">
+    <div class="mb-2 justify-between px-0 py-1 rounded-xl dark:border-neutral-800 hover:shadow-sm hover:border-neutral-300 dark:hover:border-neutral-700 transition-all duration-200 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800 dark:hover:shadow-sm dark:hover:border-neutral-700 capitalize  dark:bg-neutral-900 border border-neutral-200  " v-for="field in fields">
 
-    <div class="mb-4 " v-for="field in fields">
+<div>
 
       <label :for="field.name" class="block font-medium capitalize">{{ field.label }}</label>
+     
+</div>
       <div v-if="field.settings_action.attr === 'switch'"
         class="flex items-center justify-between p-3 rounded-xl bg-neutral-50 dark:bg-neutral-800 border border-neutral-100 dark:border-neutral-700">
         <div>
@@ -140,15 +143,15 @@ function stateGenerator(name: string) {
   return `${name}`.replace(/\W+/g, "-");
 }
 async function intializetheData() {
-  const customeUrl = props?.outerlinks?.['list'] ?? "settings-list";
-  const state = createUrl(props?.url, customeUrl);
+  const customeUrl = props?.outerlinks?.['list']??null //?? "settings-list";
+  // const state = createUrl(props?.url, customeUrl);
   const theListData = stateGenerator(props?.outerlinks?.['list'] ?? props?.state ?? "settings-list");
   const res = await fetchTableData({
     data: {},
     props: {
       ...props,
       state: theListData,
-      url: state
+      url: props?.url
     }, Store
   });
   if (res.payload) {
