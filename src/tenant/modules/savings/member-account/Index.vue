@@ -222,7 +222,10 @@ const formData = ref<Record<string, any>>({}),
   };
 // automaticCreate.actionSlot// this will help switch off the default drawer actions  and use out side action
 function saveUser(type: string, data: any) {
-  if (!type && title?.[automaticCreate.value.actionSlot]) {
+  console.log(type,automaticCreate.value);
+  
+
+  if (title?.[automaticCreate.value.actionSlot]) {
     // let check if there is an action slot has its own action we use that action instead of the default ones
     title?.[automaticCreate.value.actionSlot]?.fun?.();
     return;

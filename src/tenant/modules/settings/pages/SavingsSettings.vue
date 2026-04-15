@@ -65,7 +65,7 @@ import { SettingCard } from '@/tenant/components/globals'
 import { Drawer } from '@/Global'
 import { ref } from 'vue'
 import { SavingsSettingsList } from '../saving-account'
-import { GroupSavingSettingsList } from '../group-saving-account '
+import { GroupSavingSettingsList } from '../group-saving-account'
 
 // Cards
 const settingsCards = [
