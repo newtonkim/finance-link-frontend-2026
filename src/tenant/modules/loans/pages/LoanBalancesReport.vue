@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { Calendar, Filter, Download, RefreshCw } from 'lucide-vue-next'
-import { RouterLink, useRouter } from 'vue-router'
-import { Spinner, Pagination, formatMoneyValue, exportToExcel } from '@/Global'
+import { ref, computed, onMounted } from 'vue'
+import { Calendar, Filter, Download, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
+import { Spinner, SearchableSelect, formatMoneyValue, exportToExcel } from '@/Global'
 import { setLocalValues, keysToUse } from '@/Global/Helpers'
 import {
   reportsApi,
@@ -47,6 +47,24 @@ const statusOptions: { value: LoanBalanceStatus; label: string }[] = [
   { value: 'arrears', label: 'In Arrears' },
   { value: 'closed', label: 'Closed' },
 ]
+
+// SearchableSelect expects { id, name }[] format
+const branchOptions = computed(() => [
+  { id: null, name: 'All Branches' },
+  ...branches.value.map((b) => ({ id: b.id, name: b.name })),
+])
+const productOptions = computed(() => [
+  { id: null, name: 'All Products' },
+  ...products.value.map((p) => ({ id: p.id, name: p.name })),
+])
+const officerOptions = computed(() => [
+  { id: null, name: 'All Officers' },
+  ...officers.value.map((o) => ({ id: o.id, name: o.name })),
+])
+const statusSelectOptions = computed(() =>
+  statusOptions.map((o) => ({ id: o.value as string, name: o.label })),
+)
+
 
 async function fetchFilterOptions() {
   try {
@@ -118,6 +136,9 @@ function handlePerPageChange(newPerPage: number) {
   fetchReport(1)
 }
 
+const hasPrev = computed(() => currentPage.value > 1)
+const hasNext = computed(() => currentPage.value < lastPage.value)
+
 const router = useRouter()
 
 function navigateToMemberProfile(memberData: any) {
@@ -138,7 +159,7 @@ onMounted(() => {
       <div>
         <h1 class="text-2xl font-bold text-neutral-900 dark:text-white">Loan Balances Report</h1>
         <p class="text-sm text-neutral-500 dark:text-neutral-400">
-          Outstanding balances across all loan accounts as of {{ asOfDate }}
+          Total principal, interest, charges and penalties outstanding across all loans as of {{ asOfDate }}
         </p>
       </div>
       <button
@@ -171,49 +192,40 @@ onMounted(() => {
         </div>
       </div>
 
-      <div class="flex flex-col gap-1">
+      <div class="flex flex-col gap-1 min-w-[160px]">
         <label class="text-xs text-neutral-400">Branch</label>
-        <select
+        <SearchableSelect
           v-model="branchId"
-          class="rounded-lg border border-neutral-200 bg-white py-2 px-3 text-sm outline-none focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
-        >
-          <option :value="null">All Branches</option>
-          <option v-for="b in branches" :key="b.id" :value="b.id">{{ b.name }}</option>
-        </select>
+          :options="branchOptions"
+          placeholder="All Branches"
+        />
       </div>
 
-      <div class="flex flex-col gap-1">
+      <div class="flex flex-col gap-1 min-w-[160px]">
         <label class="text-xs text-neutral-400">Product</label>
-        <select
+        <SearchableSelect
           v-model="productId"
-          class="rounded-lg border border-neutral-200 bg-white py-2 px-3 text-sm outline-none focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
-        >
-          <option :value="null">All Products</option>
-          <option v-for="p in products" :key="p.id" :value="p.id">{{ p.name }}</option>
-        </select>
+          :options="productOptions"
+          placeholder="All Products"
+        />
       </div>
 
-      <div class="flex flex-col gap-1">
+      <div class="flex flex-col gap-1 min-w-[160px]">
         <label class="text-xs text-neutral-400">Loan Officer</label>
-        <select
+        <SearchableSelect
           v-model="officerId"
-          class="rounded-lg border border-neutral-200 bg-white py-2 px-3 text-sm outline-none focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
-        >
-          <option :value="null">All Officers</option>
-          <option v-for="o in officers" :key="o.id" :value="o.id">{{ o.name }}</option>
-        </select>
+          :options="officerOptions"
+          placeholder="All Officers"
+        />
       </div>
 
-      <div class="flex flex-col gap-1">
+      <div class="flex flex-col gap-1 min-w-[140px]">
         <label class="text-xs text-neutral-400">Status</label>
-        <select
+        <SearchableSelect
           v-model="status"
-          class="rounded-lg border border-neutral-200 bg-white py-2 px-3 text-sm outline-none focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
-        >
-          <option v-for="opt in statusOptions" :key="opt.value" :value="opt.value">
-            {{ opt.label }}
-          </option>
-        </select>
+          :options="statusSelectOptions"
+          placeholder="All Statuses"
+        />
       </div>
 
       <button
@@ -238,7 +250,7 @@ onMounted(() => {
       <div
         class="rounded-2xl border border-neutral-100 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
       >
-        <h3 class="text-xs font-medium text-neutral-500">Principal</h3>
+        <h3 class="text-xs font-medium text-neutral-500">Principal Outstanding</h3>
         <p class="mt-1 text-lg font-bold text-neutral-900 dark:text-white">
           {{ fmt(summary.total_principal) }}
         </p>
@@ -246,7 +258,7 @@ onMounted(() => {
       <div
         class="rounded-2xl border border-neutral-100 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
       >
-        <h3 class="text-xs font-medium text-neutral-500">Interest</h3>
+        <h3 class="text-xs font-medium text-neutral-500">Interest Outstanding</h3>
         <p class="mt-1 text-lg font-bold text-neutral-900 dark:text-white">
           {{ fmt(summary.total_interest) }}
         </p>
@@ -254,7 +266,7 @@ onMounted(() => {
       <div
         class="rounded-2xl border border-neutral-100 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
       >
-        <h3 class="text-xs font-medium text-neutral-500">Charges</h3>
+        <h3 class="text-xs font-medium text-neutral-500">Charges Outstanding</h3>
         <p class="mt-1 text-lg font-bold text-neutral-900 dark:text-white">
           {{ fmt(summary.total_charges) }}
         </p>
@@ -262,13 +274,13 @@ onMounted(() => {
       <div
         class="rounded-2xl border border-neutral-100 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
       >
-        <h3 class="text-xs font-medium text-neutral-500">Penalties</h3>
+        <h3 class="text-xs font-medium text-neutral-500">Penalty Outstanding</h3>
         <p class="mt-1 text-lg font-bold text-neutral-900 dark:text-white">
           {{ fmt(summary.total_penalty) }}
         </p>
       </div>
       <div class="rounded-2xl border border-nfuko-primary bg-nfuko-primary p-4 shadow-sm">
-        <h3 class="text-xs font-medium text-white/80">Grand Total</h3>
+        <h3 class="text-xs font-medium text-white/80">Total Portfolio Outstanding</h3>
         <p class="mt-1 text-xl font-bold text-white">{{ fmt(summary.grand_total) }}</p>
       </div>
     </div>
@@ -355,27 +367,27 @@ onMounted(() => {
             <th
               class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-neutral-400"
             >
-              Principal
+              Principal Outstanding
             </th>
             <th
               class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-neutral-400"
             >
-              Interest
+              Interest Outstanding
             </th>
             <th
               class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-neutral-400"
             >
-              Charges
+              Charges Outstanding
             </th>
             <th
               class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-neutral-400"
             >
-              Penalty
+              Penalty Outstanding
             </th>
             <th
               class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-neutral-400"
             >
-              Total Balance
+              Total Outstanding
             </th>
             <th
               class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-neutral-400"
@@ -385,82 +397,99 @@ onMounted(() => {
           </tr>
         </thead>
         <tbody class="divide-y divide-neutral-50 dark:divide-neutral-800">
-          <RouterLink
+          <tr
             v-for="loan in loans"
             :key="loan.loan_id"
-            :to="{ name: 'tenant-loan-account', params: { id: loan.loan_id } }"
-            custom
-            v-slot="{ navigate }"
+            class="hover:bg-neutral-50/60 dark:hover:bg-neutral-800/30 transition-colors"
           >
-            <tr class="cursor-pointer hover:bg-neutral-50/60 transition-colors" @click="navigate">
-              <td
-                class="px-4 py-3 text-nfuko-blue font-medium hover:underline hover:text-nfuko-action cursor-pointer"
+            <!-- Loan # — clickable link to loan account -->
+            <td class="px-4 py-3">
+              <button
+                class="font-mono text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
+                @click="router.push({ name: 'tenant-loan-account', params: { id: String(loan.loan_id) } })"
               >
                 {{ loan.loan_no }}
-              </td>
-              <td class="px-4 py-3">
-                <div
-                  class="font-medium text-nfuko-green cursor-pointer hover:text-nfuko-action hover:underline"
-                  @click.stop="
-                    navigateToMemberProfile({
-                      id: loan.member_id,
-                      name: loan.member_name,
-                      member_number: loan.member_number,
-                    })
-                  "
-                >
-                  {{ loan.member_name }}
-                </div>
-                <div class="text-xs text-neutral-400">{{ loan.member_number }}</div>
-              </td>
-              <td class="px-4 py-3 text-neutral-700 dark:text-neutral-300">
-                {{ loan.product_name }}
-              </td>
-              <td class="px-4 py-3 text-neutral-700 dark:text-neutral-300">
-                {{ loan.branch_name }}
-              </td>
-              <td class="px-4 py-3 text-neutral-700 dark:text-neutral-300">
-                {{ loan.loan_officer_name }}
-              </td>
-              <td class="px-4 py-3 text-right font-mono text-neutral-700 dark:text-neutral-300">
-                {{ fmt(loan.principal) }}
-              </td>
-              <td class="px-4 py-3 text-right font-mono text-neutral-700 dark:text-neutral-300">
-                {{ fmt(loan.interest_remaining) }}
-              </td>
-              <td class="px-4 py-3 text-right font-mono text-neutral-700 dark:text-neutral-300">
-                {{ fmt(loan.charges_remaining) }}
-              </td>
-              <td class="px-4 py-3 text-right font-mono text-neutral-700 dark:text-neutral-300">
-                {{ fmt(loan.penalty_remaining) }}
-              </td>
-              <td class="px-4 py-3 text-right font-mono font-bold text-neutral-900 dark:text-white">
-                {{ fmt(loan.outstanding_balance) }}
-              </td>
-              <td class="px-4 py-3 text-center">
-                <span
-                  class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold"
-                  :class="{
-                    'bg-green-100 text-green-700': loan.status === 'active',
-                    'bg-red-100 text-red-700': loan.status === 'arrears',
-                    'bg-neutral-100 text-neutral-700': loan.status === 'closed',
-                  }"
-                >
-                  {{ loan.status }}
-                </span>
-              </td>
-            </tr>
-          </RouterLink>
+              </button>
+            </td>
+            <!-- Member — name links to profile, number is plain text -->
+            <td class="px-4 py-3">
+              <button
+                class="font-medium text-nfuko-green hover:text-nfuko-action hover:underline"
+                @click="navigateToMemberProfile({ id: loan.member_id, name: loan.member_name, member_number: loan.member_number })"
+              >
+                {{ loan.member_name }}
+              </button>
+              <div class="text-xs text-neutral-400">{{ loan.member_number }}</div>
+            </td>
+            <td class="px-4 py-3 text-neutral-700 dark:text-neutral-300">
+              {{ loan.product_name }}
+            </td>
+            <td class="px-4 py-3 text-neutral-700 dark:text-neutral-300">
+              {{ loan.branch_name }}
+            </td>
+            <td class="px-4 py-3 text-neutral-700 dark:text-neutral-300">
+              {{ loan.loan_officer_name }}
+            </td>
+            <td class="px-4 py-3 text-right font-mono text-neutral-700 dark:text-neutral-300">
+              {{ fmt(loan.principal) }}
+            </td>
+            <td class="px-4 py-3 text-right font-mono text-neutral-700 dark:text-neutral-300">
+              {{ fmt(loan.interest_remaining) }}
+            </td>
+            <td class="px-4 py-3 text-right font-mono text-neutral-700 dark:text-neutral-300">
+              {{ fmt(loan.charges_remaining) }}
+            </td>
+            <td class="px-4 py-3 text-right font-mono text-neutral-700 dark:text-neutral-300">
+              {{ fmt(loan.penalty_remaining) }}
+            </td>
+            <td class="px-4 py-3 text-right font-mono font-bold text-neutral-900 dark:text-white">
+              {{ fmt(loan.outstanding_balance) }}
+            </td>
+            <td class="px-4 py-3 text-center">
+              <span
+                class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                :class="{
+                  'bg-green-100 text-green-700': loan.status === 'disbursed',
+                  'bg-red-100 text-red-700': loan.status === 'arrears',
+                  'bg-neutral-100 text-neutral-700': loan.status === 'closed',
+                }"
+              >
+                {{ loan.status }}
+              </span>
+            </td>
+          </tr>
         </tbody>
       </table>
 
-      <Pagination
-        :page="currentPage"
-        :per-page="perPage"
-        :total="totalItems"
-        @change="handlePageChange"
-        @update:per-page="handlePerPageChange"
-      />
+      <!-- Pagination — same style as tenant/loans -->
+      <div
+        v-if="totalItems > 0"
+        class="flex items-center justify-between border-t border-neutral-100 dark:border-neutral-800 px-4 py-3 text-sm text-neutral-500 dark:text-neutral-400"
+      >
+        <span>
+          Showing {{ (currentPage - 1) * perPage + 1 }}–{{
+            Math.min(currentPage * perPage, totalItems)
+          }}
+          of {{ totalItems.toLocaleString() }} records
+        </span>
+        <div class="flex items-center gap-2">
+          <button
+            :disabled="!hasPrev"
+            class="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-neutral-200 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors dark:border-neutral-700 dark:hover:bg-neutral-800"
+            @click="handlePageChange(currentPage - 1)"
+          >
+            <ChevronLeft class="h-4 w-4" /> Prev
+          </button>
+          <span class="px-2 text-xs">{{ currentPage }} / {{ lastPage }}</span>
+          <button
+            :disabled="!hasNext"
+            class="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-neutral-200 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors dark:border-neutral-700 dark:hover:bg-neutral-800"
+            @click="handlePageChange(currentPage + 1)"
+          >
+            Next <ChevronRight class="h-4 w-4" />
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>

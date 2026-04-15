@@ -15,7 +15,7 @@ export interface FilterOptions {
 
 // ─── Aging Report ─────────────────────────────────────────────────────────────
 
-export type AgingBucket = 'current' | '1-30' | '31-60' | '61-90' | '91-180' | '180+'
+export type AgingBucket = '1-30' | '31-60' | '61-90' | '91-180' | '180+'
 
 export interface AgingFilters {
   as_of_date?: string | null
@@ -32,15 +32,35 @@ export interface AgingLoanRow {
   loan_no: string
   member_id: number
   member_name: string
-  member_number: string
+  member_no: string
+  product_name: string
+  branch_name: string
   loan_officer_name: string
+  /** Original disbursed amount */
   principal: string
+  /** Stored outstanding balance on loan record */
   outstanding_balance: string
+  /** Schedule-computed total remaining balance (principal + interest + charges + penalty) */
+  balance_outstanding: string
+  /** Remaining principal balance only — from full schedule, not just overdue */
+  principal_balance_outstanding: string
+  /** Sum of unpaid future installments (due_date > as_of_date) */
+  current_not_yet_due: string
+  /** Cumulative amount paid on this loan up to as_of_date (reversals excluded) */
+  total_paid_to_date: string
   principal_arrears: string
   interest_arrears: string
   charges_arrears: string
   penalty_arrears: string
   total_arrears: string
+  /** True when this loan was created by rescheduling an earlier loan */
+  is_rescheduled: 0 | 1
+  /** Overdue amounts broken down by bucket */
+  arrears_1_30: string
+  arrears_31_60: string
+  arrears_61_90: string
+  arrears_91_180: string
+  arrears_180plus: string
   days_past_due: number
   bucket: AgingBucket
   last_payment_date: string | null
@@ -68,11 +88,22 @@ export interface AgingBucketRow {
 }
 
 export interface AgingPortfolioTotals {
+  /** Total active loans in portfolio */
   loan_count: number
+  /** Loans with at least one overdue installment (after grace period) */
+  arrears_loan_count: number
   total_arrears: number
   total_portfolio: number
   par_30: number
   par_90: number
+  /** PAR 30 excluding rescheduled loans — portfolio health view */
+  par_30_excl_rescheduled: number
+  /** PAR 90 excluding rescheduled loans — portfolio health view */
+  par_90_excl_rescheduled: number
+  /** Number of rescheduled loans currently in arrears */
+  rescheduled_loan_count: number
+  /** Outstanding balance of rescheduled loans in arrears */
+  rescheduled_outstanding: number
   total_provision: number
 }
 

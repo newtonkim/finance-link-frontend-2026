@@ -550,7 +550,7 @@ const goBack = () => {
             <div
               class="text-[11px] font-semibold uppercase tracking-wider text-neutral-700/80 dark:text-neutral-300/80"
             >
-              Outstanding Balance
+              Principal Outstanding
             </div>
             <div
               class="mt-1 text-2xl font-black leading-tight"
@@ -563,7 +563,7 @@ const goBack = () => {
               {{ outstandingDisplay }}
             </div>
             <div class="mt-1 text-[11px] text-neutral-700/70 dark:text-neutral-300/70">
-              Remaining debt
+              Remaining principal (excl. interest)
             </div>
           </div>
 
