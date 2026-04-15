@@ -13,7 +13,7 @@
                 <CreateNoneMember :data="data" v-model:form="formData" />
             </div>
             <div v-if="activeTab === 'Exiting'">
-                <AddExistingMember v-model:form="formData" />
+                <AddExistingMember :data="data" v-model:form="formData" />
             </div>
         </div>
     </div>

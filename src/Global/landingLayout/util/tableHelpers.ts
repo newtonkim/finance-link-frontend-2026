@@ -168,9 +168,9 @@ export default function useTableHelpers(props: any, emit: any) {
         setTimeout(() => {
           submitChanges.value = false
         }, 2000)
-        setTimeout(() => {
-          toggleDrawer()
-        }, 100) //  to make sure the drawer is cleaned
+        // setTimeout(() => {
+        //   toggleDrawer()
+        // }, 100) //  to make sure the drawer is cleaned
         Store.currentFormValues = {}
         // alert(buttonTypeClicked.value)
         buttonTypeClicked.value = buttonTypeClicked.value
