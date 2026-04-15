@@ -48,6 +48,9 @@ async function saveLoanGuarantors() {
 
   emit('updated', 1)
 }
+function SetGuarantorContribution(item: any) {
+  guarantors.value[item.id] = item
+}
 </script>
 <template>
   <div class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
@@ -84,7 +87,7 @@ async function saveLoanGuarantors() {
     <!-- Selected Guarantors -->
     <div v-if="filteredGuarantors.length" class="mt-6">
       <div class="flex flex-col justify-between mb-2">
-        <GuatorsListWithType title="Selected Guarantors" :items="filteredGuarantors"
+        <GuatorsListWithType    @action="SetGuarantorContribution"  title="Selected Guarantors" :items="filteredGuarantors"
           empty-text="No guarantors added yet" label-key="name" type-key="type" />
         <br>
 
@@ -104,11 +107,12 @@ async function saveLoanGuarantors() {
     <div class="my-6 border-t border-neutral-200 dark:border-neutral-800"></div>
 
     <!-- Current Guarantors -->
-    <GuatorsListWithType title="Current Guarantors" :items="application?.loan_guarantors"
+    <GuatorsListWithType actionKey="show"  title="Current Guarantors"  :items="application?.loan_guarantors"
       empty-text="No guarantors added yet" label-key="name" type-key="type" />
 
-    <div v-if="application?.loan_guarantors && application?.loan_guarantors.length ==0" class="mb-1 flex animate-pulse items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 dark:border-red-800 dark:bg-red-950/40 mt-4 text-[10px] text-neutral-400  dark:text-neutral-500 text-red-500 capitalize">
-       This loan application currently has no guarantors.
+    <div v-if="application?.loan_guarantors && application?.loan_guarantors.length == 0"
+      class="mb-1 flex animate-pulse items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 dark:border-red-800 dark:bg-red-950/40 mt-4 text-[10px] text-neutral-400  dark:text-neutral-500 text-red-500 capitalize">
+      This loan application currently has no guarantors.
       guarantors are Required for this loan application. Please add guarantors before submitting the application.
     </div>
   </div>

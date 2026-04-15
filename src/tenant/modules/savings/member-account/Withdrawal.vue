@@ -24,7 +24,7 @@ const emits = defineEmits(['update:form']),
             { key: 'member_name', label: 'memeber name', },
             { key: 'account_code', label: 'account code', copy: true },
             { key: 'product', label: 'product', },
-            { key: 'blc', label: 'balance', },
+            { key: 'blc', label: 'balance',type: "money" },
             { key: 'type', label: 'type', copy: true },
             { key: 'created_at', label: 'created', tyope: "dateTime" },
         ]
