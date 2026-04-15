@@ -9,6 +9,19 @@
                 {{ item?.member_name }}
             </Button>
         </template>
+         <template #code="{ item }">
+
+                <span>
+                    <CopyData :show="item?.code" :copy="item?.code">
+                        <template #text>
+                            <button @click="navigateIntoLoanDetails(item)"
+                                class=" font-semibold text-nfuko-action text-sm dark:text-white  cursor-pointer">
+                                <span>{{ item?.code }}</span>
+                            </button>
+                        </template>
+                    </CopyData>
+                </span>
+            </template>
 
         <!-- Search Side Filters -->
         <template #searchSideAction>
@@ -20,7 +33,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { TableDrawer, StatusButtonsHorizontal, setLocalValues, getLocalValues } from '@/Global'
+import {  setLocalValues, getLocalValues, } from '@/Global'
 const router = useRouter()
 const statusFilter = ref<'all' | 'disbursed' | 'arrears' | 'active' | 'closed'>('all')
 const groupId = computed(() => getLocalValues('groupProfile')?.id)
@@ -32,6 +45,9 @@ const tableUrl = computed(() => {
     if (groupId.value) params.append('group_id', groupId.value)
     return `/group-account-savings/profile/group-members-with-running-loans?${params.toString()}`
 }) 
+function navigateIntoLoanDetails(item: any) {
+    router.push(`/tenant/loans/${item?.loan_id}`)
+}
 const columns = [
     { key: 'code', label: 'Reference', sticky: 'left' },
     { key: 'member_code', label: 'Member Code', sticky: 'left' },
