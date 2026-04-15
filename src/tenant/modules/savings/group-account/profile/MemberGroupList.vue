@@ -1,7 +1,10 @@
 <template>
-  <TableDrawer ref="drawer" :showAddButton="false" :data="accounts" :columns="columns" :drawerTitle="drawerTitle?.title"
+  
+  <TableDrawer 
+  :downloadItems="downloadItems"  
+  ref="drawer" :showAddButton="false" :data="accounts" :columns="columns" :drawerTitle="drawerTitle?.title"
     :drawerWidth="drawerTitle?.width" :drawerShowFooter="showFooter" :drawerRemount="drawerRemount"
-    :automaticCreate="false" :showTableAction="false" :showSearchbar="false" tableDetaultHeight="" @save="handleSave">
+    :automaticCreate="false" :showTableAction="['download']" :showSearchbar="true" tableDetaultHeight="" @save="handleSave">
     <template #member_code="{ item }">
 
       <span>
@@ -18,25 +21,21 @@
 
     <template #actions="{ item }">
       <div class="flex items-center gap-2">
-
         <TabelActionButtons v-if="item?.total_loan_balance > 0" @action="() => navigateIntoLoanDetails(item)"
           title="loan details" color="danger" icon="CirclePile" />
         <TabelActionButtons v-else title="loan details" color="default" icon="CirclePile" />
       </div>
     </template>
-    <template #drawer="{ action, data }">
-
-    </template>
+ 
   </TableDrawer>
 </template>
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { TableDrawer, TabelActionButtons, CopyData, setLocalValues } from "@/Global";
+import { setLocalValues,getLocalValues } from "@/Global";
 import { memberAccountApi, memberProfileApi } from "@/tenant/apis";
 import { useRouter } from 'vue-router';
-const router = useRouter();
+const router = useRouter(),groupId = getLocalValues('groupProfile')?.id
 function navigateIntoLoanDetails(item: any) {
-  console.log(item);
   router.push(`/tenant/loans/${item?.loan_id}`)
 
 }
@@ -58,6 +57,11 @@ const emit = defineEmits<{
   customFee: [account: any];
 }>();
 
+const downloadItems = [
+    { label: 'PDF', value: 'PDF', route: 'export-pdf',url:"group-account-savings/download-group-members-list", group_id: groupId },
+    { label: 'Excel', value: 'xlsx', route: 'export-excel',url:"group-account-savings/download-group-members-list", group_id: groupId },
+  ];
+ 
 const drawer = ref<any>(null);
 const drawerRemount = ref(true);
 const formData = ref<Record<string, any>>({});
@@ -93,19 +97,10 @@ async function handleSave(type?: string) {
   emit('reload', drawer.value.drawerOpen)
 }
 
-function openDrawer(item: any, action: "deposit" | "withdrawal") {
-  automaticCreate.value = {
-    ...item,
-    actionSlot: action,
-    member_code: props.member.memeber_code,
-    member_name: props.member.full_name,
-    blc: item.balance,
-    account_type: item.account_type,
-    account_code: item.code,
-  };
-  showFooter.value = true;
-  drawerTitle.value = drawerConfigs[action];
-  setTimeout(() => drawer.value?.toggleDrawer(), 100);
+function downloadSheet() {
+  // drawerRemount.value = true
+  alert()
+;
 }
 
 const columns = [

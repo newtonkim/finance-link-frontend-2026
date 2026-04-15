@@ -231,6 +231,7 @@ defineExpose({
     changeThePage,
     handleAction,
     handlePrint,
+    handleDownload,
     refresh,
 })
 </script>

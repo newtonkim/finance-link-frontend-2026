@@ -265,21 +265,21 @@ export function addMinutesToTime(startTime: string, minutesToAdd: number | strin
  * **/
 export async function downloadFile(data: {
   Store: null
-  url: string
   data: null
   Action: 'download'
   type: 'pdf'
   name: null | string
+  url?: string
+  customUrl?: string
 }) {
-  const { Store, url, data: requestData, Action, type, name } = data
+  const { Store, url, data: requestData, Action, type, name,customUrl } = data
   const appName = import.meta.env.VITE_APP_NAME // Example of accessing environment variable
-
   const valueres = await fetchTableData({
     data: requestData,
     props: {
       reload: false, // dont refectch data
       state: url + '_' + 'download-export',
-      url: createUrl(url, 'download-export'),
+      url: customUrl??createUrl(url, 'download-export'),
       config: { responseType: 'blob' },
     },
     Store,

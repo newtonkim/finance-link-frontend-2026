@@ -28,9 +28,8 @@ export function groupSavingsApi() {
         success: true,
       }
 
-   const res=await  feedback(getCharges, msg.msg, 'Failed to add member')
-   console.log(res,'===');
-   
+      const res = await feedback(getCharges, msg.msg, 'Failed to add member')
+
       return getCharges.payload
     }
   }
@@ -50,10 +49,15 @@ export function groupSavingsApi() {
   }
   async function createAgroupSavingAccount(data: any = {}) {
     const dataPrepare = data ?? []
-      dataPrepare.push({ name: 'group_id', value: getLocalValues('groupProfile').id, type: 'hidden', hidden: true })
+    dataPrepare.push({
+      name: 'group_id',
+      value: getLocalValues('groupProfile').id,
+      type: 'hidden',
+      hidden: true,
+    })
     const getDetails = await fetchTableData({
-      data:  formDataFormatV2(dataPrepare),
-      Store, 
+      data: formDataFormatV2(dataPrepare),
+      Store,
       props: {
         url: 'group-account-savings/create-group-saving-account',
         method: 'post',
@@ -63,14 +67,21 @@ export function groupSavingsApi() {
     })
     return getDetails?.payload
   }
-  async function DepositAndWithdrawAgroupSavingAccount(data: any = {},type:string,account?:any) {
+  async function DepositAndWithdrawAgroupSavingAccount(
+    data: any = {},
+    type: string,
+    account?: any,
+  ) {
     // console.log(account);
-    
+
     const dataPrepare = data ?? []
-      dataPrepare.push({ name: 'group_account_id', value: account.id, type: 'hidden', hidden: true },{ name: 'type', value: type, type: 'hidden', hidden: true })
+    dataPrepare.push(
+      { name: 'group_account_id', value: account.id, type: 'hidden', hidden: true },
+      { name: 'type', value: type, type: 'hidden', hidden: true },
+    )
     const getDetails = await fetchTableData({
-      data:  formDataFormatV2(dataPrepare),
-      Store, 
+      data: formDataFormatV2(dataPrepare),
+      Store,
       props: {
         url: 'group-account-savings/group-saving-account-deposit-withdrawal',
         method: 'post',
@@ -78,11 +89,14 @@ export function groupSavingsApi() {
         state: 'create-group-account',
       },
     })
-  const res=await  feedback(getDetails,)
-   return res?.success
+    const res = await feedback(getDetails)
+    return res?.success
   }
 
   return {
-    addNoneExistingMember,getGroupProfileDetail,createAgroupSavingAccount,DepositAndWithdrawAgroupSavingAccount
+    addNoneExistingMember,
+    getGroupProfileDetail,
+    createAgroupSavingAccount,
+    DepositAndWithdrawAgroupSavingAccount,
   }
 }

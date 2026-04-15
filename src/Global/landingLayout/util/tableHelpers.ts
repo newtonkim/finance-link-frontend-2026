@@ -58,10 +58,13 @@ export default function useTableHelpers(props: any, emit: any) {
     }
   }
   async function handleDownload(item: any) {
-    if (item.action) {
+    if(item?.url){
+      downloadFile({Store,customUrl: item?.url, data: { ...item, page: currentPage.value, search_keyword: searchQuery.value }, Action: 'download', type: item.value})
+
+    }
+    else if (item.action) {
       buttonTypeClicked.value = item.value
       item.action(item)
-      // emit("save", type, data, submitChanges.value);
       return
     } else {
       downloadFile({Store,url: createUrl(props.url, item.route, 'download'), data: { ...item, page: currentPage.value, search_keyword: searchQuery.value }, Action: 'download', type: item.value})
