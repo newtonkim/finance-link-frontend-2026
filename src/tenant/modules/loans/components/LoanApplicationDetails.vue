@@ -35,9 +35,9 @@ function navigateToMemberProfile(item: any) {
 
 <template>
     <template v-if="Object.values(application?.my_groups_member ?? {}).length">
-        <h2
-            class="mb-2 text-base font-semibold text-neutral-900 dark:text-white border-b-1 border-neutral-300 pb-1 dark:border-neutral-800">
-            Group Members</h2>
+        <h4
+            class="mb-0 text-base font-semibold text-neutral-900 dark:text-white border-b-1 border-neutral-300  dark:border-neutral-800">
+            Group Members</h4>
         <Table :dataFilter="Object.values(application?.my_groups_member ?? {})" :columns="columns">
             <template #member_code="{ item }">
 
@@ -73,63 +73,104 @@ function navigateToMemberProfile(item: any) {
             <template #actions="{ item }">
                 <TabelActionButtons v-if="item?.total_loan_balance > 0" @action="() => navigateIntoLoanDetails(item)"
                     title="loan details" color="danger" icon="CirclePile" />
-                <TabelActionButtons v-else   title="loan details"
-                    color="default" icon="CirclePile" />
+                <TabelActionButtons v-else title="loan details" color="default" icon="CirclePile" />
             </template>
 
         </Table>
     </template>
 
     <div
-        class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-        <h2
-            class="mb-2 text-base font-semibold text-neutral-900 dark:text-white border-b-1 border-neutral-300 pb-1 dark:border-neutral-800">
-            Application Details</h2>
-        <dl class="grid gap-4 sm:grid-cols-2">
-            <div>
-                <dt class="text-xs font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Member
+        class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm transition hover:shadow-md dark:border-neutral-800 dark:bg-neutral-900">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-4 border-b border-neutral-200 pb-2 dark:border-neutral-800">
+            <h2 class="text-lg font-semibold text-neutral-900 dark:text-white">
+                Application Details
+            </h2>
+        </div>
+
+        <!-- Content -->
+        <dl class="grid gap-3 sm:grid-cols-2">
+
+            <!-- Member -->
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-neutral-400">
+                    Member
                 </dt>
-                <dd class="mt-1 font-medium text-neutral-900 dark:text-white">{{ application.member?.name ?? '—' }}</dd>
-                <dd v-if="application.member?.member_no" class="text-xs text-neutral-400 dark:text-neutral-500">{{
-                    application.member.member_no }}</dd>
-            </div>
-            <div>
-                <dt class="text-xs font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Loan
-                    Product
-                </dt>
-                <dd class="mt-1 font-medium text-neutral-900 dark:text-white">{{ application.loan_product?.name ?? '—'
-                    }}
+                <dd class="text-sm font-semibold text-neutral-900 dark:text-white">
+                    {{ application.member?.name ?? '—' }}
                 </dd>
-                <dd v-if="application.loan_product?.code" class="text-xs text-neutral-400 dark:text-neutral-500">{{
-                    application.loan_product.code }}</dd>
-            </div>
-            <div>
-                <dt class="text-xs font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Requested
-                    Amount</dt>
-                <dd class="mt-1 text-lg font-bold text-neutral-900 dark:text-white">{{
-                    displayAmount(application.requested_amount_formatted, application.requested_amount) }}</dd>
-            </div>
-            <div>
-                <dt class="text-xs font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Requested
-                    Term</dt>
-                <dd class="mt-1 font-medium text-neutral-900 dark:text-white">{{ application.requested_term ?? '—' }}
-                    months
+                <dd v-if="application.member?.member_no" class="text-xs text-neutral-500 dark:text-neutral-400">
+                    {{ application.member.member_no }}
                 </dd>
             </div>
-            <div v-if="application.purpose" class="sm:col-span-2">
-                <dt class="text-xs font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Purpose
+
+            <!-- Loan Product -->
+            <div class="space-y-1">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-neutral-400">
+                    Loan Product
                 </dt>
-                <dd class="mt-1 text-sm text-neutral-700 dark:text-neutral-300">{{ application.purpose }}</dd>
+                <dd class="text-sm font-semibold text-neutral-900 dark:text-white">
+                    {{ application.loan_product?.name ?? '—' }}
+                </dd>
+                <dd v-if="application.loan_product?.code" class="text-xs text-neutral-500 dark:text-neutral-400">
+                    {{ application.loan_product.code }}
+                </dd>
             </div>
-            <div v-if="application.repayment_source" class="sm:col-span-2">
-                <dt class="text-xs font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Repayment
-                    Source</dt>
-                <dd class="mt-1 text-sm text-neutral-700 dark:text-neutral-300">{{ application.repayment_source }}</dd>
+
+            <!-- Requested Amount -->
+            <div class="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-neutral-400">
+                    Requested Amount
+                </dt>
+                <dd class="mt-1 text-xl font-bold text-primary-600 dark:text-primary-400">
+                    {{ displayAmount(application.requested_amount_formatted, application.requested_amount) }}
+                </dd>
             </div>
-            <div v-if="application.rejection_reason" class="sm:col-span-2">
-                <dt class="text-xs font-medium uppercase tracking-wide text-red-400">Rejection Reason</dt>
-                <dd class="mt-1 text-sm text-red-600 dark:text-red-400">{{ application.rejection_reason }}</dd>
+
+            <!-- Requested Term -->
+            <div class="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-neutral-400">
+                    Requested Term
+                </dt>
+                <dd class="mt-1 text-base font-semibold text-neutral-900 dark:text-white">
+                    {{ application.requested_term ?? '—' }}
+                    <span class="text-sm text-neutral-500">months</span>
+                </dd>
             </div>
+
+            <!-- Purpose -->
+            <div v-if="application.purpose" class="sm:col-span-2 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-neutral-400">
+                    Purpose
+                </dt>
+                <dd class="mt-1 text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed">
+                    {{ application.purpose }}
+                </dd>
+            </div>
+
+            <!-- Repayment Source -->
+            <div v-if="application.repayment_source"
+                class="sm:col-span-2 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-neutral-400">
+                    Repayment Source
+                </dt>
+                <dd class="mt-1 text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed">
+                    {{ application.repayment_source }}
+                </dd>
+            </div>
+
+            <!-- Rejection Reason -->
+            <div v-if="application.rejection_reason"
+                class="sm:col-span-2 p-4 rounded-xl bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-800">
+                <dt class="text-xs font-semibold uppercase tracking-wide text-red-500">
+                    Rejection Reason
+                </dt>
+                <dd class="mt-1 text-sm font-medium text-red-600 dark:text-red-400">
+                    {{ application.rejection_reason }}
+                </dd>
+            </div>
+
         </dl>
     </div>
 

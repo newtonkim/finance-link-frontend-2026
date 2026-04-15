@@ -40,8 +40,8 @@ watch(statusFilter, (val) => {
     memberSelected.value = []
   }
 })
-function saveLoanGuarantors() {
-  saveLoanApplicationGuarantors({
+async function saveLoanGuarantors() {
+  await saveLoanApplicationGuarantors({
     application_id: props.application.id,
     guarantors: Object.values(guarantors.value)
   })

@@ -82,6 +82,7 @@ export function useLoanApplicationShow() {
     // ─── Load ─────────────────────────────────────────────────────────────────
     async function loadApplication() {
         loading.value = true
+      
         try {
             const res         = await loanApplicationsApi.get(Number(route.params.id))
             application.value = res.data?.data ?? res.data
