@@ -76,7 +76,8 @@ const positionDropdown = () => {
   const rect = dropdownRef.value.getBoundingClientRect()
 
   const dropdownWidth = 176
-  const dropdownHeight = 300
+  const dropdownHeight = 100
+  // const dropdownHeight = 300
 
   const spaceBelow = window.innerHeight - rect.bottom
 

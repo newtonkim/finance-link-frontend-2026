@@ -1,18 +1,8 @@
 <template>
-  <TableDrawer
-    :exportItems="exportItems"
-    :drawerShowFooter="showFooter"
-    :drawerRemount="drawerRemount"
-    :automaticCreate="!automaticCreate.actionSlot"
-    ref="drawer"
-    :showTableAction="true"
-    :drawerWidth="drawerTitle?.width"
-    :url="tableUrl"
-    state="memberAccountList"
-    :drawerTitle="drawerTitle?.title"
-    :columns="columns"
-    @save="saveUser"
-  >
+  <TableDrawer :exportItems="exportItems" :drawerShowFooter="showFooter" :drawerRemount="drawerRemount"
+    :automaticCreate="!automaticCreate.actionSlot" ref="drawer" :showTableAction="true"
+    :drawerWidth="drawerTitle?.width" :url="tableUrl" state="memberAccountList" :drawerTitle="drawerTitle?.title"
+    :columns="columns" @save="saveUser">
     <template #member_name="{ item }">
       <div class="-1">
         <div class="font-semibold text-nfuko-action text-sm dark:text-white">
@@ -26,76 +16,41 @@
     </template>
     <template #actions="{ item }: { item: any }">
       <div class="flex items-center gap-2">
-        <TabelActionButtons
-          @action="() => OpenThedrawer(item, 'withdrawal')"
-          title="withdrawal"
-          color="secondary"
-          icon="CircleMinus"
-        />
-        <TabelActionButtons
-          @action="() => OpenThedrawer(item, 'deposit')"
-          title="deposit"
-          color="custom"
-          icon="CircleDollarSign"
-        />
+        <TabelActionButtons @action="() => OpenThedrawer(item, 'withdrawal')" title="withdrawal" color="secondary"
+          icon="CircleMinus" />
+        <TabelActionButtons @action="() => OpenThedrawer(item, 'deposit')" title="deposit" color="custom"
+          icon="CircleDollarSign" />
       </div>
     </template>
     <template #header-action>
-      <PainPageHeader
-        title="Members Savings Account"
-        dec="Manage all member savings accounts and their balances."
-      />
+      <PainPageHeader title="Members Savings Account" dec="Manage all member savings accounts and their balances." />
     </template>
     <template #searchSideAction>
-      <StatusButtonsHorizontal
-        v-memo="[statusFilter]"
-        :filters="filters"
-        v-model="statusFilter"
-      />
+      <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
     </template>
     <template #drawer="{ action, data }">
 
-      <uploadTemplateColumData
-        upload-trick="row"
-        v-if="
-          [
-            'import-accounts',
-            'import-deposit-withdrawal',
-            'import-opening-balance',
-          ].includes(automaticCreate.actionSlot)
-        "
-        :title="automaticCreate?.actionSlot"
-        :url="`/members-account/${automaticCreate?.actionSlot}`"
-        :submit-url="automaticCreate.actionSlot"
-      />
-      <OpeningBalanceTemplate
-        v-else-if="
-          automaticCreate?.actionSlot == 'download-account-opening-balance-template'
-        "
-        :data="{ action, ...(automaticCreate ?? {}) }"
-      />
-      <DepositTemplate
-        v-else-if="automaticCreate?.actionSlot == 'download-deposit-template'"
-        :data="{ action, ...(automaticCreate ?? {}) }"
-      />
-      <WithdrawalTemplate
-        v-else-if="automaticCreate?.actionSlot == 'download-withdrawal-template'"
-        :data="{ action, ...(automaticCreate ?? {}) }"
-      />
-      <Deposit
-        v-else-if="automaticCreate?.actionSlot == 'deposit'"
-        :data="{ action, ...(automaticCreate ?? {}) }"
-        v-model:form="formData"
-      />
-      <ExportTemplate
-        v-else-if="automaticCreate?.actionSlot == 'download-memeber-accounts-template'"
-        :data="{ action, ...(automaticCreate ?? {}) }"
-      />
-      <Withdrawal
-        v-else-if="automaticCreate?.actionSlot == 'withdrawal'"
-        :data="{ action, ...(automaticCreate ?? {}) }"
-        v-model:form="formData"
-      />
+      <uploadTemplateColumData upload-trick="row" v-if="
+        [
+          'import-accounts',
+          'import-deposit-withdrawal',
+          'import-opening-balance',
+        ].includes(automaticCreate.actionSlot)
+      " :title="automaticCreate?.actionSlot" :url="`/members-account/${automaticCreate?.actionSlot}`"
+        :submit-url="automaticCreate.actionSlot" />
+      <OpeningBalanceTemplate v-else-if="
+        automaticCreate?.actionSlot == 'download-account-opening-balance-template'
+      " :data="{ action, ...(automaticCreate ?? {}) }" />
+      <DepositTemplate v-else-if="automaticCreate?.actionSlot == 'download-deposit-template'"
+        :data="{ action, ...(automaticCreate ?? {}) }" />
+      <WithdrawalTemplate v-else-if="automaticCreate?.actionSlot == 'download-withdrawal-template'"
+        :data="{ action, ...(automaticCreate ?? {}) }" />
+      <Deposit v-else-if="automaticCreate?.actionSlot == 'deposit'" :data="{ action, ...(automaticCreate ?? {}) }"
+        v-model:form="formData" />
+      <ExportTemplate v-else-if="automaticCreate?.actionSlot == 'download-memeber-accounts-template'"
+        :data="{ action, ...(automaticCreate ?? {}) }" />
+      <Withdrawal v-else-if="automaticCreate?.actionSlot == 'withdrawal'" :data="{ action, ...(automaticCreate ?? {}) }"
+        v-model:form="formData" />
       <Details v-else-if="['view'].includes(action)" :data="data" />
       <Edit v-else-if="action === 'edit'" :data="{ ...data, action }" />
       <Create v-else :data="{ ...data, action }" />
@@ -222,9 +177,12 @@ const formData = ref<Record<string, any>>({}),
   };
 // automaticCreate.actionSlot// this will help switch off the default drawer actions  and use out side action
 function saveUser(type: string, data: any) {
-  if (!type && title?.[automaticCreate.value.actionSlot]) {
+  if (title?.[automaticCreate.value.actionSlot]) {
     // let check if there is an action slot has its own action we use that action instead of the default ones
     title?.[automaticCreate.value.actionSlot]?.fun?.();
+    if (type == 'create') {
+      drawer.value.toggleDrawer();
+    }
     return;
   }
   if (["add", "edit", "view", "edit"].includes(type)) automaticCreate.value = {};
@@ -234,7 +192,7 @@ function saveUser(type: string, data: any) {
   title?.[type]?.fun?.();
   if (!["withdrawal", "deposit", "edit", "add", "view"].includes(type)) {
     drawer.value.toggleDrawer(); // close the drawer
-  } 
+  }
 }
 
 const columns = [
@@ -255,4 +213,14 @@ function OpenThedrawer(item: any, action = "deposit") {
     drawer.value.toggleDrawer();
   }, 100);
 }
+
+watch(
+  () => drawer.value?.drawerOpen,
+  (v) => {
+    if (!v) {
+      automaticCreate.value = {};
+      drawerTitle.value = "Create Tenant";
+    }
+  }
+);
 </script>

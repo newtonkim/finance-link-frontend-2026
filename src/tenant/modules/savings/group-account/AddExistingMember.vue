@@ -19,7 +19,7 @@ const emits = defineEmits(['update:form']),
             name: 'memberslist',
             type: 'multi-select',
             required: true,
-            url: 'global/member-dropdown-list',
+            url: 'group-account-savings/add-member-group-dropdown-list?group_id=' + props.data?.item?.id,
             placeholder: 'Enter member name',
 
         },

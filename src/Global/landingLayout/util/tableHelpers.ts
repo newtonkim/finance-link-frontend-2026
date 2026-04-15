@@ -58,10 +58,13 @@ export default function useTableHelpers(props: any, emit: any) {
     }
   }
   async function handleDownload(item: any) {
-    if (item.action) {
+    if(item?.url){
+      downloadFile({Store,customUrl: item?.url, data: { ...item, page: currentPage.value, search_keyword: searchQuery.value }, Action: 'download', type: item.value})
+
+    }
+    else if (item.action) {
       buttonTypeClicked.value = item.value
       item.action(item)
-      // emit("save", type, data, submitChanges.value);
       return
     } else {
       downloadFile({Store,url: createUrl(props.url, item.route, 'download'), data: { ...item, page: currentPage.value, search_keyword: searchQuery.value }, Action: 'download', type: item.value})
@@ -168,9 +171,9 @@ export default function useTableHelpers(props: any, emit: any) {
         setTimeout(() => {
           submitChanges.value = false
         }, 2000)
-        setTimeout(() => {
-          toggleDrawer()
-        }, 100) //  to make sure the drawer is cleaned
+        // setTimeout(() => {
+        //   toggleDrawer()
+        // }, 100) //  to make sure the drawer is cleaned
         Store.currentFormValues = {}
         // alert(buttonTypeClicked.value)
         buttonTypeClicked.value = buttonTypeClicked.value

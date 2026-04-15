@@ -26,6 +26,7 @@ export * as icons from 'lucide-vue-next'
 export *  from './Imploading'
 export *  from './TemplateColumns'
 export *  from './printing'
+export *  from './Modal/index.ts'
 
 
 export { default as authDirective } from './Directives/authDirective.ts';
