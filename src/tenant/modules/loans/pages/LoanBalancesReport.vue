@@ -159,7 +159,7 @@ onMounted(() => {
       <div>
         <h1 class="text-2xl font-bold text-neutral-900 dark:text-white">Loan Balances Report</h1>
         <p class="text-sm text-neutral-500 dark:text-neutral-400">
-          Outstanding balances across all loan accounts as of {{ asOfDate }}
+          Total principal, interest, charges and penalties outstanding across all loans as of {{ asOfDate }}
         </p>
       </div>
       <button
@@ -250,7 +250,7 @@ onMounted(() => {
       <div
         class="rounded-2xl border border-neutral-100 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
       >
-        <h3 class="text-xs font-medium text-neutral-500">Principal</h3>
+        <h3 class="text-xs font-medium text-neutral-500">Principal Outstanding</h3>
         <p class="mt-1 text-lg font-bold text-neutral-900 dark:text-white">
           {{ fmt(summary.total_principal) }}
         </p>
@@ -258,7 +258,7 @@ onMounted(() => {
       <div
         class="rounded-2xl border border-neutral-100 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
       >
-        <h3 class="text-xs font-medium text-neutral-500">Interest</h3>
+        <h3 class="text-xs font-medium text-neutral-500">Interest Outstanding</h3>
         <p class="mt-1 text-lg font-bold text-neutral-900 dark:text-white">
           {{ fmt(summary.total_interest) }}
         </p>
@@ -266,7 +266,7 @@ onMounted(() => {
       <div
         class="rounded-2xl border border-neutral-100 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
       >
-        <h3 class="text-xs font-medium text-neutral-500">Charges</h3>
+        <h3 class="text-xs font-medium text-neutral-500">Charges Outstanding</h3>
         <p class="mt-1 text-lg font-bold text-neutral-900 dark:text-white">
           {{ fmt(summary.total_charges) }}
         </p>
@@ -274,13 +274,13 @@ onMounted(() => {
       <div
         class="rounded-2xl border border-neutral-100 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
       >
-        <h3 class="text-xs font-medium text-neutral-500">Penalties</h3>
+        <h3 class="text-xs font-medium text-neutral-500">Penalty Outstanding</h3>
         <p class="mt-1 text-lg font-bold text-neutral-900 dark:text-white">
           {{ fmt(summary.total_penalty) }}
         </p>
       </div>
       <div class="rounded-2xl border border-nfuko-primary bg-nfuko-primary p-4 shadow-sm">
-        <h3 class="text-xs font-medium text-white/80">Grand Total</h3>
+        <h3 class="text-xs font-medium text-white/80">Total Portfolio Outstanding</h3>
         <p class="mt-1 text-xl font-bold text-white">{{ fmt(summary.grand_total) }}</p>
       </div>
     </div>
@@ -367,27 +367,27 @@ onMounted(() => {
             <th
               class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-neutral-400"
             >
-              Principal
+              Principal Outstanding
             </th>
             <th
               class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-neutral-400"
             >
-              Interest
+              Interest Outstanding
             </th>
             <th
               class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-neutral-400"
             >
-              Charges
+              Charges Outstanding
             </th>
             <th
               class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-neutral-400"
             >
-              Penalty
+              Penalty Outstanding
             </th>
             <th
               class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-neutral-400"
             >
-              Total Balance
+              Total Outstanding
             </th>
             <th
               class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-neutral-400"
@@ -449,7 +449,7 @@ onMounted(() => {
               <span
                 class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold"
                 :class="{
-                  'bg-green-100 text-green-700': loan.status === 'active',
+                  'bg-green-100 text-green-700': loan.status === 'disbursed',
                   'bg-red-100 text-red-700': loan.status === 'arrears',
                   'bg-neutral-100 text-neutral-700': loan.status === 'closed',
                 }"
