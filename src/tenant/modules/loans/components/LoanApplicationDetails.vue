@@ -123,8 +123,9 @@ function navigateToMemberProfile(item: any) {
                 <dt class="text-xs font-semibold uppercase tracking-wide text-neutral-400">
                     Requested Amount
                 </dt>
-                <dd class="mt-1 text-xl font-bold text-primary-600 dark:text-primary-400">
-                    {{ displayAmount(application.requested_amount_formatted, application.requested_amount) }}
+                <dd class="mt-1 text-[14px] font-bold text-primary-600 dark:text-primary-400">
+                    {{ formatCurrency(application.requested_amount) }}
+                    <!-- {{ formatCurrency(application.requested_amount_formatted, application.requested_amount) }} -->
                 </dd>
             </div>
 
