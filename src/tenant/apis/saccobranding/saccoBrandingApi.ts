@@ -63,6 +63,7 @@ export const saccoBrandingApi = {
         const cached = getetSystemBranding()
         if (cached) {
             signNewData(cached)
+            return 
         }
         // Then fetch fresh data from the server to pick up any changes
         try {
