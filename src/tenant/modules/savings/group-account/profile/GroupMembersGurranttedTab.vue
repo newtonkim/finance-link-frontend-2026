@@ -23,7 +23,6 @@
                 </span>
             </template>
 
-        <!-- Search Side Filters -->
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
