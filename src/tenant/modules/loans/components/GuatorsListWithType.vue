@@ -66,7 +66,7 @@ function actionClick(index: any) {
       </div>
 
       <div
-        v-else-if="actionKey !== 'show'"
+        v-else-if="actionKey !== 'show'" 
         class="flex items-center gap-1 text-xs text-nfuko-yellow 
                opacity-80 group-hover:opacity-100 transition"
       >
