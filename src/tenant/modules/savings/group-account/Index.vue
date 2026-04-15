@@ -36,7 +36,8 @@
       <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
     </template>
     <template #drawer="{ action, data }">
-      <AddGroupTab v-if="automaticCreate.actionSlot == 'create-none-member'" :data="{ ...data, action }"
+   
+      <AddGroupTab v-if="automaticCreate.actionSlot == 'create-none-member'" :data="{...automaticCreate, ...data, action }"
         v-model:form="formData" />
       <Create v-else-if="['add', 'edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
       <Details v-else-if="action === 'view'" :data="data" />
@@ -135,8 +136,6 @@ async function saveUser(type: string, data: any, sumited: any) {
 
   if (automaticCreate.value.actionSlot == 'create-none-member') {
     const checker = await addNoneExistingMember(formData.value, automaticCreate.value.item)
-    // console.log(checker);
-    
     if (checker == false) {
       formData.value = formData.value
     }

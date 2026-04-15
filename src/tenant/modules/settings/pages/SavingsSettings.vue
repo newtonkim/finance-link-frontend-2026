@@ -29,6 +29,14 @@
           Setup →
         </button>
       </template>
+      <template #group-savings>
+        <button
+          @click="toggleDrawer('savings-group-savings-setting')"
+          class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline"
+        >
+          Setup →
+        </button>
+      </template>
 
     </SettingCard>
   </div>
@@ -57,6 +65,7 @@ import { SettingCard } from '@/tenant/components/globals'
 import { Drawer } from '@/Global'
 import { ref } from 'vue'
 import { SavingsSettingsList } from '../saving-account'
+import { GroupSavingSettingsList } from '../group-saving-account '
 
 // Cards
 const settingsCards = [
@@ -68,7 +77,7 @@ const settingsCards = [
     slot: "savings-accounts"
   },
   {
-    title: "Group Savings (Chamas)",
+    title: "Group Savings",
     description: "Setup rules for group/chama savings products.",
     type: "button",
     action: "Configure Groups →"
@@ -104,6 +113,10 @@ const pages: Record<string, any> = {
   "savings-accounts-setting": {
     title: "Savings Accounts",
     page: SavingsSettingsList
+  },
+  "savings-group-savings-setting": {
+    title: "Savings Accounts",
+    page: GroupSavingSettingsList
   }
 }
 
@@ -116,7 +129,7 @@ function toggleDrawer(page: string) {
 
 // Save action
 function saveDrawerData(data: any) {
-  console.log("Saved:", data)
+  // console.log("Saved:", data)
   drawerOpen.value = false
 }
 </script>
