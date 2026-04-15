@@ -258,4 +258,13 @@ function OpenThedrawer(item: any, action = "deposit") {
     drawer.value.toggleDrawer();
   }, 100);
 }
+
+watch(
+  () => drawer.value?.drawerOpen,
+  (v) => {
+    if (!v) {
+      automaticCreate.value = {};
+    }
+  }
+);
 </script>
