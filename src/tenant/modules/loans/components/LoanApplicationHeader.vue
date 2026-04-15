@@ -19,6 +19,13 @@ const emit = defineEmits<{
 }>()
 
 const router = useRouter()
+const goBack = () => {
+  if (window.history.length > 1) {
+    router.back()
+  } else {
+    router.push({ name: 'tenant-loans' })
+  }
+}
 </script>
 
 <template>
@@ -26,7 +33,7 @@ const router = useRouter()
         <div class="flex items-center gap-3">
             <button
                 class="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white"
-                @click="router.push({ name: 'tenant-loans' })">
+                @click="goBack">
                 <ArrowLeft class="h-4 w-4" />
                 Back
             </button>

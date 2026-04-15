@@ -419,6 +419,13 @@ async function handleSavingsRepaySubmit(data: {
     isPostingSavings.value = false
   }
 }
+const goBack = () => {
+  if (window.history.length > 1) {
+    router.back()
+  } else {
+    router.push({ name: 'tenant-active-loans' })
+  }
+}
 </script>
 
 <template>
@@ -427,7 +434,7 @@ async function handleSavingsRepaySubmit(data: {
     <div class="flex items-center gap-3">
       <button
         class="flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200 transition-colors"
-        @click="router.push({ name: 'tenant-active-loans' })"
+        @click="goBack"
       >
         <ArrowLeft class="h-4 w-4" />
         Loan Portfolio

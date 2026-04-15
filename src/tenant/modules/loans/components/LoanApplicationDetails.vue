@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import { useLoanApplicationHelpers } from '../composables/useLoanApplicationHelpers'
 import type { LoanApplication } from '../../../apis/loans/loanApplicationsApi'
-import { CopyData, formatCurrency, setLocalValues, TabelActionButtons, Table } from '@/Global';
+import {  formatCurrency, setLocalValues, } from '@/Global';
 import { useRouter } from 'vue-router';
 const router = useRouter();
 defineProps<{ application: LoanApplication }>()
-
-const { displayAmount } = useLoanApplicationHelpers()
 const columns = [
     { key: 'group_code', label: 'Group Code', copy: true, sticky: 'left', width: "14em" },
     { key: 'group_name', label: 'Group Name', copy: true },
@@ -18,19 +15,15 @@ const columns = [
 
 function navigateIntoLoanDetails(item: any) {
     router.push(`/tenant/loans/${item?.loan_id}`)
-
 }
 function navigateInGroupDetails(item: any) {
     router.push(`/tenant/group-savings/profile`)
     setLocalValues('groupProfile', item)
-
 }
 function navigateToMemberProfile(item: any) {
     router.push(`/tenant/member/profile`)
     setLocalValues('memberProfile', { ...item, id: item?.member_id })
 }
-
-
 </script>
 
 <template>
@@ -123,8 +116,9 @@ function navigateToMemberProfile(item: any) {
                 <dt class="text-xs font-semibold uppercase tracking-wide text-neutral-400">
                     Requested Amount
                 </dt>
-                <dd class="mt-1 text-xl font-bold text-primary-600 dark:text-primary-400">
-                    {{ displayAmount(application.requested_amount_formatted, application.requested_amount) }}
+                <dd class="mt-1 text-[14px] font-bold text-primary-600 dark:text-primary-400">
+                    {{ formatCurrency(application.requested_amount) }}
+                    <!-- {{ formatCurrency(application.requested_amount_formatted, application.requested_amount) }} -->
                 </dd>
             </div>
 
