@@ -430,7 +430,7 @@ onMounted(async () => {
             <span class="text-[9px] text-neutral-400">{{ fmt(point.total_arrears).replace(/,\d+$/, '') }}</span>
             <div
               class="w-full rounded-t transition-all"
-              :class="idx === trendData.length - 1 ? 'bg-red-600 border-2 border-red-800' : 'bg-red-300 hover:bg-red-400'"
+              :class="idx === trendData.length - 1 ? 'bg-nfuko-chart-main hover:bg-nfuko-primary-800' : 'bg-nfuko-chart-sub hover:bg-nfuko-primary-400'"
               :style="{ height: barHeight(point.total_arrears) }"
               :title="`${point.label}: ${fmt(point.total_arrears)} · ${point.loan_count} loans`"
             />
