@@ -57,7 +57,8 @@ const columns = [
     { key: 'joined_date', label: 'Joined Date', width: '9em ', },
     { key: 'sex', label: 'Gender', type: 'status' },
     { key: 'marital_status', label: 'Status', type: 'status' },
-    { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
+    { key: 'actions', label: 'Actions', show: [ 'edit', 'delete'] }
+    // { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 ]
 function navigateToProfile(item: any) {
     router.push(`/tenant/member/profile`) 

@@ -48,7 +48,6 @@ const formData = ref<Record<string, any>>({});
 const showFooter = ref(true);
 
 const automaticCreate = ref<any>({});
-const currentAction = computed(() => automaticCreate?.actionSlot);
 const { createAgroupSavingAccount, DepositAndWithdrawAgroupSavingAccount } = groupSavingsApi();
 
 const drawerConfigs: Record<string, any> = {
@@ -77,6 +76,7 @@ async function handleSave(type?: string, data: any, d) {
     success = await drawerConfigs?.[automaticCreate.value.actionSlot].action(data, automaticCreate.value);
   } else if (drawerConfigs?.[type] && type == 'create') {
     success = await drawerConfigs?.[type].action(data);
+    success=success.code==200?true:false
   }
   drawerTitle.value = drawerConfigs[type === 'create' || type === 'add' ? 'create' : type];
   if (type === 'create' && success) {

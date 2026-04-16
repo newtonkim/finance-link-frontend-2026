@@ -16,7 +16,7 @@
     <template #add-action>
       <button
         @click="emit('newAccount')"
-        class="flex items-center gap-2 px-[18px] py-[9px] text-[13px] font-bold rounded-full bg-[#08262a] text-white shadow-sm mb-2"
+        class="flex items-center gap-2 px-[18px] py-[9px] text-[13px] font-bold rounded-full bg-[#08262a] text-white shadow-sm"
       >
         <Plus :size="15" stroke-width="2.5" v-once />
         New Account

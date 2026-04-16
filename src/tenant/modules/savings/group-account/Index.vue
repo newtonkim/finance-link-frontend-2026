@@ -136,10 +136,7 @@ async function saveUser(type: string, data: any, sumited: any) {
 
   if (automaticCreate.value.actionSlot == 'create-none-member') {
     const checker = await addNoneExistingMember(formData.value, automaticCreate.value.item)
-    console.log(checker);
-    
     if (checker == false) {
-      formData.value = formData.value
     }
     formData.value = {}
     automaticCreate.value = { actionSlot: 'create-none-member', item: automaticCreate.value.item }

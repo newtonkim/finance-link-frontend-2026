@@ -85,7 +85,7 @@ const handleDelete = () => {
     </div>
 
     <!-- Top action buttons -->
-    <div class="flex flex-wrap items-center justify-end gap-1">
+    <!-- <div class="flex flex-wrap items-center justify-end gap-1">
       
         <button
             class="flex items-center gap-2 px-[18px] py-[9px] text-[13px] font-bold rounded-full bg-[#f1f5f9] text-[#64748b] hover:bg-[#e2e8f0] transition-colors">
@@ -116,7 +116,7 @@ const handleDelete = () => {
         </button>
 
         
-    </div>
+    </div> -->
 
     <!-- Reject modal -->
     <div v-if="showRejectModal"
@@ -141,7 +141,7 @@ const handleDelete = () => {
     </div>
 
     <!-- Delete confirmation dialog -->
-    <Teleport to="body">
+    <!-- <Teleport to="body">
         <Transition name="fade">
             <div v-if="showDeleteDialog" class="fixed inset-0  flex items-center justify-center">
                 <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showDeleteDialog = false"></div>
@@ -175,7 +175,7 @@ const handleDelete = () => {
                 </div>
             </div>
         </Transition>
-    </Teleport>
+    </Teleport> -->
 </template>
 
 <style scoped>
