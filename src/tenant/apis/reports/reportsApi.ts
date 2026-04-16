@@ -168,6 +168,89 @@ export interface LoanBalanceResponse {
   }
 }
 
+// ─── Loan Arrears Report ──────────────────────────────────────────────────────
+
+export interface ArrearsFilters {
+  as_of_date?: string | null
+  branch_id?: number | null
+  loan_officer_id?: number | null
+  per_page?: number
+  page?: number
+}
+
+export interface ArrearsTrendFilters {
+  as_of_date?: string | null
+  branch_id?: number | null
+  loan_officer_id?: number | null
+  months?: 6 | 12
+}
+
+export interface ArrearsLoanRow {
+  loan_id: number
+  loan_no: string
+  member_id: number
+  member_name: string
+  member_number: string
+  phone: string
+  branch_name: string
+  loan_officer_name: string
+  product_name: string
+  total_arrears: number
+  principal_arrears: number
+  interest_arrears: number
+  charges_arrears: number
+  penalty_arrears: number
+  missed_installments: number
+  days_in_arrears: number
+  last_payment_date: string | null
+  disbursed_at: string | null
+}
+
+export interface ArrearsSnapshot {
+  date: string
+  loan_count: number
+  total_arrears: number
+  principal_arrears: number
+}
+
+export interface ArrearsComparisonResponse {
+  today: ArrearsSnapshot
+  one_month_ago: ArrearsSnapshot
+  three_months_ago: ArrearsSnapshot
+}
+
+export interface ArrearsTrendPoint {
+  month: string
+  label: string
+  month_end: string
+  loan_count: number
+  total_arrears: number
+}
+
+export interface ArrearsInstallmentRow {
+  installment_no: number
+  due_date: string
+  principal_shortfall: number
+  interest_shortfall: number
+  charges_shortfall: number
+  penalty_shortfall: number
+  total_shortfall: number
+}
+
+export interface ArrearsReportResponse {
+  loans: {
+    data: ArrearsLoanRow[]
+    meta: {
+      current_page: number
+      last_page: number
+      per_page: number
+      total: number
+      from: number
+      to: number
+    }
+  }
+}
+
 export const reportsApi = {
   index(params?: ReportFilters) {
     return tenantClient.get('/reports', { params })
@@ -195,5 +278,29 @@ export const reportsApi = {
 
   loanBalancesExport(params?: Omit<LoanBalanceFilters, 'per_page' | 'page'>) {
     return tenantClient.get('/reports/loan-balances/export', { params, responseType: 'blob' })
+  },
+
+  // ─── Loan Arrears ───────────────────────────────────────────────────────────
+  loanArrears(params?: ArrearsFilters) {
+    return tenantClient.get<ArrearsReportResponse>('/reports/loan-arrears', { params })
+  },
+
+  loanArrearsComparison(params?: Omit<ArrearsFilters, 'per_page' | 'page'>) {
+    return tenantClient.get<ArrearsComparisonResponse>('/reports/loan-arrears/comparison', { params })
+  },
+
+  loanArrearsTrend(params?: ArrearsTrendFilters) {
+    return tenantClient.get<ArrearsTrendPoint[]>('/reports/loan-arrears/trend', { params })
+  },
+
+  loanArrearsInstallments(loanId: number, asOfDate: string) {
+    return tenantClient.get<ArrearsInstallmentRow[]>(
+      `/reports/loan-arrears/${loanId}/installments`,
+      { params: { as_of_date: asOfDate } },
+    )
+  },
+
+  loanArrearsExport(params?: Omit<ArrearsFilters, 'per_page' | 'page'>) {
+    return tenantClient.get('/reports/loan-arrears/export', { params, responseType: 'blob' })
   },
 }
