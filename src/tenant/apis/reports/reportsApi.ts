@@ -176,6 +176,7 @@ export interface ArrearsFilters {
   loan_officer_id?: number | null
   per_page?: number
   page?: number
+  historical?: boolean
 }
 
 export interface ArrearsTrendFilters {

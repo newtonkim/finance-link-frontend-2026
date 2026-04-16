@@ -41,6 +41,8 @@ const showBranchFilter  = ref(false)
 const branches          = ref<{ id: number; name: string }[]>([])
 const officers          = ref<{ id: number; name: string }[]>([])
 
+const selectedCard = ref<'today' | 'one_month_ago' | 'three_months_ago'>('today')
+
 const loading             = ref(false)
 const loadingInstallments = ref(false)
 const exporting           = ref(false)
@@ -82,8 +84,18 @@ async function fetchAll() {
       months:          filters.value.months,
     }
 
+    const tableFilters = {
+      ...filters.value,
+      historical: selectedCard.value !== 'today',
+      as_of_date: selectedCard.value === 'one_month_ago'
+        ? comparisonData.value?.one_month_ago.date ?? filters.value.as_of_date
+        : selectedCard.value === 'three_months_ago'
+          ? comparisonData.value?.three_months_ago.date ?? filters.value.as_of_date
+          : filters.value.as_of_date,
+    }
+
     const [loansRes, compRes, trendRes] = await Promise.all([
-      reportsApi.loanArrears(filters.value),
+      reportsApi.loanArrears(tableFilters),
       reportsApi.loanArrearsComparison(filters.value),
       reportsApi.loanArrearsTrend(trendFilters),
     ])
@@ -101,6 +113,7 @@ async function fetchAll() {
 
 async function applyFilters() {
   filters.value.page = 1
+  selectedCard.value = 'today'
   installmentCache.value.clear()
   expandedLoanId.value = null
   await fetchAll()
@@ -108,7 +121,17 @@ async function applyFilters() {
 
 function resetFilters() {
   filters.value = { as_of_date: today, branch_id: null, loan_officer_id: null, per_page: 25, page: 1, months: 12 }
+  selectedCard.value = 'today'
   applyFilters()
+}
+
+async function selectCard(card: 'today' | 'one_month_ago' | 'three_months_ago') {
+  if (selectedCard.value === card) return
+  selectedCard.value = card
+  filters.value.page = 1
+  installmentCache.value.clear()
+  expandedLoanId.value = null
+  await fetchAll()
 }
 
 async function onPageChange(p: number) {
@@ -309,7 +332,11 @@ onMounted(async () => {
       <div v-if="comparisonData" class="grid grid-cols-1 gap-4 sm:grid-cols-3">
 
         <!-- Today -->
-        <div class="rounded-xl border-2 border-red-400 bg-white p-5 dark:bg-neutral-800">
+        <div
+          class="rounded-xl border-2 cursor-pointer p-5 transition-all bg-white dark:bg-neutral-800"
+          :class="selectedCard === 'today' ? 'border-red-500 ring-2 ring-red-200 dark:ring-red-900' : 'border-neutral-200 dark:border-neutral-700 hover:border-red-300'"
+          @click="selectCard('today')"
+        >
           <div class="mb-3 text-[10px] font-bold uppercase tracking-wider text-red-500">
             Today — {{ comparisonData.today.date }}
           </div>
@@ -330,7 +357,11 @@ onMounted(async () => {
         </div>
 
         <!-- 1 Month Ago -->
-        <div class="rounded-xl border border-neutral-200 bg-white p-5 dark:border-neutral-700 dark:bg-neutral-800">
+        <div
+          class="rounded-xl border-2 cursor-pointer p-5 transition-all bg-white dark:bg-neutral-800"
+          :class="selectedCard === 'one_month_ago' ? 'border-orange-400 ring-2 ring-orange-100 dark:ring-orange-900' : 'border-neutral-200 dark:border-neutral-700 hover:border-orange-300'"
+          @click="selectCard('one_month_ago')"
+        >
           <div class="mb-3 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
             1 Month Ago — {{ comparisonData.one_month_ago.date }}
           </div>
@@ -355,7 +386,11 @@ onMounted(async () => {
         </div>
 
         <!-- 3 Months Ago -->
-        <div class="rounded-xl border border-neutral-200 bg-white p-5 dark:border-neutral-700 dark:bg-neutral-800">
+        <div
+          class="rounded-xl border-2 cursor-pointer p-5 transition-all bg-white dark:bg-neutral-800"
+          :class="selectedCard === 'three_months_ago' ? 'border-orange-300 ring-2 ring-orange-100 dark:ring-orange-900' : 'border-neutral-200 dark:border-neutral-700 hover:border-orange-200'"
+          @click="selectCard('three_months_ago')"
+        >
           <div class="mb-3 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
             3 Months Ago — {{ comparisonData.three_months_ago.date }}
           </div>
@@ -414,9 +449,14 @@ onMounted(async () => {
 
       <!-- ── ④ Loans Table ───────────────────────────────────────────────── -->
       <div v-if="loans.length > 0" class="rounded-xl border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-800">
-        <div class="border-b border-neutral-100 px-5 py-3 dark:border-neutral-700">
+        <div class="border-b border-neutral-100 px-5 py-3 dark:border-neutral-700 flex items-center justify-between">
           <span class="text-[11px] font-bold uppercase tracking-wider text-neutral-400">
             Arrears Loans — {{ meta.total }} loan{{ meta.total !== 1 ? 's' : '' }}
+          </span>
+          <span v-if="selectedCard !== 'today'" class="text-[11px] text-orange-600 font-semibold">
+            Showing as of
+            {{ selectedCard === 'one_month_ago' ? comparisonData?.one_month_ago.date : comparisonData?.three_months_ago.date }}
+            <button class="ml-2 underline text-blue-500" @click="selectCard('today')">Back to Today</button>
           </span>
         </div>
 
