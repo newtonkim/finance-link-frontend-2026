@@ -17,18 +17,18 @@
     <template #sub-header>
       <AnalysisTile :data="stats" grid-class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3" />
     </template>
-      <template #group_code="{ item }">
-            <span>
-              <CopyData :show="item?.group_code" :copy="item?.group_code">
-                <template #text>
-                <button @click="navigateToProfile(item)"
-                    class=" font-semibold text-nfuko-action text-sm dark:text-white  cursor-pointer">
-                    <span>{{ item?.group_code }}</span>
-                </button>
-                </template>
-              </CopyData>
-            </span>
-        </template>
+    <template #group_code="{ item }">
+      <span>
+        <CopyData :show="item?.group_code" :copy="item?.group_code">
+          <template #text>
+            <button @click="navigateToProfile(item)"
+              class=" font-semibold text-nfuko-action text-sm dark:text-white  cursor-pointer">
+              <span>{{ item?.group_code }}</span>
+            </button>
+          </template>
+        </CopyData>
+      </span>
+    </template>
     <template #actions="{ item }: { item: any }">
       <TabelActionButtons @action="() => OpenThedrawer(item)" title="add to group " color="primary" icon="CirclePile" />
     </template>
@@ -36,9 +36,9 @@
       <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
     </template>
     <template #drawer="{ action, data }">
-   
-      <AddGroupTab v-if="automaticCreate.actionSlot == 'create-none-member'" :data="{...automaticCreate, ...data, action }"
-        v-model:form="formData" />
+
+      <AddGroupTab v-if="automaticCreate.actionSlot == 'create-none-member'"
+        :data="{ ...automaticCreate, ...data, action }" v-model:form="formData" />
       <Create v-else-if="['add', 'edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
       <Details v-else-if="action === 'view'" :data="data" />
     </template>
@@ -48,7 +48,7 @@
 import { ref, computed, watch } from 'vue'
 import { pomPinia } from 'septor-store';
 import { Create, Details, AddGroupTab } from '.'
-import { TableDrawer, StatusButtonsHorizontal, addNumberCommas, AnalysisTile, PainPageHeader, TabelActionButtons,setLocalValues, CopyData } from '@/Global'
+import { TableDrawer, StatusButtonsHorizontal, addNumberCommas, AnalysisTile, PainPageHeader, TabelActionButtons, setLocalValues, CopyData } from '@/Global'
 import { useRouter } from 'vue-router';
 import { groupSavingsApi } from '@/tenant/apis/savings/group-savingsApi';
 const Store = pomPinia();
@@ -84,7 +84,7 @@ const titleMap: Record<string, { title: string; width: string }> = {
   }
 }
 const columns = [
-  { key: 'group_code', label: 'group code', copy: true, sticky: 'left',   },
+  { key: 'group_code', label: 'group code', copy: true, sticky: 'left',width: '15em' },
   { key: 'group_name', label: 'name', sticky: 'left', width: '14em' },
   { key: 'phone', label: 'admin phone', sticky: 'left', width: '14em' },
   { key: 'status', label: 'Status', type: 'status' },
@@ -137,12 +137,10 @@ async function saveUser(type: string, data: any, sumited: any) {
   if (automaticCreate.value.actionSlot == 'create-none-member') {
     const checker = await addNoneExistingMember(formData.value, automaticCreate.value.item)
     if (checker == false) {
-      formData.value = formData.value
     }
-    drawer.value.toggleDrawer()
     formData.value = {}
     automaticCreate.value = { actionSlot: 'create-none-member', item: automaticCreate.value.item }
-      drawer.value.toggleDrawer()
+    drawer.value.toggleDrawer()
     return
   } else if (titleMap[type]) {
     automaticCreate.value = { actionSlot: null, item: "" }
@@ -154,7 +152,7 @@ function OpenThedrawer(item: any) {
   automaticCreate.value = { actionSlot: 'create-none-member', item }
   drawerTitle.value = { title: "add member to group", width: "w-2/4" }
   drawer.value.toggleDrawer()
-  drawer.value.buttonTypeClicked= automaticCreate.value.actionSlot
+  drawer.value.buttonTypeClicked = automaticCreate.value.actionSlot
 }
 watch(() => drawer.value?.drawerOpen, (val) => {
   if (!val) {
@@ -165,8 +163,8 @@ watch(() => drawer.value?.drawerOpen, (val) => {
   deep: true
 })
 function navigateToProfile(item: any) {
-  
-    router.push(`/tenant/group-savings/profile`) 
-    setLocalValues('groupProfile', item)
+
+  router.push(`/tenant/group-savings/profile`)
+  setLocalValues('groupProfile', item)
 }
 </script>

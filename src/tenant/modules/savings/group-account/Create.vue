@@ -33,6 +33,7 @@ const loading = ref(true),
     },
   }),
   fields = ref([
+    
     {
       label: 'Group official name',
       name: 'group_name',

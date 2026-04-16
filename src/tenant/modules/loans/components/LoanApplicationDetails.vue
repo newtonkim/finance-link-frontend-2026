@@ -1,15 +1,23 @@
 <script setup lang="ts">
 import type { LoanApplication } from '../../../apis/loans/loanApplicationsApi'
-import {  formatCurrency, setLocalValues, } from '@/Global';
+import { formatCurrency, setLocalValues, } from '@/Global';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 const router = useRouter();
 defineProps<{ application: LoanApplication }>()
 const columns = [
+    { key: 'code', label: 'Code', copy: true, width: "20em" },
+    { key: 'type', label: 'Type' },
+    { key: 'name', label: 'Name' },
+]
+
+
+const myGroupsColumns = [
+    { key: 'member_code', label: 'Member Code', copy: true , sticky: 'left'},
+    { key: 'member_name', label: 'Member Name', sticky: 'left' },
     { key: 'group_code', label: 'Group Code', copy: true, sticky: 'left', width: "14em" },
-    { key: 'group_name', label: 'Group Name', copy: true },
-    { key: 'member_code', label: 'Member Code', copy: true },
-    { key: 'member_name', label: 'Member Name', copy: true },
-    { key: 'total_loan_balance', label: 'Running Loan Balance', type: "money", width: "13em" },
+    { key: 'group_name', label: 'Group Name',  },
+    { key: 'member_has_active_loan', label: 'Running Loan Balance', type: "money", width: "13em" },
     { key: 'actions', label: 'Actions', },
 ]
 
@@ -24,47 +32,28 @@ function navigateToMemberProfile(item: any) {
     router.push(`/tenant/member/profile`)
     setLocalValues('memberProfile', { ...item, id: item?.member_id })
 }
+const filters = ["my group members", "Guarantors"], statusFilter = ref('my group members')
 </script>
 
 <template>
-    <template v-if="Object.values(application?.my_groups_member ?? {}).length">
-        <h4
-            class="mb-0 text-base font-semibold text-neutral-900 dark:text-white border-b-1 border-neutral-300  dark:border-neutral-800">
-            Group Members</h4>
-        <Table :dataFilter="Object.values(application?.my_groups_member ?? {})" :columns="columns">
-            <template #member_code="{ item }">
+    <StatusButtonsHorizontal :filters="filters" v-model="statusFilter" />
 
-                <span>
-                    <CopyData :show="item?.member_code" :copy="item?.member_code">
-                        <template #text>
-                            <button @click="navigateToMemberProfile(item)"
-                                class=" font-semibold text-nfuko-action text-sm dark:text-white  cursor-pointer">
-                                <span>{{ item?.member_code }}</span>
-                            </button>
-                        </template>
-                    </CopyData>
-                </span>
-            </template>
-            <template #group_code="{ item }">
+    <template v-if="Object.values(application?.loan_guarantors ?? {}).length && statusFilter === 'Guarantors'">
 
-                <span>
-                    <CopyData :show="item?.group_code" :copy="item?.group_code">
-                        <template #text>
-                            <button @click="navigateInGroupDetails(item)"
-                                class=" font-semibold text-nfuko-action text-sm dark:text-white  cursor-pointer">
-                                <span>{{ item?.group_code }}</span>
-                            </button>
-                        </template>
-                    </CopyData>
-                </span>
-            </template>
-            <template #total_loan_balance="{ item }">
-                <span class="text-sm text-neutral-800 dark:text-neutral-200 truncate">
-                    {{ formatCurrency(item?.total_loan_balance) }}
+        <Table :dataFilter="Object.values(application?.loan_guarantors ?? {})" :columns="columns" />
+    </template>
+    <template v-if="Object.values(application?.my_groups_member ?? {}).length && statusFilter === 'my group members'">
+
+        <Table :dataFilter="Object.values(application?.my_groups_member ?? {})" :columns="myGroupsColumns">
+
+            <template #member_has_active_loan="{ item }">
+                <span class="text-sm text-neutral-800 dark:text-neutral-200 truncate"
+                    :class="item.member_has_active_loan ? 'text-nfuko-danger' : 'text-nfuko-action'">
+                    {{ item?.member_has_active_loan ? "Active Loan" : "No Active Loan" }}
                 </span>
             </template>
             <template #actions="{ item }">
-                <TabelActionButtons v-if="item?.total_loan_balance > 0" @action="() => navigateIntoLoanDetails(item)"
+                <TabelActionButtons v-if="item?.member_has_active_loan" @action="() => navigateIntoLoanDetails(item)"
                     title="loan details" color="danger" icon="CirclePile" />
                 <TabelActionButtons v-else title="loan details" color="default" icon="CirclePile" />
             </template>

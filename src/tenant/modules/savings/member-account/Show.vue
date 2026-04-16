@@ -1,5 +1,4 @@
 <script setup>
-import { DetailsTable, TabelActionButtons } from '@/Global';
 import { memberAccountApi } from '@/tenant/apis'
 import { onMounted, ref } from 'vue'
 const { memebrAccountReversalAmount } = memberAccountApi()
@@ -66,14 +65,16 @@ onMounted(async () => {
         <DetailsTable v-else :data="data" :columns="columns">
             <template #actions="{ item }">
                 <div class="flex gap-2 ">
-                    <TabelActionButtons :disabled="['true','1',true].includes(item.reversed)" :data="item"
-                        @action="() => memebrAccountReversalAmount({ ...item, charge_reversal: true })"
-                        :color="['charge-reversal', 'reversed'].includes(item.type) ? 'secondary' : 'default'" icon="Undo"
-                        title="charge reversal" />
-                    <TabelActionButtons :disabled="['true','1',true].includes(item.reversed)" :data="item"
+                    <TabelActionButtons v-if="item?.charge > 0" :disabled="['true', '1', true].includes(item.reversed)"
+                        :data="item" @action="() => memebrAccountReversalAmount({ ...item, charge_reversal: true })"
+                        :color="['charge-reversal', 'reversed'].includes(item.type) ? 'secondary' : 'default'"
+                        icon="Undo" title="charge reversal" />
+
+
+                    <TabelActionButtons :disabled="['true', '1', true].includes(item.reversed)" :data="item"
                         @action="() => memebrAccountReversalAmount(item)"
-                        :color="['charge-reversal', 'reversed'].includes(item.type) ? 'secondary' : 'danger'" icon="Undo"
-                        title="full reversal" />
+                        :color="['charge-reversal', 'reversed'].includes(item.type) ? 'secondary' : 'danger'"
+                        icon="Undo" title="full reversal" />
                 </div>
             </template>
         </DetailsTable>

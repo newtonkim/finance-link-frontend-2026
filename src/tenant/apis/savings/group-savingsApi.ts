@@ -30,7 +30,7 @@ export function groupSavingsApi() {
 
       const res = await feedback(getCharges, msg.msg, 'Failed to add member')
 
-      return getCharges.payload
+      return res
     }
   }
   async function getGroupProfileDetail(data: any = {}) {
@@ -45,6 +45,8 @@ export function groupSavingsApi() {
         state: 'groupProfileList',
       },
     })
+      // const res = await feedback(getDetails,"", 'Failed to add member')
+    
     return getDetails?.payload
   }
   async function createAgroupSavingAccount(data: any = {}) {
@@ -65,7 +67,7 @@ export function groupSavingsApi() {
         state: 'create-group-account',
       },
     })
-    return getDetails?.payload
+    return getDetails
   }
   async function DepositAndWithdrawAgroupSavingAccount(
     data: any = {},

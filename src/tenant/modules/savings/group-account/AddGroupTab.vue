@@ -3,12 +3,13 @@
         <div class="flex p-1 bg-gray-100/80 rounded-xl border border-gray-200/50 w-max">
             <button type="button" v-for="tab in tabs" :key="tab" @click="activeTab = tab" :class="[
                 'px-6 py-2 text-sm font-medium transition-all duration-200 rounded-lg',
-                activeTab === tab ? 'bg-white text-gray-900 shadow-sm ring-1 ring-black/5': 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
+                activeTab === tab ? 'bg-white text-gray-900 shadow-sm ring-1 ring-black/5' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
             ]">
                 {{ tab }}
             </button>
         </div>
         <div class="mt-2">
+
             <div v-if="activeTab === 'None Existing'">
                 <CreateNoneMember :data="data" v-model:form="formData" />
             </div>

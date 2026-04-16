@@ -50,11 +50,10 @@ const { displayAmount } = useLoanApplicationHelpers()
     <p class="mb-4 text-xs text-nfuko-primary-600 dark:text-nfuko-primary-400">
       This application has been submitted and is awaiting an officer to submit it for review.
     </p>
-    <!-- {{ takingForReview }}
-    {{ submitDisabled }} -->
+  
     <button
     :title="takingForReview || submitDisabled ? 'Please add required guarantors/files before submitting for review' : 'Submit for review'"
-      :disabled="takingForReview || submitDisabled"
+      :disabled="(takingForReview || submitDisabled)&& Array.isArray(application?.loan_guarantors) && application?.loan_guarantors.length==0"
       class="flex items-center gap-2 rounded-xl bg-nfuko-action px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-nfuko-primary-700 disabled:opacity-50"
       @click="emit('takeForReview')"
     >
