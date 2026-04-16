@@ -168,6 +168,94 @@ export interface LoanBalanceResponse {
   }
 }
 
+// ─── Loan Collections Report ──────────────────────────────────────────────────
+
+export type CollectionsPeriodType = 'Date Range' | 'Month' | 'As of Date'
+
+export interface CollectionsFilters {
+  period_type?: CollectionsPeriodType
+  date_from?: string | null
+  date_to?: string | null
+  branch_id?: number | null
+  loan_officer_id?: number | null
+  per_page?: number
+  page?: number
+}
+
+export interface CollectionsSummaryRow {
+  name?: string
+  loan_officer_name?: string
+  branch_name?: string
+  loan_count: number
+  amount_due: number
+  amount_collected: number
+  collection_rate: number
+  outstanding_balance: number
+}
+
+export interface CollectionsMethodRow {
+  payment_method: string
+  transaction_count: number
+  amount_collected: number
+}
+
+export interface CollectionsTotals {
+  amount_due: number
+  amount_collected: number
+  collection_rate: number
+  outstanding_balance: number
+  transaction_count: number
+}
+
+export interface CollectionsSummaryResponse {
+  by_officer: CollectionsSummaryRow[]
+  by_branch: CollectionsSummaryRow[]
+  by_method: CollectionsMethodRow[]
+  totals: CollectionsTotals
+}
+
+export interface CollectionsLoanRow {
+  loan_id: number
+  loan_no: string
+  member_id: number
+  member_name: string
+  member_number: string
+  phone: string | null
+  branch_name: string
+  loan_officer_name: string
+  product_name: string
+  amount_due: number
+  amount_collected: number
+  collection_rate: number
+  outstanding_balance: number
+  days_in_arrears: number
+  last_payment_date: string | null
+}
+
+export interface CollectionsTransactionRow {
+  payment_date: string
+  amount_paid: number
+  principal_portion: number
+  interest_portion: number
+  charges_portion: number
+  penalty_portion: number
+  payment_method: string | null
+  receipt_no: string | null
+  collected_by_name: string | null
+}
+
+export interface CollectionsLoansResponse {
+  data: CollectionsLoanRow[]
+  meta: {
+    current_page: number
+    last_page: number
+    per_page: number
+    total: number
+    from: number | null
+    to: number | null
+  }
+}
+
 // ─── Loan Arrears Report ──────────────────────────────────────────────────────
 
 export interface ArrearsFilters {
@@ -279,6 +367,26 @@ export const reportsApi = {
 
   loanBalancesExport(params?: Omit<LoanBalanceFilters, 'per_page' | 'page'>) {
     return tenantClient.get('/reports/loan-balances/export', { params, responseType: 'blob' })
+  },
+
+  // ─── Loan Collections ───────────────────────────────────────────────────────
+  collectionsSummary(params?: Omit<CollectionsFilters, 'per_page' | 'page'>) {
+    return tenantClient.get<CollectionsSummaryResponse>('/reports/collections/summary', { params })
+  },
+
+  collectionsLoans(params?: CollectionsFilters) {
+    return tenantClient.get<CollectionsLoansResponse>('/reports/collections/loans', { params })
+  },
+
+  collectionsLoanTransactions(loanId: number, params?: Omit<CollectionsFilters, 'per_page' | 'page'>) {
+    return tenantClient.get<CollectionsTransactionRow[]>(
+      `/reports/collections/loans/${loanId}/transactions`,
+      { params },
+    )
+  },
+
+  collectionsExport(params?: Omit<CollectionsFilters, 'per_page' | 'page'>) {
+    return tenantClient.get('/reports/collections/export', { params, responseType: 'blob' })
   },
 
   // ─── Loan Arrears ───────────────────────────────────────────────────────────
