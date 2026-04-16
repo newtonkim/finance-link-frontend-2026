@@ -182,7 +182,7 @@ export interface ArrearsTrendFilters {
   as_of_date?: string | null
   branch_id?: number | null
   loan_officer_id?: number | null
-  months?: 6 | 12
+  months?: 3 | 6 | 12
 }
 
 export interface ArrearsLoanRow {

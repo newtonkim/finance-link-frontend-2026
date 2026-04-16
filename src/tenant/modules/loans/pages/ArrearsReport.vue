@@ -28,7 +28,7 @@ interface Meta {
 
 const today = new Date().toISOString().split('T')[0]
 
-const filters = ref<ArrearsFilters & { months: 6 | 12 }>({
+const filters = ref<ArrearsFilters & { months: 3 | 6 | 12 }>({
   as_of_date:      today,
   branch_id:       null,
   loan_officer_id: null,
@@ -272,6 +272,7 @@ onMounted(async () => {
           >
             <option :value="12">Last 12 Months</option>
             <option :value="6">Last 6 Months</option>
+            <option :value="3">Last 3 Months</option>
           </select>
         </div>
 
