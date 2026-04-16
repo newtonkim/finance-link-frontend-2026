@@ -23,14 +23,14 @@
         <template #drawer="{ action, data }">
 
             <Create v-if="['add'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
-            <Edit v-if="[ 'edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
+            <Edit v-if="['edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
             <Details v-if="['view'].includes(action)" :data="data" />
         </template>
     </TableDrawer>
 </template>
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { Create, Details ,Edit} from '.'
+import { Create, Details, Edit } from '.'
 import { TableDrawer, StatusButtonsHorizontal, setLocalValues } from '@/Global'
 import { useRouter } from 'vue-router';
 const router = useRouter();
@@ -57,11 +57,11 @@ const columns = [
     { key: 'joined_date', label: 'Joined Date', width: '9em ', },
     { key: 'sex', label: 'Gender', type: 'status' },
     { key: 'marital_status', label: 'Status', type: 'status' },
-    { key: 'actions', label: 'Actions', show: [ 'edit', 'delete'] }
+    { key: 'actions', label: 'Actions', show: ['edit', 'delete'] }
     // { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 ]
 function navigateToProfile(item: any) {
-    router.push(`/tenant/member/profile`) 
+    router.push(`/tenant/member/profile`)
     setLocalValues('memberProfile', item)
 }
 </script>

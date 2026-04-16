@@ -1,7 +1,5 @@
 <template>
-    <TableDrawer
-  
-     :showAddButton="false" :importDefaults="importDefaults" drawerWidth="w-2/3" :url="tableUrl"
+    <TableDrawer :showAddButton="false" :importDefaults="importDefaults" drawerWidth="w-2/3" :url="tableUrl"
         state="garanteedgroupdLoan" :columns="columns" :showTableAction="false">
         <template #member_name="{ item }">
             <Button @click="navigateToProfile(item)"
@@ -9,19 +7,23 @@
                 {{ item?.member_name }}
             </Button>
         </template>
-         <template #code="{ item }">
+        <template #code="{ item }">
 
-                <span>
-                    <CopyData :show="item?.code" :copy="item?.code">
-                        <template #text>
-                            <button @click="navigateIntoLoanDetails(item)"
-                                class=" font-semibold text-nfuko-action text-sm dark:text-white  cursor-pointer">
-                                <span>{{ item?.code }}</span>
-                            </button>
-                        </template>
-                    </CopyData>
-                </span>
-            </template>
+            <span>
+                <CopyData :show="item?.code??item?.application_code" :copy="item?.code??item?.application_code">
+                    <template #text>
+                        <button v-if="item?.code" @click="navigateIntoLoanDetails(item)"
+                            class=" font-semibold text-nfuko-action text-sm dark:text-white  cursor-pointer">
+                            <span>{{ item?.code }}</span>
+                        </button>
+                        <button v-else @click="navigateIntoLoanDetails(item)"
+                            class=" font-semibold text-nfuko-action text-sm dark:text-white  cursor-pointer">
+                            <span>{{ item?.application_code }}</span>
+                        </button>
+                    </template>
+                </CopyData>
+            </span>
+        </template>
 
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
@@ -32,7 +34,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import {  setLocalValues, getLocalValues, } from '@/Global'
+import { setLocalValues, getLocalValues, } from '@/Global'
 const router = useRouter()
 const statusFilter = ref<'all' | 'disbursed' | 'arrears' | 'active' | 'closed'>('all')
 const groupId = computed(() => getLocalValues('groupProfile')?.id)
@@ -43,9 +45,13 @@ const tableUrl = computed(() => {
     params.append('status', statusFilter.value)
     if (groupId.value) params.append('group_id', groupId.value)
     return `/group-account-savings/profile/group-members-with-running-loans?${params.toString()}`
-}) 
+})
 function navigateIntoLoanDetails(item: any) {
-    router.push(`/tenant/loans/${item?.loan_id}`)
+    if(item?.loan_id){
+        router.push(`/tenant/loans/${item?.loan_id}`)
+    }else
+
+    router.push(`/tenant/loan-applications/${item?.application_id}`)
 }
 const columns = [
     { key: 'code', label: 'Reference', sticky: 'left' },
