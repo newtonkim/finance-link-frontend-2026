@@ -169,6 +169,12 @@ export const tenantRoutes: MenuRoutes[] = [
             showSideBar: true,
             component: () => import("@/tenant/modules/reports/pages/AgingReport.vue"),
           },
+          {
+            path: "collections-report",
+            label: "Collections Report",
+            showSideBar: true,
+            component: () => import("@/tenant/modules/loans/pages/CollectionsReport.vue"),
+          },
         ],
       },
       
