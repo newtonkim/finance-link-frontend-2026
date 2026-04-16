@@ -84,9 +84,10 @@ async function fetchAll() {
       months:          filters.value.months,
     }
 
+    const isHistorical = selectedCard.value !== 'today'
     const tableFilters = {
       ...filters.value,
-      historical: selectedCard.value !== 'today',
+      ...(isHistorical ? { historical: true } : {}),
       as_of_date: selectedCard.value === 'one_month_ago'
         ? comparisonData.value?.one_month_ago.date ?? filters.value.as_of_date
         : selectedCard.value === 'three_months_ago'
