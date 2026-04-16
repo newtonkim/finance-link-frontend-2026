@@ -5,7 +5,6 @@
 </template>
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { Form } from '@/Global'
 const emits = defineEmits(['update:form']),
     props = defineProps({
         data: {
@@ -14,6 +13,7 @@ const emits = defineEmits(['update:form']),
         },
     }),
     fields = ref([
+       
         {
             label: 'add group member',
             name: 'memberslist',
@@ -21,6 +21,15 @@ const emits = defineEmits(['update:form']),
             required: true,
             url: 'group-account-savings/add-member-group-dropdown-list?group_id=' + props.data?.item?.id,
             placeholder: 'Enter member name',
+
+        },
+         {
+            label: 'Account Code',
+            name: 'account_code',
+            type: 'select',
+            required: false,
+            url: 'group-account-savings/collect-group-saving-account-list' + `?group_id=${props.data?.item?.id}`,
+            dataOnMount: true,
 
         },
         {
@@ -34,8 +43,8 @@ const emits = defineEmits(['update:form']),
             name: 'add_existing_members_ogroup',
             type: 'textarea',
             required: true,
-            hidden:"true",
-            value:true
+            hidden: "true",
+            value: true
         },
     ])
 

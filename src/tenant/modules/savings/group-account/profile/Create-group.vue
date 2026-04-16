@@ -12,6 +12,9 @@
 <script setup lang="ts">
 import { ref, onMounted,   } from 'vue'
 import { Form,  } from '@/Global'
+import { pomPinia } from 'septor-store'
+const Store = pomPinia()
+
 const loading = ref(true),
   props = defineProps({
     data: {
@@ -20,6 +23,7 @@ const loading = ref(true),
     },
   }),
   fields = ref([
+
   {
       label: 'savings product',
       name: 'product_id',

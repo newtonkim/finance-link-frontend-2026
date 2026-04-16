@@ -21,6 +21,15 @@ const props = defineProps({
   },
 })
 const fields = ref([
+    {
+      label: 'Account Code',
+      name: 'account_code',
+      type: 'select',
+      required: false,
+      url:'group-account-savings/collect-group-saving-account-list'+`?group_id=${props.data?.item?.id}`,
+      dataOnMount: true,
+       
+    },
   {
     label: 'Full Name',
     name: 'full_name',

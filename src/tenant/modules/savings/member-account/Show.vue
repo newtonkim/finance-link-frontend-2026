@@ -1,5 +1,4 @@
 <script setup>
-import { DetailsTable, TabelActionButtons } from '@/Global';
 import { memberAccountApi } from '@/tenant/apis'
 import { onMounted, ref } from 'vue'
 const { memebrAccountReversalAmount } = memberAccountApi()

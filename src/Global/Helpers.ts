@@ -552,7 +552,7 @@ export function feedback(res: any, success?: string, fail?: string) {
   if (!res || res.code == 200) {
     successStatus = true
     msg = {
-      msg: fail,
+      msg: success || 'Action was successful',
       type: 'Success',
       success: successStatus,
     }
