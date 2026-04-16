@@ -502,11 +502,11 @@ onMounted(async () => {
                         <tr class="bg-amber-100/60 dark:bg-amber-900/20">
                           <th class="px-3 py-1.5 text-left font-semibold text-amber-800">Inst. #</th>
                           <th class="px-3 py-1.5 text-left font-semibold text-amber-800">Due Date</th>
-                          <th class="px-3 py-1.5 text-right font-semibold text-amber-800">Principal Short.</th>
-                          <th class="px-3 py-1.5 text-right font-semibold text-amber-800">Interest Short.</th>
-                          <th class="px-3 py-1.5 text-right font-semibold text-amber-800">Charges Short.</th>
-                          <th class="px-3 py-1.5 text-right font-semibold text-amber-800">Penalty Short.</th>
-                          <th class="px-3 py-1.5 text-right font-semibold text-amber-800">Total Short.</th>
+                          <th class="px-3 py-1.5 text-right font-semibold text-amber-800">Outstanding Principal</th>
+                          <th class="px-3 py-1.5 text-right font-semibold text-amber-800">Outstanding Interest</th>
+                          <th class="px-3 py-1.5 text-right font-semibold text-amber-800">Outstanding Charges</th>
+                          <th class="px-3 py-1.5 text-right font-semibold text-amber-800">Outstanding Penalty</th>
+                          <th class="px-3 py-1.5 text-right font-semibold text-amber-800">Total Outstanding</th>
                         </tr>
                       </thead>
                       <tbody>
