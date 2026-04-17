@@ -10,7 +10,7 @@
         <template #code="{ item }">
 
             <span>
-                <CopyData :show="item?.code??item?.application_code" :copy="item?.code??item?.application_code">
+                <CopyData :show="item?.code ?? item?.application_code" :copy="item?.code ?? item?.application_code">
                     <template #text>
                         <button v-if="item?.code" @click="navigateIntoLoanDetails(item)"
                             class=" font-semibold text-nfuko-action text-sm dark:text-white  cursor-pointer">
@@ -47,11 +47,11 @@ const tableUrl = computed(() => {
     return `/group-account-savings/profile/group-members-with-running-loans?${params.toString()}`
 })
 function navigateIntoLoanDetails(item: any) {
-    if(item?.loan_id){
+    if (item?.loan_id) {
         router.push(`/tenant/loans/${item?.loan_id}`)
-    }else
+    } else
 
-    router.push(`/tenant/loan-applications/${item?.application_id}`)
+        router.push(`/tenant/loan-applications/${item?.application_id}`)
 }
 const columns = [
     { key: 'code', label: 'Reference', sticky: 'left' },
@@ -60,8 +60,7 @@ const columns = [
     { key: 'member_phone', label: 'Member Phone' },
     { key: 'blc', label: 'Balance', type: 'money' },
     { key: 'loan_status', label: 'Status', type: 'status' },
-    { key: 'created_at', label: 'Created At', type: 'date' },
-    { key: 'actions', label: 'Actions', show: ['view'] }
+    // { key: 'created_at', label: 'Created At', type: 'date' },
 ]
 
 function navigateToProfile(item: any) {
