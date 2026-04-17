@@ -128,6 +128,8 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
   { key: 'arrears', label: 'In Arrears', countKey: 'arrears', color: 'nfuko-danger' },
   { key: 'closed', label: 'Closed Loans', countKey: 'closed', color: 'nfuko-primary' },
   { key: 'approved', label: 'Approved Loans', countKey: 'approved', color: 'nfuko-blue' },
+  { key: 'rescheduled', label: 'Rescheduled Loans', countKey: 'rescheduled', color: 'nfuko-action' },
+  { key: 'topup', label: 'Topped Up Loans', countKey: 'topup', color: 'nfuko-blue' },
 ]
 </script>
 
@@ -174,6 +176,24 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
 
     <!-- Content -->
     <div class="flex-1 overflow-auto p-4 sm:p-6 space-y-4">
+
+      <!-- Coming Soon: Topped Up Loans -->
+      <div
+        v-if="activeTab === 'topup'"
+        class="flex flex-col items-center justify-center py-24 gap-4 text-neutral-400"
+      >
+        <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-neutral-100 dark:bg-neutral-800">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+        </div>
+        <p class="text-base font-semibold text-neutral-600 dark:text-neutral-300">Topped Up Loans</p>
+        <p class="text-sm text-neutral-400 dark:text-neutral-500 text-center max-w-xs">
+          This feature is currently under development. Topped-up loan tracking will be available in a future release.
+        </p>
+      </div>
+
+      <template v-else>
       <!-- Search bar & Export -->
       <div class="flex items-center justify-between gap-3">
         <div class="flex items-center gap-3">
@@ -443,6 +463,8 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
           </button>
         </div>
       </div>
+      </template>
+
     </div>
   </div>
 </template>
