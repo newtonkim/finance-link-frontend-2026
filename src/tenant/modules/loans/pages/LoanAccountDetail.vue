@@ -602,7 +602,7 @@ const goBack = () => {
             </div>
           </div>
           <div class="flex items-center gap-3">
-            <template v-if="['active', 'disbursed', 'running', 'arrears', 'rescheduled'].includes(loan.status)">
+            <template v-if="['active', 'disbursed', 'running', 'arrears'].includes(loan.status)">
               <DropdownMenu>
                 <DropdownMenuTrigger as-child>
                   <button
