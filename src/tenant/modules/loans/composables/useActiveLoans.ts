@@ -24,6 +24,8 @@ export function useActiveLoans() {
         arrears: 0,
         closed: 0,
         all: 0,
+        rescheduled: 0,
+        topup: 0,
     })
     const filters        = reactive<ActiveLoanParams>({
         search: '',
@@ -94,6 +96,11 @@ export function useActiveLoans() {
     }
 
     async function fetch(page = 1) {
+        if (activeTab.value === 'topup') {
+            loans.value = []
+            Object.assign(meta, { current_page: 1, last_page: 1, per_page: 10, total: 0 })
+            return
+        }
         loading.value = true
         try {
             const params: ActiveLoanParams = { ...filters, page }
@@ -102,6 +109,9 @@ export function useActiveLoans() {
                 params.status = 'closed'
             } else if (activeTab.value === 'disbursed') {
                 params.tab = 'disbursed'
+                delete params.status
+            } else if (activeTab.value === 'rescheduled') {
+                params.tab = 'rescheduled'
                 delete params.status
             } else {
                 params.tab = activeTab.value
