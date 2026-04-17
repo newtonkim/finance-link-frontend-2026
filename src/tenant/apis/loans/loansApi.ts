@@ -252,6 +252,7 @@ export interface RescheduleHistoryEntry {
   reschedule_id: string
   reschedule_date: string
   reschedule_type: string
+  old_status?: string | null
   old_outstanding: string | number
   old_interest_rate: string | number
   old_remaining_periods: number
