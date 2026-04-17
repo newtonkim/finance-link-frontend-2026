@@ -98,6 +98,7 @@ export interface ActiveLoan {
   next_due_date: string | null
   next_installment_amount: string | null
   is_rescheduled?: boolean
+  reschedule_date?: string | null
   _source?: 'loan' | 'application'
 }
 

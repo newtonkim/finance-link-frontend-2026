@@ -362,6 +362,7 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
                 <th class="px-4 py-3 text-right">Current Balance</th>
                 <th class="px-4 py-3">Approval Date</th>
                 <th class="px-4 py-3">Disbursement Date</th>
+                <th v-if="activeTab === 'rescheduled'" class="px-4 py-3">Rescheduled Date</th>
                 <th class="px-4 py-3">Loan Products</th>
                 <th class="px-4 py-3">Status</th>
                 <th class="px-4 py-3">Actions</th>
@@ -404,6 +405,9 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
                 </td>
                 <td class="px-4 py-3 text-sm text-neutral-600 dark:text-neutral-400">
                   {{ fmtDate(loan.disbursed_at) }}
+                </td>
+                <td v-if="activeTab === 'rescheduled'" class="px-4 py-3 text-sm text-neutral-600 dark:text-neutral-400">
+                  {{ fmtDate(loan.reschedule_date) }}
                 </td>
                 <td class="px-4 py-3 text-neutral-700 dark:text-neutral-300">
                   {{ loan.loan_product?.name ?? '—' }}
