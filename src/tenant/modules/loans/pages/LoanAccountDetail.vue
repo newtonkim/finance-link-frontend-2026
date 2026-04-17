@@ -523,11 +523,13 @@ function handleReschedule() {
 function buildGeneralInfoRows(): Array<[string, string]> {
   if (!loan.value) return []
   const l = loan.value
+  const cap = (s: string) => s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
   const rows: Array<[string, string]> = []
 
-  // Current Loan Details
+  // ── Current Loan Details ─────────────────────────────────────────────────
+  rows.push(['— Current Loan Details —', ''])
   rows.push(['Loan Number', l.loan_no])
-  rows.push(['Status', l.status === 'active' ? 'Disbursed' : l.status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())])
+  rows.push(['Status', l.status === 'active' ? 'Disbursed' : cap(l.status)])
   rows.push(['Loan Product', l.loan_product?.name ?? '—'])
   rows.push([l.is_rescheduled ? 'Current Principal' : 'Total Principal',
     l.is_rescheduled && latestReschedule.value ? fmt(latestReschedule.value.new_principal) : principalDisplay.value])
@@ -536,7 +538,7 @@ function buildGeneralInfoRows(): Array<[string, string]> {
   rows.push([l.is_rescheduled ? 'Current Interest Rate' : 'Interest Rate',
     l.is_rescheduled && latestReschedule.value ? `${latestReschedule.value.new_rate}%` : `${l.interest_rate}%`])
   if (l.loan_product?.interest_method) {
-    rows.push(['Interest Method', l.loan_product.interest_method.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())])
+    rows.push(['Interest Method', cap(l.loan_product.interest_method)])
   }
   rows.push([l.is_rescheduled ? 'Current Term' : 'Term',
     `${l.is_rescheduled && latestReschedule.value ? latestReschedule.value.new_duration : l.term_months} months`])
@@ -545,24 +547,33 @@ function buildGeneralInfoRows(): Array<[string, string]> {
   rows.push(['Date Disbursed', l.disbursed_at ? fmtDate(l.disbursed_at) : '—'])
   if (l.is_rescheduled && latestReschedule.value) {
     rows.push(['Rescheduled On', latestReschedule.value.reschedule_date ? fmtDate(latestReschedule.value.reschedule_date) : '—'])
-    rows.push(['Reschedule Type', latestReschedule.value.reschedule_type?.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) ?? '—'])
+    rows.push(['Reschedule Type', latestReschedule.value.reschedule_type ? cap(latestReschedule.value.reschedule_type) : '—'])
   }
-  rows.push(['Disbursement Method', l.disbursement_method?.replace(/_/g, ' ') ?? '—'])
+  rows.push(['Disbursement Method', l.disbursement_method ? cap(l.disbursement_method) : '—'])
   if (l.disbursement_reference) rows.push(['Reference', l.disbursement_reference])
 
-  // People
+  // ── People Information ───────────────────────────────────────────────────
+  rows.push(['— People Information —', ''])
   if (l.member) rows.push(['Member Name', l.member.name])
   if (l.member?.member_number) rows.push(['Member No.', l.member.member_number])
   if (l.disbursed_by_staff) rows.push(['Disbursing Officer', l.disbursed_by_staff.name])
   if (l.loan_officer) rows.push(['Loan Officer', l.loan_officer.name])
 
-  // Original loan (if rescheduled)
+  // ── Original Loan Details (if rescheduled) ───────────────────────────────
   if (l.is_rescheduled) {
     rows.push(['— Original Loan Details (Before Rescheduling) —', ''])
+    rows.push(['Loan Number', l.loan_no])
     rows.push(['Initial Status', oldStatusLabel.value ?? '—'])
     rows.push(['Original Principal', principalDisplay.value])
     rows.push(['Original Term', `${l.original_term_months || l.term_months} months`])
     rows.push(['Original Rate', `${l.original_interest_rate || l.interest_rate}%`])
+    if (l.loan_product?.interest_method) {
+      rows.push(['Interest Method', cap(l.loan_product.interest_method)])
+    }
+    rows.push(['Grace Period', (l.loan_product?.grace_period ?? 0) > 0 ? `${l.loan_product?.grace_period} days` : 'None'])
+    rows.push(['Net Cash Disbursed', netDisbursedDisplay.value])
+    if (l.approved_at) rows.push(['Approved Date', fmtDate(l.approved_at)])
+    rows.push(['Disbursed Date', l.disbursed_at ? fmtDate(l.disbursed_at) : '—'])
   }
 
   return rows
@@ -627,8 +638,6 @@ function exportGeneralInfoPdf() {
   doc.setTextColor(0)
 
   const rows = buildGeneralInfoRows()
-  const tableRows: Array<[string, string] | { isSection: true; label: string }> = []
-
   const body: Array<any[]> = []
   const sectionIndexes: number[] = []
 
