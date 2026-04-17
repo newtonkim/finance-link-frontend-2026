@@ -100,7 +100,7 @@ function statusColor(status: string) {
     case 'closed':
       return 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400'
     case 'rescheduled':
-      return 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400'
+      return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
     default:
       return 'bg-neutral-100 text-neutral-500'
   }
@@ -111,7 +111,7 @@ function generalStatusColor(status: string) {
     return 'bg-nfuko-primary text-white'
   }
   if (status === 'rescheduled') {
-    return 'bg-indigo-600 text-white'
+    return 'bg-amber-500 text-white'
   }
   return statusColor(status)
 }
