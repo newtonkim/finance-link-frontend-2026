@@ -134,7 +134,9 @@ function scheduleStatusColor(s: string) {
   }
 }
 
-const tabs = [
+type LoanDetailTabKey = 'schedule' | 'reschedules' | 'transactions' | 'general' | 'charges' | 'documents' | 'activities'
+
+const allTabs: Array<{ key: LoanDetailTabKey; label: string; icon: any }> = [
   { key: 'schedule', label: 'Payment Schedule', icon: ClipboardList },
   { key: 'reschedules', label: 'Reschedule History', icon: History },
   { key: 'transactions', label: 'Transaction History', icon: History },
@@ -142,14 +144,18 @@ const tabs = [
   { key: 'charges', label: 'Charges & Penalties', icon: AlertTriangle },
   { key: 'documents', label: 'Documents', icon: FileText },
   { key: 'activities', label: 'Loan Activities', icon: Activity },
-] as const
+]
+
+const tabs = computed(() =>
+  allTabs.filter((t) => t.key !== 'reschedules' || !!loan.value?.is_rescheduled),
+)
 
 const showAllSchedule = ref(false)
 
 const latestRescheduleId = computed(() => {
   if (!reschedules.value || reschedules.value.length === 0) return null
   // We use the integer .id here because that's what's stored in the schedule's reschedule_id column
-  return reschedules.value[0].id
+  return reschedules.value[0]?.id ?? null
 })
 
 const latestReschedule = computed(() =>
@@ -561,6 +567,7 @@ const goBack = () => {
                 >
                   <CheckCircle2 v-if="loan.status === 'closed'" class="h-3 w-3" />
                   <AlertCircle v-else-if="loan.status === 'arrears'" class="h-3 w-3" />
+                  <History v-else-if="loan.status === 'rescheduled'" class="h-3 w-3" />
                   {{ loan.status }}
                 </span>
               </div>
@@ -595,7 +602,7 @@ const goBack = () => {
             </div>
           </div>
           <div class="flex items-center gap-3">
-            <template v-if="['active', 'disbursed', 'running', 'arrears'].includes(loan.status)">
+            <template v-if="['active', 'disbursed', 'running', 'arrears', 'rescheduled'].includes(loan.status)">
               <DropdownMenu>
                 <DropdownMenuTrigger as-child>
                   <button
