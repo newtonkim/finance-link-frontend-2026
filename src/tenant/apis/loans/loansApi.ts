@@ -27,6 +27,7 @@ export interface LoanScheduleEntry {
 export interface LoanTransaction {
   id: number
   payment_id: string
+  reschedule_id: number | null
   receipt_no: string | null
   transaction_ref: string | null
   amount_paid: string

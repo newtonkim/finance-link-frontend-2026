@@ -1419,8 +1419,19 @@ const goBack = () => {
                 <td class="px-4 py-3 text-neutral-700 dark:text-neutral-300">
                   {{ fmtDate(txn.payment_date) }}
                 </td>
-                <td class="px-4 py-3 capitalize text-neutral-600 dark:text-neutral-400">
-                  {{ txn.payment_method?.replace(/_/g, ' ') ?? '—' }}
+                <td class="px-4 py-3">
+                  <div class="flex flex-col gap-1">
+                    <span class="capitalize text-neutral-600 dark:text-neutral-400">
+                      {{ txn.payment_method?.replace(/_/g, ' ') ?? '—' }}
+                    </span>
+                    <span
+                      v-if="txn.reschedule_id"
+                      class="inline-flex w-fit items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                    >
+                      <History class="h-2.5 w-2.5" />
+                      Rescheduled Installment
+                    </span>
+                  </div>
                 </td>
                 <td class="px-4 py-3 text-right text-neutral-600 dark:text-neutral-400">
                   {{ currency }} {{ fmt(txn.principal_portion) }}
