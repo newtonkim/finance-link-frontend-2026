@@ -135,7 +135,7 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
   { key: 'arrears', label: 'In Arrears', countKey: 'arrears', color: 'nfuko-danger' },
   { key: 'closed', label: 'Closed Loans', countKey: 'closed', color: 'nfuko-primary' },
   { key: 'approved', label: 'Approved Loans', countKey: 'approved', color: 'nfuko-blue' },
-  { key: 'rescheduled', label: 'Rescheduled Loans', countKey: 'rescheduled', color: 'nfuko-action' },
+  { key: 'rescheduled', label: 'Rescheduled Loans', countKey: 'rescheduled', color: 'nfuko-yellow' },
   { key: 'topup', label: 'Topped Up Loans', countKey: 'topup', color: 'nfuko-blue' },
 ]
 </script>
