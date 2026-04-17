@@ -168,7 +168,7 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
                 : 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400'
             "
           >
-            {{ summary[tab.countKey].toLocaleString() }}
+            {{ tab.key === 'topup' ? '—' : summary[tab.countKey]?.toLocaleString() ?? '0' }}
           </span>
         </button>
       </nav>
