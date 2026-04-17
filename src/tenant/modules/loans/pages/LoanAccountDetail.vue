@@ -23,7 +23,11 @@ import {
   Activity,
   AlertTriangle,
   Wallet,
+  Printer,
+  FileDown,
 } from 'lucide-vue-next'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -514,6 +518,153 @@ function handleReschedule() {
   }
 }
 
+// ─── General Information Print / PDF ─────────────────────────────────────────
+
+function buildGeneralInfoRows(): Array<[string, string]> {
+  if (!loan.value) return []
+  const l = loan.value
+  const rows: Array<[string, string]> = []
+
+  // Current Loan Details
+  rows.push(['Loan Number', l.loan_no])
+  rows.push(['Status', l.status === 'active' ? 'Disbursed' : l.status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())])
+  rows.push(['Loan Product', l.loan_product?.name ?? '—'])
+  rows.push([l.is_rescheduled ? 'Current Principal' : 'Total Principal',
+    l.is_rescheduled && latestReschedule.value ? fmt(latestReschedule.value.new_principal) : principalDisplay.value])
+  rows.push(['Net Disbursed', netDisbursedDisplay.value])
+  rows.push(['Outstanding Balance', outstandingDisplay.value])
+  rows.push([l.is_rescheduled ? 'Current Interest Rate' : 'Interest Rate',
+    l.is_rescheduled && latestReschedule.value ? `${latestReschedule.value.new_rate}%` : `${l.interest_rate}%`])
+  if (l.loan_product?.interest_method) {
+    rows.push(['Interest Method', l.loan_product.interest_method.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())])
+  }
+  rows.push([l.is_rescheduled ? 'Current Term' : 'Term',
+    `${l.is_rescheduled && latestReschedule.value ? latestReschedule.value.new_duration : l.term_months} months`])
+  rows.push(['Grace Period', (l.loan_product?.grace_period ?? 0) > 0 ? `${l.loan_product?.grace_period} days` : 'None'])
+  if (l.approved_at) rows.push(['Approval Date', fmtDate(l.approved_at)])
+  rows.push(['Date Disbursed', l.disbursed_at ? fmtDate(l.disbursed_at) : '—'])
+  if (l.is_rescheduled && latestReschedule.value) {
+    rows.push(['Rescheduled On', latestReschedule.value.reschedule_date ? fmtDate(latestReschedule.value.reschedule_date) : '—'])
+    rows.push(['Reschedule Type', latestReschedule.value.reschedule_type?.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) ?? '—'])
+  }
+  rows.push(['Disbursement Method', l.disbursement_method?.replace(/_/g, ' ') ?? '—'])
+  if (l.disbursement_reference) rows.push(['Reference', l.disbursement_reference])
+
+  // People
+  if (l.member) rows.push(['Member Name', l.member.name])
+  if (l.member?.member_number) rows.push(['Member No.', l.member.member_number])
+  if (l.disbursed_by_staff) rows.push(['Disbursing Officer', l.disbursed_by_staff.name])
+  if (l.loan_officer) rows.push(['Loan Officer', l.loan_officer.name])
+
+  // Original loan (if rescheduled)
+  if (l.is_rescheduled) {
+    rows.push(['— Original Loan Details (Before Rescheduling) —', ''])
+    rows.push(['Initial Status', oldStatusLabel.value ?? '—'])
+    rows.push(['Original Principal', principalDisplay.value])
+    rows.push(['Original Term', `${l.original_term_months || l.term_months} months`])
+    rows.push(['Original Rate', `${l.original_interest_rate || l.interest_rate}%`])
+  }
+
+  return rows
+}
+
+function printGeneralInfo() {
+  if (!loan.value) return
+  const rows = buildGeneralInfoRows()
+    .map(([label, value]) =>
+      label.startsWith('—')
+        ? `<tr class="section-header"><td colspan="2">${label.replace(/^— | —$/g, '')}</td></tr>`
+        : `<tr><td>${label}</td><td>${value}</td></tr>`,
+    )
+    .join('')
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Loan General Information – ${loan.value.loan_no}</title>
+<style>
+  body { font-family: Arial, sans-serif; font-size: 12px; color: #111; margin: 24px; }
+  h2 { font-size: 16px; margin-bottom: 2px; }
+  .sub { font-size: 11px; color: #666; margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; max-width: 600px; }
+  tr { border-bottom: 1px solid #eee; }
+  td { padding: 6px 10px; }
+  td:first-child { color: #555; font-size: 11px; width: 45%; }
+  td:last-child { font-weight: 600; }
+  tr.section-header td { background: #f0f0f0; font-weight: bold; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #444; padding: 8px 10px; border-bottom: 2px solid #ddd; }
+  @media print { body { margin: 0; } }
+</style>
+</head>
+<body>
+<h2>Loan General Information</h2>
+<div class="sub">${loan.value.loan_no} · ${loan.value.member?.name ?? ''}</div>
+<table><tbody>${rows}</tbody></table>
+</body>
+</html>`
+
+  const win = window.open('', '_blank', 'width=700,height=600')
+  if (!win) return
+  win.document.write(html)
+  win.document.close()
+  win.focus()
+  win.print()
+}
+
+function exportGeneralInfoPdf() {
+  if (!loan.value) return
+  const l = loan.value
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+
+  doc.setFontSize(14)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Loan General Information', 14, 18)
+
+  doc.setFontSize(9)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(100)
+  doc.text(`${l.loan_no}  ·  ${l.member?.name ?? ''}`, 14, 25)
+  doc.setTextColor(0)
+
+  const rows = buildGeneralInfoRows()
+  const tableRows: Array<[string, string] | { isSection: true; label: string }> = []
+
+  const body: Array<any[]> = []
+  const sectionIndexes: number[] = []
+
+  rows.forEach(([label, value]) => {
+    if (label.startsWith('—')) {
+      sectionIndexes.push(body.length)
+      body.push([label.replace(/^— | —$/g, ''), ''])
+    } else {
+      body.push([label, value])
+    }
+  })
+
+  autoTable(doc, {
+    startY: 30,
+    head: [['Field', 'Value']],
+    body,
+    headStyles: { fillColor: [30, 100, 60], textColor: 255, fontSize: 8, fontStyle: 'bold' },
+    bodyStyles: { fontSize: 8 },
+    columnStyles: {
+      0: { cellWidth: 65, textColor: [80, 80, 80] },
+      1: { fontStyle: 'bold' },
+    },
+    didParseCell(data) {
+      if (data.section === 'body' && sectionIndexes.includes(data.row.index)) {
+        data.cell.styles.fillColor = [240, 240, 240]
+        data.cell.styles.fontStyle = 'bold'
+        data.cell.styles.textColor = [60, 60, 60]
+        data.cell.styles.fontSize = 7.5
+      }
+    },
+    alternateRowStyles: { fillColor: [248, 250, 248] },
+  })
+
+  doc.save(`loan-info-${l.loan_no}.pdf`)
+}
+
 const goBack = () => {
   if (window.history.length > 1) {
     router.back()
@@ -753,7 +904,27 @@ const goBack = () => {
       </div>
 
       <!-- ── General Information ── -->
-      <div v-if="activeTab === 'general'" class="grid gap-6 lg:grid-cols-2 items-start">
+      <div v-if="activeTab === 'general'" class="space-y-4">
+        <!-- Action bar -->
+        <div class="flex items-center justify-end gap-2">
+          <button
+            type="button"
+            class="flex items-center gap-1.5 rounded-lg border border-neutral-200 px-2.5 py-1.5 text-xs font-medium text-neutral-600 hover:bg-neutral-50 transition-colors dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+            @click="printGeneralInfo"
+          >
+            <Printer class="h-3.5 w-3.5" />
+            Print
+          </button>
+          <button
+            type="button"
+            class="flex items-center gap-1.5 rounded-lg bg-nfuko-primary px-2.5 py-1.5 text-xs font-medium text-white hover:bg-nfuko-primary/90 transition-colors"
+            @click="exportGeneralInfoPdf"
+          >
+            <FileDown class="h-3.5 w-3.5" />
+            PDF
+          </button>
+        </div>
+        <div class="grid gap-6 lg:grid-cols-2 items-start">
         <!-- ── LEFT COLUMN ── -->
         <div class="space-y-6">
           <!-- Current Loan Details -->
@@ -1044,6 +1215,7 @@ const goBack = () => {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
 
