@@ -97,6 +97,7 @@ export interface ActiveLoan {
   } | null
   next_due_date: string | null
   next_installment_amount: string | null
+  is_rescheduled?: boolean
   _source?: 'loan' | 'application'
 }
 
@@ -161,6 +162,11 @@ export interface LoanDetail {
   disbursement_method: string
   disbursement_reference: string | null
   status: string
+  is_rescheduled: boolean
+  reschedule_count: number
+  original_term_months?: number
+  original_interest_rate?: string | number
+  approved_at?: string
   notes: string | null
   currency_code: string
   loan_product: {

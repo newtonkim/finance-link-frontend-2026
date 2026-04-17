@@ -97,6 +97,10 @@ function fmtDate(d: string | null | undefined) {
   })
 }
 
+function effectiveStatus(loan: { status: string; is_rescheduled?: boolean }) {
+  return loan.is_rescheduled ? 'rescheduled' : loan.status
+}
+
 function statusBadge(status: string) {
   switch (status) {
     case 'active':
@@ -106,6 +110,8 @@ function statusBadge(status: string) {
       return 'bg-nfuko-primary text-white'
     case 'arrears':
       return 'bg-red-100 text-red-700'
+    case 'rescheduled':
+      return 'bg-amber-100 text-amber-700'
     case 'approved':
       return 'bg-blue-100 text-blue-700'
     case 'submitted':
@@ -119,6 +125,7 @@ function statusBadge(status: string) {
 
 function statusLabel(status: string) {
   if (status === 'active') return 'Disbursed'
+  if (status === 'rescheduled') return 'Rescheduled'
   return status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
@@ -404,9 +411,9 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
                 <td class="px-4 py-3">
                   <span
                     class="inline-block rounded px-2 py-0.5 text-xs font-semibold"
-                    :class="statusBadge(loan.status)"
+                    :class="statusBadge(effectiveStatus(loan))"
                   >
-                    {{ statusLabel(loan.status) }}
+                    {{ statusLabel(effectiveStatus(loan)) }}
                   </span>
                 </td>
                 <td class="px-4 py-3">
