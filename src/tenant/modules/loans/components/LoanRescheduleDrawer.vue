@@ -31,7 +31,7 @@ const isSubmitting = ref(false)
 const previewData = ref<ReschedulePreviewResult | null>(null)
 
 // ─── Form state ───────────────────────────────────────────────────────────────
-const rescheduleType = ref<'tenor_extension' | 'rate_change' | 'capitalization'>('tenor_extension')
+const rescheduleType = ref<'tenor_extension' | 'rate_change' | 'capitalization' | 'tenor_rate_change'>('tenor_extension')
 const newTenorMonths = ref<number | null>(null)
 const newInterestRate = ref<number | null>(null)
 const capitalizeArrears = ref(false)
@@ -73,6 +73,7 @@ const canPreview = computed(() => {
   if (!reason.value.trim()) return false
   if (rescheduleType.value === 'tenor_extension' && !newTenorMonths.value) return false
   if (rescheduleType.value === 'rate_change' && newInterestRate.value === null) return false
+  if (rescheduleType.value === 'tenor_rate_change' && (!newTenorMonths.value || newInterestRate.value === null)) return false
   return true
 })
 
@@ -83,8 +84,10 @@ function fmt(v: number | string | null | undefined) {
 }
 
 function buildParams(): RescheduleParams {
+  const apiType: RescheduleParams['reschedule_type'] =
+    rescheduleType.value === 'tenor_rate_change' ? 'tenor_extension' : rescheduleType.value
   return {
-    reschedule_type: rescheduleType.value,
+    reschedule_type: apiType,
     new_tenor_months: newTenorMonths.value ? Number(newTenorMonths.value) : undefined,
     new_interest_rate: newInterestRate.value !== null ? Number(newInterestRate.value) : undefined,
     capitalize_arrears: capitalizeArrears.value,
@@ -247,7 +250,7 @@ function handleDone() {
           <!-- Type selector -->
           <div class="shrink-0">
             <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Reschedule Type</p>
-            <div class="grid grid-cols-3 gap-2">
+            <div class="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 @click="rescheduleType = 'tenor_extension'"
@@ -298,6 +301,23 @@ function handleDone() {
                   <p class="text-[11px] text-neutral-500">Roll arrears in</p>
                 </div>
               </button>
+
+              <button
+                type="button"
+                @click="rescheduleType = 'tenor_rate_change'"
+                class="flex items-center gap-2.5 rounded-xl border p-3 text-left transition-all hover:border-violet-400"
+                :class="rescheduleType === 'tenor_rate_change'
+                  ? 'border-transparent ring-2 ring-violet-600 bg-violet-50/50 dark:bg-violet-900/10'
+                  : 'border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-800'"
+              >
+                <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-violet-100 text-violet-600 dark:bg-violet-900/40">
+                  <RefreshCw class="h-3.5 w-3.5" />
+                </div>
+                <div>
+                  <p class="text-xs font-semibold text-neutral-900 dark:text-white">Extend + Rate</p>
+                  <p class="text-[11px] text-neutral-500">Term &amp; rate change</p>
+                </div>
+              </button>
             </div>
           </div>
 
@@ -346,6 +366,37 @@ function handleDone() {
                   <p class="mt-0.5 text-xs text-amber-700 dark:text-amber-400">Adds penalty, interest, and charge arrears to the new principal.</p>
                 </div>
               </label>
+            </div>
+
+            <!-- Extend Term + Change Rate (combination) -->
+            <div v-if="rescheduleType === 'tenor_rate_change'" class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                  New Total Term (Months) <span class="text-red-400">*</span>
+                </label>
+                <input
+                  v-model="newTenorMonths"
+                  type="number"
+                  min="1"
+                  placeholder="e.g. 24"
+                  class="mt-1.5 w-full rounded-xl border border-neutral-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                />
+                <p class="mt-1 text-xs text-neutral-500">Total remaining months to repay.</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                  New Interest Rate (%) <span class="text-red-400">*</span>
+                </label>
+                <input
+                  v-model="newInterestRate"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="e.g. 18.5"
+                  class="mt-1.5 w-full rounded-xl border border-neutral-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                />
+                <p class="mt-1 text-xs text-neutral-500">New monthly interest rate.</p>
+              </div>
             </div>
           </div>
 
