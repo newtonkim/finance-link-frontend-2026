@@ -97,6 +97,10 @@ function fmtDate(d: string | null | undefined) {
   })
 }
 
+function effectiveStatus(loan: { status: string; is_rescheduled?: boolean }) {
+  return loan.is_rescheduled ? 'rescheduled' : loan.status
+}
+
 function statusBadge(status: string) {
   switch (status) {
     case 'active':
@@ -106,6 +110,8 @@ function statusBadge(status: string) {
       return 'bg-nfuko-primary text-white'
     case 'arrears':
       return 'bg-red-100 text-red-700'
+    case 'rescheduled':
+      return 'bg-amber-100 text-amber-700'
     case 'approved':
       return 'bg-blue-100 text-blue-700'
     case 'submitted':
@@ -119,6 +125,7 @@ function statusBadge(status: string) {
 
 function statusLabel(status: string) {
   if (status === 'active') return 'Disbursed'
+  if (status === 'rescheduled') return 'Rescheduled'
   return status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
@@ -128,6 +135,8 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
   { key: 'arrears', label: 'In Arrears', countKey: 'arrears', color: 'nfuko-danger' },
   { key: 'closed', label: 'Closed Loans', countKey: 'closed', color: 'nfuko-primary' },
   { key: 'approved', label: 'Approved Loans', countKey: 'approved', color: 'nfuko-blue' },
+  { key: 'rescheduled', label: 'Rescheduled Loans', countKey: 'rescheduled', color: 'nfuko-yellow' },
+  { key: 'topup', label: 'Topped Up Loans', countKey: 'topup', color: 'nfuko-blue' },
 ]
 </script>
 
@@ -166,7 +175,7 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
                 : 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400'
             "
           >
-            {{ summary[tab.countKey].toLocaleString() }}
+            {{ tab.key === 'topup' ? '—' : summary[tab.countKey]?.toLocaleString() ?? '0' }}
           </span>
         </button>
       </nav>
@@ -174,6 +183,24 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
 
     <!-- Content -->
     <div class="flex-1 overflow-auto p-4 sm:p-6 space-y-4">
+
+      <!-- Coming Soon: Topped Up Loans -->
+      <div
+        v-if="activeTab === 'topup'"
+        class="flex flex-col items-center justify-center py-24 gap-4 text-neutral-400"
+      >
+        <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-neutral-100 dark:bg-neutral-800">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+        </div>
+        <p class="text-base font-semibold text-neutral-600 dark:text-neutral-300">Topped Up Loans</p>
+        <p class="text-sm text-neutral-400 dark:text-neutral-500 text-center max-w-xs">
+          This feature is currently under development. Topped-up loan tracking will be available in a future release.
+        </p>
+      </div>
+
+      <template v-else>
       <!-- Search bar & Export -->
       <div class="flex items-center justify-between gap-3">
         <div class="flex items-center gap-3">
@@ -335,6 +362,7 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
                 <th class="px-4 py-3 text-right">Current Balance</th>
                 <th class="px-4 py-3">Approval Date</th>
                 <th class="px-4 py-3">Disbursement Date</th>
+                <th v-if="activeTab === 'rescheduled'" class="px-4 py-3">Rescheduled Date</th>
                 <th class="px-4 py-3">Loan Products</th>
                 <th class="px-4 py-3">Status</th>
                 <th class="px-4 py-3">Actions</th>
@@ -378,15 +406,18 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
                 <td class="px-4 py-3 text-sm text-neutral-600 dark:text-neutral-400">
                   {{ fmtDate(loan.disbursed_at) }}
                 </td>
+                <td v-if="activeTab === 'rescheduled'" class="px-4 py-3 text-sm text-neutral-600 dark:text-neutral-400">
+                  {{ fmtDate(loan.reschedule_date) }}
+                </td>
                 <td class="px-4 py-3 text-neutral-700 dark:text-neutral-300">
                   {{ loan.loan_product?.name ?? '—' }}
                 </td>
                 <td class="px-4 py-3">
                   <span
                     class="inline-block rounded px-2 py-0.5 text-xs font-semibold"
-                    :class="statusBadge(loan.status)"
+                    :class="statusBadge(effectiveStatus(loan))"
                   >
-                    {{ statusLabel(loan.status) }}
+                    {{ statusLabel(effectiveStatus(loan)) }}
                   </span>
                 </td>
                 <td class="px-4 py-3">
@@ -443,6 +474,8 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
           </button>
         </div>
       </div>
+      </template>
+
     </div>
   </div>
 </template>
