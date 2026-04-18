@@ -598,7 +598,7 @@ const formatFileName = (name: string) => {
     .toLowerCase()
     .replace(/\//g, '_')
     .replace(/\s+/g, '_')
-    .replace(/[^\w\-]/g, '')
+    .replace(/[^\w-]/g, '')
 }
 
 /**
@@ -642,7 +642,7 @@ export const exportToExcel = ({
         .toUpperCase()
         .replace(/\//g, '_')
         .replace(/\s+/g, '_')
-        .replace(/[^\w\-]/g, ''),
+        .replace(/[^\w-]/g, ''),
     )
 
     worksheet = XLSX.utils.aoa_to_sheet([formattedHeaders])

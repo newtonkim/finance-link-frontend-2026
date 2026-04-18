@@ -6,6 +6,7 @@ import {
   type LoanDetail,
   type LoanScheduleEntry,
   type LoanTransaction,
+  type RescheduleHistoryEntry,
 } from '@/tenant/apis/loans/loansApi'
 
 export function useLoanAccount(loanId: number | null) {
@@ -18,8 +19,15 @@ export function useLoanAccount(loanId: number | null) {
   const repayments = ref<LoanTransaction[]>([])
   const repaymentsMeta = ref({ current_page: 1, last_page: 1, per_page: 10, total: 0 })
   const activities = ref<LoanActivityEvent[]>([])
+  const reschedules = ref<RescheduleHistoryEntry[]>([])
   const activeTab = ref<
-    'general' | 'transactions' | 'schedule' | 'charges' | 'documents' | 'activities'
+    | 'general'
+    | 'transactions'
+    | 'schedule'
+    | 'charges'
+    | 'documents'
+    | 'activities'
+    | 'reschedules'
   >('schedule')
 
   async function fetchLoan() {
@@ -50,11 +58,23 @@ export function useLoanAccount(loanId: number | null) {
     activities.value = res.data.data ?? []
   }
 
+  async function fetchReschedules() {
+    if (!resolvedLoanId) return
+    const res = await loansApi.getReschedules(resolvedLoanId)
+    reschedules.value = res.data.data ?? []
+  }
+
   async function load() {
     if (!resolvedLoanId) return
     loading.value = true
     try {
-      await Promise.all([fetchLoan(), fetchSchedule(), fetchRepayments(), fetchActivities()])
+      await Promise.all([
+        fetchLoan(),
+        fetchSchedule(),
+        fetchRepayments(),
+        fetchActivities(),
+        fetchReschedules(),
+      ])
     } catch {
       toast.error('Failed to load loan account.')
     } finally {
@@ -70,6 +90,7 @@ export function useLoanAccount(loanId: number | null) {
         fetchSchedule(),
         fetchRepayments(repaymentsMeta.value.current_page),
         fetchActivities(),
+        fetchReschedules(),
       ])
     } catch {
       toast.error('Failed to refresh loan.')
@@ -85,6 +106,7 @@ export function useLoanAccount(loanId: number | null) {
     repayments,
     repaymentsMeta,
     activities,
+    reschedules,
     activeTab,
     load,
     refresh,

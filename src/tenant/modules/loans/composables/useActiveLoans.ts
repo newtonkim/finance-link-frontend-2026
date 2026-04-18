@@ -46,7 +46,7 @@ export function useActiveLoans() {
         summaryLoading.value = true
         try {
             const res = await loansApi.summary()
-            summary.value = { ...summary.value, ...(res.data ?? {}) }
+            summary.value = { ...summary.value, ...res.data }
             await Promise.all([fetchClosedCount(), fetchDisbursedCount()])
         } catch {
             // non-blocking — summary badges just show 0
