@@ -24,7 +24,101 @@ onMounted(async () => {
 })
 
 function printReport() {
-  window.print()
+  const win = window.open('', '_blank')
+  if (!win) return
+
+  const renderSummaryTable = (title: string, data: any[]) => {
+    if (!data || !data.length) return ''
+    const rows = data.map(item => `
+      <tr>
+        <td style="text-align: left">${item.name}</td>
+        <td>${item.loan_count}</td>
+        <td>${fmt(item.total_amount)}</td>
+        <td>${fmtPct(item.percentage)}%</td>
+      </tr>
+    `).join('')
+    return `
+      <div class="summary-box">
+        <h3>${title}</h3>
+        <table>
+          <thead>
+            <tr><th style="text-align: left">Name</th><th>Count</th><th>Amount</th><th>%</th></tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    `
+  }
+
+  const registerRows = loans.value.map(row => `
+    <tr>
+      <td style="text-align: left">${row.loan_no}</td>
+      <td style="text-align: left">${row.member_name}</td>
+      <td style="text-align: left">${row.product_name}</td>
+      <td>${fmt(row.net_disbursed_amount)}</td>
+      <td>${row.disbursement_method}</td>
+      <td>${row.disbursed_at}</td>
+      <td>${row.branch_name}</td>
+      <td>${row.loan_officer_name}</td>
+    </tr>
+  `).join('')
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Loan Disbursement Report</title>
+<style>
+  body { font-family: Arial, sans-serif; font-size: 11px; color: #111; margin: 24px; }
+  h1 { font-size: 18px; margin-bottom: 4px; }
+  p.subtitle { color: #555; margin-top: 0; margin-bottom: 24px; font-size: 13px; }
+  h2 { font-size: 14px; margin-top: 32px; margin-bottom: 12px; border-bottom: 1px solid #ccc; padding-bottom: 4px;}
+  h3 { font-size: 12px; margin-bottom: 8px; color: #333; }
+  .summaries { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 24px; }
+  .summary-box { flex: 1; min-width: 300px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+  thead tr { background: #f5f5f5; }
+  th { padding: 6px 8px; text-align: right; font-size: 10px; text-transform: uppercase; color: #444; border-bottom: 2px solid #ddd; }
+  td { padding: 6px 8px; text-align: right; border-bottom: 1px solid #eee; }
+  @media print { body { margin: 0; } }
+</style>
+</head>
+<body>
+  <h1>Loan Disbursement Report</h1>
+  <p class="subtitle">Disbursements for ${filters.date_from} to ${filters.date_to}</p>
+
+  <h2>Summary Breakdowns</h2>
+  <div class="summaries">
+    ${renderSummaryTable('By Product', byProduct.value)}
+    ${renderSummaryTable('By Channel', byChannel.value)}
+    ${renderSummaryTable('By Branch', byBranch.value)}
+    ${renderSummaryTable('By Officer', byOfficer.value)}
+  </div>
+
+  <h2>Disbursement Register</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="text-align: left">Loan No</th>
+        <th style="text-align: left">Member</th>
+        <th style="text-align: left">Product</th>
+        <th>Disbursed</th>
+        <th>Channel</th>
+        <th>Date</th>
+        <th>Branch</th>
+        <th>Officer</th>
+      </tr>
+    </thead>
+    <tbody>${registerRows}</tbody>
+  </table>
+</body>
+</html>`
+
+  win.document.write(html)
+  win.document.close()
+  win.focus()
+  // slight delay allows styles to parse before print dialog blocks thread
+  setTimeout(() => { win.print() }, 200)
 }
 </script>
 
