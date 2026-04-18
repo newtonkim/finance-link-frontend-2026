@@ -44,7 +44,7 @@ import RepayFromSavingsModal from '../components/RepayFromSavingsModal.vue'
 import LoanAuditTrail from '../components/LoanAuditTrail.vue'
 import { loansApi } from '@/tenant/apis/loans/loansApi'
 import LoanTopupModal from '../components/LoanTopupModal.vue'
-import LoanRescheduleModal from '../components/LoanRescheduleModal.vue'
+import LoanRescheduleDrawer from '../components/LoanRescheduleDrawer.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -503,7 +503,7 @@ async function handleSavingsRepaySubmit(data: {
   }
 }
 
-const rescheduleModalRef = ref<any>(null)
+const rescheduleDrawerOpen = ref(false)
 const topupModalRef = ref<any>(null)
 
 function handleTopup() {
@@ -513,9 +513,7 @@ function handleTopup() {
 }
 
 function handleReschedule() {
-  if (rescheduleModalRef.value) {
-    rescheduleModalRef.value.show()
-  }
+  rescheduleDrawerOpen.value = true
 }
 
 // ─── General Information Print / PDF ─────────────────────────────────────────
@@ -2174,5 +2172,5 @@ const goBack = () => {
   />
 
   <LoanTopupModal ref="topupModalRef" :loan="loan" />
-  <LoanRescheduleModal ref="rescheduleModalRef" :loan="loan" @success="refresh" />
+  <LoanRescheduleDrawer v-model:open="rescheduleDrawerOpen" :loan="loan" @success="refresh" />
 </template>
