@@ -10,7 +10,7 @@ const props = defineProps<{
 
 const cards = [
   { label: 'Total Disbursed', key: 'total_disbursed', icon: Banknote, color: 'text-green-600', bg: 'bg-green-50' },
-  { label: 'Loans Issued', key: 'loan_count', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
+  { label: 'Loans Disbursed', key: 'loan_count', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
   { label: 'Avg Loan Size', key: 'avg_loan_size', icon: TrendingUp, color: 'text-purple-600', bg: 'bg-purple-50' },
 ] as const
 </script>
