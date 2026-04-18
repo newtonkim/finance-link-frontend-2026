@@ -11,9 +11,10 @@ import DisbursementRegisterTable from '../components/DisbursementRegisterTable.v
 const {
   filters, loading, exporting, error, activeTab,
   showBranchFilter, branches, officers,
-  kpis, pending, byProduct, byChannel, byBranch, byOfficer, trend,
+  kpis, pending, byProduct, byChannel, byBranch, byOfficer, 
+  trend, trendMonths, trendLoading,
   loans, meta, showEmptyState, canGoPrev, canGoNext,
-  loadFilterOptions, fetchReport, applyFilters, resetFilters, goToPage, exportExcel,
+  loadFilterOptions, fetchReport, fetchTrend, applyFilters, resetFilters, goToPage, exportExcel,
   fmt, fmtPct,
 } = useDisbursementReport()
 
@@ -129,7 +130,13 @@ onMounted(async () => {
       />
 
       <!-- Trend Chart -->
-      <DisbursementTrendChart :trend="trend" :fmt="fmt" />
+      <DisbursementTrendChart 
+        :trend="trend" 
+        :trend-months="trendMonths"
+        :trend-loading="trendLoading"
+        :fmt="fmt" 
+        @update:trend-months="trendMonths = $event; fetchTrend()"
+      />
 
       <!-- Empty State -->
       <div v-if="showEmptyState" class="rounded-xl border border-green-200 bg-green-50 px-6 py-10 text-center">

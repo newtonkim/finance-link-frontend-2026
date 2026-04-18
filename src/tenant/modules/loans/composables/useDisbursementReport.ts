@@ -65,7 +65,10 @@ export function useDisbursementReport() {
   const byChannel = ref<DisbursementBreakdownRow[]>([])
   const byBranch = ref<DisbursementBreakdownRow[]>([])
   const byOfficer = ref<DisbursementBreakdownRow[]>([])
+  
   const trend = ref<DisbursementTrendPoint[]>([])
+  const trendMonths = ref<3 | 6 | 12>(3)
+  const trendLoading = ref(false)
 
   const loans = ref<DisbursementLoanRow[]>([])
   const meta = ref({ current_page: 1, last_page: 1, per_page: 25, total: 0, from: null as number | null, to: null as number | null })
@@ -96,19 +99,30 @@ export function useDisbursementReport() {
     } catch { /* non-critical */ }
   }
 
+  async function fetchTrend() {
+    trendLoading.value = true
+    try {
+      const res = await reportsApi.disbursementTrend({ ...baseParams(), months: trendMonths.value })
+      trend.value = res.data ?? []
+    } catch {
+      // Non-critical, fail silently if trend fails specifically
+    } finally {
+      trendLoading.value = false
+    }
+  }
+
   async function fetchReport() {
     loading.value = true
     error.value = null
     try {
       const params = baseParams()
-      const [summaryRes, loansRes, trendRes] = await Promise.all([
+      const [summaryRes, loansRes] = await Promise.all([
         reportsApi.disbursementSummary(params),
         reportsApi.disbursementLoans({ ...params, per_page: filters.value.per_page, page: filters.value.page }),
-        reportsApi.disbursementTrend({ ...params, months: 3 }),
+        fetchTrend(),
       ])
       applySummary(summaryRes.data)
       applyLoans(loansRes.data)
-      trend.value = trendRes.data ?? []
     } catch (e: any) {
       error.value = e?.response?.data?.message ?? 'Failed to load disbursement report.'
     } finally {
@@ -185,9 +199,10 @@ export function useDisbursementReport() {
   return {
     filters, loading, exporting, error, activeTab,
     showBranchFilter, branches, officers, products,
-    kpis, pending, byProduct, byChannel, byBranch, byOfficer, trend,
+    kpis, pending, byProduct, byChannel, byBranch, byOfficer, 
+    trend, trendMonths, trendLoading,
     loans, meta, showEmptyState, canGoPrev, canGoNext,
-    loadFilterOptions, fetchReport, applyFilters, resetFilters, goToPage, exportExcel,
+    loadFilterOptions, fetchReport, fetchTrend, applyFilters, resetFilters, goToPage, exportExcel,
     fmt, fmtPct,
   }
 }
