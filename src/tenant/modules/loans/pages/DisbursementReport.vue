@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { Download, Filter, RotateCcw, Printer } from 'lucide-vue-next'
 import { Spinner } from '@/Global'
+import { reportsApi, type DisbursementBreakdownRow } from '@/tenant/apis/reports/reportsApi'
 import { useDisbursementReport } from '../composables/useDisbursementReport'
 import DisbursementKpiCards from '../components/DisbursementKpiCards.vue'
 import DisbursementSummaryTabs from '../components/DisbursementSummaryTabs.vue'
@@ -47,7 +48,7 @@ async function printReport() {
     const win = window.open('', '_blank')
     if (!win) return
 
-    const renderSummaryTable = (title: string, data: any[]) => {
+    const renderSummaryTable = (title: string, data: DisbursementBreakdownRow[]) => {
       if (!data || !data.length) return ''
       const rows = data.map(item => `
         <tr>
