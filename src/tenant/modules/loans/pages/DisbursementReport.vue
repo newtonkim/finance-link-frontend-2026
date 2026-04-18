@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { Download, Filter, RotateCcw } from 'lucide-vue-next'
+import { Download, Filter, RotateCcw, Printer } from 'lucide-vue-next'
 import { Spinner } from '@/Global'
 import { useDisbursementReport } from '../composables/useDisbursementReport'
 import DisbursementKpiCards from '../components/DisbursementKpiCards.vue'
@@ -22,10 +22,14 @@ onMounted(async () => {
   await loadFilterOptions()
   await fetchReport()
 })
+
+function printReport() {
+  window.print()
+}
 </script>
 
 <template>
-  <div class="flex flex-col gap-6 p-4 md:p-6">
+  <div class="flex flex-col gap-6 p-4 md:p-6 print-container">
     <!-- Header -->
     <div class="flex items-start justify-between gap-4">
       <div>
@@ -37,15 +41,25 @@ onMounted(async () => {
           </span>
         </p>
       </div>
-      <button
-        class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-green-700 disabled:opacity-50"
-        :disabled="exporting || loading"
-        @click="exportExcel"
-      >
-        <Spinner v-if="exporting" class="h-4 w-4" />
-        <Download v-else class="h-4 w-4" />
-        Export Excel
-      </button>
+      <div class="flex items-center gap-3 no-print">
+        <button
+          class="inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-semibold text-neutral-700 shadow-sm transition hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700"
+          :disabled="loading"
+          @click="printReport"
+        >
+          <Printer class="h-4 w-4" />
+          Print
+        </button>
+        <button
+          class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-green-700 disabled:opacity-50"
+          :disabled="exporting || loading"
+          @click="exportExcel"
+        >
+          <Spinner v-if="exporting" class="h-4 w-4" />
+          <Download v-else class="h-4 w-4" />
+          Export Excel
+        </button>
+      </div>
     </div>
 
     <!-- Filters -->
@@ -177,3 +191,17 @@ onMounted(async () => {
     </template>
   </div>
 </template>
+
+<style>
+@media print {
+  @page { margin: 10mm; size: landscape; }
+  body { background: white !important; }
+  .no-print, aside, header, nav, .sidebar { display: none !important; }
+  .print-container { 
+    margin: 0 !important; 
+    padding: 0 !important; 
+    width: 100% !important; 
+    max-width: 100% !important;
+  }
+}
+</style>
