@@ -23,47 +23,67 @@ onMounted(async () => {
   await fetchReport()
 })
 
-function printReport() {
-  const win = window.open('', '_blank')
-  if (!win) return
+const isPrinting = ref(false)
 
-  const renderSummaryTable = (title: string, data: any[]) => {
-    if (!data || !data.length) return ''
-    const rows = data.map(item => `
+async function printReport() {
+  if (isPrinting.value) return
+  isPrinting.value = true
+
+  try {
+    const params = {
+      date_from: filters.value.date_from,
+      date_to: filters.value.date_to,
+      branch_id: filters.value.branch_id,
+      loan_officer_id: filters.value.loan_officer_id,
+      loan_product_id: filters.value.loan_product_id,
+      per_page: 10000,
+      page: 1
+    }
+    
+    // Fetch all dataset for accurate printing rather than just the currently viewed page
+    const res = await reportsApi.disbursementLoans(params)
+    const allLoans = res.data?.data || []
+
+    const win = window.open('', '_blank')
+    if (!win) return
+
+    const renderSummaryTable = (title: string, data: any[]) => {
+      if (!data || !data.length) return ''
+      const rows = data.map(item => `
+        <tr>
+          <td style="text-align: left">${item.name}</td>
+          <td>${item.loan_count}</td>
+          <td>${fmt(item.total_amount)}</td>
+          <td>${fmtPct(item.percentage)}%</td>
+        </tr>
+      `).join('')
+      return `
+        <div class="summary-box">
+          <h3>${title}</h3>
+          <table>
+            <thead>
+              <tr><th style="text-align: left">Name</th><th>Count</th><th>Amount</th><th>%</th></tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `
+    }
+
+    const registerRows = allLoans.map(row => `
       <tr>
-        <td style="text-align: left">${item.name}</td>
-        <td>${item.loan_count}</td>
-        <td>${fmt(item.total_amount)}</td>
-        <td>${fmtPct(item.percentage)}%</td>
+        <td style="text-align: left">${row.loan_no}</td>
+        <td style="text-align: left">${row.member_name}</td>
+        <td style="text-align: left">${row.product_name}</td>
+        <td>${fmt(row.net_disbursed_amount)}</td>
+        <td>${row.disbursement_method}</td>
+        <td>${row.disbursed_at}</td>
+        <td>${row.branch_name}</td>
+        <td>${row.loan_officer_name}</td>
       </tr>
     `).join('')
-    return `
-      <div class="summary-box">
-        <h3>${title}</h3>
-        <table>
-          <thead>
-            <tr><th style="text-align: left">Name</th><th>Count</th><th>Amount</th><th>%</th></tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-    `
-  }
 
-  const registerRows = loans.value.map(row => `
-    <tr>
-      <td style="text-align: left">${row.loan_no}</td>
-      <td style="text-align: left">${row.member_name}</td>
-      <td style="text-align: left">${row.product_name}</td>
-      <td>${fmt(row.net_disbursed_amount)}</td>
-      <td>${row.disbursement_method}</td>
-      <td>${row.disbursed_at}</td>
-      <td>${row.branch_name}</td>
-      <td>${row.loan_officer_name}</td>
-    </tr>
-  `).join('')
-
-  const html = `<!DOCTYPE html>
+    const html = `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8"/>
@@ -85,7 +105,7 @@ function printReport() {
 </head>
 <body>
   <h1>Loan Disbursement Report</h1>
-  <p class="subtitle">Disbursements for ${filters.date_from} to ${filters.date_to}</p>
+  <p class="subtitle">Disbursements for ${filters.value.date_from} to ${filters.value.date_to}</p>
 
   <h2>Summary Breakdowns</h2>
   <div class="summaries">
@@ -114,11 +134,16 @@ function printReport() {
 </body>
 </html>`
 
-  win.document.write(html)
-  win.document.close()
-  win.focus()
-  // slight delay allows styles to parse before print dialog blocks thread
-  setTimeout(() => { win.print() }, 200)
+    win.document.write(html)
+    win.document.close()
+    win.focus()
+    setTimeout(() => { win.print() }, 200)
+  } catch (error) {
+    console.error("Failed to fetch full print data", error)
+    alert("Failed to prepare print document. Please try again.")
+  } finally {
+    isPrinting.value = false
+  }
 }
 </script>
 
@@ -138,10 +163,11 @@ function printReport() {
       <div class="flex items-center gap-3 no-print">
         <button
           class="inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-semibold text-neutral-700 shadow-sm transition hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700"
-          :disabled="loading"
+          :disabled="loading || isPrinting"
           @click="printReport"
         >
-          <Printer class="h-4 w-4" />
+          <Spinner v-if="isPrinting" class="h-4 w-4" />
+          <Printer v-else class="h-4 w-4" />
           Print
         </button>
         <button
