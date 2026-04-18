@@ -60,7 +60,7 @@ function barHeight(value: number): string {
         </p>
         <div
           class="w-full rounded-t-md transition-all duration-500"
-          :style="{ height: barHeight(point.total_disbursed), minHeight: '4px', backgroundColor: 'var(--color-nfuko-chart-main)' }"
+          :style="{ height: barHeight(point.total_disbursed), minHeight: '4px', backgroundColor: 'var(--color-nfuko-action)' }"
         />
         <div class="text-center">
           <p class="text-xs font-semibold text-neutral-600 dark:text-neutral-300">{{ point.label }}</p>
