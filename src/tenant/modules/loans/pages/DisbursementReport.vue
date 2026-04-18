@@ -129,7 +129,7 @@ function printReport() {
 
     <template v-else>
       <!-- KPIs -->
-      <DisbursementKpiCards :kpis="kpis" :pending="pending" :fmt="fmt" />
+      <DisbursementKpiCards class="no-print" :kpis="kpis" :pending="pending" :fmt="fmt" />
 
       <!-- Summary Tabs -->
       <DisbursementSummaryTabs
@@ -145,6 +145,7 @@ function printReport() {
 
       <!-- Trend Chart -->
       <DisbursementTrendChart 
+        class="no-print"
         :trend="trend" 
         :trend-months="trendMonths"
         :trend-loading="trendLoading"
@@ -167,7 +168,7 @@ function printReport() {
       />
 
       <!-- Pagination -->
-      <div v-if="meta.total > 0" class="flex items-center justify-between rounded-xl border border-neutral-200 bg-white px-4 py-3 dark:border-neutral-700 dark:bg-neutral-800">
+      <div v-if="meta.total > 0" class="flex items-center justify-between rounded-xl border border-neutral-200 bg-white px-4 py-3 no-print dark:border-neutral-700 dark:bg-neutral-800">
         <p class="text-sm text-neutral-500">
           Showing {{ meta.from ?? 0 }}–{{ meta.to ?? 0 }} of {{ meta.total }}
         </p>
