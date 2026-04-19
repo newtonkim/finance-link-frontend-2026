@@ -31,7 +31,7 @@ const form = ref({
   status: 'active',
 })
 
-const { memberSelectValue, memberLoading, memberOptions, selectedMember, memberSelectOptions, searchMembers, reset: resetMemberSearch } = useMemberSearch(form)
+const { memberSelectValue, selectedMember, memberSelectOptions, searchMembers, reset: resetMemberSearch } = useMemberSearch(form)
 
 const productOptions = computed(() =>
   (props.savingsProducts ?? []).map(p => ({ id: p.id!, name: p.name }))
@@ -136,9 +136,10 @@ async function submit() {
       delete payload.tenor_months
       delete payload.maturity_action_override
       delete payload.payout_savings_account_id
+    } else {
+      if (!payload.maturity_action_override) delete payload.maturity_action_override
+      if (!showPayoutAccount.value) delete payload.payout_savings_account_id
     }
-    if (payload.maturity_action_override === '') delete payload.maturity_action_override
-    if (!showPayoutAccount.value) delete payload.payout_savings_account_id
     await savingsAccountsApi.store(payload)
     toast.success('Savings account created successfully.')
     open.value = false
@@ -316,7 +317,7 @@ defineExpose({ openDrawer })
                   <input
                     v-model.number="form.tenor_months"
                     type="number" min="1"
-                    class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus:border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:text-white"
+                    class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus:border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-nfuko-primary dark:border-neutral-700 dark:text-white"
                     :placeholder="selectedProduct?.default_tenor_months ? String(selectedProduct.default_tenor_months) : '6'"
                   />
                   <InputError :message="errors.tenor_months?.[0]" />
@@ -326,7 +327,7 @@ defineExpose({ openDrawer })
                   <Label>Maturity Action (override)</Label>
                   <select
                     v-model="form.maturity_action_override"
-                    class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus:border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:text-white"
+                    class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus:border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-nfuko-primary dark:border-neutral-700 dark:text-white"
                   >
                     <option value="">Use product default</option>
                     <option value="manual">Manual</option>
