@@ -8,8 +8,7 @@ import { useAuthStore } from './stores/auth'
 import { VueDatePicker } from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 import {  vauth, vsetting,Button } from './Global' 
-import { TableDrawer,Table,Imploading, StatusButtonsHorizontal, CopyData,TabelActionButtons,DetailsTable,Form,PainPageHeader } from '@/Global'
-// TableDrawer, StatusButtonsHorizontal, setLocalValues, PainPageHeader
+import { TableDrawer,Table,Imploading, StatusButtonsHorizontal, CopyData,TabelActionButtons,DetailsTable,Form,PainPageHeader ,Drawer} from '@/Global'
 const app = createApp(App)
 const pinia = createPinia() 
 app.use(pinia)
@@ -17,6 +16,7 @@ app.use(pinia)
 .component('DatePicker', VueDatePicker)
 .component('Button', Button)
 .component('TableDrawer', TableDrawer)
+.component('Drawer', Drawer)
 .component('StatusButtonsHorizontal', StatusButtonsHorizontal)
 .component('CopyData', CopyData)
 .component('Table', Table)

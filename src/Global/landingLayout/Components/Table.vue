@@ -29,7 +29,7 @@
           </th>
         </tr>
       </thead>
-      <tbody>
+      <tbody cla ss=" text-sm text-neutral-600 dark:text-neutral-400">
         <tr v-if="!dataFilter?.length">
           <td :colspan="localColumns.length + ($slots.actions ? 1 : 0)"
             class="py-8 text-center text-sm text-neutral-500">
