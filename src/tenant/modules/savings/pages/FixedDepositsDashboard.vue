@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { Search, Zap, Clock, CheckCircle2 } from 'lucide-vue-next'
 import { fixedDepositsApi } from '@/tenant/apis/fixedDeposits/fixedDepositsApi'
 import { toast } from 'vue-sonner'
@@ -75,6 +75,7 @@ function formatBalance(v: string | number) {
 }
 
 onMounted(() => fetchAccounts())
+onUnmounted(() => { if (searchTimer) clearTimeout(searchTimer) })
 </script>
 
 <template>
