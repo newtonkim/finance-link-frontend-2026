@@ -4,17 +4,8 @@ import { InputError, Label, Spinner } from '@/Global'
 import SearchableSelect from '@/Global/SearchableSelect.vue'
 import { savingsAccountsApi } from '@/tenant/apis/savingsAccounts/savingsAccountsApi'
 import { savingsProductsApi, type SavingsProduct } from '@/tenant/apis/savingsProducts/api'
-import { membersApi } from '@/tenant/apis/members/membersApi'
 import { toast } from 'vue-sonner'
-
-interface MemberOption { id: number; name: string; member_number: string }
-interface MemberDetails {
-  id: number
-  name: string
-  member_number: string
-  status: string
-  savings_accounts: Array<{ id: number; account_no: string; account_type: string }>
-}
+import { useMemberSearch } from '../composables/useMemberSearch'
 
 const props = defineProps<{ savingsProducts: SavingsProduct[] }>()
 const emit = defineEmits<{ success: [] }>()
@@ -23,11 +14,6 @@ const open = ref(false)
 const processing = ref(false)
 const errors = ref<Record<string, any>>({})
 const showChargeDropdown = ref(false)
-
-const memberSelectValue = ref<string | number>('')
-const memberLoading = ref(false)
-const memberOptions = ref<MemberOption[]>([])
-const selectedMember = ref<MemberDetails | null>(null)
 
 const form = ref({
   member_id: 0,
@@ -45,6 +31,8 @@ const form = ref({
   status: 'active',
 })
 
+const { memberSelectValue, memberLoading, memberOptions, selectedMember, memberSelectOptions, searchMembers, reset: resetMemberSearch } = useMemberSearch(form)
+
 const productOptions = computed(() =>
   (props.savingsProducts ?? []).map(p => ({ id: p.id!, name: p.name }))
 )
@@ -53,10 +41,6 @@ const selectedProductCharges = computed(() => {
   if (!form.value.savings_product_id) return []
   return props.savingsProducts.find(p => p.id === Number(form.value.savings_product_id))?.charges ?? []
 })
-
-const memberSelectOptions = computed(() =>
-  (memberOptions.value ?? []).map(m => ({ id: m.id, name: `${m.name} — ${m.member_number}` }))
-)
 
 const creditedAccountOptions = computed(() =>
   (selectedMember.value?.savings_accounts ?? []).map(a => ({ id: a.id, name: `${a.account_no} — ${a.account_type}` }))
@@ -89,49 +73,6 @@ const toggleCharge = (chargeId: number) => {
   else form.value.charges.push(chargeId)
 }
 
-async function searchMembers(query: string) {
-  memberLoading.value = true
-  try {
-    const res = await membersApi.list({ search: query || undefined, page: 1 })
-    const list = res.data?.data ?? []
-    memberOptions.value = list.map((m: any) => ({ id: m.id, name: m.name, member_number: m.member_number }))
-  } catch {
-    memberOptions.value = []
-  } finally {
-    memberLoading.value = false
-  }
-}
-
-async function fetchMemberDetails(memberId: number) {
-  try {
-    const res = await membersApi.show(memberId)
-    const body = res.data
-    const memberData: Record<string, any> = body?.data?.member ?? body?.member ?? body?.data ?? body ?? {}
-    selectedMember.value = {
-      id: memberData.id,
-      name: memberData.name,
-      member_number: memberData.member_number,
-      status: memberData.status,
-      savings_accounts: memberData.savings_accounts ?? [],
-    }
-  } catch (err: any) {
-    selectedMember.value = null
-    toast.error(err?.response?.data?.message ?? 'Failed to load member details.')
-  }
-}
-
-watch(memberSelectValue, async (val) => {
-  const memberId = Number(val || 0)
-  if (!memberId) {
-    selectedMember.value = null
-    form.value.member_id = 0
-    return
-  }
-  form.value.member_id = memberId
-  const opt = memberOptions.value.find(o => o.id === memberId)
-  if (opt) await fetchMemberDetails(opt.id)
-})
-
 watch(() => form.value.savings_product_id, async (newVal) => {
   if (!newVal) return
   const product = props.savingsProducts.find(p => p.id === Number(newVal))
@@ -154,9 +95,7 @@ watch(() => form.value.savings_product_id, async (newVal) => {
 
 function openDrawer() {
   errors.value = {}
-  selectedMember.value = null
-  memberSelectValue.value = ''
-  memberOptions.value = []
+  resetMemberSearch()
   form.value = {
     member_id: 0,
     savings_product_id: '',
