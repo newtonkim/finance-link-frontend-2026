@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { ArrowLeft, Pencil, X } from 'lucide-vue-next'
 import { savingsAccountsApi } from '@/tenant/apis/savingsAccounts/savingsAccountsApi'
 import { toast } from 'vue-sonner'
+import InterestPostingHistory from './InterestPostingHistory.vue'
+import FdMaturityDrawer from './FdMaturityDrawer.vue'
+import { useCurrencyStore } from '@/stores/currency'
 
 const props = defineProps<{
   currency: string
@@ -17,6 +20,27 @@ const emit = defineEmits<{
 const open = ref(false)
 const loading = ref(false)
 const account = ref<Record<string, any> | null>(null)
+
+const currencyStore = useCurrencyStore()
+const currency = computed(() => currencyStore.currencyCode)
+
+const isFixedDeposit = computed(() => account.value?.account_type === 'fixed')
+
+const isMatured = computed(() => {
+  if (!isFixedDeposit.value || !account.value?.maturity_date) return false
+  return new Date(account.value.maturity_date) <= new Date()
+})
+
+const maturityDrawerRef = ref<InstanceType<typeof FdMaturityDrawer> | null>(null)
+
+function openMaturityDrawer() {
+  if (!account.value) return
+  maturityDrawerRef.value?.openDrawer({
+    id: account.value.id,
+    account_no: account.value.account_no,
+    maturity_date: account.value.maturity_date ?? null,
+  })
+}
 
 async function openDrawer(row: { id: number }) {
   account.value = null
@@ -130,6 +154,65 @@ defineExpose({ openDrawer })
                     <span class="text-sm font-semibold text-neutral-900 dark:text-white">{{ new Date(account.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) }}</span>
                   </div>
                 </div>
+
+                <!-- FD Info Section -->
+                <div v-if="isFixedDeposit" class="space-y-3 rounded-xl border border-amber-200 bg-amber-50/40 p-4 dark:border-amber-900/40 dark:bg-amber-950/10">
+                  <div class="flex items-center justify-between">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400">Fixed Deposit</p>
+                    <span
+                      :class="[
+                        'rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                        isMatured
+                          ? 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400'
+                          : 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400'
+                      ]"
+                    >
+                      {{ isMatured ? 'Matured' : 'Active' }}
+                    </span>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p class="text-xs text-neutral-500">Tenor</p>
+                      <p class="font-medium text-neutral-800 dark:text-neutral-200">
+                        {{ account.tenor_months ?? '—' }} months
+                      </p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-neutral-500">Maturity Date</p>
+                      <p class="font-medium text-neutral-800 dark:text-neutral-200">
+                        {{ account.maturity_date ?? '—' }}
+                      </p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-neutral-500">Interest Rate</p>
+                      <p class="font-medium text-neutral-800 dark:text-neutral-200">
+                        {{ account.interest_rate != null ? (account.interest_rate * 100).toFixed(2) + '%' : '—' }} p.a.
+                      </p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-neutral-500">Next Interest Date</p>
+                      <p class="font-medium text-neutral-800 dark:text-neutral-200">
+                        {{ account.next_interest_date ?? '—' }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Process Maturity Button -->
+                  <button
+                    v-if="isMatured"
+                    type="button"
+                    @click="openMaturityDrawer"
+                    class="mt-1 w-full rounded-lg border border-amber-400 bg-amber-100 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-200 transition dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-300 dark:hover:bg-amber-950/60"
+                  >
+                    Process Maturity
+                  </button>
+                </div>
+
+                <!-- Interest Posting History -->
+                <div v-if="isFixedDeposit">
+                  <InterestPostingHistory :account-id="account.id" :currency="currency" />
+                </div>
               </div>
             </div>
 
@@ -149,6 +232,11 @@ defineExpose({ openDrawer })
       </Transition>
     </div>
   </Transition>
+
+  <FdMaturityDrawer
+    ref="maturityDrawerRef"
+    @success="openDrawer({ id: account!.id })"
+  />
 </template>
 
 <style scoped>
