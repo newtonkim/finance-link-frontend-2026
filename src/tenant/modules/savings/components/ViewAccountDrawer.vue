@@ -5,7 +5,6 @@ import { savingsAccountsApi } from '@/tenant/apis/savingsAccounts/savingsAccount
 import { toast } from 'vue-sonner'
 import InterestPostingHistory from './InterestPostingHistory.vue'
 import FdMaturityDrawer from './FdMaturityDrawer.vue'
-import { useCurrencyStore } from '@/stores/currency'
 
 const props = defineProps<{
   currency: string
@@ -21,9 +20,6 @@ const open = ref(false)
 const loading = ref(false)
 const account = ref<Record<string, any> | null>(null)
 
-const currencyStore = useCurrencyStore()
-const currency = computed(() => currencyStore.currencyCode)
-
 const isFixedDeposit = computed(() => account.value?.account_type === 'fixed')
 
 const isMatured = computed(() => {
@@ -33,6 +29,11 @@ const isMatured = computed(() => {
 
 const maturityDrawerRef = ref<InstanceType<typeof FdMaturityDrawer> | null>(null)
 
+function formatDate(d: string | null | undefined) {
+  if (!d) return '—'
+  return new Date(d).toLocaleDateString('en-KE', { day: '2-digit', month: 'short', year: 'numeric' })
+}
+
 function openMaturityDrawer() {
   if (!account.value) return
   maturityDrawerRef.value?.openDrawer({
@@ -40,6 +41,10 @@ function openMaturityDrawer() {
     account_no: account.value.account_no,
     maturity_date: account.value.maturity_date ?? null,
   })
+}
+
+function onMaturitySuccess() {
+  if (account.value) openDrawer({ id: account.value.id })
 }
 
 async function openDrawer(row: { id: number }) {
@@ -114,7 +119,7 @@ defineExpose({ openDrawer })
                   </div>
                   <div class="mt-4 flex items-baseline gap-1">
                     <span class="text-sm text-neutral-500">Balance</span>
-                    <span class="text-2xl font-bold text-[#3ab88a]">{{ currency }} {{ formatBalance(account.balance ?? 0) }}</span>
+                    <span class="text-2xl font-bold text-[#3ab88a]">{{ props.currency }} {{ formatBalance(account.balance ?? 0) }}</span>
                   </div>
                 </div>
 
@@ -139,11 +144,11 @@ defineExpose({ openDrawer })
                   </div>
                   <div class="flex items-center justify-between px-5 py-3.5">
                     <span class="text-sm text-neutral-500">Initial Deposit</span>
-                    <span class="text-sm font-semibold text-neutral-900 dark:text-white">{{ currency }} {{ formatBalance(account.initial_deposit ?? 0) }}</span>
+                    <span class="text-sm font-semibold text-neutral-900 dark:text-white">{{ props.currency }} {{ formatBalance(account.initial_deposit ?? 0) }}</span>
                   </div>
                   <div class="flex items-center justify-between px-5 py-3.5">
                     <span class="text-sm text-neutral-500">Opening Balance</span>
-                    <span class="text-sm font-semibold text-neutral-900 dark:text-white">{{ currency }} {{ formatBalance(account.opening_balance ?? 0) }}</span>
+                    <span class="text-sm font-semibold text-neutral-900 dark:text-white">{{ props.currency }} {{ formatBalance(account.opening_balance ?? 0) }}</span>
                   </div>
                   <div class="flex items-center justify-between px-5 py-3.5">
                     <span class="text-sm text-neutral-500">Min Balance Enforced</span>
@@ -175,13 +180,13 @@ defineExpose({ openDrawer })
                     <div>
                       <p class="text-xs text-neutral-500">Tenor</p>
                       <p class="font-medium text-neutral-800 dark:text-neutral-200">
-                        {{ account.tenor_months ?? '—' }} months
+                        {{ account.tenor_months != null ? account.tenor_months + ' months' : '—' }}
                       </p>
                     </div>
                     <div>
                       <p class="text-xs text-neutral-500">Maturity Date</p>
                       <p class="font-medium text-neutral-800 dark:text-neutral-200">
-                        {{ account.maturity_date ?? '—' }}
+                        {{ formatDate(account.maturity_date) }}
                       </p>
                     </div>
                     <div>
@@ -193,7 +198,7 @@ defineExpose({ openDrawer })
                     <div>
                       <p class="text-xs text-neutral-500">Next Interest Date</p>
                       <p class="font-medium text-neutral-800 dark:text-neutral-200">
-                        {{ account.next_interest_date ?? '—' }}
+                        {{ formatDate(account.next_interest_date) }}
                       </p>
                     </div>
                   </div>
@@ -235,7 +240,7 @@ defineExpose({ openDrawer })
 
   <FdMaturityDrawer
     ref="maturityDrawerRef"
-    @success="openDrawer({ id: account!.id })"
+    @success="onMaturitySuccess"
   />
 </template>
 
