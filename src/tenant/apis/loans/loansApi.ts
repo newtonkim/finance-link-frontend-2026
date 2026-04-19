@@ -27,6 +27,7 @@ export interface LoanScheduleEntry {
 export interface LoanTransaction {
   id: number
   payment_id: string
+  reschedule_id: number | null
   receipt_no: string | null
   transaction_ref: string | null
   amount_paid: string
@@ -65,9 +66,11 @@ export interface LoanSummary {
   arrears: number
   closed?: number
   all: number
+  rescheduled?: number
+  topup?: number
 }
 
-export type LoanTab = 'all' | 'disbursed' | 'arrears' | 'closed' | 'approved' | 'pending'
+export type LoanTab = 'all' | 'disbursed' | 'arrears' | 'closed' | 'approved' | 'pending' | 'rescheduled' | 'topup'
 
 export interface ActiveLoan {
   id: number
@@ -95,6 +98,8 @@ export interface ActiveLoan {
   } | null
   next_due_date: string | null
   next_installment_amount: string | null
+  is_rescheduled?: boolean
+  reschedule_date?: string | null
   _source?: 'loan' | 'application'
 }
 
@@ -159,6 +164,11 @@ export interface LoanDetail {
   disbursement_method: string
   disbursement_reference: string | null
   status: string
+  is_rescheduled: boolean
+  reschedule_count: number
+  original_term_months?: number
+  original_interest_rate?: string | number
+  approved_at?: string
   notes: string | null
   currency_code: string
   loan_product: {
@@ -227,6 +237,51 @@ export interface SavingsRepaymentData {
   notes?: string | null
 }
 
+export interface RescheduleParams {
+  reschedule_type: 'tenor_extension' | 'rate_change' | 'capitalization'
+  new_tenor_months?: number
+  new_interest_rate?: number
+  capitalize_arrears?: boolean
+  penalties_waived?: number
+  interest_waived?: number
+  reschedule_date?: string
+  reason: string
+}
+
+export interface RescheduleHistoryEntry {
+  id: number
+  reschedule_id: string
+  reschedule_date: string
+  reschedule_type: string
+  old_status?: string | null
+  old_outstanding: string | number
+  old_interest_rate: string | number
+  old_remaining_periods: number
+  new_principal: string | number
+  new_rate: string | number
+  new_duration: number
+  reason: string
+  performed_by: string
+  superseded_schedule: LoanScheduleEntry[]
+}
+
+export interface ReschedulePreviewResult {
+  old_snapshot: any
+  new_snapshot: any
+  capitalized_arrears: number
+  capitalized_interest: number
+  penalties_waived: number
+  interest_waived: number
+  preview_schedule: Array<{
+    period: number
+    due_date: string
+    principal: number
+    interest: number
+    installment: number
+    balance: number
+  }>
+}
+
 export const loansApi = {
   // ─── Loan portfolio ───────────────────────────────────────────────────────
   summary() {
@@ -282,5 +337,24 @@ export const loansApi = {
       `/loans/${id}/repay-from-savings`,
       data,
     )
+  },
+
+  // ─── Rescheduling ─────────────────────────────────────────────────────────
+  reschedulePreview(id: number, data: RescheduleParams) {
+    return tenantClient.post<{ data: ReschedulePreviewResult }>(
+      `/loans/${id}/reschedule/preview`,
+      data,
+    )
+  },
+
+  reschedule(id: number, data: RescheduleParams) {
+    return tenantClient.post<{ message: string; data: any }>(
+      `/loans/${id}/reschedule`,
+      data,
+    )
+  },
+
+  getReschedules(id: number) {
+    return tenantClient.get<{ data: RescheduleHistoryEntry[] }>(`/loans/${id}/reschedules`)
   },
 }
