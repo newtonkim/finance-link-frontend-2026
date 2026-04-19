@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { savingsAccountsApi } from '@/tenant/apis/savingsAccounts/savingsAccountsApi'
 import { useCurrencyStore } from '@/stores/currency'
-import { computed } from 'vue'
 
 interface Posting {
   id: number
