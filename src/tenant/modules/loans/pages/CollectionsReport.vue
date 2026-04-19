@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { Calendar, Download, Filter, RotateCcw, ChevronDown, ChevronRight } from 'lucide-vue-next'
+import { Calendar, Download, Filter, RotateCcw, ChevronDown, ChevronRight, Printer } from 'lucide-vue-next'
 import { Spinner, formatMoneyValue } from '@/Global'
 import {
   reportsApi,
@@ -13,6 +13,8 @@ import {
   type CollectionsSummaryRow,
   type CollectionsTransactionRow,
 } from '@/tenant/apis/reports/reportsApi'
+import { saccoBrandingState } from '@/tenant/apis/saccobranding/saccoBrandingApi'
+import { useTenantContextStore } from '@/stores/tenantContext'
 
 interface Meta {
   current_page: number
@@ -75,9 +77,12 @@ const filters = ref({
   as_of_date: today,
   branch_id: null as number | null,
   loan_officer_id: null as number | null,
-  per_page: 25,
+  per_page: 10,
   page: 1,
 })
+
+const tenantStore = useTenantContextStore()
+const tenant = tenantStore.currentTenant as any
 
 const showBranchFilter = ref(false)
 const branches = ref<{ id: number; name: string }[]>([])
@@ -87,6 +92,7 @@ const loading = ref(false)
 const loadingSummary = ref(false)
 const loadingLoans = ref(false)
 const exporting = ref(false)
+const isPrinting = ref(false)
 const error = ref<string | null>(null)
 
 const activeTab = ref<SummaryTab>('officer')
@@ -108,7 +114,7 @@ const loans = ref<CollectionsLoanRow[]>([])
 const meta = ref<Meta>({
   current_page: 1,
   last_page: 1,
-  per_page: 25,
+  per_page: 10,
   total: 0,
   from: null,
   to: null,
@@ -391,7 +397,7 @@ async function resetFilters() {
     as_of_date: today,
     branch_id: null,
     loan_officer_id: null,
-    per_page: 25,
+    per_page: 10,
     page: 1,
   }
   activeTab.value = 'officer'
@@ -471,6 +477,187 @@ async function exportExcel() {
   }
 }
 
+async function printReport() {
+  isPrinting.value = true
+  try {
+    const params = buildBaseFilters()
+    // Fetch full data for printing (up to 2000 records)
+    const res = await reportsApi.collectionsLoans({ ...params, per_page: 2000, page: 1 })
+    const normalized = normalizeLoansPayload(res.data)
+    const allLoans = normalized.data || []
+
+    const tenantEmail = tenant?.settings?.email || ''
+    const tenantPhone = tenant?.settings?.phone || tenant?.settings?.phone_number || tenant?.settings?.tel || tenant?.settings?.contact_phone || ''
+    const tenantAddress = tenant?.settings?.address || ''
+    const saccoName = saccoBrandingState.sacco_name || tenant?.name || 'SACCO'
+
+    const renderSummaryTable = (title: string, data: any[], type: 'general' | 'method') => {
+      if (type === 'method') {
+        const rowsHtml = data.map(item => `
+          <tr>
+            <td style="text-align: left">${item.payment_method || 'Unknown'}</td>
+            <td>${item.transaction_count}</td>
+            <td>${fmt(item.amount_collected)}</td>
+          </tr>
+        `).join('')
+        return `
+          <div class="summary-box">
+            <h3>${title}</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th style="text-align: left">Method</th>
+                  <th>Transactions</th>
+                  <th>Collected</th>
+                </tr>
+              </thead>
+              <tbody>${rowsHtml || '<tr><td colspan="3">No data</td></tr>'}</tbody>
+            </table>
+          </div>
+        `
+      }
+
+      const rowsHtml = data.map(item => `
+        <tr>
+          <td style="text-align: left">${summaryDisplayName(item, activeTab.value === 'method' ? 'officer' : activeTab.value)}</td>
+          <td>${item.loan_count}</td>
+          <td>${fmt(item.amount_due)}</td>
+          <td>${fmt(item.amount_collected)}</td>
+          <td>${fmtRate(item.collection_rate)}</td>
+          <td>${fmt(item.outstanding_balance)}</td>
+        </tr>
+      `).join('')
+
+      return `
+        <div class="summary-box">
+          <h3>${title}</h3>
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align: left">Entity</th>
+                <th>Loans</th>
+                <th>Due</th>
+                <th>Collected</th>
+                <th>Rate</th>
+                <th>Outstanding</th>
+              </tr>
+            </thead>
+            <tbody>${rowsHtml || '<tr><td colspan="6">No data</td></tr>'}</tbody>
+          </table>
+        </div>
+      `
+    }
+
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Loan Collections Report</title>
+<style>
+  body { font-family: Arial, sans-serif; font-size: 11px; color: #111; margin: 24px; }
+  h1 { font-size: 18px; margin-bottom: 4px; }
+  h2 { font-size: 14px; margin-top: 24px; margin-bottom: 12px; border-bottom: 1px solid #ccc; padding-bottom: 4px;}
+  h3 { font-size: 12px; margin-bottom: 8px; color: #333; }
+  .summaries { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 24px; }
+  .summary-box { flex: 1; min-width: 45%; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+  thead tr { background: #f5f5f5; }
+  th { padding: 6px 8px; text-align: right; font-size: 10px; text-transform: uppercase; color: #444; border-bottom: 2px solid #ddd; }
+  td { padding: 6px 8px; text-align: right; border-bottom: 1px solid #eee; }
+  .brand-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #333; padding-bottom: 12px; margin-bottom: 24px; }
+  .brand-info { display: flex; gap: 16px; }
+  .brand-logo { max-height: 55px; max-width: 120px; object-fit: contain; }
+  .brand-text h1 { margin: 0; padding: 0; font-size: 18px; color: #111; }
+  .brand-contacts { text-align: right; }
+  .brand-contacts p { margin: 2px 0; color: #444; font-size: 10px; }
+  .totals-row { background: #f9f9f9; font-weight: bold; }
+  @media print { body { margin: 0; } }
+</style>
+</head>
+<body>
+  <div class="brand-header">
+    <div class="brand-info">
+      ${saccoBrandingState.logo_url ? `<img src="${saccoBrandingState.logo_url}" class="brand-logo" />` : ''}
+      <div class="brand-text">
+        <h1>${saccoName}</h1>
+        ${saccoBrandingState.tagline ? `<p style="margin: 2px 0; color: #666; font-size: 10px; text-transform: uppercase;">${saccoBrandingState.tagline}</p>` : ''}
+      </div>
+    </div>
+    <div class="brand-contacts">
+      ${tenantAddress ? `<p>${tenantAddress}</p>` : ''}
+      ${tenantPhone ? `<p>Tel: ${tenantPhone}</p>` : ''}
+      ${tenantEmail ? `<p>Email: ${tenantEmail}</p>` : ''}
+      <p style="margin-top: 8px; font-weight: bold; color: #111;">LOAN COLLECTIONS REPORT</p>
+    </div>
+  </div>
+
+  <p style="margin-top: -12px; font-style: italic; color: #666;">Collections for ${params.date_from} to ${params.date_to}</p>
+
+  <div style="background: #eef2ff; padding: 12px; border-radius: 8px; margin-bottom: 24px; display: flex; justify-content: space-around;">
+    <div style="text-align: center"><small style="text-transform: uppercase; color: #555">Total Due</small><div style="font-size: 14px; font-weight: bold">${fmt(summary.value.totals.amount_due)}</div></div>
+    <div style="text-align: center"><small style="text-transform: uppercase; color: #555">Total Collected</small><div style="font-size: 14px; font-weight: bold; color: #059669">${fmt(summary.value.totals.amount_collected)}</div></div>
+    <div style="text-align: center"><small style="text-transform: uppercase; color: #555">Collection Rate</small><div style="font-size: 14px; font-weight: bold; color: #2563eb">${fmtRate(summary.value.totals.collection_rate)}</div></div>
+    <div style="text-align: center"><small style="text-transform: uppercase; color: #555">Transactions</small><div style="font-size: 14px; font-weight: bold">${summary.value.totals.transaction_count}</div></div>
+  </div>
+
+  <h2>Summary Breakdowns</h2>
+  <div class="summaries">
+    ${renderSummaryTable('By Loan Officer', summary.value.by_officer, 'general')}
+    ${renderSummaryTable('By Branch', summary.value.by_branch, 'general')}
+    ${renderSummaryTable('By Payment Method', summary.value.by_method, 'method')}
+  </div>
+
+  <h2>Loan-Level Collections</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="text-align: left">Member / Loan No</th>
+        <th style="text-align: left">Officer</th>
+        <th>Due</th>
+        <th>Collected</th>
+        <th>Rate</th>
+        <th>Outstanding</th>
+        <th>DPD</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${allLoans.map(row => `
+        <tr>
+          <td style="text-align: left">
+            <strong>${row.member_name}</strong><br/>
+            <small>${row.loan_no}</small>
+          </td>
+          <td style="text-align: left">${row.loan_officer_name || '—'}</td>
+          <td>${fmt(row.amount_due)}</td>
+          <td>${fmt(row.amount_collected)}</td>
+          <td>${fmtRate(row.collection_rate)}</td>
+          <td>${fmt(row.outstanding_balance)}</td>
+          <td style="text-align: center">${row.days_in_arrears}</td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>
+</body>
+</html>`
+
+    const printWindow = window.open('', '_blank')
+    if (printWindow) {
+      printWindow.document.write(html)
+      printWindow.document.close()
+      printWindow.focus()
+      setTimeout(() => {
+        printWindow.print()
+        printWindow.close()
+      }, 500)
+    }
+  } catch (err: any) {
+    console.error("Print failed", err)
+    alert("Failed to prepare print document. Please try again.")
+  } finally {
+    isPrinting.value = false
+  }
+}
+
 onMounted(async () => {
   await loadFilterOptions()
   await fetchReport()
@@ -490,15 +677,27 @@ onMounted(async () => {
         </p>
       </div>
 
-      <button
-        class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-green-700 disabled:opacity-50"
-        :disabled="exporting || loading"
-        @click="exportExcel"
-      >
-        <Spinner v-if="exporting" class="h-4 w-4" />
-        <Download v-else class="h-4 w-4" />
-        Export Excel
-      </button>
+      <div class="flex items-center gap-2">
+        <button
+          class="inline-flex items-center gap-2 rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-semibold text-neutral-700 shadow-sm hover:bg-neutral-50 disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+          :disabled="isPrinting || loading"
+          @click="printReport"
+        >
+          <Spinner v-if="isPrinting" class="h-4 w-4" />
+          <Printer v-else class="h-4 w-4" />
+          Print
+        </button>
+
+        <button
+          class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-green-700 disabled:opacity-50"
+          :disabled="exporting || loading"
+          @click="exportExcel"
+        >
+          <Spinner v-if="exporting" class="h-4 w-4" />
+          <Download v-else class="h-4 w-4" />
+          Export Excel
+        </button>
+      </div>
     </div>
 
     <div class="rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-800">

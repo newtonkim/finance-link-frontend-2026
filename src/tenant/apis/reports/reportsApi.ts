@@ -412,4 +412,108 @@ export const reportsApi = {
   loanArrearsExport(params?: Omit<ArrearsFilters, 'per_page' | 'page'>) {
     return tenantClient.get('/reports/loan-arrears/export', { params, responseType: 'blob' })
   },
+
+  // ─── Loan Disbursements ─────────────────────────────────────────────────────
+  disbursementSummary(params?: DisbursementFilters) {
+    return tenantClient.get<DisbursementSummaryResponse>('/reports/disbursements/summary', { params })
+  },
+
+  disbursementLoans(params?: DisbursementFilters) {
+    return tenantClient.get<DisbursementLoansResponse>('/reports/disbursements/loans', { params })
+  },
+
+  disbursementTrend(params?: DisbursementTrendFilters) {
+    return tenantClient.get<DisbursementTrendPoint[]>('/reports/disbursements/trend', { params })
+  },
+
+  disbursementExport(params?: Omit<DisbursementFilters, 'per_page' | 'page'>) {
+    return tenantClient.get('/reports/disbursements/export', { params, responseType: 'blob' })
+  },
+}
+
+// ─── Loan Disbursement Report Types ───────────────────────────────────────────
+
+export interface DisbursementFilters {
+  date_from?: string | null
+  date_to?: string | null
+  branch_id?: number | null
+  loan_officer_id?: number | null
+  loan_product_id?: number | null
+  per_page?: number
+  page?: number
+}
+
+export interface DisbursementTrendFilters {
+  date_from?: string | null
+  date_to?: string | null
+  branch_id?: number | null
+  loan_officer_id?: number | null
+  loan_product_id?: number | null
+  months?: 3 | 6 | 12
+}
+
+export interface DisbursementKpis {
+  total_disbursed: number
+  loan_count: number
+  avg_loan_size: number
+}
+
+export interface DisbursementPending {
+  pending_count: number
+  pending_amount: number
+}
+
+export interface DisbursementBreakdownRow {
+  name: string
+  loan_count: number
+  total_amount: number
+  percentage: number
+}
+
+export interface DisbursementSummaryResponse {
+  kpis: DisbursementKpis
+  pending: DisbursementPending
+  by_product: DisbursementBreakdownRow[]
+  by_channel: DisbursementBreakdownRow[]
+  by_branch: DisbursementBreakdownRow[]
+  by_officer: DisbursementBreakdownRow[]
+}
+
+export interface DisbursementLoanRow {
+  loan_id: number
+  loan_no: string
+  member_name: string
+  member_number: string
+  product_name: string
+  principal: number
+  net_disbursed_amount: number
+  interest_rate: number
+  term_months: number
+  disbursement_method: string
+  disbursed_at: string
+  status: string
+  outstanding_balance: number
+  total_repaid: number
+  repaid_percent: number
+  branch_name: string
+  loan_officer_name: string
+}
+
+export interface DisbursementLoansResponse {
+  data: DisbursementLoanRow[]
+  meta: {
+    current_page: number
+    last_page: number
+    per_page: number
+    total: number
+    from: number | null
+    to: number | null
+  }
+}
+
+export interface DisbursementTrendPoint {
+  month: string
+  label: string
+  loan_count: number
+  total_disbursed: number
 }

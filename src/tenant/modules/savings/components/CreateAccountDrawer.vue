@@ -3,31 +3,18 @@ import { ref, computed, watch } from 'vue'
 import { InputError, Label, Spinner } from '@/Global'
 import SearchableSelect from '@/Global/SearchableSelect.vue'
 import { savingsAccountsApi } from '@/tenant/apis/savingsAccounts/savingsAccountsApi'
-import { savingsProductsApi, type SavingsProduct } from '@/tenant/apis/savingsProducts/api'
-import { membersApi } from '@/tenant/apis/members/membersApi'
+import { savingsProductsApi } from '@/tenant/apis/savingsProducts/api'
+import { type SavingsProduct } from '../types'
 import { toast } from 'vue-sonner'
-
-interface MemberOption { id: number; name: string; member_number: string }
-interface MemberDetails {
-  id: number
-  name: string
-  member_number: string
-  status: string
-  savings_accounts: Array<{ id: number; account_no: string; account_type: string }>
-}
+import { useMemberSearch } from '../composables/useMemberSearch'
 
 const props = defineProps<{ savingsProducts: SavingsProduct[] }>()
 const emit = defineEmits<{ success: [] }>()
 
 const open = ref(false)
 const processing = ref(false)
-const errors = ref<Record<string, any>>({})
+const errors = ref<Record<string, string | string[]>>({})
 const showChargeDropdown = ref(false)
-
-const memberSelectValue = ref<string | number>('')
-const memberLoading = ref(false)
-const memberOptions = ref<MemberOption[]>([])
-const selectedMember = ref<MemberDetails | null>(null)
 
 const form = ref({
   member_id: 0,
@@ -39,8 +26,13 @@ const form = ref({
   consider_min_balance: false,
   credited_account_id: '' as string | number,
   charges: [] as number[],
+  tenor_months: null as number | null,
+  maturity_action_override: '' as string,
+  payout_savings_account_id: '' as string | number,
   status: 'active',
 })
+
+const { memberSelectValue, selectedMember, memberSelectOptions, searchMembers, reset: resetMemberSearch } = useMemberSearch(form)
 
 const productOptions = computed(() =>
   (props.savingsProducts ?? []).map(p => ({ id: p.id!, name: p.name }))
@@ -51,15 +43,22 @@ const selectedProductCharges = computed(() => {
   return props.savingsProducts.find(p => p.id === Number(form.value.savings_product_id))?.charges ?? []
 })
 
-const memberSelectOptions = computed(() =>
-  (memberOptions.value ?? []).map(m => ({ id: m.id, name: `${m.name} — ${m.member_number}` }))
-)
-
 const creditedAccountOptions = computed(() =>
   (selectedMember.value?.savings_accounts ?? []).map(a => ({ id: a.id, name: `${a.account_no} — ${a.account_type}` }))
 )
 
 const memberHasAccounts = computed(() => (selectedMember.value?.savings_accounts?.length ?? 0) > 0)
+
+const selectedProduct = computed(() =>
+  props.savingsProducts.find(p => p.id === Number(form.value.savings_product_id)) ?? null
+)
+
+const isFixedDeposit = computed(() => selectedProduct.value?.type === 'fixed')
+
+const showPayoutAccount = computed(() =>
+  isFixedDeposit.value &&
+  selectedProduct.value?.interest_payout_type === 'periodic_payout'
+)
 
 const isNewAccountOptions = [{ id: 'yes', name: 'Yes' }, { id: 'no', name: 'No' }]
 const minBalanceOptions = [{ id: 'no', name: 'No' }, { id: 'yes', name: 'Yes' }]
@@ -74,49 +73,6 @@ const toggleCharge = (chargeId: number) => {
   if (idx > -1) form.value.charges.splice(idx, 1)
   else form.value.charges.push(chargeId)
 }
-
-async function searchMembers(query: string) {
-  memberLoading.value = true
-  try {
-    const res = await membersApi.list({ search: query || undefined, page: 1 })
-    const list = res.data?.data ?? []
-    memberOptions.value = list.map((m: any) => ({ id: m.id, name: m.name, member_number: m.member_number }))
-  } catch {
-    memberOptions.value = []
-  } finally {
-    memberLoading.value = false
-  }
-}
-
-async function fetchMemberDetails(memberId: number) {
-  try {
-    const res = await membersApi.show(memberId)
-    const body = res.data
-    const memberData: Record<string, any> = body?.data?.member ?? body?.member ?? body?.data ?? body ?? {}
-    selectedMember.value = {
-      id: memberData.id,
-      name: memberData.name,
-      member_number: memberData.member_number,
-      status: memberData.status,
-      savings_accounts: memberData.savings_accounts ?? [],
-    }
-  } catch (err: any) {
-    selectedMember.value = null
-    toast.error(err?.response?.data?.message ?? 'Failed to load member details.')
-  }
-}
-
-watch(memberSelectValue, async (val) => {
-  const memberId = Number(val || 0)
-  if (!memberId) {
-    selectedMember.value = null
-    form.value.member_id = 0
-    return
-  }
-  form.value.member_id = memberId
-  const opt = memberOptions.value.find(o => o.id === memberId)
-  if (opt) await fetchMemberDetails(opt.id)
-})
 
 watch(() => form.value.savings_product_id, async (newVal) => {
   if (!newVal) return
@@ -140,9 +96,7 @@ watch(() => form.value.savings_product_id, async (newVal) => {
 
 function openDrawer() {
   errors.value = {}
-  selectedMember.value = null
-  memberSelectValue.value = ''
-  memberOptions.value = []
+  resetMemberSearch()
   form.value = {
     member_id: 0,
     savings_product_id: '',
@@ -153,6 +107,9 @@ function openDrawer() {
     consider_min_balance: false,
     credited_account_id: '',
     charges: [],
+    tenor_months: null,
+    maturity_action_override: '',
+    payout_savings_account_id: '',
     status: 'active',
   }
   open.value = true
@@ -175,7 +132,16 @@ async function submit() {
   }
   processing.value = true
   try {
-    await savingsAccountsApi.store(form.value)
+    const payload: Record<string, any> = { ...form.value }
+    if (!isFixedDeposit.value) {
+      delete payload.tenor_months
+      delete payload.maturity_action_override
+      delete payload.payout_savings_account_id
+    } else {
+      if (!payload.maturity_action_override) delete payload.maturity_action_override
+      if (!showPayoutAccount.value) delete payload.payout_savings_account_id
+    }
+    await savingsAccountsApi.store(payload)
     toast.success('Savings account created successfully.')
     open.value = false
     emit('success')
@@ -199,6 +165,7 @@ defineExpose({ openDrawer })
       <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="open = false"></div>
       <Transition name="drawer-slide">
         <aside
+          v-if="open"
           class="absolute right-0 top-0 h-full w-full max-w-[520px] bg-white shadow-2xl ring-1 ring-black/5"
           role="dialog"
           aria-label="Add Savings Account"
@@ -229,7 +196,7 @@ defineExpose({ openDrawer })
                 <InputError v-if="errors.member_id" :message="errors.member_id" />
                 <div v-if="selectedMember" class="mt-3 rounded-xl border border-neutral-100 bg-neutral-50 px-4 py-3">
                   <div class="text-sm font-semibold text-neutral-900">{{ selectedMember.name }}</div>
-                  <div class="text-xs text-neutral-500">Member #{{ selectedMember.member_number }} · {{ selectedmember?.status }}</div>
+                  <div class="text-xs text-neutral-500">Member #{{ selectedMember.member_number }} · {{ selectedMember?.status }}</div>
                   <p v-if="memberHasAccounts" class="mt-2 text-xs font-semibold text-amber-600">
                     This member already has {{ selectedMember.savings_accounts.length }} savings account(s).
                   </p>
@@ -338,6 +305,49 @@ defineExpose({ openDrawer })
                   <option value="dormant">Dormant</option>
                 </select>
               </div>
+
+              <!-- Fixed Deposit Fields -->
+              <template v-if="isFixedDeposit">
+                <div class="col-span-2 border-t border-neutral-100 pt-4 dark:border-neutral-800">
+                  <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400">
+                    Fixed Deposit Details
+                  </p>
+                </div>
+
+                <div>
+                  <Label>Tenor (Months)</Label>
+                  <input
+                    v-model.number="form.tenor_months"
+                    type="number" min="1"
+                    class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus:border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-nfuko-primary dark:border-neutral-700 dark:text-white"
+                    :placeholder="selectedProduct?.default_tenor_months ? String(selectedProduct.default_tenor_months) : '6'"
+                  />
+                  <InputError v-if="errors.tenor_months" :message="Array.isArray(errors.tenor_months) ? errors.tenor_months[0] : errors.tenor_months" />
+                </div>
+
+                <div>
+                  <Label>Maturity Action (override)</Label>
+                  <select
+                    v-model="form.maturity_action_override"
+                    class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus:border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-nfuko-primary dark:border-neutral-700 dark:text-white"
+                  >
+                    <option value="">Use product default</option>
+                    <option value="manual">Manual</option>
+                    <option value="auto_rollover">Auto Rollover</option>
+                    <option value="convert_to_savings">Convert to Savings</option>
+                  </select>
+                </div>
+
+                <div v-if="showPayoutAccount" class="col-span-2">
+                  <Label>Payout Savings Account (for periodic interest)</Label>
+                  <SearchableSelect
+                    v-model="form.payout_savings_account_id"
+                    :options="creditedAccountOptions"
+                    placeholder="Select member's savings account..."
+                  />
+                  <InputError v-if="errors.payout_savings_account_id" :message="Array.isArray(errors.payout_savings_account_id) ? errors.payout_savings_account_id[0] : errors.payout_savings_account_id" />
+                </div>
+              </template>
             </form>
 
             <div class="flex items-center justify-between border-t border-neutral-200 px-6 py-4">

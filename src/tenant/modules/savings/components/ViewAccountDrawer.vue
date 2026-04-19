@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { ArrowLeft, Pencil, X } from 'lucide-vue-next'
 import { savingsAccountsApi } from '@/tenant/apis/savingsAccounts/savingsAccountsApi'
 import { toast } from 'vue-sonner'
+import InterestPostingHistory from './InterestPostingHistory.vue'
+import FdMaturityDrawer from './FdMaturityDrawer.vue'
+
+import { type SavingsAccount } from '../types'
 
 const props = defineProps<{
   currency: string
@@ -16,7 +20,34 @@ const emit = defineEmits<{
 
 const open = ref(false)
 const loading = ref(false)
-const account = ref<Record<string, any> | null>(null)
+const account = ref<SavingsAccount | null>(null)
+
+const isFixedDeposit = computed(() => account.value?.account_type === 'fixed')
+
+const isMatured = computed(() => {
+  if (!isFixedDeposit.value || !account.value?.maturity_date) return false
+  return new Date(account.value.maturity_date) <= new Date()
+})
+
+const maturityDrawerRef = ref<InstanceType<typeof FdMaturityDrawer> | null>(null)
+
+function formatDate(d: string | null | undefined) {
+  if (!d) return '—'
+  return new Date(d).toLocaleDateString('en-KE', { day: '2-digit', month: 'short', year: 'numeric' })
+}
+
+function openMaturityDrawer() {
+  if (!account.value) return
+  maturityDrawerRef.value?.openDrawer({
+    id: account.value.id,
+    account_no: account.value.account_no,
+    maturity_date: account.value.maturity_date ?? null,
+  })
+}
+
+function onMaturitySuccess() {
+  if (account.value) openDrawer({ id: account.value.id })
+}
 
 async function openDrawer(row: { id: number }) {
   account.value = null
@@ -47,6 +78,7 @@ defineExpose({ openDrawer })
       <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="close"></div>
       <Transition name="drawer-slide">
         <aside
+          v-if="open"
           class="absolute right-0 top-0 h-full w-full max-w-[520px] bg-white shadow-2xl ring-1 ring-black/5 dark:bg-neutral-900"
           role="dialog"
           aria-label="View Savings Account"
@@ -90,7 +122,7 @@ defineExpose({ openDrawer })
                   </div>
                   <div class="mt-4 flex items-baseline gap-1">
                     <span class="text-sm text-neutral-500">Balance</span>
-                    <span class="text-2xl font-bold text-[#3ab88a]">{{ currency }} {{ formatBalance(account.balance ?? 0) }}</span>
+                    <span class="text-2xl font-bold text-[#3ab88a]">{{ props.currency }} {{ formatBalance(account.balance ?? 0) }}</span>
                   </div>
                 </div>
 
@@ -115,11 +147,11 @@ defineExpose({ openDrawer })
                   </div>
                   <div class="flex items-center justify-between px-5 py-3.5">
                     <span class="text-sm text-neutral-500">Initial Deposit</span>
-                    <span class="text-sm font-semibold text-neutral-900 dark:text-white">{{ currency }} {{ formatBalance(account.initial_deposit ?? 0) }}</span>
+                    <span class="text-sm font-semibold text-neutral-900 dark:text-white">{{ props.currency }} {{ formatBalance(account.initial_deposit ?? 0) }}</span>
                   </div>
                   <div class="flex items-center justify-between px-5 py-3.5">
                     <span class="text-sm text-neutral-500">Opening Balance</span>
-                    <span class="text-sm font-semibold text-neutral-900 dark:text-white">{{ currency }} {{ formatBalance(account.opening_balance ?? 0) }}</span>
+                    <span class="text-sm font-semibold text-neutral-900 dark:text-white">{{ props.currency }} {{ formatBalance(account.opening_balance ?? 0) }}</span>
                   </div>
                   <div class="flex items-center justify-between px-5 py-3.5">
                     <span class="text-sm text-neutral-500">Min Balance Enforced</span>
@@ -130,6 +162,65 @@ defineExpose({ openDrawer })
                     <span class="text-sm font-semibold text-neutral-900 dark:text-white">{{ new Date(account.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) }}</span>
                   </div>
                 </div>
+
+                <!-- FD Info Section -->
+                <div v-if="isFixedDeposit" class="space-y-3 rounded-xl border border-amber-200 bg-amber-50/40 p-4 dark:border-amber-900/40 dark:bg-amber-950/10">
+                  <div class="flex items-center justify-between">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400">Fixed Deposit</p>
+                    <span
+                      :class="[
+                        'rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                        isMatured
+                          ? 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400'
+                          : 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400'
+                      ]"
+                    >
+                      {{ isMatured ? 'Matured' : 'Active' }}
+                    </span>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p class="text-xs text-neutral-500">Tenor</p>
+                      <p class="font-medium text-neutral-800 dark:text-neutral-200">
+                        {{ account.tenor_months != null ? account.tenor_months + ' months' : '—' }}
+                      </p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-neutral-500">Maturity Date</p>
+                      <p class="font-medium text-neutral-800 dark:text-neutral-200">
+                        {{ formatDate(account.maturity_date) }}
+                      </p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-neutral-500">Interest Rate</p>
+                      <p class="font-medium text-neutral-800 dark:text-neutral-200">
+                        {{ account.interest_rate != null ? (account.interest_rate * 100).toFixed(2) + '%' : '—' }} p.a.
+                      </p>
+                    </div>
+                    <div>
+                      <p class="text-xs text-neutral-500">Next Interest Date</p>
+                      <p class="font-medium text-neutral-800 dark:text-neutral-200">
+                        {{ formatDate(account.next_interest_date) }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Process Maturity Button -->
+                  <button
+                    v-if="isMatured"
+                    type="button"
+                    @click="openMaturityDrawer"
+                    class="mt-1 w-full rounded-lg border border-amber-400 bg-amber-100 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-200 transition dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-300 dark:hover:bg-amber-950/60"
+                  >
+                    Process Maturity
+                  </button>
+                </div>
+
+                <!-- Interest Posting History -->
+                <div v-if="isFixedDeposit">
+                  <InterestPostingHistory :account-id="account.id" :currency="currency" />
+                </div>
               </div>
             </div>
 
@@ -138,7 +229,7 @@ defineExpose({ openDrawer })
                 class="rounded-full border border-neutral-300 px-5 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-colors dark:border-neutral-600 dark:text-neutral-300 dark:hover:bg-neutral-800">
                 Close
               </button>
-              <button v-if="account" type="button" @click="() => { close(); emit('editAccount', account) }"
+              <button v-if="account" type="button" @click="() => { close(); emit('editAccount', account!) }"
                 class="inline-flex items-center gap-2 rounded-full bg-nfuko-primary px-5 py-2 text-sm font-semibold text-white hover:bg-nfuko-primary/90 transition-colors">
                 <Pencil class="h-3.5 w-3.5" />
                 Edit Account
@@ -149,6 +240,11 @@ defineExpose({ openDrawer })
       </Transition>
     </div>
   </Transition>
+
+  <FdMaturityDrawer
+    ref="maturityDrawerRef"
+    @success="onMaturitySuccess"
+  />
 </template>
 
 <style scoped>
