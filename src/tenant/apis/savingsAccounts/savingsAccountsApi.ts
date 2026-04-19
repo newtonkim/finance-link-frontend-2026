@@ -25,4 +25,11 @@ export const savingsAccountsApi = {
   charge(id: number, data: Record<string, any>) {
     return tenantClient.post(`/savings-accounts/${id}/charge`, data)
   },
+  // Fixed deposit endpoints
+  interestPostings(id: number) {
+    return tenantClient.get(`/savings-accounts/${id}/interest-postings`)
+  },
+  processMaturity(id: number, data: { action: 'rollover' | 'convert' | 'close' }) {
+    return tenantClient.post(`/savings-accounts/${id}/maturity/process`, data)
+  },
 }

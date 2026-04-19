@@ -28,6 +28,15 @@ export interface SavingsProduct {
   loyalty_adjustment_type?: 'discount_percentage' | 'fixed_discount' | 'custom_fee' | null
   loyalty_adjustment_value?: number | string | null
   charges?: Charge[]
+  // Fixed deposit fields
+  interest_rate?: number | null            // stored as decimal e.g. 0.1200
+  interest_payout_type?: 'at_maturity' | 'periodic_payout' | 'compound' | null
+  interest_posting_frequency?: 'monthly' | 'quarterly' | 'semi_annually' | 'annually' | null
+  default_tenor_months?: number | null
+  maturity_action?: 'auto_rollover' | 'manual' | 'convert_to_savings' | null
+  convert_to_product_id?: number | null
+  interest_expense_account_id?: number | null
+  interest_payable_account_id?: number | null
 }
 
 export const savingsProductsApi = {
