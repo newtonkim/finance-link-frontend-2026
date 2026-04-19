@@ -1,8 +1,8 @@
 <!-- this used in more than one place -->
 <template>
-  <div v-if='fields?.length > 0' class=" h-[90vh]">
+  <div v-if='fields?.length > 0' class="h-[90vh] overflow-y-auto">
     <div
-      class="mb-2 justify-between px-0 py-1 rounded-xl dark:border-neutral-800 hover:shadow-sm hover:border-neutral-300 dark:hover:border-neutral-700 transition-all duration-200 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800 dark:hover:shadow-sm dark:hover:border-neutral-700 capitalize  dark:bg-neutral-900 border border-neutral-200  "
+      class="mb-1 justify-between px-0 py-1 rounded-xl dark:border-neutral-800 hover:shadow-sm hover:border-neutral-300 dark:hover:border-neutral-700 transition-all duration-200 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800 dark:hover:shadow-sm dark:hover:border-neutral-700 capitalize  dark:bg-neutral-900   border-neutral-200  "
       v-for="field in fields">
 
       <div>

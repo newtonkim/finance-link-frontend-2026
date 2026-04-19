@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { CreditCard, Settings2, GitPullRequestArrow, HandCoins, AlertTriangle } from 'lucide-vue-next'
+import { CreditCard, Settings2,  } from 'lucide-vue-next'
 import { SettingCard } from '@/tenant/components/globals'
-import ApprovalWorkflowDrawer from '../components/ApprovalWorkflowDrawer.vue'
-import DisbursementRepaymentOrderDrawer from '../components/DisbursementRepaymentOrderDrawer.vue'
-import ArrearsSettingsDrawer from '../components/ArrearsSettingsDrawer.vue'
+import {ApprovalWorkflowDrawer,DisbursementRepaymentOrderDrawer,ArrearsSettingsDrawer, loanSettings} from '.' 
 const loanProductCards = [
   {
     title: "Loan Types",
@@ -26,19 +24,21 @@ const loanSettingsCards = [
     title: "Approval Workflow & Limits",
     description: "Configure approval stages and authorization rules.",
     slot: "approval-settings",
-    icon: GitPullRequestArrow,
   },
   {
     title: "Disbursement & Repayment Order",
     description: "Define disbursement channels and payment priority.",
     slot: "disbursement-settings",
-    icon: HandCoins,
   },
   {
     title: "Arrears Penalty Settings",
     description: "Configure arrears and penalty rules.",
     slot: "arrears-settings",
-    icon: AlertTriangle,
+  },
+  {
+    title: "Loans Settings",
+    description: "Configure arrears and penalty rules.",
+    slot: "Loans-settings",
   }
 ]
 const drawerOpen = ref(false), currentPage = ref<string | null>(null), drawerTitle = ref(""), pages: Record<string, any> = {
@@ -53,6 +53,10 @@ const drawerOpen = ref(false), currentPage = ref<string | null>(null), drawerTit
   arrears: {
     title: "Arrears Settings",
     page: ArrearsSettingsDrawer
+  },
+  'loans-settings': {
+    title: "Loans Settings",
+    page: loanSettings
   }
 }
 function openDrawer(page: string) {
@@ -113,6 +117,12 @@ function saveDrawerData(data: any) {
         </template>
         <template #arrears-settings>
           <button @click="openDrawer('arrears')"
+            class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">
+            Configure →
+          </button>
+        </template>
+        <template #loans-settings>
+          <button @click="openDrawer('loans-settings')"
             class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">
             Configure →
           </button>

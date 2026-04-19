@@ -9,6 +9,7 @@ import { toast } from 'vue-sonner'
 import { formatMoneyValue } from '@/Global'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { useCurrencyStore } from '@/stores/currency'
+import { SettingCard } from '@/tenant/components/globals'
 
 const settingsStore = useSettingsStore()
 const currencyStore = useCurrencyStore()
