@@ -4,6 +4,8 @@ import { X, ArrowLeft, RotateCcw, ArrowRightLeft, Banknote } from 'lucide-vue-ne
 import { savingsAccountsApi } from '@/tenant/apis/savingsAccounts/savingsAccountsApi'
 import { toast } from 'vue-sonner'
 
+import { type SavingsAccount } from '../types'
+
 interface Account { id: number; account_no: string; maturity_date: string | null }
 
 const emit = defineEmits<{ success: [] }>()
@@ -59,8 +61,9 @@ async function submit() {
     toast.success('Maturity processed successfully.')
     emit('success')
     close()
-  } catch (err: any) {
-    toast.error(err?.response?.data?.message ?? 'Failed to process maturity.')
+  } catch (err: unknown) {
+    const errorMsg = (err as any)?.response?.data?.message ?? 'Failed to process maturity.'
+    toast.error(errorMsg)
   } finally {
     processing.value = false
   }
@@ -75,6 +78,7 @@ defineExpose({ openDrawer })
       <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="close" />
       <Transition name="drawer-slide">
         <aside
+          v-if="open"
           class="absolute right-0 top-0 h-full w-full max-w-[480px] bg-white shadow-2xl ring-1 ring-black/5 dark:bg-neutral-900"
           role="dialog" aria-label="Process FD Maturity"
         >

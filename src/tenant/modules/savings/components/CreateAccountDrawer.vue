@@ -3,7 +3,8 @@ import { ref, computed, watch } from 'vue'
 import { InputError, Label, Spinner } from '@/Global'
 import SearchableSelect from '@/Global/SearchableSelect.vue'
 import { savingsAccountsApi } from '@/tenant/apis/savingsAccounts/savingsAccountsApi'
-import { savingsProductsApi, type SavingsProduct } from '@/tenant/apis/savingsProducts/api'
+import { savingsProductsApi } from '@/tenant/apis/savingsProducts/api'
+import { type SavingsProduct } from '../types'
 import { toast } from 'vue-sonner'
 import { useMemberSearch } from '../composables/useMemberSearch'
 
@@ -12,7 +13,7 @@ const emit = defineEmits<{ success: [] }>()
 
 const open = ref(false)
 const processing = ref(false)
-const errors = ref<Record<string, any>>({})
+const errors = ref<Record<string, string | string[]>>({})
 const showChargeDropdown = ref(false)
 
 const form = ref({
@@ -164,6 +165,7 @@ defineExpose({ openDrawer })
       <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="open = false"></div>
       <Transition name="drawer-slide">
         <aside
+          v-if="open"
           class="absolute right-0 top-0 h-full w-full max-w-[520px] bg-white shadow-2xl ring-1 ring-black/5"
           role="dialog"
           aria-label="Add Savings Account"
@@ -320,7 +322,7 @@ defineExpose({ openDrawer })
                     class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus:border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-nfuko-primary dark:border-neutral-700 dark:text-white"
                     :placeholder="selectedProduct?.default_tenor_months ? String(selectedProduct.default_tenor_months) : '6'"
                   />
-                  <InputError :message="errors.tenor_months?.[0]" />
+                  <InputError v-if="errors.tenor_months" :message="Array.isArray(errors.tenor_months) ? errors.tenor_months[0] : errors.tenor_months" />
                 </div>
 
                 <div>
@@ -343,7 +345,7 @@ defineExpose({ openDrawer })
                     :options="creditedAccountOptions"
                     placeholder="Select member's savings account..."
                   />
-                  <InputError :message="errors.payout_savings_account_id?.[0]" />
+                  <InputError v-if="errors.payout_savings_account_id" :message="Array.isArray(errors.payout_savings_account_id) ? errors.payout_savings_account_id[0] : errors.payout_savings_account_id" />
                 </div>
               </template>
             </form>

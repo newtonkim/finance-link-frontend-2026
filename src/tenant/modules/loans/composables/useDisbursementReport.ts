@@ -33,19 +33,23 @@ function monthToRange(month: string): { date_from: string; date_to: string } {
   return { date_from: first, date_to: last }
 }
 
+export type DisbursementPeriodType = 'Date Range' | 'Month' | 'As of Date'
+
 export function useDisbursementReport() {
   const today = formatLocalDate(new Date())
   const defaultMonth = getCurrentMonth()
   const defaultRange = monthToRange(defaultMonth)
 
   const filters = ref({
+    period_type: 'Month' as DisbursementPeriodType,
     date_from: defaultRange.date_from,
     date_to: defaultRange.date_to,
     month: defaultMonth,
+    as_of_date: today,
     branch_id: null as number | null,
     loan_officer_id: null as number | null,
     loan_product_id: null as number | null,
-    per_page: 25,
+    per_page: 10,
     page: 1,
   })
 
@@ -71,16 +75,35 @@ export function useDisbursementReport() {
   const trendLoading = ref(false)
 
   const loans = ref<DisbursementLoanRow[]>([])
-  const meta = ref({ current_page: 1, last_page: 1, per_page: 25, total: 0, from: null as number | null, to: null as number | null })
+  const meta = ref({ current_page: 1, last_page: 1, per_page: 10, total: 0, from: null as number | null, to: null as number | null })
 
   const showEmptyState = computed(() => !loading.value && !error.value && kpis.value.loan_count === 0 && loans.value.length === 0)
   const canGoPrev = computed(() => meta.value.current_page > 1)
   const canGoNext = computed(() => meta.value.current_page < meta.value.last_page)
 
+  function normalizeDateRange() {
+    if (filters.value.period_type === 'Month') {
+      const range = monthToRange(filters.value.month)
+      filters.value.date_from = range.date_from
+      filters.value.date_to = range.date_to
+    } else if (filters.value.period_type === 'As of Date') {
+      filters.value.date_from = '2000-01-01'
+      filters.value.date_to = filters.value.as_of_date || today
+    } else {
+      // Date Range - handle empty or invalid
+      if (!filters.value.date_from) filters.value.date_from = defaultRange.date_from
+      if (!filters.value.date_to) filters.value.date_to = defaultRange.date_to
+      
+      if (filters.value.date_from > filters.value.date_to) {
+        const tmp = filters.value.date_from
+        filters.value.date_from = filters.value.date_to
+        filters.value.date_to = tmp
+      }
+    }
+  }
+
   function baseParams() {
-    const range = monthToRange(filters.value.month)
-    filters.value.date_from = range.date_from
-    filters.value.date_to = range.date_to
+    normalizeDateRange()
     return {
       date_from: filters.value.date_from,
       date_to: filters.value.date_to,
@@ -157,7 +180,18 @@ export function useDisbursementReport() {
   }
 
   async function resetFilters() {
-    filters.value = { date_from: defaultRange.date_from, date_to: defaultRange.date_to, month: defaultMonth, branch_id: null, loan_officer_id: null, loan_product_id: null, per_page: 25, page: 1 }
+    filters.value = { 
+      period_type: 'Month',
+      date_from: defaultRange.date_from, 
+      date_to: defaultRange.date_to, 
+      month: defaultMonth, 
+      as_of_date: today,
+      branch_id: null, 
+      loan_officer_id: null, 
+      loan_product_id: null, 
+      per_page: 10, 
+      page: 1 
+    }
     activeTab.value = 'product'
     await fetchReport()
   }

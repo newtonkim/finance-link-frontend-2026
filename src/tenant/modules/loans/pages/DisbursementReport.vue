@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { Download, Filter, RotateCcw, Printer } from 'lucide-vue-next'
+import { Download, Filter, RotateCcw, Printer, Calendar } from 'lucide-vue-next'
 import { Spinner } from '@/Global'
-import { reportsApi, type DisbursementBreakdownRow } from '@/tenant/apis/reports/reportsApi'
-import { useDisbursementReport } from '../composables/useDisbursementReport'
+import { reportsApi, type DisbursementBreakdownRow, type DisbursementLoanRow } from '@/tenant/apis/reports/reportsApi'
+import { saccoBrandingState } from '@/tenant/apis/saccobranding/saccoBrandingApi'
+import { useTenantContextStore } from '@/stores/tenantContext'
+import { useDisbursementReport, type DisbursementPeriodType } from '../composables/useDisbursementReport'
 import DisbursementKpiCards from '../components/DisbursementKpiCards.vue'
 import DisbursementSummaryTabs from '../components/DisbursementSummaryTabs.vue'
 import DisbursementTrendChart from '../components/DisbursementTrendChart.vue'
@@ -18,6 +20,11 @@ const {
   loadFilterOptions, fetchReport, fetchTrend, applyFilters, resetFilters, goToPage, exportExcel,
   fmt, fmtPct,
 } = useDisbursementReport()
+
+const tenantStore = useTenantContextStore()
+const tenant = tenantStore.currentTenant as any
+
+const PERIOD_TYPES: DisbursementPeriodType[] = ['Date Range', 'Month', 'As of Date']
 
 onMounted(async () => {
   await loadFilterOptions()
@@ -37,7 +44,7 @@ async function printReport() {
       branch_id: filters.value.branch_id,
       loan_officer_id: filters.value.loan_officer_id,
       loan_product_id: filters.value.loan_product_id,
-      per_page: 10000,
+      per_page: 2000,
       page: 1
     }
     
@@ -55,7 +62,7 @@ async function printReport() {
           <td style="text-align: left">${item.name}</td>
           <td>${item.loan_count}</td>
           <td>${fmt(item.total_amount)}</td>
-          <td>${fmtPct(item.percentage)}%</td>
+          <td>${fmtPct(item.percentage)}</td>
         </tr>
       `).join('')
       return `
@@ -84,6 +91,11 @@ async function printReport() {
       </tr>
     `).join('')
 
+    const tenantEmail = tenant?.settings?.email || ''
+    const tenantPhone = tenant?.settings?.phone || tenant?.settings?.phone_number || tenant?.settings?.tel || tenant?.settings?.contact_phone || ''
+    const tenantAddress = tenant?.settings?.address || ''
+    const saccoName = saccoBrandingState.sacco_name || tenant?.name || 'SACCO'
+
     const html = `<!DOCTYPE html>
 <html>
 <head>
@@ -101,12 +113,37 @@ async function printReport() {
   thead tr { background: #f5f5f5; }
   th { padding: 6px 8px; text-align: right; font-size: 10px; text-transform: uppercase; color: #444; border-bottom: 2px solid #ddd; }
   td { padding: 6px 8px; text-align: right; border-bottom: 1px solid #eee; }
-  @media print { body { margin: 0; } }
+
+  /* Branding Styles */
+  .brand-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #333; padding-bottom: 12px; margin-bottom: 24px; }
+  .brand-info { display: flex; gap: 16px; }
+  .brand-logo { max-height: 55px; max-width: 120px; object-contain: contain; }
+  .brand-text h1 { margin: 0; padding: 0; font-size: 18px; color: #111; }
+  .brand-text p { margin: 2px 0 0; color: #666; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .brand-contacts { text-align: right; }
+  .brand-contacts p { margin: 2px 0; color: #444; font-size: 10px; }
+  
+  @media print { body { margin: 0; } .brand-header { border-bottom-width: 2px; } }
 </style>
 </head>
 <body>
-  <h1>Loan Disbursement Report</h1>
-  <p class="subtitle">Disbursements for ${filters.value.date_from} to ${filters.value.date_to}</p>
+  <div class="brand-header">
+    <div class="brand-info">
+      ${saccoBrandingState.logo_url ? `<img src="${saccoBrandingState.logo_url}" class="brand-logo" />` : ''}
+      <div class="brand-text">
+        <h1>${saccoName}</h1>
+        ${saccoBrandingState.tagline ? `<p>${saccoBrandingState.tagline}</p>` : ''}
+      </div>
+    </div>
+    <div class="brand-contacts">
+      ${tenantAddress ? `<p>${tenantAddress}</p>` : ''}
+      ${tenantPhone ? `<p>Tel: ${tenantPhone}</p>` : ''}
+      ${tenantEmail ? `<p>Email: ${tenantEmail}</p>` : ''}
+      <p style="margin-top: 8px; font-weight: bold; color: #111;">LOAN DISBURSEMENT REPORT</p>
+    </div>
+  </div>
+
+  <p class="subtitle italic text-neutral-500" style="margin-top: -12px;">Disbursements for ${filters.value.date_from} to ${filters.value.date_to}</p>
 
   <h2>Summary Breakdowns</h2>
   <div class="summaries">
@@ -191,12 +228,59 @@ async function printReport() {
         </div>
 
         <div class="flex flex-col gap-1">
+          <label class="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Period Type</label>
+          <select
+            v-model="filters.period_type"
+            class="rounded-md border border-neutral-300 px-3 py-1.5 text-sm dark:border-neutral-600 dark:bg-neutral-700 dark:text-white"
+          >
+            <option v-for="pt in PERIOD_TYPES" :key="pt" :value="pt">{{ pt }}</option>
+          </select>
+        </div>
+
+        <template v-if="filters.period_type === 'Date Range'">
+          <div class="flex flex-col gap-1">
+            <label class="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Date From</label>
+            <div class="relative">
+              <Calendar class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+              <input
+                v-model="filters.date_from"
+                type="date"
+                class="rounded-md border border-neutral-300 py-1.5 pl-9 pr-3 text-sm dark:border-neutral-600 dark:bg-neutral-700 dark:text-white"
+              />
+            </div>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Date To</label>
+            <div class="relative">
+              <Calendar class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+              <input
+                v-model="filters.date_to"
+                type="date"
+                class="rounded-md border border-neutral-300 py-1.5 pl-9 pr-3 text-sm dark:border-neutral-600 dark:bg-neutral-700 dark:text-white"
+              />
+            </div>
+          </div>
+        </template>
+
+        <div v-else-if="filters.period_type === 'Month'" class="flex flex-col gap-1">
           <label class="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Month</label>
           <input
             v-model="filters.month"
             type="month"
             class="rounded-md border border-neutral-300 px-3 py-1.5 text-sm dark:border-neutral-600 dark:bg-neutral-700 dark:text-white"
           />
+        </div>
+
+        <div v-else class="flex flex-col gap-1">
+          <label class="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">As of Date</label>
+          <div class="relative">
+            <Calendar class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+            <input
+              v-model="filters.as_of_date"
+              type="date"
+              class="rounded-md border border-neutral-300 py-1.5 pl-9 pr-3 text-sm dark:border-neutral-600 dark:bg-neutral-700 dark:text-white"
+            />
+          </div>
         </div>
 
         <div v-if="showBranchFilter" class="flex flex-col gap-1">

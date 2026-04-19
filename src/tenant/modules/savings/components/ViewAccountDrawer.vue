@@ -6,6 +6,8 @@ import { toast } from 'vue-sonner'
 import InterestPostingHistory from './InterestPostingHistory.vue'
 import FdMaturityDrawer from './FdMaturityDrawer.vue'
 
+import { type SavingsAccount } from '../types'
+
 const props = defineProps<{
   currency: string
   formatBalance: (v: string | number) => string
@@ -18,7 +20,7 @@ const emit = defineEmits<{
 
 const open = ref(false)
 const loading = ref(false)
-const account = ref<Record<string, any> | null>(null)
+const account = ref<SavingsAccount | null>(null)
 
 const isFixedDeposit = computed(() => account.value?.account_type === 'fixed')
 
@@ -76,6 +78,7 @@ defineExpose({ openDrawer })
       <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="close"></div>
       <Transition name="drawer-slide">
         <aside
+          v-if="open"
           class="absolute right-0 top-0 h-full w-full max-w-[520px] bg-white shadow-2xl ring-1 ring-black/5 dark:bg-neutral-900"
           role="dialog"
           aria-label="View Savings Account"
@@ -226,7 +229,7 @@ defineExpose({ openDrawer })
                 class="rounded-full border border-neutral-300 px-5 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-colors dark:border-neutral-600 dark:text-neutral-300 dark:hover:bg-neutral-800">
                 Close
               </button>
-              <button v-if="account" type="button" @click="() => { close(); emit('editAccount', account) }"
+              <button v-if="account" type="button" @click="() => { close(); emit('editAccount', account!) }"
                 class="inline-flex items-center gap-2 rounded-full bg-nfuko-primary px-5 py-2 text-sm font-semibold text-white hover:bg-nfuko-primary/90 transition-colors">
                 <Pencil class="h-3.5 w-3.5" />
                 Edit Account

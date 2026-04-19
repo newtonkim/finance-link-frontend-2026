@@ -3,17 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { savingsAccountsApi } from '@/tenant/apis/savingsAccounts/savingsAccountsApi'
 import { useCurrencyStore } from '@/stores/currency'
 
-interface Posting {
-  id: number
-  period_start: string
-  period_end: string
-  principal: string
-  rate: string
-  interest_amount: string
-  payout_type: string
-  posted_by: number | null
-  created_at: string
-}
+import { type Posting } from '../types'
 
 const props = defineProps<{ accountId: number; currency: string }>()
 
