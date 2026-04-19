@@ -6,7 +6,6 @@ import { toast } from 'vue-sonner'
 
 interface Account { id: number; account_no: string; maturity_date: string | null }
 
-const props = defineProps<{ currency: string }>()
 const emit = defineEmits<{ success: [] }>()
 
 const open = ref(false)
@@ -74,10 +73,11 @@ defineExpose({ openDrawer })
   <Transition name="drawer-fade">
     <div v-if="open" class="fixed inset-0 z-50">
       <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="close" />
-      <aside
-        class="absolute right-0 top-0 h-full w-full max-w-[480px] bg-white shadow-2xl ring-1 ring-black/5 dark:bg-neutral-900"
-        role="dialog" aria-label="Process FD Maturity"
-      >
+      <Transition name="drawer-slide">
+        <aside
+          class="absolute right-0 top-0 h-full w-full max-w-[480px] bg-white shadow-2xl ring-1 ring-black/5 dark:bg-neutral-900"
+          role="dialog" aria-label="Process FD Maturity"
+        >
         <div class="flex h-full flex-col">
           <!-- Header -->
           <div class="flex items-center justify-between border-b border-neutral-200 px-6 py-4 dark:border-neutral-700">
@@ -139,6 +139,7 @@ defineExpose({ openDrawer })
           </div>
         </div>
       </aside>
+      </Transition>
     </div>
   </Transition>
 </template>
@@ -146,4 +147,6 @@ defineExpose({ openDrawer })
 <style scoped>
 .drawer-fade-enter-active, .drawer-fade-leave-active { transition: opacity 0.2s ease; }
 .drawer-fade-enter-from, .drawer-fade-leave-to { opacity: 0; }
+.drawer-slide-enter-active, .drawer-slide-leave-active { transition: transform 0.25s ease; }
+.drawer-slide-enter-from, .drawer-slide-leave-to { transform: translateX(100%); }
 </style>
