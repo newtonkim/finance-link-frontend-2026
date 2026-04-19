@@ -1,6 +1,9 @@
 <script setup>
 import { DetailsTable } from '@/Global'
+import { memberAccountApi } from '@/tenant/apis'
 import { onMounted, ref } from 'vue'
+const { completeMyTransfer } = memberAccountApi()
+const emits = defineEmits(['actionTaken'])
 const loading = ref(true), props = defineProps({
   data: {
     type: Object,
@@ -15,7 +18,6 @@ const columns = [
     list: [
       { key: 'code', label: 'code', copy: true, sticky: 'left' },
       { key: 'member_name', label: 'memeber name' },
-      // { key: 'status', label: 'status', type: 'status' },
       { key: 'total_transfer', label: 'transfer' },
       { key: 'account_balance', label: 'balance' },
       { key: 'transfer_to_product', label: 'to' },
@@ -34,6 +36,7 @@ const columns = [
       { key: 'transfer_amount', label: 'transfer', type: 'money' },
       { key: 'status', label: 'status', type: 'status' },
       { key: 'created_at', label: 'created at', type: 'dateTime', sticky: 'right' },
+      { key: 'actions', label: 'Actions', },
 
     ],
     list: [],
@@ -42,8 +45,8 @@ const columns = [
     header: 'Transfer Transactions',
     type: 'Table',
     column: [
-      { key: 'created_by', label: 'created by', sticky: 'left' },
       { key: 'reference', label: 'reference', sticky: 'left', copy: '1' },
+      { key: 'created_by', label: 'created by', width: '10em' },
       { key: 'from', label: 'from', sticky: 'left', copy: '1' },
       { key: 'to', label: 'to', sticky: 'left', copy: '1' },
       { key: 'transaction_date', label: 'transaction date', width: '10em' },
@@ -92,6 +95,14 @@ onMounted(async () => {
 <template>
   <div class="h-[83vh] overflow-y-scroll">
     <div v-if="loading">Loading...</div>
-    <DetailsTable v-else :data="data" :columns="columns" />
+    <DetailsTable v-else :data="data" :columns="columns">
+      <template #actions="{ item }">
+        <TabelActionButtons v-if="item?.status === 'pending'" title="Transfer" color="custom" @action="(v) => {
+          completeMyTransfer(item); emits('actionTaken')
+        }" />
+        <TabelActionButtons v-else title="Completed" color="success" icon="Check" />
+
+      </template>
+    </DetailsTable>
   </div>
 </template>

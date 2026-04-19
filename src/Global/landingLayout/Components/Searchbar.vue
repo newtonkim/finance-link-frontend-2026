@@ -23,8 +23,11 @@
          group-focus-within:opacity-100 group-focus-within:visible transition-all duration-200">
             <div v-for="col in removeActionInSupperseach" :key="col.key"
                 class="px-3 py-2 text-sm cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-800"
-                @click="selectColumn(col)">
-                {{ col.label }}
+                @click="selectColumn(col)"> 
+                <span   class="text-gray-600 cursor-pointer">
+                    {{ col.label }}
+                </span>
+                <!-- {{ col.label }} -->
             </div>
         </div>
         <div v-if="Object.keys(searchBy)?.length"
@@ -62,6 +65,8 @@ const inputValue = (data, type = "filter") => {
 };
 const removeColumn = (index) => {
     delete searchBy.value[index]
-    save({ search_by: searchBy.value, search_key: searchQuery.value }, 'search')
+    save({ search_by: searchBy.value, search_key: searchQuery.value, }, 'search')
 }
+ 
+ 
 </script>

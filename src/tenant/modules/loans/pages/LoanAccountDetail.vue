@@ -39,6 +39,8 @@ import LoanDocumentUploader from '../components/LoanDocumentUploader.vue'
 import RepayFromSavingsModal from '../components/RepayFromSavingsModal.vue'
 import LoanAuditTrail from '../components/LoanAuditTrail.vue'
 import { loansApi } from '@/tenant/apis/loans/loansApi'
+import LoanTopupModal from '../components/LoanTopupModal.vue'
+import LoanRescheduleModal from '../components/LoanRescheduleModal.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -419,6 +421,22 @@ async function handleSavingsRepaySubmit(data: {
     isPostingSavings.value = false
   }
 }
+
+const rescheduleModalRef = ref<any>(null)
+const topupModalRef = ref<any>(null)
+
+function handleTopup() {
+  if (topupModalRef.value) {
+    topupModalRef.value.show()
+  }
+}
+
+function handleReschedule() {
+  if (rescheduleModalRef.value) {
+    rescheduleModalRef.value.show()
+  }
+}
+
 const goBack = () => {
   if (window.history.length > 1) {
     router.back()
@@ -505,7 +523,32 @@ const goBack = () => {
               </div>
             </div>
           </div>
-          <div class="flex items-center gap-3"></div>
+          <div class="flex items-center gap-3">
+            <template v-if="['active', 'disbursed', 'running', 'arrears'].includes(loan.status)">
+              <DropdownMenu>
+                <DropdownMenuTrigger as-child>
+                  <button
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3.5 py-2 text-sm font-medium text-neutral-700 shadow-sm transition-colors hover:bg-neutral-50 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-white"
+                  >
+                    <span>Manage Loan</span>
+                    <ChevronDown class="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
+                  </button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align="end" class="w-48">
+                  <DropdownMenuItem class="flex items-center gap-2 cursor-pointer font-medium text-blue-600 dark:text-blue-400 focus:text-blue-700 focus:bg-blue-50 dark:focus:bg-blue-900/30" @click="handleTopup">
+                    <TrendingDown class="h-4 w-4 rotate-180" />
+                    <span>Loan Topup</span>
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuItem class="flex items-center gap-2 cursor-pointer" @click="handleReschedule">
+                    <Calendar class="h-4 w-4 text-neutral-500" />
+                    <span>Reschedule Loan</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </template>
+          </div>
         </div>
 
         <!-- Stat row -->
@@ -1648,4 +1691,7 @@ const goBack = () => {
     @close="showSavingsRepayModal = false"
     @submit="handleSavingsRepaySubmit"
   />
+
+  <LoanTopupModal ref="topupModalRef" :loan="loan" />
+  <LoanRescheduleModal ref="rescheduleModalRef" :loan="loan" />
 </template>

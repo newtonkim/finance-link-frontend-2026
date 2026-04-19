@@ -19,6 +19,7 @@ const props = defineProps<{
     options?: Option[];
     placeholder?: string;
     label?: string;
+    class?: string;
     error?: string;
     disabled?: boolean;
     remote?: boolean;
@@ -147,7 +148,7 @@ const inputClass =
 </script>
 
 <template>
-    <div ref="containerRef" class="relative w-full">
+    <div ref="containerRef" class="relative w-full" :class="[props?.class]">
         <div @click="toggleDropdown" :class="[
             inputClass,
             error ? 'border-red-500 focus-within:ring-red-500/10' : 'border-neutral-200 focus-within: border-nfuko-primary',

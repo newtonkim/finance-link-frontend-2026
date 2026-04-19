@@ -122,7 +122,7 @@ export const tenantRoutes: MenuRoutes[] = [
             // permissions: 'chart-of-accounts-module-link-view',
             showSideBar: true,
             component: () =>
-              import("@/tenant/modules/loans/pages/LoanApplicationsIndex.vue"),
+              import("@/tenant/modules/loans/Index.vue"),
           },
           {
             path: "Loan",

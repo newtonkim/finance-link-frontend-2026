@@ -13,6 +13,7 @@ const props = defineProps<{
     error?: string;
     showError?: boolean;
     htmlFor?: string;
+    class?: string;
 }>();
 </script>
 
@@ -22,6 +23,7 @@ const props = defineProps<{
             v-if="label"
             :for="htmlFor"
             class="mb-2 block text-sm font-medium text-neutral-900 dark:text-neutral-200"
+            :class="props?.class"
         >
             {{ label }}
             <span v-if="required" class="text-red-500">*</span>

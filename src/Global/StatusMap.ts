@@ -134,6 +134,10 @@ const marriageStatus = {
 
    
 const loanOptions = {
+ committee_voting: {
+    label: 'Voting',
+    className: 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 inline-flex items-center px-3 py-0 text-sm font-medium rounded-full ',
+  },
  draft: {
     label: 'Draft',
     className: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400 inline-flex items-center px-3 py-0 text-sm font-medium rounded-full ',

@@ -218,6 +218,8 @@ watch(
   () => drawer.value?.drawerOpen,
   (v) => {
     if (!v) {
+      formData.value = {};
+      // showFooter.value = false;
       automaticCreate.value = {};
       drawerTitle.value = "Create Tenant";
     }

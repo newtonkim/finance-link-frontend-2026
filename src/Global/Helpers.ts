@@ -442,6 +442,129 @@ export function formDataFormat(data: any) {
   return formData
 }
 
+export function companyHeader() {
+        const branding = getetSystemBranding()
+        // console.log(branding);
+        
+
+  const saccoName = branding?.sacco_name || 'Your Company Name';
+  const saccoTagline = branding?.tagline || '';
+  const logo = branding?.logo || null;
+
+  const generatedDate = new Date().toLocaleString();
+
+  return`
+    <table style="width:100%; border-bottom:1px solid #ddd; padding-bottom:15px; margin-bottom:20px; font-family: Arial, sans-serif;">
+      <tr>
+
+        <!-- Logo -->
+        <td style="width:120px; vertical-align:middle;">
+          ${
+            logo
+              ? `<img src="${logo}" style="max-height:80px; max-width:120px; object-fit:contain;" />`
+              : `
+              <div style="
+                width:120px;
+                height:80px;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                border:1px dashed #d1d5db;
+                background:#f3f4f6;
+                border-radius:6px;
+                font-size:12px;
+                color:#9ca3af;
+                font-weight:bold;
+              ">
+                ${saccoName.substring(0, 2).toUpperCase()}
+              </div>`
+          }
+        </td>
+
+        <!-- Spacer -->
+        <td style="width:10px;"></td>
+
+        <!-- Company Details -->
+        <td style="text-align:right; vertical-align:middle;">
+          <div style="font-size:20px; font-weight:bold; color:#111827;">
+            ${saccoName}
+          </div>
+
+          ${
+            saccoTagline
+              ? `<div style="font-size:12px; color:#6b7280; margin-top:4px; font-style:italic;">
+                  ${saccoTagline}
+                 </div>`
+              : ''
+          }
+
+          <div style="font-size:11px; color:#9ca3af; margin-top:6px;">
+            Generated on: ${generatedDate}
+          </div>
+        </td>
+
+      </tr>
+    </table>
+  `;
+}
+
+
+export function printElementId(IdElement = '') {
+        const cached = getetSystemBranding()
+
+    const getPrintElement = document.getElementById(IdElement);
+    console.log(cached);
+    
+    if (!getPrintElement) return;
+
+    const newWindow = window.open('', 'Print-Window');
+    if (!newWindow) return;
+
+    const clonedElement = getPrintElement.cloneNode(true) as HTMLElement;
+
+    const noPrintEls = clonedElement.querySelectorAll('.no-print');
+    noPrintEls.forEach(el => el.remove());
+
+    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+        .map(node => node.outerHTML)
+        .join('');
+
+    newWindow.document.open();
+    newWindow.document.write(`
+        <html>
+            <head>
+                <title>Print</title>
+                ${styles}
+                <style>
+                    @media print {
+                        body {
+                            margin: 0;
+                            padding: 0;
+                            width: 100%;
+                        }
+                    }
+
+                    @page {
+                        size: auto;
+                        margin: 10mm;
+                    }
+                </style>
+            </head>
+            <body>
+            ${companyHeader()}
+                ${clonedElement.outerHTML}
+            </body>
+        </html>
+    `);
+
+    newWindow.document.close();
+    newWindow.focus();
+
+    setTimeout(() => {
+        newWindow.print();
+        newWindow.close();
+    }, 500);
+}
 export type UseInitialsReturn = {
   getInitials: (fullName?: string) => string
 }

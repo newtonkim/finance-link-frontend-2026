@@ -11,7 +11,7 @@ import { failedUploads } from '.'
 
 const Store = pomPinia()
 
-// props
+// props 
 const props = defineProps({
     duplicatedBy: {
         type: Array as () => string[],
@@ -89,6 +89,8 @@ function handleFileChange(event: Event) {
 function handleDrop(event: DragEvent) {
     const file = event.dataTransfer?.files?.[0]
     if (file) readExcel(file)
+    usedFile.value = file
+
 }
 
 // read excel
@@ -188,7 +190,9 @@ async function submitImportData() {
                 for (const key in cleanRow) {
                     payload[`${key}[${index}]`] = cleanRow[key]
                 }
-            })
+            });
+           
+            
             collection = formDataFormat({
                 file: usedFile.value,
                 ...payload
@@ -198,14 +202,15 @@ async function submitImportData() {
             chunk.forEach((row, index) => {
                 delete row.actions
             })
-            const data= {
-                  file: usedFile.value,
-                collection: { rows: chunk }  
+            //  console.log(usedFile);
+            const data = {
+                file: usedFile.value,
+                collection: { rows: chunk }
             }
-            
-            if(i>1){ // send file once
+
+            if (i > 1) { // send file once
                 delete data.file
-                
+
             }
             collection = formDataFormat(data)
         }
@@ -219,7 +224,6 @@ async function submitImportData() {
                 reload: false,
                 state: props.url + "import-data",
                 url: createUrl(props.url, props.submitUrl ?? "import-data")
-                // url: createUrl(props.url, "import-data")
             },
             Store
         })
@@ -236,7 +240,7 @@ async function submitImportData() {
 
 <template>
     <div>
-        <div class="py-3 max-w-6xl mx-auto h-[80vh] bg-gray-50 dark:bg-gray-900 rounded-xl shadow-lg">
+        <div class="py-3 max-w-6xl mx-auto h-[80vh] bg-gray-50 dark:bg-gray-900 rounded-xl shadow-lg p-3">
 
             <h1 class="text-lg font-bold mb-4 text-center">
                 Excel Upload Table {{ submit }}
