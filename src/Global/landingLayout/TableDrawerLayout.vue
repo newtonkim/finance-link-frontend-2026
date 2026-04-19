@@ -17,7 +17,6 @@
                     <slot name="add-action" />
 
                 </span>
-
                 <span v-auth="haspermission('create')" v-else>
                     <button v-if="showAddButton" @click="createNewRecord"
                         class="justify-center  bg-nfuko-primary hover: bg-nfuko-primary/90 whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive  h-9 has-[>svg]:px-3 flex items-center gap-2 rounded-xl  px-4 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90 shadow-sm ">
@@ -49,7 +48,8 @@
                             :items="exportItems" @select="handleImport" />
                         <Imploading
                             v-if="printSizes?.length && (showTableAction == true || (Array.isArray(showTableAction) && showTableAction.includes('print')))"
-                            icon="Printer" :items="printItems?.length?printItems:sizePapers(printSizes ?? [])" @select="handlePrint" />
+                            icon="Printer" :items="printItems?.length ? printItems : sizePapers(printSizes ?? [])"
+                            @select="handlePrint" />
                         <div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2"></div>
                     </div>
                     <slot name="searchSideAction" />
@@ -76,17 +76,29 @@
         <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShooter2" v-model:open="drawerOpen"
             :title="drawerTitle" @save="saveDrawerData">
             <template #body>
+                <div id="print-container-drawer">
 
-                <div v-if="buttonTypeClicked == 'download-template'">
-                    <UploadTemplateColumn :defaults="importDefaults" :title="title" :data="provideDataTotheParent" />
+                    <div>
+                        <button v-if="printTable" @click="printDataInDrawer"
+                            class="  gap-1 px-5 absolute  rounded-md top-4 right-12 no-print bg-nfuko-primary-600  text-white text-sm font-medium  ">
+                            <Printer class="h-10 " />
+                            <span>Print</span>
+                        </button>
+                    </div>
+
+                    <div v-if="buttonTypeClicked == 'download-template'">
+                        <UploadTemplateColumn :defaults="importDefaults" :title="title"
+                            :data="provideDataTotheParent" />
+                    </div>
+                    <div v-else-if="buttonTypeClicked == 'import-data'">
+                        <uploadTemplateColumData :title="title" :url="url" />
+                    </div>
+                    <span v-else>
+                        <slot :data="provideDataTotheParent" name="drawer" :action="buttonTypeClicked"
+                            :submit="submitChanges" />
+                    </span>
                 </div>
-                <div v-else-if="buttonTypeClicked == 'import-data'">
-                    <uploadTemplateColumData :title="title" :url="url" />
-                </div>
-                <span v-else>
-                    <slot :data="provideDataTotheParent" name="drawer" :action="buttonTypeClicked"
-                        :submit="submitChanges" />
-                </span>
+
             </template>
         </Drawer>
     </div>
@@ -104,6 +116,7 @@ import { Imploading, UploadTemplateColumn, uploadTemplateColumData, sizePapers, 
 import Table from './Components/Table.vue';
 import useTableHelpers from './util/tableHelpers.ts';
 
+
 const props = defineProps({
     addButtonText: {
         type: Object,
@@ -117,7 +130,7 @@ const props = defineProps({
 
     },
     printItems: {
-        type: Array, 
+        type: Array,
         default: () => []
     },
     downloadItems: {
@@ -128,8 +141,8 @@ const props = defineProps({
     },
     exportItems: {
         type: Array, default: () => [
-            { label: "template", value: "template", route: "download-template" },
-            { label: "Import Data", value: "import", route: "import-data" },
+            { label: "template", value: "template", route: "download-template", drawer: true },
+            { label: "Import Data", value: "import", route: "import-data", drawer: true },
         ]
     },
     tableDetaultHeight: { type: String, default: 'h-[64vh]' },
@@ -146,6 +159,7 @@ const props = defineProps({
      * 
      * ***/
     automaticCreate: { type: Boolean, required: false, default: true },
+    printTable: { type: Boolean, required: false, default: false },
     data: {
         type: Object,
         required: false,
@@ -200,9 +214,10 @@ const { dataPageLinks,
     callNewPage,
     onSearch,
     save,
+    printDataInDrawer,
     // drawerTitle,
     drawerShooter2,
-    // drawerWidth,
+    drawerWidth,
     drawerOpen,
     toggleDrawer,
     filterDataByString,
@@ -235,3 +250,39 @@ defineExpose({
     refresh,
 })
 </script>
+
+<style>
+@media print {
+
+
+
+    /* Remove spacing from container */
+    #print-container-drawer {
+        width: 100vw;
+        margin: 0;
+        border: none !important;
+        padding: 0;
+    }
+
+
+}
+
+@media print {
+    .space-y-2 {
+        width: 100vw !important;
+        max-width: 100% !important;
+    }
+}
+
+@media print {
+    body {
+        font-size: 12px;
+    }
+
+    input,
+    textarea {
+        border: none !important;
+        background: rgb(108, 114, 116) !important;
+    }
+}
+</style>

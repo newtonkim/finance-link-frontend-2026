@@ -6,7 +6,7 @@ import MultiSearchableSelect from '@/Global/MultiSearchableSelect.vue'
 import PhoneInput from '@/Global/PhoneInput.vue';
 import FormField from '@/Global/FormField.vue';
 import MoneyInput from '@/Global/MoneyInput.vue';
-import { UserCircle2 } from 'lucide-vue-next';
+import { Printer, UserCircle2 } from 'lucide-vue-next';
 import { pomPinia } from 'septor-store';
 const Store = pomPinia();
 const props = defineProps<{
@@ -241,20 +241,22 @@ function shouldShowField(field: any) {
 </script>
 
 <template>
-    <div>
+    <div class="">
 
-        <div :class="(parentStyle || '') + ' space-y-2  '">
-
+        <div :class="(parentStyle || '') + ' space-y-2  print-container'">
             <template v-for="(field, index) in prfields" :key="index" class="pom ">
                 <template v-if="shouldShowField(field)">
                     <template v-if="field.group >= 0">
-                        <div class="capitalize">{{field?.label?.toLowerCase().replace(/^./, c => c.toUpperCase())}}
+                        <div  :class="[field?.class,'capitalize']">{{field?.label?.toLowerCase().replace(/^./, c =>
+                            c.toUpperCase())}}
                         </div>
                         <DynamicForm :parentStyle="getGridClass(field.group ?? field?.fields?.length)"
                             :form="field.fields" :action="field.action" @results="emits('results', $event)"
                             @field-changed="emits('field-changed', $event)" />
                     </template>
-                    <FormField v-else class="capitalize" :class="[field.hidden ? 'hidden' : '']"
+                <div v-else  :class="[field.hidden ? 'hidden' : '',field?.class]">
+
+                    <FormField  class="capitalize"
                         :label="field?.label?.toLowerCase().replace(/^./, c => c.toUpperCase())"
                         :required="field.required" :html-for="field.name" :error="field.error"
                         :showError="field?.showError">
@@ -265,7 +267,7 @@ function shouldShowField(field: any) {
                                 <div class="flex">
                                     <input :id="field.name" v-bind="field" v-model="field.value"
                                         class="rounded-xl cursor-pointer   hover:border-nfuko-primary-300 hover:bg-nfuko-primary-50 dark:hover:bg-neutral-800 transition group"
-                                        :class="[inputClass, field.suffix ? 'flex-1 rounded-xl rounded-r-none border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white' : '']"
+                                        :class="[inputClass, field?.class, field.suffix ? 'flex-1 rounded-xl rounded-r-none border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white' : '']"
                                         @input="() => field?.change && handleChange(field, index)" />
                                     <div v-if="field?.suffix"
                                         class="px-2 flex items-center bg-neutral-100 dark:bg-red-200 border border-l-0 rounded-xl rounded-l-none text-sm text-neutral-500 dark:text-neutral-400 font-medium">
@@ -277,30 +279,39 @@ function shouldShowField(field: any) {
                             <!-- Textarea -->
                             <template v-else-if="field.type === 'textarea'">
                                 <textarea :id="field.name" v-model="field.value"
-                                    :class="inputClass + ' resize-y min-h-[80px]'" v-bind="field.props ?? field"
+                                    :class="[inputClass, field?.class, 'resize-y min-h-[80px]']"
+                                    v-bind="field.props ?? field"
                                     @input="() => field?.change && handleChange(field, index)" />
                             </template>
 
                             <!-- Select -->
                             <template v-else-if="field.type === 'select'">
-                                <SearchableSelect v-model="field.value" :options="field.options || []"
+                                <SearchableSelect 
+                                :class="[field?.class]"
+                                v-model="field.value" :options="field.options || []"
                                     :placeholder="field?.placeholder || ''" v-model:item-selected="field.selected"
                                     @update:modelValue="() => handleChange(field, index)" v-bind="field" />
                             </template>
                             <template v-else-if="field.type === 'multi-select'">
-                                <MultiSearchableSelect v-model="field.value" :options="field.options || []"
+                                <MultiSearchableSelect
+                                :class="[field?.class]"
+                                 v-model="field.value" :options="field.options || []"
                                     :placeholder="field?.placeholder || ''" v-model:item-selected="field.selected"
                                     @update:modelValue="() => handleChange(field, index)" v-bind="field" />
                             </template>
                             <template v-else-if="field.type === 'nationality'">
-                                <SearchableSelect v-model="field.value" :options="field.options || nationalityOptions"
+                                <SearchableSelect
+                                :class="[field?.class]"
+                                 v-model="field.value" :options="field.options || nationalityOptions"
                                     :placeholder="field.props?.placeholder || ''" v-model:item-selected="field.selected"
                                     @update:modelValue="() => handleChange(field, index)" v-bind="field" />
                             </template>
 
                             <!-- Phone -->
                             <template v-else-if="field.type === 'phone'">
-                                <PhoneInput v-model="field.value" :placeholder="field.props?.placeholder || ''"
+                                <PhoneInput
+                                :BigClass="[field?.class]"
+                                 v-model="field.value" :placeholder="field.props?.placeholder || ''"
                                     @input="() => field?.change && handleChange(field, index)" v-bind="field" />
                             </template>
 
@@ -311,7 +322,7 @@ function shouldShowField(field: any) {
                                         class="px-2 flex items-center border-gray-300 bg-neutral-100 dark:bg-red-200 border border-l-0 rounded-xl rounded-r-none text-sm text-neutral-500 dark:text-neutral-400 font-medium">
                                         {{ field.suffix }}
                                     </div>
-                                    <MoneyInput :class="[field.suffix ? ' rounded-xl rounded-l-none ' : '']"
+                                    <MoneyInput :class="[field?.class, field.suffix ? ' rounded-xl rounded-l-none ' : '']"
                                         :id="field.name" v-model="field.value" :placeholder="field?.placeholder || ''"
                                         @input="() => field?.change && handleChange(field, index)" />
                                     <!-- {{ field.error }} -->
@@ -322,13 +333,13 @@ function shouldShowField(field: any) {
                             <!-- date -->
                             <template v-else-if="field.type === 'datec'">
 
-                                <DatePicker :id="field.name" v-model="field.value" v-bind="field"
+                                <DatePicker :id="field.name" v-model="field.value" v-bind="field" :class="[field?.class]"
                                     @input="() => field?.change && handleChange(field, index)" />
                             </template>
 
                             <!-- Avatar -->
                             <template v-else-if="['avatar', 'avatar2', 'profile'].includes(field.type)">
-                                <div class="flex items-center gap-4 mt-2">
+                                <div class="flex items-center gap-4 mt-2" :class="[field?.class]">
                                     <div
                                         class="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700">
                                         <img v-if="avatarPreviews[index] || field.value"
@@ -349,7 +360,7 @@ function shouldShowField(field: any) {
 
                             <!-- Default -->
                             <template v-else>
-                                <input type="text" v-model="field.value" :class="inputClass"
+                                <input type="text" v-model="field.value" :class="[field?.class, inputClass]"
                                     v-bind="field.props ?? field"
                                     class="rounded-xl cursor-pointer   hover:border-nfuko-primary-300 hover:bg-nfuko-primary-50 dark:hover:bg-neutral-800 transition group"
                                     @input="() => field?.change && handleChange(field, index)" />
@@ -359,6 +370,7 @@ function shouldShowField(field: any) {
 
 
                     </FormField>
+                </div>
                 </template>
             </template>
         </div>

@@ -1,12 +1,9 @@
 <template>
-  <TableDrawer ref="drawer"
-  :exportItems="exportItems"
-   :drawerShowFooter="false" :importDefaults="['id', 'branch_id', 'dob']" drawerWidth=" w-4/5"
-    :url="tableUrl" state="LoanApplicationslist" :drawerTitle="drawerTitle" :columns="columns" @save="saveUser"
-    :showTableAction="true">
+  <TableDrawer ref="drawer" :exportItems="exportItems" :drawerShowFooter="false" drawerWidth=" w-4/5" :url="tableUrl"
+    state="LoanApplicationslist" :drawerTitle="drawerTitle" :columns="columns" @save="saveUser" 
+    :showTableAction="['migrate']">
     <template #sub-header>
-      <LoanApplicationSummaryCards :list="Store?.LoanApplicationslist?.payload?.count_status"
-        :active-status="filters.status" @filter="filterByStatus" />
+      <SummaryCards :list="Store?.LoanApplicationslist?.payload?.count_status" />
     </template>
     <template #header-action>
       <div class="space-y-3">
@@ -24,9 +21,8 @@
       </CopyData>
     </template>
     <template #submitted_date="{ item }">
-      <div class="  rounded-full  px-2 py-0.5 font-medium w-full" :class="daysPendingClass(item?.submitted_date)">{{
-        (item.submitted_date > 0 ? item.submitted_date + " days" :
-          '-') }}
+      <div class="  rounded-full  px-2 py-0.5 font-medium w-full" :class="daysPendingClass(item?.submitted_date)">
+        {{ (item.submitted_date > 0 ? item.submitted_date + " days" : '-') }}
       </div>
     </template>
     <template #action="{ item }">
@@ -45,22 +41,27 @@
       <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
     </template>
     <template #drawer="{ action, data }">
-      <LoanApplicationCreate v-if="['add', 'edit'].includes(action)" :action="action" :data="data" @close="closeDrawer"
-        from="drawer" />
+      <uploadTemplateColumData upload-trick="row" v-if="['upload-loan-application-template',].includes(automaticCreate.actionSlot)
+      " :title="automaticCreate?.actionSlot" :url="`/loan-applications/${automaticCreate?.actionSlot}`"
+        :submit-url="automaticCreate.actionSlot" />
+
+      <ApplicationTemplateDrawer v-else-if="automaticCreate?.actionSlot === 'download-loan-application-template'"
+        :action="action" :data="data" from="drawer" />
+      <Create v-else :action="action" :data="data" from="drawer" />
     </template>
   </TableDrawer>
 </template>
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router';
-import LoanApplicationCreate from './LoanApplicationCreate.vue';
+import { Create, SummaryCards, ApplicationTemplateDrawer } from './';
 import { pomPinia } from 'septor-store';
-import LoanApplicationSummaryCards from '../components/LoanApplicationSummaryCards.vue';
+import { uploadTemplateColumData } from '@/Global';
 const Store = pomPinia();
 const router = useRouter();
 const statusFilter = ref('all'),
- drawer = ref('all'),
- automaticCreate = ref<any>({}),
+  drawer = ref('all'),
+  automaticCreate = ref<any>({}),
   drawerTitle = ref('Create Tenant'), filters = ['all', 'Submitted', 'Draft', 'Disbursed', 'Approved', 'committee_voting'],
   tableUrl = computed(() => `/loan-applications/list?status=${statusFilter.value}`),
   title: Record<string, string> = {
@@ -75,7 +76,8 @@ const emit = defineEmits<{
   approve: [app: any]
   decline: [app: any]
   reopen: [id: number]
-}>()
+}>();
+
 const columns = [
   { key: 'application_code', label: 'Application Code', sticky: 'left', width: '14em', copy: true },
   { key: 'member_name', label: 'Name', },
@@ -97,26 +99,42 @@ function daysPendingClass(days: number) {
   if (days >= 4) return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
   return 'text-neutral-500 dark:text-neutral-400'
 }
-const  exportItems = ref([
-    {
-      label: "Download Loan Template",
-      action: (vl) => {
-        automaticCreate.value = {
-          actionSlot: "download-loan-application-template",
-          item: vl,
-        };
-        OpenThedrawer(vl, "download-loan-application-template");
-      },
+const exportItems = ref([
+  {
+    label: "Download Loan Template",
+    action: (vl) => {
+      automaticCreate.value = {
+        actionSlot: "download-loan-application-template",
+        item: vl,
+      };
+      OpenThedrawer(vl, "download-loan-application-template");
     },
-  ]);
-function OpenThedrawer(item: any, action = "deposit") {
+  },
+  {
+    label: "Upload Loan Template",
+    action: (vl) => {
+      automaticCreate.value = {
+        actionSlot: "upload-loan-application-template",
+        item: vl,
+      };
+      OpenThedrawer(vl, "upload-loan-application-template");
+    },
+  },
+]);
+function OpenThedrawer(item: any, action = "") {
   automaticCreate.value = { actionSlot: action, ...item };
-  // showFooter.value = ["withdrawal", "deposit"].includes(action);
-  //   showFooter.value = ["withdrawal", "deposit"].includes(action);
-  // drawerTitle.value = title?.[action];
+  drawerTitle.value = item?.label;
   setTimeout(() => {
     drawer.value.toggleDrawer();
   }, 100);
 }
+watch(
+  () => drawer.value?.drawerOpen,
+  (v) => {
+    if (!v) {
+      automaticCreate.value = {};
+    }
+  }
+);
 
 </script>

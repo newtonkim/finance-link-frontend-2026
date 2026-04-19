@@ -1,4 +1,4 @@
-import { feedback, fetchTableData, formDataFormatV2 ,Confirm} from '@/Global'
+import { feedback, fetchTableData, formDataFormatV2, Confirm } from '@/Global'
 import { notify } from '@/Global/Toasters'
 import { pomPinia } from 'septor-store'
 export function memberAccountApi() {
@@ -25,7 +25,7 @@ export function memberAccountApi() {
       props: {
         url: 'members-account/create',
         method: 'post',
-      time: 0,
+        time: 0,
         state: 'memberAccountList',
       },
     })
@@ -35,24 +35,52 @@ export function memberAccountApi() {
     }
     return false
   }
-  async function memebrAccountReversalAmount(data: any, ) {
-    console.log(data);
-     Confirm({title:"Transaction reversal" ,des:(`Are you sure this will effect the account ${data?.charge_reversal?data.charge:data.amount}`) ,type:'delete', confirm: async() => {
-
-       const getCharges = await fetchTableData({
-         data: data,
-         Store,
-         saveData: true,
-         props: {
-           url: 'members-account/reversal',
-           method: 'post',
-           time: 0,
-           state: 'memberAccountList',
-         },
-       })
-       feedback(getCharges, 'withdrawal amount  successfully')
-       return true
- }, cancel: () => {} })
+  async function completeMyTransfer(data: any) {
+    Confirm({
+      title: 'Transfer complete',
+      des: `Are you sure `,
+      type: 'delete',
+      confirm: async () => {
+        const getCharges = await fetchTableData({
+          data: data,
+          Store,
+          saveData: true,
+          props: {
+            url: 'members-account/complete-transfer',
+            method: 'post',
+            time: 0,
+            state: 'transferList',
+          },
+        })
+        feedback(getCharges, 'withdrawal amount  successfully')
+        return true
+      },
+      cancel: () => {},
+    })
+  }
+  async function memebrAccountReversalAmount(data: any) {
+    // console.log(data)
+    Confirm({
+      title: 'Transaction reversal',
+      des: `Are you sure this will effect the account ${data?.charge_reversal ? data.charge : data.amount}`,
+      type: 'delete',
+      confirm: async () => {
+        const getCharges = await fetchTableData({
+          data: data,
+          Store,
+          saveData: true,
+          props: {
+            url: 'members-account/reversal',
+            method: 'post',
+            time: 0,
+            state: 'memberAccountList',
+          },
+        })
+        feedback(getCharges, 'withdrawal amount  successfully')
+        return true
+      },
+      cancel: () => {},
+    })
   }
   async function memberAccountWithdrawalAmount(data: any, outletAction: any) {
     const dataPrepare = data
@@ -95,8 +123,9 @@ export function memberAccountApi() {
   }
 
   return {
-    getProductCharges,
-    memberAccountDepositAmount,memebrAccountReversalAmount,
+    getProductCharges,completeMyTransfer,
+    memberAccountDepositAmount,
+    memebrAccountReversalAmount,
     memberAccountWithdrawalAmount,
   }
 }

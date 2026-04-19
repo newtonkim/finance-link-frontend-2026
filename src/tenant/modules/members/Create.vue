@@ -25,26 +25,8 @@ const fields = ref([
     name: 'member_type',
     type: 'select',
     required: true,
-    placeholder: 'Search member type',
-    // change: (value: any, field: any, index: number) => {
-    //   const existsIndex = fields.value.findIndex(f => f.name === 'member_id')
-    //   if (value === 'existing_member') {
-    //     if (existsIndex === -1) {
-    //       fields.value.splice(index + 1, 0, {
-    //         label: 'products',
-    //         name: 'product_id',
-    //         type: 'select',
-    //         required: true,
-    //         placeholder: 'Search products',
-    //         url: "global/savings-products",
-    //       });
-    //     }
-    //   } else {
-    //     if (existsIndex !== -1) {
-    //       fields.value.splice(existsIndex, 1);
-    //     }
-    //   }
-    // },
+    placeholder: 'Search member type', 
+    class:"no-print",
 
     options: OptionList.memberTypeOptions
   },
@@ -207,6 +189,7 @@ const fields = ref([
     type: 'profile',
     required: false,
     placeholder: 'Enter prifile picture',
+    class:"no-print"
   },
   {
     label: 'Next of Kin',
@@ -288,7 +271,7 @@ onMounted(() => {
 })
 </script>
 <template>
-  <div class="card shadow-md p-4 py-10 bg-white dark:bg-neutral-800 rounded-md h-[86vh] overflow-y-auto">
+  <div class="card shadow-md p-4 py-10 bg-white dark:bg-neutral-800 rounded-md h -[86vh] over flow-y-auto">
     <span v-if='loadingMount'></span>
     <Form :action="data?.action" v-else parentStyle="grid  grid-cols-2 gap-4 md:gap-6" v-model:form="fields" />
     <div v-setting='"sacco-share-on-member-creation-create-share-account-at-the-same-time"'

@@ -17,6 +17,7 @@ const props = defineProps<{
     disabled?: boolean;
     inputClass?: string;
     containerClass?: string;
+    BigClass?: string;
     countryButtonClass?: string;
 }>();
 
@@ -166,7 +167,7 @@ onUnmounted(() => window.removeEventListener('click', closeDropdown));
 </script>
 
 <template>
-    <div ref="containerRef" :class="['flex gap-2 relative', containerClass]">
+    <div ref="containerRef" :class="['flex gap-2 relative', containerClass,BigClass]">
         <!-- Country Code Selector -->
         <div clas s="relative w-full">
             <button type="button" @click.stop="toggleDropdown" :class="[

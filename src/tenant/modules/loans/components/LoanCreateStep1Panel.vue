@@ -101,7 +101,10 @@ const { formatAmount } = useLoanApplicationHelpers()
               :options="memberOptions"
               placeholder="Search for a member..."
               :error="fieldError('member_id') ?? undefined"
-              @update:itemSelected="emit('selectMember', $event)"
+              @update:itemSelected="(v)=>{
+                form.member_details = v
+                emit('selectMember', v)
+              }"
             >
               <template #option="{ option }">
                 <div class="flex flex-col py-0.5">
@@ -132,7 +135,11 @@ const { formatAmount } = useLoanApplicationHelpers()
               :options="productOptions"
               placeholder="Choose a loan product..."
               :error="fieldError('loan_product_id') ?? undefined"
-              @update:itemSelected="emit('selectProduct', $event)"
+              
+              @update:itemSelected="(v)=>{
+                form.loan_product_details = v
+                emit('selectProduct', v)
+                }"
             />
           </div>
           <!-- Branch -->
@@ -143,6 +150,8 @@ const { formatAmount } = useLoanApplicationHelpers()
             <SearchableSelect
               v-model="form.branch_id"
               :options="branches"
+          @update:item-selected="(v)=>form.branch_name = v.name"
+
               placeholder="Select a branch..."
               :error="fieldError('branch_id') ?? undefined"
             />
@@ -205,6 +214,7 @@ const { formatAmount } = useLoanApplicationHelpers()
           v-model="form.loan_officer_id"
           :options="staffOptions"
           placeholder="Select loan officer..."
+          @update:item-selected="(v)=>form.loan_officer_name = v.name"
           :error="fieldError('loan_officer_id') ?? undefined"
         />
       </div>

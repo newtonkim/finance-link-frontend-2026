@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import {  Star } from 'lucide-vue-next';
+import { Star } from 'lucide-vue-next';
 import { formatCurrency, NameInitials } from '@/Global';
 const props = defineProps<{
     data: Record<string, any>;
@@ -8,12 +8,9 @@ const props = defineProps<{
     computedAge: string;
     uploadProcessing: boolean;
     formatDate: (d?: string) => string;
-}>();
-
-
-const emit = defineEmits<{
+}>(), emit = defineEmits<{
     avatarClick: [];
-}>(); 
+}>();
 const quickInfo = computed(() => [
     {
         label: "code",

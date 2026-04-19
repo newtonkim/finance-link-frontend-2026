@@ -78,7 +78,7 @@ watch(() => props.modelValue, (newVal) => {
 </script>
 
 <template>
-    <div class="relative w-full">
+    <div class="relative w-full" :class="props.class">
         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500 font-medium text-sm">
             {{ currencyCode }}
         </span>

@@ -1,93 +1,80 @@
 <script setup lang="ts">
+import { statusMap } from '@/Global';
 import { ClipboardList, Clock, FileSearch, FileWarning, ThumbsUp, HandCoins } from 'lucide-vue-next'
 
-defineProps<{
-    summary: {
-        total_active: number
-        submitted: number
-        under_review: number
-        awaiting_documents: number
-        recommended: number
-        approved: number
-    }
-    activeStatus: string
+const props = defineProps<{
+  list: any[]
+  activeStatus: string
 }>()
 
 const emit = defineEmits<{ filter: [status: string] }>()
+const statusConfig: Record<string, any> = {
+  active: {
+    label: 'Active',
+    icon: ClipboardList,
+    classes: 'border-neutral-100 bg-white text-neutral-900',
+    ring: 'ring-nfuko-primary'
+  },
+  submitted: {
+    label: 'Submitted',
+    icon: Clock,
+    classes: 'border-blue-100 bg-blue-50 text-blue-700',
+    ring: 'ring-blue-500'
+  },
+  approved: {
+    label: 'Approved',
+    icon: HandCoins,
+    classes: 'border-green-100 bg-green-50 text-green-700',
+    ring: 'ring-green-500'
+  },
+  draft: {
+    label: 'Draft',
+    icon: FileWarning,
+    classes: 'border-gray-100 bg-gray-50 text-gray-700',
+    ring: 'ring-gray-500'
+  },
+  committee_voting: {
+    label: 'Committee Voting',
+    icon: ThumbsUp,
+    classes: 'border-purple-100 bg-purple-50 text-purple-700',
+    ring: 'ring-purple-500'
+  },
+  disbursed: {
+    label: 'Disbursed',
+    icon: FileSearch,
+    classes: 'border-amber-100 bg-amber-50 text-amber-700',
+    ring: 'ring-amber-500'
+  }
+}
 </script>
 
 <template>
-    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <button
-            class="group flex flex-col gap-1.5 rounded-2xl border border-neutral-100 bg-white p-4 shadow-sm transition-colors hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-600"
-            :class="activeStatus === '' ? 'ring-2 ring-nfuko-primary dark:ring-bg-nfuko-yellow' : ''"
-            @click="emit('filter', '')"
-        >
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-medium text-neutral-500 dark:text-neutral-400">Active</span>
-                <ClipboardList class="h-4 w-4 text-neutral-400 dark:text-neutral-500" />
-            </div>
-            <span class="text-2xl font-bold text-neutral-900 dark:text-white">{{ summary.total_active }}</span>
-        </button>
+  <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+    <button
+      v-for="summary in list"
+      :key="summary.status"
+      class="group flex flex-col gap-1.5 rounded-2xl border p-4 shadow-sm transition-colors hover:border-neutral-300"
+      :class="[
+        statusConfig[summary.status]?.classes,
+        activeStatus === summary.status ? `ring-2 ${statusConfig[summary.status]?.ring}` : ''
+      ]"
+      @click="emit('filter', summary.status)"
+    >
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-medium">
+          {{ statusMap[summary.status].label }}
+        </span>
 
-        <button
-            class="group flex flex-col gap-1.5 rounded-2xl border border-blue-100 bg-blue-50 p-4 shadow-sm transition-colors hover:border-blue-300 dark:border-blue-900/50 dark:bg-blue-900/20 dark:hover:border-blue-700"
-            :class="activeStatus === 'submitted' ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''"
-            @click="emit('filter', 'submitted')"
-        >
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-medium text-blue-600 dark:text-blue-400">Submitted</span>
-                <Clock class="h-4 w-4 text-blue-400 dark:text-blue-500" />
-            </div>
-            <span class="text-2xl font-bold text-blue-700 dark:text-blue-300">{{ summary.submitted }}</span>
-        </button>
+        <component
+          :is="statusConfig[summary.status]?.icon"
+          class="h-4 w-4 opacity-70"
+        />
+      </div>
 
-        <button
-            class="group flex flex-col gap-1.5 rounded-2xl border border-amber-100 bg-amber-50 p-4 shadow-sm transition-colors hover:border-amber-300 dark:border-amber-900/50 dark:bg-amber-900/20 dark:hover:border-amber-700"
-            :class="activeStatus === 'under_review' ? 'ring-2 ring-amber-500 dark:ring-amber-400' : ''"
-            @click="emit('filter', 'under_review')"
-        >
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-medium text-amber-600 dark:text-amber-400">Under Review</span>
-                <FileSearch class="h-4 w-4 text-amber-400 dark:text-amber-500" />
-            </div>
-            <span class="text-2xl font-bold text-amber-700 dark:text-amber-300">{{ summary.under_review }}</span>
-        </button>
+      <span class="text-2xl font-bold">
+        {{ summary.total }}
+      </span>
+    </button>
 
-        <button
-            class="group flex flex-col gap-1.5 rounded-2xl border border-orange-100 bg-orange-50 p-4 shadow-sm transition-colors hover:border-orange-300 dark:border-orange-900/50 dark:bg-orange-900/20 dark:hover:border-orange-700"
-            :class="activeStatus === 'awaiting_documents' ? 'ring-2 ring-orange-500 dark:ring-orange-400' : ''"
-            @click="emit('filter', 'awaiting_documents')"
-        >
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-medium text-orange-600 dark:text-orange-400">Awaiting Docs</span>
-                <FileWarning class="h-4 w-4 text-orange-400 dark:text-orange-500" />
-            </div>
-            <span class="text-2xl font-bold text-orange-700 dark:text-orange-300">{{ summary.awaiting_documents }}</span>
-        </button>
-
-        <button
-            class="group flex flex-col gap-1.5 rounded-2xl border border-purple-100 bg-purple-50 p-4 shadow-sm transition-colors hover:border-purple-300 dark:border-purple-900/50 dark:bg-purple-900/20 dark:hover:border-purple-700"
-            :class="activeStatus === 'recommended' ? 'ring-2 ring-purple-500 dark:ring-purple-400' : ''"
-            @click="emit('filter', 'recommended')"
-        >
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-medium text-purple-600 dark:text-purple-400">Pending Approval</span>
-                <ThumbsUp class="h-4 w-4 text-purple-400 dark:text-purple-500" />
-            </div>
-            <span class="text-2xl font-bold text-purple-700 dark:text-purple-300">{{ summary.recommended }}</span>
-        </button>
-
-        <button
-            class="group flex flex-col gap-1.5 rounded-2xl border border-green-100 bg-green-50 p-4 shadow-sm transition-colors hover:border-green-300 dark:border-green-900/50 dark:bg-green-900/20 dark:hover:border-green-700"
-            :class="activeStatus === 'approved' ? 'ring-2 ring-green-500 dark:ring-green-400' : ''"
-            @click="emit('filter', 'approved')"
-        >
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-medium text-green-600 dark:text-green-400">Approved</span>
-                <HandCoins class="h-4 w-4 text-green-400 dark:text-green-500" />
-            </div>
-            <span class="text-2xl font-bold text-green-700 dark:text-green-300">{{ summary.approved }}</span>
-        </button>
-    </div>
+  </div>
 </template>

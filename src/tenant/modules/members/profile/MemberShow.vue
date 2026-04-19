@@ -282,7 +282,7 @@ const columns = [
         <CustomFeeDrawer ref="customFeeDrawer" :currency-code="currencyCode" @success="fetchMember(true)" />
 
         <!-- Transaction Reversal Dialog -->
-        <Teleport to="body">
+        <!-- <Teleport to="body">
             <Transition name="fade">
                 <div v-if="showTxnDeleteDialog" class="fixed inset-0 z-50 flex items-center justify-center">
                     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showTxnDeleteDialog = false">
@@ -324,7 +324,7 @@ const columns = [
                     </div>
                 </div>
             </Transition>
-        </Teleport>
+        </Teleport> -->
     </div>
 
     <!-- Printable Receipt -->

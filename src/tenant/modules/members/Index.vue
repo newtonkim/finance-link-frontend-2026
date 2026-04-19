@@ -1,5 +1,7 @@
 <template>
-    <TableDrawer :importDefaults="['id', 'branch_id', 'dob']" drawerWidth=" w-2/3" :url="tableUrl" state="memberList"
+    <TableDrawer 
+    :printTable="true"
+    :importDefaults="['id', 'branch_id', 'dob']" drawerWidth=" w-2/3" :url="tableUrl" state="memberList"
         :drawerTitle="drawerTitle" :columns="columns" @save="saveUser" :showTableAction="true">
         <template #header-action>
             <div>

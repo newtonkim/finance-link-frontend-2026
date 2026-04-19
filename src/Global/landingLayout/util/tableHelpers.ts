@@ -1,6 +1,6 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { Plus } from 'lucide-vue-next'
-import { formDataFormatV2, createUrl, feedback, printElement, downloadFile } from '@/Global'
+import { formDataFormatV2, createUrl, feedback, printElement, downloadFile, printElementId } from '@/Global'
 import { pomPinia } from 'septor-store'
 import { ACTION_CONFIG, dataTabelFilter, fetchTableData } from './index'
 export default function useTableHelpers(props: any, emit: any) {
@@ -38,10 +38,9 @@ export default function useTableHelpers(props: any, emit: any) {
     if (values.value) {
       const res = await fetchTableData({
         data: {
-
           page: currentPage.value,
           scale: values.value,
-          ...values
+          ...values,
         },
         props: {
           ...props,
@@ -52,22 +51,35 @@ export default function useTableHelpers(props: any, emit: any) {
       })
       const response = feedback(res)
       if (response.success || response.res) {
-        printElement(response.res.payload??response.res, { size: values.value, orientation: 'landscape' })
+        printElement(response.res.payload ?? response.res, {
+          size: values.value,
+          orientation: 'landscape',
+        })
       }
       // window.print();
     }
   }
   async function handleDownload(item: any) {
-    if(item?.url){
-      downloadFile({Store,customUrl: item?.url, data: { ...item, page: currentPage.value, search_keyword: searchQuery.value }, Action: 'download', type: item.value})
-
-    }
-    else if (item.action) {
+    if (item?.url) {
+      downloadFile({
+        Store,
+        customUrl: item?.url,
+        data: { ...item, page: currentPage.value, search_keyword: searchQuery.value },
+        Action: 'download',
+        type: item.value,
+      })
+    } else if (item.action) {
       buttonTypeClicked.value = item.value
       item.action(item)
       return
     } else {
-      downloadFile({Store,url: createUrl(props.url, item.route, 'download'), data: { ...item, page: currentPage.value, search_keyword: searchQuery.value }, Action: 'download', type: item.value})
+      downloadFile({
+        Store,
+        url: createUrl(props.url, item.route, 'download'),
+        data: { ...item, page: currentPage.value, search_keyword: searchQuery.value },
+        Action: 'download',
+        type: item.value,
+      })
     }
   }
   function handleImport(item: any) {
@@ -75,25 +87,25 @@ export default function useTableHelpers(props: any, emit: any) {
       buttonTypeClicked.value = item.value
       item.action(item)
       return
-    } else handleTableAction(null, item.route,false)
+    } else handleTableAction(null, item.route, item?.drawer)
+    // else handleTableAction(null, item.route,false)
   }
 
   // const title
 
-  async function handleTableAction(item: any, action: string,drawer = true) {
+  async function handleTableAction(item: any, action: string, drawer = true) {
+    // alert()
     drawerWidth.value = 'w-2/4'
     if (action == 'import-data') {
       finalSubmitAction.value = 'import-data'
       drawerTitle.value = 'import data'
     } else {
-
-       
       const res = await fetchTableData({
         data: { ...item, page: currentPage.value, search_keyword: searchQuery.value },
         props: {
           ...props,
           reload: false, // dont refectch data
-        //   reload: false, // dont refectch data
+          //   reload: false, // dont refectch data
           state: props.url + '_' + action,
           url: createUrl(props.url, action),
         },
@@ -103,14 +115,13 @@ export default function useTableHelpers(props: any, emit: any) {
       provideDataTotheParent.value = res?.payload ?? res
     }
     buttonTypeClicked.value = action
-    if(drawer)
-   toggleDrawer()
+    if (drawer) toggleDrawer()
     drawerShooter2.value = false
   }
 
   const toggleDrawer = () => {
     // console.log(  drawerOpen.value );
-    
+
     drawerOpen.value = !drawerOpen.value
     if (drawerOpen.value) {
       //////
@@ -140,74 +151,72 @@ export default function useTableHelpers(props: any, emit: any) {
 
   async function automaticCreateFun(data) {
     // console.log(props.automaticCreate,"props.automaticCreate");
-    
-    // if (props.automaticCreate) {
-      // const data = Store.currentFormValues
-      let customeUrl = props?.actionSlot ?? props?.outerlinks?.['create'] ?? 'create'
-      if (props?.actionSlot) {
-        customeUrl = props?.actionSlot
-      } else if (props?.outerlinks?.['create']) {
-        customeUrl = props.outerlinks['create']
-      } else {
-        customeUrl = 'create'
-      }
-      const formDataScoping: any = formDataFormatV2(data)
-      const res = await fetchTableData({
-        data: formDataScoping,
-        props: {
-          ...props,
-          state: props?.state + '_' + customeUrl,
-          url: createUrl(props?.url, customeUrl),
-        },
-        Store,
-      })
-      const response = feedback(res)
-    //   console.log(response);
-      
 
-      if (response.success) {
-        Store[props?.state] = res
-        toggleDrawer()
-        setTimeout(() => {
-          submitChanges.value = false
-        }, 2000)
-        // setTimeout(() => {
-        //   toggleDrawer()
-        // }, 100) //  to make sure the drawer is cleaned
-        Store.currentFormValues = {}
-        // alert(buttonTypeClicked.value)
-        buttonTypeClicked.value = buttonTypeClicked.value
-        return true
-      }
-      return false
+    // if (props.automaticCreate) {
+    // const data = Store.currentFormValues
+    let customeUrl = props?.actionSlot ?? props?.outerlinks?.['create'] ?? 'create'
+    if (props?.actionSlot) {
+      customeUrl = props?.actionSlot
+    } else if (props?.outerlinks?.['create']) {
+      customeUrl = props.outerlinks['create']
+    } else {
+      customeUrl = 'create'
+    }
+    const formDataScoping: any = formDataFormatV2(data)
+    const res = await fetchTableData({
+      data: formDataScoping,
+      props: {
+        ...props,
+        state: props?.state + '_' + customeUrl,
+        url: createUrl(props?.url, customeUrl),
+      },
+      Store,
+    })
+    const response = feedback(res)
+    //   console.log(response);
+
+    if (response.success) {
+      Store[props?.state] = res
+      toggleDrawer()
+      setTimeout(() => {
+        submitChanges.value = false
+      }, 2000)
+      // setTimeout(() => {
+      //   toggleDrawer()
+      // }, 100) //  to make sure the drawer is cleaned
+      Store.currentFormValues = {}
+      // alert(buttonTypeClicked.value)
+      buttonTypeClicked.value = buttonTypeClicked.value
+      return true
+    }
+    return false
     // }
   }
   async function saveDrawerData(data: any) {
     // alert()
     Store.isFormSubmitted = true
     const AnyErrorsFoundInTheFOrm = Store.AnyErrorsFoundInTheFOrm
-       const formdata = Store.currentFormValues
+    const formdata = Store.currentFormValues
 
     // if (AnyErrorsFoundInTheFOrm == undefined) {
 
     // } else
     if (AnyErrorsFoundInTheFOrm) {
     } else {
-        
       if (props.automaticCreate) {
         await automaticCreateFun(formdata)
-        // no matter what stop  here 
-       
+        // no matter what stop  here
+
         return
       } else if (finalSubmitAction.value == 'import-data') {
         return
       }
-    //   console.log(data, '====2');
+      //   console.log(data, '====2');
 
       save(formdata, finalSubmitAction.value ?? 'create')
       // save(data, finalSubmitAction.value ?? 'create')
       buttonTypeClicked.value = buttonTypeClicked.value
-// alert()
+      // alert()
       // setTimeout(() => {
       //   submitChanges.value = false
       // }, 2000)
@@ -243,7 +252,7 @@ export default function useTableHelpers(props: any, emit: any) {
       })
     } else if (['edit', 'view'].includes(action)) {
       DrawerMounted.value = false
-    //   alert()
+      //   alert()
       if (fn) fn(item)
       toggleDrawer() // open the drawer on this action clicked
       if (props?.state && props?.url && ['edit', 'view'].includes(action)) {
@@ -309,7 +318,7 @@ export default function useTableHelpers(props: any, emit: any) {
       : null) ??
       props.data ?? { data: [] }
 
-    return dataTabelFilter(collection?.data??collection, searchQuery.value)
+    return dataTabelFilter(collection?.data ?? collection, searchQuery.value)
   })
   const dataPageLinks = computed(() => {
     return (
@@ -330,23 +339,25 @@ export default function useTableHelpers(props: any, emit: any) {
       callOnmount()
     },
   )
-//   watch(
-//     () =>  props.drawerShowFooter,
-//     (vl) => {
-//         // alert(vl)
-//     drawerShooter2.value = vl
-//     },
-//   )
+  //   watch(
+  //     () =>  props.drawerShowFooter,
+  //     (vl) => {
+  //         // alert(vl)
+  //     drawerShooter2.value = vl
+  //     },
+  //   )
   watch(
     () => drawerOpen.value,
     (v) => {
       drawerTitle.value = props.drawerTitle
-      drawerShooter2.value = props.drawerShowFooter
       drawerWidth.value = props.drawerWidth
+      if (drawerShooter2.value == null) {
+       
+        drawerShooter2.value = props.drawerShowFooter}
       if (!v) {
         //reset the drawer data when the drawer is closed
         provideDataTotheParent.value = null
-        // drawerShooter2.value = null
+        drawerShooter2.value = null
         // buttonTypeClicked.value = null
         // drawerWidth.value = null
       }
@@ -354,6 +365,8 @@ export default function useTableHelpers(props: any, emit: any) {
   )
   function callOnmount() {
     if (props?.state && props?.url) fetchTableData({ data: null, props, Store })
+      drawerShooter2.value = props.drawerShowFooter
+    
   }
 
   function refresh() {
@@ -364,9 +377,12 @@ export default function useTableHelpers(props: any, emit: any) {
   function haspermission(permission = '') {
     return props.permissions?.[permission]
   }
+  function printDataInDrawer() {
+    printElementId('print-container-drawer', { size: 'A4', orientation: 'landscape' })
+  }
 
   return {
-    dataPageLinks,
+    dataPageLinks,printDataInDrawer,
     submitChanges,
     dataFilter,
     handleAction,
