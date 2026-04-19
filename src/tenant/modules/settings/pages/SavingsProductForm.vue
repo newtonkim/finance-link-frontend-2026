@@ -5,6 +5,9 @@ import { savingsProductsApi, type SavingsProduct, type Charge } from '../../../a
 import { toast } from 'vue-sonner'
 import { useRoute, useRouter } from 'vue-router'
 import { useCurrencyStore } from '@/stores/currency'
+import FdSettingsCard from '../components/FdSettingsCard.vue'
+import { useProductFormSupport } from '../composables/useProductFormSupport'
+import { useMonthlyFeeSummary } from '../composables/useMonthlyFeeSummary'
 
 const route = useRoute()
 const router = useRouter()
@@ -15,6 +18,7 @@ const isEditing = computed(() => route.params.id !== undefined)
 const loading = ref(false)
 const saving = ref(false)
 const selectedChargeTab = ref<Charge['type']>('deposit')
+const { chartAccounts, savingsProductList, loadSupportingData } = useProductFormSupport()
 
 const form = ref<SavingsProduct>({
     name: '',
@@ -33,7 +37,16 @@ const form = ref<SavingsProduct>({
     loyalty_fee_enabled: false,
     loyalty_adjustment_type: 'discount_percentage',
     loyalty_adjustment_value: null,
-    charges: []
+    charges: [],
+    // FD fields (ignored by backend for standard products)
+    interest_rate: null,
+    interest_payout_type: 'at_maturity' as const,
+    interest_posting_frequency: 'monthly' as const,
+    default_tenor_months: 6,
+    maturity_action: 'manual' as const,
+    convert_to_product_id: null,
+    interest_expense_account_id: null,
+    interest_payable_account_id: null,
 })
 
 const loadProduct = async () => {
@@ -59,6 +72,7 @@ const loadProduct = async () => {
 
 onMounted(() => {
     loadProduct()
+    loadSupportingData()
 })
 
 const normalizeNumberInput = (value: number | string | null | undefined) => {
@@ -156,39 +170,7 @@ const saveProduct = async () => {
     }
 }
 
-const formatFee = (value: number | string | null | undefined, type: 'percentage' | 'amount' | null | undefined) => {
-    if (value === null || value === undefined || value === '') return '—'
-    const parsed = Number(value)
-    if (Number.isNaN(parsed)) return '—'
-    if (type === 'percentage') return `${parsed}%`
-    return `${currency.value} ${parsed}`
-}
-
-const monthlyFeeSummary = computed(() => {
-    if (!form.value.monthly_fee_enabled) return ''
-
-    const baseType = form.value.monthly_fee_type ?? 'amount'
-    const base = formatFee(form.value.monthly_fee_amount, baseType)
-    let summary = `All members: ${base} monthly fee.`
-
-    if (!form.value.loyalty_fee_enabled) return summary
-
-    const adjustmentType = form.value.loyalty_adjustment_type
-    const adjustmentValue = form.value.loyalty_adjustment_value
-
-    if (adjustmentType === 'discount_percentage') {
-        const discount = formatFee(adjustmentValue, 'percentage')
-        summary += ` Loyal members: ${discount} discount.`
-    } else if (adjustmentType === 'fixed_discount') {
-        const discount = formatFee(adjustmentValue, 'amount')
-        summary += ` Loyal members: ${discount} off the base fee.`
-    } else if (adjustmentType === 'custom_fee') {
-        const custom = formatFee(adjustmentValue, baseType)
-        summary += ` Loyal members: ${custom} custom fee.`
-    }
-
-    return summary
-})
+const { monthlyFeeSummary } = useMonthlyFeeSummary(form, currency)
 
 </script>
 
@@ -502,6 +484,14 @@ const monthlyFeeSummary = computed(() => {
                         Next minimum auto-fills as previous maximum + 1 for the same transaction type.
                     </p>
                 </div>
+
+                <!-- Fixed Deposit Settings (only for type = fixed) -->
+                <FdSettingsCard
+                    v-if="form.type === 'fixed'"
+                    :form="form"
+                    :products="savingsProductList"
+                    :chart-accounts="chartAccounts"
+                />
             </div>
 
             <!-- Side Panel Actions -->
