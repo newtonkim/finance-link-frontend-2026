@@ -24,41 +24,10 @@ defineExpose({ openDrawer })
 </script>
 
 <template>
-  <Transition name="drawer-fade">
-    <div v-if="showDrawer" class="fixed inset-0 z-50">
-      <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeDrawer" />
-      <Transition name="drawer-slide">
-        <aside
-          v-show="showDrawer"
-          class="absolute right-0 top-0 h-full w-full max-w-[500px] bg-white shadow-2xl ring-1 ring-black/5 dark:bg-neutral-900"
-          role="dialog"
-          aria-label="Disbursement & Loan Repayment Order Settings"
-        >
-          <div class="flex h-full flex-col">
-            <div class="border-b border-neutral-200 px-6 py-5 dark:border-neutral-700">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                  <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/30">
-                    <HandCoins class="h-4 w-4 text-emerald-700 dark:text-emerald-300" />
-                  </div>
-                  <div>
-                    <h3 class="text-lg font-bold tracking-tight text-neutral-900 uppercase dark:text-white">
-                      Disbursement & Loan Repayment Order
-                    </h3>
-                    <p class="text-xs text-neutral-500">Configure deduction mode and repayment allocation sequence</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  @click="closeDrawer"
-                  class="flex h-8 w-8 items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 transition-colors dark:hover:bg-neutral-800"
-                >
-                  <X class="h-4 w-4" />
-                </button>
-              </div>
-            </div>
+  <div class="flex h-[90vh] flex-col">
+           
 
-            <div class="flex-1 overflow-y-auto px-6 py-6 space-y-8">
+            <div class="flex-1 overflow-y-auto px-6  space-y-8">
               <div v-if="loading" class="flex items-center justify-center py-10">
                 <Spinner class="h-8 w-8 text-neutral-400" />
               </div>
@@ -137,29 +106,33 @@ defineExpose({ openDrawer })
               </div>
             </div>
 
-            <div class="flex items-center justify-end gap-3 border-t border-neutral-200 px-6 py-4 dark:border-neutral-700">
-              <button
-                type="button"
-                @click="closeDrawer"
-                class="rounded-lg bg-neutral-100 px-5 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-200 transition-colors dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                :disabled="saving"
+          
+             <div  class="flex w-full gap-2   items-center justify-between">
+              <div class="w-1/3 ">
+                <Button
+                  variant="outline"
+                  class="flex-1 h-11 w-full mx-2 font-bold border-neutral-200 dark:border-neutral-800"
+                  @click="closeDrawer"
+                >
+                  Close
+                </Button>
+              </div>
+
+              <div class="w-1/3 ">
+                <!-- @click="handleSave" -->
+                <Button
+                  type="submit"
+                    :disabled="saving"
                 @click="save"
-                class="inline-flex items-center gap-2 rounded-lg bg-nfuko-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#002d32] transition-colors disabled:opacity-60 shadow-sm dark:bg-bg-nfuko-yellow dark:text-nfuko-primary"
-              >
+                  class="flex-1 h-11  mr-5 w-full font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors"
+                >
                 <Spinner v-if="saving" class="h-4 w-4" />
-                Save Settings
-              </button>
-            </div>
+
+                  Save
+                </Button>
+              </div>
+            </div> 
           </div>
-        </aside>
-      </Transition>
-    </div>
-  </Transition>
 </template>
 
 <style scoped>

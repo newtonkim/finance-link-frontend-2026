@@ -1,7 +1,6 @@
 <template>
   <div class="flex h-full flex-1 flex-col gap-6 p-4 md:p-6 bg-[#f8faf9] dark:bg-[#0a0a0a]">
     
-    <!-- Header -->
     <div class="flex items-center gap-3">
       <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-100 dark:bg-neutral-800">
         <Landmark class="h-5 w-5 text-nfuko-primary dark:text-bg-nfuko-yellow" />
@@ -17,10 +16,8 @@
       </div>
     </div>
 
-    <!-- Cards -->
     <SettingCard :settingsCards="settingsCards">
       
-      <!-- Custom Slot -->
       <template #savings-accounts>
         <button
           @click="toggleDrawer('savings-accounts-setting')"
@@ -41,7 +38,6 @@
     </SettingCard>
   </div>
 
-  <!-- Drawer -->
   <Drawer
     v-if="drawerOpen"
     width="w-1/2"
@@ -66,8 +62,6 @@ import { Drawer } from '@/Global'
 import { ref } from 'vue'
 import { SavingsSettingsList } from '../saving-account'
 import { GroupSavingSettingsList } from '../group-saving-account'
-
-// Cards
 const settingsCards = [
   {
     title: "Savings Accounts",
