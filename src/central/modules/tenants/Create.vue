@@ -123,19 +123,12 @@ onMounted(() => {
 
 watch(() => formValues.value, (value) => {
     if (value) {
-    console.log(value);
 
         emits('update:form', value);
     }
 }, { deep: true, immediate: true })
 
-// watch(() => currentStep.value, (value) => {
-//     console.log(value);
-//     if (value) {
-        
-//         emits('changedStep', currentStep.value == steps.length - 1);
-//     }
-// }, { deep: true, immediate: true })
+ 
 </script>
 
 <template>
