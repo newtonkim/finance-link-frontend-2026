@@ -23,7 +23,7 @@
                     <div class="text-neutral-700 dark:text-neutral-200">
                         {{ col.label }}
                     </div>
-                    <div v-if="col.onSearch" @click.stop="toggleFilter(col)"
+                    <div v-if="col.onSearch" @click.stop="(e)=>toggleFilter(col,e)"
                         class="text-xs text-nfuko-primary hover:underline">
                         filter
                     </div>
@@ -45,10 +45,11 @@
         </div>
     </div>
     <Teleport to="body" v-if="activeFilter[currentFilteClicked]">
+        {{ filterPosition }}
 
 
         <!-- PANEL -->
-        <div v-if="activeFilter[currentFilteClicked]" ref="panelRef" style="left:40%" class="fixed top-[20%]   w-[320px]
+        <div v-if="activeFilter[currentFilteClicked]" ref="panelRef" :style="filterPosition" class="fixed top-[20%]   w-[320px]
       bg-white dark:bg-neutral-900
       border border-neutral-200 dark:border-neutral-700
       shadow-2xl rounded-2xl p-4 z-[9999]
@@ -74,6 +75,7 @@ const searchQuery = ref('');
 const activeFilter = ref({})
 const panelRef = ref(null)
 const currentFilteClicked = ref(null)
+const filterPosition = ref({})
 
 const emit = defineEmits(['search', 'filter']);
 const props = defineProps({
@@ -123,10 +125,17 @@ const handleClickOutside = (event) => {
     }
 }
 
-const toggleFilter = (col) => {
+const toggleFilter = (col,event) => {
 
     activeFilter.value[col.key] = col
     currentFilteClicked.value = col.key
+
+     const rect = event.target.getBoundingClientRect()
+
+    filterPosition.value = {
+        top: rect.bottom + window.scrollY+"px",
+        left: rect.left + window.scrollX+"px"
+    }
 }
 
 onMounted(() => {
