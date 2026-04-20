@@ -10,7 +10,8 @@ import {
   BookOpen,
   ArrowLeftRight,
   Library,
-  Handshake
+  Handshake,
+  Landmark,
 } from "lucide-vue-next";
 import type { MenuRoutes } from "@/Global/types/helpers";
 
@@ -55,6 +56,13 @@ export const tenantRoutes: MenuRoutes[] = [
             showSideBar: true,
             component: () => import("@/tenant/modules/savings/member-account/Index.vue"),
             // component: () => import('@/tenant/modules/savings/pages/SavingsAccountsOriginal.vue'),
+          },
+          {
+            path: "savings/fixed-deposits",
+            label: "Fixed Deposits",
+            showSideBar: true,
+            icon: Landmark,
+            component: () => import("@/tenant/modules/savings/pages/FixedDepositsDashboard.vue"),
           },
         ],
       },

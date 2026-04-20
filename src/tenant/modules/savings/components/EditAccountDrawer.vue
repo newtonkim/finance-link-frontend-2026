@@ -38,14 +38,13 @@ watch(() => form.value.savings_product_id, (newVal) => {
   if (product) form.value.account_type = product.type
 })
 
-async function openDrawer(account: { id: number }) {
+async function openDrawer(account: { id: number }, prefetchedData?: Record<string, any>) {
   errors.value = {}
   loading.value = true
   open.value = true
   accountId.value = account.id
   try {
-    const res = await savingsAccountsApi.show(account.id)
-    const data = res.data?.data ?? res.data
+    const data = prefetchedData ?? (await savingsAccountsApi.show(account.id)).data?.data
     form.value = {
       savings_product_id: data.savings_product?.id ?? data.savings_product_id ?? '',
       account_type: data.account_type ?? '',

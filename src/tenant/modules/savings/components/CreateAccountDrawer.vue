@@ -9,7 +9,9 @@ import { toast } from 'vue-sonner'
 import { useMemberSearch } from '../composables/useMemberSearch'
 
 const props = defineProps<{ savingsProducts: SavingsProduct[] }>()
-const emit = defineEmits<{ success: [] }>()
+const emit = defineEmits<{
+  success: [account: any]
+}>()
 
 const open = ref(false)
 const processing = ref(false)
@@ -79,6 +81,7 @@ watch(() => form.value.savings_product_id, async (newVal) => {
   const product = props.savingsProducts.find(p => p.id === Number(newVal))
   if (product) {
     form.value.account_type = product.type
+    form.value.tenor_months = product.type === 'fixed' ? (product.default_tenor_months ?? null) : null
     if (!product.charges) {
       try {
         const res = await savingsProductsApi.get(Number(newVal))
@@ -141,10 +144,10 @@ async function submit() {
       if (!payload.maturity_action_override) delete payload.maturity_action_override
       if (!showPayoutAccount.value) delete payload.payout_savings_account_id
     }
-    await savingsAccountsApi.store(payload)
+    const res = await savingsAccountsApi.store(payload)
     toast.success('Savings account created successfully.')
     open.value = false
-    emit('success')
+    emit('success', res.data?.data)
   } catch (err: any) {
     if (err?.response?.status === 422) {
       errors.value = err.response.data.errors || {}
@@ -193,7 +196,7 @@ defineExpose({ openDrawer })
                   placeholder="Search by name or member number"
                   state="create-account-member"
                 />
-                <InputError v-if="errors.member_id" :message="errors.member_id" />
+                <InputError v-if="errors.member_id" :message="Array.isArray(errors.member_id) ? errors.member_id[0] : errors.member_id" />
                 <div v-if="selectedMember" class="mt-3 rounded-xl border border-neutral-100 bg-neutral-50 px-4 py-3">
                   <div class="text-sm font-semibold text-neutral-900">{{ selectedMember.name }}</div>
                   <div class="text-xs text-neutral-500">Member #{{ selectedMember.member_number }} · {{ selectedMember?.status }}</div>
@@ -215,9 +218,57 @@ defineExpose({ openDrawer })
                   :options="productOptions"
                   placeholder="Select savings product"
                   state="create-account-product"
-                  :error="errors.savings_product_id"
+                  :error="Array.isArray(errors.savings_product_id) ? errors.savings_product_id[0] : errors.savings_product_id"
                 />
               </div>
+
+              <!-- Fixed Deposit Details — shown right after product selection -->
+              <template v-if="isFixedDeposit">
+                <div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-4 space-y-4 dark:border-amber-800 dark:bg-amber-950/20">
+                  <p class="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400">
+                    Fixed Deposit Details
+                  </p>
+
+                  <div class="space-y-1">
+                    <Label>Tenor (Months)</Label>
+                    <input
+                      v-model.number="form.tenor_months"
+                      type="number" min="1"
+                      class="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 focus:border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-nfuko-primary dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+                      :placeholder="selectedProduct?.default_tenor_months ? String(selectedProduct.default_tenor_months) + ' (product default)' : 'e.g. 12'"
+                    />
+                    <p class="text-xs text-neutral-500">How many months the deposit is locked.</p>
+                    <InputError v-if="errors.tenor_months" :message="Array.isArray(errors.tenor_months) ? errors.tenor_months[0] : errors.tenor_months" />
+                  </div>
+
+                  <div class="space-y-1">
+                    <Label>Maturity Action (override)</Label>
+                    <select
+                      v-model="form.maturity_action_override"
+                      class="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 focus:border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-nfuko-primary dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+                    >
+                      <option value="">Use product default</option>
+                      <option value="manual">Manual (staff processes at maturity)</option>
+                      <option value="auto_rollover">Auto Rollover</option>
+                      <option value="convert_to_savings">Convert to Savings</option>
+                    </select>
+                    <p class="text-xs text-neutral-500">Leave blank to use the product's default action.</p>
+                  </div>
+
+                  <div v-if="showPayoutAccount" class="space-y-1">
+                    <Label>Payout Savings Account</Label>
+                    <SearchableSelect
+                      :modelValue="form.payout_savings_account_id"
+                      @update:modelValue="form.payout_savings_account_id = $event"
+                      :options="creditedAccountOptions"
+                      placeholder="Select account to receive periodic interest..."
+                      state="create-account-payout"
+                    />
+                    <p class="text-xs text-neutral-500">Periodic interest will be credited to this account.</p>
+                    <InputError v-if="errors.payout_savings_account_id" :message="Array.isArray(errors.payout_savings_account_id) ? errors.payout_savings_account_id[0] : errors.payout_savings_account_id" />
+                  </div>
+                </div>
+              </template>
 
               <!-- Is New Account -->
               <div class="space-y-2">
@@ -306,48 +357,6 @@ defineExpose({ openDrawer })
                 </select>
               </div>
 
-              <!-- Fixed Deposit Fields -->
-              <template v-if="isFixedDeposit">
-                <div class="col-span-2 border-t border-neutral-100 pt-4 dark:border-neutral-800">
-                  <p class="mb-3 text-xs font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400">
-                    Fixed Deposit Details
-                  </p>
-                </div>
-
-                <div>
-                  <Label>Tenor (Months)</Label>
-                  <input
-                    v-model.number="form.tenor_months"
-                    type="number" min="1"
-                    class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus:border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-nfuko-primary dark:border-neutral-700 dark:text-white"
-                    :placeholder="selectedProduct?.default_tenor_months ? String(selectedProduct.default_tenor_months) : '6'"
-                  />
-                  <InputError v-if="errors.tenor_months" :message="Array.isArray(errors.tenor_months) ? errors.tenor_months[0] : errors.tenor_months" />
-                </div>
-
-                <div>
-                  <Label>Maturity Action (override)</Label>
-                  <select
-                    v-model="form.maturity_action_override"
-                    class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus:border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-nfuko-primary dark:border-neutral-700 dark:text-white"
-                  >
-                    <option value="">Use product default</option>
-                    <option value="manual">Manual</option>
-                    <option value="auto_rollover">Auto Rollover</option>
-                    <option value="convert_to_savings">Convert to Savings</option>
-                  </select>
-                </div>
-
-                <div v-if="showPayoutAccount" class="col-span-2">
-                  <Label>Payout Savings Account (for periodic interest)</Label>
-                  <SearchableSelect
-                    v-model="form.payout_savings_account_id"
-                    :options="creditedAccountOptions"
-                    placeholder="Select member's savings account..."
-                  />
-                  <InputError v-if="errors.payout_savings_account_id" :message="Array.isArray(errors.payout_savings_account_id) ? errors.payout_savings_account_id[0] : errors.payout_savings_account_id" />
-                </div>
-              </template>
             </form>
 
             <div class="flex items-center justify-between border-t border-neutral-200 px-6 py-4">
