@@ -24,6 +24,14 @@
     </template>
     <template #actions="{ item }">
       <div class="flex items-center gap-2">
+        <!-- FD Details button — only for fixed deposit accounts -->
+        <button
+          v-if="item.account_type === 'fixed'"
+          @click="viewDrawer?.openDrawer({ id: item.id })"
+          class="flex items-center gap-2 px-[14px] py-1.5 text-[12px] font-bold rounded-full border border-blue-200 text-blue-700 bg-blue-50 hover:bg-blue-100"
+        >
+          Fixed Deposit Details
+        </button>
         <button
           @click="emit('customFee', item)"
           class="flex items-center gap-2 px-[14px] py-1.5 text-[12px] font-bold rounded-full border border-amber-200 text-amber-700 bg-amber-50 hover:bg-amber-100"
@@ -62,15 +70,33 @@
       />
     </template>
   </TableDrawer>
+
+  <!-- Full FD account view with interest history and maturity controls -->
+  <ViewAccountDrawer
+    ref="viewDrawer"
+    :currency="props.currencyCode"
+    :format-balance="formatBalance"
+    :status-class="statusClass"
+    @edit-account="onEditAccount"
+  />
+
+  <EditAccountDrawer
+    ref="editDrawer"
+    :savings-products="savingsProducts"
+    @success="emit('reload')"
+  />
 </template>
+
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { Deposit, Withdrawal } from "@/tenant/modules/savings/member-account";
 import { TableDrawer, TabelActionButtons } from "@/Global";
-import { memberAccountApi,memberProfileApi } from "@/tenant/apis";
-// import { memberProfileApi } from '@/tenant/apis/savings/member-profileApi';
+import { memberAccountApi, memberProfileApi } from "@/tenant/apis";
+import ViewAccountDrawer from "@/tenant/modules/savings/components/ViewAccountDrawer.vue";
+import EditAccountDrawer from "@/tenant/modules/savings/components/EditAccountDrawer.vue";
+import { savingsProductsApi } from "@/tenant/apis/savingsProducts/api";
 
-const { getMemberProfileDetail } = memberProfileApi();
+memberProfileApi();
 
 const props = defineProps<{
   accounts: any[];
@@ -81,18 +107,44 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   newAccount: [];
-  reload: [];
+  reload: [open?: boolean];
   customFee: [account: any];
 }>();
 
 const drawer = ref<any>(null);
+const viewDrawer = ref<InstanceType<typeof ViewAccountDrawer> | null>(null);
+const editDrawer = ref<InstanceType<typeof EditAccountDrawer> | null>(null);
+const savingsProducts = ref<any[]>([]);
+
+async function loadSavingsProducts() {
+  if (savingsProducts.value.length) return;
+  try {
+    const res = await savingsProductsApi.list({ status: 'active' });
+    savingsProducts.value = res.data?.data ?? [];
+  } catch {}
+}
+
+async function onEditAccount(account: any) {
+  await loadSavingsProducts();
+  editDrawer.value?.openDrawer({ id: account.id }, account);
+}
 const drawerRemount = ref(true);
 const formData = ref<Record<string, any>>({});
 const showFooter = ref(true);
 const automaticCreate = ref<any>({});
 const currentAction = computed(() => automaticCreate.value?.actionSlot);
-const { memberAccountDepositAmount, memberAccountWithdrawalAmount } =
-  memberAccountApi();
+const { memberAccountDepositAmount, memberAccountWithdrawalAmount } = memberAccountApi();
+
+function formatBalance(v: string | number): string {
+  const n = Number(v);
+  return isNaN(n) ? '—' : `${props.currencyCode} ${n.toLocaleString('en-KE', { minimumFractionDigits: 2 })}`;
+}
+
+function statusClass(s: string): string {
+  if (s === 'active') return 'bg-green-100 text-green-700';
+  if (s === 'matured') return 'bg-red-100 text-red-700';
+  return 'bg-neutral-100 text-neutral-500';
+}
 
 const drawerConfigs: Record<string, any> = {
   deposit: {
@@ -107,19 +159,13 @@ const drawerConfigs: Record<string, any> = {
   },
 };
 const drawerTitle = ref<any>(drawerConfigs.deposit);
- 
-async function handleSave(type?: string) {
+
+async function handleSave() {
   const actionKey = currentAction.value;
   const config = drawerConfigs[actionKey];
-  
   if (!config) return;
-
-  drawerRemount.value = await config.action(
-    formData.value,
-    automaticCreate.value
-  );
-  emit('reload',drawer.value.drawerOpen)
-//   getMemberProfileDetail()
+  drawerRemount.value = await config.action(formData.value, automaticCreate.value);
+  emit('reload', drawer.value?.drawerOpen);
 }
 
 function openDrawer(item: any, action: "deposit" | "withdrawal") {
@@ -136,9 +182,9 @@ function openDrawer(item: any, action: "deposit" | "withdrawal") {
   drawerTitle.value = drawerConfigs[action];
   setTimeout(() => drawer.value?.toggleDrawer(), 100);
 }
- 
+
 const columns = [
-  { key: "code", label: "Account Code", sticky: "left", width: "14em",copy:true },
+  { key: "code", label: "Account Code", sticky: "left", width: "14em", copy: true },
   { key: "account_type", label: "Account Type", width: "14em" },
   { key: "balance", label: "Balance", type: "money" },
   { key: "status", label: "Status", type: "status" },

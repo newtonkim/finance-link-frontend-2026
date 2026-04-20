@@ -1,12 +1,6 @@
 import { statusMap, getSubdomainName, formatCurrency } from '@/Global'
-import {
-  dateTime,
-  date,
-  getLocalValues,
-  keysToUse,
-  addNumberCommas,
-} from '../../Helpers'
-import { Eye, Edit, Trash, X,Send } from 'lucide-vue-next'
+import { dateTime, date, getLocalValues, keysToUse, addNumberCommas } from '../../Helpers'
+import { Eye, Edit, Trash, X, Send } from 'lucide-vue-next'
 import { tenantClient } from '@/tenant/apis/tenantClient'
 import { apiClient } from '@/central/api/client'
 
@@ -50,7 +44,8 @@ export const dataFomater = (data: any, type: string) => {
       const verifyTheStatus =
         statusMap?.[`${data}`] ??
         statusMap?.[`${data}`?.toLowerCase()] ??
-        statusMap?.[`${data}`?.toUpperCase()]??data
+        statusMap?.[`${data}`?.toUpperCase()] ??
+        data
       return `<span class="${verifyTheStatus?.className}">${verifyTheStatus?.label}</span>`
     },
     number: () => {
@@ -94,7 +89,7 @@ export const ACTION_CONFIG = {
     class:
       'flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py- text-xs font-bold text-indigo-600 transition-colors hover:bg-indigo-100 dark:bg-indigo-900/40 dark:text-indigo-300 dark:hover:bg-indigo-900/60',
   },
-    share: {
+  share: {
     icon: Send,
     action: (row) => {
       // you can pass row data here
@@ -105,7 +100,7 @@ export const ACTION_CONFIG = {
     },
     class:
       'flex items-center gap-1 px-3 py-2 text-center rounded-full text-[14px] font-small text-gray-600 transition-all duration-200 leading-none whitespace-nowrap text-blue-600 bg-blue-50 hover:bg-blue-100 border-0',
-  }
+  },
 }
 
 export const dataTabelFilter = (collection: any, searchQuery: any) => {
@@ -131,8 +126,8 @@ export async function fetchTableData({
     createTheState = props?.state ? props?.state : props?.url.replace(/[^a-z0-9]+/gi, '-')
   const branch_id = getLocalValues(keysToUse.activeBranch)
   // const method = resolveMethod(props?.url, data, props?.method)
-   const quer=props?.url.includes('?')?`${props?.url}&`:`${props?.url}?`
-   const branchQuery = branch_id ? `branch_id=${branch_id}` : ''
+  const quer = props?.url.includes('?') ? `${props?.url}&` : `${props?.url}?`
+  const branchQuery = branch_id ? `branch_id=${branch_id}` : ''
   const collection = {
     reload: !!props.reload ? 0 : 1, // dont think am stupid i know that
     // reload: !!props.reload ? 0 : 1, // dont think am stupid i know that
@@ -140,7 +135,7 @@ export async function fetchTableData({
     time: props?.time ?? 0,
     reqs: {
       ...props,
-      url: quer+branchQuery,
+      url: quer + branchQuery,
       method: 'post',
       data,
     },
@@ -151,8 +146,6 @@ export async function fetchTableData({
 
   return await Store.stateGenaratorApi(collection)
 }
-
-
 
 function buildUrlWithQuery(url: string, params: Record<string, any>) {
   const [path, existingQuery = ''] = `${url ?? ''}`.split('?')
