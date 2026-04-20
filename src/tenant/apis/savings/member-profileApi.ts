@@ -19,7 +19,7 @@ export function memberProfileApi() {
     return getCharges?.payload
   }
     function ChangMemberStatus(data?: object) {
-     Confirm({title:"change member status "  ,type:'delete', confirm: async() => {
+     Confirm({title:"change member status ",des:"Are you sure"  ,type:'warning', confirm: async() => {
 
        fetchTableData({
            data: data,

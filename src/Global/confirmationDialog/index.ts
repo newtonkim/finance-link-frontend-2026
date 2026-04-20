@@ -1,6 +1,13 @@
 import { h, ref, watch, render } from 'vue'
 import ConfirmationDialog from './ConfirmationDialog.vue'
-
+// warning
+// info
+// success
+// delete
+/**
+ * type type: 'warning' | 'info' | 'success' | 'delete'
+ * 
+ * **/ 
 export function Confirm({ items, show = true, confirm, cancel, type,title ,des}: {
   items?: any[],
   show?: boolean,
@@ -19,7 +26,7 @@ export function Confirm({ items, show = true, confirm, cancel, type,title ,des}:
     container.id = 'dialog-root'
     document.body.appendChild(container)
   }
-
+// alert(type)
   const vnode = h(ConfirmationDialog, {
     items,
     type,
