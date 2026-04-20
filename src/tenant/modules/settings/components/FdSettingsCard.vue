@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch, nextTick } from 'vue'
 import type { SavingsProduct } from '@/tenant/apis/savingsProducts/api'
 
-interface ChartAccount { id: number; name: string; code: string }
+interface ChartAccount { id: number; name: string; gl_code: string; account_type: string }
 
 const props = defineProps<{
   form: SavingsProduct
@@ -31,6 +31,103 @@ const showConvertProduct = computed(() =>
 const productOptions = computed(() =>
   props.products.filter(p => p.type === 'standard' && p.id !== props.form.id)
 )
+
+// --- GL Account searchable comboboxes ---
+const expenseQuery = ref('')
+const expenseOpen = ref(false)
+const payableQuery = ref('')
+const payableOpen = ref(false)
+const expenseInputRef = ref<HTMLInputElement | null>(null)
+const payableInputRef = ref<HTMLInputElement | null>(null)
+
+function accountLabel(a: ChartAccount) {
+  return a.gl_code ? `${a.gl_code} — ${a.name}` : a.name
+}
+
+function findAccount(id: number | null | undefined): ChartAccount | null {
+  return id != null ? (props.chartAccounts.find(a => a.id === id) ?? null) : null
+}
+
+// Pre-filter by account type before applying search
+const expenseAccounts = computed(() =>
+  props.chartAccounts.filter(a => a.account_type === 'EXPENSE')
+)
+
+const incomeAccounts = computed(() =>
+  props.chartAccounts.filter(a => a.account_type === 'INCOME')
+)
+
+const filteredExpense = computed(() => {
+  const q = expenseQuery.value.toLowerCase()
+  return q
+    ? expenseAccounts.value.filter(a => accountLabel(a).toLowerCase().includes(q))
+    : expenseAccounts.value
+})
+
+const filteredPayable = computed(() => {
+  const q = payableQuery.value.toLowerCase()
+  return q
+    ? incomeAccounts.value.filter(a => accountLabel(a).toLowerCase().includes(q))
+    : incomeAccounts.value
+})
+
+function openExpense() {
+  expenseQuery.value = ''
+  expenseOpen.value = true
+  nextTick(() => expenseInputRef.value?.focus())
+}
+
+function closeExpense() {
+  expenseOpen.value = false
+  expenseQuery.value = ''
+}
+
+function selectExpense(a: ChartAccount) {
+  props.form.interest_expense_account_id = a.id
+  closeExpense()
+}
+
+function onExpenseBlur() {
+  window.setTimeout(() => closeExpense(), 150)
+}
+
+function openPayable() {
+  payableQuery.value = ''
+  payableOpen.value = true
+  nextTick(() => payableInputRef.value?.focus())
+}
+
+function closePayable() {
+  payableOpen.value = false
+  payableQuery.value = ''
+}
+
+function selectPayable(a: ChartAccount) {
+  props.form.interest_payable_account_id = a.id
+  closePayable()
+}
+
+function onPayableBlur() {
+  window.setTimeout(() => closePayable(), 150)
+}
+
+// Auto-select sensible defaults when chart of accounts loads.
+// Only applies when creating a new product (form fields are null).
+watch(() => props.chartAccounts, (accounts) => {
+  if (!accounts.length) return
+  if (!props.form.interest_expense_account_id) {
+    const match = accounts.find(a =>
+      a.account_type === 'EXPENSE' && a.name.toLowerCase().includes('interest expense')
+    )
+    if (match) props.form.interest_expense_account_id = match.id
+  }
+  if (!props.form.interest_payable_account_id) {
+    const match = accounts.find(a =>
+      a.account_type === 'INCOME' && a.name.toLowerCase().includes('interest payable')
+    )
+    if (match) props.form.interest_payable_account_id = match.id
+  }
+}, { immediate: true })
 
 const selectClass = 'w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus:border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow'
 const inputClass = 'w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus:border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow'
@@ -116,30 +213,90 @@ const inputClass = 'w-full rounded-lg border border-neutral-300 bg-transparent p
         </select>
       </div>
 
-      <!-- GL: Interest Expense Account -->
-      <div>
+      <!-- GL: Interest Expense Account (DR) — searchable, EXPENSE accounts only -->
+      <div class="relative">
         <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
           Interest Expense GL Account (DR)
         </label>
-        <select v-model.number="form.interest_expense_account_id" :class="selectClass">
-          <option :value="null">— select account —</option>
-          <option v-for="a in chartAccounts" :key="a.id" :value="a.id">
-            {{ a.code }} — {{ a.name }}
-          </option>
-        </select>
+        <div class="relative">
+          <button
+            v-if="!expenseOpen"
+            type="button"
+            :class="[inputClass, 'text-left truncate', !findAccount(form.interest_expense_account_id) ? 'text-neutral-400 dark:text-neutral-500' : '']"
+            @click="openExpense"
+          >
+            {{ findAccount(form.interest_expense_account_id) ? accountLabel(findAccount(form.interest_expense_account_id)!) : '— select account —' }}
+          </button>
+          <template v-else>
+            <input
+              ref="expenseInputRef"
+              v-model="expenseQuery"
+              type="text"
+              :class="inputClass"
+              placeholder="Type to search accounts..."
+              @blur="onExpenseBlur"
+            />
+            <div class="absolute z-20 mt-1 w-full rounded-lg border border-neutral-200 bg-white shadow-lg dark:border-neutral-700 dark:bg-neutral-800 max-h-52 overflow-y-auto">
+              <button
+                v-for="a in filteredExpense" :key="a.id"
+                type="button"
+                class="flex w-full items-center px-3 py-2 text-left text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                :class="form.interest_expense_account_id === a.id
+                  ? 'bg-green-50 font-semibold text-nfuko-primary dark:bg-green-950/20 dark:text-nfuko-yellow'
+                  : 'text-neutral-700 dark:text-neutral-300'"
+                @mousedown.prevent="selectExpense(a)"
+              >
+                {{ accountLabel(a) }}
+              </button>
+              <div v-if="filteredExpense.length === 0" class="px-3 py-4 text-center text-sm text-neutral-400">
+                No accounts found.
+              </div>
+            </div>
+          </template>
+        </div>
       </div>
 
-      <!-- GL: Interest Payable Account -->
-      <div>
+      <!-- GL: Interest Payable Account (CR) — searchable, INCOME accounts only -->
+      <div class="relative">
         <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
           Interest Payable GL Account (CR)
         </label>
-        <select v-model.number="form.interest_payable_account_id" :class="selectClass">
-          <option :value="null">— select account —</option>
-          <option v-for="a in chartAccounts" :key="a.id" :value="a.id">
-            {{ a.code }} — {{ a.name }}
-          </option>
-        </select>
+        <div class="relative">
+          <button
+            v-if="!payableOpen"
+            type="button"
+            :class="[inputClass, 'text-left truncate', !findAccount(form.interest_payable_account_id) ? 'text-neutral-400 dark:text-neutral-500' : '']"
+            @click="openPayable"
+          >
+            {{ findAccount(form.interest_payable_account_id) ? accountLabel(findAccount(form.interest_payable_account_id)!) : '— select account —' }}
+          </button>
+          <template v-else>
+            <input
+              ref="payableInputRef"
+              v-model="payableQuery"
+              type="text"
+              :class="inputClass"
+              placeholder="Type to search accounts..."
+              @blur="onPayableBlur"
+            />
+            <div class="absolute z-20 mt-1 w-full rounded-lg border border-neutral-200 bg-white shadow-lg dark:border-neutral-700 dark:bg-neutral-800 max-h-52 overflow-y-auto">
+              <button
+                v-for="a in filteredPayable" :key="a.id"
+                type="button"
+                class="flex w-full items-center px-3 py-2 text-left text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                :class="form.interest_payable_account_id === a.id
+                  ? 'bg-green-50 font-semibold text-nfuko-primary dark:bg-green-950/20 dark:text-nfuko-yellow'
+                  : 'text-neutral-700 dark:text-neutral-300'"
+                @mousedown.prevent="selectPayable(a)"
+              >
+                {{ accountLabel(a) }}
+              </button>
+              <div v-if="filteredPayable.length === 0" class="px-3 py-4 text-center text-sm text-neutral-400">
+                No accounts found.
+              </div>
+            </div>
+          </template>
+        </div>
       </div>
     </div>
   </div>

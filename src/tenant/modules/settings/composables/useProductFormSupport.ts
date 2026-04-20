@@ -3,7 +3,7 @@ import { chartOfAccountsApi } from '@/tenant/apis/chartOfAccounts/chartOfAccount
 import { savingsProductsApi, type SavingsProduct } from '@/tenant/apis/savingsProducts/api'
 
 export function useProductFormSupport() {
-  const chartAccounts = ref<Array<{ id: number; name: string; code: string }>>([])
+  const chartAccounts = ref<Array<{ id: number; name: string; gl_code: string; account_type: string }>>([])
   const savingsProductList = ref<SavingsProduct[]>([])
 
   async function loadSupportingData() {

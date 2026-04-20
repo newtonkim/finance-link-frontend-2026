@@ -4,9 +4,12 @@ import { X, ArrowLeft, RotateCcw, ArrowRightLeft, Banknote } from 'lucide-vue-ne
 import { savingsAccountsApi } from '@/tenant/apis/savingsAccounts/savingsAccountsApi'
 import { toast } from 'vue-sonner'
 
-import { type SavingsAccount } from '../types'
-
 interface Account { id: number; account_no: string; maturity_date: string | null }
+
+function formatDate(d: string | null | undefined) {
+  if (!d) return '—'
+  return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+}
 
 const emit = defineEmits<{ success: [] }>()
 
@@ -104,7 +107,7 @@ defineExpose({ openDrawer })
           <!-- Body -->
           <div class="flex-1 overflow-y-auto px-6 py-5 space-y-4">
             <p v-if="account?.maturity_date" class="text-sm text-neutral-500 dark:text-neutral-400">
-              Matured on <span class="font-medium text-neutral-700 dark:text-neutral-200">{{ account.maturity_date }}</span>
+              Matured on <span class="font-medium text-neutral-700 dark:text-neutral-200">{{ formatDate(account.maturity_date) }}</span>
             </p>
 
             <p class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Choose an action:</p>
