@@ -79,12 +79,18 @@ const canProceed = computed(() => {
 function prevStep() {
     if (currentStep.value > 0) {
         currentStep.value--
+        emits('changedStep', currentStep.value == steps.length - 1);
+        console.log("00-9==");
+        
+
     }
 }
 
 function nextStep() {
     if (canProceed.value && currentStep.value < steps.length - 1) {
         currentStep.value++
+        emits('changedStep', currentStep.value == steps.length - 1);
+        
     }
 
 }
@@ -120,18 +126,18 @@ watch(() => formValues.value, (value) => {
     }
 }, { deep: true, immediate: true })
 
-watch(() => currentStep.value, (value) => {
-    if (value) {
-
-
-
-        emits('changedStep', currentStep.value == steps.length - 1);
-    }
-}, { deep: true, immediate: true })
+// watch(() => currentStep.value, (value) => {
+//     console.log(value);
+//     if (value) {
+        
+//         emits('changedStep', currentStep.value == steps.length - 1);
+//     }
+// }, { deep: true, immediate: true })
 </script>
 
 <template>
     <form @submit.prevent>
+        <!-- {{ currentStep }} -->
         <div class="p-2 space-y-6">
             <div class="flex items-center justify-between">
                 <template v-for="(step, index) in steps" :key="step.label">
@@ -178,12 +184,12 @@ watch(() => currentStep.value, (value) => {
                 <div class="px-8 py-5 border-t border-neutral-100 dark:border-white/10 flex justify-between">
                     <Button v-if="currentStep > 0" @click="prevStep" variant="ghost" class="flex items-center gap-1">
                         <ChevronLeft class="size-4" />
-                        Back
+                        Back-
                     </Button>
                     <div v-else></div>
                     <Button v-if="currentStep < steps.length" @click="nextStep" :disabled="steps.length === currentStep"
                         class="flex items-center gap-1">
-                        Next
+                        Next+
                         <ChevronRight class="size-4" />
                     </Button>
 

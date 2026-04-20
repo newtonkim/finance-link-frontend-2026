@@ -1,5 +1,6 @@
 <template>
-    <TableDrawer ref="tableRef" drawerWidth="w-1/2" :url="tableUrl" state="tanents_list" :drawerShowFooter="showFooter"
+    <TableDrawer ref="tableRef" drawerWidth="w-1/2" :url="tableUrl" state="tanents_list"
+     :drawerShowFooter="showFooter"
         :drawerTitle="drawerTitle" title="Tenants" :columns="columns" @save="saveUser">
         <template #expiry="{ item }: { item: any }">
             <div v-if="item?.license_expires_at" class="flex items-center gap-1.5">

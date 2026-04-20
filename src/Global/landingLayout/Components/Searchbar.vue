@@ -23,7 +23,7 @@
                     <div class="text-neutral-700 dark:text-neutral-200">
                         {{ col.label }}
                     </div>
-                    <div v-if="col.onSearch" @click.stop="(e)=>toggleFilter(col,e)"
+                    <div v-if="col.onSearch" @click.stop="(e) => toggleFilter(col, e)"
                         class="text-xs text-nfuko-primary hover:underline">
                         filter
                     </div>
@@ -97,7 +97,7 @@ const removeColumn = (index) => {
     delete searchBy.value[index]
     save({ search_by: searchBy.value, search_key: searchQuery.value }, 'search')
 }
-function triggerSearch() { 
+function triggerSearch() {
     const v = Object.keys(searchBy.value ?? []), collection = {};
     const keySearch = { search_keyword: searchQuery.value, }
     if (v.length) keySearch.search_by = Object.values(searchBy.value).join(',');
@@ -125,16 +125,16 @@ const handleClickOutside = (event) => {
     }
 }
 
-const toggleFilter = (col,event) => {
+const toggleFilter = (col, event) => {
 
     activeFilter.value[col.key] = col
     currentFilteClicked.value = col.key
 
-     const rect = event.target.getBoundingClientRect()
+    const rect = event.target.getBoundingClientRect()
 
     filterPosition.value = {
-        top: rect.bottom + window.scrollY+"px",
-        left: rect.left + window.scrollX+"px"
+        top: rect.bottom + window.scrollY + "px",
+        left: rect.left + window.scrollX + "px"
     }
 }
 
