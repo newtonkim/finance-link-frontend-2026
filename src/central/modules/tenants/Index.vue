@@ -1,6 +1,7 @@
 <template>
     <TableDrawer ref="tableRef" drawerWidth="w-1/2" :url="tableUrl" state="tanents_list"
      :drawerShowFooter="showFooter"
+     :automaticCreate="false"
         :drawerTitle="drawerTitle" title="Tenants" :columns="columns" @save="saveUser">
         <template #expiry="{ item }: { item: any }">
             <div v-if="item?.license_expires_at" class="flex items-center gap-1.5">
@@ -54,7 +55,7 @@ const triggerAction: Record<string, Function> = {
     async create() {
         await create(formData.value)
         formData.value = {}
-        tableRef.value?.refresh()
+        tableRef.value.toggleDrawer()
     }
 }
 const title: Record<string, string> = {
@@ -63,14 +64,12 @@ const title: Record<string, string> = {
     "add": "Create Tenant",
 }
 function changedStep(vl) {
-    console.log(vl);
     
 showFooter.value=vl
 
 }
 function saveUser(type: string, data: any) {
     triggerAction[type]?.(data)
-    console.log(type);
     if (title?.[type])
         drawerTitle.value = title?.[type]
 

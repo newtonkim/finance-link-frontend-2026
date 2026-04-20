@@ -92,7 +92,7 @@ function filterDurations() {
     return [...new Set(durations)];
 }
 
-watch(form.value, (newValue) => {
+watch(()=>form.value, (newValue) => {
     if (newValue) {
         const data = []
         for (const key in newValue) {
