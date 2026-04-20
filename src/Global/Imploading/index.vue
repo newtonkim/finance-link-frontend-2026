@@ -2,7 +2,7 @@
   <div ref="dropdownRef" class="relative inline-block relative group inline-block">
     <!-- Button -->
     <button @click="toggleDropdown" :class="class">
-      <component :is="resolvedIcon" :size="18" />
+      <component :is="resolvedIcon" :size="12" class="" />
       <div class="absolute top-full mt-2 opacity-0 group-hover:opacity-100
               transition duration-300
               bg-nfuko-primary/90 text-white text-xs px-3 py-1 rounded z-50 whitespace-nowrap">
