@@ -6,11 +6,6 @@ import { toast } from 'vue-sonner'
 
 interface Account { id: number; account_no: string; maturity_date: string | null }
 
-function formatDate(d: string | null | undefined) {
-  if (!d) return '—'
-  return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-}
-
 const emit = defineEmits<{ success: [] }>()
 
 const open = ref(false)
@@ -44,6 +39,11 @@ const actions = [
     active: 'ring-2 ring-green-400',
   },
 ]
+
+function formatDate(d: string | null | undefined) {
+  if (!d) return '—'
+  return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+}
 
 function openDrawer(acc: Account) {
   account.value = acc

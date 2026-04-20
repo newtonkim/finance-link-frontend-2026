@@ -104,6 +104,13 @@ function statusClass(s: string) {
   if (s === 'dormant') return 'bg-yellow-100 text-yellow-700'
   return 'bg-neutral-100 text-neutral-500'
 }
+
+async function onCreateSuccess(newAccount: any) {
+  await fetchAccounts(1)
+  if (newAccount?.id) {
+    viewDrawer.value?.openDrawer({ id: newAccount.id })
+  }
+}
 </script>
 
 <template>
@@ -180,7 +187,7 @@ function statusClass(s: string) {
   <CreateAccountDrawer
     ref="createDrawer"
     :savings-products="savingsProducts"
-    @success="fetchAccounts(meta.current_page)"
+    @success="onCreateSuccess"
   />
 
 

@@ -219,6 +219,7 @@ const inputClass = 'w-full rounded-lg border border-neutral-300 bg-transparent p
           Interest Expense GL Account (DR)
         </label>
         <div class="relative">
+          <!-- Closed: show selected account name as a button -->
           <button
             v-if="!expenseOpen"
             type="button"
@@ -227,6 +228,8 @@ const inputClass = 'w-full rounded-lg border border-neutral-300 bg-transparent p
           >
             {{ findAccount(form.interest_expense_account_id) ? accountLabel(findAccount(form.interest_expense_account_id)!) : '— select account —' }}
           </button>
+
+          <!-- Open: search input + scrollable dropdown -->
           <template v-else>
             <input
               ref="expenseInputRef"
@@ -262,6 +265,7 @@ const inputClass = 'w-full rounded-lg border border-neutral-300 bg-transparent p
           Interest Payable GL Account (CR)
         </label>
         <div class="relative">
+          <!-- Closed: show selected account name as a button -->
           <button
             v-if="!payableOpen"
             type="button"
@@ -270,6 +274,8 @@ const inputClass = 'w-full rounded-lg border border-neutral-300 bg-transparent p
           >
             {{ findAccount(form.interest_payable_account_id) ? accountLabel(findAccount(form.interest_payable_account_id)!) : '— select account —' }}
           </button>
+
+          <!-- Open: search input + scrollable dropdown -->
           <template v-else>
             <input
               ref="payableInputRef"
