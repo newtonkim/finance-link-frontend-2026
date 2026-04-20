@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { Search, Zap, Clock, CheckCircle2 } from 'lucide-vue-next'
+import { Search, Zap, Clock, CheckCircle2, Eye, Plus } from 'lucide-vue-next'
 import { fixedDepositsApi } from '@/tenant/apis/fixedDeposits/fixedDepositsApi'
 import { toast } from 'vue-sonner'
 import { useCurrencyStore } from '@/stores/currency'
+import ViewAccountDrawer from '../components/ViewAccountDrawer.vue'
+import EditAccountDrawer from '../components/EditAccountDrawer.vue'
+import CreateAccountDrawer from '../components/CreateAccountDrawer.vue'
+import { savingsProductsApi } from '@/tenant/apis/savingsProducts/api'
 
 interface FdAccount {
   id: number
@@ -29,6 +33,12 @@ const loading = ref(false)
 const sweeping = ref(false)
 const search = ref('')
 const sweepResult = ref<SweepResult | null>(null)
+const targetPage = ref(1)
+const viewDrawer = ref<InstanceType<typeof ViewAccountDrawer> | null>(null)
+const editDrawer = ref<InstanceType<typeof EditAccountDrawer> | null>(null)
+const createDrawer = ref<InstanceType<typeof CreateAccountDrawer> | null>(null)
+const savingsProducts = ref<any[]>([])
+
 let searchTimer: ReturnType<typeof setTimeout> | null = null
 
 async function fetchAccounts(page = 1) {
@@ -69,12 +79,40 @@ function isMatured(account: FdAccount) {
   return new Date(account.maturity_date) <= new Date()
 }
 
+function formatDate(d: string | null | undefined) {
+  if (!d) return '—'
+  return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+}
+
 function formatBalance(v: string | number) {
   const n = Number(v)
   return isNaN(n) ? '—' : `${currency.value} ${n.toLocaleString('en-KE', { minimumFractionDigits: 2 })}`
 }
 
-onMounted(() => fetchAccounts())
+async function fetchSavingsProducts() {
+  try {
+    const res = await savingsProductsApi.list({ status: 'active' })
+    savingsProducts.value = res.data?.data ?? []
+  } catch {}
+}
+
+function statusClass(s: string) {
+  if (s === 'active') return 'bg-green-100 text-green-700'
+  if (s === 'matured') return 'bg-red-100 text-red-700'
+  return 'bg-neutral-100 text-neutral-500'
+}
+
+async function onCreateSuccess(newAccount: any) {
+  await fetchAccounts(1)
+  if (newAccount?.id) {
+    viewDrawer.value?.openDrawer({ id: newAccount.id })
+  }
+}
+
+onMounted(() => {
+  fetchAccounts()
+  fetchSavingsProducts()
+})
 onUnmounted(() => { if (searchTimer) clearTimeout(searchTimer) })
 </script>
 
@@ -88,13 +126,22 @@ onUnmounted(() => { if (searchTimer) clearTimeout(searchTimer) })
           {{ meta.total }} total accounts
         </p>
       </div>
-      <button
-        type="button" @click="runSweep" :disabled="sweeping"
-        class="flex items-center gap-2 rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600 transition disabled:opacity-50 disabled:cursor-not-allowed dark:bg-amber-600 dark:hover:bg-amber-700"
-      >
-        <Zap class="h-4 w-4" />
-        {{ sweeping ? 'Running sweep...' : 'Post Monthly Interest' }}
-      </button>
+      <div class="flex items-center gap-2">
+        <button
+          class="inline-flex items-center gap-2 rounded-lg bg-[#3ab88a] px-4 py-2 text-sm font-semibold text-white hover:bg-[#3ab88a]/90 transition shadow-sm"
+          @click="createDrawer?.openDrawer()"
+        >
+          <Plus class="h-4 w-4" />
+          Add Account
+        </button>
+        <button
+          type="button" @click="runSweep" :disabled="sweeping"
+          class="flex items-center gap-2 rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600 transition disabled:opacity-50 disabled:cursor-not-allowed dark:bg-amber-600 dark:hover:bg-amber-700"
+        >
+          <Zap class="h-4 w-4" />
+          {{ sweeping ? 'Running sweep...' : 'Post Monthly Interest' }}
+        </button>
+      </div>
     </div>
 
     <!-- Sweep result banner -->
@@ -140,7 +187,8 @@ onUnmounted(() => { if (searchTimer) clearTimeout(searchTimer) })
               <th class="px-4 py-3 font-medium">Balance</th>
               <th class="px-4 py-3 font-medium">Tenor</th>
               <th class="px-4 py-3 font-medium">Maturity Date</th>
-              <th class="px-4 py-3 font-medium">Status</th>
+              <th class="px-4 py-3 font-medium text-right">Status</th>
+              <th class="px-4 py-3 font-medium text-right">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
@@ -157,11 +205,11 @@ onUnmounted(() => { if (searchTimer) clearTimeout(searchTimer) })
                 <div class="flex items-center gap-1">
                   <Clock v-if="!isMatured(acc)" class="h-3 w-3 text-blue-400" />
                   <span :class="isMatured(acc) ? 'text-red-600 font-medium dark:text-red-400' : ''">
-                    {{ acc.maturity_date ?? '—' }}
+                    {{ formatDate(acc.maturity_date) }}
                   </span>
                 </div>
               </td>
-              <td class="px-4 py-3">
+              <td class="px-4 py-3 text-right">
                 <span :class="[
                   'rounded-full px-2 py-0.5 text-[11px] font-semibold',
                   isMatured(acc)
@@ -170,6 +218,16 @@ onUnmounted(() => { if (searchTimer) clearTimeout(searchTimer) })
                 ]">
                   {{ isMatured(acc) ? 'Matured' : 'Active' }}
                 </span>
+              </td>
+              <td class="px-4 py-3 text-right">
+                <button
+                  type="button"
+                  @click="viewDrawer?.openDrawer({ id: acc.id })"
+                  class="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-[11px] font-semibold text-blue-700 hover:bg-blue-100 transition-colors"
+                >
+                  <Eye class="h-3.5 w-3.5" />
+                  View
+                </button>
               </td>
             </tr>
           </tbody>
@@ -194,4 +252,24 @@ onUnmounted(() => { if (searchTimer) clearTimeout(searchTimer) })
       </div>
     </div>
   </div>
+
+  <ViewAccountDrawer
+    ref="viewDrawer"
+    :currency="currency"
+    :format-balance="formatBalance"
+    :status-class="statusClass"
+    @edit-account="(acc) => editDrawer?.openDrawer(acc, acc)"
+  />
+
+  <EditAccountDrawer
+    ref="editDrawer"
+    :savings-products="savingsProducts"
+    @success="fetchAccounts(meta.current_page)"
+  />
+
+  <CreateAccountDrawer
+    ref="createDrawer"
+    :savings-products="savingsProducts"
+    @success="onCreateSuccess"
+  />
 </template>

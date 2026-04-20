@@ -28,6 +28,11 @@ export type SavingsProduct = {
     type: string;
     minimum_balance: string;
     charges?: Array<{ id: number; type: string; charge_type: string; amount: string }>;
+    // FD fields
+    interest_payout_type?: 'at_maturity' | 'periodic_payout' | 'compound' | null;
+    interest_posting_frequency?: string | null;
+    default_tenor_months?: number | null;
+    maturity_action?: string | null;
 };
 
 export function useMember() {

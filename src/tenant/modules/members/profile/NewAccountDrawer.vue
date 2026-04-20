@@ -31,13 +31,26 @@ const form = reactive({
     credited_account_id: '' as string | number,
     charges: [] as number[],
     status: 'active',
+    tenor_months: null as number | null,
+    maturity_action_override: '' as string,
+    payout_savings_account_id: '' as string | number,
 });
 
 const productOptions = computed(() => (props.savingsProducts ?? []).map(p => ({ id: p.id, name: p.name })));
 
+const selectedProduct = computed(() =>
+    props.savingsProducts.find(p => p.id === Number(form.savings_product_id)) ?? null
+);
+
+const isFixedDeposit = computed(() => selectedProduct.value?.type === 'fixed');
+
+const showPayoutAccount = computed(() =>
+    isFixedDeposit.value && selectedProduct.value?.interest_payout_type === 'periodic_payout'
+);
+
 const selectedProductCharges = computed(() => {
     if (!form.savings_product_id) return [];
-    return props.savingsProducts.find(p => p.id === Number(form.savings_product_id))?.charges ?? [];
+    return selectedProduct.value?.charges ?? [];
 });
 
 const creditedAccountOptions = computed(() =>
@@ -84,6 +97,7 @@ watch(() => form.savings_product_id, (newVal) => {
         if (product) {
             form.account_type = product.type;
             form.charges = product.charges?.map(c => c.id) ?? [];
+            form.tenor_months = product.type === 'fixed' ? (product.default_tenor_months ?? null) : null;
         }
     }
 });
@@ -109,6 +123,9 @@ function openDrawer() {
         credited_account_id: '',
         charges: [],
         status: 'active',
+        tenor_months: null,
+        maturity_action_override: '',
+        payout_savings_account_id: '',
     });
     errors.value = {};
     open.value = true;
@@ -118,7 +135,16 @@ async function submit() {
     processing.value = true;
     errors.value = {};
     try {
-        await tenantClient.post('/savings-accounts', form);
+        const payload: Record<string, any> = { ...form };
+        if (!isFixedDeposit.value) {
+            delete payload.tenor_months;
+            delete payload.maturity_action_override;
+            delete payload.payout_savings_account_id;
+        } else {
+            if (!payload.maturity_action_override) delete payload.maturity_action_override;
+            if (!showPayoutAccount.value) delete payload.payout_savings_account_id;
+        }
+        await tenantClient.post('/savings-accounts', payload);
         open.value = false;
         toast.success('Savings account created successfully.');
         emit('success');
@@ -165,6 +191,55 @@ defineExpose({ openDrawer });
                                 :options="productOptions" placeholder="Select account type"
                                 :error="errors.savings_product_id" />
                         </div>
+
+                        <!-- Fixed Deposit Details — shown immediately after product selection -->
+                        <template v-if="isFixedDeposit">
+                            <div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-4 flex flex-col gap-4">
+                                <p class="text-[11px] font-bold uppercase tracking-wider text-amber-700">Fixed Deposit Details</p>
+
+                                <!-- Tenor -->
+                                <div>
+                                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Tenor (Months)</label>
+                                    <input
+                                        v-model.number="form.tenor_months"
+                                        type="number" min="1"
+                                        class="w-full py-2.5 px-3 rounded-xl bg-white border border-gray-200 text-gray-900 text-[13px] focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-300 transition-all"
+                                        :placeholder="selectedProduct?.default_tenor_months ? String(selectedProduct.default_tenor_months) + ' (product default)' : 'e.g. 12'"
+                                    />
+                                    <p class="mt-1 text-[11px] text-gray-500">How many months the deposit is locked.</p>
+                                    <p v-if="errors.tenor_months" class="mt-1 text-[11px] text-red-600">{{ Array.isArray(errors.tenor_months) ? errors.tenor_months[0] : errors.tenor_months }}</p>
+                                </div>
+
+                                <!-- Maturity Action -->
+                                <div>
+                                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Maturity Action (override)</label>
+                                    <select
+                                        v-model="form.maturity_action_override"
+                                        class="w-full py-2.5 px-3 rounded-xl bg-white border border-gray-200 text-gray-900 text-[13px] focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-300 transition-all"
+                                    >
+                                        <option value="">Use product default</option>
+                                        <option value="manual">Manual (staff processes at maturity)</option>
+                                        <option value="auto_rollover">Auto Rollover</option>
+                                        <option value="convert_to_savings">Convert to Savings</option>
+                                    </select>
+                                    <p class="mt-1 text-[11px] text-gray-500">Leave blank to use the product's default.</p>
+                                </div>
+
+                                <!-- Payout Account — only for periodic_payout products -->
+                                <div v-if="showPayoutAccount">
+                                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Payout Savings Account</label>
+                                    <SearchableSelect
+                                        :modelValue="form.payout_savings_account_id"
+                                        @update:modelValue="form.payout_savings_account_id = $event"
+                                        :options="creditedAccountOptions"
+                                        placeholder="Select account to receive periodic interest..."
+                                        state="new-account-payout"
+                                    />
+                                    <p class="mt-1 text-[11px] text-gray-500">Periodic interest will be credited to this account.</p>
+                                    <p v-if="errors.payout_savings_account_id" class="mt-1 text-[11px] text-red-600">{{ Array.isArray(errors.payout_savings_account_id) ? errors.payout_savings_account_id[0] : errors.payout_savings_account_id }}</p>
+                                </div>
+                            </div>
+                        </template>
 
                         <!-- Is New Account -->
                         <div>
