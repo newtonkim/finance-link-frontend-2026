@@ -48,11 +48,12 @@ function findAccount(id: number | null | undefined): ChartAccount | null {
   return id != null ? (props.chartAccounts.find(a => a.id === id) ?? null) : null
 }
 
+// Pre-filter by account type before applying search
 const expenseAccounts = computed(() =>
   props.chartAccounts.filter(a => a.account_type === 'EXPENSE')
 )
 
-const liabilityAccounts = computed(() =>
+const incomeAccounts = computed(() =>
   props.chartAccounts.filter(a => a.account_type === 'INCOME')
 )
 
@@ -66,8 +67,8 @@ const filteredExpense = computed(() => {
 const filteredPayable = computed(() => {
   const q = payableQuery.value.toLowerCase()
   return q
-    ? liabilityAccounts.value.filter(a => accountLabel(a).toLowerCase().includes(q))
-    : liabilityAccounts.value
+    ? incomeAccounts.value.filter(a => accountLabel(a).toLowerCase().includes(q))
+    : incomeAccounts.value
 })
 
 function openExpense() {
@@ -212,7 +213,7 @@ const inputClass = 'w-full rounded-lg border border-neutral-300 bg-transparent p
         </select>
       </div>
 
-      <!-- GL: Interest Expense Account (DR) — searchable -->
+      <!-- GL: Interest Expense Account (DR) — searchable, EXPENSE accounts only -->
       <div class="relative">
         <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
           Interest Expense GL Account (DR)
@@ -258,7 +259,7 @@ const inputClass = 'w-full rounded-lg border border-neutral-300 bg-transparent p
         </div>
       </div>
 
-      <!-- GL: Interest Payable Account (CR) — searchable -->
+      <!-- GL: Interest Payable Account (CR) — searchable, INCOME accounts only -->
       <div class="relative">
         <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
           Interest Payable GL Account (CR)
