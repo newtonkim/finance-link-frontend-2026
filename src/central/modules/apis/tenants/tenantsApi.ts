@@ -7,6 +7,7 @@ export function tenantsApi() {
   const Store = pomPinia()
 
   async function create(data: any) {
+    
     const res: any = await fetchTableData({
       data: formDataFormat(scopeValues(data)),
       props: { url: 'central/tenants', state: 'createTenants' },

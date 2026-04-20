@@ -97,6 +97,7 @@ function nextStep() {
 
 
 function storeStep3Data(data: any) {
+    
     formValues.value = [...formValues.value, ...(data)]
 }
 onMounted(() => {
@@ -122,6 +123,8 @@ onMounted(() => {
 
 watch(() => formValues.value, (value) => {
     if (value) {
+    console.log(value);
+
         emits('update:form', value);
     }
 }, { deep: true, immediate: true })
