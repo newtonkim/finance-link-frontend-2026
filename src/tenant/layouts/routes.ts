@@ -30,7 +30,8 @@ export const tenantRoutes: MenuRoutes[] = [
     prifix: 'tenant',
     children: [
       {
-        title: 'SACCO MEMBERS',
+        title: 'Sacco Member',
+        titleStyle: 'green',
         items: [
           {
             path: 'member',
@@ -65,6 +66,7 @@ export const tenantRoutes: MenuRoutes[] = [
       },
       {
         title: 'STAFF MEMBERS',
+        titleStyle: 'green',
         items: [
           {
             permissions: 'staff-list',
@@ -137,6 +139,7 @@ export const tenantRoutes: MenuRoutes[] = [
     children: [
       {
         title: 'LOANS',
+        titleStyle: 'green',
         items: [
           {
             path: 'loan-applications',
@@ -172,6 +175,7 @@ export const tenantRoutes: MenuRoutes[] = [
       },
       {
         title: 'LOAN REPORTS',
+        titleStyle: 'green',
         items: [
           {
             path: 'loan-balances-report',
@@ -223,6 +227,7 @@ export const tenantRoutes: MenuRoutes[] = [
     children: [
       {
         title: 'SHARES',
+        titleStyle: 'green',
         items: [
           {
             path: 'shares',
@@ -246,6 +251,7 @@ export const tenantRoutes: MenuRoutes[] = [
       },
       {
         title: 'SHARES REPORT',
+        titleStyle: 'green',
         items: [
           {
             path: 'reports/shares',
@@ -288,6 +294,7 @@ export const tenantRoutes: MenuRoutes[] = [
     children: [
       {
         title: 'FINANCIAL REPORTS',
+        titleStyle: 'green',
         items: [
           {
             path: 'reports/trial-balance',
@@ -317,6 +324,7 @@ export const tenantRoutes: MenuRoutes[] = [
       },
       {
         title: 'MEMBER REPORTS',
+        titleStyle: 'green',
         items: [
           {
             path: 'reports/savings',
@@ -358,6 +366,7 @@ export const tenantRoutes: MenuRoutes[] = [
       },
       {
         title: 'EXPENSE & CHARGES REPORTS',
+        titleStyle: 'green',
         items: [
           {
             path: 'reports/expenses',
