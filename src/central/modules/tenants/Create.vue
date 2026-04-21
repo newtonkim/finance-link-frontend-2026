@@ -63,12 +63,25 @@ const onFormResults = (fields: any) => {
 
         form.value = fields
     }
-    formValues.value = [...new Set([...formValues.value, ...fields])]
+    
+    fields.forEach((field: any) => {
+        const index = formValues.value.findIndex((f: any) => f.name === field.name)
+        if (index > -1) {
+            formValues.value[index] = { ...formValues.value[index], ...field }
+        } else {
+            formValues.value.push(field)
+        }
+    })
 }
 
 
 
 const canProceed = computed(() => {
+    if (currentStep.value === 2) {
+        const plan = formValues.value.find((f: any) => f.name === 'plan')?.value
+        const duration = formValues.value.find((f: any) => f.name === 'license_months')?.value
+        return !!plan && !!duration
+    }
     return form.value.every((field: any) => {
         if (field.required) {
             return !!field.value
@@ -91,7 +104,14 @@ function nextStep() {
 
 
 function storeStep3Data(data: any) {
-    formValues.value = [...formValues.value, ...(data)]
+    data.forEach((field: any) => {
+        const index = formValues.value.findIndex((f: any) => f.name === field.name)
+        if (index > -1) {
+            formValues.value[index] = { ...formValues.value[index], ...field }
+        } else {
+            formValues.value.push(field)
+        }
+    })
 }
 onMounted(() => {
 
@@ -171,7 +191,7 @@ watch(() => currentStep.value, (value) => {
                         <Form v-model:form="form" parentStyle="grid grid-cols-2 sm:grid-cols-1 gap-4 md:gap-6 p-5"
                             @results="onFormResults" />
                     </div>
-                    <tenantStep3 v-else-if="currentStep <= 2" @change="storeStep3Data" />
+                    <tenantStep3 v-else-if="currentStep <= 2" :selected="formValues" @change="storeStep3Data" />
                     <TenantStep4 v-else-if="currentStep <= 3" :form="formValues" @change="storeStep3Data" />
                 </div>
 

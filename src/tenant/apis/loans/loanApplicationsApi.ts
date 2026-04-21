@@ -1,7 +1,7 @@
 import { pomPinia } from 'septor-store'
 import { tenantClient } from '../tenantClient'
 import { fetchTableData } from '@/Global/landingLayout/util'
-import { formDataFormat, getLocalValues } from '@/Global/Helpers'
+import { formDataFormat } from '@/Global/Helpers'
 
 export interface LoanApplicationStatusHistory {
   id: number
@@ -89,9 +89,11 @@ export interface LoanApplication {
   recommended_amount?: number | string | null
   recommended_amount_formatted?: string | null
   recommended_term?: number | null
+  recommended_interest_rate?: number | string | null
   approved_amount?: number | string | null
   approved_amount_formatted?: string | null
   approved_term?: number | null
+  approved_interest_rate?: number | string | null
   rejection_reason?: string | null
   cancellation_reason?: string | null
   cancelled_at?: string | null
@@ -216,8 +218,8 @@ export interface PendingDisbursementParams {
 export function loanApplicationsApi2() {
   const Store = pomPinia()
 
-  async function saveLoanApplicationGuarantors(data: any = {}) {
-    const res = await fetchTableData({
+  async function saveLoanApplicationGuarantors(data: Record<string, unknown> = {}) {
+    await fetchTableData({
       data: formDataFormat(data),
       Store,
       saveData: true,
@@ -279,6 +281,7 @@ export const loanApplicationsApi = {
     data: {
       recommended_amount: number | string
       recommended_term: number | string
+      recommended_interest_rate: number | string
       risk_rating: string
       appraisal_notes?: string | null
     },
@@ -363,6 +366,7 @@ export const loanApplicationsApi = {
     data: {
       final_approved_amount: number | string
       final_approved_term: number
+      approved_interest_rate: number | string
       proposed_start_date: string
     },
   ) {
@@ -406,9 +410,17 @@ export const loanApplicationsApi = {
   listCollaterals(applicationId: number) {
     return tenantClient.get(`/loan-applications/${applicationId}/collaterals`)
   },
-  addCollateral(applicationId: number, data: Record<string, any>) {
+  addCollateral(applicationId: number, data: Record<string, unknown>) {
     const form = new FormData()
-    Object.entries(data).forEach(([k, v]) => { if (v !== undefined && v !== null) form.append(k, v) })
+    Object.entries(data).forEach(([k, v]) => {
+      if (v !== undefined && v !== null) {
+        if (typeof v === 'string' || v instanceof Blob) {
+          form.append(k, v)
+        } else {
+          form.append(k, String(v))
+        }
+      }
+    })
     return tenantClient.post(`/loan-applications/${applicationId}/collaterals`, form, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
