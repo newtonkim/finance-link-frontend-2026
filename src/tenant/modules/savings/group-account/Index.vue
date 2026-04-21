@@ -84,7 +84,7 @@ const titleMap: Record<string, { title: string; width: string }> = {
   }
 }
 const columns = [
-  { key: 'group_code', label: 'group code', copy: true, sticky: 'left',width: '15em' },
+  { key: 'group_code', label: 'group code', copy: true, sticky: 'left', width: '15em' },
   { key: 'group_name', label: 'name', sticky: 'left', width: '14em' },
   { key: 'phone', label: 'admin phone', sticky: 'left', width: '14em' },
   { key: 'status', label: 'Status', type: 'status' },

@@ -40,7 +40,7 @@ const loadingMount = computed(() => loading.value), emits = defineEmits(['update
         required: true,
         url: 'staff/roles-drop-down',
         placeholder: 'Select roles',
-        dataOnMount: true,
+        // dataOnMount: true,
     },
 ]);
 async function promtValueOnUpdate() {

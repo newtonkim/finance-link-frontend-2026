@@ -107,15 +107,15 @@ async function handleSave() {
         </div>
         <SettingCard :settingsCards="settingsCards">
             <template #staff-payroll>
-                <div class="mt-4 flex flex-col gap-2 border-t border-neutral-100 pt-4 dark:border-neutral-800">
-                    <RouterLink :to="{ name: 'tenant-staff-salaries' }" class="text-sm font-medium text-nfuko-primary hover:underline dark:text-bg-nfuko-yellow">
+                <div class="mt-4 flex flex-wrap gap-3 border-t border-neutral-100 pt-4 dark:border-neutral-800">
+                    <RouterLink :to="{ name: 'tenant-staff-salaries' }" class="inline-flex w-fit items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white">
                         Staff Salaries →
                     </RouterLink>
-                    <RouterLink :to="{ name: 'tenant-staff-advances' }" class="text-sm font-medium text-nfuko-primary hover:underline dark:text-bg-nfuko-yellow">
-                        Staff Advances →
-                    </RouterLink>
-                    <RouterLink :to="{ name: 'tenant-staff-allowances' }" class="text-sm font-medium text-nfuko-primary hover:underline dark:text-bg-nfuko-yellow">
+                    <RouterLink :to="{ name: 'tenant-staff-allowances' }" class="inline-flex w-fit items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white">
                         Staff Allowances →
+                    </RouterLink>
+                    <RouterLink :to="{ name: 'tenant-staff-advances' }" class="inline-flex w-fit items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white">
+                        Staff Advances →
                     </RouterLink>
                 </div>
             </template>

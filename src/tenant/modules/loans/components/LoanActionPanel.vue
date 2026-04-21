@@ -50,7 +50,7 @@ const { displayAmount } = useLoanApplicationHelpers()
     <p class="mb-4 text-xs text-nfuko-primary-600 dark:text-nfuko-primary-400">
       This application has been submitted and is awaiting an officer to submit it for review.
     </p>
-  
+ 
     <button
     :title="takingForReview || submitDisabled ? 'Please add required guarantors/files before submitting for review' : 'Submit for review'"
       :disabled="(takingForReview || submitDisabled)&& Array.isArray(application?.loan_guarantors) && application?.loan_guarantors.length==0"

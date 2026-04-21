@@ -41,11 +41,15 @@
       <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
     </template>
     <template #drawer="{ action, data }">
-      <uploadTemplateColumData upload-trick="row" v-if="['upload-loan-application-template',].includes(automaticCreate.actionSlot)
+      <uploadTemplateColumData upload-trick="row" v-if="['upload-loan-application-template','upload-loan-repayment-template','upload-loan-transaction-template'].includes(automaticCreate.actionSlot)
       " :title="automaticCreate?.actionSlot" :url="`/loan-applications/${automaticCreate?.actionSlot}`"
         :submit-url="automaticCreate.actionSlot" />
 
       <ApplicationTemplateDrawer v-else-if="automaticCreate?.actionSlot === 'download-loan-application-template'"
+        :action="action" :data="data" from="drawer" />
+      <LoanRepaymentTemplate v-else-if="automaticCreate?.actionSlot === 'Download-loan-repayment-template'"
+        :action="action" :data="data" from="drawer" />
+      <LoanTransactionTemplate v-else-if="automaticCreate?.actionSlot === 'loan-transactions-template'"
         :action="action" :data="data" from="drawer" />
       <Create v-else :action="action" :data="data" from="drawer" />
     </template>
@@ -54,7 +58,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router';
-import { Create, SummaryCards, ApplicationTemplateDrawer } from './';
+import { Create, SummaryCards, ApplicationTemplateDrawer,LoanRepaymentTemplate,LoanTransactionTemplate } from './';
 import { pomPinia } from 'septor-store';
 import { uploadTemplateColumData } from '@/Global';
 const Store = pomPinia();
@@ -79,13 +83,13 @@ const emit = defineEmits<{
 }>();
 
 const columns = [
-  { key: 'application_code', label: 'Application Code', sticky: 'left', width: '14em', copy: true },
+  { key: 'application_code', label: 'Application Code', sticky: 'left', width: '16em', copy: true },
   { key: 'member_name', label: 'Name', },
   { key: 'amount', label: 'Amount', type: 'money' },
   { key: 'submitted_date', label: 'days', onSearch: { type: 'date-range', } },
   { key: 'status', label: 'Status', 'width': '9em', type: "status" },
   { key: 'created_at', label: 'created at', sticky: 'left', type: 'date', onSearch: { type: 'date-range', } },
-  { key: 'action', label: 'action', },
+  { key: 'action', label: 'action'},
 ]
 function navigateToMoreLoanDetails(item: any) {
   router.push(`loan-applications/${item.id}`)
@@ -101,7 +105,7 @@ function daysPendingClass(days: number) {
 }
 const exportItems = ref([
   {
-    label: "Download Loan Template",
+    label: "Loan Template",
     action: (vl) => {
       automaticCreate.value = {
         actionSlot: "download-loan-application-template",
@@ -110,7 +114,28 @@ const exportItems = ref([
       OpenThedrawer(vl, "download-loan-application-template");
     },
   },
+   {
+    label: "loan transaction Template",
+    action: (vl) => {
+      automaticCreate.value = {
+        actionSlot: "loan-transaction-template",
+        item: vl,
+      };
+      OpenThedrawer(vl, "loan-transactions-template");
+    },
+  },
+
   {
+    label: "Loan Repayment Template",
+    action: (vl) => {
+      automaticCreate.value = {
+        actionSlot: "Download-loan-repayment-template",
+        item: vl,
+      };
+      OpenThedrawer(vl, "Download-loan-repayment-template");
+    },
+  },
+    {
     label: "Upload Loan Template",
     action: (vl) => {
       automaticCreate.value = {
@@ -120,6 +145,27 @@ const exportItems = ref([
       OpenThedrawer(vl, "upload-loan-application-template");
     },
   },
+   {
+    label: "uplaod loan transaction",
+    action: (vl) => {
+      automaticCreate.value = {
+        actionSlot: "upload-loan-transaction-template",
+        item: vl,
+      };
+      OpenThedrawer(vl, "upload-loan-transactions-template");
+    },
+  },
+  {
+    label: "upload Loan Repayment Template",
+    action: (vl) => {
+      automaticCreate.value = {
+        actionSlot: "upload-loan-repayment-template",
+        item: vl,
+      };
+      OpenThedrawer(vl, "upload-loan-repayment-template");
+    },
+  },
+ 
 ]);
 function OpenThedrawer(item: any, action = "") {
   automaticCreate.value = { actionSlot: action, ...item };

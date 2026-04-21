@@ -9,18 +9,16 @@ const columns = [
     { key: 'code', label: 'Code', copy: true, width: "20em" },
     { key: 'type', label: 'Type' },
     { key: 'name', label: 'Name' },
+    { key: 'contribution', label: 'Amount' },
 ]
-
-
 const myGroupsColumns = [
-    { key: 'member_code', label: 'Member Code', copy: true , sticky: 'left'},
+    { key: 'member_code', label: 'Member Code', copy: true, sticky: 'left' },
     { key: 'member_name', label: 'Member Name', sticky: 'left' },
     { key: 'group_code', label: 'Group Code', copy: true, sticky: 'left', width: "14em" },
-    { key: 'group_name', label: 'Group Name',  },
+    { key: 'group_name', label: 'Group Name', },
     { key: 'member_has_active_loan', label: 'Running Loan Balance', type: "money", width: "13em" },
     { key: 'actions', label: 'Actions', },
 ]
-
 function navigateIntoLoanDetails(item: any) {
     router.push(`/tenant/loans/${item?.loan_id}`)
 }
