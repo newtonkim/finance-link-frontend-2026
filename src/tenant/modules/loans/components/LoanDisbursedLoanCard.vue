@@ -5,7 +5,7 @@ import { CreditCard, ChevronDown, ChevronUp } from 'lucide-vue-next'
 import { useLoanApplicationHelpers } from '../composables/useLoanApplicationHelpers'
 import type { DisbursedLoan } from '../../../apis/loans/loanApplicationsApi'
 
-const props = defineProps<{
+defineProps<{
     loan: DisbursedLoan
     loanApplicationId: number | null | undefined
 }>()
@@ -60,6 +60,12 @@ const showAllSchedule = ref(false)
             <div>
                 <dt class="text-xs font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Term</dt>
                 <dd class="mt-1 font-medium text-neutral-700 dark:text-neutral-300">{{ loan.term_months }} months</dd>
+            </div>
+            <div>
+                <dt class="text-xs font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Schedule Start Date</dt>
+                <dd class="mt-1 font-medium text-neutral-700 dark:text-neutral-300">
+                    {{ loan.schedule_date ? formatDate(loan.schedule_date) : formatDate(loan.disbursed_at) }}
+                </dd>
             </div>
             <div>
                 <dt class="text-xs font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Disbursement Method</dt>

@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue'
+import { computed, ref, type Component } from 'vue'
 import { ClipboardList, History, CreditCard, FileText, Activity, AlertTriangle } from 'lucide-vue-next'
 import type { Ref } from 'vue'
 import type { LoanDetail, LoanScheduleEntry, RescheduleHistoryEntry } from '@/tenant/apis/loans/loansApi'
@@ -12,7 +12,7 @@ export type LoanDetailTabKey =
   | 'documents'
   | 'activities'
 
-const allTabs: Array<{ key: LoanDetailTabKey; label: string; icon: any }> = [
+const allTabs: Array<{ key: LoanDetailTabKey; label: string; icon: Component }> = [
   { key: 'schedule', label: 'Payment Schedule', icon: ClipboardList },
   { key: 'reschedules', label: 'Reschedule History', icon: History },
   { key: 'transactions', label: 'Transaction History', icon: History },
@@ -35,7 +35,7 @@ export function useLoanScheduleData(
   })
 
   const latestReschedule = computed(() =>
-    reschedules.value && reschedules.value.length > 0 ? reschedules.value[0] : null,
+    reschedules.value && reschedules.value.length > 0 ? (reschedules.value[0] || null) : null,
   )
 
   const oldStatusLabel = computed(() => {
@@ -66,7 +66,7 @@ export function useLoanScheduleData(
 
       if (loan.value?.is_rescheduled) {
         if (latestRescheduleId.value) {
-          return String((row as any).reschedule_id) === String(latestRescheduleId.value)
+          return String(row.reschedule_id) === String(latestRescheduleId.value)
         }
         return true
       }
