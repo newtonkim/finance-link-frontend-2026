@@ -22,6 +22,7 @@ export interface LoanScheduleEntry {
   paid_date: string | null
   is_overdue: boolean
   days_overdue: number
+  reschedule_id?: number | null
 }
 
 export interface LoanTransaction {
@@ -126,14 +127,22 @@ export interface LoanPenaltyRule {
   amount: string | number
   applies_to: string | null
 }
+export interface LoanProductCharge {
+  id: number
+  name: string
+  charge_type: 'flat' | 'percentage'
+  value: string | number
+  frequency: 'one_time' | 'installment' | string
+  application_timing: 'on_disbursement' | 'on_repayment' | string
+}
 
 export interface LoanActivityEvent {
-  type: 'disbursed' | 'status_change' | 'repayment' | 'penalty_assessed'
-  title: string
-  description: string
-  amount: string | null
-  actor: { id: number; name: string } | null
-  notes: string | null
+  id?: number
+  type?: string
+  title?: string
+  description?: string
+  actor?: { id: number; name: string } | null
+  notes?: string | null
   timestamp: string
 }
 
@@ -169,6 +178,7 @@ export interface LoanDetail {
   original_term_months?: number
   original_interest_rate?: string | number
   approved_at?: string
+  schedule_date?: string
   notes: string | null
   currency_code: string
   loan_product: {
@@ -176,11 +186,13 @@ export interface LoanDetail {
     name: string
     code: string
     interest_method?: string
+    repayment_cycle?: string | null
     grace_period?: number | null
     penalty_type?: string | null
     penalty_rate?: string | number | null
     penalty_grace_days?: number | null
     penalty_rules?: LoanPenaltyRule[]
+    charges?: LoanProductCharge[]
   } | null
   member: { id: number; name: string; member_number: string | null } | null
   loan_officer: { id: number; name: string } | null
@@ -265,9 +277,30 @@ export interface RescheduleHistoryEntry {
   superseded_schedule: LoanScheduleEntry[]
 }
 
+export interface LoanSnapshot {
+  outstanding_balance: number
+  interest_rate: number
+  remaining_periods: number
+  maturity_date: string | null
+  term_months: number
+  arrears_amount: number
+  interest_arrears: number
+  penalty_arrears: number
+  charges_arrears: number
+}
+
+export interface NewLoanSnapshot {
+  principal_balance: number
+  interest_rate: number
+  tenor_months: number
+  installment_amount: number
+  maturity_date: string | null
+  total_interest: number
+}
+
 export interface ReschedulePreviewResult {
-  old_snapshot: any
-  new_snapshot: any
+  old_snapshot: LoanSnapshot
+  new_snapshot: NewLoanSnapshot
   capitalized_arrears: number
   capitalized_interest: number
   penalties_waived: number
@@ -348,7 +381,7 @@ export const loansApi = {
   },
 
   reschedule(id: number, data: RescheduleParams) {
-    return tenantClient.post<{ message: string; data: any }>(
+    return tenantClient.post<{ message: string; data: RescheduleHistoryEntry }>(
       `/loans/${id}/reschedule`,
       data,
     )
@@ -356,5 +389,9 @@ export const loansApi = {
 
   getReschedules(id: number) {
     return tenantClient.get<{ data: RescheduleHistoryEntry[] }>(`/loans/${id}/reschedules`)
+  },
+
+  updateDates(id: number, data: { disbursed_at: string, schedule_date: string }) {
+    return tenantClient.patch<{ message: string; data: LoanDetail }>(`/loans/${id}/update-dates`, data)
   },
 }

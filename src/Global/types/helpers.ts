@@ -1,26 +1,29 @@
+import type { Component } from 'vue'
 
- type MenuItemsRoute={
+ export type MenuItemsRoute={
   path: string;
   label: string; 
   showSideBar?: boolean;
+  icon?: Component;
 
   permissions?: string;
-  component: any;
+  component: Component | (() => Promise<Component>);
  }
- type MenuRoutesChildren={
+ export interface MenuRoutesChildren {
   title: string;
   items:MenuItemsRoute[];
-
+  permissions?: string;
  }
 export interface MenuRoutes {
+  type?: string;
   path?: string;
   label?: string;
   showSideBar?: boolean;
-  icon?: any; // or a more specific type depending on your icon library
+  icon?: Component;
   permissions?: string;
   prifix?: string;
   children?: MenuRoutesChildren[];
-  component?: any;
+  component?: Component | (() => Promise<Component>);
 
 }
 

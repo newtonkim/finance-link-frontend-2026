@@ -25,7 +25,7 @@ const emit = defineEmits(['update:show', 'update:sharesCompulsory', 'update:minS
             <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="emit('update:show', false)" />
             <Transition name="drawer-slide">
                 <div v-if="show"
-                    class="relative flex h-full w-full max-w-[480px] flex-col border-l border-neutral-200 bg-white shadow-2xl dark:border-neutral-800 dark:bg-neutral-950">
+                    class="relative flex h-full w-full max-w-[200px] flex-col border-l border-neutral-200 bg-white shadow-2xl dark:border-neutral-800 dark:bg-neutral-950">
 
                     <!-- Header -->
                     <div

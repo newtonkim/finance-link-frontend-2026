@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { History, Printer, FileDown } from 'lucide-vue-next'
+import { History, Printer, FileDown, Edit2, Check, X, Loader2 } from 'lucide-vue-next'
+import { ref, reactive } from 'vue'
+import { toast } from 'vue-sonner'
 import type { LoanDetail, RescheduleHistoryEntry } from '@/tenant/apis/loans/loansApi'
+import { loansApi } from '@/tenant/apis/loans/loansApi'
 
 const props = defineProps<{
   loan: LoanDetail
@@ -18,7 +21,53 @@ const props = defineProps<{
   generalStatusColor: (status: string) => string
   printGeneralInfo: () => void
   exportGeneralInfoPdf: () => void
+  refresh: () => void
 }>()
+
+const isEditingDates = ref(false)
+const saving = ref(false)
+const tempDates = reactive({
+  disbursed_at: props.loan.disbursed_at ? props.loan.disbursed_at.split('T')[0] : '',
+  schedule_date: props.loan.schedule_date ? props.loan.schedule_date.split('T')[0] : '',
+})
+
+const startEditing = () => {
+  tempDates.disbursed_at = props.loan.disbursed_at ? props.loan.disbursed_at.split('T')[0] : ''
+  tempDates.schedule_date = props.loan.schedule_date ? props.loan.schedule_date.split('T')[0] : ''
+  isEditingDates.value = true
+}
+
+const cancelEditing = () => {
+  isEditingDates.value = false
+}
+
+const saveDates = async () => {
+  if (!tempDates.disbursed_at || !tempDates.schedule_date) {
+    toast.error('Both dates are required.')
+    return
+  }
+
+  saving.value = true
+  try {
+    const res = await loansApi.updateDates(props.loan.id, {
+      disbursed_at: tempDates.disbursed_at,
+      schedule_date: tempDates.schedule_date,
+    })
+    toast.success(res.data.message || 'Loan dates updated successfully.')
+    isEditingDates.value = false
+    props.refresh()
+
+    // Update the local loan object by reference (or trigger a refresh from parent)
+    // For simplicity here, we update the prop properties if writable, or just rely on the parent refresh.
+    // However, Vue props are read-only. The best practice is to emit an event.
+  } catch (e: unknown) {
+    const err = e as { response?: { data?: { message?: string } } }
+    const msg = err?.response?.data?.message || 'Failed to update loan dates.'
+    toast.error(msg)
+  } finally {
+    saving.value = false
+  }
+}
 </script>
 
 <template>
@@ -49,10 +98,39 @@ const props = defineProps<{
         <div
           class="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
         >
-          <div class="border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
+          <div class="border-b border-neutral-200 px-4 py-3 dark:border-neutral-800 flex items-center justify-between">
             <h3 class="text-[13px] font-semibold text-neutral-900 dark:text-white">
               Current Loan Details
             </h3>
+            <div v-if="!isEditingDates">
+              <button
+                type="button"
+                class="flex items-center gap-1 text-[11px] font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
+                @click="startEditing"
+              >
+                <Edit2 class="h-3 w-3" />
+                Edit Dates
+              </button>
+            </div>
+            <div v-else class="flex items-center gap-2">
+              <button
+                type="button"
+                class="flex items-center gap-1 text-[11px] font-medium text-neutral-500 hover:text-neutral-700"
+                @click="cancelEditing"
+              >
+                <X class="h-3 w-3" />
+                Cancel
+              </button>
+              <button
+                type="button"
+                :disabled="saving"
+                class="flex items-center gap-1 text-[11px] font-bold text-emerald-600 hover:text-emerald-700 disabled:opacity-50"
+                @click="saveDates"
+              >
+                <component :is="saving ? Loader2 : Check" class="h-3 w-3" :class="{ 'animate-spin': saving }" />
+                {{ saving ? 'Saving...' : 'Save Changes' }}
+              </button>
+            </div>
           </div>
           <div class="text-[13px] divide-y divide-neutral-100 dark:divide-neutral-800">
             <div
@@ -147,6 +225,14 @@ const props = defineProps<{
             <div
               class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
             >
+              <div class="font-medium text-neutral-500 dark:text-neutral-400">Repayment Cycle</div>
+              <div class="font-medium capitalize text-neutral-900 dark:text-white">
+                {{ loan.loan_product?.repayment_cycle ? loan.loan_product.repayment_cycle.replace(/_/g, ' ') : '—' }}
+              </div>
+            </div>
+            <div
+              class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
+            >
               <div class="font-medium text-neutral-500 dark:text-neutral-400">Grace Period</div>
               <div class="font-medium text-neutral-900 dark:text-white">
                 {{
@@ -165,11 +251,48 @@ const props = defineProps<{
               </div>
             </div>
             <div
-              class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900"
+              class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900 items-center"
             >
               <div class="font-medium text-neutral-500 dark:text-neutral-400">Date Disbursed</div>
               <div class="font-medium text-neutral-900 dark:text-white">
-                {{ loan.disbursed_at ? fmtDate(loan.disbursed_at) : '—' }}
+                <template v-if="!isEditingDates">
+                  {{ loan.disbursed_at ? fmtDate(loan.disbursed_at) : '—' }}
+                </template>
+                <template v-else>
+                  <input
+                    v-model="tempDates.disbursed_at"
+                    type="date"
+                    class="w-full rounded border border-neutral-200 px-2 py-1 text-xs focus:ring-1 focus:ring-emerald-500 outline-none dark:border-neutral-700 dark:bg-neutral-800"
+                  />
+                </template>
+              </div>
+            </div>
+            <div
+              class="grid grid-cols-2 px-4 py-2.5 even:bg-neutral-50/80 dark:even:bg-neutral-800/30 bg-white dark:bg-neutral-900 items-center"
+            >
+              <div class="font-medium text-neutral-500 dark:text-neutral-400">Schedule Start Date</div>
+              <div class="font-medium text-neutral-900 dark:text-white">
+                <template v-if="!isEditingDates">
+                  <span
+                    :class="{
+                      'text-nfuko-action font-semibold': loan.schedule_date && loan.disbursed_at && loan.schedule_date.split('T')[0] !== loan.disbursed_at.split('T')[0]
+                    }"
+                  >
+                    {{ loan.schedule_date ? fmtDate(loan.schedule_date) : '—' }}
+                  </span>
+                </template>
+                <template v-else>
+                  <input
+                    v-model="tempDates.schedule_date"
+                    type="date"
+                    class="w-full rounded border px-2 py-1 text-xs outline-none transition-colors"
+                    :class="[
+                      tempDates.schedule_date !== (loan.schedule_date ? loan.schedule_date.split('T')[0] : '')
+                        ? 'border-nfuko-action text-nfuko-action focus:ring-1 focus:ring-nfuko-action dark:border-nfuko-action'
+                        : 'border-neutral-200 focus:ring-1 focus:ring-emerald-500 dark:border-neutral-700 dark:bg-neutral-800'
+                    ]"
+                  />
+                </template>
               </div>
             </div>
             <div

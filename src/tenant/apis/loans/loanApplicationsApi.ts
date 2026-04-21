@@ -2,6 +2,7 @@ import { pomPinia } from 'septor-store'
 import { tenantClient } from '../tenantClient'
 import { fetchTableData } from '@/Global/landingLayout/util'
 import { formDataFormat } from '@/Global/Helpers'
+// Updated loan applications API with schedule_date support
 
 export interface LoanApplicationStatusHistory {
   id: number
@@ -63,6 +64,7 @@ export interface DisbursedLoan {
   interest_rate: string
   term_months: number
   disbursed_at: string
+  schedule_date?: string
   disbursement_method: string
   disbursement_reference: string | null
   status: string
@@ -108,6 +110,8 @@ export interface LoanApplication {
   approved_at?: string | null
   rejected_at?: string | null
   disbursed_at?: string | null
+  schedule_date?: string
+  proposed_start_date?: string
   disbursed_loan_id?: number | null
   disbursed_loan?: DisbursedLoan | null
   created_at?: string
@@ -329,6 +333,7 @@ export const loanApplicationsApi = {
       disbursement_method: string
       disbursement_reference?: string | null
       disbursement_date?: string | null
+      schedule_date?: string | null
       notes?: string | null
       charge_deduction_mode?: string | null
       savings_account_id?: number | null
@@ -374,13 +379,13 @@ export const loanApplicationsApi = {
   },
   getProposedSchedule(
     id: number,
-    params?: { amount?: number | string; term?: number; start_date?: string },
+    params?: { amount?: number | string; term?: number; start_date?: string; interest_rate?: number | string },
   ) {
     return tenantClient.get(`/loan-applications/${id}/proposed-schedule`, { params })
   },
   exportProposedSchedule(
     id: number,
-    params?: { amount?: number | string; term?: number; start_date?: string },
+    params?: { amount?: number | string; term?: number; start_date?: string; interest_rate?: number | string },
   ) {
     return tenantClient.get(`/loan-applications/${id}/proposed-schedule/export`, {
       params,

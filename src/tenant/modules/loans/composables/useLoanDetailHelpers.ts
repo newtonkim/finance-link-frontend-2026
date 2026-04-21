@@ -42,6 +42,9 @@ export function useLoanDetailHelpers() {
   }
 
   function generalStatusColor(status: string) {
+    if (status === 'active' || status === 'disbursed') {
+      return 'bg-nfuko-action text-white'
+    }
     if (status === 'closed') {
       return 'bg-nfuko-primary text-white'
     }

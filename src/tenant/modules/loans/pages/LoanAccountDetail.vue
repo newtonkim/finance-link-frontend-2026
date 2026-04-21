@@ -116,7 +116,7 @@ onMounted(() => {
 })
 
 const rescheduleDrawerOpen = ref(false)
-const topupModalRef = ref<any>(null)
+const topupModalRef = ref<null | { show: () => void }>(null)
 
 const handleTopup = () => topupModalRef.value?.show()
 const handleReschedule = () => (rescheduleDrawerOpen.value = true)
@@ -193,6 +193,7 @@ const productCharges = computed(() => loan.value?.loan_product?.charges ?? [])
           :general-status-color="generalStatusColor"
           :print-general-info="printGeneralInfo"
           :export-general-info-pdf="exportGeneralInfoPdf"
+          :refresh="refresh"
         />
 
         <LoanScheduleTabPanel
