@@ -46,7 +46,7 @@ export const membersApi = {
 export function membersFunApi() {
     const Store = pomPinia();
     function ChangMemberStatus(data?: object) {
-     Confirm({title:"change member status "  ,type:'delete', confirm: async() => {
+     Confirm({title:"change member status "  ,type:'info', confirm: async() => {
 
        fetchTableData({
            data: data,

@@ -15,7 +15,7 @@
         <template #text>
           <button @click="() => navigateToMoreLoanDetails(item)"
             class=" font-semibold text-nfuko-action text-sm dark:text-white  cursor-pointer">
-            <span>{{ item?.application_code }}</span>-
+            <span>{{ item?.application_code }}</span>
           </button>
         </template>
       </CopyData>

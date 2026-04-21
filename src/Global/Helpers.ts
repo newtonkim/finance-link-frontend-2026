@@ -5,7 +5,6 @@ const encryptStorage = new EncryptStorage(import.meta.env.VITE_ENCRYPT_STORAGE)
 import { notify } from '@/Global/Toasters'
 import * as XLSX from 'xlsx'
 import { fetchTableData } from './landingLayout/util'
-import { tenantClient } from '@/tenant/apis/tenantClient'
 
 export const keysToUse = {
   systemSettings: 'systemSettings',
@@ -443,17 +442,15 @@ export function formDataFormat(data: any) {
 }
 
 export function companyHeader() {
-        const branding = getetSystemBranding()
-        // console.log(branding);
-        
+  const branding = getetSystemBranding()
 
-  const saccoName = branding?.sacco_name || 'Your Company Name';
-  const saccoTagline = branding?.tagline || '';
-  const logo = branding?.logo || null;
+  const saccoName = branding?.sacco_name || 'Your Company Name'
+  const saccoTagline = branding?.tagline || ''
+  const logo = branding?.logo || null
 
-  const generatedDate = new Date().toLocaleString();
+  const generatedDate = new Date().toLocaleString()
 
-  return`
+  return `
     <table style="width:100%; border-bottom:1px solid #ddd; padding-bottom:15px; margin-bottom:20px; font-family: Arial, sans-serif;">
       <tr>
 
@@ -505,32 +502,31 @@ export function companyHeader() {
 
       </tr>
     </table>
-  `;
+  `
 }
 
-
 export function printElementId(IdElement = '') {
-        const cached = getetSystemBranding()
+  const cached = getetSystemBranding()
 
-    const getPrintElement = document.getElementById(IdElement);
-    console.log(cached);
-    
-    if (!getPrintElement) return;
+  const getPrintElement = document.getElementById(IdElement)
+  console.log(cached)
 
-    const newWindow = window.open('', 'Print-Window');
-    if (!newWindow) return;
+  if (!getPrintElement) return
 
-    const clonedElement = getPrintElement.cloneNode(true) as HTMLElement;
+  const newWindow = window.open('', 'Print-Window')
+  if (!newWindow) return
 
-    const noPrintEls = clonedElement.querySelectorAll('.no-print');
-    noPrintEls.forEach(el => el.remove());
+  const clonedElement = getPrintElement.cloneNode(true) as HTMLElement
 
-    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
-        .map(node => node.outerHTML)
-        .join('');
+  const noPrintEls = clonedElement.querySelectorAll('.no-print')
+  noPrintEls.forEach((el) => el.remove())
 
-    newWindow.document.open();
-    newWindow.document.write(`
+  const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+    .map((node) => node.outerHTML)
+    .join('')
+
+  newWindow.document.open()
+  newWindow.document.write(`
         <html>
             <head>
                 <title>Print</title>
@@ -555,15 +551,15 @@ export function printElementId(IdElement = '') {
                 ${clonedElement.outerHTML}
             </body>
         </html>
-    `);
+    `)
 
-    newWindow.document.close();
-    newWindow.focus();
+  newWindow.document.close()
+  newWindow.focus()
 
-    setTimeout(() => {
-        newWindow.print();
-        newWindow.close();
-    }, 500);
+  setTimeout(() => {
+    newWindow.print()
+    newWindow.close()
+  }, 500)
 }
 export type UseInitialsReturn = {
   getInitials: (fullName?: string) => string
@@ -673,7 +669,7 @@ export function feedback(res: any, success?: string, fail?: string) {
   }
 
   if (res.code == 200) {
-  // if (!res || res.code == 200) {
+    // if (!res || res.code == 200) {
     successStatus = true
     msg = {
       msg: fail,

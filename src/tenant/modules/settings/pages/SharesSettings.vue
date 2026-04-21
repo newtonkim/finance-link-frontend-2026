@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, reactive, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { PieChart, Users, Calendar, Percent } from 'lucide-vue-next'
 import { useCurrencyStore } from '@/stores/currency'
