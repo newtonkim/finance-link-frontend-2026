@@ -1,5 +1,5 @@
 <template>
-    <div v-bind="$attrs" class="flex flex-col h-full py-2">
+    <div v-bind="$attrs" class="flex flex-col h-full py-2 ">
 
         <!-- Main nav items -->
         <div class="flex flex-col gap-1 flex-1">
