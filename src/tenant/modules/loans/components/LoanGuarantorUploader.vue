@@ -1,53 +1,60 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
-import { MultiSearchableSelect, StatusButtonsHorizontal } from '@/Global'
-import Button from '@/Global/ui/button/Button.vue';
-import { loanApplicationsApi2 } from '@/tenant/apis/loans';
-import GuatorsListWithType from './GuatorsListWithType.vue';
-const { saveLoanApplicationGuarantors } = loanApplicationsApi2()
+import { ref, watch, computed } from "vue";
+import { MultiSearchableSelect, StatusButtonsHorizontal } from "@/Global";
+import Button from "@/Global/ui/button/Button.vue";
+import { loanApplicationsApi2 } from "@/tenant/apis/loans";
+import GuatorsListWithType from "./GuatorsListWithType.vue";
+import NewNoneMember from "./NewNoneMember.vue";
+const { saveLoanApplicationGuarantors, saveLoanApplicationNoneMemberGuarantors } = loanApplicationsApi2();
 const props = defineProps<{
-  application: any
-}>()
+  application: any;
+}>();
 const emit = defineEmits<{
-  updated: [value: any[]]
-}>()
-const statusFilter = ref<string>('Group')
-const guarantors = ref<Record<string, any>>({})
-const selected = ref<any[]>([])
-const memberSelected = ref<any[]>([])
-const filters = ['Group', 'Individual']
- 
+  updated: [value: any[]];
+}>();
+const statusFilter = ref<string>("Group");
+const guarantors = ref<Record<string, any>>({});
+const selected = ref<any[]>([]);
+const memberSelected = ref<any[]>([]);
+const form = ref({});
+const filters = ["Group", "Individual", "n-members"];
+
 function handleSelected(item: any) {
-  const type = statusFilter.value === 'Group' ? 'group' : 'individual'
+  const type = statusFilter.value === "Group" ? "group" : "individual";
   for (const i of item) {
     guarantors.value[`${i.id}-${type}`] = {
       ...i,
-      type
-    }
+      type,
+    };
   }
   // emit('updated', Object.values(guarantors.value))
 }
 const filteredGuarantors = computed(() => {
-  const data = Object.values(guarantors.value)
-  return data
-})
+  const data = Object.values(guarantors.value);
+  return data;
+});
 watch(statusFilter, (val) => {
-  if (val === 'Group') {
-    selected.value = []
+  if (val === "Group") {
+    selected.value = [];
   } else {
-    memberSelected.value = []
+    memberSelected.value = [];
   }
-})
+});
 async function saveLoanGuarantors() {
   await saveLoanApplicationGuarantors({
     application_id: props.application.id,
-    guarantors: Object.values(guarantors.value)
-  })
+    guarantors: Object.values(guarantors.value),
+  });
 
-  emit('updated', 1)
+  emit("updated", 1);
+}
+async function saveLoanGuarantorsNoneMember() {
+  
+  await saveLoanApplicationNoneMemberGuarantors(form.value);
+  emit("updated", 1);
 }
 function SetGuarantorContribution(item: any) {
-  guarantors.value[item.id] = item
+  guarantors.value[item.id] = item;
 }
 </script>
 <template>
@@ -62,56 +69,64 @@ function SetGuarantorContribution(item: any) {
           groups,individuals on loan
         </p>
       </div>
-
     </div>
 
     <!-- Toggle -->
     <StatusButtonsHorizontal :filters="filters" v-model="statusFilter" />
-
     <!-- Select Area -->
     <div class="mt-5 space-y-3">
       <MultiSearchableSelect v-if="statusFilter === 'Group'" v-model="selected" :url="application?.group_memberships === 'allowed_to_be_guaranteed_by_other_groups'
-        ? 'group-account-savings/groups-drop-down-list'
-        : undefined
-        " :options="application?.group_memberships !== 'allowed_to_be_guaranteed_by_other_groups'
-          ? application?.group_memberships
+          ? 'group-account-savings/groups-drop-down-list'
           : undefined
+        " :options="application?.group_memberships !== 'allowed_to_be_guaranteed_by_other_groups'
+            ? application?.group_memberships
+            : undefined
           " placeholder="Select groups" @update:itemSelected="handleSelected" />
 
-      <MultiSearchableSelect v-else v-model="memberSelected" url="global/member-dropdown-list-total-balance-accouts"  
+      <MultiSearchableSelect v-else v-model="memberSelected" url="global/member-dropdown-list-total-balance-accouts"
         placeholder="Select members" @update:itemSelected="handleSelected" />
     </div>
 
     <!-- Selected Guarantors -->
     <div v-if="filteredGuarantors.length" class="mt-6">
       <div class="flex flex-col justify-between mb-2">
-        <GuatorsListWithType    @action="SetGuarantorContribution"  title="Selected Guarantors" :items="filteredGuarantors"
+        <GuatorsListWithType @action="SetGuarantorContribution" title="Selected Guarantors" :items="filteredGuarantors"
           empty-text="No guarantors added yet" label-key="name" type-key="type" />
-        <br>
+        <br />
 
         <Button type="button" @click="saveLoanGuarantors"
           class="px-3 py-1 text-xs font-medium bg-nfuko-primary-600 text-white rounded-md hover:bg-nfuko-primary-700 active:scale-95 transition">
           Save
         </Button>
       </div>
-
     </div>
 
-    <div v-else class="mt-4 text-xs text-neutral-400 italic">
-      No guarantors selected
-    </div>
+    <div v-else class="mt-4 text-xs text-neutral-400 italic">No guarantors selected</div>
 
     <!-- Divider -->
     <div class="my-6 border-t border-neutral-200 dark:border-neutral-800"></div>
 
     <!-- Current Guarantors -->
-    <GuatorsListWithType actionKey="show"  title="Current Guarantors"  :items="application?.loan_guarantors"
+    <GuatorsListWithType actionKey="show" title="Current Guarantors" :items="application?.loan_guarantors"
       empty-text="No guarantors added yet" label-key="name" type-key="type" />
 
     <div v-if="application?.loan_guarantors && application?.loan_guarantors.length == 0"
-      class="mb-1 flex animate-pulse items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 dark:border-red-800 dark:bg-red-950/40 mt-4 text-[10px] text-neutral-400  dark:text-neutral-500 text-red-500 capitalize">
-      This loan application currently has no guarantors.
-      guarantors are Required for this loan application. Please add guarantors before submitting the application.
+      class="mb-1 flex animate-pulse items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 dark:border-red-800 dark:bg-red-950/40 mt-4 text-[10px] text-neutral-400 dark:text-neutral-500 text-red-500 capitalize">
+      This loan application currently has no guarantors. guarantors are Required for this
+      loan application. Please add guarantors before submitting the application.
     </div>
   </div>
+
+  <Drawer :open="statusFilter === 'n-members'" :showFooter="true" title="Add Guarantor"
+  @cancel="()=>{statusFilter = 'Group'}"
+   @save="
+    async() => {
+     await  saveLoanGuarantorsNoneMember();
+     
+    }
+  ">
+    <template #body>
+      <NewNoneMember :data="application" v-model:form="form" />
+    </template>
+  </Drawer>
 </template>
