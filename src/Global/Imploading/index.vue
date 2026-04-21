@@ -16,7 +16,7 @@
 
   <Teleport to="body">
     <div v-if="isOpen" :style="dropdownStyle"
-      class="fixed nazil-here max-h-[300px] overflow-auto w-44 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-[9999]">
+      class="fixed nazil-here max-h-[300px] overflow-auto min-w-44 min-w-60 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-[9999]">
       <ul class="py-2 text-sm text-slate-700 dark:text-slate-200">
         <li v-for="(item, index) in items" :key="index" @click="onItemClick(item)" :class="[
           'px-4 py-2 cursor-pointer rounded-lg capitalize text-sm truncate transition-colors',

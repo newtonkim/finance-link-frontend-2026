@@ -35,7 +35,7 @@
                 <Button
                   variant="outline"
                   class="flex-1 h-11 w-full mx-2 font-bold border-neutral-200 dark:border-neutral-800"
-                  @click="handleCancel"
+                  @click="()=>handleCancel()"
                 >
                   Close
                 </Button>

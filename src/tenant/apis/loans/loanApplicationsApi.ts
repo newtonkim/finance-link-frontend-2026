@@ -1,7 +1,7 @@
 import { pomPinia } from 'septor-store'
 import { tenantClient } from '../tenantClient'
 import { fetchTableData } from '@/Global/landingLayout/util'
-import { formDataFormat, getLocalValues } from '@/Global/Helpers'
+import { formDataFormat, formDataFormatV2, getLocalValues } from '@/Global/Helpers'
 
 export interface LoanApplicationStatusHistory {
   id: number
@@ -216,6 +216,25 @@ export interface PendingDisbursementParams {
 export function loanApplicationsApi2() {
   const Store = pomPinia()
 
+ 
+  async function saveLoanApplicationNoneMemberGuarantors(data: any = {}) {
+    console.log(data);
+    
+    const res = await fetchTableData({
+      data: formDataFormatV2(data),
+      Store,
+      saveData: true,
+      props: {
+        url: 'loan-applications/save-guarantors-none-member',
+        method: 'post',
+        time: 0,
+        state: 'save-loan-guarantors',
+      },
+    })
+  
+    return {saveLoanApplicationGuarantors}
+  }
+
   async function saveLoanApplicationGuarantors(data: any = {}) {
     const res = await fetchTableData({
       data: formDataFormat(data),
@@ -230,7 +249,7 @@ export function loanApplicationsApi2() {
     })
   
   }
-  return {saveLoanApplicationGuarantors}
+  return {saveLoanApplicationGuarantors,saveLoanApplicationNoneMemberGuarantors}
 }
  
 export const loanApplicationsApi = {

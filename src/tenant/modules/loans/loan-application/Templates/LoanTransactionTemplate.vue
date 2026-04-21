@@ -1,7 +1,6 @@
 <template>
     <div class="h-[83vh]">
-        
-        <TableDrawer :showAddButton="false" :drawerWidth="drawerTitle?.width" :url="tableUrl" state="loan-application-template"
+        <TableDrawer :showAddButton="false" :drawerWidth="drawerTitle?.width" :url="tableUrl" state="loan-transaction-template"
             :drawerTitle="drawerTitle?.title" :columns="columns">
             <template #searchSideAction>
                 <TabelActionButtons @action="() => checkall()" title="Select all" color="danger" icon="check"
@@ -9,9 +8,9 @@
             </template>
             <template #check="{ item }">
                 <div class="g ">
-                    <label :key="item?.member_code"
+                    <label :key="item?.loan_no"
                         class=" py-2 rounded-xl cursor-pointer border border-transparent  transition group">
-                        <input :checked="!!selected[item.member_code]" type="checkbox" @click="() => selectMember(item)"
+                        <input :checked="!!selected[item.loan_no]" type="checkbox" @click="() => selectMember(item)"
                             class="w-4 h-4 accent-nfuko-primary-600 cursor-pointer export-meber-opening-balance" />
                     </label>
                 </div>
@@ -37,22 +36,22 @@ import { pomPinia } from 'septor-store';
 const Store = pomPinia();
 const selected = ref<Record<string, any>>({}),
     drawerTitle = ref('Create Tenant'),
-    tableUrl = computed(() => `/loan-applications/download-template`)
+    tableUrl = computed(() => `/loan-applications/loan-transactions-template`)
 const columns = [
     { key: 'check', label: 'check', width: "3em" },
+    { key: 'loan_no', label: 'Loan Code', },
     { key: 'salutation_name', label: 'Name', },
     { key: 'member_code', label: 'Member Code', },
-    { key: 'submitted_date', label: 'created at', },
 ]
 function selectMember(data) {
-    if (selected.value[data.member_code]) {
-        delete selected.value[data.member_code]
+    if (selected.value[data.loan_no]) {
+        delete selected.value[data.loan_no]
         return
     }
-    selected.value[data.member_code] = { ...data, }
+    selected.value[data.loan_no] = { ...data, }
 }
 function checkall() {
-    const theCurrentData = Store['loan-application-template']?.payload?.data ?? []
+    const theCurrentData = Store['loan-transaction-template']?.payload?.data ?? []
     theCurrentData.forEach(element => {
         selectMember(element)
     });
@@ -60,7 +59,7 @@ function checkall() {
 function exportTemplate() {
     exportToExcel({
         data: Object.values(selected.value),
-        name: 'loan-application-template',
+        name: 'loan-transaction-template',
     })
 }
 </script>
