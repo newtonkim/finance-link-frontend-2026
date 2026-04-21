@@ -30,7 +30,8 @@ export const tenantRoutes: MenuRoutes[] = [
     prifix: 'tenant',
     children: [
       {
-        title: 'SACCO MEMBERS',
+        title: 'Sacco Member',
+        titleStyle: 'green',
         items: [
           {
             path: 'member',
@@ -74,29 +75,7 @@ export const tenantRoutes: MenuRoutes[] = [
           },
         ],
       },
-      {
-        title: 'STAFF PAYROLL',
-        items: [
-          {
-            path: 'staff-salaries',
-            label: 'Staff Salaries',
-            showSideBar: true,
-            component: () => import('@/tenant/components/globals/ComingSoon.vue'),
-          },
-          {
-            path: 'staff-advances',
-            label: 'Staff Advances',
-            showSideBar: true,
-            component: () => import('@/tenant/components/globals/ComingSoon.vue'),
-          },
-          {
-            path: 'staff-allowances',
-            label: 'Staff Allowances',
-            showSideBar: true,
-            component: () => import('@/tenant/components/globals/ComingSoon.vue'),
-          },
-        ],
-      },
+
     ],
   },
 
