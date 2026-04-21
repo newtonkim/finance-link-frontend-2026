@@ -72,12 +72,7 @@ export const tenantRoutes: MenuRoutes[] = [
             label: 'Staff',
             component: () => import('@/tenant/modules/staff/Index.vue'),
           },
-        ],
-      },
-      {
-        title: 'STAFF PAYROLL',
-        items: [
-          {
+            {
             path: 'staff-salaries',
             label: 'Staff Salaries',
             showSideBar: true,
@@ -97,6 +92,7 @@ export const tenantRoutes: MenuRoutes[] = [
           },
         ],
       },
+    
     ],
   },
 
