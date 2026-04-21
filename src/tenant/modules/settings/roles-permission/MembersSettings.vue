@@ -44,7 +44,7 @@ const settingsCards = [
         route: { name: "tenant-settings-members-roles-permission" },
     },
     {
-        title: "KYC / Member Onboarding",
+        title: "Member Onboarding",
         description: "Setup onboarding requirements and KYC documents.",
         type: "onboarding",
     },
@@ -104,9 +104,8 @@ async function handleSave() {
             </div>
         </div>
         <SettingCard :settingsCards="settingsCards">
-            <template #kyc-member-onboarding>
+            <template #member-onboarding>
                 <div class="flex flex-col gap-2 items-start">
-                    <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Setup KYC →</button>
                     <kycMembersModel />
                 </div>
             </template>

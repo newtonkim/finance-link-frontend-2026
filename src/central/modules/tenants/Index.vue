@@ -53,9 +53,12 @@ const showFooter=ref(0)
 const triggerAction: Record<string, Function> = {
     delete: Erase,
     async create() {
-        await create(formData.value)
-        formData.value = {}
-        tableRef.value.toggleDrawer()
+        const res = await create(formData.value)
+        if (!res || res.status === 200) {
+            formData.value = {}
+            tableRef.value?.refresh()
+            tableRef.value?.toggleDrawer()
+        }
     }
 }
 const title: Record<string, string> = {

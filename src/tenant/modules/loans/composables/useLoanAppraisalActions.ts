@@ -1,7 +1,13 @@
 import { ref, type Ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { toast } from 'vue-sonner'
-import { loanApplicationsApi, type LoanApplication } from '../../../apis/loans/loanApplicationsApi'
+import type { AxiosError } from 'axios'
+import { loanApplicationsApi, type LoanApplication, type CommitteeVote } from '../../../apis/loans/loanApplicationsApi'
+
+interface ApiErrorResponse {
+    message?: string
+    errors?: Record<string, string[]>
+}
 
 export function useLoanAppraisalActions(
     application: Ref<LoanApplication | null>,
@@ -19,8 +25,9 @@ export function useLoanAppraisalActions(
             await loanApplicationsApi.takeForReview(id())
             toast.success('Application taken for review.')
             await reload()
-        } catch (err: any) {
-            toast.error(err?.response?.data?.message ?? 'Failed to take application for review.')
+        } catch (err: unknown) {
+            const error = err as AxiosError<ApiErrorResponse>
+            toast.error(error?.response?.data?.message ?? 'Failed to take application for review.')
         } finally {
             takingForReview.value = false
         }
@@ -35,8 +42,9 @@ export function useLoanAppraisalActions(
             await loanApplicationsApi.resumeReview(id())
             toast.success('Review resumed.')
             await reload()
-        } catch (err: any) {
-            toast.error(err?.response?.data?.message ?? 'Failed to resume review.')
+        } catch (err: unknown) {
+            const error = err as AxiosError<ApiErrorResponse>
+            toast.error(error?.response?.data?.message ?? 'Failed to resume review.')
         } finally {
             resumingReview.value = false
         }
@@ -48,6 +56,7 @@ export function useLoanAppraisalActions(
     const appraiseForm      = ref({
         recommended_amount: '' as string | number,
         recommended_term:   '' as string | number,
+        recommended_interest_rate: '' as string | number,
         risk_rating:        'medium',
         appraisal_notes:    '',
     })
@@ -57,6 +66,7 @@ export function useLoanAppraisalActions(
         appraiseForm.value = {
             recommended_amount: application.value?.requested_amount ?? '',
             recommended_term:   application.value?.requested_term   ?? '',
+            recommended_interest_rate: application.value?.loan_product?.interest_rate ?? '',
             risk_rating:        'medium',
             appraisal_notes:    '',
         }
@@ -74,25 +84,32 @@ export function useLoanAppraisalActions(
             appraiseErrors.value.recommended_term = 'Recommended term is required.'
             return
         }
+        if (appraiseForm.value.recommended_interest_rate === '' || Number(appraiseForm.value.recommended_interest_rate) < 0) {
+            appraiseErrors.value.recommended_interest_rate = 'Interest rate is required.'
+            return
+        }
 
         appraising.value = true
         try {
             await loanApplicationsApi.appraise(id(), {
                 recommended_amount: appraiseForm.value.recommended_amount,
                 recommended_term:   appraiseForm.value.recommended_term,
+                recommended_interest_rate: appraiseForm.value.recommended_interest_rate,
                 risk_rating:        appraiseForm.value.risk_rating,
                 appraisal_notes:    appraiseForm.value.appraisal_notes || null,
             })
             toast.success('Application appraised and recommended.')
             showAppraiseModal.value = false
             await reload()
-        } catch (err: any) {
-            const errors = err?.response?.data?.errors ?? {}
-            if (errors.recommended_amount) appraiseErrors.value.recommended_amount = errors.recommended_amount[0]
-            if (errors.recommended_term)   appraiseErrors.value.recommended_term   = errors.recommended_term[0]
-            if (errors.risk_rating)        appraiseErrors.value.risk_rating        = errors.risk_rating[0]
+        } catch (err: unknown) {
+            const error = err as AxiosError<ApiErrorResponse>
+            const errors = error?.response?.data?.errors ?? {}
+            if (errors.recommended_amount) appraiseErrors.value.recommended_amount = errors.recommended_amount[0] ?? ''
+            if (errors.recommended_term)   appraiseErrors.value.recommended_term   = errors.recommended_term[0] ?? ''
+            if (errors.recommended_interest_rate) appraiseErrors.value.recommended_interest_rate = errors.recommended_interest_rate[0] ?? ''
+            if (errors.risk_rating)        appraiseErrors.value.risk_rating        = errors.risk_rating[0] ?? ''
             if (!Object.keys(appraiseErrors.value).length) {
-                toast.error(err?.response?.data?.message ?? 'Failed to appraise application.')
+                toast.error(error?.response?.data?.message ?? 'Failed to appraise application.')
             }
         } finally {
             appraising.value = false
@@ -123,9 +140,10 @@ export function useLoanAppraisalActions(
             toast.success('Application flagged as awaiting documents.')
             showRequestDocsModal.value = false
             await reload()
-        } catch (err: any) {
-            requestDocsError.value = err?.response?.data?.errors?.note?.[0]
-                ?? err?.response?.data?.message
+        } catch (err: unknown) {
+            const error = err as AxiosError<ApiErrorResponse>
+            requestDocsError.value = error?.response?.data?.errors?.note?.[0]
+                ?? error?.response?.data?.message
                 ?? 'Failed to request documents.'
         } finally {
             requestingDocs.value = false
@@ -156,9 +174,10 @@ export function useLoanAppraisalActions(
             toast.success('Application returned for corrections.')
             showReturnModal.value = false
             await reload()
-        } catch (err: any) {
-            returnError.value = err?.response?.data?.errors?.reason?.[0]
-                ?? err?.response?.data?.message
+        } catch (err: unknown) {
+            const error = err as AxiosError<ApiErrorResponse>
+            returnError.value = error?.response?.data?.errors?.reason?.[0]
+                ?? error?.response?.data?.message
                 ?? 'Failed to return application.'
         } finally {
             returning.value = false
@@ -189,9 +208,10 @@ export function useLoanAppraisalActions(
             toast.success('Application rejected.')
             showRejectModal.value = false
             await reload()
-        } catch (err: any) {
-            rejectError.value = err?.response?.data?.errors?.reason?.[0]
-                ?? err?.response?.data?.message
+        } catch (err: unknown) {
+            const error = err as AxiosError<ApiErrorResponse>
+            rejectError.value = error?.response?.data?.errors?.reason?.[0]
+                ?? error?.response?.data?.message
                 ?? 'Failed to reject application.'
         } finally {
             rejecting.value = false
@@ -215,8 +235,9 @@ export function useLoanAppraisalActions(
             toast.success('Approval vote recorded.')
             showApproveModal.value = false
             await reload()
-        } catch (err: any) {
-            toast.error(err?.response?.data?.message ?? 'Failed to record approval.')
+        } catch (err: unknown) {
+            const error = err as AxiosError<ApiErrorResponse>
+            toast.error(error?.response?.data?.message ?? 'Failed to record approval.')
         } finally {
             approving.value = false
         }
@@ -246,9 +267,10 @@ export function useLoanAppraisalActions(
             toast.success('Application declined.')
             showDeclineModal.value = false
             await reload()
-        } catch (err: any) {
-            declineError.value = err?.response?.data?.errors?.reason?.[0]
-                ?? err?.response?.data?.message
+        } catch (err: unknown) {
+            const error = err as AxiosError<ApiErrorResponse>
+            declineError.value = error?.response?.data?.errors?.reason?.[0]
+                ?? error?.response?.data?.message
                 ?? 'Failed to decline application.'
         } finally {
             declining.value = false
@@ -270,8 +292,9 @@ export function useLoanAppraisalActions(
             toast.success('Application recommended to committee.')
             showBMRecommendModal.value = false
             await reload()
-        } catch (err: any) {
-            toast.error(err?.response?.data?.message ?? 'Failed to recommend application.')
+        } catch (err: unknown) {
+            const error = err as AxiosError<ApiErrorResponse>
+            toast.error(error?.response?.data?.message ?? 'Failed to recommend application.')
         } finally {
             bmRecommending.value = false
         }
@@ -292,8 +315,9 @@ export function useLoanAppraisalActions(
             toast.success('Application returned for correction.')
             showBMReturnModal.value = false
             await reload()
-        } catch (err: any) {
-            toast.error(err?.response?.data?.message ?? 'Failed to return application.')
+        } catch (err: unknown) {
+            const error = err as AxiosError<ApiErrorResponse>
+            toast.error(error?.response?.data?.message ?? 'Failed to return application.')
         } finally {
             bmReturning.value = false
         }
@@ -315,18 +339,19 @@ export function useLoanAppraisalActions(
             showVoteModal.value = false
             await reload()
             await loadVotes()
-        } catch (err: any) {
-            toast.error(err?.response?.data?.message ?? 'Failed to record vote.')
+        } catch (err: unknown) {
+            const error = err as AxiosError<ApiErrorResponse>
+            toast.error(error?.response?.data?.message ?? 'Failed to record vote.')
         } finally {
             voting.value = false
         }
     }
 
     // ─── Vote tally ──────────────────────────────────────────────────────────
-    const voteTally = ref<any>(null)
+    const voteTally = ref<Record<string, unknown> | null>(null)
     const loadingVotes = ref(false)
-    const committeeMembers = ref<any[]>([])
-    const committeeVotes = ref<any[]>([])
+    const committeeMembers = ref<{ id: number; name: string; has_voted: boolean; decision: string }[]>([])
+    const committeeVotes = ref<CommitteeVote[]>([])
 
     async function loadVotes() {
         loadingVotes.value = true
@@ -336,7 +361,7 @@ export function useLoanAppraisalActions(
             voteTally.value = data
             committeeVotes.value   = data?.votes ?? []
             committeeMembers.value = data?.committee_members ?? []
-        } catch (err: any) {
+        } catch {
             // Silently fail for vote loading
         } finally {
             loadingVotes.value = false

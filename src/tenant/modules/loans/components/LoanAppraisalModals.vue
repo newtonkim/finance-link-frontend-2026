@@ -144,6 +144,13 @@ const btnCancel = 'rounded-xl border border-neutral-200 px-4 py-2 text-sm font-m
                                     :class="appraiseErrors.recommended_term ? 'border-red-300' : ''" />
                                 <p v-if="appraiseErrors.recommended_term" class="mt-1 text-xs text-red-500">{{ appraiseErrors.recommended_term }}</p>
                             </div>
+                            <div>
+                                <label class="block text-xs font-medium text-neutral-600 dark:text-neutral-400">Interest Rate (%) <span class="text-red-400">*</span></label>
+                                <input v-model="appraiseForm.recommended_interest_rate" type="number" step="0.01" min="0" placeholder="0.00"
+                                    class="mt-1.5 w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                                    :class="appraiseErrors.recommended_interest_rate ? 'border-red-300' : ''" />
+                                <p v-if="appraiseErrors.recommended_interest_rate" class="mt-1 text-xs text-red-500">{{ appraiseErrors.recommended_interest_rate }}</p>
+                            </div>
                             <div class="sm:col-span-2">
                                 <label class="block text-xs font-medium text-neutral-600 dark:text-neutral-400">Risk Rating <span class="text-red-400">*</span></label>
                                 <div class="mt-1.5 grid grid-cols-4 gap-2">
