@@ -36,7 +36,9 @@
                             <div v-auth="child?.permissions" 
                                 class="w-[240px] flex flex-col border border-neutral-100 bg-white shadow-xl dark:border-neutral-800 dark:bg-neutral-900/95 backdrop-blur-md rounded-2xl overflow-hidden py-3">
                                 <div
-                                    class="px-4 py-2 mx-3 mb-2 rounded-lg bg-nfuko-primary/10 dark:bg-bg-nfuko-yellow/10 text-nfuko-primary dark:text-bg-nfuko-yellow font-bold text-[11px] uppercase tracking-wider">
+                                    :class="child.titleStyle === 'green'
+                                        ? 'px-4 py-2 mx-3 mb-2 rounded-lg bg-nfuko-primary text-white font-bold text-[11px] uppercase tracking-wider'
+                                        : 'px-4 py-2 mx-3 mb-2 rounded-lg bg-nfuko-primary/10 dark:bg-bg-nfuko-yellow/10 text-nfuko-primary dark:text-bg-nfuko-yellow font-bold text-[11px] uppercase tracking-wider'">
                                     {{ child.title }}
                                 </div>
                                 <div class="px-2">
