@@ -3,6 +3,7 @@ import { tenantClient } from '../tenantClient'
 import { fetchTableData } from '@/Global/landingLayout/util'
 import { formDataFormat, formDataFormatV2, getLocalValues } from '@/Global/Helpers'
 
+
 export interface LoanApplicationStatusHistory {
   id: number
   from_status: string | null
@@ -63,6 +64,7 @@ export interface DisbursedLoan {
   interest_rate: string
   term_months: number
   disbursed_at: string
+  schedule_date?: string
   disbursement_method: string
   disbursement_reference: string | null
   status: string
@@ -89,9 +91,11 @@ export interface LoanApplication {
   recommended_amount?: number | string | null
   recommended_amount_formatted?: string | null
   recommended_term?: number | null
+  recommended_interest_rate?: number | string | null
   approved_amount?: number | string | null
   approved_amount_formatted?: string | null
   approved_term?: number | null
+  approved_interest_rate?: number | string | null
   rejection_reason?: string | null
   cancellation_reason?: string | null
   cancelled_at?: string | null
@@ -106,6 +110,8 @@ export interface LoanApplication {
   approved_at?: string | null
   rejected_at?: string | null
   disbursed_at?: string | null
+  schedule_date?: string
+  proposed_start_date?: string
   disbursed_loan_id?: number | null
   disbursed_loan?: DisbursedLoan | null
   created_at?: string
@@ -298,6 +304,7 @@ export const loanApplicationsApi = {
     data: {
       recommended_amount: number | string
       recommended_term: number | string
+      recommended_interest_rate: number | string
       risk_rating: string
       appraisal_notes?: string | null
     },
@@ -345,6 +352,7 @@ export const loanApplicationsApi = {
       disbursement_method: string
       disbursement_reference?: string | null
       disbursement_date?: string | null
+      schedule_date?: string | null
       notes?: string | null
       charge_deduction_mode?: string | null
       savings_account_id?: number | null
@@ -382,6 +390,7 @@ export const loanApplicationsApi = {
     data: {
       final_approved_amount: number | string
       final_approved_term: number
+      approved_interest_rate: number | string
       proposed_start_date: string
     },
   ) {
@@ -389,13 +398,13 @@ export const loanApplicationsApi = {
   },
   getProposedSchedule(
     id: number,
-    params?: { amount?: number | string; term?: number; start_date?: string },
+    params?: { amount?: number | string; term?: number; start_date?: string; interest_rate?: number | string },
   ) {
     return tenantClient.get(`/loan-applications/${id}/proposed-schedule`, { params })
   },
   exportProposedSchedule(
     id: number,
-    params?: { amount?: number | string; term?: number; start_date?: string },
+    params?: { amount?: number | string; term?: number; start_date?: string; interest_rate?: number | string },
   ) {
     return tenantClient.get(`/loan-applications/${id}/proposed-schedule/export`, {
       params,
@@ -425,9 +434,17 @@ export const loanApplicationsApi = {
   listCollaterals(applicationId: number) {
     return tenantClient.get(`/loan-applications/${applicationId}/collaterals`)
   },
-  addCollateral(applicationId: number, data: Record<string, any>) {
+  addCollateral(applicationId: number, data: Record<string, unknown>) {
     const form = new FormData()
-    Object.entries(data).forEach(([k, v]) => { if (v !== undefined && v !== null) form.append(k, v) })
+    Object.entries(data).forEach(([k, v]) => {
+      if (v !== undefined && v !== null) {
+        if (typeof v === 'string' || v instanceof Blob) {
+          form.append(k, v)
+        } else {
+          form.append(k, String(v))
+        }
+      }
+    })
     return tenantClient.post(`/loan-applications/${applicationId}/collaterals`, form, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })

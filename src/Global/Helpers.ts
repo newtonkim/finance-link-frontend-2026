@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // import Swal from "sweetalert2";
 import { EncryptStorage } from 'encrypt-storage'
-import { apiClient, apiClient as customAxios } from '@/central/api/client'
+// import { apiClient, apiClient as customAxios } from '@/central/api/client'
 const encryptStorage = new EncryptStorage(import.meta.env.VITE_ENCRYPT_STORAGE)
 import { notify } from '@/Global/Toasters'
 import * as XLSX from 'xlsx'
@@ -75,14 +76,14 @@ export function setIpEverLoged(data: any): void {
     console.error(`Failed to store key "${keysToUse['IpEverLoged']}":`, error)
   }
 }
-export function setLocalValues(key: any, data: any): void {
+export function setLocalValues(key: keyof typeof keysToUse, data: unknown): void {
   try {
     encryptStorage.setItem(keysToUse[key], data)
   } catch (error) {
     console.error(`Failed to store key "${keysToUse['IpEverLoged']}":`, error)
   }
 }
-export function getLocalValues(key: any) {
+export function getLocalValues(key: keyof typeof keysToUse) {
   try {
     return encryptStorage.getItem(keysToUse[key])
   } catch (error) {
@@ -359,7 +360,9 @@ export function scopeValues(data: any) {
 export function isJSON(jsonString: string) {
   try {
     return JSON.parse(jsonString)
-  } catch (e) {}
+  } catch {
+    // ignore
+  }
   return jsonString
 }
 export function formDataFormatV2(fields: any[]) {
@@ -393,19 +396,13 @@ export function formDataFormatV2(fields: any[]) {
   return fd
 }
 
-function isISODate(value: any) {
-  return (
-    typeof value === 'string' &&
-    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(value) &&
-    !isNaN(new Date(value).getTime())
-  )
-}
+
 export function formDataFormat(data: any) {
   // first version
-  let formData = new FormData()
+  const formData = new FormData()
 
-  for (let key in data) {
-    let value = data[key]
+  for (const key in data) {
+    const value = data[key]
 
     if (Array.isArray(value)) {
       // Handle arrays
@@ -602,11 +599,15 @@ export function getSubdomainName() {
   return subdomain
 }
 
-export function RouteStructure(route: any, routePath: string) {
+export function RouteStructure(route: any, routePath: string | null) {
   return {
-    name: `${routePath}`.replaceAll('/', '-'),
-    path: `/${routePath}`,
+    name: routePath ? `${routePath}`.replace(/\//g, '-') : '',
+    path: routePath ? `/${routePath}` : '',
     component: route.component,
+    meta: {
+      label: route.label,
+      permissions: route.permissions,
+    }
   }
 }
 export function checkIfObjectPlain(collection: any) {
@@ -615,7 +616,7 @@ export function checkIfObjectPlain(collection: any) {
     return true
   }
 }
-export function routebuilder(routes = [], prifix = 'central') {
+export function routebuilder(routes: any[] = [], prifix = 'central') {
   const collecction: any = []
   routes.forEach((route) => {
     if (!route?.children) {
@@ -623,9 +624,9 @@ export function routebuilder(routes = [], prifix = 'central') {
       //  if(hasPermission(route?.permissions))
       collecction.push(RouteStructure(route, routePath))
     } else if (Array.isArray(route.children)) {
-      route.children.forEach((child) => {
+      route.children.forEach((child: any) => {
         if (child?.items) {
-          child.items.forEach((item) => {
+          child.items.forEach((item: any) => {
             // const childRoutePath = `${prifix}/${item.path}`
             const childRoutePath = item.path ? `${prifix}/${item.path}` : null
             // if (hasPermission(route?.permissions))
@@ -640,7 +641,7 @@ export function routebuilder(routes = [], prifix = 'central') {
 
 export function feedback(res: any, success?: string, fail?: string) {
   let successStatus = false
-  let msg: Record<string, string> = {
+  let msg: Record<string, any> = {
     msg: res.error || success,
     type: 'Error',
     success: successStatus,
@@ -652,7 +653,7 @@ export function feedback(res: any, success?: string, fail?: string) {
     } else if (res.error.message) {
       msg.msg = res.error.message
     } else if (res.error.response?.data?.errors) {
-      const errors = res.error.response.data.errors
+      const errors = res.error.response.data.errors as Record<string, any>
       msg.msg = Object.values(errors)[0][0] || msg.msg
     }
     if (res?.error?.response?.data?.payload?.message) {
@@ -694,15 +695,15 @@ export function createUrl(url: string, action: string) {
 export async function copyToClipboard(text: string) {
   try {
     await navigator.clipboard.writeText(text)
-    notify({ pos: 'br', type: 'Info', msg: 'Copied!' })
+    notify({ pos: 'br', type: 'info', msg: 'Copied!' })
   } catch (err) {
-    notify({ pos: 'br', type: 'warning', message: 'failed to copy' })
+    notify({ pos: 'br', type: 'warning', msg: 'failed to copy' })
     console.error('Failed to copy:', err)
   }
 }
 
 export function exptendAformField({ fields, nextto, field }: any) {
-  const existsIndex = fields.value.findIndex((f) => f.name === nextto)
+  const existsIndex = fields.value.findIndex((f: any) => f.name === nextto)
   if (existsIndex === 1) {
     fields.value.splice(existsIndex + 1, 0, { ...field })
   } else {
@@ -736,8 +737,8 @@ const formatFileName = (name: string) => {
 })
  **/
 export const exportToExcel = ({
-  data = [],
-  headers = [],
+  data = [] as any[],
+  headers = [] as any[],
   name = 'export',
   sheetName = 'Sheet1',
 }) => {

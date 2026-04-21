@@ -9,6 +9,7 @@ interface DisburseForm {
     disbursement_method: string
     disbursement_reference: string
     disbursement_date: string
+    schedule_date: string
     notes: string
     savings_account_id?: number | null
     mobile_money_provider?: string | null
@@ -64,8 +65,17 @@ const netDisbursed = computed(() => {
     return Math.round(base * 100) / 100
 })
 
+interface SavingsAccount {
+    id: number
+    account_no: string
+    balance_formatted: string
+    savings_product?: {
+        name: string
+    }
+}
+
 // ─── Savings accounts ─────────────────────────────────────────────────────────
-const savingsAccounts = ref<any[]>([])
+const savingsAccounts = ref<SavingsAccount[]>([])
 const loadingSavings = ref(false)
 
 async function fetchSavingsAccounts() {
@@ -76,6 +86,12 @@ async function fetchSavingsAccounts() {
         const res = await savingsAccountsApi.list({ member_id: Number(memberId), status: 'active' })
         const payload = res.data?.data
         savingsAccounts.value = Array.isArray(payload) ? payload : []
+
+        // Auto-populate if only one account exists
+        const firstAccount = savingsAccounts.value[0]
+        if (savingsAccounts.value.length === 1 && form.value.disbursement_method === 'savings_account' && firstAccount) {
+            form.value.savings_account_id = firstAccount.id
+        }
     } catch (e) {
         console.error('Failed to fetch savings accounts', e)
         savingsAccounts.value = []
@@ -89,8 +105,12 @@ watch(() => props.open, (open) => {
 })
 
 watch(() => form.value.disbursement_method, (method) => {
-    if (method === 'savings_account' && props.open && savingsAccounts.value.length === 0) {
-        fetchSavingsAccounts()
+    if (method === 'savings_account' && props.open) {
+        if (savingsAccounts.value.length === 0) {
+            fetchSavingsAccounts()
+        } else if (savingsAccounts.value.length === 1 && savingsAccounts.value[0]) {
+            form.value.savings_account_id = savingsAccounts.value[0].id
+        }
     }
 })
 
@@ -346,16 +366,27 @@ const deductionModeLabel: Record<string, string> = {
                                 <p v-if="errMsg('disbursement_reference')" class="mt-1 text-xs text-red-500">{{ errMsg('disbursement_reference') }}</p>
                             </div>
 
-                            <!-- Date -->
-                            <div>
-                                <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                                    <Calendar class="inline h-3.5 w-3.5 mr-0.5" />Disbursement Date
-                                </label>
-                                <input v-model="form.disbursement_date" type="date"
-                                    class="mt-1.5 w-full rounded-xl border border-neutral-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
-                                    :class="errMsg('disbursement_date') ? 'border-red-300 dark:border-red-700' : ''" />
-                                <p v-if="errMsg('disbursement_date')" class="mt-1 text-xs text-red-500">{{ errMsg('disbursement_date') }}</p>
-                            </div>
+                             <!-- Dates -->
+                             <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                        <Calendar class="inline h-3.5 w-3.5 mr-0.5" />Disbursement Date
+                                    </label>
+                                    <input v-model="form.disbursement_date" type="date"
+                                        class="mt-1.5 w-full rounded-xl border border-neutral-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                                        :class="errMsg('disbursement_date') ? 'border-red-300 dark:border-red-700' : ''" />
+                                    <p v-if="errMsg('disbursement_date')" class="mt-1 text-xs text-red-500">{{ errMsg('disbursement_date') }}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                        <Calendar class="inline h-3.5 w-3.5 mr-0.5" />Schedule Date
+                                    </label>
+                                    <input v-model="form.schedule_date" type="date"
+                                        class="mt-1.5 w-full rounded-xl border border-neutral-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                                        :class="errMsg('schedule_date') ? 'border-red-300 dark:border-red-700' : ''" />
+                                    <p v-if="errMsg('schedule_date')" class="mt-1 text-xs text-red-500">{{ errMsg('schedule_date') }}</p>
+                                </div>
+                             </div>
 
                             <!-- Notes -->
                             <div>

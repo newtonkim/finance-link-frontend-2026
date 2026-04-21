@@ -8,7 +8,7 @@ import {
 import { formatMoneyValue } from '@/Global'
 import { useLoanApplicationHelpers } from '../composables/useLoanApplicationHelpers'
 import LoanDocumentUploader from './LoanDocumentUploader.vue'
-import type { LoanApplication, TimelineEvent } from '../../../apis/loans/loanApplicationsApi'
+import type { LoanApplication, TimelineEvent, CommitteeVote } from '../../../apis/loans/loanApplicationsApi'
 import { loanApplicationsApi } from '../../../apis/loans/loanApplicationsApi'
 
 interface ScheduleInstallment {
@@ -23,7 +23,7 @@ interface ScheduleData {
 
 const props = defineProps<{
     application: LoanApplication
-    committeeVotes: any[]
+    committeeVotes: CommitteeVote[]
     timeline: TimelineEvent[]
     timelineLoading: boolean
     documentEditableStatuses: string[]
@@ -32,7 +32,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{ openDisburse: []; loadApplication: [] }>()
 
-const { displayAmount, riskBadgeClass, formatDate, formatDateTime, timelineIconClass } = useLoanApplicationHelpers()
+const { displayAmount, riskBadgeClass, formatDateTime, timelineIconClass } = useLoanApplicationHelpers()
 
 // ─── Tabs ─────────────────────────────────────────────────────────────────────
 type TabKey = 'general' | 'schedule' | 'documents' | 'audit' | 'charges'
@@ -60,7 +60,8 @@ async function loadProposedSchedule() {
     try {
         const res = await loanApplicationsApi.getProposedSchedule(props.application.id!, {
             amount:     (props.application.approved_amount ?? props.application.recommended_amount) ?? undefined,
-            term:       (props.application.approved_term  ?? props.application.recommended_term)  ?? undefined,
+            term:       (props.application.approved_term ?? props.application.recommended_term) ?? undefined,
+            interest_rate: (props.application.approved_interest_rate ?? props.application.recommended_interest_rate) ?? undefined,
             start_date: scheduleStartDate.value || undefined,
         })
         scheduleData.value = res.data.data
@@ -75,14 +76,16 @@ async function loadProposedSchedule() {
 async function exportProposedSchedule(mode: 'download' | 'print') {
     if (!props.application?.id) return
     
-    const params: any = {}
+    const params: { start_date?: string; amount?: string | number; term?: number; interest_rate?: number | string } = {}
     if (scheduleStartDate.value) params.start_date = scheduleStartDate.value
     
     const amount = props.application.approved_amount ?? props.application.recommended_amount
     const term = props.application.approved_term ?? props.application.recommended_term
+    const rate = props.application.approved_interest_rate ?? props.application.recommended_interest_rate
     
     if (amount) params.amount = String(amount)
-    if (term) params.term = String(term)
+    if (term) params.term = Number(term)
+    if (rate) params.interest_rate = String(rate)
 
     try {
         if (mode === 'print') isPrinting.value = true
@@ -317,15 +320,23 @@ function formatRepaymentCycle(val: string | null | undefined) {
                                 </div>
                             </div>
 
-                            <!-- Appraised by -->
-                            <div v-if="application.recommended_by">
-                                <dt class="mb-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Appraised By</dt>
-                                <dd class="flex items-center gap-3">
-                                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-sm font-bold text-blue-700 dark:bg-blue-900/40 dark:text-blue-400">
-                                        {{ application.recommended_by.name.charAt(0).toUpperCase() }}
-                                    </div>
-                                    <span class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">{{ application.recommended_by.name }}</span>
-                                </dd>
+                            <!-- Appraised by + Interest Rate side by side -->
+                            <div class="grid grid-cols-2 gap-3">
+                                <div v-if="application.recommended_by">
+                                    <dt class="mb-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Appraised By</dt>
+                                    <dd class="flex items-center gap-3">
+                                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-sm font-bold text-blue-700 dark:bg-blue-900/40 dark:text-blue-400">
+                                            {{ application.recommended_by.name.charAt(0).toUpperCase() }}
+                                        </div>
+                                        <span class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">{{ application.recommended_by.name }}</span>
+                                    </dd>
+                                </div>
+                                <div v-if="application.approved_interest_rate || application.recommended_interest_rate" class="rounded-xl border border-green-200 bg-green-50/60 p-3 dark:border-green-900/30 dark:bg-green-900/10">
+                                    <dt class="mb-1 text-[10px] font-bold uppercase tracking-wider text-green-600 dark:text-green-400">Approved Interest Rate</dt>
+                                    <dd class="tabular-nums text-lg font-bold text-green-700 dark:text-green-300">
+                                        {{ application.approved_interest_rate ?? application.recommended_interest_rate }}%
+                                    </dd>
+                                </div>
                             </div>
 
                             <!-- Appraisal notes -->
@@ -452,8 +463,8 @@ function formatRepaymentCycle(val: string | null | undefined) {
                             :class="scheduleData.interest_method === 'flat' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'">
                             {{ scheduleData.interest_method === 'flat' ? 'Flat Rate' : 'Reducing Balance' }}
                         </span>
-                        <span v-if="application.loan_product?.interest_rate" class="text-[11px] text-neutral-500 dark:text-neutral-400">
-                            {{ application.loan_product.interest_rate }}% {{ application.loan_product.interest_period === 'per_month' ? 'per month' : 'per annum' }}
+                        <span v-if="application.approved_interest_rate || application.recommended_interest_rate || application.loan_product?.interest_rate" class="text-[11px] text-neutral-500 dark:text-neutral-400">
+                            {{ application.approved_interest_rate ?? application.recommended_interest_rate ?? application.loan_product?.interest_rate }}% {{ application.loan_product?.interest_period === 'per_month' ? 'per month' : 'per annum' }}
                         </span>
                     </div>
                     <div class="grid grid-cols-2 gap-3 sm:grid-cols-5">

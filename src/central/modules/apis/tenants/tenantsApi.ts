@@ -25,6 +25,7 @@ export function tenantsApi() {
       }
     }
     notify(msg)
+    return res
   }
   async function fetchPositions(data?: any) {
     const res: any = await fetchTableData({

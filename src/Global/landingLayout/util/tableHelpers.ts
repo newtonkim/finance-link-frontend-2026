@@ -14,9 +14,9 @@ export default function useTableHelpers(props: any, emit: any) {
   const DrawerMounted = ref<boolean>(true)
   const submitChanges = ref<any>(null)
   const provideDataTotheParent = ref<any>([])
-  const finalSubmitAction = ref<string>(null)
+  const finalSubmitAction = ref<string | null>(null)
   const drawerTitle = ref(props.drawerTitle)
-  const drawerShooter2 = ref(true)
+  const drawerShooter2 = ref<boolean | null>(true)
   const drawerWidth = ref(props.drawerWidth)
   const currentPage = ref(1)
   const dropdownDownload = [
@@ -149,7 +149,7 @@ export default function useTableHelpers(props: any, emit: any) {
     emit('save', type, data, submitChanges.value)
   }
 
-  async function automaticCreateFun(data) {
+  async function automaticCreateFun(data: any) {
     // console.log(props.automaticCreate,"props.automaticCreate");
 
     // if (props.automaticCreate) {
@@ -339,12 +339,12 @@ export default function useTableHelpers(props: any, emit: any) {
       callOnmount()
     },
   )
-    watch(
-      () =>  props.drawerShowFooter,
-      (vl) => {
-      drawerShooter2.value = vl // on side of central  it help
-      },
-    )
+  watch(
+    () => props.drawerShowFooter,
+    (vl) => {
+      drawerShooter2.value = vl // on side of central it help
+    },
+  )
   watch(
     () => drawerOpen.value,
     (v) => {
@@ -373,7 +373,7 @@ export default function useTableHelpers(props: any, emit: any) {
       fetchTableData({ data: null, props: { ...props, reload: false, time: 0 }, Store })
   }
 
-  function haspermission(permission = '') {
+  function haspermission(permission: string = '') {
     return props.permissions?.[permission]
   }
   function printDataInDrawer() {

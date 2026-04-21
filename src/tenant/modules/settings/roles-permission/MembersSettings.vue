@@ -49,10 +49,10 @@ const settingsCards = [
         type: "onboarding",
     },
     {
-        title: "Membership Tiers",
-        description: "Create and manage different levels of membership.",
+        title: "Staff PayRoll",
+        description: "Manage staff payroll, compensation, and related settings.",
         type: "button",
-        action: "Manage Tiers →"
+        action: "Manage Payroll →"
     }
 ]
 
@@ -98,15 +98,27 @@ async function handleSave() {
                 <Users class="h-5 w-5  text-nfuko-primary dark:text-bg-nfuko-yellow" />
             </div>
             <div>
-                <h1 class="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">Members & Roles</h1>
+                <h1 class="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">Members, Staff & Roles</h1>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400">Manage users, permissions, and member
                     onboarding</p>
             </div>
         </div>
         <SettingCard :settingsCards="settingsCards">
+            <template #staff-payroll>
+                <div class="mt-4 flex flex-col gap-2 border-t border-neutral-100 pt-4 dark:border-neutral-800">
+                    <RouterLink :to="{ name: 'tenant-staff-salaries' }" class="text-sm font-medium text-nfuko-primary hover:underline dark:text-bg-nfuko-yellow">
+                        Staff Salaries →
+                    </RouterLink>
+                    <RouterLink :to="{ name: 'tenant-staff-advances' }" class="text-sm font-medium text-nfuko-primary hover:underline dark:text-bg-nfuko-yellow">
+                        Staff Advances →
+                    </RouterLink>
+                    <RouterLink :to="{ name: 'tenant-staff-allowances' }" class="text-sm font-medium text-nfuko-primary hover:underline dark:text-bg-nfuko-yellow">
+                        Staff Allowances →
+                    </RouterLink>
+                </div>
+            </template>
             <template #kyc-member-onboarding>
                 <div class="flex flex-col gap-2 items-start">
-                    <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Setup KYC →</button>
                     <kycMembersModel />
                 </div>
             </template>

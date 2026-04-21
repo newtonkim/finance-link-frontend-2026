@@ -62,6 +62,13 @@
 <script setup>
 import { fetchTableData } from '@/Global';
 import { onMounted, ref, watch } from 'vue';
+const props = defineProps({
+    selected: {
+        type: Array,
+        default: () => [],
+    }
+});
+
 const emits = defineEmits(['update:form', "change"]);
 import { pomPinia } from 'septor-store';
 const Store = pomPinia();
@@ -70,6 +77,7 @@ const form = ref({
     plan: '',
     license_months: 0,
 });
+
 async function collect(data = {}) {
     const res = await fetchTableData({
         data,
@@ -80,6 +88,15 @@ async function collect(data = {}) {
         Store,
     })
     plansCollection.value = res?.payload?.data
+
+    // After loading plans, try to sync from props if they exist
+    if (props.selected?.length) {
+        const p = props.selected.find(f => f.name === 'plan')?.value
+        const d = props.selected.find(f => f.name === 'license_months')?.value
+        if (p) form.value.plan = p
+        if (d) form.value.license_months = d
+    }
+
     return res
 }
 
@@ -92,7 +109,7 @@ function filterDurations() {
     return [...new Set(durations)];
 }
 
-watch(()=>form.value, (newValue) => {
+watch(form, (newValue) => {
     if (newValue) {
         const data = []
         for (const key in newValue) {
@@ -104,6 +121,6 @@ watch(()=>form.value, (newValue) => {
         }
         emits('change', data);
     }
-}, { deep: true });
+}, { deep: true, immediate: true });
 
 </script>
