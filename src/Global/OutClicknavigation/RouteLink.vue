@@ -3,23 +3,17 @@
     <template v-if="Array.isArray(item)">
         <template v-for="subItem in item" :key="subItem.path">
 
-            <div v-if="subItem.type === 'header'"
-                :class="subItem.titleStyle === 'green'
-                    ? 'px-4 py-2 mb-2 rounded-lg bg-nfuko-primary text-white font-bold text-[11px] uppercase tracking-wider'
-                    : 'px-4 py-2 mb-2 rounded-lg bg-nfuko-primary/10 dark:bg-bg-nfuko-yellow/10 text-nfuko-primary dark:text-bg-nfuko-yellow font-bold text-[11px] uppercase tracking-wider'">
-                {{ subItem.label }}
-            </div>
-            <div v-else v-auth="subItem.permissions" @click="() => handleClick(subItem)">
-                <RouterLink v-if="(subItem?.showSideBar == false) ? false : true" :to="getRoutePath(subItem)" v-slot="{ isActive }"
-                    v-auth="subItem?.permissions">
+            <div v-auth="subItem.permissions" @click="() => handleClick(subItem)">
+                <RouterLink v-if="(subItem?.showSideBar==false)?false:true" :to="getRoutePath(subItem)" v-slot="{ isActive }" v-auth="subItem?.permissions">
                     <div :class="[
-                        'flex capitalize p-2 capitalize flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200 transition-all duration-200 text-black/70 hover:text-neutral-800 hover:font-bold rounded-md hover:font-semibold hover:text-neutral-500 hover:border-b-0',
+                        'flex capitalize p-2 capitalize flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200  transition-all duration-200  text-black/70  hover:text-neutral-800 hover:font-bold  rounded-md hover:font-semibold hover:text-neutral-500    hover:border-b-0',
                         isCurrentUrl(getRoutePath(subItem))
                             ? ' '
                             : ' dark:text-neutral-400 dark:hover:text-white'
                     ]">
                         <component v-if="subItem?.icon" :is="subItem.icon" :size="20" class="size-5" />
                         {{ subItem.label }}
+
                     </div>
                 </RouterLink>
             </div>
