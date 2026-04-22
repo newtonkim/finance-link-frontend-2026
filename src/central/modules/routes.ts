@@ -64,12 +64,12 @@ export const centarRoutes: any = [
           {
             path: 'roles',
             label: 'roles',
-            component: () => import('./settings/general/roles/Index.vue'),
+            component: () => import('@/central/modules/settings/general/roles/Index.vue'),
           },
           {
             path: 'Plan',
             label: 'Plan',
-            component: () => import('./settings/general/plans/Index.vue'),
+            component: () => import('@/central/modules/settings/general/plans/Index.vue'),
           },
         ],
       },
@@ -79,12 +79,12 @@ export const centarRoutes: any = [
           {
             path: 'system',
             label: 'system',
-            component: () => import('./settings/systems/developmentSettings/index.vue'),
+            component: () => import('@/central/modules/settings/systems/developmentSettings/index.vue'),
           },
           {
             path: 'tenantssettings',
             label: 'tenantssettings',
-            component: () => import('./settings/systems/tenatsSettings/index.vue'),
+            component: () => import('@/central/modules/settings/systems/tenatsSettings/index.vue'),
           },
         ],
       },
