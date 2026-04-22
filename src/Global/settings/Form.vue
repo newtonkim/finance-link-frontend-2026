@@ -51,6 +51,12 @@
       </div>
     </div>
   </div>
+  <div v-else>
+    <p class="text-center text-sm text-neutral-400">
+<EmptySvg/>
+
+    </p>
+  </div>
   <ConfirmDialog type='warning' v-model:show="showDelete.show" @confirm="() => confirmAndSaveChanges()">
     <template #body>
       {{ showDelete.warning }}
@@ -60,7 +66,7 @@
 </template>
 <script setup lang="ts">
 import { ref, watch, computed, onMounted, nextTick } from "vue";
-import { appendOnAjsonStore, ConfirmDialog, createUrl, fetchTableData, keysToUse } from "..";
+import { appendOnAjsonStore, ConfirmDialog, createUrl, EmptySvg, fetchTableData, keysToUse } from "..";
 import { pomPinia } from 'septor-store';
 const Store = pomPinia();
 
