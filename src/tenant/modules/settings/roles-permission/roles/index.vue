@@ -55,7 +55,7 @@ const filters = ["roles", "permissions"];
 import { Details, Create, EditUserRole } from ".";
 import { tenantRolesApi } from "../../../../apis/onboardingSettings";
 const { create } = tenantRolesApi();
-let dispalyAlterUserRole = reactive ({ show: false });
+let dispalyAlterUserRole = reactive ({ show: false,data: null });
 const emit = defineEmits(["update:modelValue"]);
 watch(
   () => statusFilter.value,
@@ -65,6 +65,7 @@ watch(
 );
 let drawerTitle = shallowReactive({
   title: "Create role",
+  action: "create",
 });
 const title = shallowReactive<Record<string, string>>({
   add: "Create role",

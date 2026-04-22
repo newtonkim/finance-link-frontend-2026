@@ -125,11 +125,11 @@ const props = defineProps({
   numberindex: { type: Boolean, required: false },
   checkBox: { type: Boolean, required: false,default:false },
   class: { type: String, required: false },
-  handleAction: { type: Function, required: true },
+  handleAction: { type: Function, required: false },
   dataFilter: { type: Array, required: true },
-  data: { type: Object as PropType<any>, required: true },
+  data: { type: Object as PropType<any>, required: false },
   columns: { type: Array as PropType<any[]>, required: true },
-  action_config: { type: Object as PropType<any>, required: true },
+  action_config: { type: Object as PropType<any>, required: false },
   permissions: { type: Object, required: false },
 })
 const sharedropdown = ref<any>([
