@@ -46,9 +46,9 @@ const props = defineProps({
 
 watch(() => form.value, (value) => {
     if (value) {
-        const permission = value.find((f: any) => f.name === 'permission');
+        const permission = value.find((f: any) => f.name === 'permission') as any;
         if (permission?.value) {
-            permissionSelected.value = [...new Set([permission.selected, ...permissionSelected.value.filter(p => p.id !== permission.selected.id),])];
+            permissionSelected.value = [...new Set([permission.selected, ...permissionSelected.value.filter((p: any) => p.id !== permission.selected.id),])] as any;
         }
         emits('update:form', { ...value, selectedpermission: permissionSelected.value });
     }
@@ -77,11 +77,10 @@ function handleAction(item: any, action: string) {
     <div class="">
         <Card
             class="border-neutral-100 h-[79vh] dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-2xl overflow-hidden">
-                <Form v-model:form="form" parentStyle="grid grid-cols-2 sm:grid-cols-1 gap-4 md:gap-6 px-4 py-0"
-                    @results="onFormResults" />
+                <Form v-model:form="form" parentStyle="grid grid-cols-2 sm:grid-cols-1 gap-4 md:gap-6 px-4 py-0" />
                 <div class="h-[40vh] overflow-auto">
                     <Table :action_config="ACTION_CONFIG" :handleAction="handleAction" :dataFilter="permissionSelected"
-                        :columns="columns">
+                        :data="permissionSelected" :columns="columns">
                     </Table>
             </div>
         </Card>

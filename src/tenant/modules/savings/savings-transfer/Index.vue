@@ -7,7 +7,7 @@
             <div class=" items-center gap-2">
                 <CopyData :show="item.code" />
                 <div class="flex items-center justify-between">
-                    <div :class="statusMap?.[item.status]?.className" class="text-[10px]  tracking-wide">{{
+                    <div :class="(statusMap as any)[item.status]?.className" class="text-[10px]  tracking-wide">{{
                         item.status }}</div>
                     <div v-if="item.count > 1"
                         class="mx-10 bg-nfuko-primary text-white text-[9px] font-bold  rounded-full min-w-[20px] text-center "
@@ -35,11 +35,11 @@ import { ref, computed } from 'vue'
 import { Create, Details } from '.'
 import {  statusMap } from '@/Global'
 const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
-    drawer = ref(null),
-    drawerTitle = ref<any>('Create Tenant'),
+    drawer = ref<any>(null),
+    drawerTitle = ref<any>({ title: 'Create Transfer', width: 'w-1/2' }),
     filters = ["All", "rejected", "pending", "approved", "cancelled", "completed", "failed",],
     tableUrl = computed(() => `/savings-transfer/list?status=${statusFilter.value}`),
-    title: Record<string, Object> = {
+    title: Record<string, any> = {
         "view": { title: "View Savings Transfer Details", width: "w-2/3" },
         "add": { title: "Create a peer to peer transfer", width: "w-3/4" },
     }

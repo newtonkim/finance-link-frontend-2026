@@ -40,7 +40,7 @@ const submitDelete = async () => {
             Object.assign(errors, {
                 password: payload.password?.[0] || 'Invalid password.',
             });
-            passwordInput.value?.focus();
+            ;(passwordInput.value as any)?.focus();
         }
     } finally {
         processing.value = false;

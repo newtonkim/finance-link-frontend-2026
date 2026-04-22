@@ -3,7 +3,7 @@
      :drawerShowFooter="showFooter"
      :automaticCreate="false"
         :drawerTitle="drawerTitle" title="Tenants" :columns="columns" @save="saveUser">
-        <template #expiry="{ item }: { item: any }">
+        <template #expiry="{ item }: { item?: any }">
             <div v-if="item?.license_expires_at" class="flex items-center gap-1.5">
                 <Clock class="size-3.5 text-neutral-400 dark:text-neutral-500 shrink-0" />
                 <div>
@@ -49,7 +49,7 @@ import { toast } from 'vue-sonner';
 const Store = pomPinia()
 
 const tableUrl = computed(() => `/central/tenants/list?status=${statusFilter.value}`)
-const showFooter=ref(0)
+const showFooter=ref(false)
 const triggerAction: Record<string, Function> = {
     delete: Erase,
     async create() {
@@ -68,7 +68,7 @@ const title: Record<string, string> = {
 }
 function changedStep(vl) {
     
-showFooter.value=vl
+showFooter.value=vl === 1
 
 }
 function saveUser(type: string, data: any) {

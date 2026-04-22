@@ -10,7 +10,7 @@ const props = defineProps<{
   application: any;
 }>();
 const emit = defineEmits<{
-  updated: [value: any[]];
+  updated: [value?: any];
 }>();
 const statusFilter = ref<string>("Group");
 const guarantors = ref<Record<string, any>>({});
@@ -83,7 +83,7 @@ function SetGuarantorContribution(item: any) {
             : undefined
           " placeholder="Select groups" @update:itemSelected="handleSelected" />
 
-      <MultiSearchableSelect v-else v-model="memberSelected" url="global/member-dropdown-list-total-balance-accouts"
+      <MultiSearchableSelect v-else v-model="memberSelected" :options="[]" url="global/member-dropdown-list-total-balance-accouts"
         placeholder="Select members" @update:itemSelected="handleSelected" />
     </div>
 

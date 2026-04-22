@@ -1,7 +1,7 @@
 import { feedback, fetchTableData, formDataFormatV2, getLocalValues } from '@/Global'
 import { pomPinia } from 'septor-store'
 import { notify } from '@/Global/Toasters'
-import type { group } from 'console'
+
 
 export function groupSavingsApi() {
   const Store = pomPinia()
@@ -35,7 +35,7 @@ export function groupSavingsApi() {
   }
   async function getGroupProfileDetail(data: any = {}) {
     const getDetails = await fetchTableData({
-      data: { ...data, group_id: getLocalValues('groupProfile').id },
+      data: { ...data, group_id: getLocalValues('groupProfile' as any).id },
       Store,
       saveData: true,
       props: {
@@ -53,7 +53,7 @@ export function groupSavingsApi() {
     const dataPrepare = data ?? []
     dataPrepare.push({
       name: 'group_id',
-      value: getLocalValues('groupProfile').id,
+      value: getLocalValues('groupProfile' as any).id,
       type: 'hidden',
       hidden: true,
     })

@@ -63,7 +63,7 @@ function categoryColor(cat: string): string {
     disbursement_fee: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
     other: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400',
   }
-  return map[cat] ?? map.other
+  return (map as any)[cat] ?? map.other
 }
 </script>
 

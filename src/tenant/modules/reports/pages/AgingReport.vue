@@ -1,7 +1,5 @@
 <script setup lang="ts">
-// import Spinner from '@/Global/Components/Loading/Spinner.vue'
-import {Spinner} from '@/Global'
-
+import { Spinner } from '@/Global'
 import { useAgingReport } from '../composables/useAgingReport'
 import AgingReportHeader from '../components/AgingReportHeader.vue'
 import AgingReportFilters from '../components/AgingReportFilters.vue'
@@ -113,7 +111,7 @@ const {
         :expanded-loan-id="expandedLoanId"
         :loading-schedule-id="loadingScheduleId"
         :pagination-links="paginationLinks"
-        :filters="filters"
+        :filters="filters as any"
         :tab-count="tabCount"
         :bucket-row-class="bucketRowClass"
         :bucket-badge-class="bucketBadgeClass"

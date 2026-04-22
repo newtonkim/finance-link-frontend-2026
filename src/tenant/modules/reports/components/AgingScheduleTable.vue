@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { Loader, ExternalLink } from 'lucide-vue-next'
+import { Loader2, ExternalLink } from 'lucide-vue-next'
+import type { LoanScheduleEntry } from '@/tenant/apis/loans/loansApi'
 
 defineProps<{
   loanId: number
   loanNo: string
   loadingScheduleId: number | null
-  schedule: any[]
+  schedule: LoanScheduleEntry[]
   scheduleRowClass: (status: string, dueDate: string) => string
   scheduleStatusBadge: (status: string) => string
-  fmt: (v: any) => string
+  fmt: (v: number | string | null | undefined) => string
 }>()
 </script>
 
@@ -17,7 +18,7 @@ defineProps<{
 
     <!-- Loading schedule -->
     <div v-if="loadingScheduleId === loanId" class="flex items-center justify-center py-6">
-      <Loader class="h-5 w-5 text-nfuko-primary" />
+      <Loader2 class="h-5 w-5 animate-spin text-nfuko-primary" />
       <span class="ml-2 text-xs text-neutral-400">Loading schedule…</span>
     </div>
 
@@ -59,7 +60,7 @@ defineProps<{
               <td class="px-4 py-2 text-right font-mono text-neutral-700 dark:text-neutral-300">{{ fmt(inst.penalty_due) }}</td>
               <td class="px-4 py-2 text-right font-mono font-semibold text-neutral-900 dark:text-white">{{ fmt(inst.total_due) }}</td>
               <td class="px-4 py-2 text-right font-mono text-emerald-700 dark:text-emerald-400">
-                {{ fmt((inst.principal_paid ?? 0) + (inst.interest_paid ?? 0) + (inst.charges_paid ?? 0) + (inst.penalty_paid ?? 0)) }}
+                {{ fmt(Number(inst.principal_paid ?? 0) + Number(inst.interest_paid ?? 0) + Number(inst.charges_paid ?? 0) + Number(inst.penalty_paid ?? 0)) }}
               </td>
               <td class="px-4 py-2 text-right font-mono text-neutral-700 dark:text-neutral-300">{{ fmt(inst.outstanding_balance) }}</td>
               <td class="px-4 py-2 text-center">

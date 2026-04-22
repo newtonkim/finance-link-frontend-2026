@@ -63,7 +63,7 @@ const avatarPreview = ref<string | null>(null)
 function formatDateForInput(dateStr: string | null | undefined) {
   if (!dateStr) return ''
   // Extracts YYYY-MM-DD from ISO strings like "2024-03-10T11:00:00Z"
-  return (dateStr as string).split('T')[0]
+  return (dateStr as string).split('T')[0] as string
 }
 
 // ─── Load member ──────────────────────────────────────────────────────────────
@@ -145,7 +145,7 @@ async function submit() {
       const data = err.response?.data as { message?: string; errors?: Record<string, string[]> } | undefined
       if (data?.errors) {
         Object.entries(data.errors).forEach(([k, v]) => {
-          if (v && v.length > 0) errors.value[k] = v[0]
+          if (v && v.length > 0) errors.value[k] = v[0] as string
         })
       } else {
         errors.value.form = data?.message ?? 'Something went wrong.'

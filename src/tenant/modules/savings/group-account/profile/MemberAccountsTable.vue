@@ -26,9 +26,9 @@
 </template>
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { TableDrawer, TabelActionButtons } from "@/Global";
+import { TableDrawer, TabelActionButtons } from "../../../../../Global/index";
 import { CreateGroups, Withdrawal, Deposit, } from './index';
-import { groupSavingsApi } from "@/tenant/apis/savings/group-savingsApi";
+import { groupSavingsApi } from "../../../../apis/savings/group-savingsApi";
 const props = defineProps<{
   accounts: any[];
   member: any;
@@ -69,19 +69,19 @@ const drawerConfigs: Record<string, any> = {
 };
 const drawerTitle = ref<any>(drawerConfigs.create);
 
-async function handleSave(type?: string, data: any, d) {
-  let success = false
+async function handleSave(type: string | undefined, data: any, d: any) {
+  let success: any = false
 
   if (drawerConfigs?.[automaticCreate.value.actionSlot]) {
     success = await drawerConfigs?.[automaticCreate.value.actionSlot].action(data, automaticCreate.value);
   } else if (drawerConfigs?.[type] && type == 'create') {
     success = await drawerConfigs?.[type].action(data);
-    success=success.code==200?true:false
+    success = success?.code == 200 ? true : false
   }
   drawerTitle.value = drawerConfigs[type === 'create' || type === 'add' ? 'create' : type];
   if (type === 'create' && success) {
     drawer.value.toggleDrawer()
-    emit('reload', drawer.value.drawerOpen)
+    emit('reload')
   }
 }
 

@@ -158,6 +158,9 @@ import {
     SheetFooter,
 } from '@/Global';
 const staffStore = useStaffStore()
+const emits = defineEmits(['cancel'])
+
+const handleCancel = () => emits('cancel')
 
 const branches = ref<Branch[]>([])
 const roles = ref<{ id: number; name: string }[]>([])
@@ -273,9 +276,7 @@ async function save() {
     }
 }
 
-function handleCancel(){
-    
-}
+
 const loanPermissions = [
     { field: 'can_vote_on_loans' as const, icon: Vote, label: 'Vote on loan applications', description: 'Can cast approve/decline votes in committee rounds.', color: 'violet' },
     { field: 'can_manage_branch' as const, icon: GitBranch, label: 'Manage branch (Branch Manager)', description: 'Can recommend applications and return for correction.', color: 'indigo' },

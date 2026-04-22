@@ -14,7 +14,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     localStorage.setItem('token', data.access_token)
     localStorage.setItem('auth_user', JSON.stringify(data.user))
-    setBearerToken({token: data.access_token,...data.user})
+    setBearerToken({token: data.access_token,...data.user} as any)
     storeUserLogedinData(data.user)
     storeUserPermissions({data:data?.permissions})
   }

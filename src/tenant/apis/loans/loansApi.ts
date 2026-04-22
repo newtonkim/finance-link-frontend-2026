@@ -198,6 +198,16 @@ export interface LoanDetail {
   loan_officer: { id: number; name: string } | null
   disbursed_by_staff: { id: number; name: string } | null
   applied_charges?: LoanAppliedCharge[]
+  parent_loan_id?: number | null
+  parent_loan?: {
+    id: number
+    loan_no: string
+    principal_formatted: string
+    outstanding_balance_formatted: string
+    status: string
+    status_label: string
+    disbursed_at: string
+  } | null
 }
 
 export interface RepaymentPreview {
@@ -393,5 +403,14 @@ export const loansApi = {
 
   updateDates(id: number, data: { disbursed_at: string, schedule_date: string }) {
     return tenantClient.patch<{ message: string; data: LoanDetail }>(`/loans/${id}/update-dates`, data)
+  },
+
+  // ─── Top-Up ───────────────────────────────────────────────────────────────
+  topupEligibility(id: number, data: { fresh_cash_amount: number; requested_term: number; topup_type: 'consolidated' | 'parallel' }) {
+    return tenantClient.post<{ data: any }>(`/loans/${id}/topup/eligibility`, data)
+  },
+
+  executeTopup(id: number, data: { fresh_cash_amount: number; requested_term: number; topup_type: 'consolidated' | 'parallel' }) {
+    return tenantClient.post<{ data: any }>(`/loans/${id}/topup/execute`, data)
   },
 }

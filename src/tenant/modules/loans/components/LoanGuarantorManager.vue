@@ -156,6 +156,12 @@ const alreadyAdded = computed(() =>
         : false
 )
 
+function handleBlur() {
+    setTimeout(() => {
+        showMemberDropdown.value = false
+    }, 200)
+}
+
 // ─── Init ─────────────────────────────────────────────────────────────────────
 watch(() => props.applicationId, load, { immediate: true })
 </script>
@@ -245,7 +251,7 @@ watch(() => props.applicationId, load, { immediate: true })
                             class="w-full rounded-xl border border-neutral-200 bg-white py-2 pl-9 pr-3 text-sm outline-none transition focus:border-nfuko-primary focus:ring-1 focus:ring-nfuko-primary/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
                             @input="onSearchInput"
                             @focus="showMemberDropdown = true"
-                            @blur="() => setTimeout(() => { showMemberDropdown = false }, 200)"
+                            @blur="handleBlur"
                         />
                     </div>
                     <div v-if="showMemberDropdown"

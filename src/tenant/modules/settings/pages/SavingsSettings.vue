@@ -21,7 +21,7 @@
       <template #savings-accounts>
         <button
           @click="toggleDrawer('savings-accounts-setting')"
-          class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline"
+          class="inline-flex items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-bold text-white transition-all hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
         >
           Setup →
         </button>
@@ -29,7 +29,7 @@
       <template #group-savings>
         <button
           @click="toggleDrawer('savings-group-savings-setting')"
-          class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline"
+          class="inline-flex items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-bold text-white transition-all hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
         >
           Setup →
         </button>

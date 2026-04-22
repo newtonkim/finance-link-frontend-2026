@@ -164,6 +164,8 @@ export interface LoanApplication {
       net_disbursed_formatted: string
     }
   } | null
+  loan_guarantors?: any[] | Record<string, any>
+  my_groups_member?: any[] | Record<string, any>
 }
 
 export interface ProductCharge {
@@ -451,5 +453,16 @@ export const loanApplicationsApi = {
   },
   removeCollateral(applicationId: number, collateralId: number) {
     return tenantClient.delete(`/loan-applications/${applicationId}/collaterals/${collateralId}`)
+  },
+  
+  // ─── Guarantors ─────────────────────────────────────────────────────────────
+  listGuarantors(applicationId: number) {
+    return tenantClient.get(`/loan-applications/${applicationId}/guarantors`)
+  },
+  addGuarantor(applicationId: number, data: any) {
+    return tenantClient.post(`/loan-applications/${applicationId}/guarantors`, data)
+  },
+  removeGuarantor(applicationId: number, guarantorId: number) {
+    return tenantClient.delete(`/loan-applications/${applicationId}/guarantors/${guarantorId}`)
   },
 }

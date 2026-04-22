@@ -17,8 +17,8 @@ import { memberAccountApi } from "@/tenant/apis";
 const { getProductCharges } = memberAccountApi();
 
 const emits = defineEmits(["update:form"]),
-  loading = ref<any>(true),
-  settingList = ref<any>({}),
+  loading = ref(true),
+  settingList = ref({}),
   yesNoOptions = [
     { id: 1, name: "Yes" },
     { id: "0", name: "No" },
@@ -29,7 +29,7 @@ const emits = defineEmits(["update:form"]),
       default: {},
     },
   }),
-  fields = ref<any>([
+  fields = ref<any[]>([
     {
       hidden: 1,
       name: "id",
@@ -55,8 +55,8 @@ const emits = defineEmits(["update:form"]),
       placeholder: "Enter a savings product",
       url: "global/savings-products",
       dataOnMount: true,
-      change: async () => {
-        const amount = fields.value.find((f:any) => f.name === "in_deposit")?.value;
+      change: async (val: any) => {
+        const amount = fields.value.find((f: any) => f.name === "in_deposit")?.value;
         if (amount) watchChangeInProductOrCharges(fields, amount);
       },
     },
@@ -114,7 +114,7 @@ const emits = defineEmits(["update:form"]),
       placeholder: "Enter Opening Balance",
     },
     // ,
-  ]);
+  ] as any[])
 async function promtValueOnUpdate() {
   loading.value = true;
 
@@ -137,7 +137,7 @@ function checkForSettings() {
   const checkForVaailableSetting = getSystemSetting();
   settingList.value = {
     "hide-initial-deposit-field":
-      checkForVaailableSetting["hide-initial-deposit-field"] ?? 0,
+      checkForVaailableSetting?.["hide-initial-deposit-field"] ?? 0,
   };
 }
 // watch(
@@ -170,9 +170,9 @@ function checkForSettings() {
 //   { deep: true }
 // );
 function watchChangeInProductOrCharges(fields: any, amount: any) {
-  const finedProduct = fields.value.find((f) => f.name === "product_id");
-  const chargeField = fields.value.find((f) => f.name === "charges");
-  const existsIndex = fields.value.findIndex((f) => f.name === "product_id");
+  const finedProduct = fields.value.find((f: any) => f.name === "product_id");
+  const chargeField = fields.value.find((f: any) => f.name === "charges");
+  const existsIndex = fields.value.findIndex((f: any) => f.name === "product_id");
   if (!finedProduct || !finedProduct.value) return;
   tryCatch(async () => {
     if (existsIndex > 0 && amount > 0) {

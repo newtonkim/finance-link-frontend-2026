@@ -2,7 +2,7 @@
 import { ref, watch, onMounted } from "vue";
 import { Form, Card, ACTION_CONFIG, Table } from "@/Global";
 const emits = defineEmits(["update:form"]);
-const permissionSelected = ref<any>([]);
+const permissionSelected = ref([]);
 const loading = ref(false);
 const props = defineProps({
   data: {
@@ -11,7 +11,7 @@ const props = defineProps({
     required: false,
   },
 });
-const form:any = ref([
+const form = ref([
   {
     label: "Name",
     name: "name",
@@ -41,13 +41,13 @@ watch(
   (value) => {
     if (value) {
       const permission = value.find((f: any) => f.name === "permission");
-      if (permission?.value) {
+      if ((permission as any)?.value) {
         permissionSelected.value = [
           ...new Set([
-            permission.selected,
-            ...permissionSelected.value.filter((p:any) => p.id !== permission.selected.id),
+            (permission as any).selected,
+            ...permissionSelected.value.filter((p: any) => p.id !== (permission as any).selected.id),
           ]),
-        ];
+        ] as any;
       }
       emits("update:form", { ...value, selectedpermission: permissionSelected.value });
     }
@@ -57,7 +57,7 @@ watch(
 
 function removePermission(permission: any) {
   permissionSelected.value = permissionSelected.value.filter(
-    (p:any) => p.id !== permission.id
+    (p: any) => p.id !== permission.id
   );
 }
 const columns = [
@@ -77,8 +77,8 @@ async function prepareData() {
   if (props.data?.id) {
     const colection = form.value;
     for (let i = 0; i < colection.length; i++) {
-      const element = colection[i];
-      if (element.name !== "permission") form.value[i].value = props.data[element.name];
+      const element = colection[i] as any;
+      if (element.name !== "permission") (form.value[i] as any).value = props.data[element.name];
       else if (element.name === "permission")
         permissionSelected.value = props.data["permissions"];
     }
@@ -90,7 +90,7 @@ async function prepareData() {
         required: true,
         value: props.data?.id ?? 0,
         hidden: true,
-      },
+      } as any,
     ];
   }
 
@@ -119,6 +119,7 @@ onMounted(() => {
           :action_config="ACTION_CONFIG"
           :handleAction="handleAction"
           :dataFilter="permissionSelected"
+          :data="permissionSelected"
           :columns="columns"
         >
         </Table>

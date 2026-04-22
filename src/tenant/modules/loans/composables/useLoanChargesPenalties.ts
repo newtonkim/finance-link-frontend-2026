@@ -66,6 +66,7 @@ export function useLoanChargesPenalties(
     if (!p) return null
     if (p.penalty_rules && p.penalty_rules.length > 0) {
       const r = p.penalty_rules[0]
+      if (!r) return null;
       const type = r.penalty_type ?? 'flat'
       const rate =
         Number(r.penalty_rate) > 0

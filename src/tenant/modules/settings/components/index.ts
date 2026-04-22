@@ -1,2 +1,2 @@
 
-export {default as kycMembersModel} from './KycMembersModel.vue'
+export {default as kycMembersModel} from './kycMembersModel.vue'

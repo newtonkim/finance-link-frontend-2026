@@ -19,11 +19,11 @@
 </template>
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { TableDrawer, StatusButtonsHorizontal, setLocalValues, getLocalValues } from '@/Global'
+import { TableDrawer, StatusButtonsHorizontal, setLocalValues, getLocalValues } from '../../../../../Global/index'
 import { useRouter } from 'vue-router';
 const router = useRouter();
 
-const statusFilter = ref('all'), groupId = getLocalValues('groupProfile')?.id,
+const statusFilter = ref('all'), groupId = getLocalValues('groupProfile' as any)?.id,
     drawerTitle = ref('Create Tenant'), filters = ['withdrawal', 'deposit', 'all'],
     tableUrl = computed(() => `/group-account-savings/profile/group-transactions?status=${statusFilter.value}&&group_id=${groupId}`)
 const downloadItems = [

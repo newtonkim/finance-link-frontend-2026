@@ -21,6 +21,7 @@ const LoanProductForm = () => import('../loan-products/pages/LoanProductCreate.v
 const LoanProductShow = () => import('../loan-products/pages/LoanProductShow.vue')
 const StaffList = () => import('@/tenant/modules/settings/staff/Index.vue')
 const Notification = () => import('@/tenant/modules/settings/notification/Index.vue')
+// const StaffList = () => import('./staff/Index.vue')
 const StaffProfile = () => import('./pages/StaffProfile.vue')
 const GeneralSettings = () => import('./pages/GeneralSettings.vue')
 const Notifications = () => import('./pages/Notifications.vue')
@@ -176,19 +177,22 @@ export const settingsRoutes: RouteRecordRaw[] = [
         component: Notifications,
       },
       {
-        path: 'old-notifications',
-        name: 'tenant-staff-allowances',
-        component: Notifications,
-      },
-      {
-        path: 'old-notifications',
-        name: 'tenant-staff-advances',
-        component: Notifications,
-      },
-      {
-        path: 'old-notifications',
+        path: 'staff-salaries',
         name: 'tenant-staff-salaries',
-        component: Notifications,
+        component: () => import('@/tenant/components/globals/ComingSoon.vue'),
+        meta: { label: 'Staff Salaries' }
+      },
+      {
+        path: 'staff-allowances',
+        name: 'tenant-staff-allowances',
+        component: () => import('@/tenant/components/globals/ComingSoon.vue'),
+        meta: { label: 'Staff Allowances' }
+      },
+      {
+        path: 'staff-advances',
+        name: 'tenant-staff-advances',
+        component: () => import('@/tenant/components/globals/ComingSoon.vue'),
+        meta: { label: 'Staff Advances' }
       },
       {
         path: 'tenant-settings-sms-setting',

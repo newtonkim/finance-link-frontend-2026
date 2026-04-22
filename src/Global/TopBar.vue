@@ -40,7 +40,7 @@ import SearchableSelect from './SearchableSelect.vue'
 const interceptor = subdomain ? tenantClient : apiClient
 
 async function fetchBranches() {
-    activeBranch.value = getLocalValues(keysToUse.activeBranch)
+    activeBranch.value = getLocalValues('activeBranch' as const) as any
     tryCatch(async () => {
         const collection = {
             reload: 0,
@@ -55,9 +55,9 @@ async function fetchBranches() {
             // mStore: { mUse: false },
             mStore: { mUse: true },
         }
-        await Store.stateGenaratorApi(collection)
-        if(!getLocalValues(keysToUse.activeBranch)){
-            watchBranchchanges(Store?.['system-branches']?.payload?.data[0]?.id)
+        await (Store as any).stateGenaratorApi(collection)
+        if(!getLocalValues('activeBranch' as const)){
+            watchBranchchanges((Store as any)?.['system-branches']?.payload?.data[0]?.id)
         }
     })
 }
@@ -67,8 +67,8 @@ defineProps<{
 
 function watchBranchchanges(branch: any) {
   activeBranch.value = branch
-  setLocalValues(keysToUse.activeBranch, branch)
-  Store.activeBranch = branch
+  setLocalValues('activeBranch' as const, branch)
+  ;(Store as any).activeBranch = branch
   activeBranch.value = branch
 }
 const authStore = useAuthStore()
@@ -76,12 +76,12 @@ const user = computed(() => authStore.user)
 const userName = computed(() => String(user.value?.name ?? 'User'))
 
 onMounted(async () => {
-  watchBranchchanges(getLocalValues(keysToUse.activeBranch))
+  watchBranchchanges(getLocalValues('activeBranch' as const))
   await fetchBranches()
 })
 
 function onBranchChange(val: number) {
-  setLocalValues(keysToUse.activeBranch, val)
+  setLocalValues('activeBranch' as const, val)
   watchBranchchanges(val)
 }
 </script>
@@ -131,7 +131,7 @@ function onBranchChange(val: number) {
       </div>
       <SearchableSelect
         :modelValue="activeBranch"
-        :options="Store?.['system-branches']?.payload?.data ?? []"
+        :options="(Store as any)?.['system-branches']?.payload?.data ?? []"
         @update:modelValue="onBranchChange"
       />
     </div>

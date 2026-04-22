@@ -45,7 +45,7 @@ export function useLoanApplicationCreate() {
       const res = await tenantClient.get('/branches')
       branches.value = res.data?.data ?? []
 
-      const activeBranchId = getLocalValues(keysToUse.activeBranch)
+      const activeBranchId = getLocalValues(keysToUse.activeBranch as any)
       if (activeBranchId) {
         form.value.branch_id = activeBranchId
         showBranchSelect.value = branches.value.length > 1

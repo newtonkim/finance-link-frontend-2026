@@ -1,9 +1,27 @@
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { AlertTriangle, X } from 'lucide-vue-next'
 import { Spinner, Label } from '@/Global'
 import { useArrearsTiers } from '../composables/useArrearsTiers'
 
-const { loading, saving, isDrawerOpen: showDrawer, tiers, openDrawer, closeDrawer, save } = useArrearsTiers()
+const emit = defineEmits(['close'])
+
+const { loading, saving, isDrawerOpen: showDrawer, tiers, openDrawer, closeDrawer, save, loadTiers } = useArrearsTiers()
+
+onMounted(() => {
+  void loadTiers()
+})
+
+// Override close and save to emit the close event
+const handleClose = () => {
+  closeDrawer()
+  emit('close')
+}
+
+const handleSave = async () => {
+  await save()
+  emit('close')
+}
 
 defineExpose({ openDrawer })
 </script>
@@ -97,7 +115,7 @@ defineExpose({ openDrawer })
                 <Button
                   variant="outline"
                   class="flex-1 h-11 w-full mx-2 font-bold border-neutral-200 dark:border-neutral-800"
-                  @click="closeDrawer"
+                  @click="handleClose"
                 >
                   Close
                 </Button>
@@ -108,7 +126,7 @@ defineExpose({ openDrawer })
                 <Button
                   type="submit"
                     :disabled="saving"
-                @click="save"
+                @click="handleSave"
                   class="flex-1 h-11  mr-5 w-full font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors"
                 >
                 <Spinner v-if="saving" class="h-4 w-4" />

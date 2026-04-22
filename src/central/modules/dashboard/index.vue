@@ -14,7 +14,7 @@ import { Button } from '@/Global/ui/button';
 import { pomPinia } from 'septor-store';
 import { fetchTableData } from '@/Global';
 import AnalysisTiles from './componets/analysisTiles.vue';
-const Store = pomPinia();
+const Store = pomPinia() as any;
 const dataCollection = ref(Store?.dashboardAnalytics?.payload??{});
 
 async function intialize() {

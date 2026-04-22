@@ -22,7 +22,7 @@ const props = defineProps({
 
 const isFixed = computed(() => props.data?.type === 'fixed' || props.data?.account_type === 'fixed')
 
-const columns = [
+const columns: any[] = [
     {
         header: 'Saving Account Details',
         type: 'Descriptions',
@@ -94,7 +94,7 @@ async function prepareTheFeaturesData() {
     loading.value = true
     if (props.data.transactionList)
         props.data.transactionList.forEach((element: any) => {
-            columns[1].list.push({ amount: element.amount, total: element.total, charge: element.charge, created_at: element.created_at, "narration": element.narration, transaction_date: element.transaction_date, type: element.type, mode: element.mode, "transfer_by": element.by, reference: element.reference })
+            columns[1]?.list.push({ amount: element.amount, total: element.total, charge: element.charge, created_at: element.created_at, "narration": element.narration, transaction_date: element.transaction_date, type: element.type, mode: element.mode, "transfer_by": element.by, reference: element.reference } as any)
         });
     loading.value = false
 }

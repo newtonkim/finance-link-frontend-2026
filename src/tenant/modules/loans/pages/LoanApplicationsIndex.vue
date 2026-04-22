@@ -5,8 +5,8 @@
     :url="tableUrl" state="LoanApplicationslist" :drawerTitle="drawerTitle" :columns="columns" @save="saveUser"
     :showTableAction="true">
     <template #sub-header>
-      <LoanApplicationSummaryCards :list="Store?.LoanApplicationslist?.payload?.count_status"
-        :active-status="filters.status" @filter="filterByStatus" />
+      <LoanApplicationSummaryCards :list="(Store as any)?.LoanApplicationslist?.payload?.count_status"
+        :active-status="statusFilter" @filter="statusFilter = $event" />
     </template>
     <template #header-action>
       <div class="space-y-3">
@@ -59,9 +59,10 @@ import LoanApplicationSummaryCards from '../components/LoanApplicationSummaryCar
 const Store = pomPinia();
 const router = useRouter();
 const statusFilter = ref('all'),
- drawer = ref('all'),
+ drawer = ref<any>(null),
  automaticCreate = ref<any>({}),
   drawerTitle = ref('Create Tenant'), filters = ['all', 'Submitted', 'Draft', 'Disbursed', 'Approved', 'committee_voting'],
+  closeDrawer = () => drawer.value?.toggleDrawer(),
   tableUrl = computed(() => `/loan-applications/list?status=${statusFilter.value}`),
   title: Record<string, string> = {
     "add": "Create member application ",

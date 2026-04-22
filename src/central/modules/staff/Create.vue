@@ -3,7 +3,7 @@ import { ref, watch } from 'vue'
 import { Form, Card } from '@/Global'
 const emits = defineEmits(['update:form']);
 const remount = ref<boolean>(true)
-const form = ref([
+const form = ref<any[]>([
     {
         label: 'Staff Name',
         name: 'staff_fall_name',

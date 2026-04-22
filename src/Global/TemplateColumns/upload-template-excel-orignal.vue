@@ -237,7 +237,7 @@ async function submitImportData() {
         if (res?.payload?.failed?.length) {
             console.log(res.payload.failed);
             
-            failedChunks.values=[...failedChunks.value,...res.payload.failed]
+            failedChunks.value=[...failedChunks.value,...res.payload.failed]
         }
     }
 }

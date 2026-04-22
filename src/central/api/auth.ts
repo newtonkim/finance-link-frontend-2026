@@ -27,7 +27,7 @@ export interface AuthSuccessData {
   token_type: string
   user: AuthUser
   redirect_url?: string
-  permissions?: any
+  permissions?: unknown
 }
 
 export interface ApiResponse<T> {
