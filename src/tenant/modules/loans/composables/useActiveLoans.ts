@@ -120,12 +120,12 @@ export function useActiveLoans() {
             if (!params.search) delete params.search
 
             const res = await loansApi.list(params)
-            let rows = (res.data.data as any).data ?? []
+            let rows = res.data.data ?? []
             if (activeTab.value === 'disbursed') {
                 rows = rows.filter((loan) => (loan.status ?? '').toLowerCase() !== 'closed')
             }
             loans.value = rows
-            Object.assign(meta, (res.data as any).meta ?? {})
+            Object.assign(meta, res.data.meta ?? {})
             if (activeTab.value === 'disbursed') {
                 meta.total = summary.value.disbursed
             }
