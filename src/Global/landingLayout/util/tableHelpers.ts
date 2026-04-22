@@ -339,20 +339,25 @@ export default function useTableHelpers(props: any, emit: any) {
       callOnmount()
     },
   )
-  watch(
-    () => props.drawerShowFooter,
-    (vl) => {
-      drawerShooter2.value = vl // on side of central it help
-    },
-  )
+  // watch(
+  //   () => props.drawerShowFooter,
+  //   (vl) => {
+  //     console.log(vl)
+  //     drawerShooter2.value = vl // on side of central it help
+  //   },{
+  //     immediate:true,deep:true
+  //   },
+  // )
   watch(
     () => drawerOpen.value,
     (v) => {
       drawerTitle.value = props.drawerTitle
       drawerWidth.value = props.drawerWidth
-      // if (drawerShooter2.value == null) {
-       
-      //   drawerShooter2.value = props.drawerShowFooter}
+      if (drawerShooter2.value == null) {
+        drawerShooter2.value = props.drawerShowFooter
+      }else {
+        drawerShooter2.value = drawerShooter2.value
+      }
       if (!v) {
         //reset the drawer data when the drawer is closed
         provideDataTotheParent.value = null
@@ -364,6 +369,8 @@ export default function useTableHelpers(props: any, emit: any) {
   )
   function callOnmount() {
     if (props?.state && props?.url) fetchTableData({ data: null, props, Store })
+
+      
       drawerShooter2.value = props.drawerShowFooter
     
   }
