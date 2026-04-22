@@ -1,5 +1,5 @@
 import { h, ref, watch, render } from 'vue'
-import ConfirmationDialog from './ConfirmationDialog.vue'
+import ConfirmationDialog from './confirmationDialog.vue'
 // warning
 // info
 // success
