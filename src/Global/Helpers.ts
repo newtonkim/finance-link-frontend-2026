@@ -7,7 +7,7 @@ import { notify } from '@/Global/Toasters'
 import * as XLSX from 'xlsx'
 import { fetchTableData } from './landingLayout/util'
 
-export const keysToUse: Record<string, string> = {
+export const keysToUse: Record<string, any> = {
   systemSettings: 'systemSettings',
   userPermissions: 'userPermissions',
   loginUserData: 'loginUserData',
@@ -39,7 +39,7 @@ export function date(time: string) {
 
 /***
  * ****/
-export function tryCatch<T>(callback: () => Promise<T> | T) {
+export function tryCatch(callback: () => any) {
   try {
     return callback()
   } catch (error) {

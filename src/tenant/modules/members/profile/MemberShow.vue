@@ -35,7 +35,7 @@ const profileDetails = ref<any>(null)
 async function initialize() {
     pageLoading.value = true;
     const details = await getMemberProfileDetail({})
-    let data = {};
+    let data:any = {};
     const { member_details, member_accounts } = details
     // const accounts = details.member_accounts
     for (const key in member_details) {
@@ -280,9 +280,7 @@ const columns = [
             :savings-products="savingsProducts" :currency-code="currencyCode" @success="fetchMember(true)" />
 
         <CustomFeeDrawer ref="customFeeDrawer" :currency-code="currencyCode" @success="fetchMember(true)" />
-
-        <!-- Transaction Reversal Dialog -->
-        <!-- <Teleport to="body">
+ 
             <Transition name="fade">
                 <div v-if="showTxnDeleteDialog" class="fixed inset-0 z-50 flex items-center justify-center">
                     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showTxnDeleteDialog = false">
@@ -324,7 +322,7 @@ const columns = [
                     </div>
                 </div>
             </Transition>
-        </Teleport> -->
+      
     </div>
 
     <!-- Printable Receipt -->

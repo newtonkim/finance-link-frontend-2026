@@ -12,7 +12,7 @@ const loadingMount = computed(() => loading.value), emits = defineEmits(['update
         type: Object,
         default: {},
     },
-}), fields = ref([
+}), fields = ref<any>([
     {
         label: 'name',
         name: 'staff_fall_name',
@@ -69,7 +69,7 @@ function checkForSettings() {
 watch(
     () => fields.value,
     (val) => {
-        const statusIndex = val.findIndex(f => f.name === 'status')
+        const statusIndex = val.findIndex((f:any) => f.name === 'status')
         const fullNameIndex = val.findIndex(f => f.name === 'staff_fall_name')
         const currentSettings = settingList.value as any;
         if (currentSettings?.['sacco-members-require-approval-before-members-becomes-active']) {
@@ -80,6 +80,7 @@ watch(
                     type: 'select',
                     value: 'active',
                     required: true,
+                    
                     options: [{ id: 'active', name: 'Active' }, { id: 'in-active', name: 'in-active' },]
                 })
             }

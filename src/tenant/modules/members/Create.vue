@@ -9,17 +9,17 @@ const OptionList = reactive({
   genderOptions: [{ id: 'male', name: 'Male' }, { id: 'female', name: 'Female' }, { id: 'other', name: 'Other' }],
   maritalOptions: [{ id: 'single', name: 'Single' }, { id: 'married', name: 'Married' }, { id: 'divorced', name: 'Divorced' }, { id: 'widowed', name: 'Widowed' }]
 })
-const loading = ref(true)
-const settingList = ref({})
-const additionalForm = ref({ shares_quantity: 0 });
-const errors = ref({ shares_quantity: 0 });
+const loading = ref<any>(true)
+const settingList = ref<any>({})
+const additionalForm = ref<any>({ shares_quantity: 0 });
+const errors = ref<any>({ shares_quantity: 0 });
 const props = defineProps({
   data: {
     type: Object,
     default: {},
   },
 })
-const fields = ref([
+const fields = ref<any>([
   {
     label: 'Member type',
     name: 'member_type',

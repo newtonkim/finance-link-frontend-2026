@@ -20,7 +20,7 @@
       :handleAction="handleAction"
       :action_config="ACTION_CONFIG"
     >
-      <template #reason="{ item }: { item: Record<string, any> }">
+      <template #reason="{ item }">
         <span class="text-red-600 font-medium">
           {{ formatReason(item?.reason) }}
         </span>

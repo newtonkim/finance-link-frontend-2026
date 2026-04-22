@@ -1,5 +1,5 @@
 <template>
-  <div :class="class"
+  <div :class="props.class"
     class="overflow-x-auto max-h-[64vh] border-0 border-neutral-100 dark:border-neutral-800 rounded-2xl sh adow-sm dark:bg-neutral-900 bg-white custom-scrollbar">
     <tableLoader v-if="!Array.isArray(dataFilter)" :numberindex="numberindex" :columns="localColumns" />
 
@@ -51,10 +51,10 @@
           <td v-if="checkBox" class="p-2  py-1 text-xs font-semibold tracking-wide text-neutral-700 capitalize">
             <div  >
                 <label  :key="idx+45" >
-                    <input type="checkbox" :value="id+23" @click="()=>checkedAndSelectdValue(item)" class="w-4 h-4 accent-nfuko-primary-600 cursor-pointer" />
+                    <input type="checkbox" :value="(item?.id??idx)+23" @click="()=>checkedAndSelectdValue(item)" class="w-4 h-4 accent-nfuko-primary-600 cursor-pointer" />
                     <span
                         class="text-sm capitalize text-neutral-700 dark:text-neutral-200 group-hover:text-nfuko-primary-600 transition">
-                        {{ label }}
+                        {{ item.label }}
                     </span>
                 </label>
             </div>
@@ -75,9 +75,9 @@
                 <template v-for="action in col?.show ?? []" :key="action">
                   <Imploading v-if="action == 'share'"
                     class="p-2 cursor-pointer hover:bg-nfuko-default hover:text-gray-400  hover:border hover:border-accent bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all"
-                    :items='sharedropdown' @select="(v)=>handleAction({...item,action:v?.value}, 'share')" icon="LucideSend" />
+                    :items='sharedropdown' @select="(v: any)=>props.handleAction?.({...item,action:v?.value}, 'share')" icon="LucideSend" />
 
-                  <button v-else type="button" @click="() => handleAction(item, action)" v-auth="permissions?.[action]"
+                  <button v-else type="button" @click="() => props.handleAction?.(item, action)" v-auth="permissions?.[action]"
                     :class="action_config?.[action]?.class" class=" ">
                     <component :is="action_config?.[action]?.icon" class="h-2 w-2" />
                     <span v-if="action !== 'delete'">{{ action }}</span>
@@ -126,7 +126,7 @@ const props = defineProps({
   checkBox: { type: Boolean, required: false,default:false },
   class: { type: String, required: false },
   handleAction: { type: Function, required: false },
-  dataFilter: { type: Array, required: true },
+  dataFilter: { type: Array as PropType<any[]>, required: true },
   data: { type: Object as PropType<any>, required: false },
   columns: { type: Array as PropType<any[]>, required: true },
   action_config: { type: Object as PropType<any>, required: false },
@@ -138,17 +138,17 @@ const sharedropdown = ref<any>([
   { label: "gmail", value: "gmail", },
 ])
 const resizingCol = ref<number | null>(null)
-const selected = ref({})
-const startX = ref(0)
-const startWidth = ref(0)
-const localColumns = ref([...props.columns])
+const selected = ref<any>({})
+const startX = ref<any>(0)
+const startWidth = ref<any>(0)
+const localColumns = ref<any>([...props.columns])
 watch(
   () => props.columns,
   (val) => (localColumns.value = [...val]),
   { deep: true }
 )
 
-function startResize(e: MouseEvent, index: number) {
+function startResize(e: MouseEvent, index: any) {
   resizingCol.value = index
   startX.value = e.clientX
   startWidth.value = parseInt(localColumns.value[index].width) || 150
@@ -170,10 +170,10 @@ function stopResize() {
   document.removeEventListener('mouseup', stopResize)
 }
 const dragIndex = ref<number | null>(null)
-function onDragStart(index: number) {
+function onDragStart(index: any) {
   dragIndex.value = index
 }
-function onDrop(index: number) {
+function onDrop(index: any) {
   if (dragIndex.value === null) return
   const dragged = localColumns.value[dragIndex.value]
   localColumns.value.splice(dragIndex.value, 1)

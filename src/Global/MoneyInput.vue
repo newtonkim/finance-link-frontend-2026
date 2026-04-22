@@ -4,10 +4,10 @@ import { storeToRefs } from 'pinia';
 import { useCurrencyStore } from '@/stores/currency';
 
 const props = defineProps<{
-    modelValue: any;
-    placeholder?: string;
+    modelValue?: any;
+    placeholder?: any;
     disabled?: boolean;
-    class?: string;
+    class?: any;
 }>();
 
 const emit = defineEmits(['update:modelValue']);
@@ -15,7 +15,7 @@ const currencyStore = useCurrencyStore();
 const { currencyCode } = storeToRefs(currencyStore);
 
 // The formatted string shown in the input (e.g. "1,000,000")
-const displayValue = ref('');
+const displayValue = ref<any>('');
 
 // Format a number/string to include commas
 const formatMoney = (val: string | number | null): string => {

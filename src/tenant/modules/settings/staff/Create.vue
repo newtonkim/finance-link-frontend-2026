@@ -81,7 +81,7 @@ watch(
                     type: 'select',
                     value: 'active',
                     required: true,
-                    props: { placeholder: 'Select Status' },
+                   placeholder: 'Select Status',
                     options: [{ id: 'active', name: 'Active' }, { id: 'in-active', name: 'in-active' },]
                 })
             }

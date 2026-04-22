@@ -9,10 +9,12 @@ const OptionList = reactive({
   genderOptions: [{ id: 'male', name: 'Male' }, { id: 'female', name: 'Female' }, { id: 'other', name: 'Other' }],
   maritalOptions: [{ id: 'single', name: 'Single' }, { id: 'married', name: 'Married' }, { id: 'divorced', name: 'Divorced' }, { id: 'widowed', name: 'Widowed' }]
 })
-const loading = ref(true)
-const settingList = ref({})
-const additionalForm = ref({ shares_quantity: 0 });
-const errors = ref({ shares_quantity: 0 });
+const sharesError = ref<any>(null)
+const loading = ref<any>(true)
+const settingList = ref<any>({})
+const settingsStore = ref<any>({})
+const additionalForm = ref<any>({ shares_quantity: 0 });
+const errors = ref<any>({ shares_quantity: 0 });
 const currencyCode = computed(() => `${pickAsettingKeyValue('default-currency') || 'UGX'}`);
 const props = defineProps({
   data: {
@@ -20,7 +22,7 @@ const props = defineProps({
     default: {},
   },
 })
-const fields = ref([
+const fields = ref<any>([
     {
       label: 'Account Code',
       name: 'account_code',
@@ -164,7 +166,7 @@ const fields = ref([
 ]);
 
 watch(() => additionalForm.value, (val) => {
-  const field = fields.value.find(f => f.name === 'shares_quantity')
+  const field = fields.value.find((f:any) => f.name === 'shares_quantity')
   if (field) {
     field.value = val.shares_quantity
   } else {
@@ -213,12 +215,12 @@ function checkForSettings() {
 watch(
   () => fields.value,
   (val) => {
-    const codeIndex = val.findIndex(f => f.name === 'code');
-    const fullNameIndex = val.findIndex(f => f.name === 'full_name');
+    const codeIndex = val.findIndex((f:any) => f.name === 'code');
+    const fullNameIndex = val.findIndex((f:any) => f.name === 'full_name');
 
     if (settingList.value['hide-initial-deposit-field']) {
-      const initalDepositIndex = val.findIndex(f => f.name === 'inital_deposit')
-      const referredByIndex = val.findIndex(f => f.name === 'referred_by')
+      const initalDepositIndex = val.findIndex((f:any) => f.name === 'inital_deposit')
+      const referredByIndex = val.findIndex((f:any) => f.name === 'referred_by')
       if (initalDepositIndex === -1 && referredByIndex !== 1) {
         fields.value.splice(referredByIndex + 1, 0, {
           label: 'inital deposit',

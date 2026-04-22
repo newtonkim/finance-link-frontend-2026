@@ -6,7 +6,7 @@ import MultiSearchableSelect from "@/Global/MultiSearchableSelect.vue";
 import PhoneInput from "@/Global/PhoneInput.vue";
 import FormField from "@/Global/FormField.vue";
 import MoneyInput from "@/Global/MoneyInput.vue";
-import { Printer, UserCircle2 } from "lucide-vue-next";
+import {  UserCircle2 } from "lucide-vue-next";
 import { pomPinia } from "septor-store";
 const Store:any = pomPinia();
 const props = defineProps<{
@@ -58,14 +58,14 @@ onMounted(() => {
   remountComponent.value = false;
   Store.isFormSubmitted = false;
 });
-const avatarPreviews = ref<Record<number, string>>({});
+const avatarPreviews = ref<any>({});
 
 const inputClass =
   "w-full rounded-lg border focus:border-nfuko-primary/50 focus:ring-1    bg-white px-3 py-2.5 text-sm outline-none transition  border-nfuko-primary/10 focus:ring-1 focus:ring-bg-nfuko-primary/90 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#8ba8a2]/90 dark:focus:ring-[#8ba8a2]/90";
 function DatawhistleBlower(newFields) {
   emits("update:form", newFields);
   emits("results", newFields);
-  const NewCollectionSet = [];
+  const NewCollectionSet: any = [];
 
   newFields.forEach((field: any) => {
     if (field?.fields) {
@@ -98,7 +98,7 @@ watch(isTriggered, (val) => {
   if (val) Store.AnyErrorsFoundInTheFOrm = FormValidate();
 });
 
-const handleChange = (field: any, index: number) => {
+const handleChange = (field: any, index: any) => {
   if (field?.change) field.change?.(field.value, field, index);
 };
 function FormValidate() {
@@ -143,7 +143,7 @@ function FormValidate() {
   });
 }
 
-const handleAvatarChange = (field: any, index: number, event: Event) => {
+const handleAvatarChange = (field: any, index: any, event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files[0]) {
     const file = target.files[0];
@@ -226,16 +226,19 @@ function shouldShowField(field: any) {
     return target.value === condition.value;
   });
 }
+function labeCapitalize(field: any) {
+  return  field?.label?.toLowerCase().replace(/^./, (c:any) => c.toUpperCase())
+}
 </script>
 
 <template>
   <div class="">
     <div :class="(parentStyle || '') + ' space-y-2  print-container'">
-      <template v-for="(field, index) in prfields" :key="index" class="pom">
+      <template v-for="(field, index) in prfields" :key="index"  >
         <template v-if="shouldShowField(field)">
           <template v-if="field.group >= 0">
             <div :class="[field?.class, 'capitalize']">
-              {{ field?.label?.toLowerCase().replace(/^./, (c) => c.toUpperCase()) }}
+              {{ labeCapitalize(field)}}
             </div>
             <DynamicForm
               :parentStyle="getGridClass(field.group ?? field?.fields?.length)"
@@ -248,7 +251,7 @@ function shouldShowField(field: any) {
           <div v-else :class="[field.hidden ? 'hidden' : '', field?.class]">
             <FormField
               class="capitalize"
-              :label="field?.label?.toLowerCase().replace(/^./, (c) => c.toUpperCase())"
+              :label="labeCapitalize(field)"
               :required="field.required"
               :html-for="field.name"
               :error="field.error"
@@ -349,13 +352,13 @@ function shouldShowField(field: any) {
                       {{ field.suffix }}
                     </div>
                     <MoneyInput
+                      :id="field.name"
+                      v-model="field.value"
+                      :placeholder="field?.placeholder || ''"
                       :class="[
                         field?.class,
                         field.suffix ? ' rounded-xl rounded-l-none ' : '',
                       ]"
-                      :id="field.name"
-                      v-model="field.value"
-                      :placeholder="field?.placeholder || ''"
                       @input="() => field?.change && handleChange(field, index)"
                     />
                     <!-- {{ field.error }} -->

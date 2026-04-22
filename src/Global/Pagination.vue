@@ -5,12 +5,13 @@ import { computed } from 'vue'
 const props = defineProps<{
   links?: {
     url: string | null
-    label: string
+    label: any
     active: boolean
     current_page: number
     last_page: number
     per_page: number
     total: number
+    length?: any
     from: number
     to: number
   }

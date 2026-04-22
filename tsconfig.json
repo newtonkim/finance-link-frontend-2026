@@ -1,4 +1,11 @@
 {
+   "compilerOptions": {
+    "strict": false,
+    "noImplicitAny": false,
+    "noEmitOnError": false,
+    "skipLibCheck": true,
+    "isolatedModules": false
+  },
   "files": [],
   "references": [
     {

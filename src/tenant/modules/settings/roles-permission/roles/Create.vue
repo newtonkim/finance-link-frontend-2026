@@ -45,7 +45,7 @@ watch(
         permissionSelected.value = [
           ...new Set([
             permission.selected,
-            ...permissionSelected.value.filter((p) => p.id !== permission.selected.id),
+            ...permissionSelected.value.filter((p:any) => p.id !== permission.selected.id),
           ]),
         ];
       }
@@ -57,7 +57,7 @@ watch(
 
 function removePermission(permission: any) {
   permissionSelected.value = permissionSelected.value.filter(
-    (p) => p.id !== permission.id
+    (p:any) => p.id !== permission.id
   );
 }
 const columns = [
