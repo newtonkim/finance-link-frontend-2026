@@ -65,7 +65,7 @@ function processingFeeLabel() {
 
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center py-20 text-sm text-neutral-400">
-      Loading…
+      Loading Data…
     </div>
 
     <template v-else-if="product">
