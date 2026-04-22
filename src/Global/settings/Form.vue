@@ -3,7 +3,8 @@
   <div v-if='fields?.length > 0' class="h-[90vh] overflow-y-auto">
     <div
       class="mb-1 justify-between px-0 py-1 rounded-xl dark:border-neutral-800 hover:shadow-sm hover:border-neutral-300 dark:hover:border-neutral-700 transition-all duration-200 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800 dark:hover:shadow-sm dark:hover:border-neutral-700 capitalize  dark:bg-neutral-900   border-neutral-200  "
-      v-for="field in fields">
+      v-for="field in fields"
+      :key="field.id">
 
       <div>
 
@@ -22,7 +23,7 @@
         </div>
         <button class="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-all duration-300"
           type="button"
-          @click="() => storeLocalChanages(field.id, field.settings_action.action = !field.settings_action.action, field,)"
+          @click="() => storeLocalChanages(field.id, field.settings_action.action =!field.settings_action.action, field,)"
           :class="[
             'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-all duration-300',
             field.settings_action.action ? ' bg-nfuko-primary dark:bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'
@@ -62,7 +63,7 @@
 import { ref, watch, computed, onMounted, nextTick } from "vue";
 import { appendOnAjsonStore, ConfirmDialog, createUrl, fetchTableData, keysToUse } from "..";
 import { pomPinia } from 'septor-store';
-const Store = pomPinia();
+const Store:any = pomPinia();
 
 const props = defineProps({
   from: {
@@ -92,19 +93,19 @@ const props = defineProps({
   },
 });
 
-const fields = computed(() => {
+const fields:any = computed(() => {
   const theListData = stateGenerator(props?.outerlinks?.['list'] ?? props?.state ?? "settings-list");
   return Object.values(Store[theListData]?.payload ?? {})
 })
 const emit = defineEmits(["update:modelValue"]);
-const internalValue = ref(props.modelValue);
-const showDelete = ref({ show: false, warning: "" });
-const collectedData = ref({});
+const internalValue = ref<any>(props.modelValue);
+const showDelete = ref<any>({ show: false, warning: "" });
+const collectedData = ref<any>({});
 
 watch(internalValue, (val) => {
   emit("update:modelValue", val);
 });
-function storeLocalChanages(id: string, value: string, action: string) {
+function storeLocalChanages(id: any, value: any, action: any) {
   collectedData.value = action
   showDelete.value = {
     warning: action?.actiondescription,
@@ -112,7 +113,7 @@ function storeLocalChanages(id: string, value: string, action: string) {
   }
 
 }
-async function confirmAndSaveChanges(data: any) {
+async function confirmAndSaveChanges(data?: any) {
   const customeUrl = props?.outerlinks?.['create'] ?? "save-changed-settings";
   const { id, settings_action } = collectedData.value
   const url = createUrl(props?.url, customeUrl)
@@ -130,8 +131,8 @@ async function confirmAndSaveChanges(data: any) {
     storeSettings(Object.values(res.payload))
 }
 
-function storeSettings(useStoreAlltheGotSettings) {
-  const newsettings = {}
+function storeSettings(useStoreAlltheGotSettings:any) {
+  const newsettings:any = {}
   useStoreAlltheGotSettings.forEach((value: any, index: number) => {
     newsettings[value.name] = value?.['settings_action']?.['action'] ?? value;
   })

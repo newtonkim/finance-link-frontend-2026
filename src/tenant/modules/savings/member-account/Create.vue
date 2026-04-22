@@ -13,8 +13,8 @@ import debounce from 'lodash/debounce'
 const { getProductCharges } = memberAccountApi()
 
 const emits = defineEmits(['update:form']),
-  loading = ref(true),
-  settingList = ref({}),
+  loading = ref<any>(true),
+  settingList = ref<any>({}),
   yesNoOptions = [
     { id: 1, name: 'Yes' },
     { id: '0', name: 'No' },
@@ -25,7 +25,7 @@ const emits = defineEmits(['update:form']),
       default: {},
     },
   }),
-  fields = ref([
+  fields = ref<any>([
     {
       label: 'Member',
       name: 'member',
@@ -44,8 +44,8 @@ const emits = defineEmits(['update:form']),
       placeholder: 'Enter a savings product',
       url: 'global/savings-products',
       dataOnMount: true,
-      change: async (val) => {
-        const amount = fields.value.find((f) => f.name === 'in_deposit')?.value
+      change: async () => {
+        const amount = fields.value.find((f:any) => f.name === 'in_deposit')?.value
         if (amount)
           watchChangeInProductOrCharges(fields, amount)
 

@@ -5,14 +5,14 @@
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
-        <template #name="{ item }: { item: any }">
+        <template #name="{ item }">
             {{ `${item?.name}`.replace(/[-_]/gi, ' ') }}
         </template>
-        <template #actions="{ item }: { item: any }">
+        <template #actions="{ item }">
             <div class="w-full gap-2 flex items-center justify-center">
                 <button @click="() => OpenThedrawer(item)"
-                    class="flex items-center  rounded-full bg-amber-300 p-2  text-xs font-bold text-neutral-700 transition-colors hover:bg-indigo-100 dark:bg-indigo-900/40 dark:text-indigo-300 dark:hover:bg-indigo-900/60" ">
-                    <UserPlus size=" 13" />
+                    class="flex items-center  rounded-full bg-amber-300 p-2  text-xs font-bold text-neutral-700 transition-colors hover:bg-indigo-100 dark:bg-indigo-900/40 dark:text-indigo-300 dark:hover:bg-indigo-900/60 ">
+                    <UserPlus :size="13" />
                 </button>
             </div>
         </template>
@@ -30,7 +30,7 @@ import { Details } from '.';
 import { tenantpermissionsApi } from '../../../../apis/onboardingSettings';
 
 const formData = ref<Record<string, any>>({})
-const drawer = ref(null)
+const drawer = ref<null | any>(null)
 const data = ref(null)
 const { create, Erase } = tenantpermissionsApi()
 const statusFilter = ref('Permission');
@@ -66,7 +66,7 @@ const columns = [
 function OpenThedrawer(item: any) {
     data.value = item
     setTimeout(() => {
-        drawer.value.toggleDrawer()
+        drawer.value?.toggleDrawer()
     }, 1000)
 
 }

@@ -27,7 +27,7 @@ const props = defineProps({
   copy: { type: [String, Number, Object], required: false },
 })
 const handleCopy = () => {
-  copyToClipboard(props.copy ?? props?.show)
+  copyToClipboard(String(props.copy ?? props?.show ?? ''))
 }
 </script>
-  // appendOnAjsonStore({ data: newsettings, key: keysToUse.systemSettings })
+  appendOnAjsonStore({ data: newsettings, key: keysToUse.systemSettings })

@@ -36,7 +36,7 @@
 import { ref, computed } from 'vue'
 import { exportToExcel, TabelActionButtons, TableDrawer, } from '@/Global'
 import { pomPinia } from 'septor-store';
-const Store = pomPinia();
+const Store:any = pomPinia();
 const selected = ref<Record<string, any>>({}),
     drawerTitle = ref('Create Tenant'),
     tableUrl = computed(() => `members/download-members-import-template/list`)
@@ -47,7 +47,7 @@ const columns = [
     { key: 'account_number', label: 'member code', width: '14em', copy: true },
 ]
 
-function selectMember(data) {
+function selectMember(data:any) {
     if (selected.value[data.id]) {
         delete selected.value[data.id]
         return
@@ -57,7 +57,7 @@ function selectMember(data) {
 
 function checkall() {
     const theCurrentData = Store['members-opening-balance']?.payload?.data ?? []
-    theCurrentData.forEach(element => {
+    theCurrentData.forEach((element:any) => {
         selectMember(element)
     });
 }

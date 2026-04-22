@@ -51,16 +51,16 @@ import { Create, Details, AddGroupTab } from '.'
 import { TableDrawer, StatusButtonsHorizontal, addNumberCommas, AnalysisTile, PainPageHeader, TabelActionButtons, setLocalValues, CopyData } from '@/Global'
 import { useRouter } from 'vue-router';
 import { groupSavingsApi } from '@/tenant/apis/savings/group-savingsApi';
-const Store = pomPinia();
+const Store:any = pomPinia();
 const props = defineProps<{
   data?: any
 }>(),
-  automaticCreate = ref({ drawerActions: true, actionSlot: null, item: null }),
-  drawer = ref(null),
-  drawerRemount = ref(false),
+  automaticCreate = ref<any>({ drawerActions: true, actionSlot: null, item: null }),
+  drawer = ref<any>(null),
+  drawerRemount = ref<any>(false),
   formData = ref<Record<string, any>>({})
-const statusFilter = ref('all')
-const drawerTitle = ref({
+const statusFilter = ref<any>('all')
+const drawerTitle = ref<any>({
   title: 'Create Tenant',
   width: 'w-2/3'
 })
@@ -135,7 +135,7 @@ const stats = computed(() => [
 async function saveUser(type: string, data: any, sumited: any) {
 
   if (automaticCreate.value.actionSlot == 'create-none-member') {
-    const checker = await addNoneExistingMember(formData.value, automaticCreate.value.item)
+    const checker:any = await addNoneExistingMember(formData.value, automaticCreate.value.item)
     if (checker == false) {
     }
     formData.value = {}

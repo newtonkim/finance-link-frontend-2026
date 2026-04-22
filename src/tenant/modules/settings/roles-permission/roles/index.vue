@@ -48,14 +48,14 @@ import { ref, watch, reactive, shallowReactive } from "vue";
 import { TableDrawer, StatusButtonsHorizontal } from "@/Global";
 import { UserCog2 } from "lucide-vue-next";
 const formData = ref<Record<string, any>>({});
-const automaticCreate = ref(true);
-const drawer = ref(null);
-const statusFilter = ref("roles");
+const automaticCreate = ref<any>(true);
+const drawer = ref<any>(null);
+const statusFilter = ref<any>("roles");
 const filters = ["roles", "permissions"];
 import { Details, Create, EditUserRole } from ".";
 import { tenantRolesApi } from "../../../../apis/onboardingSettings";
 const { create } = tenantRolesApi();
-let dispalyAlterUserRole = reactive({ show: false });
+let dispalyAlterUserRole = reactive ({ show: false,data: null });
 const emit = defineEmits(["update:modelValue"]);
 watch(
   () => statusFilter.value,
@@ -65,8 +65,9 @@ watch(
 );
 let drawerTitle = shallowReactive({
   title: "Create role",
+  action: "create",
 });
-const title = shallowReactive({
+const title = shallowReactive<Record<string, string>>({
   add: "Create role",
   edit: "Edit role",
   view: "View role",
@@ -92,7 +93,7 @@ function toggleDrawer(item: any) {
   dispalyAlterUserRole = { show: true, data: item };
   drawerTitle = { title: "alter staff Roles", action: "alter" };
   setTimeout(() => {
-    drawer.value.toggleDrawer();
+    drawer.value?.toggleDrawer();
   }, 100);
 }
 function saveUser(type: string, data: any) {

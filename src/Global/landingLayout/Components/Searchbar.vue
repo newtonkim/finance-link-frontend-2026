@@ -11,7 +11,7 @@
             </div>
             <button type="button" v-if="searchQuery" @click="() => triggerSearch()" class="flex items-center justify-center rounded-lg  bg-nfuko-primary px-2.5 py-2.5 text-white 
            hover:bg-[#00343d] transition-colors">
-                <Search size="15" />
+                <Search :size="15" />
             </button>
         </div>
         <div v-if="searchQuery" class="absolute top-full mt-1 w-full max-h-[200px] overflow-auto  bg-white shadow-lg rounded-lg z-50 dark:bg-neutral-900 opacity-0 invisible  group-hover:opacity-100 group-hover:visible

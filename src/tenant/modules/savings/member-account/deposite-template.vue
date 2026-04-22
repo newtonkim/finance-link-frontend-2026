@@ -55,7 +55,7 @@ function selectMember(data) {
 }
 function checkall() {
     const theCurrentData = Store['deposit-template']?.payload?.data ?? []
-    theCurrentData.forEach(element => {
+    theCurrentData.forEach((element:any) => {
         selectMember(element)
     });
 }

@@ -76,6 +76,7 @@
         <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShooter2" v-model:open="drawerOpen"
             :title="drawerTitle" @save="saveDrawerData">
             <template #body>
+                <!-- {{ drawerShowFooter }} -->
                 <div id="print-container-drawer">
 
                     <div>

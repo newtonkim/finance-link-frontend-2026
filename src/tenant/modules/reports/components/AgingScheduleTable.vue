@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Spinner, ExternalLink } from 'lucide-vue-next'
+import { Loader, ExternalLink } from 'lucide-vue-next'
 
 defineProps<{
   loanId: number
@@ -17,7 +17,7 @@ defineProps<{
 
     <!-- Loading schedule -->
     <div v-if="loadingScheduleId === loanId" class="flex items-center justify-center py-6">
-      <Spinner class="h-5 w-5 text-nfuko-primary" />
+      <Loader class="h-5 w-5 text-nfuko-primary" />
       <span class="ml-2 text-xs text-neutral-400">Loading schedule…</span>
     </div>
 

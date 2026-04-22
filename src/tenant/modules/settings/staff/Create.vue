@@ -25,7 +25,7 @@ const loadingMount = computed(() => loading.value), emits = defineEmits(['update
         type: 'email',
         required: true,
         value: '',
-        props: { placeholder: 'Select Start & End Dates' },
+      placeholder: 'Select Start & End Dates',
         options: [] as any[], // Add options property to avoid type errors when spreading
     },
     {
@@ -81,6 +81,7 @@ watch(
                     type: 'select',
                     value: 'active',
                     required: true,
+                   placeholder: 'Select Status',
                     options: [{ id: 'active', name: 'Active' }, { id: 'in-active', name: 'in-active' },]
                 })
             }

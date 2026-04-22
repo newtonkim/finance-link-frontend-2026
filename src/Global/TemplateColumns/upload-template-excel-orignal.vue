@@ -7,7 +7,7 @@
             <div class="border-2 border-dashed border-gray-300 dark:border-gray-700 p-10 text-center rounded-2xl cursor-pointer transition-all
              hover:border-gray-400 hover:bg-nfuko-primary/10 dark:hover:bg-gray-800 mb-8" @dragover.prevent
                 @drop.prevent="handleDrop" @click="triggerFileInput">
-                <Upload size="15"
+                <Upload :size="15"
                     class="mx-auto mb-3 w-12 h-12 text-nfuko-primary dark:text-blue-400 dark:text-blue-300" />
                 <p class="text-gray-600 dark:text-gray-400 text-lg font-medium">
                     Drag & drop your Excel file here <br />

@@ -12,7 +12,7 @@ function splitTheLink(link: string) {
   return { url: url.href, name: url2[name] }
 }
 export const dataFomater = (data: any, type: string) => {
-  const filter = {
+  const filter:any = {
     date: () => date(data),
     dateTime: () => dateTime(data),
     link: () => {
@@ -91,7 +91,7 @@ export const ACTION_CONFIG = {
   },
   share: {
     icon: Send,
-    action: (row) => {
+    action: (row:any) => {
       // you can pass row data here
       return {
         type: 'share',

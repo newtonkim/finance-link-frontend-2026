@@ -71,10 +71,10 @@ const props = defineProps<{
     prefix?: string
 }>();
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Store = pomPinia() as any;
+const Store:any = pomPinia() as any;
 const { state } = useSidebar()
 
-const mainLinks = computed(() => props.links)
+const mainLinks:any = computed(() => props.links)
 
 const toggleSubmenu = (label: string | undefined | null) => {
     if (Store.showSubmenu === label) {
