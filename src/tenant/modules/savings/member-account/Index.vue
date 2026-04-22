@@ -80,10 +80,10 @@ import {
   uploadTemplateColumData,
 } from "@/Global";
 import { memberAccountApi } from "@/tenant/apis";
-const drawer = ref(null),
-  drawerRemount = ref(true),
-  automaticCreate = ref({ drawerActions: true, actionSlot: null }),
-  exportItems = ref([
+const drawer = ref<any>(null),
+  drawerRemount = ref<any>(true),
+  automaticCreate = ref<any>({ drawerActions: true, actionSlot: null }),
+  exportItems = ref<any>([
     {
       label: "opening balance template",
       action: (vl) => {
@@ -150,7 +150,7 @@ const formData = ref<Record<string, any>>({}),
   drawerTitle = ref("Create Tenant"),
   filters = ["all", "active", "suspended", "expired", "trial"],
   tableUrl = computed(() => `/members-account/list?status=${statusFilter.value}`),
-  title: Record<string, string> = {
+  title: Record<string, any> = {
     view: { title: "View member saving's Account Details", width: "w-2/3" },
     edit: { title: "Edit member saving's Account", width: "w-2/3" },
     add: { title: "Create a member saving's Account", width: "w-2/4" },
@@ -181,7 +181,7 @@ function saveUser(type: string, data: any) {
     // let check if there is an action slot has its own action we use that action instead of the default ones
     title?.[automaticCreate.value.actionSlot]?.fun?.();
     if (type == 'create') {
-      drawer.value.toggleDrawer();
+      drawer.value?.toggleDrawer();
     }
     return;
   }

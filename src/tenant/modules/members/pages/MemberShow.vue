@@ -144,8 +144,8 @@ const handleDelete = () => deleteMember(() => router.push('/tenant/members'));
                         :approving="approving"
                         :rejecting="rejecting"
                         :deleting="deleting"
-                        @deposit="depositDrawer?.open('deposit')"
-                        @withdraw="depositDrawer?.open('withdraw')"
+                        @deposit="depositDrawer?.open?.('deposit')"
+                        @withdraw="depositDrawer?.open?.('withdraw')"
                         @approve="approveMember"
                         @reject="(reason) => rejectMember(reason)"
                         @delete="handleDelete"
@@ -156,8 +156,8 @@ const handleDelete = () => deleteMember(() => router.push('/tenant/members'));
                         :accounts="member.savings_accounts"
                         :currency-code="currencyCode"
                         :format-currency="formatCurrency"
-                        @new-account="newAccountDrawer?.openDrawer()"
-                        @custom-fee="(account) => customFeeDrawer?.openDrawer(account)"
+                        @new-account="newAccountDrawer?.openDrawer?.()"
+                        @custom-fee="(account) => customFeeDrawer?.openDrawer?.(account)"
                     />
 
                     <!-- Tabs -->
@@ -256,7 +256,7 @@ const handleDelete = () => deleteMember(() => router.push('/tenant/members'));
                             :format-currency="formatCurrency"
                             @print="printReceipt"
                             @reverse="confirmDeleteTxn"
-                            @open-drawer="depositDrawer?.open('deposit')"
+                            @open-drawer="depositDrawer?.open?.('deposit')"
                         />
 
                         <!-- Withdrawal tab -->
@@ -271,7 +271,7 @@ const handleDelete = () => deleteMember(() => router.push('/tenant/members'));
                             :format-currency="formatCurrency"
                             @print="printReceipt"
                             @reverse="confirmDeleteTxn"
-                            @open-drawer="depositDrawer?.open('withdraw')"
+                            @open-drawer="depositDrawer?.open?.('withdraw')"
                         />
 
                         <!-- Shares placeholder -->

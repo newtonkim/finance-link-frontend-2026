@@ -100,43 +100,43 @@ const tenant = tenantStore.currentTenant as any
       </div>
     </SidebarHeader>
 
-    <div class='flex   flex-col h-full py-2 px-3'>
-      <SidebarContent
-        class="flex-1 h-full flex flex-col h-full   overflow-y-auto min-h-0 gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden px-3 flex flex-col flex-1">
-        <SidebarGroup>
-          <SidebarGroupLabel v-if="state === 'expanded'"
-            class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
-            Navigation
-          </SidebarGroupLabel>
-          <SidebarSeparator v-else class="bg-white/5 mx-2 my-2" />
-          <OutClickNav class="flex-1 h-full" :links="tenantRoutes" />
-        </SidebarGroup>
-        <SidebarGroup class="mt-2">
-          <SidebarGroupLabel v-if="state === 'expanded'"
-            class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
-            Configuration
-          </SidebarGroupLabel>
-          <SidebarSeparator v-else class="bg-white/5 mx-2 my-2" />
-          <SidebarMenu v-auth='"settings-module-link-view"'>
-            <SidebarMenuItem>
-              <SidebarMenuButton :tooltip="'Settings'" @click="router.push('/tenant/settings')" :class="[
-                'relative px-0 py-2.5 hover:bg-white/5 transition-all duration-200 group',
-                isSettingsActive ? 'bg-white/5' : ''
-              ]">
-                <div class="flex w-full items-center gap-3 pl-4 pr-3">
-                  <Settings class="h-4 w-4 transition-colors duration-200"
-                    :class="isSettingsActive ? 'text-bg-nfuko-yellow' : 'text-nfuko-nav-text group-hover:text-bg-nfuko-yellow'" />
-                  <span class="flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200"
-                    :class="isSettingsActive ? 'text-bg-nfuko-yellow' : 'text-nfuko-nav-text group-hover:text-white'">
-                    Settings
-                  </span>
-                </div>
-                <div v-if="isSettingsActive"
-                  class="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-[3px] bg-nfuko-yellow rounded-r-full shadow-[0_0_10px_rgba(201,168,76,0.5)]" />
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
+    <!-- NAVIGATION -->
+     <div class='flex   flex-col h-full py-2 px-3'>
+    <SidebarContent class="flex-1 h-full flex flex-col h-full   overflow-y-auto min-h-0 gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden px-3 flex flex-col flex-1">
+      <SidebarGroup >
+        <SidebarGroupLabel v-if="state === 'expanded'" class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
+          Navigation
+        </SidebarGroupLabel>
+        <SidebarSeparator v-else class="bg-white/5 mx-2 my-2" />
+        <OutClickNav class="flex-1 h-full" :links="tenantRoutes" />
+      </SidebarGroup>
+   
+    
+      <SidebarGroup class="mt-2">
+        <SidebarGroupLabel v-if="state === 'expanded'" class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
+          Configuration
+        </SidebarGroupLabel>
+        <SidebarSeparator v-else class="bg-white/5 mx-2 my-2" />
+        <SidebarMenu v-auth='"settings-module-link-view"'>
+          <SidebarMenuItem>
+            <SidebarMenuButton :tooltip="'Settings'" @click="router.push('/tenant/settings')" :class="[
+              'relative px-0 py-2.5 hover:bg-white/5 transition-all duration-200 group',
+              isSettingsActive ? 'bg-white/5' : ''
+            ]">
+              <div class="flex w-full items-center gap-3 pl-4 pr-3">
+                <Settings class="h-4 w-4 transition-colors duration-200"
+                  :class="isSettingsActive ? 'text-bg-nfuko-yellow' : 'text-nfuko-nav-text group-hover:text-bg-nfuko-yellow'" />
+                <span class="flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200"
+                  :class="isSettingsActive ? 'text-bg-nfuko-yellow' : 'text-nfuko-nav-text group-hover:text-white'">
+                  Settings
+                </span>
+              </div>
+              <div v-if="isSettingsActive"
+                class="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-[3px] bg-nfuko-yellow rounded-r-full shadow-[0_0_10px_rgba(201,168,76,0.5)]" />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarGroup>
 
       </SidebarContent>
     </div>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Search, ChevronDown, ChevronRight, ExternalLink, Spinner } from 'lucide-vue-next'
+import { Search, ChevronDown, ChevronRight, ExternalLink, Loader } from 'lucide-vue-next'
 import { Pagination } from '@/Global'
 import AgingScheduleTable from './AgingScheduleTable.vue'
 import type { AgingLoanRow, AgingBucket } from '@/tenant/apis/reports/reportsApi'
@@ -87,7 +87,7 @@ defineEmits(['update:search'])
 
     <!-- Loading -->
     <div v-if="loadingTable" class="flex items-center justify-center py-14">
-      <Spinner class="h-6 w-6 text-nfuko-primary" />
+      <Loader class="h-6 w-6 text-nfuko-primary" />
     </div>
 
     <template v-else>
@@ -124,7 +124,7 @@ defineEmits(['update:search'])
                 @click="toggleSchedule(row.loan_id)"
               >
                 <td class="w-8 px-3 py-3 text-neutral-400">
-                  <Spinner v-if="loadingScheduleId === row.loan_id" class="h-4 w-4 text-nfuko-primary" />
+                  <Loader v-if="loadingScheduleId === row.loan_id" class="h-4 w-4 text-nfuko-primary" />
                   <ChevronDown v-else-if="expandedLoanId === row.loan_id" class="h-4 w-4 text-nfuko-primary" />
                   <ChevronRight v-else class="h-4 w-4" />
                 </td>

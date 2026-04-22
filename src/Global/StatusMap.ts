@@ -1,4 +1,4 @@
-export const status = {
+export const status: any = {
   pending: {
     label: 'Pending',
     className: ' text-sm font-medium px-3 text-sm py-0 rounded-full   bg-yellow-100 text-yellow-700',
@@ -45,7 +45,7 @@ export const status = {
   },
 }
 
-export const paymentStatus = {
+export const paymentStatus:any = {
   unpaid: {
     label: 'Unpaid',
     className: 'text-sm font-medium px-3 text-sm py-0 rounded-full bg-red-100 text-red-700',
@@ -72,7 +72,7 @@ export const paymentStatus = {
   },
 }
 
-export const paymentMethods = {
+export const paymentMethods:any = {
   cash: { label: 'Cash', className: ' font-medium px-3 text-sm py-0 rounded-full     text-green-700' },
   card: { label: 'Card', className: '  font-medium px-3 text-sm py-0 rounded-full  text-blue-600' },
   bank: { label: 'Bank', className: '  font-medium px-3 text-sm py-0 rounded-full  text-blue-600' },
@@ -81,7 +81,7 @@ export const paymentMethods = {
     className: ' font-medium px-0 py-1 rounded-full  text-blue-700',
   },
 }
-export const systemRoles = {
+export const systemRoles:any = {
   admin: {
     label: 'admin',
     className: 'font-medium px-3 text-sm py-0 rounded-full text-purple-700',
@@ -109,7 +109,7 @@ export const systemRoles = {
 }
 // maritalOptions: [{ id: 'single', name: 'Single' }, { id: 'married', name: 'Married' }, { id: 'divorced', name: 'Divorced' }, { id: 'widowed', name: 'Widowed' }]
 
-const marriageStatus = {
+const marriageStatus:any = {
   single: {
     label: 'Single',
     className:
@@ -133,7 +133,7 @@ const marriageStatus = {
 }
 
    
-const loanOptions = {
+const loanOptions:any = {
  committee_voting: {
     label: 'Voting',
     className: 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 inline-flex items-center px-3 py-0 text-sm font-medium rounded-full ',
@@ -191,7 +191,7 @@ const loanOptions = {
     className: 'bg-neutral-200 text-neutral-500 dark:bg-neutral-700 dark:text-neutral-400 inline-flex items-center px-3 py-0 text-sm font-medium rounded-full ',
   },
 }
-const genderOptions = {
+const genderOptions:any = {
   male: {
     label: 'Male',
     className:
@@ -211,7 +211,7 @@ const genderOptions = {
 
 
 
-export const statusMap = {
+export const statusMap:any = {
   ...loanOptions,
   ...status,
   ...genderOptions,

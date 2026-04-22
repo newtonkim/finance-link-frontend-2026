@@ -60,7 +60,7 @@ const avatarFile = ref<File | null>(null)
 const avatarPreview = ref<string | null>(null)
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
-function formatDateForInput(dateStr: string | null | undefined): string {
+function formatDateForInput(dateStr: string | null | undefined) {
   if (!dateStr) return ''
   // Extracts YYYY-MM-DD from ISO strings like "2024-03-10T11:00:00Z"
   return (dateStr as string).split('T')[0]

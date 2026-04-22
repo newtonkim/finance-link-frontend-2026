@@ -55,10 +55,7 @@ export function notify({
 
         case 'promise':
             // Example usage: notify({ type: 'promise', msg: promise })
-            toast.promise(msg as any, {
-                loading: 'Loading...',
-                success: 'Completed successfully',
-                error: 'Something went wrong',
+            toast.loading('Loading...', {
                 position: positions[pos],
             });
             break;

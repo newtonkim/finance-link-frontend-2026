@@ -7,7 +7,7 @@ import { notify } from '@/Global/Toasters'
 import * as XLSX from 'xlsx'
 import { fetchTableData } from './landingLayout/util'
 
-export const keysToUse = {
+export const keysToUse: Record<string, any> = {
   systemSettings: 'systemSettings',
   userPermissions: 'userPermissions',
   loginUserData: 'loginUserData',
@@ -39,7 +39,7 @@ export function date(time: string) {
 
 /***
  * ****/
-export function tryCatch<T>(callback: () => Promise<T> | T) {
+export function tryCatch(callback: () => any) {
   try {
     return callback()
   } catch (error) {
@@ -76,14 +76,14 @@ export function setIpEverLoged(data: any): void {
     console.error(`Failed to store key "${keysToUse['IpEverLoged']}":`, error)
   }
 }
-export function setLocalValues(key: keyof typeof keysToUse, data: unknown): void {
+export function setLocalValues(key: any, data: unknown): void {
   try {
     encryptStorage.setItem(keysToUse[key], data)
   } catch (error) {
     console.error(`Failed to store key "${keysToUse['IpEverLoged']}":`, error)
   }
 }
-export function getLocalValues(key: keyof typeof keysToUse) {
+export function getLocalValues(key: any) {
   try {
     return encryptStorage.getItem(keysToUse[key])
   } catch (error) {
@@ -209,7 +209,7 @@ export function hasPermission(permission: string) {
     console.error('Error :', error)
   }
 }
-export function appendOnAjsonStore(props: { data: any; key: string } = { data: {}, key: '' }) {
+export function appendOnAjsonStore(props: { data: any; key: any } = { data: {}, key: '' }) {
   const { data, key } = props
 
   try {

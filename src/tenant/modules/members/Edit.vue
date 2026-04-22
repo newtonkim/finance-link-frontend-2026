@@ -9,17 +9,19 @@ const OptionList = reactive({
   genderOptions: [{ id: 'male', name: 'Male' }, { id: 'female', name: 'Female' }, { id: 'other', name: 'Other' }],
   maritalOptions: [{ id: 'single', name: 'Single' }, { id: 'married', name: 'Married' }, { id: 'divorced', name: 'Divorced' }, { id: 'widowed', name: 'Widowed' }]
 })
-const loading = ref(true)
-const settingList = ref({})
-const additionalForm = ref({ shares_quantity: 0 });
-const errors = ref({ shares_quantity: 0 });
+const loading = ref<any>(true)
+const settingList = ref<any>({})
+const settingsStore = ref<any>({})
+const sharesError = ref<any>({})
+const additionalForm = ref<any>({ shares_quantity: 0 });
+const errors = ref<any>({ shares_quantity: 0 });
 const props = defineProps({
   data: {
     type: Object,
     default: {},
   },
 })
-const fields = ref([
+const fields = ref<any>([
   
 ])
 watch(() => additionalForm.value, (val) => {
@@ -58,7 +60,7 @@ async function promtValueOnUpdate() {
     required: true,
     placeholder: 'Search member type',
     change: (value: any, field: any, index: number) => {
-      const existsIndex = fields.value.findIndex(f => f.name === 'member_id')
+      const existsIndex = fields.value.findIndex((f:any) => f.name === 'member_id')
       if (value === 'existing_member') {
         if (existsIndex === -1) {
           fields.value.splice(index + 1, 0, {
@@ -260,8 +262,8 @@ function checkForSettings() {
 watch(
   () => fields.value,
   (val) => {
-    const codeIndex = val.findIndex(f => f.name === 'code');
-    const fullNameIndex = val.findIndex(f => f.name === 'full_name');
+    const codeIndex = val.findIndex((f:any) => f.name === 'code');
+    const fullNameIndex = val.findIndex((f:any) => f.name === 'full_name');
 
     if ((settingList.value?.['hide-initial-deposit-field'])) {
       const initalDepositIndex = val.findIndex(f => f.name === 'inital_deposit')
@@ -281,25 +283,25 @@ watch(
               }
             ],
           }
+        },
+         {
+          label: 'opening balance',
+          name: 'opening_balance',
+          type: 'money',
+          value:props.data.opening_balnace,
+          required: true,
+          placeholder: 'Enter opening balance',
+          dependsOn: {
+            conditions: [
+              {
+                field: 'member_type',
+                condition: (val: any) => val === 'new_member'
+              }
+            ],
+
+
+          },
         }
-        //  {
-        //   label: 'opening balance',
-        //   name: 'opening_balance',
-        //   type: 'money',
-        //   value:props.data.opening_balnace,
-        //   required: true,
-        //   placeholder: 'Enter opening balance',
-        //   dependsOn: {
-        //     conditions: [
-        //       {
-        //         field: 'member_type',
-        //         condition: (val: any) => val === 'new_member'
-        //       }
-        //     ],
-
-
-        //   },
-        // }
         ,)
       }
     }

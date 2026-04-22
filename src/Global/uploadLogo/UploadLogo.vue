@@ -24,7 +24,7 @@
 import { ref, watch } from 'vue';
 import { pomPinia } from 'septor-store';
 import { Upload } from 'lucide-vue-next';
-const Store = pomPinia();
+const Store:any =  pomPinia();
 const preview = ref<string | null>(null);
 const file = ref<File | null>(null);
 

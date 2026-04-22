@@ -43,7 +43,7 @@ const excelChunks = ref<any[]>([])
 const failedChunks = ref<any[]>([])
 const duplicates = ref<any[]>([])
 const showDuplicateList = ref(false)
-const usedFile = ref(null)
+const usedFile = ref<any | null>(null)
 // pagination
 const currentPage = ref(1)
 const pageSize = ref(50)
@@ -99,8 +99,8 @@ function readExcel(file: File) {
 
     reader.onload = (e) => {
         const data = new Uint8Array(e.target?.result as ArrayBuffer)
-        const workbook = XLSX.read(data, { type: 'array' })
-        const sheet = workbook.Sheets[workbook.SheetNames[0]]
+        const workbook: any = XLSX.read(data, { type: 'array' })
+        const sheet = workbook.Sheets[workbook?.SheetNames[0]]
 
         const allRows: any[][] = XLSX.utils.sheet_to_json(sheet, {
             header: 1,
@@ -108,7 +108,7 @@ function readExcel(file: File) {
             dateNF: 'yyyy-mm-dd'
         })
 
-        const headers = allRows[0]
+        const headers:any = allRows[0]
         const rows = allRows.slice(1)
 
         // columns
@@ -203,7 +203,7 @@ async function submitImportData() {
                 delete row.actions
             })
             //  console.log(usedFile);
-            const data = {
+            const data: Record<string, any> = {
                 file: usedFile.value,
                 collection: { rows: chunk }
             }
@@ -249,7 +249,7 @@ async function submitImportData() {
             <div class="border-2 border-dashed border-gray-300 dark:border-gray-700 px-10 py-4 text-center rounded-2xl cursor-pointer transition-all
              hover:border-gray-400 hover:bg-nfuko-primary/10 dark:hover:bg-gray-800 mb-8" @dragover.prevent
                 @drop.prevent="handleDrop" @click="triggerFileInput">
-                <Upload size="15"
+                <Upload :size="15"
                     class="mx-auto mb-3 w-12 h-8 text-nfuko-primary dark:text-blue-400 dark:text-blue-300" />
                 <p class="text-gray-600 dark:text-gray-400 text-lg font-medium">
                     Drag & drop your Excel file here <br />
@@ -283,7 +283,7 @@ async function submitImportData() {
             <div class="bg-white rounded shadow overflow-auto h-[46vh]">
                 <failedUploads :data="failedChunks" v-if="failedChunks.length" />
 
-                <Table :rowClass="(row) => row.isDuplicate ? 'bg-red-100 dark:bg-red-900/40' : ''"
+                <Table  
                     :dataFilter="paginatedData" :columns="excelColumns" :handleAction="handleAction"
                     :action_config="ACTION_CONFIG" />
 

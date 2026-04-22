@@ -19,13 +19,13 @@
                 <div class="relative" v-if="item?.showSideBar === true">
                     
                     <div v-auth="item?.permissions" :to="item?.path" @click="toggleSubmenu(item.label ?? null)"
-                        class="w-full hover:px-2 flex items-center   py-2 rounded-xl transition-all duration-200 text-nfuko-nav-text hover:bg-white/5 hover:text-white cursor-pointer hover:px-2 peer/menu-button flex w-full items-center gap-2 overflow-hidden  text-left outline-hidden ring-sidebar-ring focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground     [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 h-9 text-sm rounded-xl transition-all duration-200 text-nfuko-nav-text/60 hover:bg-white/5 hover:text-white capitalize font-medium tracking-wide text-nfuko-nav-text group-hover:text-white flex">
+                        class="w-full  2 flex items-center   py-2 rounded-xl transition-all duration-200 text-nfuko-nav-text hover:bg-white/5 hover:text-white cursor-pointer hover:px-2 peer/menu-button flex w-full items-center gap-2 overflow-hidden  text-left outline-hidden ring-sidebar-ring focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground     [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 h-9 text-sm rounded-xl transition-all duration-200 text-nfuko-nav-text/60 hover:bg-white/5 hover:text-white capitalize font-medium tracking-wide text-nfuko-nav-text group-hover:text-white flex">
                         <div class="flex justify-between  items-center" :class="state === 'expanded' ? 'w-full' : ''">
                             <div class="flex w-full items-center gap-3">
                                 <component :is="item.icon" :size="20" />
                                 <span class="text-sm font-medium capitalize">{{ item.label }}</span>
                             </div>
-                            <div class="hover:px-2 l items-center gap-2 overflow-hidden  text-left outline-hidden ring-sidebar-ring focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50   aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground     [&>span:last-child]:truncate   text-sm rounded-xl transition-all duration-200 text-nfuko-nav-text/60 hover:bg-white/5 hover:text-white capitalize font-medium tracking-wide text-nfuko-nav-text group-hover:text-white ">
+                            <div class="hov er:px-2 l items-center gap-2 overflow-hidden  text-left outline-hidden ring-sidebar-ring focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50   aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground     [&>span:last-child]:truncate   text-sm rounded-xl transition-all duration-200 text-nfuko-nav-text/60 hover:bg-white/5 hover:text-white capitalize font-medium tracking-wide text-nfuko-nav-text group-hover:text-white ">
                                 {{ Store.showSubmenu === item?.label ? "▾" : "▸" }}
                             </div>
                         </div>
@@ -37,7 +37,7 @@
                                 class="w-[240px] flex flex-col border border-neutral-100 bg-white shadow-xl dark:border-neutral-800 dark:bg-neutral-900/95 backdrop-blur-md rounded-2xl overflow-hidden py-3">
                                 <div
                                     :class="child.titleStyle === 'green'
-                                        ? 'px-4 py-2 mx-3 mb-2 rounded-lg bg-nfuko-primary text-white font-bold text-[11px] uppercase tracking-wider'
+                                        ? 'px-4 py-2 mx-3 mb-2 rounded-lg bg-nfuko-primary/95 text-white font-bold text-[11px] uppercase tracking-wider'
                                         : 'px-4 py-2 mx-3 mb-2 rounded-lg bg-nfuko-primary/10 dark:bg-bg-nfuko-yellow/10 text-nfuko-primary dark:text-bg-nfuko-yellow font-bold text-[11px] uppercase tracking-wider'">
                                     {{ child.title }}
                                 </div>
@@ -72,10 +72,10 @@ const props = defineProps<{
     prefix?: string
 }>();
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Store = pomPinia() as any;
+const Store:any = pomPinia() as any;
 const { state } = useSidebar()
 
-const mainLinks = computed(() => props.links)
+const mainLinks:any = computed(() => props.links)
 
 const toggleSubmenu = (label: string | undefined | null) => {
     if (Store.showSubmenu === label) {

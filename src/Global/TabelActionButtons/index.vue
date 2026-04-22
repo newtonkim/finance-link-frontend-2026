@@ -11,7 +11,7 @@
       <component
         v-if="icons[icon]"
         :is="icons[icon]"
-        size="12"
+        :size="12"
         class="shrink-0"
       />
       <span class="truncate">{{ title }}</span>

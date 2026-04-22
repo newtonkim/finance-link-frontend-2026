@@ -78,9 +78,9 @@ defineExpose({ fetchAccounts })
         <h1 class="text-xl font-bold text-neutral-900">Fund Transfer</h1>
         <p class="text-[13px] text-neutral-500">Move funds between savings accounts</p>
       </div>
-      <button type="button" @click="fetchAccounts" :disabled="loadingAccounts"
+      <button type="button" @click="fetchAccounts" 
         class="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium text-neutral-500 hover:bg-neutral-200 transition-all disabled:opacity-50">
-        <RefreshCw :size="13" :class="loadingAccounts ? 'animate-spin' : ''" />
+        <!-- <RefreshCw :size="13" :class="loadingAccounts ? 'animate-spin' : ''" /> -->
         Refresh
       </button>
     </div>
@@ -115,7 +115,8 @@ defineExpose({ fetchAccounts })
             </div>
           </div>
         </div>
-        <div v-if="transferState.from?.id && transferState.to?.id && Number(transferState.amount) > 0 && !amountError"
+        <!-- <div v-if="transferState.from?.id && transferState.to?.id && Number(transferState.amount) > 0 && !amountError" -->
+        <div v-if="transferState.from?.id && transferState.to?.id && Number(transferState.amount) > 0"
           class="bg-white rounded-2xl shadow-sm border border-nfuko-primary-200 p-5">
           <div class="flex items-center gap-2 mb-4">
             <div class="flex items-center justify-center w-7 h-7 rounded-full bg-nfuko-primary-100">

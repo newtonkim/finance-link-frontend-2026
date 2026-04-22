@@ -3,7 +3,7 @@ import { Check, ChevronDown, Search, X } from 'lucide-vue-next';
 import { ref, computed, onMounted, onUnmounted, watch, shallowRef } from 'vue';
 import { fetchTableData } from './landingLayout/util';
 import { pomPinia } from 'septor-store';
-const Store = pomPinia();
+const Store:any = pomPinia();
 import debounce from 'lodash/debounce';
 import { tryCatch } from './Helpers';
 
@@ -15,7 +15,7 @@ interface Option {
 }
 
 const props = defineProps<{
-    modelValue: string | number | null;
+    modelValue: any;
     options?: Option[];
     placeholder?: string;
     label?: string;
@@ -53,24 +53,24 @@ const remoteUrl = debounce(async (url: string) => {
     })
 }, 1000);
 
-const isOpen = ref(false);
-const searchQuery = ref('');
+const isOpen = ref<any>(false);
+const searchQuery = ref<any>('');
 const collection = shallowRef<any[]>([]);
 const containerRef = ref<HTMLElement | null>(null);
 const selectedOption = computed(() => {
-    const options = props?.url ? collection.value : props.options
+    const options: any = props?.url ? collection.value : props.options
     if (options?.length === 0) return []
-    return options.find(opt => opt.id === props.modelValue);
+    return options.find((opt:any) => opt.id === props.modelValue);
 });
 
 const filteredOptions = computed(() => {
-    const options = props?.url ? collection.value : props.options
+    const options:any = props?.url ? collection.value : props.options
     // console.log(options);
     
     if (!searchQuery.value) return options;
 
     const query = searchQuery.value.toLowerCase();
-    return options.filter(opt =>
+    return options.filter((opt:any) =>
         opt.name.toLowerCase().includes(query)
     );
 });
@@ -90,7 +90,7 @@ const toggleDropdown = async () => {
     if (isOpen.value)
         searchQuery.value = null;
     const generateAstate = props?.state ?? `${props?.url}`.replace(/[^a-zA-Z0-9]/g, "-");
-    const DataAlreadyCollected = Store[generateAstate]?.payload?.data ?? Store[generateAstate]?.payload
+    const DataAlreadyCollected = Store?.[generateAstate]?.payload?.data ?? Store?.[generateAstate]?.payload
 
     if (props.url && !DataAlreadyCollected?.length) {
         remoteUrl(props.url)

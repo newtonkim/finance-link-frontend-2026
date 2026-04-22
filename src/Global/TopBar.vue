@@ -31,7 +31,7 @@ import {
 import { tenantClient } from '@/tenant/apis/tenantClient'
 import { apiClient } from '@/central/api/client'
 import { pomPinia } from 'septor-store'
-const Store = pomPinia()
+const Store: any = pomPinia()
 const activeBranch = ref(null)
 const subdomain = getSubdomainName()
 // import { useBranchStore } from '@/stores/branchStore';

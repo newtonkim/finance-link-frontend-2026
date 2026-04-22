@@ -33,7 +33,7 @@ export const useCurrencyStore = defineStore('currency', () => {
     if (loading.value) return
     loading.value = true
     try {
-      const res = await currenciesApi.getSettings()
+      const res:any = await currenciesApi.getSettings()
       const payload = res?.data?.data ?? res?.data ?? null
       setSettings(payload)
     } catch {
