@@ -20,6 +20,7 @@ const LoanProductIndex = () => import('../loan-products/pages/LoanProductIndex.v
 const LoanProductForm = () => import('../loan-products/pages/LoanProductCreate.vue')
 const LoanProductShow = () => import('../loan-products/pages/LoanProductShow.vue')
 const StaffList = () => import('@/tenant/modules/settings/staff/Index.vue')
+const Notification = () => import('@/tenant/modules/settings/notification/Index.vue')
 const StaffProfile = () => import('./pages/StaffProfile.vue')
 const GeneralSettings = () => import('./pages/GeneralSettings.vue')
 const Notifications = () => import('./pages/Notifications.vue')
@@ -188,6 +189,11 @@ export const settingsRoutes: RouteRecordRaw[] = [
         path: 'old-notifications',
         name: 'tenant-staff-salaries',
         component: Notifications,
+      },
+      {
+        path: 'tenant-settings-sms-setting',
+        name: 'tenant-settings-sms-settings',
+        component: Notification,
       },
     ],
   },
