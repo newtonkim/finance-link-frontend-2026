@@ -353,11 +353,12 @@ export default function useTableHelpers(props: any, emit: any) {
     (v) => {
       drawerTitle.value = props.drawerTitle
       drawerWidth.value = props.drawerWidth
-      if (drawerShooter2.value == null) {
-        drawerShooter2.value = props.drawerShowFooter
-      }else {
-        drawerShooter2.value = drawerShooter2.value 
-      }
+      drawerShooter2.value==null?drawerShooter2.value=props.drawerShowFooter:drawerShooter2.value
+      // if (drawerShooter2.value == null) {
+      //   drawerShooter2.value = props.drawerShowFooter
+      // }else {
+      //   drawerShooter2.value = drawerShooter2.value 
+      // }
       if (!v) {
         //reset the drawer data when the drawer is closed
         provideDataTotheParent.value = null
