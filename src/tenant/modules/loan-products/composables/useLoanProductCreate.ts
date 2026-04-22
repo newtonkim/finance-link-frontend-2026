@@ -522,7 +522,7 @@ export function useLoanProductForm() {
         penalty_rules: normalizePenaltyRules(form.value.penalty_rules),
         approval_setting: cv?.enabled
           ? { enabled: true, quorum_size: cv.quorum_size, approval_threshold: cv.approval_threshold }
-          : { enabled: false },
+          : { enabled: false, quorum_size: null, approval_threshold: null },
       }
 
       if (isEditing.value) {

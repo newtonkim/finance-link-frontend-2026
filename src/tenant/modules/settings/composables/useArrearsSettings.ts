@@ -56,7 +56,7 @@ export function useArrearsSettings() {
     try {
       const res = await loanSettingsApi.get({ force })
       if (res.data?.data) {
-        const data:any = res.data.data
+        const data = res.data.data as any
         if (data.auto_penalty !== undefined) form.auto_penalty = data.auto_penalty
         if (data.penalty_grace_days !== undefined)
           form.penalty_grace_days = data.penalty_grace_days
@@ -87,10 +87,8 @@ export function useArrearsSettings() {
     try {
       const res = await loanSettingsApi.update(payload)
       if (res.data?.data) {
-        const data: any = res.data.data
+        const data = res.data.data as any
         Object.assign(form, {
-          arrears_grace_days: data.arrears_grace_days ?? form.arrears_grace_days,
-          auto_flag_arrears: data.auto_flag_arrears ?? form.auto_flag_arrears,
           auto_penalty: data.auto_penalty ?? form.auto_penalty,
           penalty_grace_days: data.penalty_grace_days ?? form.penalty_grace_days,
           penalty_type: data.penalty_type ?? form.penalty_type,

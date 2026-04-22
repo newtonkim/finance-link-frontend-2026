@@ -9,10 +9,10 @@ export interface ObRow {
   opening_balance: string
   as_of_date: string
   notes: string
-  date?: any
+  [key: string]: any
 }
 
-const props:any = defineProps<{ rows: ObRow[] }>()
+const props = defineProps<{ rows: ObRow[] }>()
 const emit = defineEmits<{ (e: 'delete', index: number): void }>()
 function hasError(row: ObRow) {
 
@@ -20,13 +20,13 @@ function hasError(row: ObRow) {
   return (
     !row.id ||
     !row.account_number ||
-    !row.date ||
+    !row.as_of_date ||
     !row.opening_balance
   )
 
 }
 
-const cols:any = computed(() => {
+const cols = computed(() => {
   if (!props.rows?.length) return []
 
   return Object.keys(props.rows[0]).map((key) => ({
@@ -37,14 +37,14 @@ const cols:any = computed(() => {
   }))
 })
 
-const currentPage = ref<number>(1)
-const perPage = ref<number>(500)
+const currentPage = ref(1)
+const perPage = ref(500)
 
-const totalPages:any = computed(() =>
+const totalPages = computed(() =>
   Math.ceil(props.rows.length / perPage.value)
 )
 
-const paginatedRows:any = computed(() => {
+const paginatedRows = computed(() => {
   const start = (currentPage.value - 1) * perPage.value
   return props.rows.slice(start, start + perPage.value)
 })
@@ -93,7 +93,7 @@ function deleteRow(localIndex: number) {
                 : 'bg-neutral-50/40 dark:bg-neutral-800/20'
           ]">
             <td class="px-2 py-2 text-neutral-400">
-              {{ (currentPage) - 1 * perPage + i + 1 }}
+              {{ (currentPage - 1) * perPage + i + 1 }}
             </td>
 
             <td v-for="col in cols" :key="col.key" class="px-1 py-1" :class="col.width">

@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import { SearchCheck } from 'lucide-vue-next'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, type PropType } from 'vue'
 import * as XLSX from 'xlsx'
 
 const props:any = defineProps({
@@ -65,8 +65,8 @@ const props:any = defineProps({
         required: true, // { key: "Label" }
     },
     defaults: {
-        type: Object,
-        default:[],
+        type: Array as PropType<string[]>,
+        default: () => [],
         required: false, // { key: "Label" }
     },
     rows: {

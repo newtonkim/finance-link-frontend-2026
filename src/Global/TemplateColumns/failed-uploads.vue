@@ -16,13 +16,14 @@
       v-else
       :key="tableColumns.length"
       :dataFilter="tableData"
+      :data="tableData"
       :columns="tableColumns"
       :handleAction="handleAction"
       :action_config="ACTION_CONFIG"
     >
       <template #reason="{ item }">
         <span class="text-red-600 font-medium">
-          {{ formatReason(item?.reason) }}
+          {{ formatReason(item.reason) }}
         </span>
       </template>
     </Table>
@@ -34,16 +35,16 @@ import { computed } from 'vue'
 import Table from '../landingLayout/Components/Table.vue'
 
 const props = defineProps({
-  data: { type: Object, required: true }
+  data: { type: Object as import('vue').PropType<any>, required: true }
 })
 
 const ACTION_CONFIG = {} // define your actions if needed
 
 // --- organize table data ---
-const tableData:any = computed(() => {
+const tableData = computed(() => {
   const data = props.data?.payload?.failed ||props.data|| []
 
-  return data.map((row:any) => {
+  return data.map((row: any) => {
     const newRow: Record<string, any> = {}
     const storage=[]
 
@@ -76,7 +77,7 @@ const tableColumns = computed(() => {
   const hiddenFields = ['password', 'remember_token']
   const keysSet = new Set<string>()
 
-  data.forEach((row:any) => {
+  data.forEach((row: any) => {
     Object.keys(row).forEach((key) => {
       if (!hiddenFields.includes(key)) keysSet.add(key)
     })

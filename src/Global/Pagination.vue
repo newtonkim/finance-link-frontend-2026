@@ -2,19 +2,24 @@
 import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-vue-next'
 import { computed } from 'vue'
 
+interface PaginationLink {
+  url: string | null
+  label: string
+  active: boolean
+}
+
+interface PaginationMeta {
+  current_page: number
+  last_page: number
+  per_page: number
+  total: number
+  from: number
+  to: number
+  links: PaginationLink[]
+}
+
 const props = defineProps<{
-  links?: {
-    url: string | null
-    label: any
-    active: boolean
-    current_page: number
-    last_page: number
-    per_page: number
-    total: number
-    length?: any
-    from: number
-    to: number
-  }
+  links?: PaginationMeta
   page?: number
   perPage?: number
 }>()
@@ -62,7 +67,7 @@ const formatLabel = (label: string) => {
 <template>
   <!-- {{ links }} -->
   <div
-    v-if="links?.length > 1"
+    v-if="links?.links && links.links.length > 1"
     class="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-neutral-100 dark:border-neutral-800 pt-3 mt-0 px-4"
   >
     <!-- Results Summary -->
@@ -100,16 +105,16 @@ const formatLabel = (label: string) => {
       </button>
 
       <!-- Page Numbers -->
-      <template v-for="(link, key) in links" :key="key">
+      <template v-for="(link, key) in links?.links" :key="key">
         <span
-          v-if="link.label === '...'"
+          v-if="link?.label === '...'"
           class="flex items-center justify-center w-8 h-8 text-neutral-400"
         >
           <MoreHorizontal :size="16" />
         </span>
 
         <button
-          v-else-if="!link.label.includes('Previous') && !link.label.includes('Next')"
+          v-else-if="link && !link.label.includes('Previous') && !link.label.includes('Next')"
           @click="goToPage(Number(link.label))"
           class="min-w-[32px] h-8 px-2 text-sm font-medium rounde d-lg transition rounded-full"
           :class="

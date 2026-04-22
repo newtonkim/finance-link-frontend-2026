@@ -1,5 +1,5 @@
 <template>
-  <div :title="show ?? copy" v-if="show ?? copy" class="w-full flex items-center justify-between   bg-white dark:bg-neutral-900 rounded-lg ">
+  <div :title="String(show ?? copy)" v-if="show ?? copy" class="w-full flex items-center justify-between   bg-white dark:bg-neutral-900 rounded-lg ">
     <div class="flex-1 min-w-0">
       <p class="text-sm text-neutral-500 dark:text-neutral-200 truncate line-clamp-2">
         <slot v-if="$slots['text']" name="text" :item="show ?? copy" />
@@ -27,7 +27,7 @@ const props = defineProps({
   copy: { type: [String, Number, Object], required: false },
 })
 const handleCopy = () => {
-  copyToClipboard(String(props.copy ?? props?.show ?? ''))
+  copyToClipboard(String(props.copy ?? props?.show))
 }
 </script>
-  appendOnAjsonStore({ data: newsettings, key: keysToUse.systemSettings })
+  // appendOnAjsonStore({ data: newsettings, key: keysToUse.systemSettings })

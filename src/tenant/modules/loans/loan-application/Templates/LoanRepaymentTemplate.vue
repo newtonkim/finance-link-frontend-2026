@@ -35,7 +35,7 @@ import { exportToExcel, } from '@/Global'
 import { pomPinia } from 'septor-store';
 const Store = pomPinia();
 const selected = ref<Record<string, any>>({}),
-    drawerTitle = ref('Create Tenant'),
+    drawerTitle = ref({ title: 'Loan Repayment Template', width: 'w-2/3' }),
     tableUrl = computed(() => `/loan-applications/loan-repayment-template`)
 const columns = [
     { key: 'check', label: 'check', width: "3em" },

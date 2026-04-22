@@ -10,8 +10,8 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted,   } from 'vue'
-import { Form,  } from '@/Global'
+import { ref, onMounted } from 'vue'
+import { Form, formatMoneyValue } from '../../../../../Global/index'
 import { pomPinia } from 'septor-store'
 const Store = pomPinia()
 
@@ -22,7 +22,7 @@ const loading = ref(true),
       default: {},
     },
   }),
-  fields = ref([
+  fields = ref<any[]>([
 
   {
       label: 'savings product',

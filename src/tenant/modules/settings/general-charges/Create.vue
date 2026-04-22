@@ -13,7 +13,7 @@ const props = defineProps({
         default: {},
     },
 })
-const fields = ref([
+const fields = ref<any[]>([
     {
         label: 'Is it a revenue',
         name: 'is_revenue',
@@ -144,7 +144,7 @@ function promtValueOnUpdate() {
     if (!props.data) return
     Object.entries(props.data).forEach(([key, value]) => {
         const field = fields.value.find((f: any) => f.name === key)
-        if (field) field.value = value
+        if (field) (field as any).value = value
     })
 }
 onMounted(() => {

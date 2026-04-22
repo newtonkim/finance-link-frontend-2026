@@ -47,7 +47,7 @@ watch(currentStep, (step) => {
         remount.value = true
     }, 100)
     if (step == steps.length - 1)
-        Store.showSaveButton = true
+        (Store as any).showSaveButton = true
 
 })
 
@@ -95,7 +95,7 @@ function storeStep3Data(data: any) {
 onMounted(() => {
 
     setTimeout(() => {
-        Store.showSaveButton = false
+        (Store as any).showSaveButton = false
         if (['edit', 'view'].includes(props.watcher.action)) {
             currentStep.value = 1
 

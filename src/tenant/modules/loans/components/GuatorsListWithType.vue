@@ -20,7 +20,7 @@ const props = withDefaults(
     typeKey: 'type',
   }
 )
-const modalOpen = ref({ show: false, item: {} })
+const modalOpen = ref<any>({ show: false, index: 0 })
 function getValue(item: any, key: string) {
   return item?.[key] ?? ''
 }
@@ -76,7 +76,7 @@ function actionClick(index: any) {
   </div>
   <Modal v-model="modalOpen.show" :title="'Contribute from ' + getValue(items[modalOpen.index], labelKey)">
     <template #body>
-      <FormField>
+      <FormField label="">
         <div class="space-y-3">
           <div class="p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-between">
             <span class="text-xs text-neutral-500 dark:text-neutral-400">

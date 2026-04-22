@@ -15,7 +15,7 @@ import { SidebarProvider, SidebarInset } from '@/Global/ui/sidebar';
 import AppSidebar from '@/Global/AppSidebar.vue';
 import TopBar from '@/Global/TopBar.vue';
 import { pomPinia } from 'septor-store';
-const Store = pomPinia();
+const Store = pomPinia() as any;
 
 const toggleSubmenu = () => {
     Store.showSubmenu = null

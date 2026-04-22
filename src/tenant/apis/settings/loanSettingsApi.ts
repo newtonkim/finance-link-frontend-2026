@@ -16,6 +16,12 @@ export interface LoanSetting {
     | 'interest_principal_penalties_charges'
     | 'penalties_charges_interest_principal'
     | 'penalties_charges_principal_interest'
+  
+  allow_top_up: boolean
+  allow_reschedule: boolean
+  topup_repayment_basis: 'principal' | 'principal_interest' | 'outstanding_balance'
+  topup_min_percentage: number
+  topup_auto_disbursement: boolean
 }
 
 type LoanSettingResponse = AxiosResponse<{ data: LoanSetting }>

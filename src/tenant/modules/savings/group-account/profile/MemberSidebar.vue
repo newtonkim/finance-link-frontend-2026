@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Star } from 'lucide-vue-next';
-import { formatCurrency, NameInitials } from '@/Global';
+import { formatCurrency, NameInitials } from '../../../../../Global/index';
 const props = defineProps<{
     data: Record<string, any>;
     memberInitials: string;
@@ -48,7 +48,7 @@ const quickInfo = computed(() => [
     },
 
 ])
-const formatCleanDate = (date) => {
+const formatCleanDate = (date: any) => {
     return date ? (date).replace(/,/g, "") : "—"
 }
 </script>
@@ -87,7 +87,7 @@ const formatCleanDate = (date) => {
                 <table class=" text-sm capitalize">
                     <tbody>
                         <tr v-for="(item, index) in quickInfo" :key="index" :class="[
-                            item?.border ? 'border-t border-gray-100' : ''
+                            (item as any)?.border ? 'border-t border-gray-100' : ''
                         ]">
                             <td class="py-[10px] text-[13px] text-[#788896] whitespace-nowrap pr-4">
                                 {{ item?.label }}

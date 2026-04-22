@@ -62,7 +62,7 @@ export default function useTableHelpers(props: any, emit: any) {
   async function handleDownload(item: any) {
     if (item?.url) {
       downloadFile({
-        Store,
+        Store: Store as any,
         customUrl: item?.url,
         data: { ...item, page: currentPage.value, search_keyword: searchQuery.value },
         Action: 'download',
@@ -74,7 +74,7 @@ export default function useTableHelpers(props: any, emit: any) {
       return
     } else {
       downloadFile({
-        Store,
+        Store: Store as any,
         url: createUrl(props.url, item.route, 'download'),
         data: { ...item, page: currentPage.value, search_keyword: searchQuery.value },
         Action: 'download',
@@ -125,7 +125,7 @@ export default function useTableHelpers(props: any, emit: any) {
     drawerOpen.value = !drawerOpen.value
     if (drawerOpen.value) {
       //////
-      Store.currentFormValues = {}
+      (Store as any).currentFormValues = {}
     }
   }
   function save(data: unknown, type = 'save') {
@@ -176,15 +176,15 @@ export default function useTableHelpers(props: any, emit: any) {
     //   console.log(response);
 
     if (response.success) {
-      Store[props?.state] = res
-      toggleDrawer()
-      setTimeout(() => {
+      Store[props?.state] = res;
+      toggleDrawer();
+      (window as any).setTimeout(() => {
         submitChanges.value = false
       }, 2000)
       // setTimeout(() => {
       //   toggleDrawer()
       // }, 100) //  to make sure the drawer is cleaned
-      Store.currentFormValues = {}
+      (Store as any).currentFormValues = {}
       // alert(buttonTypeClicked.value)
       buttonTypeClicked.value = buttonTypeClicked.value
       return true
@@ -194,9 +194,9 @@ export default function useTableHelpers(props: any, emit: any) {
   }
   async function saveDrawerData(data: any) {
     // alert()
-    Store.isFormSubmitted = true
-    const AnyErrorsFoundInTheFOrm = Store.AnyErrorsFoundInTheFOrm
-    const formdata = Store.currentFormValues
+    (Store as any).isFormSubmitted = true
+    const AnyErrorsFoundInTheFOrm = (Store as any).AnyErrorsFoundInTheFOrm
+    const formdata = (Store as any).currentFormValues
 
     // if (AnyErrorsFoundInTheFOrm == undefined) {
 
@@ -293,7 +293,7 @@ export default function useTableHelpers(props: any, emit: any) {
     buttonTypeClicked.value = action
   }
   const changeThePage = (page: unknown) => {
-    currentPage.value = page
+    currentPage.value = page as number
     if (page && props?.state && props?.url) {
       fetchTableData({
         data: {

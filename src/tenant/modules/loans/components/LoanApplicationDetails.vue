@@ -24,7 +24,7 @@ function navigateIntoLoanDetails(item: any) {
 }
 function navigateInGroupDetails(item: any) {
     router.push(`/tenant/group-savings/profile`)
-    setLocalValues('groupProfile', item)
+    setLocalValues('groupProfile' as any, item)
 }
 function navigateToMemberProfile(item: any) {
     router.push(`/tenant/member/profile`)

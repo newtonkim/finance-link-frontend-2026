@@ -150,7 +150,7 @@ const saveDates = async () => {
                   class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize"
                   :class="generalStatusColor(loan.status)"
                 >
-                  {{ loan.status === 'active' ? 'Disbursed' : loan.status }}
+                  {{ loan.parent_loan_id && (loan.status === 'disbursed' || loan.status === 'active') ? 'Restructured TopUp' : (loan.status === 'active' ? 'Disbursed' : loan.status) }}
                 </span>
               </div>
             </div>

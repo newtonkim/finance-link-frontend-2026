@@ -14,7 +14,7 @@ const props = defineProps<{
     // Appraise
     showAppraiseModal: boolean
     appraising: boolean
-    appraiseForm: { recommended_amount: string | number; recommended_term: string | number; risk_rating: string; appraisal_notes?: string }
+    appraiseForm: { recommended_amount: string | number; recommended_term: string | number; risk_rating: string; appraisal_notes?: string; recommended_interest_rate?: string | number }
     appraiseErrors: Record<string, string>
     // Request Docs
     showRequestDocsModal: boolean

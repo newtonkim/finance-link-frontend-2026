@@ -219,7 +219,7 @@ export function useLoanCharges() {
   // ─── Drawer / Form ────────────────────────────────────────────────────────
   const showDrawer = ref(false)
   const editingCharge = ref<LoanCharge | null>(null)
-  const form = ref<LoanChargePayload>(emptyForm('penalty'))
+  const form = ref<any>(emptyForm('penalty'))
   const processing = ref(false)
   const errors = ref<Record<string, string>>({})
 

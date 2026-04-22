@@ -1,7 +1,7 @@
 <template>
     <div class="h-[83vh]">
-        <TableDrawer :showAddButton="false" :drawerWidth="drawerTitle?.width" :url="tableUrl" state="deposit-template"
-            :drawerTitle="drawerTitle?.title" :columns="columns">
+        <TableDrawer :showAddButton="false" :drawerWidth="(drawerTitle as any)?.width" :url="tableUrl" state="deposit-template"
+            :drawerTitle="(drawerTitle as any)?.title" :columns="columns">
             <template #searchSideAction>
                 <TabelActionButtons @action="() => checkall()" title="Select all" color="danger" icon="check"
                     class="mx-1" />
@@ -37,7 +37,7 @@ import { exportToExcel, TabelActionButtons, TableDrawer, } from '@/Global'
 import { pomPinia } from 'septor-store';
 const Store = pomPinia();
 const selected = ref<Record<string, any>>({}),
-    drawerTitle = ref('Create Tenant'),
+    drawerTitle = ref<any>({ title: 'Withdrawal Template', width: '600px' }),
     tableUrl = computed(() => `members-account/deposit-template?type=withdrawal`)
 const columns = [
     { key: 'check', label: 'check', width: '4em', copy: true },
@@ -45,7 +45,7 @@ const columns = [
     { key: 'account_code', label: 'account code', copy: true },
     { key: 'member_name', label: 'Member', },
 ]
-function selectMember(data) {
+function selectMember(data: any) {
     console.log(data);
 
     if (selected.value[data.account_code]) {
@@ -55,8 +55,8 @@ function selectMember(data) {
     selected.value[data.account_code] = { ...data, }
 }
 function checkall() {
-    const theCurrentData = Store['deposit-template']?.payload?.data ?? []
-    theCurrentData.forEach(element => {
+    const theCurrentData = (Store as any)['deposit-template']?.payload?.data ?? []
+    theCurrentData.forEach((element: any) => {
         selectMember(element)
     });
 }

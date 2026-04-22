@@ -2,7 +2,7 @@
 import { reactiveOmit } from "@vueuse/core"
 import { useForwardPropsEmits } from "reka-ui"
 import { OTPInput } from "vue-input-otp"
-import { cn } from "@/lib/utils"
+import { cn } from "../../../lib/utils"
 
 interface Props {
   class?: string

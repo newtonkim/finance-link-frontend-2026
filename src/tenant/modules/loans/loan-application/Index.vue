@@ -3,7 +3,7 @@
     state="LoanApplicationslist" :drawerTitle="drawerTitle" :columns="columns" @save="saveUser" 
     :showTableAction="['migrate']">
     <template #sub-header>
-      <SummaryCards :list="Store?.LoanApplicationslist?.payload?.count_status" />
+      <SummaryCards :list="(Store as any)?.LoanApplicationslist?.payload?.count_status" :activeStatus="statusFilter" />
     </template>
     <template #header-action>
       <div class="space-y-3">
@@ -43,7 +43,7 @@
     <template #drawer="{ action, data }">
       <uploadTemplateColumData upload-trick="row" v-if="['upload-loan-application-template','upload-loan-repayment-template','upload-loan-transaction-template'].includes(automaticCreate.actionSlot)
       " :title="automaticCreate?.actionSlot" :url="`/loan-applications/${automaticCreate?.actionSlot}`"
-        :submit-url="automaticCreate.actionSlot" />
+        :submit-url="automaticCreate.actionSlot" :submit="() => {}" />
 
       <ApplicationTemplateDrawer v-else-if="automaticCreate?.actionSlot === 'download-loan-application-template'"
         :action="action" :data="data" from="drawer" />
@@ -64,7 +64,7 @@ import { uploadTemplateColumData } from '@/Global';
 const Store = pomPinia();
 const router = useRouter();
 const statusFilter = ref('all'),
-  drawer = ref('all'),
+  drawer = ref<any>(null),
   automaticCreate = ref<any>({}),
   drawerTitle = ref('Create Tenant'), filters = ['all', 'Submitted', 'Draft', 'Disbursed', 'Approved', 'committee_voting'],
   tableUrl = computed(() => `/loan-applications/list?status=${statusFilter.value}`),

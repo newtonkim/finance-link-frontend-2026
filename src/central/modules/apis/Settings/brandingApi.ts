@@ -6,7 +6,7 @@ export function brandingApi() {
     const Store = pomPinia()
 
     async function getBranding() {
-        return Store.stateGenaratorApi({
+        return (Store as any).stateGenaratorApi({
             StateStore: 'central_branding',
             time: 60,
             reqs: {
@@ -30,14 +30,14 @@ export function brandingApi() {
             const res = await apiClient.post('/central/settings/branding', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
-            notify({ msg: 'Branding updated successfully', type: 'Success' })
+            notify({ msg: 'Branding updated successfully', type: 'success' })
             // Update the store so any component reading central_branding reacts immediately
             ;(Store as any).central_branding = { payload: res.data.payload }
             return res.data
         } catch (e: any) {
             notify({
                 msg: e?.response?.data?.message ?? 'Failed to update branding',
-                type: 'Error',
+                type: 'error',
             })
             throw e
         }

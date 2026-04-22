@@ -31,10 +31,10 @@
 </template>
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { setLocalValues,getLocalValues } from "@/Global";
-import { memberAccountApi, memberProfileApi } from "@/tenant/apis";
+import { setLocalValues, getLocalValues } from '../../../../../Global/index';
+import { memberAccountApi, memberProfileApi } from '../../../../apis/index';
 import { useRouter } from 'vue-router';
-const router = useRouter(),groupId = getLocalValues('groupProfile')?.id
+const router = useRouter(),groupId = getLocalValues('groupProfile' as any)?.id
 function navigateIntoLoanDetails(item: any) {
   router.push(`/tenant/loans/${item?.loan_id}`)
 
@@ -94,7 +94,7 @@ async function handleSave(type?: string) {
     formData.value,
     automaticCreate.value
   );
-  emit('reload', drawer.value.drawerOpen)
+  emit('reload')
 }
 
 function downloadSheet() {

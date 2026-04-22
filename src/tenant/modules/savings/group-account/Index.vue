@@ -29,7 +29,7 @@
         </CopyData>
       </span>
     </template>
-    <template #actions="{ item }: { item: any }">
+    <template #actions="{ item }">
       <TabelActionButtons @action="() => OpenThedrawer(item)" title="add to group " color="primary" icon="CirclePile" />
     </template>
     <template #searchSideAction>
@@ -51,16 +51,16 @@ import { Create, Details, AddGroupTab } from '.'
 import { TableDrawer, StatusButtonsHorizontal, addNumberCommas, AnalysisTile, PainPageHeader, TabelActionButtons, setLocalValues, CopyData } from '@/Global'
 import { useRouter } from 'vue-router';
 import { groupSavingsApi } from '@/tenant/apis/savings/group-savingsApi';
-const Store:any = pomPinia();
+const Store = pomPinia();
 const props = defineProps<{
   data?: any
 }>(),
-  automaticCreate = ref<any>({ drawerActions: true, actionSlot: null, item: null }),
+  automaticCreate = ref({ drawerActions: true, actionSlot: null, item: null }),
   drawer = ref<any>(null),
-  drawerRemount = ref<any>(false),
+  drawerRemount = ref(false),
   formData = ref<Record<string, any>>({})
-const statusFilter = ref<any>('all')
-const drawerTitle = ref<any>({
+const statusFilter = ref('all')
+const drawerTitle = ref({
   title: 'Create Tenant',
   width: 'w-2/3'
 })
@@ -99,7 +99,7 @@ const stats = computed(() => [
   {
     title: 'Total Group',
     value: addNumberCommas(
-      Store?.groupAccountList?.payload?.total_analysis?.total_groups ?? 0
+      (Store as any).$state?.groupAccountList?.payload?.total_analysis?.total_groups ?? 0
     ),
     trendColor: 'text-emerald-500',
     bgColor: 'bg-[#f0f9f6]',
@@ -108,7 +108,7 @@ const stats = computed(() => [
   {
     title: 'Active Group',
     value: addNumberCommas(
-      Store?.groupAccountList?.payload?.total_analysis?.active_groups ?? 0
+      (Store as any).$state?.groupAccountList?.payload?.total_analysis?.active_groups ?? 0
     ),
     trendColor: 'text-emerald-500',
     bgColor: 'bg-[#f0f9f6]',
@@ -135,28 +135,28 @@ const stats = computed(() => [
 async function saveUser(type: string, data: any, sumited: any) {
 
   if (automaticCreate.value.actionSlot == 'create-none-member') {
-    const checker:any = await addNoneExistingMember(formData.value, automaticCreate.value.item)
-    if (checker == false) {
+    const checker = await addNoneExistingMember(formData.value, automaticCreate.value.item)
+    if (checker.success == false) {
     }
     formData.value = {}
-    automaticCreate.value = { actionSlot: 'create-none-member', item: automaticCreate.value.item }
+    automaticCreate.value = { drawerActions: true, actionSlot: 'create-none-member', item: automaticCreate.value.item }
     drawer.value.toggleDrawer()
     return
   } else if (titleMap[type]) {
-    automaticCreate.value = { actionSlot: null, item: "" }
+    automaticCreate.value = { drawerActions: true, actionSlot: null, item: "" }
     drawerTitle.value = titleMap[type]
   }
 
 }
 function OpenThedrawer(item: any) {
-  automaticCreate.value = { actionSlot: 'create-none-member', item }
+  automaticCreate.value = { drawerActions: true, actionSlot: 'create-none-member', item }
   drawerTitle.value = { title: "add member to group", width: "w-2/4" }
   drawer.value.toggleDrawer()
   drawer.value.buttonTypeClicked = automaticCreate.value.actionSlot
 }
 watch(() => drawer.value?.drawerOpen, (val) => {
   if (!val) {
-    automaticCreate.value = {}
+    automaticCreate.value = { drawerActions: true, actionSlot: null, item: null }
   }
 }, {
   immediate: true,
@@ -165,6 +165,6 @@ watch(() => drawer.value?.drawerOpen, (val) => {
 function navigateToProfile(item: any) {
 
   router.push(`/tenant/group-savings/profile`)
-  setLocalValues('groupProfile', item)
+  setLocalValues('groupProfile' as any, item)
 }
 </script>

@@ -12,7 +12,7 @@ const loadingMount = computed(() => loading.value), emits = defineEmits(['update
         type: Object,
         default: {},
     },
-}), fields = ref([
+}), fields = ref<any[]>([
     {
         label: 'name',
         name: 'staff_fall_name',
@@ -25,7 +25,7 @@ const loadingMount = computed(() => loading.value), emits = defineEmits(['update
         type: 'email',
         required: true,
         value: '',
-      placeholder: 'Select Start & End Dates',
+        props: { placeholder: 'Select Start & End Dates' },
         options: [] as any[], // Add options property to avoid type errors when spreading
     },
     {
@@ -81,9 +81,9 @@ watch(
                     type: 'select',
                     value: 'active',
                     required: true,
-                   placeholder: 'Select Status',
+                    props: { placeholder: 'Select Status' },
                     options: [{ id: 'active', name: 'Active' }, { id: 'in-active', name: 'in-active' },]
-                })
+                } as any)
             }
         } else {
             if (statusIndex !== -1) {

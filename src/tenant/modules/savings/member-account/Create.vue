@@ -13,8 +13,8 @@ import debounce from 'lodash/debounce'
 const { getProductCharges } = memberAccountApi()
 
 const emits = defineEmits(['update:form']),
-  loading = ref<any>(true),
-  settingList = ref<any>({}),
+  loading = ref(true),
+  settingList = ref({}),
   yesNoOptions = [
     { id: 1, name: 'Yes' },
     { id: '0', name: 'No' },
@@ -25,7 +25,7 @@ const emits = defineEmits(['update:form']),
       default: {},
     },
   }),
-  fields = ref<any>([
+  fields = ref<any[]>([
     {
       label: 'Member',
       name: 'member',
@@ -44,8 +44,8 @@ const emits = defineEmits(['update:form']),
       placeholder: 'Enter a savings product',
       url: 'global/savings-products',
       dataOnMount: true,
-      change: async () => {
-        const amount = fields.value.find((f:any) => f.name === 'in_deposit')?.value
+      change: async (val: any) => {
+        const amount = fields.value.find((f: any) => f.name === 'in_deposit')?.value
         if (amount)
           watchChangeInProductOrCharges(fields, amount)
 
@@ -90,7 +90,7 @@ const emits = defineEmits(['update:form']),
           },
         ],
       },
-      change: async (val) => {
+      change: async (val: any) => {
         const amount = val?.target ? val.target.value : val
         watchChangeInProductOrCharges(fields, amount)
       },
@@ -127,7 +127,7 @@ const emits = defineEmits(['update:form']),
       ],
       placeholder: 'Enter account Status',
     },
-  ])
+  ] as any[])
 async function promtValueOnUpdate() {
   loading.value = true
   if (props.data) {
@@ -153,8 +153,8 @@ function checkForSettings() {
   }
 } 
 const watchChangeInProductOrCharges=debounce(async (fields: any, amount: any) => {
-  const finedProduct = fields.value.find((f) => f.name === 'product_id')
-  const chargeField = fields.value.find((f) => f.name === 'charges')
+  const finedProduct = fields.value.find((f: any) => f.name === 'product_id')
+  const chargeField = fields.value.find((f: any) => f.name === 'charges')
 
   if (!finedProduct || !finedProduct.value) return
 

@@ -1,6 +1,7 @@
 // types and interfaces
 export interface PrintOptions {
   size: keyof typeof paperSizes | string // named size or custom like '80mm 200mm'
+  orientation?: 'portrait' | 'landscape'
 }
 
 interface SizeDimensions {

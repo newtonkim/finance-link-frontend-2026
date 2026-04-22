@@ -15,10 +15,10 @@ export const currenciesApi = {
   list() {
     return tenantClient.get('/currencies')
   },
-  getSettings() {
+  getSettings(): any {
     // return tenantClient.get('/currency-settings')
   },
-  updateSettings(data: CurrencySettings) {
+  updateSettings(data: CurrencySettings): any {
     // return tenantClient.put('/currency-settings', data)
   },
 }

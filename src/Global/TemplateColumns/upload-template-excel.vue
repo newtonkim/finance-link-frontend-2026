@@ -9,7 +9,7 @@ import SheetFooter from '../ui/sheet/SheetFooter.vue'
 import { createUrl, formDataFormat } from '../Helpers'
 import { failedUploads } from '.'
 
-const Store = pomPinia()
+const Store = pomPinia() as any
 
 // props 
 const props = defineProps({
@@ -43,7 +43,7 @@ const excelChunks = ref<any[]>([])
 const failedChunks = ref<any[]>([])
 const duplicates = ref<any[]>([])
 const showDuplicateList = ref(false)
-const usedFile = ref<any | null>(null)
+const usedFile = ref<File | null>(null)
 // pagination
 const currentPage = ref(1)
 const pageSize = ref(50)
@@ -83,13 +83,13 @@ function triggerFileInput() {
 function handleFileChange(event: Event) {
     const file = (event.target as HTMLInputElement).files?.[0]
     if (file) readExcel(file)
-    usedFile.value = file
+    usedFile.value = file ?? null
 }
 
 function handleDrop(event: DragEvent) {
     const file = event.dataTransfer?.files?.[0]
     if (file) readExcel(file)
-    usedFile.value = file
+    usedFile.value = file ?? null
 
 }
 
@@ -99,8 +99,8 @@ function readExcel(file: File) {
 
     reader.onload = (e) => {
         const data = new Uint8Array(e.target?.result as ArrayBuffer)
-        const workbook: any = XLSX.read(data, { type: 'array' })
-        const sheet = workbook.Sheets[workbook?.SheetNames[0]]
+        const workbook = XLSX.read(data, { type: 'array' })
+        const sheet = workbook.Sheets[workbook.SheetNames?.[0] as string]
 
         const allRows: any[][] = XLSX.utils.sheet_to_json(sheet, {
             header: 1,
@@ -108,11 +108,11 @@ function readExcel(file: File) {
             dateNF: 'yyyy-mm-dd'
         })
 
-        const headers:any = allRows[0]
+        const headers = allRows[0]
         const rows = allRows.slice(1)
 
         // columns
-        excelColumns.value = headers.map((header: string) => ({
+        excelColumns.value = (headers as any[])?.map((header: string) => ({
             key: normalizeKey(header),
             label: header,
             name: header,
@@ -125,9 +125,9 @@ function readExcel(file: File) {
 
         for (let i = 0; i < rows.length; i += chunkSize) {
             const chunk = rows.slice(i, i + chunkSize).map((row, rowIndex) => {
-                const obj: any = {}
+                const obj: any = {};
 
-                headers.forEach((header: string, colIndex: number) => {
+                (headers as any[])?.forEach((header: string, colIndex: number) => {
                     const key = normalizeKey(header)
                     obj[key] = row[colIndex] ?? null
                 })
@@ -203,13 +203,13 @@ async function submitImportData() {
                 delete row.actions
             })
             //  console.log(usedFile);
-            const data: Record<string, any> = {
+            const data = {
                 file: usedFile.value,
                 collection: { rows: chunk }
             }
 
             if (i > 1) { // send file once
-                delete data.file
+                delete (data as any).file
 
             }
             collection = formDataFormat(data)
@@ -275,7 +275,7 @@ async function submitImportData() {
 
                 <!-- Content -->
                 <div v-if="showDuplicateList" class="bg-white dark:bg-gray-900 p-3 max-h-60 overflow-auto">
-                    <Table :dataFilter="duplicates" :columns="excelColumns" :handleAction="handleAction"
+                    <Table :data="duplicates" :dataFilter="duplicates" :columns="excelColumns" :handleAction="handleAction"
                         :action_config="ACTION_CONFIG" />
                 </div>
             </div>
@@ -283,8 +283,8 @@ async function submitImportData() {
             <div class="bg-white rounded shadow overflow-auto h-[46vh]">
                 <failedUploads :data="failedChunks" v-if="failedChunks.length" />
 
-                <Table  
-                    :dataFilter="paginatedData" :columns="excelColumns" :handleAction="handleAction"
+                <Table :rowClass="(row: any) => row.isDuplicate ? 'bg-red-100 dark:bg-red-900/40' : ''"
+                    :dataFilter="paginatedData" :data="paginatedData" :columns="excelColumns" :handleAction="handleAction"
                     :action_config="ACTION_CONFIG" />
 
 

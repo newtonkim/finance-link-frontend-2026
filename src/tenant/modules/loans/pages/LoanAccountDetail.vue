@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed, markRaw } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowLeft, Loader2 } from 'lucide-vue-next'
 
@@ -23,6 +23,7 @@ import LoanChargesTabPanel from '../components/LoanChargesTabPanel.vue'
 import LoanGeneralInfoTabPanel from '../components/LoanGeneralInfoTabPanel.vue'
 import LoanTransactionsTabPanel from '../components/LoanTransactionsTabPanel.vue'
 import LoanReschedulesTabPanel from '../components/LoanReschedulesTabPanel.vue'
+import LoanBeforeTopupTabPanel from '../components/LoanBeforeTopupTabPanel.vue'
 import LoanDetailHeader from '../components/LoanDetailHeader.vue'
 
 const route = useRoute()
@@ -127,6 +128,19 @@ const goBack = () => {
 }
 
 const productCharges = computed(() => loan.value?.loan_product?.charges ?? [])
+
+const panelMap = {
+  general: markRaw(LoanGeneralInfoTabPanel),
+  schedule: markRaw(LoanScheduleTabPanel),
+  reschedules: markRaw(LoanReschedulesTabPanel),
+  'before-topup': markRaw(LoanBeforeTopupTabPanel),
+  transactions: markRaw(LoanTransactionsTabPanel),
+  charges: markRaw(LoanChargesTabPanel),
+}
+
+const activeComponent = computed(() => {
+  return panelMap[activeTab.value as keyof typeof panelMap] || null
+})
 </script>
 
 <template>
@@ -176,92 +190,67 @@ const productCharges = computed(() => loan.value?.loan_product?.charges ?? [])
       </div>
 
       <div class="mt-4">
-        <LoanGeneralInfoTabPanel
-          v-if="activeTab === 'general'"
-          :loan="loan"
-          :latest-reschedule="latestReschedule"
-          :old-status-label="oldStatusLabel"
-          :old-status-class="oldStatusClass"
-          :principal-display="principalDisplay"
-          :net-disbursed-display="netDisbursedDisplay"
-          :outstanding-display="outstandingDisplay"
-          :interest-method-label="interestMethodLabel"
-          :currency="currency"
-          :fmt="fmt"
-          :fmt-date="fmtDate"
-          :to-number="toNumber"
-          :general-status-color="generalStatusColor"
-          :print-general-info="printGeneralInfo"
-          :export-general-info-pdf="exportGeneralInfoPdf"
-          :refresh="refresh"
-        />
-
-        <LoanScheduleTabPanel
-          v-else-if="activeTab === 'schedule'"
-          :schedule="schedule"
-          :filtered-schedule="filteredSchedule"
-          :schedule-totals="scheduleTotals"
-          :currency="currency"
-          :can-show-more="canShowMore"
-          :fmt="fmt"
-          :fmt-date="fmtDate"
-          :schedule-status-color="scheduleStatusColor"
-          @open-receive-cash="openReceiveCash"
-          @open-savings-repayment="openSavingsRepayment"
-        />
-
-        <LoanReschedulesTabPanel
-          v-else-if="activeTab === 'reschedules'"
-          :reschedules="reschedules"
-          :currency="currency"
-          :fmt="fmt"
-          :fmt-date="fmtDate"
-        />
-
-        <LoanTransactionsTabPanel
-          v-else-if="activeTab === 'transactions'"
-          :repayments="repayments"
-          :repayments-meta="repaymentsMeta"
-          :currency="currency"
-          :fmt="fmt"
-          :fmt-date="fmtDate"
-          @fetch-repayments="fetchRepayments"
-        />
-
-        <LoanChargesTabPanel
-          v-else-if="activeTab === 'charges'"
-          :currency="currency"
-          :disbursement-charges="disbursementCharges"
-          :repayment-charges="repaymentCharges"
-          :total-charges-amount="totalChargesAmount"
-          :total-charges-collected="totalChargesCollected"
-          :total-charges-remaining="totalChargesRemaining"
-          :arrears-rows="arrearsRows"
-          :total-penalty-accrued="totalPenaltyAccrued"
-          :total-penalty-paid="totalPenaltyPaid"
-          :total-penalty-outstanding="totalPenaltyOutstanding"
-          :total-product-charges="totalProductCharges"
-          :penalty-rule-label="penaltyRuleLabel"
-          :charge-deduction-mode="loan.charge_deduction_mode"
-          :applied-charges-length="loan.applied_charges?.length ?? 0"
-          :product-charges="productCharges"
-          :fmt="fmt"
-          :fmt-date="fmtDate"
-        />
-
-        <div v-else-if="activeTab === 'documents'" class="p-5">
-          <LoanDocumentUploader
-            v-if="loan?.loan_application_id"
-            :application-id="loan.loan_application_id"
-            :editable="false"
-            :current-stage="'disbursed'"
-            @updated="refresh"
+        <transition mode="out-in">
+          <component
+            :is="activeComponent"
+            :key="activeTab"
+            v-if="activeComponent"
+            :loan="loan"
+            :schedule="schedule"
+            :filtered-schedule="filteredSchedule"
+            :schedule-totals="scheduleTotals"
+            :reschedules="reschedules"
+            :repayments="repayments"
+            :repayments-meta="repaymentsMeta"
+            :latest-reschedule="latestReschedule"
+            :old-status-label="oldStatusLabel"
+            :old-status-class="oldStatusClass"
+            :principal-display="principalDisplay"
+            :net-disbursed-display="netDisbursedDisplay"
+            :outstanding-display="outstandingDisplay"
+            :interest-method-label="interestMethodLabel"
+            :currency="currency"
+            :fmt="fmt"
+            :fmt-date="fmtDate"
+            :to-number="toNumber"
+            :general-status-color="generalStatusColor"
+            :schedule-status-color="scheduleStatusColor"
+            :print-general-info="printGeneralInfo"
+            :export-general-info-pdf="exportGeneralInfoPdf"
+            :refresh="refresh"
+            :can-show-more="canShowMore"
+            :disbursement-charges="disbursementCharges"
+            :repayment-charges="repaymentCharges"
+            :total-charges-amount="totalChargesAmount"
+            :total-charges-collected="totalChargesCollected"
+            :total-charges-remaining="totalChargesRemaining"
+            :arrears-rows="arrearsRows"
+            :total-penalty-accrued="totalPenaltyAccrued"
+            :total-penalty-paid="totalPenaltyPaid"
+            :total-penalty-outstanding="totalPenaltyOutstanding"
+            :total-product-charges="totalProductCharges"
+            :penalty-rule-label="penaltyRuleLabel"
+            :charge-deduction-mode="loan?.charge_deduction_mode"
+            :applied-charges-length="loan?.applied_charges?.length ?? 0"
+            :product-charges="productCharges"
+            @open-receive-cash="openReceiveCash"
+            @open-savings-repayment="openSavingsRepayment"
+            @fetch-repayments="fetchRepayments"
           />
-        </div>
+          <div v-else-if="activeTab === 'documents'" key="documents" class="p-5">
+            <LoanDocumentUploader
+              v-if="loan?.loan_application_id"
+              :application-id="loan.loan_application_id"
+              :editable="false"
+              :current-stage="'disbursed'"
+              @updated="refresh"
+            />
+          </div>
 
-        <div v-else-if="activeTab === 'activities'" class="p-4">
-          <LoanAuditTrail :timeline="activities" :loading="loading" />
-        </div>
+          <div v-else-if="activeTab === 'activities'" key="activities" class="p-4">
+            <LoanAuditTrail :timeline="activities" :loading="loading" />
+          </div>
+        </transition>
       </div>
     </template>
   </div>

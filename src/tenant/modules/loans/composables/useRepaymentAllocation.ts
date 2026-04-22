@@ -81,7 +81,7 @@ export function useRepaymentAllocation(loanId: number) {
 
   function errMsg(field: string): string | null {
     const e = errors.value[field]
-    return e ? (Array.isArray(e) ? e[0] : e) : null
+    return e ? (Array.isArray(e) ? e[0] : (e as string)) ?? null : null
   }
 
   return {

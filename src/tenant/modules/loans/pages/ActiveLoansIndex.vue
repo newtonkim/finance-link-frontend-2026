@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { Search, ChevronLeft, ChevronRight, InboxIcon, Loader2, Eye, Filter, FileText, Download, X, FileSpreadsheet } from 'lucide-vue-next'
+import { Search, ChevronLeft, ChevronRight, InboxIcon, Loader2, Eye, Filter, FileText, Download, X, FileSpreadsheet, TrendingUp } from 'lucide-vue-next'
 import { useActiveLoans } from '../composables/useActiveLoans'
 import type { LoanTab } from '@/tenant/apis/loans/loansApi'
-import { ref } from 'vue'
 import { loansApi } from '@/tenant/apis/loans/loansApi'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import LoanTopupModal from '../components/LoanTopupModal.vue'
 
 const router = useRouter()
 
@@ -18,6 +18,15 @@ const {
 } = useActiveLoans()
 
 const showFilters = ref(false)
+
+// Top-Up state
+const topupModalRef = ref<null | { show: () => void }>(null)
+const selectedTopupLoan = ref<any>(null)
+
+function openTopup(loan: any) {
+  selectedTopupLoan.value = loan
+  topupModalRef.value?.show()
+}
 
 const statusOptions = [
     { value: 'disbursed', label: 'Disbursed' },
@@ -421,23 +430,33 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
                   </span>
                 </td>
                 <td class="px-4 py-3">
-                  <button
-                    class="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50 transition-colors dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
-                    @click="
-                      loan._source === 'application'
-                        ? router.push({
-                            name: 'tenant-loans-show',
-                            params: { id: String(loan.id) },
-                          })
-                        : router.push({
-                            name: 'tenant-loan-account',
-                            params: { id: String(loan.id) },
-                          })
-                    "
-                  >
-                    <Eye class="h-3.5 w-3.5" />
-                    View
-                  </button>
+                  <div class="flex items-center gap-2">
+                    <button
+                      class="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50 transition-colors dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
+                      @click="
+                        loan._source === 'application'
+                          ? router.push({
+                              name: 'tenant-loans-show',
+                              params: { id: String(loan.id) },
+                            })
+                          : router.push({
+                              name: 'tenant-loan-account',
+                              params: { id: String(loan.id) },
+                            })
+                      "
+                    >
+                      <Eye class="h-3.5 w-3.5" />
+                      View
+                    </button>
+                    <button
+                      v-if="['active', 'disbursed'].includes(loan.status)"
+                      class="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
+                      @click="openTopup(loan)"
+                    >
+                      <TrendingUp class="h-3.5 w-3.5" />
+                      Top-Up
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -478,4 +497,6 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
 
     </div>
   </div>
+
+  <LoanTopupModal ref="topupModalRef" :loan="selectedTopupLoan" @success="fetch()" />
 </template>

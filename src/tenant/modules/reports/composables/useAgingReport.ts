@@ -83,6 +83,7 @@ export function useAgingReport() {
     total:        total.value,
     from:         ((filters.value.page ?? 1) - 1) * (filters.value.per_page ?? 25) + 1,
     to:           Math.min((filters.value.page ?? 1) * (filters.value.per_page ?? 25), total.value),
+    links:        [],
   }))
 
   const nplRatio = computed(() => {

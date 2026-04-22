@@ -350,7 +350,7 @@ export function useLoanAppraisalActions(
     // ─── Vote tally ──────────────────────────────────────────────────────────
     const voteTally = ref<Record<string, unknown> | null>(null)
     const loadingVotes = ref(false)
-    const committeeMembers = ref<{ id: number; name: string; has_voted: boolean; decision: string }[]>([])
+    const committeeMembers = ref<{ id: number; name: string; has_voted: boolean; decision: 'approve' | 'decline' | null }[]>([])
     const committeeVotes = ref<CommitteeVote[]>([])
 
     async function loadVotes() {

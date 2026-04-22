@@ -1,7 +1,7 @@
 <template>
     <div class="h-[83vh]">
         <TableDrawer :showAddButton="false" :drawerWidth="drawerTitle?.width" :url="tableUrl"
-            state="members-opening-balance" :drawerTitle="drawerTitle?.title" " :columns="columns">
+            state="members-opening-balance" :drawerTitle="drawerTitle?.title" :columns="columns">
             <template #searchSideAction>
                 <TabelActionButtons @action="() => checkall()" title="Selct all" color="danger" icon="check"
                     class="mx-1" />
@@ -36,9 +36,9 @@
 import { ref, computed } from 'vue'
 import { exportToExcel, TabelActionButtons, TableDrawer, } from '@/Global'
 import { pomPinia } from 'septor-store';
-const Store:any = pomPinia();
+const Store = pomPinia();
 const selected = ref<Record<string, any>>({}),
-    drawerTitle = ref('Create Tenant'),
+    drawerTitle = ref({ title: 'Opening Balances', width: '600px' }),
     tableUrl = computed(() => `members/download-members-import-template/list`)
 const columns = [
     { key: 'id', label: 'check', copy: true,width:"3em" },
@@ -47,7 +47,7 @@ const columns = [
     { key: 'account_number', label: 'member code', width: '14em', copy: true },
 ]
 
-function selectMember(data:any) {
+function selectMember(data: any) {
     if (selected.value[data.id]) {
         delete selected.value[data.id]
         return
@@ -56,8 +56,8 @@ function selectMember(data:any) {
 }
 
 function checkall() {
-    const theCurrentData = Store['members-opening-balance']?.payload?.data ?? []
-    theCurrentData.forEach((element:any) => {
+    const theCurrentData = (Store as any)['members-opening-balance']?.payload?.data ?? []
+    theCurrentData.forEach((element: any) => {
         selectMember(element)
     });
 }

@@ -41,4 +41,21 @@ export default defineConfig({
       '@c': fileURLToPath(new URL('./src/central', import.meta.url))
     },
   },
+
+  build: {
+    chunkSizeWarningLimit: 2000,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('lucide-vue-next')) return 'vendor-icons';
+            if (id.includes('xlsx')) return 'vendor-xlsx';
+            if (id.includes('jspdf')) return 'vendor-pdf';
+            if (id.includes('chart.js') || id.includes('vue-chartjs')) return 'vendor-charts';
+            return 'vendor'; 
+          }
+        }
+      }
+    }
+  }
 })

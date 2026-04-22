@@ -124,7 +124,7 @@ export function useGeneralCharges() {
         
         // Auto-select the first available income account if nothing is selected
         if (!form.value.credit_account_id && creditAccountOptions.value.length > 0) {
-          form.value.credit_account_id = creditAccountOptions.value[0].id as any
+          form.value.credit_account_id = creditAccountOptions.value[0]?.id as any
         }
       }
 
