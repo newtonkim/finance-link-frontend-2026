@@ -2,7 +2,7 @@
 import { reactive, ref } from 'vue';
 import { toast } from 'vue-sonner';
 import { X, Star } from 'lucide-vue-next';
-import { tenantClient } from '@/tenant/apis/tenantClient';
+import { tenantClient } from '../../../../apis/tenantClient';
 
 const props = defineProps<{ currencyCode: string }>();
 const emit = defineEmits<{ success: [] }>();

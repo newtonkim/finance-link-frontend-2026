@@ -26,4 +26,17 @@ export const groupsApi = {
   destroy(id: number) {
     return tenantClient.delete(`/savings-groups/${id}`)
   },
+  getMembers(id: number) {
+    return tenantClient.get(`/savings-groups/${id}/members`)
+  },
+  addMember(id: number, data: any) {
+    return tenantClient.post(`/savings-groups/${id}/members`, data)
+  },
+  removeMember(groupId: number, memberId: number) {
+    return tenantClient.delete(`/savings-groups/${groupId}/members/${memberId}`)
+  },
+  exportUrl(id: number) {
+    const baseURL = tenantClient.defaults.baseURL || ''
+    return `${baseURL}/savings-groups/${id}/export`
+  }
 }

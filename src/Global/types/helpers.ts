@@ -11,6 +11,7 @@ import type { Component } from 'vue'
  }
  export interface MenuRoutesChildren {
   title: string;
+  titleStyle?: string;
   items:MenuItemsRoute[];
   permissions?: string;
  }

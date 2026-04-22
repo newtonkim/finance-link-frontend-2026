@@ -37,6 +37,7 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+public/build
 
 # Local docs
 reversal implementation.md

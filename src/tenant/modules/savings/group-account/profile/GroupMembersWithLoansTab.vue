@@ -34,10 +34,10 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { setLocalValues, getLocalValues, } from '@/Global'
+import { setLocalValues, getLocalValues, } from '../../../../../Global/index'
 const router = useRouter()
 const statusFilter = ref<'all' | 'disbursed' | 'arrears' | 'active' | 'closed'>('all')
-const groupId = computed(() => getLocalValues('groupProfile')?.id)
+const groupId = computed(() => getLocalValues('groupProfile' as any)?.id)
 const filters = ['all', 'disbursed', 'arrears', 'active', 'closed']
 const importDefaults = ['id', 'branch_id', 'dob']
 const tableUrl = computed(() => {

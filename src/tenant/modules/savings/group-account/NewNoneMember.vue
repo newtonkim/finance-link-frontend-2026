@@ -9,20 +9,18 @@ const OptionList = reactive({
   genderOptions: [{ id: 'male', name: 'Male' }, { id: 'female', name: 'Female' }, { id: 'other', name: 'Other' }],
   maritalOptions: [{ id: 'single', name: 'Single' }, { id: 'married', name: 'Married' }, { id: 'divorced', name: 'Divorced' }, { id: 'widowed', name: 'Widowed' }]
 })
-const sharesError = ref<any>(null)
-const loading = ref<any>(true)
-const settingList = ref<any>({})
-const settingsStore = ref<any>({})
-const additionalForm = ref<any>({ shares_quantity: 0 });
-const errors = ref<any>({ shares_quantity: 0 });
+const loading = ref(true)
+const settingList = ref({})
+const additionalForm = ref({ shares_quantity: 0 });
+const errors = ref({ shares_quantity: 0 });
 const currencyCode = computed(() => `${pickAsettingKeyValue('default-currency') || 'UGX'}`);
 const props = defineProps({
   data: {
     type: Object,
-    default: {},
+    default: () => ({}),
   },
 })
-const fields = ref<any>([
+const fields = ref<any[]>([
     {
       label: 'Account Code',
       name: 'account_code',
@@ -166,7 +164,7 @@ const fields = ref<any>([
 ]);
 
 watch(() => additionalForm.value, (val) => {
-  const field = fields.value.find((f:any) => f.name === 'shares_quantity')
+  const field = fields.value.find(f => f.name === 'shares_quantity')
   if (field) {
     field.value = val.shares_quantity
   } else {
@@ -190,7 +188,7 @@ async function promtValueOnUpdate() {
     });
 
   } else {
-    additionalForm.value = {}
+    additionalForm.value = { shares_quantity: 0 }
   }
   loading.value = false
 }
@@ -211,16 +209,20 @@ function checkForSettings() {
     "sacco-share-on-member-creation-create-share-minimum-value": parseFloat(checkForVaailableSetting['sacco-share-on-member-creation-create-share-minimum-value'] ?? 0)
   }
 }
+const sharesError = computed(() => {
+  if (additionalForm.value.shares_quantity < minSharesRequired.value) return `Minimum is ${minSharesRequired.value}`
+  return ''
+})
 
 watch(
   () => fields.value,
   (val) => {
-    const codeIndex = val.findIndex((f:any) => f.name === 'code');
-    const fullNameIndex = val.findIndex((f:any) => f.name === 'full_name');
+    const codeIndex = val.findIndex(f => f.name === 'code');
+    const fullNameIndex = val.findIndex(f => f.name === 'full_name');
 
     if (settingList.value['hide-initial-deposit-field']) {
-      const initalDepositIndex = val.findIndex((f:any) => f.name === 'inital_deposit')
-      const referredByIndex = val.findIndex((f:any) => f.name === 'referred_by')
+      const initalDepositIndex = val.findIndex(f => f.name === 'inital_deposit')
+      const referredByIndex = val.findIndex(f => f.name === 'referred_by')
       if (initalDepositIndex === -1 && referredByIndex !== 1) {
         fields.value.splice(referredByIndex + 1, 0, {
           label: 'inital deposit',
@@ -300,8 +302,8 @@ onMounted(() => {
                 Shares
               </span>
               <input v-model.number="additionalForm.shares_quantity" type="number"
-                :min="settingsStore?.minSharesOnOnboarding"
-                :placeholder="`Min. ${settingsStore?.minSharesOnOnboarding}`"
+                :min="minSharesRequired"
+                :placeholder="`Min. ${minSharesRequired}`"
                 class="flex-1 bg-white px-4 py-3 text-sm font-mono font-bold text-neutral-800 outline-none placeholder:text-neutral-400" />
             </div>
             <p v-if="sharesError" class="text-[11px] text-red-600 font-medium">{{ sharesError }}</p>

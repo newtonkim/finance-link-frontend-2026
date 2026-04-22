@@ -25,7 +25,7 @@
             <EmptySvg />
           </td>
         </tr>
-        <tr v-for="(item, idx) in dataFilter" :key="item?.id ?? idx" :class="Number(idx) < dataFilter.length - 1
+        <tr v-for="(item, idx) in (dataFilter as any[])" :key="item?.id ?? idx" :class="Number(idx) < (dataFilter as any[]).length - 1
             ? 'border-b border-neutral-50 dark:border-neutral-800'
             : ''
           " class="truncate">

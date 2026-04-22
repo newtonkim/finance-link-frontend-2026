@@ -117,7 +117,7 @@ async function exportReport() {
       status: status.value,
     }
     const res = await reportsApi.loanBalancesExport(params)
-    exportToExcel(res.data, 'loan-balances-report')
+    exportToExcel({ data: res.data, name: 'loan-balances-report' })
   } catch (e) {
     console.error('Failed to export report:', e)
   }
@@ -142,7 +142,7 @@ const hasNext = computed(() => currentPage.value < lastPage.value)
 const router = useRouter()
 
 function navigateToMemberProfile(memberData: any) {
-  setLocalValues(keysToUse.memberProfile, memberData)
+  setLocalValues(keysToUse.memberProfile as any, memberData)
   router.push(`/tenant/member/profile`)
 }
 

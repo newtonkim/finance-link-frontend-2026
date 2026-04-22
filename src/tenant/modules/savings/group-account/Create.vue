@@ -32,7 +32,7 @@ const loading = ref(true),
       default: {},
     },
   }),
-  fields = ref([
+  fields = ref<any[]>([
     
     {
       label: 'Group official name',

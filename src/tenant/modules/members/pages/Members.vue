@@ -27,6 +27,7 @@ const {
 const showImportDialog = ref(false)
 const exportMenuOpen = ref(false)
 const printSize = ref<'a4' | 'a5' | 'pos'>('a4')
+const print = () => window.print()
 
 onMounted(async () => {
   if (!saccoBrandingState.loaded) {
@@ -51,10 +52,10 @@ onMounted(async () => {
             <option value="a4">A4</option><option value="a5">A5</option><option value="pos">POS</option>
           </select>
         </div>
-        <button @click="() => window.print()" class="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-700 shadow-sm hover:bg-neutral-50 transition-colors dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800">
+        <button @click="() => print()" class="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-700 shadow-sm hover:bg-neutral-50 transition-colors dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800">
           <Printer class="h-4 w-4" /> Print
         </button>
-        <button @click="() => window.print()" class="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-700 shadow-sm hover:bg-neutral-50 transition-colors dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800">
+        <button @click="() => print()" class="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-4 py-2.5 text-sm font-semibold text-neutral-700 shadow-sm hover:bg-neutral-50 transition-colors dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800">
           <FileText class="h-4 w-4" /> Export PDF
         </button>
         <!-- Export Excel dropdown -->

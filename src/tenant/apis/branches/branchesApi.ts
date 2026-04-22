@@ -32,11 +32,12 @@ export const branchesApi = {
   list() {
     return tenantClient.get<{ data: Branch[] }>('/branches')
   },
-  listWithDefault(): Promise<{ data: BranchWithDefault }> {
-    const activeBranch = getLocalValues(keysToUse.activeBranch)
-    return tenantClient.get<{ data: BranchWithDefault }>('/branches', {
+  async listWithDefault(): Promise<any> {
+    const activeBranch = getLocalValues(keysToUse.activeBranch as any)
+    const res = await tenantClient.get<{ data: BranchWithDefault }>('/branches', {
       params: { include_default: true, default_branch_id: activeBranch },
     })
+    return res.data
   },
   store(data: BranchForm) {
     return tenantClient.post<{ message: string; data: Branch }>('/branches', data)

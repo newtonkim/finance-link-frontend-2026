@@ -9,11 +9,12 @@ import {
     CreditCard,
     ChevronDown,
 } from 'lucide-vue-next';
-import { Card, CardContent,AnalysisTile } from '@/Global/ui/card';
+import { Card, CardContent } from '@/Global/ui/card';
+import { AnalysisTile } from '@/Global';
 import { Button } from '@/Global/ui/button';
 import { pomPinia } from 'septor-store';
 import { fetchTableData } from '@/Global';
-const Store = pomPinia();
+const Store = pomPinia() as any;
 const dataCollection = ref(Store?.dashboardAnalytics?.payload);
 
 onMounted(() => {

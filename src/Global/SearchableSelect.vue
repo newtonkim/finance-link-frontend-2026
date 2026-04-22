@@ -3,7 +3,7 @@ import { Check, ChevronDown, Search, X } from 'lucide-vue-next';
 import { ref, computed, onMounted, onUnmounted, watch, shallowRef } from 'vue';
 import { fetchTableData } from './landingLayout/util';
 import { pomPinia } from 'septor-store';
-const Store:any = pomPinia();
+const Store = pomPinia() as any;
 import debounce from 'lodash/debounce';
 import { tryCatch } from './Helpers';
 
@@ -15,7 +15,7 @@ interface Option {
 }
 
 const props = defineProps<{
-    modelValue: any;
+    modelValue: string | number | null;
     options?: Option[];
     placeholder?: string;
     label?: string;
@@ -53,26 +53,26 @@ const remoteUrl = debounce(async (url: string) => {
     })
 }, 1000);
 
-const isOpen = ref<any>(false);
-const searchQuery = ref<any>('');
+const isOpen = ref(false);
+const searchQuery = ref('');
 const collection = shallowRef<any[]>([]);
 const containerRef = ref<HTMLElement | null>(null);
 const selectedOption = computed(() => {
-    const options: any = props?.url ? collection.value : props.options
+    const options = props?.url ? collection.value : props.options
     if (options?.length === 0) return []
-    return options.find((opt:any) => opt.id === props.modelValue);
+    return options?.find(opt => opt.id === props.modelValue);
 });
 
 const filteredOptions = computed(() => {
-    const options:any = props?.url ? collection.value : props.options
+    const options = props?.url ? collection.value : props.options
     // console.log(options);
     
     if (!searchQuery.value) return options;
 
     const query = searchQuery.value.toLowerCase();
-    return options.filter((opt:any) =>
+    return options?.filter(opt =>
         opt.name.toLowerCase().includes(query)
-    );
+    ) ?? [];
 });
 
 const selectOption = (option: Option) => {
@@ -88,9 +88,9 @@ const toggleDropdown = async () => {
     if (props.disabled) return;
     isOpen.value = !isOpen.value;
     if (isOpen.value)
-        searchQuery.value = null;
+        searchQuery.value = '';
     const generateAstate = props?.state ?? `${props?.url}`.replace(/[^a-zA-Z0-9]/g, "-");
-    const DataAlreadyCollected = Store?.[generateAstate]?.payload?.data ?? Store?.[generateAstate]?.payload
+    const DataAlreadyCollected = Store[generateAstate]?.payload?.data ?? Store[generateAstate]?.payload
 
     if (props.url && !DataAlreadyCollected?.length) {
         remoteUrl(props.url)
@@ -116,7 +116,7 @@ onUnmounted(() => {
 
 watch(props, async (newVal) => {
     if (newVal?.dataOnMount) {
-        searchQuery.value = props.modelValue ?? '';
+        searchQuery.value = String(props.modelValue ?? '');
         // opens
         await toggleDropdown();
         // close
@@ -155,7 +155,7 @@ const inputClass =
             disabled ? 'opacity-50 cursor-not-allowed bg-neutral-50 dark:bg-neutral-950' : 'hover:border-neutral-300 dark:hover:border-neutral-700'
         ]">
             <div class="flex items-center justify-between gap -2">
-                <span v-if="selectedOption?.id"
+                <span v-if="selectedOption && selectedOption.id !== null && selectedOption.id !== undefined"
                     class="block truncate text-neutral-900 dark:text-neutral-100 font-medium">
                     {{ selectedOption.name }}
                 </span>
@@ -196,7 +196,7 @@ const inputClass =
                         <Check v-if="option.id === modelValue"
                             class="h-4 w-4  text-nfuko-primary dark:text-[#8ba8a2]" />
                     </li>
-                    <li v-if="filteredOptions.length === 0" class="px-4 py-8 text-center text-sm text-neutral-400">
+                    <li v-if="(filteredOptions as any)?.length === 0" class="px-4 py-8 text-center text-sm text-neutral-400">
                         No results found
                     </li>
                 </ul>

@@ -21,6 +21,9 @@ interface LoanSettingsForm {
   auto_penalty: boolean
   penalty_grace_days: number
   loan_cycle_limit: number
+  topup_repayment_basis: 'principal' | 'principal_interest' | 'outstanding_balance'
+  topup_min_percentage: number
+  topup_auto_disbursement: boolean
 }
 
 export function useGeneralLoanSettings() {
@@ -62,10 +65,14 @@ export function useGeneralLoanSettings() {
     repayment_allocation_order: 'penalties_charges_interest_principal',
     min_approvers: 1,
     max_approvers: 3,
-
+    allow_top_up: false,
+    allow_reschedule: false,
     auto_penalty: true,
     penalty_grace_days: 0,
     loan_cycle_limit: 1,
+    topup_repayment_basis: 'principal_interest',
+    topup_min_percentage: 40,
+    topup_auto_disbursement: false,
   })
 
   function toPayload(): LoanSettingsForm {
@@ -79,6 +86,9 @@ export function useGeneralLoanSettings() {
       auto_penalty: Boolean(form.auto_penalty),
       penalty_grace_days: Number(form.penalty_grace_days ?? 0),
       loan_cycle_limit: Number(form.loan_cycle_limit ?? 1),
+      topup_repayment_basis: form.topup_repayment_basis,
+      topup_min_percentage: Number(form.topup_min_percentage ?? 40),
+      topup_auto_disbursement: Boolean(form.topup_auto_disbursement),
     }
   }
 

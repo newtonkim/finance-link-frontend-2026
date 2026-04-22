@@ -7,7 +7,11 @@ import { useCurrencyStore } from '@/stores/currency'
 import ViewAccountDrawer from '../components/ViewAccountDrawer.vue'
 import EditAccountDrawer from '../components/EditAccountDrawer.vue'
 import CreateAccountDrawer from '../components/CreateAccountDrawer.vue'
+import { useRouter } from 'vue-router'
+import { setLocalValues } from '@/Global'
 import { savingsProductsApi } from '@/tenant/apis/savingsProducts/api'
+
+const router = useRouter()
 
 interface FdAccount {
   id: number
@@ -109,6 +113,12 @@ async function onCreateSuccess(newAccount: any) {
   }
 }
 
+function navigateToProfile(member: any) {
+  if (!member) return
+  setLocalValues('memberProfile', member)
+  router.push('/tenant/member/profile')
+}
+
 onMounted(() => {
   fetchAccounts()
   fetchSavingsProducts()
@@ -194,9 +204,17 @@ onUnmounted(() => { if (searchTimer) clearTimeout(searchTimer) })
           <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
             <tr v-for="acc in accounts" :key="acc.id" class="hover:bg-neutral-50 dark:hover:bg-neutral-800/40">
               <td class="px-4 py-3 font-mono text-xs text-neutral-700 dark:text-neutral-300">{{ acc.account_no }}</td>
-              <td class="px-4 py-3 text-neutral-700 dark:text-neutral-300">
-                {{ acc.member?.name ?? '—' }}
-                <span class="block text-xs text-neutral-400">{{ acc.member?.member_number }}</span>
+              <td class="px-4 py-3">
+                <button
+                  type="button"
+                  @click="navigateToProfile(acc.member)"
+                  class="text-left hover:text-nfuko-primary transition-colors group"
+                >
+                  <span class="block font-medium text-neutral-900 dark:text-white group-hover:text-nfuko-primary group-hover:underline transition-colors">
+                    {{ acc.member?.name ?? '—' }}
+                  </span>
+                  <span class="block text-xs text-neutral-400">{{ acc.member?.member_number }}</span>
+                </button>
               </td>
               <td class="px-4 py-3 text-neutral-500">{{ acc.savings_product?.name ?? '—' }}</td>
               <td class="px-4 py-3 font-medium text-neutral-900 dark:text-white">{{ formatBalance(acc.balance) }}</td>

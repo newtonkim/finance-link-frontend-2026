@@ -56,15 +56,18 @@ const props = defineProps({
     rows: "10"
   },
 ]), transferState = computed(() => {
-  const get = (name: string) => fields.value.find(f => f.name === name)
+  const get = (name: string) => fields.value.find(f => f.name === name) as any
   return {
     from: get('from')?.selected,
     to: get('to')?.selected,
     amount: get('amount')?.value
   }
 })
+
+const loadingAccounts = ref(false)
+const amountError = computed(() => false)
 function fetchAccounts(){
-Store['group-account-savings-savings-accounts-drop-down-list']=[]
+  (Store as any)['group-account-savings-savings-accounts-drop-down-list']=[]
 }
 defineExpose({ fetchAccounts })
 </script>

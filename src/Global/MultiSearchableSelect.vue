@@ -3,7 +3,7 @@ import { Check, ChevronDown, Search, X } from 'lucide-vue-next';
 import { ref, computed, onMounted, onUnmounted, watch, shallowRef } from 'vue';
 import { fetchTableData } from './landingLayout/util';
 import { pomPinia } from 'septor-store';
-const Store: any = pomPinia();
+const Store = pomPinia() as any;
 import debounce from 'lodash/debounce';
 import { tryCatch } from './Helpers';
 
@@ -14,7 +14,7 @@ interface Option {
 }
 
 const props = defineProps<{
-    modelValue: (string | number | null)[];
+    modelValue: (string | number|null)[];
     options: Option[];
     placeholder?: string;
     label?: string;
@@ -37,13 +37,13 @@ const hasFetched = ref(false);
 
 const remoteUrl = debounce(async (url: string) => {
     if (!url || loading.value) return;
-
-    tryCatch(async () => {
+    
+    const result = tryCatch(async () => {
         loading.value = true;
         const data: any = { ...props.data }
         if (searchQuery.value?.length >= 3)
             data.search_keyword = searchQuery.value
-
+            
         const res = await fetchTableData({
             data: Object.keys(data).length > 0 ? data : null,
             props: { url, reload: false, state: props?.state },
@@ -54,9 +54,14 @@ const remoteUrl = debounce(async (url: string) => {
             collection.value = res?.payload?.data ?? res?.payload ?? res ?? [];
             hasFetched.value = true;
         }
-    }).finally(() => {
+    });
+    if (result && typeof (result as any).finally === 'function') {
+        (result as any).finally(() => {
+            loading.value = false;
+        })
+    } else {
         loading.value = false;
-    })
+    }
 }, 500);
 
 // const selectedOptions = computed(() => {
@@ -65,15 +70,15 @@ const remoteUrl = debounce(async (url: string) => {
 //     return options.filter(opt => props.modelValue.includes(opt.id));
 // });
 
-const selectedOptions = ref<Option[]>([]);
+const selectedOptions=ref<Option[]>([]);
 
 const filteredOptions = computed(() => {
     const options = props?.url ? collection.value : props.options
     if (!searchQuery.value) return options;
     const query = searchQuery.value.toLowerCase();
-    return options.filter(opt =>
+    return options?.filter(opt =>
         opt.name.toLowerCase().includes(query)
-    );
+    ) ?? [];
 });
 
 const toggleSelectOption = (option: Option) => {
@@ -84,10 +89,10 @@ const toggleSelectOption = (option: Option) => {
     } else {
         current.splice(index, 1);
     }
-    selectedOptions.value = [...selectedOptions.value.filter(o => o.id !== option.id), option];
+    selectedOptions.value=[...selectedOptions.value.filter(o=>o.id!==option.id), option];  
     emit('update:modelValue', current);
     // console.log(selectedOptions.value);
-
+    
     emit('update:itemSelected', selectedOptions.value); // emit all selected
     // don't close, let them select multiple
 };
@@ -97,9 +102,9 @@ const toggleDropdown = () => {
     isOpen.value = !isOpen.value;
     if (isOpen.value) {
         searchQuery.value = '';
-
+        
         const generateAstate = props?.state ?? `${props?.url}`.replace(/[^a-zA-Z0-9]/g, "-");
-        const DataAlreadyCollected = Store?.[generateAstate]?.payload?.data ?? Store?.[generateAstate]?.payload
+        const DataAlreadyCollected = Store[generateAstate]?.payload?.data ?? Store[generateAstate]?.payload
 
         if (props.url && !DataAlreadyCollected?.length) {
             remoteUrl(props.url)
@@ -154,15 +159,15 @@ const inputClass =
 
 <template>
     <div ref="containerRef" class="relative w-full">
-        <div @click="toggleDropdown" :class="[
-            inputClass,
-            error ? 'border-red-500 focus-within:ring-red-500/10' : 'border-neutral-200 focus-within: border-nfuko-primary',
-            disabled ? 'opacity-50 cursor-not-allowed bg-neutral-50 dark:bg-neutral-950' : 'hover:border-neutral-300 dark:hover:border-neutral-700'
-        ]">
+        <div @click="toggleDropdown"
+            :class="[
+                inputClass,
+                error ? 'border-red-500 focus-within:ring-red-500/10' : 'border-neutral-200 focus-within: border-nfuko-primary',
+                disabled ? 'opacity-50 cursor-not-allowed bg-neutral-50 dark:bg-neutral-950' : 'hover:border-neutral-300 dark:hover:border-neutral-700'
+            ]">
             <div class="flex items-center justify-between gap-2">
-                <span v-if="selectedOptions.length"
-                    class="block truncate text-neutral-900 dark:text-neutral-100 font-medium">
-                    {{selectedOptions.map(o => o.name).join(', ')}}
+                <span v-if="selectedOptions.length" class="block truncate text-neutral-900 dark:text-neutral-100 font-medium">
+                    {{ selectedOptions.map(o => o.name).join(', ') }}
                 </span>
                 <span v-else class="block truncate text-neutral-400">
                     {{ placeholder || 'Select option' }}
@@ -198,8 +203,7 @@ const inputClass =
                             (modelValue || []).includes(option.id) ? 'bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white font-semibold' : 'text-neutral-600 dark:text-neutral-400'
                         ]">
                         <span class="block truncate">{{ option.name }}</span>
-                        <Check v-if="(modelValue || []).includes(option.id)"
-                            class="h-4 w-4 text-nfuko-primary dark:text-[#8ba8a2]" />
+                        <Check v-if="(modelValue || []).includes(option.id)" class="h-4 w-4 text-nfuko-primary dark:text-[#8ba8a2]" />
                     </li>
                     <li v-if="filteredOptions.length === 0" class="px-4 py-8 text-center text-sm text-neutral-400">
                         No results found

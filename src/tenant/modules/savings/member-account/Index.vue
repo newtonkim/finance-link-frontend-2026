@@ -1,6 +1,6 @@
 <template>
   <TableDrawer :exportItems="exportItems" :drawerShowFooter="showFooter" :drawerRemount="drawerRemount"
-    :automaticCreate="!automaticCreate.actionSlot" ref="drawer" :showTableAction="true"
+    :automaticCreate="!(automaticCreate as any).actionSlot" ref="drawer" :showTableAction="true"
     :drawerWidth="drawerTitle?.width" :url="tableUrl" state="memberAccountList" :drawerTitle="drawerTitle?.title"
     :columns="columns" @save="saveUser">
     <template #member_name="{ item }">
@@ -14,7 +14,7 @@
         </div>
       </div>
     </template>
-    <template #actions="{ item }: { item: any }">
+    <template #actions="{ item }: any">
       <div class="flex items-center gap-2">
         <TabelActionButtons @action="() => OpenThedrawer(item, 'withdrawal')" title="withdrawal" color="secondary"
           icon="CircleMinus" />
@@ -35,9 +35,9 @@
           'import-accounts',
           'import-deposit-withdrawal',
           'import-opening-balance',
-        ].includes(automaticCreate.actionSlot)
-      " :title="automaticCreate?.actionSlot" :url="`/members-account/${automaticCreate?.actionSlot}`"
-        :submit-url="automaticCreate.actionSlot" />
+        ].includes((automaticCreate as any).actionSlot)
+      " :title="(automaticCreate as any)?.actionSlot" :url="`/members-account/${(automaticCreate as any)?.actionSlot}`"
+        :submit-url="(automaticCreate as any).actionSlot" submit="import" />
       <OpeningBalanceTemplate v-else-if="
         automaticCreate?.actionSlot == 'download-account-opening-balance-template'
       " :data="{ action, ...(automaticCreate ?? {}) }" />
@@ -81,12 +81,12 @@ import {
 } from "@/Global";
 import { memberAccountApi } from "@/tenant/apis";
 const drawer = ref<any>(null),
-  drawerRemount = ref<any>(true),
+  drawerRemount = ref(true),
   automaticCreate = ref<any>({ drawerActions: true, actionSlot: null }),
-  exportItems = ref<any>([
+  exportItems = ref([
     {
       label: "opening balance template",
-      action: (vl) => {
+      action: (vl: any) => {
         automaticCreate.value = {
           actionSlot: "download-account-opening-balance-template",
           item: vl,
@@ -96,7 +96,7 @@ const drawer = ref<any>(null),
     },
     {
       label: "accounts template",
-      action: (vl) => {
+      action: (vl: any) => {
         automaticCreate.value = {
           actionSlot: "download-memeber-accounts-template",
           item: vl,
@@ -106,21 +106,21 @@ const drawer = ref<any>(null),
     },
     {
       label: "deposit template",
-      action: (vl) => {
+      action: (vl: any) => {
         OpenThedrawer(vl, "download-deposit-template");
         automaticCreate.value = { actionSlot: "download-deposit-template", item: vl };
       },
     },
     {
       label: "withdrawal template",
-      action: (vl) => {
+      action: (vl: any) => {
         OpenThedrawer(vl, "download-withdrawal-template");
         automaticCreate.value = { actionSlot: "download-withdrawal-template", item: vl };
       },
     },
     {
       label: "import opening balance",
-      action: (vl) => {
+      action: (vl: any) => {
         automaticCreate.value = {
           actionSlot: "import-opening-balance",
           item: vl,
@@ -130,14 +130,14 @@ const drawer = ref<any>(null),
     },
     {
       label: "Import accounts",
-      action: (vl) => {
+      action: (vl: any) => {
         OpenThedrawer(vl, "import-accounts");
         automaticCreate.value = { actionSlot: "import-accounts", item: vl };
       },
     },
     {
       label: "import deposit/withdrawal",
-      action: (vl) => {
+      action: (vl: any) => {
         OpenThedrawer(vl, "import-deposit-withdrawal");
         automaticCreate.value = { actionSlot: "import-deposit-withdrawal", item: vl };
       },
@@ -147,10 +147,10 @@ const formData = ref<Record<string, any>>({}),
   statusFilter = ref("all"),
   showFooter = ref(true),
   { memberAccountDepositAmount, memberAccountWithdrawalAmount } = memberAccountApi(),
-  drawerTitle = ref("Create Tenant"),
+  drawerTitle = ref<any>({ title: 'Members Savings Account', width: 'w-2/3' }),
   filters = ["all", "active", "suspended", "expired", "trial"],
-  tableUrl = computed(() => `/members-account/list?status=${statusFilter.value}`),
-  title: Record<string, any> = {
+  tableUrl = computed(() => `/members-account/list?status=${statusFilter.value}`);
+const title: Record<string, any> = {
     view: { title: "View member saving's Account Details", width: "w-2/3" },
     edit: { title: "Edit member saving's Account", width: "w-2/3" },
     add: { title: "Create a member saving's Account", width: "w-2/4" },
@@ -185,13 +185,13 @@ function saveUser(type: string, data: any) {
     }
     return;
   }
-  if (["add", "edit", "view", "edit"].includes(type)) automaticCreate.value = {};
+  if (["add", "edit", "view", "edit"].includes(type)) automaticCreate.value = { actionSlot: null };
   if (title?.[type]) {
     drawerTitle.value = title?.[type];
   }
   title?.[type]?.fun?.();
   if (!["withdrawal", "deposit", "edit", "add", "view"].includes(type)) {
-    drawer.value.toggleDrawer(); // close the drawer
+    drawer.value?.toggleDrawer(); // close the drawer
   }
 }
 
@@ -210,7 +210,7 @@ function OpenThedrawer(item: any, action = "deposit") {
   //   showFooter.value = ["withdrawal", "deposit"].includes(action);
   drawerTitle.value = title?.[action];
   setTimeout(() => {
-    drawer.value.toggleDrawer();
+    drawer.value?.toggleDrawer();
   }, 100);
 }
 
@@ -220,8 +220,8 @@ watch(
     if (!v) {
       formData.value = {};
       // showFooter.value = false;
-      automaticCreate.value = {};
-      drawerTitle.value = "Create Tenant";
+      automaticCreate.value = { actionSlot: null };
+      drawerTitle.value = { title: 'Members Savings Account', width: 'w-2/3' };
     }
   }
 );

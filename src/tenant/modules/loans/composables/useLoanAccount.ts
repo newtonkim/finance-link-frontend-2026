@@ -28,6 +28,7 @@ export function useLoanAccount(loanId: number | null) {
     | 'documents'
     | 'activities'
     | 'reschedules'
+    | 'before-topup'
   >('schedule')
 
   async function fetchLoan() {

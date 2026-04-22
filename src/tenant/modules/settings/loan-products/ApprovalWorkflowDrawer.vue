@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { Settings2, X } from 'lucide-vue-next'
-import { Spinner, Label } from '@/Global'
+import { Settings2, X, Zap } from 'lucide-vue-next'
+import { Spinner, Label, SearchableSelect } from '@/Global'
 import { useGeneralLoanSettings } from '../composables/useGeneralLoanSettings'
+
+const emit = defineEmits(['close'])
 
 const { showDrawer, loading, saving, form, fetchSettings, openDrawer, closeDrawer, save } =
   useGeneralLoanSettings()
@@ -11,6 +13,16 @@ onMounted(() => {
   void fetchSettings()
 })
 
+const handleClose = () => {
+  closeDrawer()
+  emit('close')
+}
+
+const handleSave = async () => {
+  await save()
+  emit('close')
+}
+
 defineExpose({ openDrawer })
 </script>
 
@@ -18,66 +30,85 @@ defineExpose({ openDrawer })
       <div class="flex h-[90vh] flex-col">
            
 
-            <div class="flex-1 overflow-y-auto px-6   ">
+            <div class="flex-1 overflow-y-auto px-6">
               <div v-if="loading" class="flex items-center justify-center py-10">
                 <Spinner class="h-8 w-8 text-neutral-400" />
               </div>
 
-              <div v-else class="space-y-6">
-                <div class="space-y-3">
-                  <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300"
-                    >Approval Workflow</Label
-                  >
-                  <div class="grid grid-cols-2 gap-4">
-                    <div>
-                      <label class="block text-xs font-medium text-neutral-500 mb-1">Minimum Approvers</label>
-                      <input
-                        v-model.number="form.min_approvers"
-                        type="number"
-                        min="1"
-                        class="block w-full rounded-xl border border-neutral-200 bg-white px-3 py-2.5 text-sm outline-none transition-colors focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800"
+              <div v-else class="space-y-8 py-4">
+                <!-- Eligibility Rules -->
+                <div class="space-y-4">
+                  <div class="flex items-center gap-2">
+                    <Settings2 class="h-4 w-4 text-nfuko-primary" />
+                    <Label class="text-sm font-bold text-neutral-800 dark:text-neutral-200">Eligibility Threshold</Label>
+                  </div>
+                  
+                  <div class="grid grid-cols-1 gap-6">
+                    <div class="space-y-2">
+                      <Label class="text-xs font-medium text-neutral-500 uppercase tracking-wider">Repayment Basis</Label>
+                      <SearchableSelect
+                        v-model="form.topup_repayment_basis"
+                        :options="[
+                          { id: 'principal', name: 'On Principal' },
+                          { id: 'principal_interest', name: 'On Principal + Interest' },
+                          { id: 'outstanding_balance', name: 'On Outstanding Balance' }
+                        ]"
+                        placeholder="Select basis..."
                       />
+                      <p class="text-[11px] text-neutral-400">Determines how the paid percentage is calculated for eligibility.</p>
                     </div>
-                    <div>
-                      <label class="block text-xs font-medium text-neutral-500 mb-1">Maximum Approvers</label>
+
+                    <div class="space-y-2">
+                      <Label class="text-xs font-medium text-neutral-500 uppercase tracking-wider">Minimum Percentage Paid (%)</Label>
                       <input
-                        v-model.number="form.max_approvers"
+                        v-model.number="form.topup_min_percentage"
                         type="number"
-                        min="1"
+                        min="0"
+                        max="100"
                         class="block w-full rounded-xl border border-neutral-200 bg-white px-3 py-2.5 text-sm outline-none transition-colors focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800"
                       />
+                      <p class="text-[11px] text-neutral-400">The minimum percentage of the basis that must be paid to allow a top-up.</p>
                     </div>
                   </div>
                 </div>
 
-                <div class="space-y-4">
-                  <Label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Feature Toggles</Label>
+                <hr class="border-neutral-100 dark:border-neutral-800" />
 
-                  <label class="flex items-center gap-3">
+                <!-- Workflow Automation -->
+                <div class="space-y-4">
+                  <div class="flex items-center gap-2">
+                    <Zap class="h-4 w-4 text-nfuko-primary" />
+                    <Label class="text-sm font-bold text-neutral-800 dark:text-neutral-200">Workflow Automation</Label>
+                  </div>
+
+                  <div class="space-y-2">
+                    <Label class="text-xs font-medium text-neutral-500 uppercase tracking-wider">Automatically disburse new loan?</Label>
+                    <SearchableSelect
+                      v-model="(form.topup_auto_disbursement as any)"
+                      :options="[
+                        { id: 1, name: 'Yes - Straight Disbursement (No Application)' },
+                        { id: 0, name: 'No - Full Application Process required' }
+                      ]"
+                      placeholder="Select workflow..."
+                    />
+                    <p class="text-[11px] text-neutral-400">If Yes, the top-up loan will be disbursed immediately without approval stages.</p>
+                  </div>
+                </div>
+
+                <hr class="border-neutral-100 dark:border-neutral-800" />
+
+                <!-- Feature Toggle -->
+                <div class="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-100 dark:border-neutral-800">
+                  <label class="flex items-center justify-between cursor-pointer">
+                    <div class="space-y-0.5">
+                      <span class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">Allow Loan Top-Ups</span>
+                      <p class="text-xs text-neutral-500">Enable or disable the top-up feature globally for this product.</p>
+                    </div>
                     <input
                       v-model="form.allow_top_up"
                       type="checkbox"
-                      class="h-4 w-4 rounded border-gray-300 text-nfuko-primary focus:ring-nfuko-primary dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-bg-nfuko-yellow"
+                      class="h-5 w-5 rounded border-gray-300 text-nfuko-primary focus:ring-nfuko-primary dark:border-gray-600 dark:bg-gray-700"
                     />
-                    <span class="text-sm text-neutral-700 dark:text-neutral-300">Allow Loan Top-Ups</span>
-                  </label>
-
-                  <label class="flex items-center gap-3">
-                    <input
-                      v-model="form.allow_reschedule"
-                      type="checkbox"
-                      class="h-4 w-4 rounded border-gray-300 text-nfuko-primary focus:ring-nfuko-primary dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-bg-nfuko-yellow"
-                    />
-                    <span class="text-sm text-neutral-700 dark:text-neutral-300">Allow Loan Rescheduling</span>
-                  </label>
-
-                  <label class="flex items-center gap-3">
-                    <input
-                      v-model="form.auto_penalty"
-                      type="checkbox"
-                      class="h-4 w-4 rounded border-gray-300 text-nfuko-primary focus:ring-nfuko-primary dark:border-gray-600 dark:bg-gray-700 dark:focus:ring-bg-nfuko-yellow"
-                    />
-                    <span class="text-sm text-neutral-700 dark:text-neutral-300">Apply Auto Penalties</span>
                   </label>
                 </div>
               </div>
@@ -89,7 +120,7 @@ defineExpose({ openDrawer })
                 <Button
                   variant="outline"
                   class="flex-1 h-11 w-full mx-2 font-bold border-neutral-200 dark:border-neutral-800"
-                  @click="closeDrawer"
+                  @click="handleClose"
                 >
                   Close
                 </Button>
@@ -100,7 +131,7 @@ defineExpose({ openDrawer })
                 <Button
                   type="submit"
                     :disabled="saving"
-                @click="save"
+                @click="handleSave"
                   class="flex-1 h-11  mr-5 w-full font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors"
                 >
                 <Spinner v-if="saving" class="h-4 w-4" />

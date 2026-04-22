@@ -119,7 +119,7 @@ onMounted(() => {
             <Form v-model:form="form" parentStyle="grid grid-cols-2 sm:grid-cols-1  md:gap-6 px-4 py-0" />
             <div class="h-[40vh] overflow-auto">
                 <Table :action_config="ACTION_CONFIG" :handleAction="handleAction" :dataFilter="featuresSelected"
-                    :columns="columns">
+                    :data="featuresSelected" :columns="columns">
                 </Table>
             </div>
         </Card>

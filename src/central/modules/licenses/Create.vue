@@ -9,7 +9,7 @@ const statusOptions = [
     { name: 'Expired', id: 'expired' },
 ];
 const loading = ref(true)
-const fields = ref([
+const fields = ref<any[]>([
     {
         label: 'Select Tenant',
         name: 'tenant_id',

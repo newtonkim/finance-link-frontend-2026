@@ -1,8 +1,25 @@
 <script setup lang="ts">
-import { Search, ChevronDown, ChevronRight, ExternalLink, Loader } from 'lucide-vue-next'
+import { Search, ChevronDown, ChevronRight, ExternalLink, Loader2 } from 'lucide-vue-next'
 import { Pagination } from '@/Global'
 import AgingScheduleTable from './AgingScheduleTable.vue'
 import type { AgingLoanRow, AgingBucket } from '@/tenant/apis/reports/reportsApi'
+import type { LoanScheduleEntry } from '@/tenant/apis/loans/loansApi'
+
+interface PaginationLink {
+  url: string | null
+  label: string
+  active: boolean
+}
+
+interface PaginationMeta {
+  current_page: number
+  last_page: number
+  per_page: number
+  total: number
+  from: number
+  to: number
+  links: PaginationLink[]
+}
 
 defineProps<{
   total: number
@@ -13,7 +30,7 @@ defineProps<{
   filteredRows: AgingLoanRow[]
   expandedLoanId: number | null
   loadingScheduleId: number | null
-  paginationLinks: any
+  paginationLinks: PaginationMeta | undefined
   filters: { page: number; per_page: number }
   tabCount: (b: AgingBucket | null) => number
   bucketRowClass: (b: AgingBucket) => string
@@ -24,8 +41,8 @@ defineProps<{
   assetQualityLabel: (b: AgingBucket) => string
   scheduleStatusBadge: (s: string) => string
   scheduleRowClass: (s: string, d: string) => string
-  fmt: (v: any) => string
-  scheduleForLoan: (id: number) => any[]
+  fmt: (v: number | string | null | undefined) => string
+  scheduleForLoan: (id: number) => LoanScheduleEntry[]
   selectBucketTab: (b: AgingBucket|null) => void
   toggleSchedule: (id: number) => void
   onPageChange: (p: number) => void
@@ -87,7 +104,7 @@ defineEmits(['update:search'])
 
     <!-- Loading -->
     <div v-if="loadingTable" class="flex items-center justify-center py-14">
-      <Loader class="h-6 w-6 text-nfuko-primary" />
+      <Loader2 class="h-6 w-6 animate-spin text-nfuko-primary" />
     </div>
 
     <template v-else>
@@ -124,7 +141,7 @@ defineEmits(['update:search'])
                 @click="toggleSchedule(row.loan_id)"
               >
                 <td class="w-8 px-3 py-3 text-neutral-400">
-                  <Loader v-if="loadingScheduleId === row.loan_id" class="h-4 w-4 text-nfuko-primary" />
+                  <Loader2 v-if="loadingScheduleId === row.loan_id" class="h-4 w-4 animate-spin text-nfuko-primary" />
                   <ChevronDown v-else-if="expandedLoanId === row.loan_id" class="h-4 w-4 text-nfuko-primary" />
                   <ChevronRight v-else class="h-4 w-4" />
                 </td>

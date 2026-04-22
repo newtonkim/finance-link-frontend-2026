@@ -66,7 +66,7 @@ const quickInfo = computed(() => [
         value: props.member.created_by || "—"
     }
 ])
-const formatCleanDate = (date) => {
+const formatCleanDate = (date: any) => {
     return date ? (date).replace(/,/g, "") : "—"
 }
 </script>

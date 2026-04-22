@@ -29,14 +29,14 @@ export const centarRoutes: any = [
     permissions: 'staff-module-link-view',
     icon: Users,
     showSideBar: true,
-    component: () => import('@/central/modules/staff/Index.vue'),
+    component: () => import('./staff/Index.vue'),
   },
   {
     path: 'tenants',
     icon: Store,
     showSideBar: true,
     permissions: 'tenants-module-link-view',
-    component: () => import('@/central/modules/tenants/Index.vue'),
+    component: () => import('./tenants/Index.vue'),
     label: 'tenants',
   },
   {
@@ -58,18 +58,18 @@ export const centarRoutes: any = [
           {
             path: 'Permission',
             label: 'Permission',
-            component: () => import('@/central/modules/settings/general/Permisions/Index.vue'),
+            component: () => import('@/central/modules/settings/General/Permisions/Index.vue'),
             permissions: 'settings-permission-view',
           },
           {
             path: 'roles',
             label: 'roles',
-            component: () => import('@/central/modules/settings/general/roles/Index.vue'),
+            component: () => import('./settings/General/roles/Index.vue'),
           },
           {
             path: 'Plan',
             label: 'Plan',
-            component: () => import('@/central/modules/settings/general/plans/Index.vue'),
+            component: () => import('./settings/General/plans/Index.vue'),
           },
         ],
       },
@@ -79,12 +79,12 @@ export const centarRoutes: any = [
           {
             path: 'system',
             label: 'system',
-            component: () => import('@/central/modules/settings/systems/developmentSettings/index.vue'),
+            component: () => import('./settings/systems/developmentSettings/index.vue'),
           },
           {
             path: 'tenantssettings',
             label: 'tenantssettings',
-            component: () => import('@/central/modules/settings/systems/tenatsSettings/index.vue'),
+            component: () => import('./settings/systems/tenatsSettings/index.vue'),
           },
         ],
       },

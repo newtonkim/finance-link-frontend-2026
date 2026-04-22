@@ -133,7 +133,7 @@ export const tenantRoutes: MenuRoutes[] = [
           },
           {
             path: 'Loan',
-            label: 'Loan',
+            label: 'Loans',
             // icon: Wallet,
             // permissions: 'chart-of-accounts-module-link-view',
             showSideBar: true,
@@ -145,14 +145,7 @@ export const tenantRoutes: MenuRoutes[] = [
             component: () => import('@/tenant/modules/loans/Transaction/Index.vue'),
             // permissions: "view-transactions-list",
           },
-          {
-            path: 'pending-votes',
-            label: 'pending votes',
-            // icon: Vote,
-            // permissions: 'chart-of-accounts-module-link-view',
-            showSideBar: true,
-            component: () => import('@/tenant/modules/loans/pages/PendingVotes.vue'),
-          },
+
         ],
       },
       {

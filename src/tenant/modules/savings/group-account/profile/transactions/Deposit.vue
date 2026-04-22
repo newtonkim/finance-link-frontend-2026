@@ -8,7 +8,7 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import { DetailsTable, Form } from '@/Global'
+import { DetailsTable, Form } from '../../../../../../Global/index'
 const emits = defineEmits(['update:form']),
     props = defineProps({
         data: {

@@ -85,7 +85,7 @@ const closeDropdown = (e: MouseEvent) => {
 };
 
 const displayValue = computed(() => {
-    let digits:any = props.modelValue || '';
+    let digits = String(props.modelValue || '');
     digits = digits.replace(/\D/g, ''); // Ensure only digits
 
     // Format based on country (East African countries use 9 digits)

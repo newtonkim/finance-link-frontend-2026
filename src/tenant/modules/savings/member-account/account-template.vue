@@ -36,7 +36,7 @@ import { exportToExcel, TabelActionButtons, TableDrawer, } from '@/Global'
 import { pomPinia } from 'septor-store';
 const Store = pomPinia();
 const selected = ref<Record<string, any>>({}),
-    drawerTitle = ref('Create Tenant'),
+    drawerTitle = ref({ title: 'Account Template', width: '600px' }),
     tableUrl = computed(() => `members-account/template`)
 const columns = [
     { key: 'check', label: 'check', width: '4em', copy: true },
@@ -44,7 +44,7 @@ const columns = [
     { key: 'code', label: 'Account code', copy: true },
     { key: 'member_name', label: 'Member', },
 ]
-function selectMember(data) {
+function selectMember(data: any) {
     if (selected.value[data.code]) {
         delete selected.value[data.code]
         return
@@ -52,8 +52,8 @@ function selectMember(data) {
     selected.value[data.code] = { ...data, }
 }
 function checkall() {
-    const theCurrentData = Store['members-account']?.payload?.data ?? []
-    theCurrentData.forEach(element => {
+    const theCurrentData = (Store as any)['members-account']?.payload?.data ?? []
+    theCurrentData.forEach((element: any) => {
         selectMember(element)
     });
 }

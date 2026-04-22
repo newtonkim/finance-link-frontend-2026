@@ -44,9 +44,9 @@ const tabs = computed(() => [
 ]);
 
 // ── Drawer refs ──────────────────────────────────────────────────────────────
-const depositDrawer = ref<InstanceType<typeof DepositWithdrawDrawer> | null>(null);
-const newAccountDrawer = ref<InstanceType<typeof NewAccountDrawer> | null>(null);
-const customFeeDrawer = ref<InstanceType<typeof CustomFeeDrawer> | null>(null);
+const depositDrawer = ref<any>(null);
+const newAccountDrawer = ref<any>(null);
+const customFeeDrawer = ref<any>(null);
 
 // ── Transaction reversal ────────────────────────────────────────────────────
 const showTxnDeleteDialog = ref(false);
@@ -144,10 +144,10 @@ const handleDelete = () => deleteMember(() => router.push('/tenant/members'));
                         :approving="approving"
                         :rejecting="rejecting"
                         :deleting="deleting"
-                        @deposit="depositDrawer?.open?.('deposit')"
-                        @withdraw="depositDrawer?.open?.('withdraw')"
+                        @deposit="() => depositDrawer?.open('deposit')"
+                        @withdraw="() => depositDrawer?.open('withdraw')"
                         @approve="approveMember"
-                        @reject="(reason) => rejectMember(reason)"
+                        @reject="(reason: string) => rejectMember(reason)"
                         @delete="handleDelete"
                     />
 
@@ -156,8 +156,8 @@ const handleDelete = () => deleteMember(() => router.push('/tenant/members'));
                         :accounts="member.savings_accounts"
                         :currency-code="currencyCode"
                         :format-currency="formatCurrency"
-                        @new-account="newAccountDrawer?.openDrawer?.()"
-                        @custom-fee="(account) => customFeeDrawer?.openDrawer?.(account)"
+                        @new-account="() => newAccountDrawer?.openDrawer()"
+                        @custom-fee="(account: any) => customFeeDrawer?.openDrawer(account)"
                     />
 
                     <!-- Tabs -->
@@ -256,7 +256,7 @@ const handleDelete = () => deleteMember(() => router.push('/tenant/members'));
                             :format-currency="formatCurrency"
                             @print="printReceipt"
                             @reverse="confirmDeleteTxn"
-                            @open-drawer="depositDrawer?.open?.('deposit')"
+                            @open-drawer="() => depositDrawer?.open('deposit')"
                         />
 
                         <!-- Withdrawal tab -->
@@ -271,7 +271,7 @@ const handleDelete = () => deleteMember(() => router.push('/tenant/members'));
                             :format-currency="formatCurrency"
                             @print="printReceipt"
                             @reverse="confirmDeleteTxn"
-                            @open-drawer="depositDrawer?.open?.('withdraw')"
+                            @open-drawer="() => depositDrawer?.open('withdraw')"
                         />
 
                         <!-- Shares placeholder -->

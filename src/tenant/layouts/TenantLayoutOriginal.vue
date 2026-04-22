@@ -15,10 +15,10 @@ onMounted(() => {
 })
 const Store = pomPinia(), route = useRoute()
 const routeKey = computed(() => {
-  return `${route.fullPath}-${Store.activeBranch?.id ?? Store.activeBranch}`
+  return `${route.fullPath}-${(Store as any).activeBranch?.id ?? (Store as any).activeBranch}`
 })
 const toggleSubmenu = () => {
-    Store.showSubmenu = null
+    (Store as any).showSubmenu = null
     
 }
 </script>

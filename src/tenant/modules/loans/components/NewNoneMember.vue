@@ -13,7 +13,7 @@ const props = defineProps({
     default: {},
   },
 })
-const fields = ref([
+const fields = ref<any[]>([
 
   {
     label: 'Full Name',

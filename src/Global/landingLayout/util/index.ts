@@ -12,7 +12,8 @@ function splitTheLink(link: string) {
   return { url: url.href, name: url2[name] }
 }
 export const dataFomater = (data: any, type: string) => {
-  const filter:any = {
+  const statusMapAny = statusMap as Record<string, any>
+  const filter: Record<string, () => any> = {
     date: () => date(data),
     dateTime: () => dateTime(data),
     link: () => {
@@ -42,9 +43,9 @@ export const dataFomater = (data: any, type: string) => {
     },
     status: () => {
       const verifyTheStatus =
-        statusMap?.[`${data}`] ??
-        statusMap?.[`${data}`?.toLowerCase()] ??
-        statusMap?.[`${data}`?.toUpperCase()] ??
+        statusMapAny?.[`${data}`] ??
+        statusMapAny?.[`${data}`?.toLowerCase()] ??
+        statusMapAny?.[`${data}`?.toUpperCase()] ??
         data
       return `<span class="${verifyTheStatus?.className}">${verifyTheStatus?.label}</span>`
     },
@@ -91,7 +92,7 @@ export const ACTION_CONFIG = {
   },
   share: {
     icon: Send,
-    action: (row:any) => {
+    action: (row: any) => {
       // you can pass row data here
       return {
         type: 'share',
@@ -124,7 +125,7 @@ export async function fetchTableData({
   const subdomain = getSubdomainName()
   const interceptor = subdomain ? tenantClient : apiClient,
     createTheState = props?.state ? props?.state : props?.url.replace(/[^a-z0-9]+/gi, '-')
-  const branch_id = getLocalValues(keysToUse.activeBranch)
+  const branch_id = getLocalValues('activeBranch' as const)
   // const method = resolveMethod(props?.url, data, props?.method)
   const quer = props?.url.includes('?') ? `${props?.url}&` : `${props?.url}?`
   const branchQuery = branch_id ? `branch_id=${branch_id}` : ''

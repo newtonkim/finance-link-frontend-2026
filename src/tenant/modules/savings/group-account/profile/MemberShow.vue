@@ -4,19 +4,19 @@ import { useRouter } from 'vue-router';
 import { toast } from 'vue-sonner';
 import { storeToRefs } from 'pinia';
 import { UserCircle2, FileText, TrendingUp, MinusCircle, Wallet, BarChart3, RotateCcw, Printer } from 'lucide-vue-next';
-import { formatMoneyValue } from '@/Global';
-import { tenantClient } from '@/tenant/apis/tenantClient';
-import { useCurrencyStore } from '@/stores/currency';
-import { useMember } from '../composables/useMember';
+import { formatMoneyValue } from '../../../../../Global/index';
+import { tenantClient } from '../../../../apis/tenantClient';
+import { useCurrencyStore } from '../../../../../stores/currency';
+import { useMember } from '../../../members/composables/useMember';
 import MemberSidebar from './MemberSidebar.vue';
-import MemberActionBar from './MemberActionBar.vue';
+import MemberActionBar from '../../../members/profile/MemberActionBar.vue';
 import MemberAccountsTable from './MemberAccountsTable.vue';
 import MemberTransactionsTab from './MemberTransactionsTab.vue';
-import DepositWithdrawDrawer from './DepositWithdrawDrawer.vue';
-import NewAccountDrawer from './NewAccountDrawer.vue';
+import DepositWithdrawDrawer from '../../../members/profile/DepositWithdrawDrawer.vue';
+import NewAccountDrawer from '../../../members/profile/NewAccountDrawer.vue';
 import CustomFeeDrawer from './CustomFeeDrawer.vue';
-import { memberProfileApi } from '@/tenant/apis/savings/member-profileApi';
-import Details from '@/Global/DetailsTable/Details.vue';
+import { memberProfileApi } from '../../../../apis/index';
+import { DetailsTable as Details } from '../../../../../Global/index';
 const { getMemberProfileDetail } = memberProfileApi();
 
 const router = useRouter(); 
@@ -35,7 +35,7 @@ const profileDetails = ref<any>(null)
 async function initialize() {
     pageLoading.value = true;
     const details = await getMemberProfileDetail({})
-    let data = {};
+    let data: Record<string, any> = {};
     const { member_details, member_accounts } = details
     // const accounts = details.member_accounts
     for (const key in member_details) {
@@ -177,7 +177,7 @@ const columns = [
             <div class="relative z-10 p-5 flex flex-col lg:flex-row gap-5">
 
                 <!-- Left Sidebar -->
-                <MemberSidebar :member="profileDetails?.details ?? {}" :member-initials="memberInitials"
+                <MemberSidebar :data="profileDetails?.details ?? {}" :member-initials="memberInitials"
                     :computed-age="computedAge" :upload-processing="uploadProcessing" :format-date="formatDate"
                     @avatar-click="triggerAvatarUpload" />
                 <input type="file" ref="avatarInput" @change="handleAvatarUpload" accept="image/*" class="hidden" />
@@ -187,16 +187,16 @@ const columns = [
 
                     <!-- Approval/Rejection banners + action buttons -->
                     <MemberActionBar :member="profileDetails?.details" :approving="approving" :rejecting="rejecting"
-                        :deleting="deleting" @deposit="depositDrawer?.open('deposit')"
-                        @withdraw="depositDrawer?.open('withdraw')" @approve="approveMember"
-                        @reject="(reason) => rejectMember(reason)" @delete="handleDelete" />
+                        :deleting="deleting" @deposit="() => depositDrawer?.open('deposit')"
+                        @withdraw="() => depositDrawer?.open('withdraw')" @approve="approveMember"
+                        @reject="(reason: string) => rejectMember(reason)" @delete="handleDelete" />
 
                     <!-- Accounts table -->
                     <div v-if="profileDetails?.accounts">
 
                         <MemberAccountsTable @reload="initialize" :member="profileDetails?.details ?? {}"   :accounts="profileDetails.accounts ?? []" :currency-code="currencyCode"
-                            :format-currency="formatCurrency" @new-account="newAccountDrawer?.openDrawer()"
-                            @custom-fee="(account) => customFeeDrawer?.openDrawer(account)" />
+                            :format-currency="formatCurrency" @new-account="() => newAccountDrawer?.openDrawer()"
+                            @custom-fee="(account: any) => customFeeDrawer?.openDrawer(account)" />
                     </div>
 
                     <!-- Tabs -->
@@ -235,14 +235,14 @@ const columns = [
                             mode="deposit" action-color="bg-[#16a34a]" :show-account-column="true"
                             :format-date="formatDate" :format-date-time="formatDateTime"
                             :format-currency="formatCurrency" @print="printReceipt" @reverse="confirmDeleteTxn"
-                            @open-drawer="depositDrawer?.open('deposit')" />
+                            @open-drawer="() => depositDrawer?.open('deposit')" />
 
                         <!-- Withdrawal tab -->
                         <MemberTransactionsTab v-show="activeTab === 'withdrawal'" :transactions="member.transactions"
                             mode="withdrawal" action-color="bg-[#ea580c]" :show-account-column="true"
                             :format-date="formatDate" :format-date-time="formatDateTime"
                             :format-currency="formatCurrency" @print="printReceipt" @reverse="confirmDeleteTxn"
-                            @open-drawer="depositDrawer?.open('withdraw')" />
+                            @open-drawer="() => depositDrawer?.open('withdraw')" />
 
                         <!-- Shares placeholder -->
                         <div v-show="activeTab === 'shares'" class="p-12 text-center">

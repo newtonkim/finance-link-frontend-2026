@@ -36,13 +36,13 @@ async function onFileSelected(f: File) {
     rows.value = raw.slice(1)
       .filter(r => String(r[0] ?? '').trim() !== '')
       .map(r => {
-        let collection = {}
-        const lng = fileHeaders ?? [];
+        let collection: any = {}
+        const lng = (fileHeaders as any[]) ?? [];
         for (let i = 0; i < lng.length; i++) {
           const cell = String(r?.[i] ?? '').trim().toLowerCase();
           collection[lng[i]] = cell;
         }
-        return collection
+        return collection as ObRow
       })
 
     if (rows.value.length === 0) { parseError.value = 'No data rows found in file.'; return }
@@ -79,7 +79,7 @@ async function submit() {
 
     <!-- Upload step -->
     <template v-if="step === 'upload'">
-      <TemplateDownloadCard title="Step 1 — Download the Opening Balances template"
+      <TemplateDownloadCard title="Step 1 — Download the Opening Balances template" from="opening-balances"
         description="Fill in member number, account number, opening balance, and the cut-over date."
         filename="opening-balances-template.xlsx" :download-fn="migrationApi.downloadOpeningBalancesTemplate" />
       <MigrationFileStep :file="file" :parse-error="parseError" @change="onFileSelected" />

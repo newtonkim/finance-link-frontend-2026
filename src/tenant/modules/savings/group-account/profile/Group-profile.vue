@@ -3,23 +3,28 @@ import { ref, computed, onBeforeMount } from "vue";
 import { toast } from "vue-sonner";
 import { storeToRefs } from "pinia";
 import { FileText, Wallet, BarChart3, RotateCcw, Users } from "lucide-vue-next";
-import { formatMoneyValue } from "@/Global";
-import { tenantClient } from "@/tenant/apis/tenantClient";
-import { useCurrencyStore } from "@/stores/currency";
-import { groupSavingsApi } from "@/tenant/apis/savings/group-savingsApi";
+import { formatMoneyValue, formatCurrency, getInitials, formatDateUs } from "../../../../../Global/index";
+import { tenantClient } from "../../../../apis/tenantClient";
+import { useCurrencyStore } from "../../../../../stores/currency";
+import { groupSavingsApi } from "../../../../apis/savings/group-savingsApi";
 import {
   GroupMembersWithLoansTab,
   MemberAccountsTable,
   MemberTransactionsTab,
   MemberGroupList,
   MemberSidebar,
-} from "./index.ts";
+} from "./index";
+import DepositWithdrawDrawer from "../../../members/profile/DepositWithdrawDrawer.vue";
+import NewAccountDrawer from "../../../members/profile/NewAccountDrawer.vue";
+import CustomFeeDrawer from "./CustomFeeDrawer.vue";
 import { pomPinia } from "septor-store";
 const { getGroupProfileDetail } = groupSavingsApi();
 const { currencyCode } = storeToRefs(useCurrencyStore());
 const pageLoading = ref<any>(null);
 const profileDetails = ref<any>(null);
 const member = ref<any>({});
+const uploadProcessing = ref(false);
+const memberInitials = computed(() => getInitials(profileDetails.value?.details?.name || ""));
 
 async function initialize() {
   const details = await getGroupProfileDetail({});
@@ -54,10 +59,10 @@ const tabs = computed(() => [
     id: "transactions",
     label: "Transactions",
     icon: FileText,
-    count: member?.transactions?.length || 0,
+    count: (member.value as any)?.transactions?.length || 0,
   },
 //   { id: "Gurrantors", label: "Gurrantors", icon: Wallet, count:null },
-  { id: "loans", label: "Member With Loans", icon: Wallet, count: member?.loans?.length || 0 },
+  { id: "loans", label: "Member With Loans", icon: Wallet, count: (member.value as any)?.loans?.length || 0 },
   { id: "shares", label: "Shares", icon: BarChart3, count: null },
 ]);
 
@@ -129,7 +134,6 @@ const formatDateTime = (dateString?: string) => {
   });
 };
 
-const formatCurrency = (amount?: string | number) => formatMoneyValue(amount ?? 0);
 </script>
 
 <template>
@@ -163,6 +167,8 @@ const formatCurrency = (amount?: string | number) => formatMoneyValue(amount ?? 
           :data="profileDetails?.details ?? {}"
           :computed-age="''"
           :format-date="formatDate"
+          :member-initials="memberInitials"
+          :upload-processing="uploadProcessing"
         />
 
         <!-- Main Content -->
@@ -220,6 +226,7 @@ const formatCurrency = (amount?: string | number) => formatMoneyValue(amount ?? 
                 :accounts="
                   Array.isArray(profileDetails?.members) ? profileDetails.members : []
                 "
+                :currency-code="currencyCode" :format-currency="formatCurrency"
                 @new-account="newAccountDrawer?.openDrawer()"
               />
             </div>

@@ -139,7 +139,7 @@ export function useLoanApplications() {
           mStore: { mUse: true },
         }
         await Store.stateGenaratorApi(collection)
-        branches.value = Store.state['system-branches']?.payload??[]
+        branches.value = Store.$state['system-branches']?.payload??[]
       })
     } catch {
       // non-blocking
@@ -173,7 +173,7 @@ export function useLoanApplications() {
     if (!deleteTarget.value?.id) return
     deleting.value = true
     try {
-      await loanApplicationsApi.cancel(deleteTarget.value.id)
+      await loanApplicationsApi.cancel(deleteTarget.value.id, 'Cancelled from UI')
       toast.success('Loan application cancelled.')
       await fetch(meta.value.current_page)
     } catch (err: any) {

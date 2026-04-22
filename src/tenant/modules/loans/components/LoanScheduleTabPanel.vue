@@ -25,7 +25,7 @@ interface ScheduleTotals {
   outstanding: number
 }
 
-const props = defineProps<{
+defineProps<{
   schedule: LoanScheduleEntry[]
   filteredSchedule: LoanScheduleEntry[]
   scheduleTotals: ScheduleTotals
@@ -94,7 +94,7 @@ const emit = defineEmits<{
               <td class="px-3 py-3 text-right">{{ currency }} {{ fmt(row.interest_due) }}</td>
               <td class="px-3 py-3 text-right">{{ currency }} {{ fmt(row.penalty_due) }}</td>
               <td class="px-3 py-3 text-right font-semibold">
-                {{ currency }} {{ fmt(Number(row.total_due) + Number(row.penalty_due)) }}
+                {{ currency }} {{ fmt(row.total_due) }}
               </td>
               <td class="px-3 py-3 text-right font-bold text-emerald-600 dark:text-emerald-400">
                 {{ currency }}
@@ -111,8 +111,7 @@ const emit = defineEmits<{
                 {{ currency }}
                 {{
                   fmt(
-                    Number(row.total_due) +
-                      Number(row.penalty_due) -
+                    Number(row.total_due) -
                       (Number(row.principal_paid) +
                         Number(row.interest_paid) +
                         Number(row.charges_paid) +
@@ -161,7 +160,11 @@ const emit = defineEmits<{
                     </DropdownMenuItem>
                     <DropdownMenuItem class="cursor-pointer gap-2">
                       <CreditCard class="h-4 w-4" />
-                      Card
+                      Shares Payments
+                    </DropdownMenuItem>
+                    <DropdownMenuItem class="cursor-pointer gap-2">
+                      <CreditCard class="h-4 w-4" />
+                      Equity Payment
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       class="cursor-pointer gap-2 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30"
@@ -190,13 +193,13 @@ const emit = defineEmits<{
                 {{ currency }} {{ fmt(scheduleTotals.penalty_due) }}
               </td>
               <td class="px-3 py-3 text-right font-bold">
-                {{ currency }} {{ fmt(scheduleTotals.total_due + scheduleTotals.penalty_due) }}
+                {{ currency }} {{ fmt(scheduleTotals.total_due) }}
               </td>
               <td class="px-3 py-3 text-right text-emerald-600 dark:text-emerald-400">
                 {{ currency }} {{ fmt(scheduleTotals.total_paid) }}
               </td>
               <td class="px-3 py-3 text-right font-bold">
-                {{ currency }} {{ fmt(scheduleTotals.total_due + scheduleTotals.penalty_due - scheduleTotals.total_paid) }}
+                {{ currency }} {{ fmt(scheduleTotals.total_due - scheduleTotals.total_paid) }}
               </td>
               <td colspan="4"></td>
             </tr>

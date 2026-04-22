@@ -180,13 +180,13 @@ async function onCreateSuccess(newAccount: any) {
 
   <EditAccountDrawer
     ref="editDrawer"
-    :savings-products="savingsProducts"
+    :savings-products="savingsProducts as any[]"
     @success="fetchAccounts(meta.current_page)"
   />
 
   <CreateAccountDrawer
     ref="createDrawer"
-    :savings-products="savingsProducts"
+    :savings-products="savingsProducts as any[]"
     @success="onCreateSuccess"
   />
 

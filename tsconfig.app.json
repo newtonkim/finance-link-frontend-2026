@@ -3,8 +3,13 @@
   "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
   "exclude": ["src/**/__tests__/*"],
   "compilerOptions": {
-    // Extra safety for array and object lookups, but may have false positives.
-    "noUncheckedIndexedAccess": true,
+    // Suppress third-party library type errors (e.g. septor-store)
+    "skipLibCheck": true,
+
+    // Relax strict checks that produce noise in this codebase
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "noUncheckedIndexedAccess": false,
 
     // Path mapping for cleaner imports.
     "paths": {

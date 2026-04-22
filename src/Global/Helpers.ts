@@ -4,8 +4,9 @@ import { EncryptStorage } from 'encrypt-storage'
 // import { apiClient, apiClient as customAxios } from '@/central/api/client'
 const encryptStorage = new EncryptStorage(import.meta.env.VITE_ENCRYPT_STORAGE)
 import { notify } from '@/Global/Toasters'
-import * as XLSX from 'xlsx'
+// import * as XLSX from 'xlsx'
 import { fetchTableData } from './landingLayout/util'
+import { type PrintOptions } from './printing';
 
 export const keysToUse: Record<string, any> = {
   systemSettings: 'systemSettings',
@@ -264,12 +265,13 @@ export function addMinutesToTime(startTime: string, minutesToAdd: number | strin
  * @param type: file extension without dot, e.g., "pdf", "docx", "xlsx", "csv", "txt", "png", "jpg", etc.
  * **/
 export async function downloadFile(data: {
-  Store: null
-  url: string
-  data: null
-  Action: 'download'
-  type: 'pdf'
-  name: null | string
+  Store: any
+  url?: string
+  customUrl?: string
+  data: any
+  Action: 'download' | 'view'
+  type: string
+  name?: null | string
 }) {
   const { Store, url, data: requestData, Action, type, name } = data
   const appName = import.meta.env.VITE_APP_NAME // Example of accessing environment variable
@@ -391,7 +393,7 @@ export function formDataFormatV2(fields: any[]) {
       fd.append(key, value)
     }
   })
-  fd.append('branch_id', getLocalValues(keysToUse.activeBranch))
+  fd.append('branch_id', getLocalValues('activeBranch'))
 
   return fd
 }
@@ -433,7 +435,7 @@ export function formDataFormat(data: any) {
       formData.append(lowerCaseKeys, value)
     }
   }
-  formData.append('branch_id', getLocalValues(keysToUse.activeBranch))
+  formData.append('branch_id', getLocalValues('activeBranch'))
 
   return formData
 }
@@ -502,7 +504,7 @@ export function companyHeader() {
   `
 }
 
-export function printElementId(IdElement = '') {
+export function printElementId(IdElement = '', options?: PrintOptions) {
   const cached = getetSystemBranding()
 
   const getPrintElement = document.getElementById(IdElement)
@@ -686,10 +688,10 @@ export function feedback(res: any, success?: string, fail?: string) {
   }
 }
 
-export function createUrl(url: string, action: string) {
+export function createUrl(url: string, ...actions: string[]) {
   const url2 = url.split('/')
   url2.length = url2.length - 1
-  return url2.join('/') + `/${action}`
+  return url2.join('/') + `/${actions.join('/')}`
 }
 
 export async function copyToClipboard(text: string) {
@@ -736,12 +738,13 @@ const formatFileName = (name: string) => {
     name: 'User Template'
 })
  **/
-export const exportToExcel = ({
+export const exportToExcel = async ({
   data = [] as any[],
   headers = [] as any[],
   name = 'export',
   sheetName = 'Sheet1',
 }) => {
+  const XLSX = await import('xlsx');
   if (!data.length && !headers.length) {
     console.warn('No data or headers provided')
 
