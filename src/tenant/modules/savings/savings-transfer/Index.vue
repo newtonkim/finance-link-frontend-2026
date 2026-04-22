@@ -7,7 +7,7 @@
             <div class=" items-center gap-2">
                 <CopyData :show="item.code" />
                 <div class="flex items-center justify-between">
-                    <div :class="statusMap[item.status]?.className" class="text-[10px]  tracking-wide">{{
+                    <div :class="statusMap?.[item.status]?.className" class="text-[10px]  tracking-wide">{{
                         item.status }}</div>
                     <div v-if="item.count > 1"
                         class="mx-10 bg-nfuko-primary text-white text-[9px] font-bold  rounded-full min-w-[20px] text-center "
@@ -36,10 +36,10 @@ import { Create, Details } from '.'
 import {  statusMap } from '@/Global'
 const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
     drawer = ref(null),
-    drawerTitle = ref('Create Tenant'),
+    drawerTitle = ref<any>('Create Tenant'),
     filters = ["All", "rejected", "pending", "approved", "cancelled", "completed", "failed",],
     tableUrl = computed(() => `/savings-transfer/list?status=${statusFilter.value}`),
-    title: Record<string, string> = {
+    title: Record<string, Object> = {
         "view": { title: "View Savings Transfer Details", width: "w-2/3" },
         "add": { title: "Create a peer to peer transfer", width: "w-3/4" },
     }
@@ -59,9 +59,9 @@ const columns = [
 ]
 
 function refresh(){
-   drawer.value.toggleDrawer()
+   drawer.value?.toggleDrawer()
    setTimeout(() => {
-       drawer.value.toggleDrawer()
+       drawer.value?.toggleDrawer()
    },300)
 }
 </script>

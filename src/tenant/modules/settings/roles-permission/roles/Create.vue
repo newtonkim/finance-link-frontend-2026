@@ -2,7 +2,7 @@
 import { ref, watch, onMounted } from "vue";
 import { Form, Card, ACTION_CONFIG, Table } from "@/Global";
 const emits = defineEmits(["update:form"]);
-const permissionSelected = ref([]);
+const permissionSelected = ref<any>([]);
 const loading = ref(false);
 const props = defineProps({
   data: {
@@ -11,7 +11,7 @@ const props = defineProps({
     required: false,
   },
 });
-const form = ref([
+const form:any = ref([
   {
     label: "Name",
     name: "name",

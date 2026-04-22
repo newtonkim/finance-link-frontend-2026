@@ -20,9 +20,9 @@
       :handleAction="handleAction"
       :action_config="ACTION_CONFIG"
     >
-      <template #reason="{ item }">
+      <template #reason="{ item }: { item: Record<string, any> }">
         <span class="text-red-600 font-medium">
-          {{ formatReason(item.reason) }}
+          {{ formatReason(item?.reason) }}
         </span>
       </template>
     </Table>
@@ -40,10 +40,10 @@ const props = defineProps({
 const ACTION_CONFIG = {} // define your actions if needed
 
 // --- organize table data ---
-const tableData = computed(() => {
+const tableData:any = computed(() => {
   const data = props.data?.payload?.failed ||props.data|| []
 
-  return data.map((row) => {
+  return data.map((row:any) => {
     const newRow: Record<string, any> = {}
     const storage=[]
 
@@ -76,7 +76,7 @@ const tableColumns = computed(() => {
   const hiddenFields = ['password', 'remember_token']
   const keysSet = new Set<string>()
 
-  data.forEach((row) => {
+  data.forEach((row:any) => {
     Object.keys(row).forEach((key) => {
       if (!hiddenFields.includes(key)) keysSet.add(key)
     })

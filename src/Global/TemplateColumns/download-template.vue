@@ -17,7 +17,7 @@
                     <input v-model="search" type="text" placeholder="Search columns..."
                         class="w-full pl-10 pr-3 py-2 text-sm border rounded-xl bg-neutral-50 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 focus:outline-none focus:ring-2 focus:ring-nfuko-primary-500 transition" />
                     <span class="absolute left-3 top-2.5 text-neutral-400 text-sm">
-                        <SearchCheck size="15" />
+                        <SearchCheck :size="15" />
                     </span>
                 </div>
             </div>
@@ -59,7 +59,7 @@ import { SearchCheck } from 'lucide-vue-next'
 import { computed, onMounted, ref } from 'vue'
 import * as XLSX from 'xlsx'
 
-const props = defineProps({
+const props:any = defineProps({
     data: {
         type: Object,
         required: true, // { key: "Label" }
