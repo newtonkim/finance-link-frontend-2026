@@ -29,14 +29,14 @@ export const centarRoutes: any = [
     permissions: 'staff-module-link-view',
     icon: Users,
     showSideBar: true,
-    component: () => import('./staff/Index.vue'),
+    component: () => import('@/central/modules/staff/Index.vue'),
   },
   {
     path: 'tenants',
     icon: Store,
     showSideBar: true,
     permissions: 'tenants-module-link-view',
-    component: () => import('./tenants/Index.vue'),
+    component: () => import('@/central/modules/tenants/Index.vue'),
     label: 'tenants',
   },
   {
