@@ -8,7 +8,7 @@
         <template #actions="{ item }: { item: any }">
             <div class="w-full gap-2 flex items-center justify-center">
                 <button @click="() => OpenThedrawer(item)"
-                    class="flex items-center  rounded-full bg-amber-300 p-2  text-xs font-bold text-neutral-700 transition-colors hover:bg-indigo-100 dark:bg-indigo-900/40 dark:text-indigo-300 dark:hover:bg-indigo-900/60" ">
+                    class="flex items-center  rounded-full bg-amber-300 p-2  text-xs font-bold text-neutral-700 transition-colors hover:bg-indigo-100 dark:bg-indigo-900/40 dark:text-indigo-300 dark:hover:bg-indigo-900/60" >
                     <UserPlus size=" 13" />
                 </button>
             </div>

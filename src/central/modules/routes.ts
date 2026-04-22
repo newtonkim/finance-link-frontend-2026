@@ -58,7 +58,7 @@ export const centarRoutes: any = [
           {
             path: 'Permission',
             label: 'Permission',
-            component: () => import('./settings/general/permisions/Index.vue'),
+            component: () => import('@/central/modules/settings/general/Permisions/Index.vue'),
             permissions: 'settings-permission-view',
           },
           {
