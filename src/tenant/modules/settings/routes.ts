@@ -174,6 +174,21 @@ export const settingsRoutes: RouteRecordRaw[] = [
         name: 'tenant-settings-old-notifications',
         component: Notifications,
       },
+      {
+        path: 'old-notifications',
+        name: 'tenant-staff-allowances',
+        component: Notifications,
+      },
+      {
+        path: 'old-notifications',
+        name: 'tenant-staff-advances',
+        component: Notifications,
+      },
+      {
+        path: 'old-notifications',
+        name: 'tenant-staff-salaries',
+        component: Notifications,
+      },
     ],
   },
 ]
