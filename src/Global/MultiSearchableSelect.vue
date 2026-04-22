@@ -99,7 +99,7 @@ const toggleDropdown = () => {
         searchQuery.value = '';
         
         const generateAstate = props?.state ?? `${props?.url}`.replace(/[^a-zA-Z0-9]/g, "-");
-        const DataAlreadyCollected = Store[generateAstate]?.payload?.data ?? Store[generateAstate]?.payload
+        const DataAlreadyCollected = Store?.[generateAstate]?.payload?.data ?? Store?.[generateAstate]?.payload
 
         if (props.url && !DataAlreadyCollected?.length) {
             remoteUrl(props.url)

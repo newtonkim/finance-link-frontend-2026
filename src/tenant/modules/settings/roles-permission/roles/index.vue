@@ -55,7 +55,7 @@ const filters = ["roles", "permissions"];
 import { Details, Create, EditUserRole } from ".";
 import { tenantRolesApi } from "../../../../apis/onboardingSettings";
 const { create } = tenantRolesApi();
-let dispalyAlterUserRole = reactive({ show: false });
+let dispalyAlterUserRole = reactive ({ show: false });
 const emit = defineEmits(["update:modelValue"]);
 watch(
   () => statusFilter.value,
@@ -66,7 +66,7 @@ watch(
 let drawerTitle = shallowReactive({
   title: "Create role",
 });
-const title = shallowReactive({
+const title = shallowReactive<Record<string, string>>({
   add: "Create role",
   edit: "Edit role",
   view: "View role",
@@ -92,7 +92,7 @@ function toggleDrawer(item: any) {
   dispalyAlterUserRole = { show: true, data: item };
   drawerTitle = { title: "alter staff Roles", action: "alter" };
   setTimeout(() => {
-    drawer.value.toggleDrawer();
+    drawer.value?.toggleDrawer();
   }, 100);
 }
 function saveUser(type: string, data: any) {
