@@ -1,4 +1,4 @@
 export * from "./tenantStep1";
 export * from "./tenantStep2";
 export {default as tenantStep3} from "./tenantStep3.vue";
-export {default as TenantStep4} from "./TenantStep4.vue";
+export {default as TenantStep4} from "./tenantStep4.vue";
