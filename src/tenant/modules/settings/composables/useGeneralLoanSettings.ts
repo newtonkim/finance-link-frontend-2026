@@ -26,13 +26,29 @@ interface LoanSettingsForm {
   topup_auto_disbursement: boolean
 }
 
-export function useGeneralLoanSettings() {
-  const showDrawer = ref(false)
-  const loading = ref(false)
-  const saving = ref(false)
-  const hasLoaded = ref(false)
-  const baseline = ref('')
+// Global state for singleton pattern
+const showDrawer = ref(false)
+const loading = ref(false)
+const saving = ref(false)
+const hasLoaded = ref(false)
+const baseline = ref('')
 
+const form = reactive<LoanSettingsForm>({
+  charge_deduction_mode: 'deduct_from_principal',
+  repayment_allocation_order: 'penalties_charges_interest_principal',
+  min_approvers: 1,
+  max_approvers: 3,
+  allow_top_up: false,
+  allow_reschedule: false,
+  auto_penalty: true,
+  penalty_grace_days: 0,
+  loan_cycle_limit: 1,
+  topup_repayment_basis: 'principal_interest',
+  topup_min_percentage: 40,
+  topup_auto_disbursement: false,
+})
+
+export function useGeneralLoanSettings() {
   const repaymentAllocationOptions: RepaymentAllocationOption[] = [
     {
       value: 'principal_interest_penalties_charges',
@@ -60,21 +76,6 @@ export function useGeneralLoanSettings() {
     },
   ]
 
-  const form = reactive<LoanSettingsForm>({
-    charge_deduction_mode: 'deduct_from_principal',
-    repayment_allocation_order: 'penalties_charges_interest_principal',
-    min_approvers: 1,
-    max_approvers: 3,
-    allow_top_up: false,
-    allow_reschedule: false,
-    auto_penalty: true,
-    penalty_grace_days: 0,
-    loan_cycle_limit: 1,
-    topup_repayment_basis: 'principal_interest',
-    topup_min_percentage: 40,
-    topup_auto_disbursement: false,
-  })
-
   function toPayload(): LoanSettingsForm {
     return {
       charge_deduction_mode: form.charge_deduction_mode,
@@ -98,7 +99,7 @@ export function useGeneralLoanSettings() {
 
   async function openDrawer() {
     showDrawer.value = true
-    await fetchSettings()
+    await fetchSettings(true)
   }
 
   function closeDrawer() {

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Search, ChevronLeft, ChevronRight, InboxIcon, Loader2, Eye, Filter, FileText, Download, X, FileSpreadsheet, TrendingUp } from 'lucide-vue-next'
 import { useActiveLoans } from '../composables/useActiveLoans'
+import { useGeneralLoanSettings } from '../../settings/composables/useGeneralLoanSettings'
 import type { LoanTab } from '@/tenant/apis/loans/loansApi'
 import { loansApi } from '@/tenant/apis/loans/loansApi'
 import { jsPDF } from 'jspdf'
@@ -17,6 +18,8 @@ const {
     fetch, fetchSummary, switchTab, applyFilters, clearFilters,
 } = useActiveLoans()
 
+const { form: settings, fetchSettings: fetchLoanSettings } = useGeneralLoanSettings()
+
 const showFilters = ref(false)
 
 // Top-Up state
@@ -27,6 +30,10 @@ function openTopup(loan: any) {
   selectedTopupLoan.value = loan
   topupModalRef.value?.show()
 }
+
+onMounted(() => {
+  void fetchLoanSettings()
+})
 
 const statusOptions = [
     { value: 'disbursed', label: 'Disbursed' },
@@ -450,7 +457,9 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
                     </button>
                     <button
                       v-if="['active', 'disbursed'].includes(loan.status)"
-                      class="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
+                      class="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale"
+                      :disabled="!settings.allow_top_up"
+                      :title="!settings.allow_top_up ? 'Top-up feature is disabled in settings' : ''"
                       @click="openTopup(loan)"
                     >
                       <TrendingUp class="h-3.5 w-3.5" />

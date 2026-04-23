@@ -27,6 +27,7 @@ const props = defineProps<{
   outstandingDisplay: string
   totalAmountPaidDisplay: string
   repaidPercent: number
+  canTopup?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -94,7 +95,9 @@ const emit = defineEmits<{
       <div class="flex items-center gap-3">
         <template v-if="['active', 'disbursed', 'running', 'arrears'].includes(loan.status)">
           <button
-            class="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors shadow-sm dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
+            class="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors shadow-sm dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale"
+            :disabled="!canTopup"
+            :title="!canTopup ? 'Top-up feature is disabled in settings' : ''"
             @click="emit('topup')"
           >
             <TrendingUp class="h-4 w-4" />
