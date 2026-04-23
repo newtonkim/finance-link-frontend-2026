@@ -11,6 +11,7 @@ import { Button } from '@/Global/ui/button';
 import { Input } from '@/Global/ui/input';
 import { Label } from '@/Global/ui/label';
 import { Search, Check, ChevronDown } from 'lucide-vue-next';
+import { formatAmountInput, parseAmountInput } from '@/Global';
 
 interface Charge {
     type: 'deposit' | 'withdraw' | 'transfer';
@@ -106,17 +107,11 @@ const selectedLabel = computed(() => {
 
 // Formatting functions for money
 const formatMoney = (val: number | string | null | undefined) => {
-    if (val === null || val === undefined || val === '') return '';
-    const parts = val.toString().split('.');
-    const whole = parts[0] ?? '';
-    parts[0] = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    return parts.join('.');
+    return formatAmountInput(val);
 };
 
 const parseMoney = (val: string) => {
-    const stripped = val.replace(/[^0-9.]/g, '');
-    const parts = stripped.split('.');
-    return parts[0] + (parts.length > 1 ? '.' + parts.slice(1).join('') : '');
+    return String(parseAmountInput(val) || '');
 };
 
 const formattedMinAmount = computed({

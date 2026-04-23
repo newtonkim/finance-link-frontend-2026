@@ -63,6 +63,19 @@ function handleAmountInput(event: Event, field: 'min_amount' | 'max_amount') {
         input.setSelectionRange(newCursorPos, newCursorPos)
     })
 }
+
+function handleRawAmountInput(event: Event, field: 'min_amount' | 'max_amount') {
+    const input = event.target as HTMLInputElement
+    let clean = input.value.replace(/,/g, '')
+
+    const dotIndex = clean.indexOf('.')
+    if (dotIndex !== -1) {
+        clean = clean.substring(0, dotIndex + 1) + clean.substring(dotIndex + 1).replace(/\./g, '')
+    }
+
+    clean = clean.replace(/[^0-9.]/g, '')
+    props.form[field] = clean === '' ? null : (clean === '.' ? 0 : Number(clean))
+}
 </script>
 
 <template>
@@ -72,8 +85,8 @@ function handleAmountInput(event: Event, field: 'min_amount' | 'max_amount') {
       <div>
         <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Minimum Amount</label>
         <input
-          :value="formatValue(form.min_amount)"
-          @input="handleAmountInput($event, 'min_amount')"
+          :value="form.min_amount ?? ''"
+          @input="handleRawAmountInput($event, 'min_amount')"
           type="text"
           inputmode="decimal"
           placeholder="0.00"

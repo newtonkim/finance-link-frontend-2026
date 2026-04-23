@@ -15,6 +15,12 @@ interface Meta {
 const TOPUP_SCAN_PAGE_SIZE = 100
 const TOPUP_CLASSIFY_CONCURRENCY = 6
 
+function isRestructuredStatus(loan: Pick<ActiveLoan, 'status' | 'status_label'>): boolean {
+    const status = String(loan.status ?? '').trim().toLowerCase()
+    const statusLabel = String(loan.status_label ?? '').trim().toLowerCase()
+    return status === 'restructured' || statusLabel === 'restructured'
+}
+
 export function useActiveLoans() {
     const loading        = ref(false)
     const summaryLoading = ref(false)
@@ -135,7 +141,7 @@ export function useActiveLoans() {
             topupClassificationCache.set(loan.id, inlineClassified)
             if (inlineClassified) {
                 loan.is_topup = true
-                loan.status_label = 'Restructured TopUp'
+                loan.status_label = isRestructuredStatus(loan) ? 'Restructured' : 'Restructured TopUp'
                 return true
             }
         }
@@ -146,7 +152,11 @@ export function useActiveLoans() {
             topupClassificationCache.set(loan.id, detailedClassified)
             if (detailedClassified) {
                 loan.is_topup = true
-                loan.status_label = 'Restructured TopUp'
+                const detailedStatus = String((res.data.data as any)?.status ?? '').trim().toLowerCase()
+                loan.status_label =
+                    detailedStatus === 'restructured' || isRestructuredStatus(loan)
+                        ? 'Restructured'
+                        : 'Restructured TopUp'
                 loan.parent_loan_id = res.data.data.parent_loan_id ?? loan.parent_loan_id ?? null
                 loan.topup_type = (res.data.data as any).topup_type ?? loan.topup_type ?? null
             }
@@ -167,11 +177,15 @@ export function useActiveLoans() {
         rows.forEach((loan, index) => {
             if (flags[index]) {
                 loan.is_topup = true
-                loan.status_label = 'Restructured TopUp'
+                loan.status_label = isRestructuredStatus(loan) ? 'Restructured' : 'Restructured TopUp'
             }
         })
 
         return rows.filter((_, index) => includeTopup ? flags[index] : !flags[index])
+    }
+
+    async function annotateTopupRows(rows: ActiveLoan[]): Promise<void> {
+        await filterTopupRows(rows, true)
     }
 
     async function fetchTopupLoans(page = 1) {
@@ -251,6 +265,9 @@ export function useActiveLoans() {
             let rows = res.data.data ?? []
             if (activeTab.value === 'disbursed') {
                 rows = rows.filter((loan) => (loan.status ?? '').toLowerCase() !== 'closed')
+            }
+            if (activeTab.value === 'all') {
+                await annotateTopupRows(rows)
             }
             if (activeTab.value === 'disbursed') {
                 rows = await filterTopupRows(rows, false)

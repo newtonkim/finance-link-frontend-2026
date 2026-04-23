@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { X, Calendar, Wallet, Banknote, FileText, CheckCircle2, Loader2, ChevronDown } from 'lucide-vue-next'
-import { formatMoneyValue } from '@/Global'
+import { formatMoneyValue, normalizeAmountInput, formatAmountInput, parseAmountInput } from '@/Global'
 import { savingsAccountsApi } from '@/tenant/apis/savingsAccounts/savingsAccountsApi'
 
 interface SavingsAccount {
@@ -72,14 +72,11 @@ const insufficientBalance = computed(() => {
 
 // ── Money input helpers ─────────────────────────────────────────────────────
 function toMoney(v: number): string {
-  if (!v && v !== 0) return ''
-  return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v)
+  return formatAmountInput(v)
 }
 
 function parseMoney(v: string): number {
-  const cleaned = v.replace(/,/g, '').trim()
-  const n = parseFloat(cleaned)
-  return isNaN(n) ? 0 : n
+  return parseAmountInput(v) || 0
 }
 
 function makeMoneyInput(

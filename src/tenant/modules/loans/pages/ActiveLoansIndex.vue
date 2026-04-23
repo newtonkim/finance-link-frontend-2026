@@ -115,6 +115,9 @@ function fmtDate(d: string | null | undefined) {
 }
 
 function effectiveStatus(loan: { status: string; is_rescheduled?: boolean; parent_loan_id?: number | null; topup_type?: string | null; status_label?: string | null; is_topup?: boolean }) {
+  const raw = String(loan.status ?? '').trim().toLowerCase()
+  const rawLabel = String(loan.status_label ?? '').trim().toLowerCase()
+  if (raw === 'restructured' || rawLabel === 'restructured') return 'restructured'
   if (isRestructuredTopupLoan(loan)) return 'restructured_topup'
   return loan.is_rescheduled ? 'rescheduled' : loan.status
 }
@@ -130,6 +133,8 @@ function statusBadge(status: string) {
       return 'bg-red-100 text-red-700'
     case 'rescheduled':
       return 'bg-amber-100 text-amber-700'
+    case 'restructured':
+      return 'bg-neutral-100 text-neutral-600'
     case 'restructured_topup':
       return 'bg-blue-100 text-blue-700'
     case 'approved':
@@ -144,7 +149,6 @@ function statusBadge(status: string) {
 }
 
 function statusLabel(loan: { status: string; is_rescheduled?: boolean; parent_loan_id?: number | null; topup_type?: string | null; status_label?: string | null; is_topup?: boolean }) {
-  if (isRestructuredTopupLoan(loan)) return 'Restructured TopUp'
   if (loan.is_rescheduled) return 'Rescheduled'
   return loanStatusLabel(loan)
 }

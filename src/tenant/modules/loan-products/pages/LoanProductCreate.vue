@@ -13,11 +13,22 @@ import {
   ToggleLeft,
   ToggleRight,
 } from 'lucide-vue-next'
-import { formatMoneyValue } from '@/Global'
 import { useRouter } from 'vue-router'
 import { useLoanProductForm } from '../composables/useLoanProductCreate'
 import SearchableSelect from '@/Global/SearchableSelect.vue'
 import MultiSearchableSelect from '@/Global/MultiSearchableSelect.vue'
+import {
+  formatMoneyValue,
+  amountHint,
+  normalizeAmountInput,
+  parseAmountInput,
+  formatAmountInput,
+  previewMoney,
+} from '@/Global'
+import {
+  categoryLabel,
+  categoryColor,
+} from '../utils/loanProductHelpers'
 
 const router = useRouter()
 
@@ -52,95 +63,12 @@ function yesNoClass(enabled: boolean) {
     : 'border border-neutral-200 text-neutral-600 dark:border-neutral-700 dark:text-neutral-300'
 }
 
-function previewMoney(
-  formatted: string | null | undefined,
-  raw: number | string | null | undefined,
-) {
-  if (formatted) return formatted
-  if (raw == null || raw === '') return '—'
-  return formatMoneyValue(raw)
-}
-
-function amountHint(raw: number | string | null | undefined) {
-  if (raw == null || raw === '') return null
-  return formatMoneyValue(raw)
-}
-
-function normalizeAmountInput(raw: string): string {
-  const stripped = raw.replace(/[^0-9.,]/g, '')
-  const lastComma = stripped.lastIndexOf(',')
-  const lastDot = stripped.lastIndexOf('.')
-
-  if (lastComma > -1 && lastDot > -1) {
-    if (lastComma > lastDot) {
-      // European format (e.g. "1.234.567,89") — comma is the decimal separator
-      return stripped.replace(/\./g, '').replace(',', '.')
-    } else {
-      // en-US format (e.g. "1,234,567.89") or plain integer — strip commas
-      return stripped.replace(/,/g, '')
-    }
-  }
-
-  // If only a comma exists, check if it looks like a thousands separator (3 digits following)
-  if (lastComma > -1) {
-    const parts = stripped.split(',')
-    const lastPart = parts[parts.length - 1]
-    if (parts.length > 2 || lastPart.length === 3) {
-      return stripped.replace(/,/g, '')
-    } else {
-      // Treat as decimal (e.g. "400,50")
-      return stripped.replace(',', '.')
-    }
-  }
-
-  // en-US format or plain integer — strip commas just in case
-  return stripped.replace(/,/g, '')
-}
-
-function parseAmountInput(raw: string): number | null {
-  const normalized = normalizeAmountInput(raw)
-  if (!normalized) return null
-  const n = Number(normalized)
-  return Number.isFinite(n) ? n : null
-}
-
-function formatAmountInput(raw: number | string | null | undefined): string {
-  if (raw == null || raw === '') return ''
-  const n = Number(raw)
-  if (!Number.isFinite(n)) return ''
-  return n.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })
-}
-
-function onAmountInput(field: 'min_amount' | 'max_amount', value: string) {
+const onAmountInput = (field: 'min_amount' | 'max_amount', value: string) => {
   form.value[field] = parseAmountInput(value)
 }
 
-function categoryLabel(cat: string): string {
-  const map: Record<string, string> = {
-    processing_fee: 'Processing Fee',
-    penalty: 'Penalty',
-    late_fee: 'Late Fee',
-    appraisal_fee: 'Appraisal Fee',
-    disbursement_fee: 'Disbursement Fee',
-    other: 'Other',
-  }
-  return map[cat] ?? cat
-}
-
-function categoryColor(cat: string): string {
-  const map: Record<string, string> = {
-    processing_fee: 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-    penalty: 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-    late_fee: 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-    appraisal_fee: 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-    disbursement_fee: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-    other: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400',
-  }
-  return map[cat] ?? map.other
-}
+const previewMoneyLocal = (f: any, r: any) => previewMoney(f, r, formatMoneyValue)
+const amountHintLocal = (r: any) => amountHint(r, formatMoneyValue)
 </script>
 
 <template>
@@ -277,8 +205,8 @@ function categoryColor(cat: string): string {
               <p v-if="fieldError('min_amount')" class="mt-1 text-xs text-red-500">
                 {{ fieldError('min_amount') }}
               </p>
-              <p v-else-if="amountHint(form.min_amount)" class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-                Formatted: {{ amountHint(form.min_amount) }}
+              <p v-else-if="amountHintLocal(form.min_amount)" class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                Formatted: {{ amountHintLocal(form.min_amount) }}
               </p>
             </div>
             <div>
@@ -298,8 +226,8 @@ function categoryColor(cat: string): string {
               <p v-if="fieldError('max_amount')" class="mt-1 text-xs text-red-500">
                 {{ fieldError('max_amount') }}
               </p>
-              <p v-else-if="amountHint(form.max_amount)" class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-                Formatted: {{ amountHint(form.max_amount) }}
+              <p v-else-if="amountHintLocal(form.max_amount)" class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                Formatted: {{ amountHintLocal(form.max_amount) }}
               </p>
             </div>
             <div>
@@ -1209,7 +1137,7 @@ function categoryColor(cat: string): string {
                   </p>
                   <p class="mt-1 text-xl font-semibold text-neutral-900 dark:text-white">
                     {{
-                      previewMoney(preview.installment_amount_formatted, preview.installment_amount)
+                      previewMoneyLocal(preview.installment_amount_formatted, preview.installment_amount)
                     }}
                   </p>
                 </div>
@@ -1221,7 +1149,7 @@ function categoryColor(cat: string): string {
                       Total Interest
                     </p>
                     <p class="mt-1 text-base font-semibold text-neutral-900 dark:text-white">
-                      {{ previewMoney(preview.total_interest_formatted, preview.total_interest) }}
+                      {{ previewMoneyLocal(preview.total_interest_formatted, preview.total_interest) }}
                     </p>
                   </div>
                   <div class="rounded-2xl border border-neutral-100 p-4 dark:border-neutral-800">
@@ -1231,7 +1159,7 @@ function categoryColor(cat: string): string {
                       Total Repayment
                     </p>
                     <p class="mt-1 text-base font-semibold text-neutral-900 dark:text-white">
-                      {{ previewMoney(preview.total_repayment_formatted, preview.total_repayment) }}
+                      {{ previewMoneyLocal(preview.total_repayment_formatted, preview.total_repayment) }}
                     </p>
                   </div>
                 </div>
@@ -1257,7 +1185,7 @@ function categoryColor(cat: string): string {
                   <div class="flex items-center justify-between text-sm">
                     <span class="text-neutral-600 dark:text-neutral-400">Total Interest</span>
                     <span class="font-medium text-neutral-900 dark:text-white">
-                      {{ previewMoney(preview?.total_interest_formatted, preview?.total_interest) }}
+                      {{ previewMoneyLocal(preview?.total_interest_formatted, preview?.total_interest) }}
                     </span>
                   </div>
                   <div
@@ -1317,15 +1245,15 @@ function categoryColor(cat: string): string {
                           {{ row.period }}
                         </td>
                         <td class="px-3 py-2 text-right text-neutral-600 dark:text-neutral-300">
-                          {{ previewMoney(row.principal_formatted, row.principal) }}
+                          {{ previewMoneyLocal(row.principal_formatted, row.principal) }}
                         </td>
                         <td class="px-3 py-2 text-right text-neutral-600 dark:text-neutral-300">
-                          {{ previewMoney(row.interest_formatted, row.interest) }}
+                          {{ previewMoneyLocal(row.interest_formatted, row.interest) }}
                         </td>
                         <td
                           class="px-3 py-2 text-right font-medium text-neutral-900 dark:text-white"
                         >
-                          {{ previewMoney(row.installment_formatted, row.installment) }}
+                          {{ previewMoneyLocal(row.installment_formatted, row.installment) }}
                         </td>
                       </tr>
                     </tbody>

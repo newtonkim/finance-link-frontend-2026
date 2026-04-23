@@ -37,8 +37,10 @@ export function isRestructuredTopupLoan(loan: LoanStatusLike | null | undefined)
 
 export function loanStatusLabel(loan: LoanStatusLike | null | undefined): string {
   const status = normalizeStatus(loan?.status)
+  const statusLabel = normalizeStatus(loan?.status_label)
   if (!status) return '—'
 
+  if (status === 'restructured' || statusLabel === 'restructured') return 'Restructured'
   if (isRestructuredTopupLoan(loan)) return 'Restructured TopUp'
   if (status === 'active') return 'Disbursed'
 

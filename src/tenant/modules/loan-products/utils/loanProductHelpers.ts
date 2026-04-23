@@ -1,66 +1,35 @@
-import { formatMoneyValue } from '@/Global'
+import {
+  formatMoneyValue,
+  normalizeAmountInput as globalNormalize,
+  parseAmountInput as globalParse,
+  formatAmountInput as globalFormat,
+  amountHint as globalHint,
+  previewMoney as globalPreview,
+} from '@/Global'
 
 export function amountHint(raw: number | string | null | undefined) {
-  if (raw == null || raw === '') return null
-  return formatMoneyValue(raw)
+  return globalHint(raw, formatMoneyValue)
 }
 
 export function normalizeAmountInput(raw: string): string {
-  const stripped = raw.replace(/[^0-9.,]/g, '')
-  const lastComma = stripped.lastIndexOf(',')
-  const lastDot = stripped.lastIndexOf('.')
-
-  if (lastComma > -1 && lastDot > -1) {
-    if (lastComma > lastDot) {
-      // European format (e.g. "1.234.567,89") — comma is the decimal separator
-      return stripped.replace(/\./g, '').replace(',', '.')
-    } else {
-      // en-US format (e.g. "1,234.567.89") or plain integer — strip commas
-      return stripped.replace(/,/g, '')
-    }
-  }
-
-  // If only a comma exists, check if it looks like a thousands separator (3 digits following)
-  if (lastComma > -1) {
-    const parts = stripped.split(',')
-    const lastPart = parts[parts.length - 1]
-    if (parts.length > 2 || lastPart.length === 3) {
-      return stripped.replace(/,/g, '')
-    } else {
-      // Treat as decimal (e.g. "400,50")
-      return stripped.replace(',', '.')
-    }
-  }
-
-  // en-US format or plain integer — strip commas just in case
-  return stripped.replace(/,/g, '')
+  return globalNormalize(raw)
 }
 
 export function parseAmountInput(raw: string): number | null {
-  const normalized = normalizeAmountInput(raw)
-  if (!normalized) return null
-  const n = Number(normalized)
-  return Number.isFinite(n) ? n : null
+  return globalParse(raw)
 }
 
 export function formatAmountInput(raw: number | string | null | undefined): string {
-  if (raw == null || raw === '') return ''
-  const n = Number(raw)
-  if (!Number.isFinite(n)) return ''
-  return n.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })
+  return globalFormat(raw)
 }
 
 export function previewMoney(
   formatted: string | null | undefined,
   raw: number | string | null | undefined,
 ) {
-  if (formatted) return formatted
-  if (raw == null || raw === '') return '—'
-  return formatMoneyValue(raw)
+  return globalPreview(formatted, raw, formatMoneyValue)
 }
+
 
 export function categoryLabel(cat: string): string {
   const map: Record<string, string> = {
