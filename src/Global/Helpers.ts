@@ -504,7 +504,8 @@ export function companyHeader() {
   `
 }
 
-export function printElementId(IdElement = '', _options?: PrintOptions) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function printElementId(IdElement = '', options?: PrintOptions) {
   const cached = getetSystemBranding()
 
   const getPrintElement = document.getElementById(IdElement)
