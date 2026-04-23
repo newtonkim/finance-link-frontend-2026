@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Search, ChevronLeft, ChevronRight, InboxIcon, Loader2, Eye, Filter, FileText, Download, X, FileSpreadsheet, TrendingUp } from 'lucide-vue-next'
 import { useActiveLoans } from '../composables/useActiveLoans'
