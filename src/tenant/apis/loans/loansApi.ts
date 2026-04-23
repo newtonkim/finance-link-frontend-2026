@@ -208,6 +208,8 @@ export interface LoanDetail {
     loan_no: string
     principal_formatted: string
     outstanding_balance_formatted: string
+    outstanding_amount_before_topup?: number | string | null
+    outstanding_amount_before_topup_formatted?: string | null
     status: string
     status_label: string
     disbursed_at: string
