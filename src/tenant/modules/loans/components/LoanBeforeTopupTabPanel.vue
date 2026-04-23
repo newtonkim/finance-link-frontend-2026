@@ -18,7 +18,7 @@ defineProps<{
             Previous Loan Details (Topped Up)
           </h3>
           <router-link
-            :to="{ name: 'tenant-loan-detail', params: { id: loan.parent_loan.id } }"
+            :to="{ name: 'tenant-loan-account', params: { id: loan.parent_loan.id } }"
             class="flex items-center gap-1 text-[11px] font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
           >
             View Full History

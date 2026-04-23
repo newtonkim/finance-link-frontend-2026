@@ -6,9 +6,7 @@ const LoanApplicationEdit = () => import('./pages/LoanApplicationEdit.vue')
 const LoanApplicationShow = () => import('./pages/LoanApplicationShow.vue')
 const LoanDisbursementQueue = () => import('./pages/LoanDisbursementQueue.vue')
 const PendingVotes = () => import('./pages/PendingVotes.vue')
-const ActiveLoansIndex = () => import('./pages/ActiveLoansIndex.vue')
 const LoanAccountDetail = () => import('./pages/LoanAccountDetail.vue')
-const LoanBalancesReport = () => import('./pages/LoanBalancesReport.vue')
 
 export const loanRoutes: RouteRecordRaw[] = [
   {
@@ -41,19 +39,11 @@ export const loanRoutes: RouteRecordRaw[] = [
     name: 'tenant-loan-disbursements',
     component: LoanDisbursementQueue,
   },
-  {
-    path: 'loans',
-    name: 'tenant-active-loans',
-    component: ActiveLoansIndex,
-  },
+  // ActiveLoansIndex is registered via tenantRoutesList (layouts/routes.ts)
   {
     path: 'loans/:id',
     name: 'tenant-loan-account',
     component: LoanAccountDetail,
   },
-  {
-    path: 'loan-balances-report',
-    name: 'tenant-loan-balances-report',
-    component: LoanBalancesReport,
-  },
+  // LoanBalancesReport is registered via tenantRoutesList (layouts/routes.ts)
 ]

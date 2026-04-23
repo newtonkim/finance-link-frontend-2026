@@ -11,6 +11,7 @@ import { useLoanAmountComputeds } from '../composables/useLoanAmountComputeds'
 import { useLoanChargesPenalties } from '../composables/useLoanChargesPenalties'
 import { useLoanRepaymentFlows } from '../composables/useLoanRepaymentFlows'
 import { useLoanPdfExport } from '../composables/useLoanPdfExport'
+import { useGeneralLoanSettings } from '../../settings/composables/useGeneralLoanSettings'
 
 import ReceiveCashModal from '../components/ReceiveCashModal.vue'
 import LoanDocumentUploader from '../components/LoanDocumentUploader.vue'
@@ -103,6 +104,8 @@ const {
   handleSavingsRepaySubmit,
 } = useLoanRepaymentFlows(loan, refresh)
 
+const { form: settings, fetchSettings: fetchLoanSettings } = useGeneralLoanSettings()
+
 const { printGeneralInfo, exportGeneralInfoPdf } = useLoanPdfExport(
   loan,
   latestReschedule,
@@ -114,6 +117,7 @@ const { printGeneralInfo, exportGeneralInfoPdf } = useLoanPdfExport(
 
 onMounted(() => {
   if (!userStore.user) userStore.load()
+  void fetchLoanSettings()
 })
 
 const rescheduleDrawerOpen = ref(false)
@@ -161,6 +165,7 @@ const activeComponent = computed(() => {
 
     <template v-else-if="loan">
       <LoanDetailHeader
+        v-if="loan"
         :loan="loan"
         :status-color="statusColor"
         :fmt-date="fmtDate"
@@ -170,6 +175,7 @@ const activeComponent = computed(() => {
         :outstanding-display="outstandingDisplay"
         :total-amount-paid-display="totalAmountPaidDisplay"
         :repaid-percent="repaidPercent"
+        :can-topup="settings.allow_top_up"
         @topup="handleTopup"
         @reschedule="handleReschedule"
       />

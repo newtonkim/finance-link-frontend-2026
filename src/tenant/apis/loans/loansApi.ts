@@ -332,7 +332,7 @@ export const loansApi = {
   },
 
   list(params?: ActiveLoanParams) {
-    return tenantClient.get<{ data: { data: ActiveLoan[]; meta: object } }>('/loans', { params })
+    return tenantClient.get<{ data: ActiveLoan[]; meta: any }>('/loans', { params })
   },
 
   export(params?: ActiveLoanParams) {
