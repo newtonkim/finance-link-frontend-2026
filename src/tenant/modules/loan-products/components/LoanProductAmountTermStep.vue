@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { onMounted, watch } from 'vue'
 import type { LoanProduct } from '@/tenant/apis/loanProducts/loanProductsApi'
 import { amountHint } from '../utils/loanProductHelpers'
 
@@ -8,35 +8,47 @@ const props = defineProps<{
   fieldError: (field: string) => string | null
 }>()
 
-const formattedMinAmount = computed({
-    get: () => {
-        if (props.form.min_amount === '' || props.form.min_amount == null) return ''
-        const parts = props.form.min_amount.toString().split('.')
-        if (parts[0] !== undefined) parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-        return parts.join('.')
-    },
-    set: (val: string) => {
-        const stripped = val.replace(/[^0-9.]/g, '')
-        const parts = stripped.split('.')
-        const result = parts[0] + (parts.length > 1 ? '.' + parts.slice(1).join('') : '')
-        props.form.min_amount = result ? Number(result) : null
-    },
-})
+function formatValue(val: number | string | null | undefined): string {
+    if (val == null || val === '') return ''
+    const parts = val.toString().split('.')
+    if (parts[0] !== undefined) parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    return parts.join('.')
+}
 
-const formattedMaxAmount = computed({
-    get: () => {
-        if (props.form.max_amount === '' || props.form.max_amount == null) return ''
-        const parts = props.form.max_amount.toString().split('.')
-        if (parts[0] !== undefined) parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-        return parts.join('.')
-    },
-    set: (val: string) => {
-        const stripped = val.replace(/[^0-9.]/g, '')
-        const parts = stripped.split('.')
-        const result = parts[0] + (parts.length > 1 ? '.' + parts.slice(1).join('') : '')
-        props.form.max_amount = result ? Number(result) : null
-    },
-})
+function handleAmountInput(event: Event, field: 'min_amount' | 'max_amount') {
+    const input = event.target as HTMLInputElement
+    let cursorPosition = input.selectionStart || 0
+    
+    let val = input.value
+    
+    // Calculate how many commas are before the cursor
+    const commasBeforeCursor = (val.substring(0, cursorPosition).match(/,/g) || []).length
+    
+    // Strip non-digits and multiple dots
+    const stripped = val.replace(/[^0-9.]/g, '')
+    const parts = stripped.split('.')
+    const rawStr = parts[0] + (parts.length > 1 ? '.' + parts.slice(1).join('') : '')
+    
+    // Update the parent form model
+    props.form[field] = rawStr ? Number(rawStr) : null
+    
+    // Format the value with commas
+    if (parts[0] !== undefined) parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    const formatted = parts.join('.')
+    
+    // Set the input value manually to avoid Vue re-render cycle issues
+    input.value = formatted
+    
+    // Calculate new cursor position
+    const commasAfterFormat = (formatted.substring(0, cursorPosition).match(/,/g) || []).length
+    cursorPosition += (commasAfterFormat - commasBeforeCursor)
+    
+    // Restore cursor position
+    // setTimeout to ensure DOM is updated
+    requestAnimationFrame(() => {
+        input.setSelectionRange(cursorPosition, cursorPosition)
+    })
+}
 </script>
 
 <template>
@@ -46,7 +58,8 @@ const formattedMaxAmount = computed({
       <div>
         <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Minimum Amount</label>
         <input
-          v-model="formattedMinAmount"
+          :value="formatValue(form.min_amount)"
+          @input="handleAmountInput($event, 'min_amount')"
           type="text"
           inputmode="decimal"
           placeholder="0.00"
@@ -60,7 +73,8 @@ const formattedMaxAmount = computed({
       <div>
         <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Maximum Amount</label>
         <input
-          v-model="formattedMaxAmount"
+          :value="formatValue(form.max_amount)"
+          @input="handleAmountInput($event, 'max_amount')"
           type="text"
           inputmode="decimal"
           placeholder="0.00"
