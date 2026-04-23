@@ -20,4 +20,4 @@ const filters: FilterType[] = ['Charges', 'Notification List']
 const activeComponent = computed(() => {
     return statusFilter.value === 'Charges' ? notificationSetting : notificationList
 })
-</script>
+</script> 
