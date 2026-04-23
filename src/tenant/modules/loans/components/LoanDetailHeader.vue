@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import {
   Banknote,
   CheckCircle2,
   AlertCircle,
   History,
   ChevronDown,
-  TrendingDown,
   TrendingUp,
   Calendar,
 } from 'lucide-vue-next'
@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '@/Global/ui/dropdown-menu'
 import type { LoanDetail } from '@/tenant/apis/loans/loansApi'
+import { isRestructuredTopupLoan, loanStatusLabel } from '../utils/loanStatus'
 
 const props = defineProps<{
   loan: LoanDetail
@@ -34,6 +35,8 @@ const emit = defineEmits<{
   (e: 'topup'): void
   (e: 'reschedule'): void
 }>()
+
+const isRestructuredTopup = computed(() => isRestructuredTopupLoan(props.loan))
 </script>
 
 <template>
@@ -59,7 +62,7 @@ const emit = defineEmits<{
               <CheckCircle2 v-if="loan.status === 'closed'" class="h-3 w-3" />
               <AlertCircle v-else-if="loan.status === 'arrears'" class="h-3 w-3" />
               <History v-else-if="loan.status === 'rescheduled'" class="h-3 w-3" />
-              {{ loan.parent_loan_id && (loan.status === 'disbursed' || loan.status === 'active') ? 'Restructured TopUp' : (loan.status === 'active' ? 'Disbursed' : loan.status) }}
+              {{ loanStatusLabel(loan) }}
             </span>
           </div>
           <p class="text-sm text-neutral-600 dark:text-neutral-400 mt-0.5">
@@ -93,7 +96,7 @@ const emit = defineEmits<{
         </div>
       </div>
       <div class="flex items-center gap-3">
-        <template v-if="['active', 'disbursed', 'running', 'arrears'].includes(loan.status)">
+        <template v-if="['active', 'disbursed', 'running', 'arrears'].includes(loan.status) && !isRestructuredTopup">
           <button
             class="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors shadow-sm dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale"
             :disabled="!canTopup"

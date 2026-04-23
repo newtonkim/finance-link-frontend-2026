@@ -8,45 +8,59 @@ const props = defineProps<{
   fieldError: (field: string) => string | null
 }>()
 
+const amountFormatter = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 20
+})
+
 function formatValue(val: number | string | null | undefined): string {
     if (val == null || val === '') return ''
-    const parts = val.toString().split('.')
-    if (parts[0] !== undefined) parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-    return parts.join('.')
+    
+    // Ensure we are working with a string representation of the number
+    const strVal = val.toString().replace(/,/g, '')
+    const parts = strVal.split('.')
+    
+    // Format the integer part with commas
+    const integerPart = parts[0]
+    const formattedInteger = integerPart ? amountFormatter.format(Number(integerPart)) : '0'
+    
+    // Reattach the decimal part if it exists
+    return parts.length > 1 ? `${formattedInteger}.${parts[1]}` : formattedInteger
 }
 
 function handleAmountInput(event: Event, field: 'min_amount' | 'max_amount') {
     const input = event.target as HTMLInputElement
-    let cursorPosition = input.selectionStart || 0
+    const cursorPosition = input.selectionStart || 0
+    const originalValue = input.value
     
-    let val = input.value
+    // Count commas before cursor to preserve position later
+    const commasBefore = (originalValue.substring(0, cursorPosition).match(/,/g) || []).length
     
-    // Calculate how many commas are before the cursor
-    const commasBeforeCursor = (val.substring(0, cursorPosition).match(/,/g) || []).length
+    // 1. Remove all commas
+    let clean = originalValue.replace(/,/g, '')
     
-    // Strip non-digits and multiple dots
-    const stripped = val.replace(/[^0-9.]/g, '')
-    const parts = stripped.split('.')
-    const rawStr = parts[0] + (parts.length > 1 ? '.' + parts.slice(1).join('') : '')
+    // 2. Handle multiple dots (keep only the first one)
+    const dotIndex = clean.indexOf('.')
+    if (dotIndex !== -1) {
+        clean = clean.substring(0, dotIndex + 1) + clean.substring(dotIndex + 1).replace(/\./g, '')
+    }
     
-    // Update the parent form model
-    props.form[field] = rawStr ? Number(rawStr) : null
+    // 3. Final strip of any other non-numeric chars (except the one allowed dot)
+    clean = clean.replace(/[^0-9.]/g, '')
     
-    // Format the value with commas
-    if (parts[0] !== undefined) parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-    const formatted = parts.join('.')
+    // Update the model
+    props.form[field] = clean === '' ? null : (clean === '.' ? 0 : Number(clean))
     
-    // Set the input value manually to avoid Vue re-render cycle issues
-    input.value = formatted
+    // 4. Format for display
+    const formattedValue = formatValue(clean)
+    input.value = formattedValue
     
-    // Calculate new cursor position
-    const commasAfterFormat = (formatted.substring(0, cursorPosition).match(/,/g) || []).length
-    cursorPosition += (commasAfterFormat - commasBeforeCursor)
+    // 5. Restore cursor position
+    const commasAfter = (formattedValue.substring(0, cursorPosition).match(/,/g) || []).length
+    const newCursorPos = cursorPosition + (commasAfter - commasBefore)
     
-    // Restore cursor position
-    // setTimeout to ensure DOM is updated
     requestAnimationFrame(() => {
-        input.setSelectionRange(cursorPosition, cursorPosition)
+        input.setSelectionRange(newCursorPos, newCursorPos)
     })
 }
 </script>

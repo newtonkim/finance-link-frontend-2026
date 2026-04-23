@@ -4,6 +4,7 @@ import { ref, reactive } from 'vue'
 import { toast } from 'vue-sonner'
 import type { LoanDetail, RescheduleHistoryEntry } from '@/tenant/apis/loans/loansApi'
 import { loansApi } from '@/tenant/apis/loans/loansApi'
+import { loanStatusLabel } from '../utils/loanStatus'
 
 const props = defineProps<{
   loan: LoanDetail
@@ -150,7 +151,7 @@ const saveDates = async () => {
                   class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize"
                   :class="generalStatusColor(loan.status)"
                 >
-                  {{ loan.parent_loan_id && (loan.status === 'disbursed' || loan.status === 'active') ? 'Restructured TopUp' : (loan.status === 'active' ? 'Disbursed' : loan.status) }}
+                  {{ loanStatusLabel(loan) }}
                 </span>
               </div>
             </div>

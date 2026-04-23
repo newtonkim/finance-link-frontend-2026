@@ -9,11 +9,30 @@ export function normalizeAmountInput(raw: string): string {
   const stripped = raw.replace(/[^0-9.,]/g, '')
   const lastComma = stripped.lastIndexOf(',')
   const lastDot = stripped.lastIndexOf('.')
-  if (lastComma > lastDot) {
-    // European format (e.g. "1.234.567,89") — comma is the decimal separator
-    return stripped.replace(/\./g, '').replace(',', '.')
+
+  if (lastComma > -1 && lastDot > -1) {
+    if (lastComma > lastDot) {
+      // European format (e.g. "1.234.567,89") — comma is the decimal separator
+      return stripped.replace(/\./g, '').replace(',', '.')
+    } else {
+      // en-US format (e.g. "1,234.567.89") or plain integer — strip commas
+      return stripped.replace(/,/g, '')
+    }
   }
-  // en-US format (e.g. "1,234,567.89") or plain integer — strip commas
+
+  // If only a comma exists, check if it looks like a thousands separator (3 digits following)
+  if (lastComma > -1) {
+    const parts = stripped.split(',')
+    const lastPart = parts[parts.length - 1]
+    if (parts.length > 2 || lastPart.length === 3) {
+      return stripped.replace(/,/g, '')
+    } else {
+      // Treat as decimal (e.g. "400,50")
+      return stripped.replace(',', '.')
+    }
+  }
+
+  // en-US format or plain integer — strip commas just in case
   return stripped.replace(/,/g, '')
 }
 
