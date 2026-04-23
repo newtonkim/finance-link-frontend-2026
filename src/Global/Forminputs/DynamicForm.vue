@@ -65,12 +65,15 @@ function DatawhistleBlower(newFields: any) {
     emits('results', newFields);
     const NewCollectionSet: any[] = [];
 
-    newFields.forEach((field: any) => {
-        if (field?.fields) {
-            NewCollectionSet.push(...field.fields)
-        } else
-            NewCollectionSet.push(field)
-    })
+    if(!Array.isArray(newFields)) {
+
+        newFields.forEach((field: any) => {
+            if (field?.fields) {
+                NewCollectionSet.push(...field.fields)
+            } else
+                NewCollectionSet.push(field)
+        })
+    }
     // let remove the duplicate in the data  
     /// to sa ve the clean version of the data 
     (Store as any).currentFormValues = Object.values([
