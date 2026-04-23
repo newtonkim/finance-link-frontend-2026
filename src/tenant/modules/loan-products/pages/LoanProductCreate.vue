@@ -19,10 +19,6 @@ import SearchableSelect from '@/Global/SearchableSelect.vue'
 import MultiSearchableSelect from '@/Global/MultiSearchableSelect.vue'
 import {
   formatMoneyValue,
-  amountHint,
-  normalizeAmountInput,
-  parseAmountInput,
-  formatAmountInput,
   previewMoney,
 } from '@/Global'
 import {
@@ -63,12 +59,7 @@ function yesNoClass(enabled: boolean) {
     : 'border border-neutral-200 text-neutral-600 dark:border-neutral-700 dark:text-neutral-300'
 }
 
-const onAmountInput = (field: 'min_amount' | 'max_amount', value: string) => {
-  form.value[field] = parseAmountInput(value)
-}
-
 const previewMoneyLocal = (f: any, r: any) => previewMoney(f, r, formatMoneyValue)
-const amountHintLocal = (r: any) => amountHint(r, formatMoneyValue)
 </script>
 
 <template>
@@ -193,20 +184,15 @@ const amountHintLocal = (r: any) => amountHint(r, formatMoneyValue)
                 >Minimum Amount</label
               >
               <input
-                :value="formatAmountInput(form.min_amount)"
-                type="text"
-                inputmode="decimal"
+                v-model.number="form.min_amount"
+                type="number"
                 min="0"
                 step="0.01"
                 placeholder="0.00"
                 class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
-                @input="onAmountInput('min_amount', ($event.target as HTMLInputElement).value)"
               />
               <p v-if="fieldError('min_amount')" class="mt-1 text-xs text-red-500">
                 {{ fieldError('min_amount') }}
-              </p>
-              <p v-else-if="amountHintLocal(form.min_amount)" class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-                Formatted: {{ amountHintLocal(form.min_amount) }}
               </p>
             </div>
             <div>
@@ -214,20 +200,15 @@ const amountHintLocal = (r: any) => amountHint(r, formatMoneyValue)
                 >Maximum Amount</label
               >
               <input
-                :value="formatAmountInput(form.max_amount)"
-                type="text"
-                inputmode="decimal"
+                v-model.number="form.max_amount"
+                type="number"
                 min="0"
                 step="0.01"
                 placeholder="0.00"
                 class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
-                @input="onAmountInput('max_amount', ($event.target as HTMLInputElement).value)"
               />
               <p v-if="fieldError('max_amount')" class="mt-1 text-xs text-red-500">
                 {{ fieldError('max_amount') }}
-              </p>
-              <p v-else-if="amountHintLocal(form.max_amount)" class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-                Formatted: {{ amountHintLocal(form.max_amount) }}
               </p>
             </div>
             <div>
