@@ -33,7 +33,7 @@
                     <div v-if="Store.showSubmenu === item?.label && item?.children"
                         class="absolute left-full top-0 ml-4 flex z-[9999] transition-all border border-neutral-100 bg-white shadow-xl dark:border-neutral-800 dark:bg-neutral-900/95 backdrop-blur-md rounded-2xl overflow-hidden">
                         <template v-for="(child, index) in item.children" :key="index">
-                            <div v-auth="child?.permissions" class="w-[380px] flex flex-col py-3">
+                            <div v-auth="child?.permissions" class="w-[280px] flex flex-col py-3">
                                 <div
                                     :class="child.titleStyle === 'green'
                                         ? 'px-4 py-2 mx-3 mb-2 rounded-lg bg-nfuko-primary/95 text-white font-bold text-[11px] uppercase tracking-wider'

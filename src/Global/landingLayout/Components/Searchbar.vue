@@ -45,7 +45,7 @@
         </div>
     </div>
     <Teleport to="body" v-if="activeFilter[currentFilteClicked]">
-        {{ filterPosition }}
+        <!-- {{ filterPosition }} -->
 
 
         <!-- PANEL -->

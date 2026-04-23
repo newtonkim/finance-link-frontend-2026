@@ -58,10 +58,12 @@
                 </label>
             </div>
           </td>
-          <td v-for="col in localColumns" :key="col.key" :class="[
+          <td v-for="col in localColumns" :key="col.key"
+        :title="col?.tooltip && item[col?.key]" 
+           :class="[
+          'truncate',
             `${col.key === 'actions' || col.key === 'action' ? 'hide-on-print' : ''}`,
-
-            'px-3 py-3 truncate text-[14px] text-neutral-500 dark:text-neutral-400 capitalize',
+            'px-3 py-3  text-[14px] text-neutral-500 dark:text-neutral-400 capitalize',
             col.sticky ? `sticky z-30 ${col.sticky}-0 dark:bg-neutral-900 bg-white` : '',
             col.class || '',
             col.key === 'actions'
