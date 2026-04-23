@@ -504,7 +504,7 @@ export function companyHeader() {
   `
 }
 
-export function printElementId(IdElement = '', options?: PrintOptions) {
+export function printElementId(IdElement = '', _options?: PrintOptions) {
   const cached = getetSystemBranding()
 
   const getPrintElement = document.getElementById(IdElement)
