@@ -47,33 +47,10 @@ export function useActiveLoans() {
         try {
             const res = await loansApi.summary()
             summary.value = { ...summary.value, ...res.data }
-            await Promise.all([fetchClosedCount(), fetchDisbursedCount()])
         } catch {
             // non-blocking — summary badges just show 0
         } finally {
             summaryLoading.value = false
-        }
-    }
-
-    async function fetchClosedCount() {
-        summary.value.closed = await fetchTotalByStatus('closed')
-    }
-
-    async function fetchDisbursedCount() {
-        const [activeCount, disbursedCount] = await Promise.all([
-            fetchTotalByStatus('active'),
-            fetchTotalByStatus('disbursed'),
-        ])
-        summary.value.disbursed = activeCount + disbursedCount
-    }
-
-    async function fetchTotalByStatus(status: string): Promise<number> {
-        try {
-            const res = await loansApi.list({ tab: 'all', status, per_page: 1, page: 1 })
-            const total = Number((res.data as any)?.meta?.total)
-            return Number.isFinite(total) ? total : 0
-        } catch {
-            return 0
         }
     }
 
@@ -161,10 +138,13 @@ export function useActiveLoans() {
     }
 
     onMounted(() => {
-        void fetchSummary()
-        void fetchBranches()
-        void fetchProducts()
-        void fetch()
+        // Fire all initial requests in parallel — no duplicates
+        void Promise.all([
+            fetchSummary(),
+            fetchBranches(),
+            fetchProducts(),
+            fetch(),
+        ])
     })
 
     return {

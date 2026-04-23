@@ -14,9 +14,7 @@ onMounted(() => {
   saccoBrandingApi.get()
 })
 const Store = pomPinia() as any, route = useRoute()
-const routeKey = computed(() => {
-  return `${route.fullPath}-${Store.activeBranch?.id ?? Store.activeBranch}`
-})
+const routeKey = computed(() => route.fullPath)
 const toggleSubmenu = () => {
     Store.showSubmenu = null
     
