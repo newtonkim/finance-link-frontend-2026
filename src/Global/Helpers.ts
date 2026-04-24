@@ -665,26 +665,26 @@ export function routebuilder(routes: any[] = [], prifix = 'central') {
 export function feedback(res: any, success?: string, fail?: string) {
   let successStatus = false
   let msg: Record<string, any> = {
-    msg: res.error || success,
+    msg: res?.error || success,
     type: 'Error',
     success: successStatus,
   }
 
   if (res?.error) {
-    if (res.error.response?.data?.error) {
-      msg.msg = res.error.response.data.error
-    } else if (res.error.message) {
-      msg.msg = res.error.message
-    } else if (res.error.response?.data?.errors) {
-      const errors = res.error.response.data.errors as Record<string, any>
+    if (res?.error.response?.data?.error) {
+      msg.msg = res?.error.response.data.error
+    } else if (res?.error.message) {
+      msg.msg = res?.error.message
+    } else if (res?.error.response?.data?.errors) {
+      const errors = res?.error.response.data.errors as Record<string, any>
       msg.msg = Object.values(errors)[0][0] || msg.msg
     }
     if (res?.error?.response?.data?.payload?.message) {
-      msg.msg = res.error.response.data.payload.message
+      msg.msg = res?.error.response.data.payload.message
     }
   }
 
-  if (res.error?.message?.includes('403') || res.error?.message?.includes('401')) {
+  if (res?.error?.message?.includes('403') || res?.error?.message?.includes('401')) {
     msg = {
       msg: 'You are not authorized to perform this action',
       type: 'error',
@@ -692,7 +692,7 @@ export function feedback(res: any, success?: string, fail?: string) {
     }
   }
 
-  if (res.code == 200) {
+  if (res?.code == 200) {
     // if (!res || res.code == 200) {
     successStatus = true
     msg = {
@@ -701,6 +701,9 @@ export function feedback(res: any, success?: string, fail?: string) {
       success: successStatus,
     }
   }
+  if(!res)
+    msg.msg = 'Something went wrong'
+  
   notify(msg)
   return {
     success: successStatus,

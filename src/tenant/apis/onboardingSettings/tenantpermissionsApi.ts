@@ -9,7 +9,7 @@ export function tenantpermissionsApi() {
       msg: success,
       type: 'Error',
     }
-    if (!res || res.code == 200) {
+    if (!res || res?.code == 200) {
       msg = {
         msg: fail,
         type: 'Success',
