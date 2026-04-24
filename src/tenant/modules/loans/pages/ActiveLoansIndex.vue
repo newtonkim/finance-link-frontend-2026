@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Search, ChevronLeft, ChevronRight, InboxIcon, Loader2, Eye, Filter, FileText, Download, X, FileSpreadsheet, TrendingUp } from 'lucide-vue-next'
+import { Search, ChevronLeft, ChevronRight, InboxIcon, Loader2, Eye, Filter, FileText, FileSpreadsheet, TrendingUp } from 'lucide-vue-next'
 import { useActiveLoans } from '../composables/useActiveLoans'
 import { useGeneralLoanSettings } from '../../settings/composables/useGeneralLoanSettings'
 import type { LoanTab } from '@/tenant/apis/loans/loansApi'
@@ -9,13 +9,14 @@ import { loansApi } from '@/tenant/apis/loans/loansApi'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import LoanTopupModal from '../components/LoanTopupModal.vue'
+import { isRestructuredTopupLoan, loanStatusLabel } from '../utils/loanStatus'
 
 const router = useRouter()
 
 const {
     loading, loans, meta, filters, activeTab, summary,
-    products, branches,
-    fetch, fetchSummary, switchTab, applyFilters, clearFilters,
+    products,
+    fetch, switchTab, applyFilters, clearFilters,
 } = useActiveLoans()
 
 const { form: settings, fetchSettings: fetchLoanSettings } = useGeneralLoanSettings()
@@ -79,7 +80,7 @@ function exportToPdf() {
         fmtDate(loan.approved_at),
         fmtDate(loan.disbursed_at),
         loan.loan_product?.name ?? '—',
-        statusLabel(loan.status)
+        statusLabel(loan)
     ])
 
     autoTable(doc, {
@@ -113,7 +114,11 @@ function fmtDate(d: string | null | undefined) {
   })
 }
 
-function effectiveStatus(loan: { status: string; is_rescheduled?: boolean }) {
+function effectiveStatus(loan: { status: string; is_rescheduled?: boolean; parent_loan_id?: number | null; topup_type?: string | null; status_label?: string | null; is_topup?: boolean }) {
+  const raw = String(loan.status ?? '').trim().toLowerCase()
+  const rawLabel = String(loan.status_label ?? '').trim().toLowerCase()
+  if (raw === 'restructured' || rawLabel === 'restructured') return 'restructured'
+  if (isRestructuredTopupLoan(loan)) return 'restructured_topup'
   return loan.is_rescheduled ? 'rescheduled' : loan.status
 }
 
@@ -128,6 +133,10 @@ function statusBadge(status: string) {
       return 'bg-red-100 text-red-700'
     case 'rescheduled':
       return 'bg-amber-100 text-amber-700'
+    case 'restructured':
+      return 'bg-neutral-100 text-neutral-600'
+    case 'restructured_topup':
+      return 'bg-blue-100 text-blue-700'
     case 'approved':
       return 'bg-blue-100 text-blue-700'
     case 'submitted':
@@ -139,10 +148,9 @@ function statusBadge(status: string) {
   }
 }
 
-function statusLabel(status: string) {
-  if (status === 'active') return 'Disbursed'
-  if (status === 'rescheduled') return 'Rescheduled'
-  return status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+function statusLabel(loan: { status: string; is_rescheduled?: boolean; parent_loan_id?: number | null; topup_type?: string | null; status_label?: string | null; is_topup?: boolean }) {
+  if (loan.is_rescheduled) return 'Rescheduled'
+  return loanStatusLabel(loan)
 }
 
 const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value; color: string }[] = [
@@ -191,7 +199,7 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
                 : 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400'
             "
           >
-            {{ tab.key === 'topup' ? '—' : summary[tab.countKey]?.toLocaleString() ?? '0' }}
+            {{ summary[tab.countKey]?.toLocaleString() ?? '0' }}
           </span>
         </button>
       </nav>
@@ -199,24 +207,6 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
 
     <!-- Content -->
     <div class="flex-1 overflow-auto p-4 sm:p-6 space-y-4">
-
-      <!-- Coming Soon: Topped Up Loans -->
-      <div
-        v-if="activeTab === 'topup'"
-        class="flex flex-col items-center justify-center py-24 gap-4 text-neutral-400"
-      >
-        <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-neutral-100 dark:bg-neutral-800">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-        </div>
-        <p class="text-base font-semibold text-neutral-600 dark:text-neutral-300">Topped Up Loans</p>
-        <p class="text-sm text-neutral-400 dark:text-neutral-500 text-center max-w-xs">
-          This feature is currently under development. Topped-up loan tracking will be available in a future release.
-        </p>
-      </div>
-
-      <template v-else>
       <!-- Search bar & Export -->
       <div class="flex items-center justify-between gap-3">
         <div class="flex items-center gap-3">
@@ -433,7 +423,7 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
                     class="inline-block rounded px-2 py-0.5 text-xs font-semibold"
                     :class="statusBadge(effectiveStatus(loan))"
                   >
-                    {{ statusLabel(effectiveStatus(loan)) }}
+                    {{ statusLabel(loan) }}
                   </span>
                 </td>
                 <td class="px-4 py-3">
@@ -456,7 +446,7 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
                       View
                     </button>
                     <button
-                      v-if="['active', 'disbursed'].includes(loan.status)"
+                      v-if="['active', 'disbursed'].includes(loan.status) && !isRestructuredTopupLoan(loan)"
                       class="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale"
                       :disabled="!settings.allow_top_up"
                       :title="!settings.allow_top_up ? 'Top-up feature is disabled in settings' : ''"
@@ -502,8 +492,6 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
           </button>
         </div>
       </div>
-      </template>
-
     </div>
   </div>
 

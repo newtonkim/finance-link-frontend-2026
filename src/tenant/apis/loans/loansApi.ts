@@ -77,6 +77,7 @@ export interface ActiveLoan {
   id: number
   loan_no: string
   status: string
+  status_label?: string | null
   principal: string
   principal_formatted: string
   outstanding_balance: string
@@ -100,6 +101,9 @@ export interface ActiveLoan {
   next_due_date: string | null
   next_installment_amount: string | null
   is_rescheduled?: boolean
+  is_topup?: boolean
+  parent_loan_id?: number | null
+  topup_type?: string | null
   reschedule_date?: string | null
   _source?: 'loan' | 'application'
 }
@@ -204,6 +208,8 @@ export interface LoanDetail {
     loan_no: string
     principal_formatted: string
     outstanding_balance_formatted: string
+    outstanding_amount_before_topup?: number | string | null
+    outstanding_amount_before_topup_formatted?: string | null
     status: string
     status_label: string
     disbursed_at: string

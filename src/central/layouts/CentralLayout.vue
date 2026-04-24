@@ -3,7 +3,7 @@
         <AppSidebar />
         <SidebarInset class="bg-[#f8faf9] dark:bg-[#0a0a0a]" @click="toggleSubmenu">
             <TopBar title="Dashboard" />
-            <main class="flex-1 overflow-y-auto">
+            <main class="flex-1 overflow-y-auto ">
                 <router-view />
             </main>
         </SidebarInset>

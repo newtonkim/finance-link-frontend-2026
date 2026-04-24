@@ -25,6 +25,7 @@ import { ref, computed } from 'vue'
 import { settings } from '.'
 import { Plus } from 'lucide-vue-next'
 const statusFilter = ref<'all' | 'sent' | 'pending'>('all')
+const drawerTitle = 'SMS Notification Settings'
 const filters = ['all','sent', 'pending',]
 const tableUrl = computed(() => `settings/notifications/list?channel=sms&status=${statusFilter.value}`)
 const columns = [

@@ -3,6 +3,8 @@ import { ref, watch, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useCurrencyStore } from '@/stores/currency';
 
+import { normalizeAmountInput } from './numericHelpers';
+
 const props = defineProps<{
     modelValue?: any;
     placeholder?: any;
@@ -21,23 +23,20 @@ const displayValue = ref<any>('');
 const formatMoney = (val: string | number | null): string => {
     if (val === null || val === undefined || val === '') return '';
     
-    // Remove all non-numeric characters except decimal point
-    const numericString = String(val).replace(/[^\d.]/g, '');
-    
-    // Handle multiple decimal points (keep only the first one)
-    const parts = numericString.split('.');
-    const wholePart = parts[0] ?? '';
-    const decimalPart = parts.length > 1 ? '.' + (parts[1] ?? '').substring(0, 2) : '';
-    
-    // Add commas to the whole part
-    const formattedWhole = wholePart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    
-    return formattedWhole + decimalPart;
+    // Use the robust normalization before formatting
+    const normalized = normalizeAmountInput(String(val));
+    const n = Number(normalized);
+    if (!Number.isFinite(n)) return String(val);
+
+    return n.toLocaleString('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+    });
 };
 
 // Parse formatted string back to a raw number string
 const parseMoney = (val: string): string => {
-    return val.replace(/,/g, '');
+    return normalizeAmountInput(val);
 };
 
 const handleInput = (event: Event) => {

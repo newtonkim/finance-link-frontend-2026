@@ -43,8 +43,14 @@ defineProps<{
             <div class="font-medium text-neutral-900 dark:text-white">{{ loan.parent_loan.principal_formatted }}</div>
           </div>
           <div class="grid grid-cols-2 px-4 py-2.5 bg-white dark:bg-neutral-900">
-            <div class="font-medium text-neutral-500 dark:text-neutral-400">Outstanding at Top-up</div>
+            <div class="font-medium text-neutral-500 dark:text-neutral-400">Outstanding Principal at Top-up</div>
             <div class="font-bold text-red-600 dark:text-red-400">{{ loan.parent_loan.outstanding_balance_formatted }}</div>
+          </div>
+          <div class="grid grid-cols-2 px-4 py-2.5 bg-white dark:bg-neutral-900">
+            <div class="font-medium text-neutral-500 dark:text-neutral-400">Outstanding amount before Topup</div>
+            <div class="font-bold text-red-600 dark:text-red-400">
+              {{ loan.parent_loan.outstanding_amount_before_topup_formatted || loan.parent_loan.outstanding_balance_formatted }}
+            </div>
           </div>
           <div class="grid grid-cols-2 px-4 py-2.5 bg-white dark:bg-neutral-900">
             <div class="font-medium text-neutral-500 dark:text-neutral-400">Disbursement Date</div>
