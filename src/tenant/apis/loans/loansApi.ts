@@ -278,6 +278,8 @@ export interface RescheduleParams {
   interest_waived?: number
   reschedule_date?: string
   reason: string
+  new_loan_product_id?: number | null
+  apply_other_charges?: boolean
 }
 
 export interface RescheduleHistoryEntry {
