@@ -28,7 +28,7 @@ const eligibilityResults = ref<any>(null)
 
 const form = reactive({
   topup_type: 'consolidated' as 'consolidated' | 'parallel',
-  fresh_cash_amount: 0,
+  requested_amount: 0,
   requested_term: 12,
 })
 
@@ -38,12 +38,15 @@ const currentBalance = computed(() => Number(props.loan?.total_outstanding ?? pr
 const currentPrincipal = computed(() => Number(props.loan?.principal ?? 0))
 const interestRate = computed(() => Number(props.loan?.interest_rate ?? 0))
 
-const projectedTotal = computed(() => {
-  const fresh = Number(form.fresh_cash_amount) || 0
-  return form.topup_type === 'consolidated'
-    ? currentBalance.value + fresh
-    : fresh
+const freshCashAmount = computed(() => {
+  const req = Number(form.requested_amount) || 0
+  if (form.topup_type === 'consolidated') {
+    return Math.max(0, req - currentBalance.value)
+  }
+  return req
 })
+
+const projectedTotal = computed(() => Number(form.requested_amount) || 0)
 
 const estimatedMonthlyInstallment = computed(() => {
   if (!form.requested_term || form.requested_term <= 0) return 0
@@ -65,8 +68,7 @@ function show() {
   open.value = true
   step.value = 1
   eligibilityResults.value = null
-  form.topup_type = 'consolidated'
-  form.fresh_cash_amount = 0
+  form.requested_amount = 0
   form.requested_term = props.loan?.term_months ?? props.loan?.original_term_months ?? 12
 }
 
@@ -76,8 +78,8 @@ function close() {
 }
 
 function goToEligibility() {
-  if (!form.fresh_cash_amount || form.fresh_cash_amount <= 0) {
-    toast.error('Please enter a valid fresh cash amount.')
+  if (!form.requested_amount || form.requested_amount <= 0) {
+    toast.error('Please enter a valid requested amount.')
     return
   }
   if (!form.requested_term || form.requested_term <= 0) {
@@ -93,7 +95,7 @@ async function runEligibility() {
   
   try {
     const res = await loansApi.topupEligibility(props.loan.id, {
-      fresh_cash_amount: form.fresh_cash_amount,
+      fresh_cash_amount: freshCashAmount.value,
       requested_term: form.requested_term,
       topup_type: form.topup_type,
     })
@@ -115,7 +117,7 @@ function goToPreview() {
 async function finalize() {
   try {
     const res = await loansApi.executeTopup(props.loan.id, {
-      fresh_cash_amount: form.fresh_cash_amount,
+      fresh_cash_amount: freshCashAmount.value,
       requested_term: form.requested_term,
       topup_type: form.topup_type,
     })
@@ -224,12 +226,14 @@ defineExpose({ show, close })
           <!-- Amount & Term -->
           <div class="grid grid-cols-2 gap-4">
             <div class="space-y-1.5">
-              <Label class="text-xs font-bold uppercase tracking-wider text-neutral-500">Fresh Cash Amount</Label>
+              <Label class="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                {{ form.topup_type === 'consolidated' ? 'New Loan Principal' : 'Fresh Cash Amount' }}
+              </Label>
               <input
-                v-model.number="form.fresh_cash_amount"
+                v-model.number="form.requested_amount"
                 type="number"
                 min="0"
-                placeholder="e.g. 50000"
+                :placeholder="form.topup_type === 'consolidated' ? 'e.g. 2000000' : 'e.g. 500000'"
                 class="block w-full rounded-xl border border-neutral-200 px-3 py-2.5 text-sm outline-none transition-colors focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800"
               />
             </div>
@@ -257,7 +261,7 @@ defineExpose({ show, close })
               </div>
             </div>
             <p v-if="form.topup_type === 'consolidated'" class="text-[11px] text-neutral-400 mt-2">
-              = Outstanding Balance {{ fmtCurrency(currentBalance) }} + Fresh Cash {{ fmtCurrency(Number(form.fresh_cash_amount) || 0) }}
+              = New Loan {{ fmtCurrency(projectedTotal) }} - Outstanding {{ fmtCurrency(currentBalance) }} = Fresh Cash {{ fmtCurrency(freshCashAmount) }}
             </p>
           </div>
         </div>
@@ -315,16 +319,16 @@ defineExpose({ show, close })
                   <td class="px-4 py-3 font-bold capitalize text-right">{{ form.topup_type }}</td>
                 </tr>
                 <tr>
-                  <td class="px-4 py-3 text-neutral-500 font-medium">Fresh Cash</td>
-                  <td class="px-4 py-3 font-bold text-right">{{ fmtCurrency(Number(form.fresh_cash_amount)) }}</td>
+                  <td class="px-4 py-3 text-neutral-500 font-medium">New Loan Total</td>
+                  <td class="px-4 py-3 font-black text-right text-neutral-900 dark:text-white">{{ fmtCurrency(projectedTotal) }}</td>
                 </tr>
                 <tr v-if="form.topup_type === 'consolidated'">
-                  <td class="px-4 py-3 text-neutral-500 font-medium">+ Outstanding Balance</td>
-                  <td class="px-4 py-3 font-bold text-right text-red-600">{{ fmtCurrency(currentBalance) }}</td>
+                  <td class="px-4 py-3 text-neutral-500 font-medium">Less Outstanding Balance</td>
+                  <td class="px-4 py-3 font-bold text-right text-red-600">- {{ fmtCurrency(currentBalance) }}</td>
                 </tr>
                 <tr class="bg-neutral-50 dark:bg-neutral-800/50">
-                  <td class="px-4 py-3 text-neutral-900 dark:text-white font-bold">New Total Loan</td>
-                  <td class="px-4 py-3 font-black text-right text-neutral-900 dark:text-white">{{ fmtCurrency(projectedTotal) }}</td>
+                  <td class="px-4 py-3 text-neutral-900 dark:text-white font-bold">Fresh Cash Disbursed</td>
+                  <td class="px-4 py-3 font-bold text-right text-emerald-600">{{ fmtCurrency(freshCashAmount) }}</td>
                 </tr>
                 <tr>
                   <td class="px-4 py-3 text-neutral-500 font-medium">Term</td>
