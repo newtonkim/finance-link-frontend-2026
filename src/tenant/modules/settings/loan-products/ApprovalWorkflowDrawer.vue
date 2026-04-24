@@ -36,6 +36,11 @@ defineExpose({ openDrawer })
               </div>
 
               <div v-else class="space-y-8 py-4">
+                <!-- Section: Loan Topups Settings -->
+                <div class="flex items-center gap-2 pb-1 border-b border-neutral-200 dark:border-neutral-700">
+                  <h2 class="text-base font-bold text-neutral-800 dark:text-neutral-100">Loan Topups Settings</h2>
+                </div>
+
                 <!-- Eligibility Rules -->
                 <div class="space-y-4">
                   <div class="flex items-center gap-2">
@@ -110,6 +115,13 @@ defineExpose({ openDrawer })
                       class="h-5 w-5 rounded border-gray-300 text-nfuko-primary focus:ring-nfuko-primary dark:border-gray-600 dark:bg-gray-700"
                     />
                   </label>
+                </div>
+
+                <hr class="border-neutral-100 dark:border-neutral-800" />
+
+                <!-- Section: Loan Rescheduling Settings -->
+                <div class="flex items-center gap-2 pb-1 border-b border-neutral-200 dark:border-neutral-700">
+                  <h2 class="text-base font-bold text-neutral-800 dark:text-neutral-100">Loan Rescheduling Settings</h2>
                 </div>
               </div>
             </div>
