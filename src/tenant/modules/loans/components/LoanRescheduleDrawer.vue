@@ -51,7 +51,7 @@ const loanProductOptions = computed(() =>
 
 onMounted(async () => {
   try {
-    const res = await loanProductsApi.list({ is_active: 'true', per_page: 200 })
+    const res = await loanProductsApi.list({ is_active: '1', per_page: 200 })
     loanProducts.value = res.data?.data ?? []
   } catch {
     // non-fatal
