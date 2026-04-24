@@ -1,6 +1,7 @@
 import { ref, reactive } from 'vue'
 import { toast } from 'vue-sonner'
 import { loanSettingsApi, type LoanSetting } from '@/tenant/apis/settings/loanSettingsApi'
+import { chartOfAccountsApi } from '@/tenant/apis/chartOfAccounts/chartOfAccountsApi'
 
 export type RepaymentAllocationOrder = LoanSetting['repayment_allocation_order']
 
@@ -24,6 +25,34 @@ interface LoanSettingsForm {
   topup_repayment_basis: 'principal' | 'principal_interest' | 'outstanding_balance'
   topup_min_percentage: number
   topup_auto_disbursement: boolean
+
+  max_reschedule_count: number
+
+  reschedule_fee_income_account_id: number | null
+
+  reschedule_fee_enabled: boolean
+  reschedule_fee_type: 'flat' | 'percentage'
+  reschedule_fee_amount: number
+  reschedule_fee_basis: string | null
+  reschedule_fee_collection: 'savings' | 'capitalize' | 'cash'
+
+  reschedule_product_change_fee_enabled: boolean
+  reschedule_product_change_fee_type: 'flat' | 'percentage'
+  reschedule_product_change_fee_amount: number
+  reschedule_product_change_fee_basis: string | null
+  reschedule_product_change_fee_collection: 'savings' | 'capitalize' | 'cash'
+
+  reschedule_same_product_fee_enabled: boolean
+  reschedule_same_product_fee_type: 'flat' | 'percentage'
+  reschedule_same_product_fee_amount: number
+  reschedule_same_product_fee_basis: string | null
+  reschedule_same_product_fee_collection: 'savings' | 'capitalize' | 'cash'
+
+  reschedule_other_charges_enabled: boolean
+  reschedule_other_charges_type: 'flat' | 'percentage'
+  reschedule_other_charges_amount: number
+  reschedule_other_charges_basis: string | null
+  reschedule_other_charges_collection: 'savings' | 'capitalize' | 'cash'
 }
 
 // Global state for singleton pattern
@@ -32,6 +61,9 @@ const loading = ref(false)
 const saving = ref(false)
 const hasLoaded = ref(false)
 const baseline = ref('')
+
+const chartAccountOptions = ref<Array<{ id: number; name: string }>>([])
+let accountsLoaded = false
 
 const form = reactive<LoanSettingsForm>({
   charge_deduction_mode: 'deduct_from_principal',
@@ -46,6 +78,34 @@ const form = reactive<LoanSettingsForm>({
   topup_repayment_basis: 'principal_interest',
   topup_min_percentage: 40,
   topup_auto_disbursement: false,
+
+  max_reschedule_count: 3,
+
+  reschedule_fee_income_account_id: null,
+
+  reschedule_fee_enabled: false,
+  reschedule_fee_type: 'flat' as const,
+  reschedule_fee_amount: 0,
+  reschedule_fee_basis: null,
+  reschedule_fee_collection: 'cash' as const,
+
+  reschedule_product_change_fee_enabled: false,
+  reschedule_product_change_fee_type: 'flat' as const,
+  reschedule_product_change_fee_amount: 0,
+  reschedule_product_change_fee_basis: null,
+  reschedule_product_change_fee_collection: 'cash' as const,
+
+  reschedule_same_product_fee_enabled: false,
+  reschedule_same_product_fee_type: 'flat' as const,
+  reschedule_same_product_fee_amount: 0,
+  reschedule_same_product_fee_basis: null,
+  reschedule_same_product_fee_collection: 'cash' as const,
+
+  reschedule_other_charges_enabled: false,
+  reschedule_other_charges_type: 'flat' as const,
+  reschedule_other_charges_amount: 0,
+  reschedule_other_charges_basis: null,
+  reschedule_other_charges_collection: 'cash' as const,
 })
 
 export function useGeneralLoanSettings() {
@@ -90,11 +150,53 @@ export function useGeneralLoanSettings() {
       topup_repayment_basis: form.topup_repayment_basis,
       topup_min_percentage: Number(form.topup_min_percentage ?? 40),
       topup_auto_disbursement: Boolean(form.topup_auto_disbursement),
+
+      max_reschedule_count: Number(form.max_reschedule_count ?? 3),
+
+      reschedule_fee_income_account_id: form.reschedule_fee_income_account_id,
+
+      reschedule_fee_enabled: Boolean(form.reschedule_fee_enabled),
+      reschedule_fee_type: form.reschedule_fee_type,
+      reschedule_fee_amount: Number(form.reschedule_fee_amount ?? 0),
+      reschedule_fee_basis: form.reschedule_fee_basis,
+      reschedule_fee_collection: form.reschedule_fee_collection,
+
+      reschedule_product_change_fee_enabled: Boolean(form.reschedule_product_change_fee_enabled),
+      reschedule_product_change_fee_type: form.reschedule_product_change_fee_type,
+      reschedule_product_change_fee_amount: Number(form.reschedule_product_change_fee_amount ?? 0),
+      reschedule_product_change_fee_basis: form.reschedule_product_change_fee_basis,
+      reschedule_product_change_fee_collection: form.reschedule_product_change_fee_collection,
+
+      reschedule_same_product_fee_enabled: Boolean(form.reschedule_same_product_fee_enabled),
+      reschedule_same_product_fee_type: form.reschedule_same_product_fee_type,
+      reschedule_same_product_fee_amount: Number(form.reschedule_same_product_fee_amount ?? 0),
+      reschedule_same_product_fee_basis: form.reschedule_same_product_fee_basis,
+      reschedule_same_product_fee_collection: form.reschedule_same_product_fee_collection,
+
+      reschedule_other_charges_enabled: Boolean(form.reschedule_other_charges_enabled),
+      reschedule_other_charges_type: form.reschedule_other_charges_type,
+      reschedule_other_charges_amount: Number(form.reschedule_other_charges_amount ?? 0),
+      reschedule_other_charges_basis: form.reschedule_other_charges_basis,
+      reschedule_other_charges_collection: form.reschedule_other_charges_collection,
     }
   }
 
   function snapshot(value: LoanSettingsForm): string {
     return JSON.stringify(value)
+  }
+
+  async function loadChartAccounts() {
+    if (accountsLoaded) return
+    try {
+      const res = await chartOfAccountsApi.list({ list: 1 })
+      chartAccountOptions.value = (res.data?.data ?? []).map((a: any) => ({
+        id: a.id,
+        name: `${a.code ?? a.gl_code ?? ''} — ${a.name}`,
+      }))
+      accountsLoaded = true
+    } catch {
+      // non-fatal — account picker will be empty
+    }
   }
 
   async function openDrawer() {
@@ -118,6 +220,7 @@ export function useGeneralLoanSettings() {
         baseline.value = snapshot(toPayload())
         hasLoaded.value = true
       }
+      void loadChartAccounts()
     } catch (error) {
       toast.error('Failed to load loan settings.')
     } finally {
@@ -157,9 +260,11 @@ export function useGeneralLoanSettings() {
     saving,
     form,
     repaymentAllocationOptions,
+    chartAccountOptions,
     fetchSettings,
     openDrawer,
     closeDrawer,
     save,
+    loadChartAccounts,
   }
 }
