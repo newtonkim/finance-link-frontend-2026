@@ -51,7 +51,7 @@ const drawerOpen = ref(false),
   drawerTitle = ref(''),
   pages: Record<string, any> = {
     approval: {
-      title: 'Loan TopUp Settings',
+      title: 'Loan Topups & Rescheduling Settings',
       page: ApprovalWorkflowDrawer,
     },
     disbursement: {
