@@ -6,7 +6,7 @@ import { useGeneralLoanSettings } from '../composables/useGeneralLoanSettings'
 
 const emit = defineEmits(['close'])
 
-const { showDrawer, loading, saving, form, fetchSettings, openDrawer, closeDrawer, save } =
+const { showDrawer, loading, saving, form, chartAccountOptions, fetchSettings, openDrawer, closeDrawer, save } =
   useGeneralLoanSettings()
 
 onMounted(() => {

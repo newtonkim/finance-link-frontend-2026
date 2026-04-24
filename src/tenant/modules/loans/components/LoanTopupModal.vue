@@ -53,9 +53,10 @@ const estimatedMonthlyInstallment = computed(() => {
 })
 
 const repaidPercent = computed(() => {
-  if (currentPrincipal.value <= 0) return 0
-  const paid = currentPrincipal.value - currentBalance.value
-  return Math.max(0, Math.min(100, (paid / currentPrincipal.value) * 100))
+  const total = Number(props.loan?.total_expected ?? 0)
+  const paid = Number(props.loan?.total_paid ?? 0)
+  if (total <= 0) return 0
+  return Math.max(0, Math.min(100, (paid / total) * 100))
 })
 
 // ── Methods ───────────────────────────────────────────────────────────────────

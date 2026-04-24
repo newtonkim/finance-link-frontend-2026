@@ -171,8 +171,10 @@ export interface LoanDetail {
   net_disbursed_amount_formatted: string
   outstanding_balance: string
   outstanding_balance_formatted: string
-  total_outstanding?: string | number
-  total_outstanding_formatted?: string
+  total_outstanding: number
+  total_outstanding_formatted: string
+  total_paid: number
+  total_expected: number
   interest_rate: string
   term_months: number
   disbursed_at: string
