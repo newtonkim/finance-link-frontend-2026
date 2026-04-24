@@ -54,32 +54,27 @@ onMounted(() => {
 
     if (props.action == 'add')
         prfields.value = prfields.value.map((f: any) => ({ value: null, ...f }))
-    remountComponent.value = false;
-    (Store as any).isFormSubmitted = false
+    remountComponent.value = false
+    Store.isFormSubmitted = false
 })
 const avatarPreviews = ref<Record<number, string>>({});
 
 const inputClass = 'w-full rounded-lg border focus:border-nfuko-primary/50 focus:ring-1    bg-white px-3 py-2.5 text-sm outline-none transition  border-nfuko-primary/10 focus:ring-1 focus:ring-bg-nfuko-primary/90 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#8ba8a2]/90 dark:focus:ring-[#8ba8a2]/90';
-function DatawhistleBlower(newFields: any) {
+function DatawhistleBlower(newFields) {
     emits('update:form', newFields);
     emits('results', newFields);
-    // console.log(newFields);
-    
-    const NewCollectionSet: any[] = [];
+    const NewCollectionSet = [];
 
-    if(!Array.isArray(newFields)) {
-
-        newFields.forEach((field: any) => {
-            if (field?.fields) {
-                NewCollectionSet.push(...field.fields)
-            } else
-                NewCollectionSet.push(field)
-        })
-    }
+    newFields.forEach((field: any) => {
+        if (field?.fields) {
+            NewCollectionSet.push(...field.fields)
+        } else
+            NewCollectionSet.push(field)
+    })
     // let remove the duplicate in the data  
     /// to sa ve the clean version of the data 
     Store.currentFormValues = Object.values([
-        ...(Array.isArray((Store as any).currentFormValues) ? Store.currentFormValues : []),
+        ...(Array.isArray(Store.currentFormValues) ? Store.currentFormValues : []),
         ...NewCollectionSet
     ].reduce((acc: any, item: any) => {
         acc[item.name] = item;
@@ -145,7 +140,7 @@ function FormValidate() {
 
 
     }
-    (Store as any).isFormSubmitted = false
+    Store.isFormSubmitted = false
     return data.some((field: any) => {
         if (field.error) {
             console.log(field);
@@ -252,7 +247,7 @@ function shouldShowField(field: any) {
             <template v-for="(field, index) in prfields" :key="index" class="pom ">
                 <template v-if="shouldShowField(field)">
                     <template v-if="field.group >= 0">
-                        <div  :class="[field?.class,'capitalize']">{{field?.label?.toLowerCase().replace(/^./, (c: any) =>
+                        <div  :class="[field?.class,'capitalize']">{{field?.label?.toLowerCase().replace(/^./, c =>
                             c.toUpperCase())}}
                         </div>
                         <DynamicForm :parentStyle="getGridClass(field.group ?? field?.fields?.length)"
@@ -262,7 +257,7 @@ function shouldShowField(field: any) {
                 <div v-else  :class="[field.hidden ? 'hidden' : '',field?.class]">
 
                     <FormField  class="capitalize"
-                        :label="field?.label?.toLowerCase().replace(/^./, (c: any) => c.toUpperCase())"
+                        :label="field?.label?.toLowerCase().replace(/^./, c => c.toUpperCase())"
                         :required="field.required" :html-for="field.name" :error="field.error"
                         :showError="field?.showError">
                         <slot name='field.name' v-if='$slots[field.name]' />
@@ -273,7 +268,7 @@ function shouldShowField(field: any) {
                                     <input :id="field.name" v-bind="field" v-model="field.value"
                                         class="rounded-xl cursor-pointer   hover:border-nfuko-primary-300 hover:bg-nfuko-primary-50 dark:hover:bg-neutral-800 transition group"
                                         :class="[inputClass, field?.class, field.suffix ? 'flex-1 rounded-xl rounded-r-none border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white' : '']"
-                                        @input="() => field?.change && handleChange(field, Number(index))" />
+                                        @input="() => field?.change && handleChange(field, index)" />
                                     <div v-if="field?.suffix"
                                         class="px-2 flex items-center bg-neutral-100 dark:bg-red-200 border border-l-0 rounded-xl rounded-l-none text-sm text-neutral-500 dark:text-neutral-400 font-medium">
                                         {{ field.suffix }}
@@ -286,7 +281,7 @@ function shouldShowField(field: any) {
                                 <textarea :id="field.name" v-model="field.value"
                                     :class="[inputClass, field?.class, 'resize-y min-h-[80px]']"
                                     v-bind="field.props ?? field"
-                                    @input="() => field?.change && handleChange(field, Number(index))" />
+                                    @input="() => field?.change && handleChange(field, index)" />
                             </template>
 
                             <!-- Select -->
@@ -295,21 +290,21 @@ function shouldShowField(field: any) {
                                 :class="[field?.class]"
                                 v-model="field.value" :options="field.options || []"
                                     :placeholder="field?.placeholder || ''" v-model:item-selected="field.selected"
-                                    @update:modelValue="() => handleChange(field, Number(index))" v-bind="field" />
+                                    @update:modelValue="() => handleChange(field, index)" v-bind="field" />
                             </template>
                             <template v-else-if="field.type === 'multi-select'">
                                 <MultiSearchableSelect
                                 :class="[field?.class]"
                                  v-model="field.value" :options="field.options || []"
                                     :placeholder="field?.placeholder || ''" v-model:item-selected="field.selected"
-                                    @update:modelValue="() => handleChange(field, Number(index))" v-bind="field" />
+                                    @update:modelValue="() => handleChange(field, index)" v-bind="field" />
                             </template>
                             <template v-else-if="field.type === 'nationality'">
                                 <SearchableSelect
                                 :class="[field?.class]"
                                  v-model="field.value" :options="field.options || nationalityOptions"
                                     :placeholder="field.props?.placeholder || ''" v-model:item-selected="field.selected"
-                                    @update:modelValue="() => handleChange(field, Number(index))" v-bind="field" />
+                                    @update:modelValue="() => handleChange(field, index)" v-bind="field" />
                             </template>
 
                             <!-- Phone -->
@@ -317,7 +312,7 @@ function shouldShowField(field: any) {
                                 <PhoneInput
                                 :BigClass="[field?.class]"
                                  v-model="field.value" :placeholder="field.props?.placeholder || ''"
-                                    @input="() => field?.change && handleChange(field, Number(index))" v-bind="field" />
+                                    @input="() => field?.change && handleChange(field, index)" v-bind="field" />
                             </template>
 
                             <!-- Money -->
@@ -327,9 +322,9 @@ function shouldShowField(field: any) {
                                         class="px-2 flex items-center border-gray-300 bg-neutral-100 dark:bg-red-200 border border-l-0 rounded-xl rounded-r-none text-sm text-neutral-500 dark:text-neutral-400 font-medium">
                                         {{ field.suffix }}
                                     </div>
-                                    <MoneyInput :class="[field?.class, field.suffix ? ' rounded-xl rounded-l-none ' : ''].join(' ')"
+                                    <MoneyInput :class="[field?.class, field.suffix ? ' rounded-xl rounded-l-none ' : '']"
                                         :id="field.name" v-model="field.value" :placeholder="field?.placeholder || ''"
-                                        @input="() => field?.change && handleChange(field, Number(index))" />
+                                        @input="() => field?.change && handleChange(field, index)" />
                                     <!-- {{ field.error }} -->
                                     <div v-if="field.error" class="mt-2 px-1 text-xs text-red-500 font-medium">{{
                                         field.error }}</div>
@@ -339,7 +334,7 @@ function shouldShowField(field: any) {
                             <template v-else-if="field.type === 'datec'">
 
                                 <DatePicker :id="field.name" v-model="field.value" v-bind="field" :class="[field?.class]"
-                                    @input="() => field?.change && handleChange(field, Number(index))" />
+                                    @input="() => field?.change && handleChange(field, index)" />
                             </template>
 
                             <!-- Avatar -->
@@ -347,14 +342,14 @@ function shouldShowField(field: any) {
                                 <div class="flex items-center gap-4 mt-2" :class="[field?.class]">
                                     <div
                                         class="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700">
-                                        <img v-if="avatarPreviews[Number(index)] || field.value"
-                                            :src="avatarPreviews[Number(index)] || field.value" alt="Avatar"
+                                        <img v-if="avatarPreviews[index] || field.value"
+                                            :src="avatarPreviews[index] || field.value" alt="Avatar"
                                             class="h-full w-full object-cover" />
                                         <UserCircle2 v-else :size="32" class="text-neutral-400" />
                                     </div>
                                     <div class="flex-1">
                                         <input type="file" accept="image/*"
-                                            @change="(e) => handleAvatarChange(field, Number(index), e)"
+                                            @change="(e) => handleAvatarChange(field, index, e)"
                                             class="block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#10C469]/10 file:text-[#10C469] hover:file:bg-[#10C469]/20 transition-colors" />
                                         <p class="text-xs text-neutral-400 mt-1">Recommended: Square image, max 2MB.</p>
                                     </div>
@@ -368,7 +363,7 @@ function shouldShowField(field: any) {
                                 <input type="text" v-model="field.value" :class="[field?.class, inputClass]"
                                     v-bind="field.props ?? field"
                                     class="rounded-xl cursor-pointer   hover:border-nfuko-primary-300 hover:bg-nfuko-primary-50 dark:hover:bg-neutral-800 transition group"
-                                    @input="() => field?.change && handleChange(field, Number(index))" />
+                                    @input="() => field?.change && handleChange(field, index)" />
                             </template>
 
                         </span>
