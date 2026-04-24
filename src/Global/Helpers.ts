@@ -605,7 +605,7 @@ export function getTenantSubdomain(): string | null {
   // e.g. "abc.staging.mfukoplus.com" or "abc.mfukoplus.com"
   if (hostname.endsWith(`.${centralDomain}`)) {
     const subdomain = hostname.slice(0, -(centralDomain.length + 1))
-    if (!subdomain || ['admin', 'www', 'localhost'].includes(subdomain)) return null
+    if (!subdomain || ['admin', 'www', 'localhost', 'api', 'central'].includes(subdomain)) return null
     return subdomain
   }
 
