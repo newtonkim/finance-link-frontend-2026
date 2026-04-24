@@ -63,6 +63,8 @@ const inputClass = 'w-full rounded-lg border focus:border-nfuko-primary/50 focus
 function DatawhistleBlower(newFields: any) {
     emits('update:form', newFields);
     emits('results', newFields);
+    // console.log(newFields);
+    
     const NewCollectionSet: any[] = [];
 
     if(!Array.isArray(newFields)) {
@@ -76,8 +78,8 @@ function DatawhistleBlower(newFields: any) {
     }
     // let remove the duplicate in the data  
     /// to sa ve the clean version of the data 
-    (Store as any).currentFormValues = Object.values([
-        ...(Array.isArray((Store as any).currentFormValues) ? (Store as any).currentFormValues : []),
+    Store.currentFormValues = Object.values([
+        ...(Array.isArray((Store as any).currentFormValues) ? Store.currentFormValues : []),
         ...NewCollectionSet
     ].reduce((acc: any, item: any) => {
         acc[item.name] = item;
@@ -94,11 +96,11 @@ watch(
     },
     { deep: true }
 );
-const isTriggered = computed(() => props.isSubmitted || (Store as any).isFormSubmitted)
+const isTriggered = computed(() => props.isSubmitted || Store.isFormSubmitted)
 
 watch(isTriggered, (val) => {
     if (val)
-        (Store as any).AnyErrorsFoundInTheFOrm = FormValidate()
+        Store.AnyErrorsFoundInTheFOrm = FormValidate()
 })
 
 const handleChange = (field: any, index: number) => {
