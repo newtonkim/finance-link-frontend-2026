@@ -167,7 +167,7 @@ export default function useTableHelpers(props: any, emit: any) {
       data: formDataScoping,
       props: {
         ...props,
-        state: props?.state + '_' + customeUrl,
+        state: props?.state ,
         url: createUrl(props?.url, customeUrl),
       },
       Store,
