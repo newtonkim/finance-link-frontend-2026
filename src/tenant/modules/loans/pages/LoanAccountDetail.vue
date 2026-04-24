@@ -68,6 +68,7 @@ const {
   currency,
   principalDisplay,
   outstandingDisplay,
+  totalOutstandingDisplay,
   netDisbursedDisplay,
   totalAmountPaidDisplay,
   interestMethodLabel,
