@@ -34,7 +34,7 @@ const form = reactive({
 
 // ── Computed helpers ──────────────────────────────────────────────────────────
 
-const currentBalance = computed(() => Number(props.loan?.outstanding_balance ?? 0))
+const currentBalance = computed(() => Number(props.loan?.total_outstanding ?? props.loan?.outstanding_balance ?? 0))
 const currentPrincipal = computed(() => Number(props.loan?.principal ?? 0))
 const interestRate = computed(() => Number(props.loan?.interest_rate ?? 0))
 
@@ -182,7 +182,7 @@ defineExpose({ show, close })
                 <span class="font-bold">{{ fmtCurrency(currentPrincipal) }}</span>
               </div>
               <div>
-                <span class="text-neutral-500 block text-[11px]">Outstanding</span>
+                <span class="text-neutral-500 block text-[11px]">Outstanding Balance</span>
                 <span class="font-bold text-red-600">{{ fmtCurrency(currentBalance) }}</span>
               </div>
               <div>
@@ -257,7 +257,7 @@ defineExpose({ show, close })
               </div>
             </div>
             <p v-if="form.topup_type === 'consolidated'" class="text-[11px] text-neutral-400 mt-2">
-              = Outstanding {{ fmtCurrency(currentBalance) }} + Fresh Cash {{ fmtCurrency(Number(form.fresh_cash_amount) || 0) }}
+              = Outstanding Balance {{ fmtCurrency(currentBalance) }} + Fresh Cash {{ fmtCurrency(Number(form.fresh_cash_amount) || 0) }}
             </p>
           </div>
         </div>
@@ -319,7 +319,7 @@ defineExpose({ show, close })
                   <td class="px-4 py-3 font-bold text-right">{{ fmtCurrency(Number(form.fresh_cash_amount)) }}</td>
                 </tr>
                 <tr v-if="form.topup_type === 'consolidated'">
-                  <td class="px-4 py-3 text-neutral-500 font-medium">+ Current Balance</td>
+                  <td class="px-4 py-3 text-neutral-500 font-medium">+ Outstanding Balance</td>
                   <td class="px-4 py-3 font-bold text-right text-red-600">{{ fmtCurrency(currentBalance) }}</td>
                 </tr>
                 <tr class="bg-neutral-50 dark:bg-neutral-800/50">

@@ -25,10 +25,9 @@ interface LoanSettingsForm {
   topup_repayment_basis: 'principal' | 'principal_interest' | 'outstanding_balance'
   topup_min_percentage: number
   topup_auto_disbursement: boolean
+
   max_reschedule_count: number
-
   reschedule_fee_income_account_id: number | null
-
   reschedule_fee_enabled: boolean
   reschedule_fee_type: 'flat' | 'percentage'
   reschedule_fee_amount: number
@@ -77,27 +76,22 @@ const form = reactive<LoanSettingsForm>({
   topup_min_percentage: 40,
   topup_auto_disbursement: false,
   max_reschedule_count: 3,
-
   reschedule_fee_income_account_id: null,
-
   reschedule_fee_enabled: false,
   reschedule_fee_type: 'flat' as const,
   reschedule_fee_amount: 0,
   reschedule_fee_basis: null,
   reschedule_fee_collection: 'cash' as const,
-
   reschedule_product_change_fee_enabled: false,
   reschedule_product_change_fee_type: 'flat' as const,
   reschedule_product_change_fee_amount: 0,
   reschedule_product_change_fee_basis: null,
   reschedule_product_change_fee_collection: 'cash' as const,
-
   reschedule_same_product_fee_enabled: false,
   reschedule_same_product_fee_type: 'flat' as const,
   reschedule_same_product_fee_amount: 0,
   reschedule_same_product_fee_basis: null,
   reschedule_same_product_fee_collection: 'cash' as const,
-
   reschedule_other_charges_enabled: false,
   reschedule_other_charges_type: 'flat' as const,
   reschedule_other_charges_amount: 0,
@@ -148,27 +142,22 @@ export function useGeneralLoanSettings() {
       topup_min_percentage: Number(form.topup_min_percentage ?? 40),
       topup_auto_disbursement: Boolean(form.topup_auto_disbursement),
       max_reschedule_count: Number(form.max_reschedule_count ?? 3),
-
       reschedule_fee_income_account_id: form.reschedule_fee_income_account_id,
-
       reschedule_fee_enabled: Boolean(form.reschedule_fee_enabled),
       reschedule_fee_type: form.reschedule_fee_type,
       reschedule_fee_amount: Number(form.reschedule_fee_amount ?? 0),
       reschedule_fee_basis: form.reschedule_fee_basis,
       reschedule_fee_collection: form.reschedule_fee_collection,
-
       reschedule_product_change_fee_enabled: Boolean(form.reschedule_product_change_fee_enabled),
       reschedule_product_change_fee_type: form.reschedule_product_change_fee_type,
       reschedule_product_change_fee_amount: Number(form.reschedule_product_change_fee_amount ?? 0),
       reschedule_product_change_fee_basis: form.reschedule_product_change_fee_basis,
       reschedule_product_change_fee_collection: form.reschedule_product_change_fee_collection,
-
       reschedule_same_product_fee_enabled: Boolean(form.reschedule_same_product_fee_enabled),
       reschedule_same_product_fee_type: form.reschedule_same_product_fee_type,
       reschedule_same_product_fee_amount: Number(form.reschedule_same_product_fee_amount ?? 0),
       reschedule_same_product_fee_basis: form.reschedule_same_product_fee_basis,
       reschedule_same_product_fee_collection: form.reschedule_same_product_fee_collection,
-
       reschedule_other_charges_enabled: Boolean(form.reschedule_other_charges_enabled),
       reschedule_other_charges_type: form.reschedule_other_charges_type,
       reschedule_other_charges_amount: Number(form.reschedule_other_charges_amount ?? 0),
@@ -181,15 +170,6 @@ export function useGeneralLoanSettings() {
     return JSON.stringify(value)
   }
 
-  async function openDrawer() {
-    showDrawer.value = true
-    await fetchSettings(true)
-  }
-
-  function closeDrawer() {
-    showDrawer.value = false
-  }
-
   async function loadChartAccounts() {
     if (accountsLoaded) return
     try {
@@ -200,8 +180,17 @@ export function useGeneralLoanSettings() {
       }))
       accountsLoaded = true
     } catch {
-      // non-fatal — account picker will be empty
+      // non-fatal
     }
+  }
+
+  async function openDrawer() {
+    showDrawer.value = true
+    await fetchSettings(true)
+  }
+
+  function closeDrawer() {
+    showDrawer.value = false
   }
 
   async function fetchSettings(force = false) {
