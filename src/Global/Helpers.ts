@@ -586,13 +586,31 @@ export function useInitials(): UseInitialsReturn {
 
 export function getTenantSubdomain(): string | null {
   const hostname = window.location.hostname
-  if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) return null
-  const parts = hostname.split('.')
-  // console.log(parts);
 
-  const subdomain = parts.length >= 2 ? parts[0] : null
-  if (!subdomain || ['admin', 'www', 'localhost'].includes(subdomain)) return null
-  return subdomain
+  // Ignore raw IP addresses
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) return null
+
+  // Extract the central domain from env (strips http:// if present)
+  // staging: "staging.mfukoplus.com"
+  // production: "mfukoplus.com"
+  const centralDomain = (import.meta.env.VITE_BASE_URL as string)
+    ?.replace(/^https?:\/\//, '')
+    .replace(/\/$/, '')
+    .toLowerCase()
+
+  // If hostname exactly matches central domain → not a tenant
+  if (!centralDomain || hostname === centralDomain) return null
+
+  // If hostname ends with .{centralDomain} → extract the subdomain prefix
+  // e.g. "abc.staging.mfukoplus.com" or "abc.mfukoplus.com"
+  if (hostname.endsWith(`.${centralDomain}`)) {
+    const subdomain = hostname.slice(0, -(centralDomain.length + 1))
+    if (!subdomain || ['admin', 'www', 'localhost'].includes(subdomain)) return null
+    return subdomain
+  }
+
+  // Hostname doesn't match central domain at all — fail safe
+  return null
 }
 
 export function getSubdomainName() {

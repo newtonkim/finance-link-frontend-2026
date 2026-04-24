@@ -280,7 +280,8 @@ export function useActiveLoans() {
                 meta.total = knownTopup > 0
                     ? Math.max(0, Number(summary.value.disbursed ?? 0) - knownTopup)
                     : Number(summary.value.disbursed ?? meta.total)
-            }
+
+                  }
         } catch {
             toast.error('Failed to load loans.')
         } finally {
