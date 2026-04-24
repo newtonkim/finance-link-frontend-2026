@@ -680,6 +680,9 @@ export function feedback(res: any, success?: string, fail?: string) {
       success: successStatus,
     }
   }
+  if(!res)
+    msg.msg = 'Something went wrong'
+  
   notify(msg)
   return {
     success: successStatus,

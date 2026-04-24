@@ -144,6 +144,8 @@ export async function fetchTableData({
     axiosInstance: interceptor,
     mStore: { mUse: saveData ?? true },
   }
+      console.log({collection});
+
 
   return await Store.stateGenaratorApi(collection)
 }

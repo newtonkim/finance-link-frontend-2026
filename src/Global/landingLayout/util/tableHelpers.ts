@@ -173,7 +173,7 @@ export default function useTableHelpers(props: any, emit: any) {
       Store,
     })
     const response = feedback(res)
-    //   console.log(response);
+      console.log({response,data});
 
     if (response.success) {
       Store[props?.state] = res;
@@ -195,8 +195,8 @@ export default function useTableHelpers(props: any, emit: any) {
   async function saveDrawerData(data: any) {
     // alert()
     (Store as any).isFormSubmitted = true
-    const AnyErrorsFoundInTheFOrm = (Store as any).AnyErrorsFoundInTheFOrm
-    const formdata = (Store as any).currentFormValues
+    const AnyErrorsFoundInTheFOrm = Store.AnyErrorsFoundInTheFOrm
+    const formdata = Store.currentFormValues
 
     // if (AnyErrorsFoundInTheFOrm == undefined) {
 
