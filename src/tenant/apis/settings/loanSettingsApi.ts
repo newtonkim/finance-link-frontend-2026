@@ -1,6 +1,10 @@
 import type { AxiosResponse } from 'axios'
 import { tenantClient } from '../tenantClient'
 
+export type RescheduleChargeType = 'flat' | 'percentage'
+export type RescheduleChargeBasis = 'outstanding_balance' | 'new_principal' | 'original_disbursed'
+export type RescheduleChargeCollection = 'savings' | 'capitalize' | 'cash'
+
 export interface LoanSetting {
   id: number
   branch_id: number
@@ -22,6 +26,35 @@ export interface LoanSetting {
   topup_repayment_basis: 'principal' | 'principal_interest' | 'outstanding_balance'
   topup_min_percentage: number
   topup_auto_disbursement: boolean
+
+  max_reschedule_count: number
+
+  // Reschedule charge settings
+  reschedule_fee_income_account_id: number | null
+
+  reschedule_fee_enabled: boolean
+  reschedule_fee_type: RescheduleChargeType
+  reschedule_fee_amount: number
+  reschedule_fee_basis: RescheduleChargeBasis | null
+  reschedule_fee_collection: RescheduleChargeCollection
+
+  reschedule_product_change_fee_enabled: boolean
+  reschedule_product_change_fee_type: RescheduleChargeType
+  reschedule_product_change_fee_amount: number
+  reschedule_product_change_fee_basis: RescheduleChargeBasis | null
+  reschedule_product_change_fee_collection: RescheduleChargeCollection
+
+  reschedule_same_product_fee_enabled: boolean
+  reschedule_same_product_fee_type: RescheduleChargeType
+  reschedule_same_product_fee_amount: number
+  reschedule_same_product_fee_basis: RescheduleChargeBasis | null
+  reschedule_same_product_fee_collection: RescheduleChargeCollection
+
+  reschedule_other_charges_enabled: boolean
+  reschedule_other_charges_type: RescheduleChargeType
+  reschedule_other_charges_amount: number
+  reschedule_other_charges_basis: RescheduleChargeBasis | null
+  reschedule_other_charges_collection: RescheduleChargeCollection
 }
 
 type LoanSettingResponse = AxiosResponse<{ data: LoanSetting }>
