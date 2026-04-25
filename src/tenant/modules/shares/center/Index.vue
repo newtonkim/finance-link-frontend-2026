@@ -64,7 +64,9 @@ const router = useRouter(), drawer = ref<any>(null),
 function submitData(end: string = '') {
     SellSharesApi(end, formData.value).then(v => {
         if (v?.code == 200)
+        statusFilter.value = "y"
             drawer.value?.toggleDrawer()
+        statusFilter.value = ''
     })
 }
 function saveUser(type: string, data: any) {
