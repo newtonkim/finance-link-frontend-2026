@@ -173,7 +173,7 @@ export default function useTableHelpers(props: any, emit: any) {
       Store,
     })
     const response = feedback(res)
-      console.log({response,data});
+      // console.log({response,data});
 
     if (response.success) {
       Store[props?.state] = res;
@@ -339,15 +339,14 @@ export default function useTableHelpers(props: any, emit: any) {
       callOnmount()
     },
   )
-  // watch(
-  //   () => props.drawerShowFooter,
-  //   (vl) => {
-  //     console.log(vl)
-  //     drawerShooter2.value = vl // on side of central it help
-  //   },{
-  //     immediate:true,deep:true
-  //   },
-  // )
+  watch(
+    () => props.drawerShowFooter,
+    (vl) => { 
+      drawerShooter2.value = vl // on side of central it help
+    },{
+      immediate:true,deep:true
+    },
+  )
   watch(
     () => drawerOpen.value,
     (v) => {

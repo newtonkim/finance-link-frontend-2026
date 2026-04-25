@@ -20,6 +20,7 @@ const props = defineProps<{
     placeholder?: string;
     label?: string;
     class?: string;
+    helper?: string;
     error?: string;
     disabled?: boolean;
     remote?: boolean;
@@ -29,6 +30,7 @@ const props = defineProps<{
     reload?: string
     dataOnMount?: boolean
     data?: any
+    slot
 }>();
 
 const emit = defineEmits(['update:modelValue', 'update:itemSelected']);
@@ -166,6 +168,7 @@ const inputClass =
                     :class="{ 'rotate-180': isOpen }" />
             </div>
         </div>
+           
 
         <Transition enter-active-class="transition duration-100 ease-out"
             enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100"

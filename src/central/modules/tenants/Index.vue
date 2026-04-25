@@ -1,8 +1,6 @@
 <template>
-    <TableDrawer ref="tableRef" drawerWidth="w-1/2" :url="tableUrl" state="tanents_list"
-     :drawerShowFooter="showFooter"
-     :automaticCreate="false"
-        :drawerTitle="drawerTitle" title="Tenants" :columns="columns" @save="saveUser">
+    <TableDrawer ref="tableRef" drawerWidth="w-1/2" :url="tableUrl" state="tanents_list" :drawerShowFooter="showFooter"
+        :automaticCreate="false" :drawerTitle="drawerTitle" title="Tenants" :columns="columns" @save="saveUser">
         <template #expiry="{ item }: { item?: any }">
             <div v-if="item?.license_expires_at" class="flex items-center gap-1.5">
                 <Clock class="size-3.5 text-neutral-400 dark:text-neutral-500 shrink-0" />
@@ -14,7 +12,7 @@
                         {{ daysLeft(item?.license_expires_at) }}d left
                     </p>
                     <p class="text-xs text-neutral-400 dark:text-neutral-500">{{ formatDateUs(item?.license_expires_at)
-                        }}</p>
+                    }}</p>
                 </div>
             </div>
             <span v-else class="text-sm  font-bold text-red-600/60 px-4">No license</span>
@@ -23,7 +21,8 @@
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
         <template #drawer="{ action, data }">
-            <StaffForm v-if="['add', 'edit'].includes(action)" :watcher="{ action, data }" v-model:form="formData"  @changedStep="changedStep"/>
+            <StaffForm v-if="['add', 'edit'].includes(action)" :watcher="{ action, data }" v-model:form="formData"
+                @changedStep="changedStep" />
             <Show v-if="['view'].includes(action)" :data="data" />
         </template>
     </TableDrawer>
@@ -49,7 +48,7 @@ import { toast } from 'vue-sonner';
 const Store = pomPinia()
 
 const tableUrl = computed(() => `/central/tenants/list?status=${statusFilter.value}`)
-const showFooter=ref(false)
+const showFooter = ref(false)
 const triggerAction: Record<string, Function> = {
     delete: Erase,
     async create() {
@@ -68,7 +67,8 @@ const title: Record<string, string> = {
 }
 function changedStep(vl) {
     
-showFooter.value=vl === 1
+    showFooter.value = vl
+    console.log(showFooter.value);
 
 }
 function saveUser(type: string, data: any) {

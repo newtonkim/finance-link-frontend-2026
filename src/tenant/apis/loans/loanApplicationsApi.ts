@@ -226,7 +226,7 @@ export function loanApplicationsApi2() {
 
  
   async function saveLoanApplicationNoneMemberGuarantors(data: any = {}) {
-    console.log(data);
+    // console.log(data);
     
     const res = await fetchTableData({
       data: formDataFormatV2(data),

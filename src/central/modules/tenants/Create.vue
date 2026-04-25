@@ -93,7 +93,7 @@ function prevStep() {
     if (currentStep.value > 0) {
         currentStep.value--
         emits('changedStep', currentStep.value == steps.length - 1);
-        console.log("00-9==");
+        // console.log("00-9==");
         
 
     }
@@ -103,6 +103,8 @@ function nextStep() {
     if (canProceed.value && currentStep.value < steps.length - 1) {
         currentStep.value++
         emits('changedStep', currentStep.value == steps.length - 1);
+        // console.log(currentStep.value,"00-9==");
+
         
     }
 
