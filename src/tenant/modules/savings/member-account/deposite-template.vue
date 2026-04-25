@@ -45,7 +45,7 @@ const columns = [
     { key: 'member_name', label: 'Member', },
 ]
 function selectMember(data: any) {
-    console.log(data);
+    // console.log(data);
     
     if (selected.value[data.account_code]) {
         delete selected.value[data.account_code]

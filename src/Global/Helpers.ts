@@ -187,6 +187,8 @@ export function getetSystemBranding() {
 export function pickAsettingKeyValue(key: string) {
   try {
     const data = encryptStorage.getItem(keysToUse.systemSettings)
+    // console.log(data);
+    
     return data[key]
   } catch (error) {
     console.error('failed to get this  key:', error)
@@ -511,7 +513,7 @@ export function printElementId(IdElement = '', options?: PrintOptions) {
   const cached = getetSystemBranding()
 
   const getPrintElement = document.getElementById(IdElement)
-  console.log(cached)
+  // console.log(cached)
 
   if (!getPrintElement) return
 

@@ -126,7 +126,7 @@ export const tenantRoutes: MenuRoutes[] = [
 
   {
     type: 'label',
-    label: 'LOAN SECTION',
+    label: 'LOAS/SHARES/C.O.A',
     icon: BookOpen,
     showSideBar: true,
   },
@@ -205,12 +205,7 @@ export const tenantRoutes: MenuRoutes[] = [
     ],
   },
 
-  {
-    type: 'label',
-    label: 'SHARE SECTION',
-    icon: BookOpen,
-    showSideBar: true,
-  },
+  
   {
     label: 'Manage Shares',
     icon: PieChart,
@@ -226,13 +221,13 @@ export const tenantRoutes: MenuRoutes[] = [
             path: 'shares',
             label: 'Share Center',
             showSideBar: true,
-            component: () => import('@/tenant/modules/shares/pages/Index.vue'),
+            component: () => import('@/tenant/modules/shares/center/Index.vue'),
           },
           {
             path: 'shareholders',
             label: 'Shareholders',
             showSideBar: true,
-            component: () => import('@/tenant/modules/shares/pages/Index.vue'),
+            component: () => import('@/tenant/modules/shares/holders/Index.vue'),
           },
           {
             path: 'share-transactions',
@@ -257,12 +252,7 @@ export const tenantRoutes: MenuRoutes[] = [
     ],
   },
 
-  {
-    type: 'label',
-    label: 'ACCOUNT SECTION',
-    icon: BookOpen,
-    showSideBar: true,
-  },
+ 
 
   {
     path: 'chart-of-accounts',
@@ -275,7 +265,7 @@ export const tenantRoutes: MenuRoutes[] = [
 
   {
     type: 'label',
-    label: 'REPORTS SECTION',
+    label: 'REPORTS/Configuration',
     icon: FileText,
     showSideBar: true,
   },
