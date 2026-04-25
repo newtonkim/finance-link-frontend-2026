@@ -16,6 +16,7 @@ export function shareCenterApi() {
       },
     })
     feedback(getCharges)
+    return getCharges
   }
 
   return {

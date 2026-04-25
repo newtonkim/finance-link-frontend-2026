@@ -1,0 +1,1 @@
+export {default as  sharemanagment} from "./share-managment.vue"

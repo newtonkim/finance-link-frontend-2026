@@ -374,7 +374,9 @@ function shouldShowField(field: any) {
                                     @input="() => field?.change && handleChange(field, Number(index))" />
                             </template>
 
- <span class="text-[12px] " v-html="field?.helper"></span>
+   <span v-if="field?.helper">
+                                    <span class="text-[12px] " v-html="field?.helper"></span>
+                                </span>
                         </span>
 
 

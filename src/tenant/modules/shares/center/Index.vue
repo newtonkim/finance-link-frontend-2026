@@ -40,21 +40,33 @@ const router = useRouter(), drawer = ref<any>(null),
         "sell shares": {
             title: "Sell Shares",
             componet: SellShares,
-            action: () => { SellSharesApi('sell-shares',formData.value) }
+            action: () => {
+                submitData('holders/sell-shares')
+            }
         },
         "transfer shares": {
             title: "transfer shares",
             componet: TransferShares,
-            action: () => { SellSharesApi('transfer-shares',formData.value) }
+            action: () => {
+                submitData('holders/transfer-shares')
+            }
         },
         "share withdrawal": {
             title: "share withdrawal",
             componet: WithdrawShares,
-            action: () => { SellSharesApi('share-withdrawal',formData.value) }
+            action: () => {
+                submitData('holders/share-withdrawal')
+            }
         },
 
     })
 
+function submitData(end: string = '') {
+    SellSharesApi(end, formData.value).then(v => {
+        if (v?.code == 200)
+            drawer.value?.toggleDrawer()
+    })
+}
 function saveUser(type: string, data: any) {
     if (automaticCreate.value[statusFilter.value]?.action) automaticCreate.value[statusFilter.value]?.action()
 
@@ -80,7 +92,7 @@ function OpenThedrawer(item: any, action = "") {
 watch(drawer.value?.drawerOpen, (v) => {
     if (!v) {
         formData.value = [];
-        automaticCreate.value={}
+        automaticCreate.value = {}
     }
 })
 function navigateToProfile(item: any) {
