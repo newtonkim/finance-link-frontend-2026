@@ -35,7 +35,7 @@ const previewData = ref<ReschedulePreviewResult | null>(null)
 const rescheduleType = ref<'tenor_extension' | 'rate_change' | 'capitalization' | 'tenor_rate_change'>('tenor_extension')
 const newTenorMonths = ref<number | null>(null)
 const newInterestRate = ref<number | null>(null)
-const capitalizeArrears = ref(false)
+const capitalizeArrears = ref(true)
 const penaltiesWaived = ref<number>(0)
 const interestWaived = ref<number>(0)
 const reason = ref('')
@@ -65,7 +65,7 @@ watch(
     if (newLoan) {
       newTenorMonths.value = newLoan.term_months || 0
       newInterestRate.value = parseFloat(newLoan.interest_rate || '0')
-      capitalizeArrears.value = false
+      capitalizeArrears.value = true
       penaltiesWaived.value = 0
       interestWaived.value = 0
       reason.value = ''
@@ -515,7 +515,7 @@ function handleDone() {
           >
             <LucideAlertTriangle class="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
             <p class="text-xs text-amber-700 dark:text-amber-300">
-              <span class="font-semibold">{{ fmt(previewData.capitalized_arrears) }}</span> of arrears added to the new principal.
+              Arrears of <span class="font-semibold">{{ fmt(previewData.capitalized_arrears) }}</span> included in new principal.
             </p>
           </div>
 
@@ -571,6 +571,10 @@ function handleDone() {
                 <div class="flex justify-between">
                   <span class="text-neutral-500">New Maturity</span>
                   <span class="font-medium text-blue-900 dark:text-blue-200 tabular-nums">{{ previewData.new_snapshot.maturity_date }}</span>
+                </div>
+                <div v-if="previewData.capitalized_arrears > 0" class="flex justify-between">
+                  <span class="text-amber-600">Incl. arrears</span>
+                  <span class="font-medium text-amber-700">{{ fmt(previewData.capitalized_arrears) }}</span>
                 </div>
                 <div class="flex justify-between border-t border-blue-200 pt-1.5 dark:border-blue-700">
                   <span class="text-blue-700">Installment</span>

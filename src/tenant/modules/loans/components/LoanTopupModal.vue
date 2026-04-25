@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from 'vue'
-import { X, Calculator, Zap, FileText, CheckCircle2, XCircle, ArrowRight } from 'lucide-vue-next'
+import { ref, reactive, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { Calculator, Zap, FileText, CheckCircle2, XCircle, ArrowRight } from 'lucide-vue-next'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/Global/ui/dialog'
-import { Button } from '@/Global/ui/button'
 import { Label } from '@/Global'
 import { toast } from 'vue-sonner'
 import { loansApi } from '@/tenant/apis/loans/loansApi'
@@ -21,6 +21,7 @@ const emit = defineEmits<{
   (e: 'close'): void
 }>()
 
+const router = useRouter()
 const open = ref(false)
 const step = ref(1) // 1 = config, 2 = eligibility, 3 = preview
 const loading = ref(false)
@@ -121,10 +122,15 @@ async function finalize() {
       requested_term: form.requested_term,
       topup_type: form.topup_type,
     })
-    
-    toast.success(res.data.data.message || 'Top-up submitted successfully.')
+
+    const data = res.data.data
+    toast.success(data.message || 'Top-up submitted successfully.')
     emit('success')
     close()
+
+    if (data.new_loan_id) {
+      router.push({ name: 'tenant-loan-account', params: { id: data.new_loan_id } })
+    }
   } catch (e: any) {
     toast.error(e.response?.data?.message || 'Failed to submit top-up')
   }
@@ -348,7 +354,12 @@ defineExpose({ show, close })
 
           <div class="rounded-xl bg-amber-50 border border-amber-200 p-3 dark:bg-amber-900/20 dark:border-amber-800/40">
             <p class="text-xs text-amber-800 dark:text-amber-300">
-              <strong>Note:</strong> Once finalized, the current loan will be marked as "Restructured" and a new loan will be created based on your selected workflow (Auto-Disbursement or Standard Application).
+              <template v-if="form.topup_type === 'consolidated'">
+                <strong>Note:</strong> Once finalized, the current loan will be marked as <strong>Closed</strong> and a new loan will be created based on your selected workflow (Auto-Disbursement or Standard Application). You will be redirected to the new loan automatically.
+              </template>
+              <template v-else>
+                <strong>Note:</strong> Once finalized, the current loan will remain <strong>Disbursed</strong> and a new separate loan will be created based on your selected workflow (Auto-Disbursement or Standard Application). You will be redirected to the new loan automatically.
+              </template>
             </p>
           </div>
         </div>
@@ -357,34 +368,51 @@ defineExpose({ show, close })
 
       <!-- Footer -->
       <div class="border-t border-neutral-100 dark:border-neutral-800 px-6 py-4 flex items-center justify-between bg-neutral-50 dark:bg-neutral-900/50">
-        <Button v-if="step > 1" variant="outline" size="sm" @click="step--">
-          Back
-        </Button>
-        <div v-else />
+        <button
+          class="rounded-xl border border-neutral-200 px-4 py-2.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+          @click="close"
+        >
+          Cancel
+        </button>
 
-        <div class="flex items-center gap-3">
-          <Button variant="outline" size="sm" @click="close">Cancel</Button>
+        <div class="flex items-center gap-2">
+          <button
+            v-if="step > 1"
+            class="rounded-xl border border-neutral-200 px-4 py-2.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+            @click="step--"
+          >
+            Back
+          </button>
 
           <!-- Step 1 → 2 -->
-          <Button v-if="step === 1" size="sm" @click="goToEligibility">
-            <Calculator class="h-4 w-4 mr-1.5" />
+          <button
+            v-if="step === 1"
+            class="flex items-center gap-2 rounded-xl bg-nfuko-action px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            @click="goToEligibility"
+          >
+            <Calculator class="h-4 w-4" />
             Check Eligibility
-          </Button>
+          </button>
 
           <!-- Step 2 → 3 -->
-          <Button v-else-if="step === 2 && eligibilityResults?.eligible" size="sm" @click="goToPreview">
-            <ArrowRight class="h-4 w-4 mr-1.5" />
+          <button
+            v-else-if="step === 2 && eligibilityResults?.eligible"
+            class="flex items-center gap-2 rounded-xl bg-nfuko-action px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            @click="goToPreview"
+          >
+            <ArrowRight class="h-4 w-4" />
             Continue to Review
-          </Button>
+          </button>
 
           <!-- Step 3 → Submit -->
-          <Button v-else-if="step === 3" size="sm"
-            class="bg-nfuko-primary hover:bg-nfuko-primary/90"
+          <button
+            v-else-if="step === 3"
+            class="flex items-center gap-2 rounded-xl bg-nfuko-action px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
             @click="finalize"
           >
-            <Zap class="h-4 w-4 mr-1.5" />
+            <Zap class="h-4 w-4" />
             Finalize Top-Up
-          </Button>
+          </button>
         </div>
       </div>
 
