@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import {
   Loader2 as LucideSpinner,
   CalendarClock as LucideCalendarClock,
@@ -12,6 +12,7 @@ import {
 } from 'lucide-vue-next'
 import { notify } from '@/Global/Toasters/ToastMsg'
 import { loansApi, type RescheduleParams, type ReschedulePreviewResult } from '@/tenant/apis/loans/loansApi'
+import { loanProductsApi, type LoanProduct } from '@/tenant/apis/loanProducts/loanProductsApi'
 import { formatMoneyValue } from '@/Global'
 
 const props = defineProps<{
@@ -34,11 +35,28 @@ const previewData = ref<ReschedulePreviewResult | null>(null)
 const rescheduleType = ref<'tenor_extension' | 'rate_change' | 'capitalization' | 'tenor_rate_change'>('tenor_extension')
 const newTenorMonths = ref<number | null>(null)
 const newInterestRate = ref<number | null>(null)
-const capitalizeArrears = ref(false)
+const capitalizeArrears = ref(true)
 const penaltiesWaived = ref<number>(0)
 const interestWaived = ref<number>(0)
 const reason = ref('')
 const rescheduleDate = ref(new Date().toISOString().slice(0, 10))
+const newLoanProductId = ref<number | null>(null)
+const applyOtherCharges = ref(false)
+
+// ─── Loan products ────────────────────────────────────────────────────────────
+const loanProducts = ref<LoanProduct[]>([])
+const loanProductOptions = computed(() =>
+  loanProducts.value.map((p) => ({ id: p.id, name: p.name })),
+)
+
+onMounted(async () => {
+  try {
+    const res = await loanProductsApi.list({ is_active: '1', per_page: 200 })
+    loanProducts.value = res.data?.data ?? []
+  } catch {
+    // non-fatal
+  }
+})
 
 // Reset when loan changes or drawer opens
 watch(
@@ -47,10 +65,12 @@ watch(
     if (newLoan) {
       newTenorMonths.value = newLoan.term_months || 0
       newInterestRate.value = parseFloat(newLoan.interest_rate || '0')
-      capitalizeArrears.value = false
+      capitalizeArrears.value = true
       penaltiesWaived.value = 0
       interestWaived.value = 0
       reason.value = ''
+      newLoanProductId.value = null
+      applyOtherCharges.value = false
       step.value = 1
       previewData.value = null
     }
@@ -95,6 +115,8 @@ function buildParams(): RescheduleParams {
     interest_waived: interestWaived.value ? Number(interestWaived.value) : 0,
     reschedule_date: rescheduleDate.value,
     reason: reason.value,
+    new_loan_product_id: newLoanProductId.value ?? undefined,
+    apply_other_charges: applyOtherCharges.value || undefined,
   }
 }
 
@@ -432,6 +454,44 @@ function handleDone() {
             </div>
           </div>
 
+          <!-- Change Loan Product -->
+          <div>
+            <label class="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-400">
+              Change Loan Product
+              <span class="ml-1 text-[10px] text-neutral-400">(optional — leave blank to keep current product)</span>
+            </label>
+            <select
+              v-model="newLoanProductId"
+              class="block w-full rounded-xl border border-neutral-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+            >
+              <option :value="null">— Keep current product —</option>
+              <option
+                v-for="product in loanProductOptions"
+                :key="product.id"
+                :value="product.id"
+              >{{ product.name }}</option>
+            </select>
+            <p
+              v-if="newLoanProductId && newLoanProductId !== props.loan?.loan_product_id"
+              class="mt-1 text-[11px] text-blue-600 dark:text-blue-400"
+            >
+              Product change fee will apply if configured in settings.
+            </p>
+          </div>
+
+          <!-- Apply Other Charges -->
+          <div class="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-800 dark:bg-amber-900/20">
+            <div>
+              <p class="text-xs font-semibold text-neutral-800 dark:text-neutral-200">Apply Other Charges</p>
+              <p class="text-[11px] text-amber-700 dark:text-amber-400">Admin-configured one-off charge for this reschedule.</p>
+            </div>
+            <input
+              v-model="applyOtherCharges"
+              type="checkbox"
+              class="h-5 w-5 rounded border-gray-300 text-amber-500 focus:ring-amber-400 dark:border-gray-600"
+            />
+          </div>
+
           <!-- Reason — flex-1 so it fills remaining space -->
           <div class="flex flex-1 flex-col min-h-0">
             <label class="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-400">
@@ -455,7 +515,7 @@ function handleDone() {
           >
             <LucideAlertTriangle class="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
             <p class="text-xs text-amber-700 dark:text-amber-300">
-              <span class="font-semibold">{{ fmt(previewData.capitalized_arrears) }}</span> of arrears added to the new principal.
+              Arrears of <span class="font-semibold">{{ fmt(previewData.capitalized_arrears) }}</span> included in new principal.
             </p>
           </div>
 
@@ -511,6 +571,10 @@ function handleDone() {
                 <div class="flex justify-between">
                   <span class="text-neutral-500">New Maturity</span>
                   <span class="font-medium text-blue-900 dark:text-blue-200 tabular-nums">{{ previewData.new_snapshot.maturity_date }}</span>
+                </div>
+                <div v-if="previewData.capitalized_arrears > 0" class="flex justify-between">
+                  <span class="text-amber-600">Incl. arrears</span>
+                  <span class="font-medium text-amber-700">{{ fmt(previewData.capitalized_arrears) }}</span>
                 </div>
                 <div class="flex justify-between border-t border-blue-200 pt-1.5 dark:border-blue-700">
                   <span class="text-blue-700">Installment</span>
@@ -582,7 +646,7 @@ function handleDone() {
             </button>
             <button
               :disabled="!canPreview || isPreviewing"
-              class="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+              class="flex items-center gap-2 rounded-xl bg-nfuko-action px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:opacity-50"
               @click="handlePreview"
             >
               <LucideSpinner v-if="isPreviewing" class="h-4 w-4 animate-spin" />

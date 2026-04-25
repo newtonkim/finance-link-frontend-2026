@@ -26,6 +26,7 @@ const props = defineProps<{
   principalDisplay: string
   netDisbursedDisplay: string
   outstandingDisplay: string
+  totalOutstandingDisplay: string
   totalAmountPaidDisplay: string
   repaidPercent: number
   canTopup?: boolean
@@ -132,7 +133,7 @@ const isRestructuredTopup = computed(() => isRestructuredTopupLoan(props.loan))
     </div>
 
     <!-- Stat row -->
-    <div class="mt-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+    <div class="mt-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
       <div
         class="rounded-xl border border-blue-200/80 bg-gradient-to-br from-blue-50 to-white p-4 dark:border-blue-800/40 dark:from-blue-900/20 dark:to-neutral-900"
       >
@@ -185,6 +186,29 @@ const isRestructuredTopup = computed(() => isRestructuredTopupLoan(props.loan))
         </div>
         <div class="mt-1 text-[11px] text-neutral-700/70 dark:text-neutral-300/70">
           Remaining principal (excl. interest)
+        </div>
+      </div>
+
+      <div
+        class="rounded-xl border border-indigo-200/80 bg-gradient-to-br from-indigo-50 to-white p-4 dark:border-indigo-800/40 dark:from-indigo-900/20 dark:to-neutral-900"
+      >
+        <div
+          class="text-[11px] font-semibold uppercase tracking-wider text-indigo-700/80 dark:text-indigo-300/80"
+        >
+          Outstanding Total Amount
+        </div>
+        <div
+          class="mt-1 text-2xl font-black leading-tight"
+          :class="
+            loan.status === 'arrears'
+              ? 'text-red-600 dark:text-red-400'
+              : 'text-indigo-900 dark:text-white'
+          "
+        >
+          {{ totalOutstandingDisplay }}
+        </div>
+        <div class="mt-1 text-[11px] text-indigo-700/70 dark:text-indigo-300/70">
+          Total balance (Principal + Int + Fees)
         </div>
       </div>
 

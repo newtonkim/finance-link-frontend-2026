@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from 'vue'
-import { X, Calculator, Zap, FileText, CheckCircle2, XCircle, ArrowRight } from 'lucide-vue-next'
+import { ref, reactive, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { Calculator, Zap, FileText, CheckCircle2, XCircle, ArrowRight } from 'lucide-vue-next'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/Global/ui/dialog'
-import { Button } from '@/Global/ui/button'
 import { Label } from '@/Global'
 import { toast } from 'vue-sonner'
 import { loansApi } from '@/tenant/apis/loans/loansApi'
@@ -21,6 +21,7 @@ const emit = defineEmits<{
   (e: 'close'): void
 }>()
 
+const router = useRouter()
 const open = ref(false)
 const step = ref(1) // 1 = config, 2 = eligibility, 3 = preview
 const loading = ref(false)
@@ -28,22 +29,25 @@ const eligibilityResults = ref<any>(null)
 
 const form = reactive({
   topup_type: 'consolidated' as 'consolidated' | 'parallel',
-  fresh_cash_amount: 0,
+  requested_amount: 0,
   requested_term: 12,
 })
 
 // ── Computed helpers ──────────────────────────────────────────────────────────
 
-const currentBalance = computed(() => Number(props.loan?.outstanding_balance ?? 0))
+const currentBalance = computed(() => Number(props.loan?.total_outstanding ?? props.loan?.outstanding_balance ?? 0))
 const currentPrincipal = computed(() => Number(props.loan?.principal ?? 0))
 const interestRate = computed(() => Number(props.loan?.interest_rate ?? 0))
 
-const projectedTotal = computed(() => {
-  const fresh = Number(form.fresh_cash_amount) || 0
-  return form.topup_type === 'consolidated'
-    ? currentBalance.value + fresh
-    : fresh
+const freshCashAmount = computed(() => {
+  const req = Number(form.requested_amount) || 0
+  if (form.topup_type === 'consolidated') {
+    return Math.max(0, req - currentBalance.value)
+  }
+  return req
 })
+
+const projectedTotal = computed(() => Number(form.requested_amount) || 0)
 
 const estimatedMonthlyInstallment = computed(() => {
   if (!form.requested_term || form.requested_term <= 0) return 0
@@ -53,9 +57,10 @@ const estimatedMonthlyInstallment = computed(() => {
 })
 
 const repaidPercent = computed(() => {
-  if (currentPrincipal.value <= 0) return 0
-  const paid = currentPrincipal.value - currentBalance.value
-  return Math.max(0, Math.min(100, (paid / currentPrincipal.value) * 100))
+  const total = Number(props.loan?.total_expected ?? 0)
+  const paid = Number(props.loan?.total_paid ?? 0)
+  if (total <= 0) return 0
+  return Math.max(0, Math.min(100, (paid / total) * 100))
 })
 
 // ── Methods ───────────────────────────────────────────────────────────────────
@@ -64,8 +69,7 @@ function show() {
   open.value = true
   step.value = 1
   eligibilityResults.value = null
-  form.topup_type = 'consolidated'
-  form.fresh_cash_amount = 0
+  form.requested_amount = 0
   form.requested_term = props.loan?.term_months ?? props.loan?.original_term_months ?? 12
 }
 
@@ -75,8 +79,8 @@ function close() {
 }
 
 function goToEligibility() {
-  if (!form.fresh_cash_amount || form.fresh_cash_amount <= 0) {
-    toast.error('Please enter a valid fresh cash amount.')
+  if (!form.requested_amount || form.requested_amount <= 0) {
+    toast.error('Please enter a valid requested amount.')
     return
   }
   if (!form.requested_term || form.requested_term <= 0) {
@@ -92,7 +96,7 @@ async function runEligibility() {
   
   try {
     const res = await loansApi.topupEligibility(props.loan.id, {
-      fresh_cash_amount: form.fresh_cash_amount,
+      fresh_cash_amount: freshCashAmount.value,
       requested_term: form.requested_term,
       topup_type: form.topup_type,
     })
@@ -114,14 +118,19 @@ function goToPreview() {
 async function finalize() {
   try {
     const res = await loansApi.executeTopup(props.loan.id, {
-      fresh_cash_amount: form.fresh_cash_amount,
+      fresh_cash_amount: freshCashAmount.value,
       requested_term: form.requested_term,
       topup_type: form.topup_type,
     })
-    
-    toast.success(res.data.data.message || 'Top-up submitted successfully.')
+
+    const data = res.data.data
+    toast.success(data.message || 'Top-up submitted successfully.')
     emit('success')
     close()
+
+    if (data.new_loan_id) {
+      router.push({ name: 'tenant-loan-account', params: { id: data.new_loan_id } })
+    }
   } catch (e: any) {
     toast.error(e.response?.data?.message || 'Failed to submit top-up')
   }
@@ -181,7 +190,7 @@ defineExpose({ show, close })
                 <span class="font-bold">{{ fmtCurrency(currentPrincipal) }}</span>
               </div>
               <div>
-                <span class="text-neutral-500 block text-[11px]">Outstanding</span>
+                <span class="text-neutral-500 block text-[11px]">Outstanding Balance</span>
                 <span class="font-bold text-red-600">{{ fmtCurrency(currentBalance) }}</span>
               </div>
               <div>
@@ -223,12 +232,14 @@ defineExpose({ show, close })
           <!-- Amount & Term -->
           <div class="grid grid-cols-2 gap-4">
             <div class="space-y-1.5">
-              <Label class="text-xs font-bold uppercase tracking-wider text-neutral-500">Fresh Cash Amount</Label>
+              <Label class="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                {{ form.topup_type === 'consolidated' ? 'New Loan Principal' : 'Fresh Cash Amount' }}
+              </Label>
               <input
-                v-model.number="form.fresh_cash_amount"
+                v-model.number="form.requested_amount"
                 type="number"
                 min="0"
-                placeholder="e.g. 50000"
+                :placeholder="form.topup_type === 'consolidated' ? 'e.g. 2000000' : 'e.g. 500000'"
                 class="block w-full rounded-xl border border-neutral-200 px-3 py-2.5 text-sm outline-none transition-colors focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800"
               />
             </div>
@@ -256,7 +267,7 @@ defineExpose({ show, close })
               </div>
             </div>
             <p v-if="form.topup_type === 'consolidated'" class="text-[11px] text-neutral-400 mt-2">
-              = Outstanding {{ fmtCurrency(currentBalance) }} + Fresh Cash {{ fmtCurrency(Number(form.fresh_cash_amount) || 0) }}
+              = New Loan {{ fmtCurrency(projectedTotal) }} - Outstanding {{ fmtCurrency(currentBalance) }} = Fresh Cash {{ fmtCurrency(freshCashAmount) }}
             </p>
           </div>
         </div>
@@ -314,16 +325,16 @@ defineExpose({ show, close })
                   <td class="px-4 py-3 font-bold capitalize text-right">{{ form.topup_type }}</td>
                 </tr>
                 <tr>
-                  <td class="px-4 py-3 text-neutral-500 font-medium">Fresh Cash</td>
-                  <td class="px-4 py-3 font-bold text-right">{{ fmtCurrency(Number(form.fresh_cash_amount)) }}</td>
+                  <td class="px-4 py-3 text-neutral-500 font-medium">New Loan Total</td>
+                  <td class="px-4 py-3 font-black text-right text-neutral-900 dark:text-white">{{ fmtCurrency(projectedTotal) }}</td>
                 </tr>
                 <tr v-if="form.topup_type === 'consolidated'">
-                  <td class="px-4 py-3 text-neutral-500 font-medium">+ Current Balance</td>
-                  <td class="px-4 py-3 font-bold text-right text-red-600">{{ fmtCurrency(currentBalance) }}</td>
+                  <td class="px-4 py-3 text-neutral-500 font-medium">Less Outstanding Balance</td>
+                  <td class="px-4 py-3 font-bold text-right text-red-600">- {{ fmtCurrency(currentBalance) }}</td>
                 </tr>
                 <tr class="bg-neutral-50 dark:bg-neutral-800/50">
-                  <td class="px-4 py-3 text-neutral-900 dark:text-white font-bold">New Total Loan</td>
-                  <td class="px-4 py-3 font-black text-right text-neutral-900 dark:text-white">{{ fmtCurrency(projectedTotal) }}</td>
+                  <td class="px-4 py-3 text-neutral-900 dark:text-white font-bold">Fresh Cash Disbursed</td>
+                  <td class="px-4 py-3 font-bold text-right text-emerald-600">{{ fmtCurrency(freshCashAmount) }}</td>
                 </tr>
                 <tr>
                   <td class="px-4 py-3 text-neutral-500 font-medium">Term</td>
@@ -343,7 +354,12 @@ defineExpose({ show, close })
 
           <div class="rounded-xl bg-amber-50 border border-amber-200 p-3 dark:bg-amber-900/20 dark:border-amber-800/40">
             <p class="text-xs text-amber-800 dark:text-amber-300">
-              <strong>Note:</strong> Once finalized, the current loan will be marked as "Restructured" and a new loan will be created based on your selected workflow (Auto-Disbursement or Standard Application).
+              <template v-if="form.topup_type === 'consolidated'">
+                <strong>Note:</strong> Once finalized, the current loan will be marked as <strong>Closed</strong> and a new loan will be created based on your selected workflow (Auto-Disbursement or Standard Application). You will be redirected to the new loan automatically.
+              </template>
+              <template v-else>
+                <strong>Note:</strong> Once finalized, the current loan will remain <strong>Disbursed</strong> and a new separate loan will be created based on your selected workflow (Auto-Disbursement or Standard Application). You will be redirected to the new loan automatically.
+              </template>
             </p>
           </div>
         </div>
@@ -352,34 +368,51 @@ defineExpose({ show, close })
 
       <!-- Footer -->
       <div class="border-t border-neutral-100 dark:border-neutral-800 px-6 py-4 flex items-center justify-between bg-neutral-50 dark:bg-neutral-900/50">
-        <Button v-if="step > 1" variant="outline" size="sm" @click="step--">
-          Back
-        </Button>
-        <div v-else />
+        <button
+          class="rounded-xl border border-neutral-200 px-4 py-2.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+          @click="close"
+        >
+          Cancel
+        </button>
 
-        <div class="flex items-center gap-3">
-          <Button variant="outline" size="sm" @click="close">Cancel</Button>
+        <div class="flex items-center gap-2">
+          <button
+            v-if="step > 1"
+            class="rounded-xl border border-neutral-200 px-4 py-2.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+            @click="step--"
+          >
+            Back
+          </button>
 
           <!-- Step 1 → 2 -->
-          <Button v-if="step === 1" size="sm" @click="goToEligibility">
-            <Calculator class="h-4 w-4 mr-1.5" />
+          <button
+            v-if="step === 1"
+            class="flex items-center gap-2 rounded-xl bg-nfuko-action px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            @click="goToEligibility"
+          >
+            <Calculator class="h-4 w-4" />
             Check Eligibility
-          </Button>
+          </button>
 
           <!-- Step 2 → 3 -->
-          <Button v-else-if="step === 2 && eligibilityResults?.eligible" size="sm" @click="goToPreview">
-            <ArrowRight class="h-4 w-4 mr-1.5" />
+          <button
+            v-else-if="step === 2 && eligibilityResults?.eligible"
+            class="flex items-center gap-2 rounded-xl bg-nfuko-action px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            @click="goToPreview"
+          >
+            <ArrowRight class="h-4 w-4" />
             Continue to Review
-          </Button>
+          </button>
 
           <!-- Step 3 → Submit -->
-          <Button v-else-if="step === 3" size="sm"
-            class="bg-nfuko-primary hover:bg-nfuko-primary/90"
+          <button
+            v-else-if="step === 3"
+            class="flex items-center gap-2 rounded-xl bg-nfuko-action px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
             @click="finalize"
           >
-            <Zap class="h-4 w-4 mr-1.5" />
+            <Zap class="h-4 w-4" />
             Finalize Top-Up
-          </Button>
+          </button>
         </div>
       </div>
 

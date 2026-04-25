@@ -171,6 +171,10 @@ export interface LoanDetail {
   net_disbursed_amount_formatted: string
   outstanding_balance: string
   outstanding_balance_formatted: string
+  total_outstanding: number
+  total_outstanding_formatted: string
+  total_paid: number
+  total_expected: number
   interest_rate: string
   term_months: number
   disbursed_at: string
@@ -274,6 +278,8 @@ export interface RescheduleParams {
   interest_waived?: number
   reschedule_date?: string
   reason: string
+  new_loan_product_id?: number | null
+  apply_other_charges?: boolean
 }
 
 export interface RescheduleHistoryEntry {

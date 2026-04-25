@@ -56,6 +56,15 @@ export function useLoanAmountComputeds(
 
   const principalDisplay = computed(() => formatMoneyValue(principalAmount.value))
   const outstandingDisplay = computed(() => formatMoneyValue(outstandingAmount.value))
+  const totalOutstandingDisplay = computed(() => {
+    if (!loan.value) return '0.00'
+    const fromLoan = loan.value.total_outstanding_formatted
+    if (fromLoan) return fromLoan
+    const val = toNumber(loan.value.total_outstanding)
+    if (val != null) return formatMoneyValue(val)
+    // Fallback to schedule totals if not in detail object
+    return formatMoneyValue(scheduleTotals.value.total_due - scheduleTotals.value.total_paid)
+  })
   const netDisbursedDisplay = computed(() => formatMoneyValue(netDisbursedAmount.value))
 
   const totalAmountPaid = computed(() => {
@@ -93,6 +102,7 @@ export function useLoanAmountComputeds(
     netDisbursedAmount,
     principalDisplay,
     outstandingDisplay,
+    totalOutstandingDisplay,
     netDisbursedDisplay,
     totalAmountPaid,
     totalAmountPaidDisplay,

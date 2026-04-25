@@ -68,6 +68,7 @@ const {
   currency,
   principalDisplay,
   outstandingDisplay,
+  totalOutstandingDisplay,
   netDisbursedDisplay,
   totalAmountPaidDisplay,
   interestMethodLabel,
@@ -173,6 +174,7 @@ const activeComponent = computed(() => {
         :principal-display="principalDisplay"
         :net-disbursed-display="netDisbursedDisplay"
         :outstanding-display="outstandingDisplay"
+        :total-outstanding-display="totalOutstandingDisplay"
         :total-amount-paid-display="totalAmountPaidDisplay"
         :repaid-percent="repaidPercent"
         :can-topup="settings.allow_top_up"

@@ -263,25 +263,12 @@ export function useActiveLoans() {
 
             const res = await loansApi.list(params)
             let rows = res.data.data ?? []
-            if (activeTab.value === 'disbursed') {
-                rows = rows.filter((loan) => (loan.status ?? '').toLowerCase() !== 'closed')
-            }
             if (activeTab.value === 'all') {
                 await annotateTopupRows(rows)
-            }
-            if (activeTab.value === 'disbursed') {
-                rows = await filterTopupRows(rows, false)
             }
 
             loans.value = rows
             Object.assign(meta, res.data.meta ?? {})
-            if (activeTab.value === 'disbursed') {
-                const knownTopup = Number(summary.value.topup ?? 0)
-                meta.total = knownTopup > 0
-                    ? Math.max(0, Number(summary.value.disbursed ?? 0) - knownTopup)
-                    : Number(summary.value.disbursed ?? meta.total)
-
-                  }
         } catch {
             toast.error('Failed to load loans.')
         } finally {
