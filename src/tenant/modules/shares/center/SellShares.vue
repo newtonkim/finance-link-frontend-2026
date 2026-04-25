@@ -107,6 +107,7 @@ function intialize() {
       helper: "The date this transaction occurred.",
       colSpan: 2,
       default: new Date().toISOString().split("T")[0],
+      value: new Date().toISOString().split("T")[0],
     },
   ]
 }
