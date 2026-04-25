@@ -642,7 +642,7 @@ function handleDone() {
             </button>
             <button
               :disabled="!canPreview || isPreviewing"
-              class="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+              class="flex items-center gap-2 rounded-xl bg-nfuko-action px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:opacity-50"
               @click="handlePreview"
             >
               <LucideSpinner v-if="isPreviewing" class="h-4 w-4 animate-spin" />
