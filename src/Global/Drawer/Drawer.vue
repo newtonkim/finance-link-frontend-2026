@@ -60,6 +60,8 @@
 <script setup lang="ts">
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/Global";
 import { Button } from "@/Global";
+import { formawtacher } from "../Forminputs/formWatcher";
+const formStore = formawtacher()
 
 const props = withDefaults(
   defineProps<{
@@ -76,6 +78,7 @@ const props = withDefaults(
 const emit = defineEmits(["update:open", "save", "cancel", "submit"]);
 
 const handleSave = () => {
+ 
   emit("save", "create");
   emit("submit");
 };

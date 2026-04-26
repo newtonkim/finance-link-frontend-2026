@@ -1,5 +1,5 @@
 <template>
-    <div class="p-8 space-y-6 overflow-y-auto h-[50vh]">
+    <div class="p-8 space-y-6 overflow-y-auto h -[80vh]">
         <div>
             <h2 class="text-lg font-bold text-neutral-900 dark:text-white">Licensing</h2>
             <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
