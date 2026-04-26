@@ -18,7 +18,9 @@
                 @update:modelValue="(e) => { OpenThedrawer(e) }" />
         </template>
         <template #actions>
-            <TabelActionButtons title="revert" color="danger" icon="CirclePlus" @action="() => { }" />
+            <TabelActionButtons title="revert" color="danger" icon="CirclePlus" @action="() => { 
+                automaticCreate['share-transaction-revert'].action()
+                }" />
         </template>
         <template #drawer="{ action, data }">
             <component :is="drawerComponet" :data="{ ...data, action }" v-model:form="formData" />
@@ -28,7 +30,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { SellShares, TransferShares, WithdrawShares } from '.'
-import { setLocalValues } from '@/Global'
+import { Confirm, setLocalValues } from '@/Global'
 import { useRouter } from 'vue-router';
 import { shareCenterApi } from '@/tenant/apis/shares';
 const { TranUniShares: SellSharesApi } = shareCenterApi()
@@ -40,34 +42,46 @@ const router = useRouter(), drawer = ref<any>(null),
         "sell shares": {
             title: "Sell Shares",
             componet: SellShares,
-            action: () => {
-                submitData('holders/sell-shares')
-            }
+            action: () => submitData('sell-shares')
+            
         },
         "transfer shares": {
             title: "transfer shares",
             componet: TransferShares,
-            action: () => {
-                submitData('holders/transfer-shares')
-            }
+            action: () => submitData('transfer-shares')
+            
         },
         "share withdrawal": {
             title: "share withdrawal",
             componet: WithdrawShares,
-            action: () => {
-                submitData('holders/share-withdrawal')
-            }
+            action: () => submitData('share-withdrawal')
+            
+        },
+        "share-transaction-revert": {
+            title: "share transaction revert",
+            componet: WithdrawShares,
+            action: () => submitData('share-transaction-revert', 'Are you sure you want to revert this transaction','warning',false)
+            
         },
 
     })
 
-function submitData(end: string = '') {
-    SellSharesApi(end, formData.value).then(v => {
-        if (v?.code == 200)
-        statusFilter.value = "y"
-            drawer.value?.toggleDrawer()
-        statusFilter.value = ''
-    })
+function submitData(end: string = '', des?: string, type?: 'warning',toggle?:true) {
+    Confirm({
+      title: 'Confirm shares transaction',
+      des,
+      type,
+      confirm: async () => {
+          SellSharesApi(`holders/${end}`, formData.value).then(v => {
+              if (v?.code == 200)
+              statusFilter.value = "y"
+            if(toggle)
+                  drawer.value?.toggleDrawer()
+              statusFilter.value = ''
+          })
+      }, cancel: () => {},
+    });
+
 }
 function saveUser(type: string, data: any) {
     if (automaticCreate.value[statusFilter.value]?.action) automaticCreate.value[statusFilter.value]?.action()
@@ -80,7 +94,8 @@ const columns = [
     { key: 'amount', label: 'amount', type: "money" },
     { key: 'charge_amount', label: 'charges', type: "money" },
     { key: 'payment_mode', label: 'method', },
-    { key: 'narration', label: 'narration', },
+    { key: 'narration', label: 'narration', tooltip:true,width: '14em', },
+    { key: 'created_at', label: 'created at', type: 'date', width: '10em' ,onSearch: { type: 'date-range', }},
     { key: 'actions', label: 'Actions', }
 ]
 const drawerComponet = computed(() => automaticCreate.value[statusFilter.value]?.componet)

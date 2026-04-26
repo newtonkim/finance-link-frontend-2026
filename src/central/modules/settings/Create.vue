@@ -123,6 +123,7 @@ watch(() => formValues.value, (value) => {
 <template>
 
     <div class="p-2 space-y-6">
+        
         <div class="flex items-center justify-between">
             <template v-for="(step, index) in steps" :key="step.label">
 

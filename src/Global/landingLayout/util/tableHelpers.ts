@@ -3,7 +3,12 @@ import { Plus } from 'lucide-vue-next'
 import { formDataFormatV2, createUrl, feedback, printElement, downloadFile, printElementId } from '@/Global'
 import { pomPinia } from 'septor-store'
 import { ACTION_CONFIG, dataTabelFilter, fetchTableData } from './index'
+import { formawtacher } from '@/Global/Forminputs/formWatcher'
+// import { formawtacher } from './formWatcher';
+
 export default function useTableHelpers(props: any, emit: any) {
+const formStore = formawtacher()
+
   const drawerOpen = ref(false)
   const showDelete = ref(false)
   const searchQuery = ref('')
@@ -125,7 +130,8 @@ export default function useTableHelpers(props: any, emit: any) {
     drawerOpen.value = !drawerOpen.value
     if (drawerOpen.value) {
       //////
-      (Store as any).currentFormValues = {}
+      formStore.currentFormValues = {}
+      // (Store as any).currentFormValues = {}
     }
   }
   function save(data: unknown, type = 'save') {
@@ -184,7 +190,8 @@ export default function useTableHelpers(props: any, emit: any) {
       // setTimeout(() => {
       //   toggleDrawer()
       // }, 100) //  to make sure the drawer is cleaned
-      (Store as any).currentFormValues = {}
+      formStore.currentFormValues = {}
+      // (Store as any).currentFormValues = {}
       // alert(buttonTypeClicked.value)
       buttonTypeClicked.value = buttonTypeClicked.value
       return true
@@ -193,14 +200,12 @@ export default function useTableHelpers(props: any, emit: any) {
     // }
   }
   async function saveDrawerData(data: any) {
-    // alert()
-    (Store as any).isFormSubmitted = true
-    const AnyErrorsFoundInTheFOrm = Store.AnyErrorsFoundInTheFOrm
-    const formdata = Store.currentFormValues
 
-    // if (AnyErrorsFoundInTheFOrm == undefined) {
-
-    // } else
+    formStore.isFormSubmitted = true
+    setTimeout(async() => {
+     const AnyErrorsFoundInTheFOrm = formStore.AnyErrorsFoundInTheFOrm 
+    const formdata = formStore.currentFormValues
+   
     if (AnyErrorsFoundInTheFOrm) {
     } else {
       if (props.automaticCreate) {
@@ -230,6 +235,7 @@ export default function useTableHelpers(props: any, emit: any) {
       // if all it ok
       //Store.isSubmitted==false;
     }
+   }, 800);
   }
   const handleAction = async (item: any, action: keyof typeof ACTION_CONFIG) => {
     const fn = (ACTION_CONFIG?.[action] as { action?: (payload: any) => void } | undefined)?.action

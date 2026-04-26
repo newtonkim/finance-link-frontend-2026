@@ -8,7 +8,9 @@ import FormField from '@/Global/FormField.vue';
 import MoneyInput from '@/Global/MoneyInput.vue';
 import { Printer, UserCircle2 } from 'lucide-vue-next';
 import { pomPinia } from 'septor-store';
+import { formawtacher } from './formWatcher';
 const Store = pomPinia();
+const formStore = formawtacher()
 const props = defineProps<{
     action?: string,
     isSubmitted?: boolean,
@@ -50,12 +52,11 @@ const remountComponent = ref<any>(true);
 onMounted(() => {
     if (Array.isArray(props.form))
         prfields.value = [...(props.form)];
-    //   prfields.value = [...(props.form)].filter((field: any) => shouldShowField(prfields.value));
 
     if (props.action == 'add')
         prfields.value = prfields.value.map((f: any) => ({ value: null, ...f }))
     remountComponent.value = false;
-    (Store as any).isFormSubmitted = false
+    formStore.isFormSubmitted = false
 })
 const avatarPreviews = ref<Record<number, string>>({});
 
@@ -63,12 +64,8 @@ const inputClass = 'w-full rounded-lg border focus:border-nfuko-primary/50 focus
 function DatawhistleBlower(newFields: any) {
     emits('update:form', newFields);
     emits('results', newFields);
-    // console.log(newFields);
-    
     const NewCollectionSet: any[] = [];
-    
-    if(Array.isArray(newFields)) {
-    // if(!Array.isArray(newFields)) {
+    if (Array.isArray(newFields)) {
         newFields.forEach((field: any) => {
             if (field?.fields) {
                 NewCollectionSet.push(...field.fields)
@@ -78,32 +75,34 @@ function DatawhistleBlower(newFields: any) {
     }
     // let remove the duplicate in the data  
     /// to sa ve the clean version of the data 
-    Store.currentFormValues = Object.values([
-        ...(Array.isArray((Store as any).currentFormValues) ? Store.currentFormValues : []),
+    formStore.currentFormValues = Object.values([
+        ...(Array.isArray(formStore.currentFormValues) ? formStore.currentFormValues : []),
         ...NewCollectionSet
     ].reduce((acc: any, item: any) => {
         acc[item.name] = item;
         return acc;
     }, {})
     );
-    
+
 
 }
 
 watch(
     prfields,
     (newFields) => {
-  
-        
+
+
         DatawhistleBlower(newFields);
     },
     { deep: true }
 );
-const isTriggered = computed(() => props.isSubmitted || Store.isFormSubmitted)
+const isTriggered = computed(() => props.isSubmitted || formStore.isFormSubmitted)
 
 watch(isTriggered, (val) => {
+    // console.log(props.isSubmitted);
+
     if (val)
-        Store.AnyErrorsFoundInTheFOrm = FormValidate()
+        formStore.AnyErrorsFoundInTheFOrm = FormValidate()
 })
 
 const handleChange = (field: any, index: number) => {
@@ -112,13 +111,13 @@ const handleChange = (field: any, index: number) => {
 };
 function FormValidate() {
     const data = prfields.value.filter((field: any) => shouldShowField(field)) || [];
-    // console.log(data);
-
     if (isTriggered) {
         data.forEach((field: any) => {
+            // field?.error = null
             if (field?.fields) {
                 field.fields.forEach((subfield: any) => {
                     subfield.showError = false
+
                     if (subfield.required) {
                         subfield.error = null;
                         const isEmpty =
@@ -132,23 +131,27 @@ function FormValidate() {
 
                     }
                 })
+            } else if (field?.error?.length > 0) {
+                const isEmpty = field.value === null || field.value === undefined || field.value === '';
+                if (isEmpty) {
+                    
+                }else{
+                    field.error = false
+                }
+                // field.showError = true
             } else if (field.required) {
-                field.error = null;
-                const isEmpty =
-                    field.value === null ||
-                    field.value === undefined ||
-                    field.value === '';
-                field.error = null
-
+                const isEmpty = field.value === null || field.value === undefined || field.value === '';
                 if (isEmpty) {
                     field.error = field?.error || 'This field is required *';
+                } else {
+                    field.error = null;
+
                 }
             }
         });
-
-
     }
-    (Store as any).isFormSubmitted = false
+    formStore.isFormSubmitted = false
+
     return data.some((field: any) => {
         if (field.error) {
             console.log(field);
@@ -206,6 +209,7 @@ const getGridClass = (len: number = 1) => {
 //     condition: (value: any) => Number(value) > 0
 //   }
 function shouldShowField(field: any) {
+
     if (!field.dependsOn) return true;
 
     // Handle new structure
@@ -255,133 +259,135 @@ function shouldShowField(field: any) {
             <template v-for="(field, index) in prfields" :key="index" class="pom ">
                 <template v-if="shouldShowField(field)">
                     <template v-if="field.group >= 0">
-                        <div  :class="[field?.class,'capitalize']">{{field?.label?.toLowerCase().replace(/^./, (c: any) =>
-                            c.toUpperCase())}}
+                        <div :class="[field?.class, 'capitalize']">
+                            {{field?.label?.toLowerCase().replace(/^./, (c: any)=>c.toUpperCase())}}
                         </div>
                         <DynamicForm :parentStyle="getGridClass(field.group ?? field?.fields?.length)"
                             :form="field.fields" :action="field.action" @results="emits('results', $event)"
                             @field-changed="emits('field-changed', $event)" />
                     </template>
-                <div v-else  :class="[field.hidden ? 'hidden' : '',field?.class]">
+                    <div v-else :class="[field.hidden ? 'hidden' : '', field?.class]">
 
-                    <FormField  class="capitalize"
-                        :label="field?.label?.toLowerCase().replace(/^./, (c: any) => c.toUpperCase())"
-                        :required="field.required" :html-for="field.name" :error="field.error"
-                        :showError="field?.showError">
-                        <slot name='field.name' v-if='$slots[field.name]' />
-                        <span v-else>
-                            <!-- Text/Email/Date/Tel -->
-                            <template v-if="['text', 'email', 'date', 'tel'].includes(field.type)">
-                                <div class="flex">
-                                    <input :id="field.name" v-bind="field" v-model="field.value"
-                                        class="rounded-xl cursor-pointer   hover:border-nfuko-primary-300 hover:bg-nfuko-primary-50 dark:hover:bg-neutral-800 transition group"
-                                        :class="[inputClass, field?.class, field.suffix ? 'flex-1 rounded-xl rounded-r-none border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white' : '']"
-                                        @input="() => field?.change && handleChange(field, Number(index))" />
-                                    <div v-if="field?.suffix"
-                                        class="px-2 flex items-center bg-neutral-100 dark:bg-red-200 border border-l-0 rounded-xl rounded-l-none text-sm text-neutral-500 dark:text-neutral-400 font-medium">
-                                        {{ field.suffix }}
+                        <FormField class="capitalize"
+                            :label="field?.label?.toLowerCase().replace(/^./, (c: any) => c.toUpperCase())"
+                            :required="field.required" :html-for="field.name" :error="field.error"
+                            :showError="field?.showError">
+                            <slot name='field.name' v-if='$slots[field.name]' />
+                            <span v-else>
+                                <!-- Text/Email/Date/Tel -->
+                                <template v-if="['text', 'email', 'date', 'tel'].includes(field.type)">
+                                    <div class="flex">
+                                        <input :id="field.name" v-bind="field" v-model="field.value"
+                                            class="rounded-xl cursor-pointer   hover:border-nfuko-primary-300 hover:bg-nfuko-primary-50 dark:hover:bg-neutral-800 transition group"
+                                            :class="[inputClass, field?.class, field.suffix ? 'flex-1 rounded-xl rounded-r-none border-neutral-200 dark:border-white/10 dark:bg-[#0a0a0a] dark:text-white' : '']"
+                                            @input="() => field?.change && handleChange(field, Number(index))" />
+                                        <div v-if="field?.suffix"
+                                            class="px-2 flex items-center bg-neutral-100 dark:bg-red-200 border border-l-0 rounded-xl rounded-l-none text-sm text-neutral-500 dark:text-neutral-400 font-medium">
+                                            {{ field.suffix }}
+                                        </div>
                                     </div>
-                                </div>
-                            </template>
+                                </template>
 
-                            <!-- Textarea -->
-                            <template v-else-if="field.type === 'textarea'">
-                                <textarea :id="field.name" v-model="field.value"
-                                    :class="[inputClass, field?.class, 'resize-y min-h-[80px]']"
-                                    v-bind="field.props ?? field"
-                                    @input="() => field?.change && handleChange(field, Number(index))" />
-                            </template>
-
-                            <!-- Select -->
-                            <template v-else-if="field.type === 'select'">
-                                <SearchableSelect 
-                                :class="[field?.class]"
-                                v-model="field.value" :options="field.options || []"
-                                    :placeholder="field?.placeholder || ''" v-model:item-selected="field.selected"
-                                    @update:modelValue="() => handleChange(field, Number(index))" v-bind="field" />
-                            </template>
-                            <template v-else-if="field.type === 'multi-select'">
-                                <MultiSearchableSelect
-                                :class="[field?.class]"
-                                 v-model="field.value" :options="field.options || []"
-                                    :placeholder="field?.placeholder || ''" v-model:item-selected="field.selected"
-                                    @update:modelValue="() => handleChange(field, Number(index))" v-bind="field" />
-                            </template>
-                            <template v-else-if="field.type === 'nationality'">
-                                <SearchableSelect
-                                :class="[field?.class]"
-                                 v-model="field.value" :options="field.options || nationalityOptions"
-                                    :placeholder="field.props?.placeholder || ''" v-model:item-selected="field.selected"
-                                    @update:modelValue="() => handleChange(field, Number(index))" v-bind="field" />
-                            </template>
-
-                            <!-- Phone -->
-                            <template v-else-if="field.type === 'phone'">
-                                <PhoneInput
-                                :BigClass="[field?.class]"
-                                 v-model="field.value" :placeholder="field.props?.placeholder || ''"
-                                    @input="() => field?.change && handleChange(field, Number(index))" v-bind="field" />
-                            </template>
-
-                            <!-- Money -->
-                            <template v-else-if="field.type === 'money'">
-                                <div class='flex'>
-                                    <div v-if="field?.suffix"
-                                        class="px-2 flex items-center border-gray-300 bg-neutral-100 dark:bg-red-200 border border-l-0 rounded-xl rounded-r-none text-sm text-neutral-500 dark:text-neutral-400 font-medium">
-                                        {{ field.suffix }}
-                                    </div>
-                                    <MoneyInput :class="[field?.class, field.suffix ? ' rounded-xl rounded-l-none ' : ''].join(' ')"
-                                        :id="field.name" v-model="field.value" :placeholder="field?.placeholder || ''"
+                                <!-- Textarea -->
+                                <template v-else-if="field.type === 'textarea'">
+                                    <textarea :id="field.name" v-model="field.value"
+                                        :class="[inputClass, field?.class, 'resize-y min-h-[80px]']"
+                                        v-bind="field.props ?? field"
                                         @input="() => field?.change && handleChange(field, Number(index))" />
-                                    <!-- {{ field.error }} -->
+                                </template>
+
+                                <!-- Select -->
+                                <template v-else-if="field.type === 'select'">
+                                    <SearchableSelect :class="[field?.class]" v-model="field.value"
+                                        :options="field.options || []" :placeholder="field?.placeholder || ''"
+                                        v-model:item-selected="field.selected"
+                                        @update:modelValue="() => handleChange(field, Number(index))" v-bind="field" />
+                                </template>
+                                <template v-else-if="field.type === 'multi-select'">
+                                    <MultiSearchableSelect :class="[field?.class]" v-model="field.value"
+                                        :options="field.options || []" :placeholder="field?.placeholder || ''"
+                                        v-model:item-selected="field.selected"
+                                        @update:modelValue="() => handleChange(field, Number(index))" v-bind="field" />
+                                </template>
+                                <template v-else-if="field.type === 'nationality'">
+                                    <SearchableSelect :class="[field?.class]" v-model="field.value"
+                                        :options="field.options || nationalityOptions"
+                                        :placeholder="field.props?.placeholder || ''"
+                                        v-model:item-selected="field.selected"
+                                        @update:modelValue="() => handleChange(field, Number(index))" v-bind="field" />
+                                </template>
+
+                                <!-- Phone -->
+                                <template v-else-if="field.type === 'phone'">
+                                    <PhoneInput :BigClass="[field?.class]" v-model="field.value"
+                                        :placeholder="field.props?.placeholder || ''"
+                                        @input="() => field?.change && handleChange(field, Number(index))"
+                                        v-bind="field" />
+                                </template>
+
+                                <!-- Money -->
+                                <template v-else-if="field.type === 'money'">
+                                    <div class='flex'>
+                                        <div v-if="field?.suffix"
+                                            class="px-2 flex items-center border-gray-300 bg-neutral-100 dark:bg-red-200 border border-l-0 rounded-xl rounded-r-none text-sm text-neutral-500 dark:text-neutral-400 font-medium">
+                                            {{ field.suffix }}
+                                        </div>
+                                        <MoneyInput :disabled="field?.disabled"
+                                            :class="[field?.class, field.suffix ? ' rounded-xl rounded-l-none ' : ''].join(' ')"
+                                            :id="field.name" v-model="field.value"
+                                            :placeholder="field?.placeholder || ''"
+                                            @input="() => field?.change && handleChange(field, Number(index))" />
+                                        <!-- {{ field.error }} -->
+                                    </div>
                                     <div v-if="field.error" class="mt-2 px-1 text-xs text-red-500 font-medium">{{
                                         field.error }}</div>
-                                </div>
-                            </template>
-                            <!-- date -->
-                            <template v-else-if="field.type === 'datec'">
+                                </template>
+                                <!-- date -->
+                                <template v-else-if="field.type === 'datec'">
 
-                                <DatePicker :id="field.name" v-model="field.value" v-bind="field" :class="[field?.class]"
-                                    @input="() => field?.change && handleChange(field, Number(index))" />
-                            </template>
+                                    <DatePicker :id="field.name" v-model="field.value" v-bind="field"
+                                        :class="[field?.class]"
+                                        @input="() => field?.change && handleChange(field, Number(index))" />
+                                </template>
 
-                            <!-- Avatar -->
-                            <template v-else-if="['avatar', 'avatar2', 'profile'].includes(field.type)">
-                                <div class="flex items-center gap-4 mt-2" :class="[field?.class]">
-                                    <div
-                                        class="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700">
-                                        <img v-if="avatarPreviews[Number(index)] || field.value"
-                                            :src="avatarPreviews[Number(index)] || field.value" alt="Avatar"
-                                            class="h-full w-full object-cover" />
-                                        <UserCircle2 v-else :size="32" class="text-neutral-400" />
+                                <!-- Avatar -->
+                                <template v-else-if="['avatar', 'avatar2', 'profile'].includes(field.type)">
+                                    <div class="flex items-center gap-4 mt-2" :class="[field?.class]">
+                                        <div
+                                            class="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700">
+                                            <img v-if="avatarPreviews[Number(index)] || field.value"
+                                                :src="avatarPreviews[Number(index)] || field.value" alt="Avatar"
+                                                class="h-full w-full object-cover" />
+                                            <UserCircle2 v-else :size="32" class="text-neutral-400" />
+                                        </div>
+                                        <div class="flex-1">
+                                            <input type="file" accept="image/*"
+                                                @change="(e) => handleAvatarChange(field, Number(index), e)"
+                                                class="block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#10C469]/10 file:text-[#10C469] hover:file:bg-[#10C469]/20 transition-colors" />
+                                            <p class="text-xs text-neutral-400 mt-1">Recommended: Square image, max 2MB.
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div class="flex-1">
-                                        <input type="file" accept="image/*"
-                                            @change="(e) => handleAvatarChange(field, Number(index), e)"
-                                            class="block w-full text-sm text-neutral-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#10C469]/10 file:text-[#10C469] hover:file:bg-[#10C469]/20 transition-colors" />
-                                        <p class="text-xs text-neutral-400 mt-1">Recommended: Square image, max 2MB.</p>
-                                    </div>
-                                </div>
-                                <div v-if="field.error" class="mt-2 px-1 text-xs text-red-500 font-medium">{{
-                                    field.error }}</div>
-                            </template>
+                                    <div v-if="field.error" class="mt-2 px-1 text-xs text-red-500 font-medium">{{
+                                        field.error }}</div>
+                                </template>
 
-                            <!-- Default -->
-                            <template v-else>
-                                <input type="text" v-model="field.value" :class="[field?.class, inputClass]"
-                                    v-bind="field.props ?? field"
-                                    class="rounded-xl cursor-pointer   hover:border-nfuko-primary-300 hover:bg-nfuko-primary-50 dark:hover:bg-neutral-800 transition group"
-                                    @input="() => field?.change && handleChange(field, Number(index))" />
-                            </template>
+                                <!-- Default -->
+                                <template v-else>
+                                    <input type="text" v-model="field.value" :class="[field?.class, inputClass]"
+                                        v-bind="field.props ?? field"
+                                        class="rounded-xl cursor-pointer   hover:border-nfuko-primary-300 hover:bg-nfuko-primary-50 dark:hover:bg-neutral-800 transition group"
+                                        @input="() => field?.change && handleChange(field, Number(index))" />
+                                </template>
 
-   <span v-if="field?.helper">
+                                <span v-if="field?.helper">
                                     <span class="text-[12px] " v-html="field?.helper"></span>
                                 </span>
-                        </span>
+                            </span>
 
 
-                    </FormField>
-                </div>
+                        </FormField>
+                    </div>
                 </template>
             </template>
         </div>

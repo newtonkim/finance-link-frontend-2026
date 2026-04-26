@@ -154,8 +154,8 @@ watch(() => formValues.value, (value) => {
 
 <template>
     <form @submit.prevent>
-        <!-- {{ currentStep }} -->
-        <div class="p-2 space-y-6">
+        <!-- {{ currentStep }}/ -->
+        <div class="p-2 spac e-y-6">
             <div class="flex items-center justify-between">
                 <template v-for="(step, index) in steps" :key="step.label">
                     <div class="flex flex-col items-center gap-2 z-10">
@@ -187,7 +187,7 @@ watch(() => formValues.value, (value) => {
 
             </div>
             <Card
-                class="border-neutral-100 h-[67vh] dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-2xl overflow-auto">
+                class="border-neutral-100 h-[77vh] dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-2xl overflow-auto">
                 <div v-if="remount">
                     <div v-if="currentStep <= 1">
 
@@ -198,7 +198,7 @@ watch(() => formValues.value, (value) => {
                     <TenantStep4 v-else-if="currentStep <= 3" :form="formValues" @change="storeStep3Data" />
                 </div>
 
-                <div class="px-8 py-5 border-t border-neutral-100 dark:border-white/10 flex justify-between">
+                <div class="px-8  border-t border-neutral-100 dark:border-white/10 flex justify-between">
                     <Button v-if="currentStep > 0" @click="prevStep" variant="ghost" class="flex items-center gap-1">
                         <ChevronLeft class="size-4" />
                         Back-

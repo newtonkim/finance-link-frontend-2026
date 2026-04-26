@@ -8,8 +8,29 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-const sharePrice = ref<number>(0);
+const sharePrice = ref<number>(pickAsettingKeyValue("sacco-share-price-value"));
 const loading = ref<boolean>(true);
+const getField = (name: string) =>
+  fields.value.find((f) => f.name === name);
+
+  function watcher() {
+    setTimeout(() => {
+         const field = getField('amount')
+       const value = field.value??0
+      const member_id = getField('member_id')
+      const shn = Math.floor(value / sharePrice.value)
+      const theselectShares = member_id?.selected?.total_shares
+      const share_no = fields.value.find((f: any) => f.name === 'share_no')
+        member_id.helper = `You have ${theselectShares} shares`
+      field.error = null ;
+      if (shn > theselectShares) {
+        field.error = `You can't sell more than ${theselectShares} shares`
+      } else if (value && sharePrice.value) {
+        field.helper = `<span class="text-nfuko-primary">At UGX ${sharePrice.value} per share. How much is the customer is receiving on the account?`
+      }
+      share_no.value = shn
+    },500)
+  }
 const fields = ref([
   {
     label: "Select Member",
@@ -22,7 +43,11 @@ const fields = ref([
     optionValue: "id",
     helper: "A member buying the shares. Only shareholders appear here",
     colSpan: 2,
-  }, 
+    change: (value: any) => {
+     watcher()
+      
+    }
+  },
   {
     label: "Amount",
     name: "amount",
@@ -30,13 +55,7 @@ const fields = ref([
     required: true,
     placeholder: "10,000",
     change: (value: number) => {
-      const field = fields.value.find((f: any) => f.name === 'amount')
-      const shn = Math.floor(value / sharePrice.value)
-      if (value && sharePrice.value) {
-        field.helper = `<span class="text-nfuko-primary">At UGX ${sharePrice} per share. How much is the customer is receiving on the account?`
-        const share_no = fields.value.find((f: any) => f.name === 'share_no')
-        share_no.value = shn
-      }
+     watcher()
     },
   },
   {
@@ -61,14 +80,13 @@ const fields = ref([
     required: true,
     helper: "The date this transaction occurred.",
     colSpan: 2,
-    default: new Date().toISOString().split("T")[0],
+    value: new Date().toISOString().split("T")[0],
   },
 ]);
 
 onMounted(async () => {
   try {
-    const res = await pickAsettingKeyValue("sacco-share-price-value");
-    sharePrice.value = Number(res || 0);
+
   } catch (e) {
     console.warn("Failed to load share price");
   } finally {
@@ -79,7 +97,7 @@ watch(
   () => fields.value,
   (val) => {
     emits("update:form", val);
-  
+
   },
   { deep: true }
 );
