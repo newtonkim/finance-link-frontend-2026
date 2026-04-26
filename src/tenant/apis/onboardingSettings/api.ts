@@ -5,6 +5,7 @@ export interface OnboardingSettings {
     shares_compulsory?: boolean
     min_shares_on_onboarding?: number
     share_price?: number
+    share_payment_account_id?: number | null
     shares_compulsory_applies_to_existing?: boolean
     auto_create_savings_account?: boolean
     require_member_approval?: boolean

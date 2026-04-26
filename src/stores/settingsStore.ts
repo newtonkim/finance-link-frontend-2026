@@ -23,6 +23,7 @@ export const useSettingsStore = defineStore('settings', () => {
     const sharesCompulsory = ref<boolean>(false)
     const minSharesOnOnboarding = ref<number>(1)
     const sharePrice = ref<number>(0)
+    const sharePaymentAccountId = ref<number | null>(null)
     const sharesCompulsoryAppliesToExisting = ref<boolean>(false)
     const autoCreateSavingsAccount = ref<boolean>(true)
     const requireMemberApproval = ref<boolean>(false)
@@ -35,6 +36,7 @@ export const useSettingsStore = defineStore('settings', () => {
         sharesCompulsory.value = Boolean(data.shares_compulsory)
         minSharesOnOnboarding.value = Number(data.min_shares_on_onboarding ?? 1)
         sharePrice.value = Number(data.share_price ?? 0)
+        sharePaymentAccountId.value = data.share_payment_account_id ?? null
         sharesCompulsoryAppliesToExisting.value = Boolean(data.shares_compulsory_applies_to_existing)
         autoCreateSavingsAccount.value = data.auto_create_savings_account ?? true
         requireMemberApproval.value = Boolean(data.require_member_approval)
@@ -83,6 +85,7 @@ export const useSettingsStore = defineStore('settings', () => {
         sharesCompulsory,
         minSharesOnOnboarding,
         sharePrice,
+        sharePaymentAccountId,
         sharesCompulsoryAppliesToExisting,
         autoCreateSavingsAccount,
         requireMemberApproval,
