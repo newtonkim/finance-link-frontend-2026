@@ -36,11 +36,11 @@ export const useSettingsStore = defineStore('settings', () => {
         sharesCompulsory.value = Boolean(data.shares_compulsory)
         minSharesOnOnboarding.value = Number(data.min_shares_on_onboarding ?? 1)
         sharePrice.value = Number(data.share_price ?? 0)
-        sharePaymentAccountId.value = data.share_payment_account_id ?? null
         sharesCompulsoryAppliesToExisting.value = Boolean(data.shares_compulsory_applies_to_existing)
         autoCreateSavingsAccount.value = data.auto_create_savings_account ?? true
         requireMemberApproval.value = Boolean(data.require_member_approval)
         loyalMemberMinTenureMonths.value = data.loyal_member_min_tenure_months ?? 12
+        sharePaymentAccountId.value = data.share_payment_account_id ?? null
         hideInitialDeposit.value = Boolean(data.hide_initial_deposit_field)
         hideOpeningBalance.value = Boolean(data.hide_opening_balance_field)
         hideIsShareholderField.value = Boolean(data.hide_is_shareholder_field)
