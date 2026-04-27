@@ -4,7 +4,7 @@
         // view: 'general-charges-details',
         // edit: 'general-charges-update',
         // delete: 'general-charges-delete'
-    }" drawerWidth=" w-2/4" :url="tableUrl" state="general-chargesList" :drawerTitle="drawerTitle" " :columns="
+    }" drawerWidth=" w-2/4" :url="tableUrl" state="general-chargesList" :drawerTitle="drawerTitle"  :columns="
         columns" @save="saveUser">
         <template #header-action>
             <PainPageHeader title="General charges list" dec="Manage SACCO general chargeses" />

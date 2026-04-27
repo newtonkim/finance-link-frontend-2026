@@ -58,7 +58,11 @@ const settingsCards = [
         title: "Share Capital",
         description: "Manage share capital structure and limits.",
         type: "link",
-        action: "Manage Capital →"
+        action: "Manage Capital →",
+        slot: "share-capital",
+        route: { name: "tenant-settings-Capitalize-list" },
+
+
     },
     {
         id: "share-pricing",
@@ -115,6 +119,12 @@ function toggleDrawer(page: string) {
                     Manage Shares →
                 </button>
             </template>
+            <!-- <template #share-capital>
+                <Link  to="/tenant/settings/shares-dividends/capital"
+                    class="text-nfuko-primary dark:text-bg-nfuko-yellow text-sm font-medium hover:underline">
+                    Manage capital →
+                </Link>
+            </template> -->
 
             <template #dividend-distribution>
                 <div class="mb-4 flex flex-wrap gap-3">
