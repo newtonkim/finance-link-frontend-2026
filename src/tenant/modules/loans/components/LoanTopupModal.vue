@@ -128,7 +128,9 @@ async function finalize() {
     emit('success')
     close()
 
-    if (data.new_loan_id) {
+    if (data.application_id) {
+      router.push({ name: 'tenant-loans-show', params: { id: data.application_id } })
+    } else if (data.new_loan_id) {
       router.push({ name: 'tenant-loan-account', params: { id: data.new_loan_id } })
     }
   } catch (e: any) {
