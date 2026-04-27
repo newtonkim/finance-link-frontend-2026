@@ -173,12 +173,21 @@ export function useGeneralLoanSettings() {
   async function loadChartAccounts() {
     if (accountsLoaded) return
     try {
-      const res = await chartOfAccountsApi.list({ list: 1 })
-      chartAccountOptions.value = (res.data?.data ?? []).map((a: any) => ({
+      const res = await chartOfAccountsApi.list({ list: 1, account_type: 'INCOME', is_postable: 1 })
+      const accounts = res.data?.data ?? []
+      chartAccountOptions.value = accounts.map((a: any) => ({
         id: a.id,
         name: `${a.code ?? a.gl_code ?? ''} — ${a.name}`,
       }))
       accountsLoaded = true
+
+      // Auto-populate the reschedule fee income account with 4250 if not already set
+      if (!form.reschedule_fee_income_account_id) {
+        const defaultAccount = accounts.find((a: any) => (a.gl_code ?? a.code) === '4250')
+        if (defaultAccount) {
+          form.reschedule_fee_income_account_id = defaultAccount.id
+        }
+      }
     } catch {
       // non-fatal
     }

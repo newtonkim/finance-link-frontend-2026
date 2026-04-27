@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { Settings2, X, Zap } from 'lucide-vue-next'
+import { Settings2, Zap } from 'lucide-vue-next'
 import { Spinner, Label, SearchableSelect } from '@/Global'
 import { useGeneralLoanSettings } from '../composables/useGeneralLoanSettings'
 
 const emit = defineEmits(['close'])
 
-const { showDrawer, loading, saving, form, chartAccountOptions, fetchSettings, openDrawer, closeDrawer, save } =
+const { loading, saving, form, chartAccountOptions, fetchSettings, openDrawer, closeDrawer, save } =
   useGeneralLoanSettings()
 
 onMounted(() => {
@@ -88,14 +88,13 @@ defineExpose({ openDrawer })
 
                   <div class="space-y-2">
                     <Label class="text-xs font-medium text-neutral-500 uppercase tracking-wider">Automatically disburse new loan?</Label>
-                    <SearchableSelect
-                      v-model="(form.topup_auto_disbursement as any)"
-                      :options="[
-                        { id: 1, name: 'Yes - Straight Disbursement (No Application)' },
-                        { id: 0, name: 'No - Full Application Process required' }
-                      ]"
-                      placeholder="Select workflow..."
-                    />
+                    <select
+                      v-model="form.topup_auto_disbursement"
+                      class="block w-full rounded-xl border border-neutral-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                    >
+                      <option :value="true">Yes - Straight Disbursement (No Application)</option>
+                      <option :value="false">No - Full Application Process required</option>
+                    </select>
                     <p class="text-[11px] text-neutral-400">If Yes, the top-up loan will be disbursed immediately without approval stages.</p>
                   </div>
                 </div>
@@ -180,8 +179,19 @@ defineExpose({ openDrawer })
                       <div class="text-[10px] text-neutral-400">Every reschedule</div>
                     </div>
                     <div class="pr-2">
-                      <SearchableSelect v-model="form.reschedule_fee_type" :options="[{id:'flat',name:'Flat'},{id:'percentage',name:'%'}]"
-                        :disabled="!form.reschedule_fee_enabled" />
+                      <div class="flex rounded-lg border border-neutral-200 overflow-hidden text-xs dark:border-neutral-700"
+                           :class="!form.reschedule_fee_enabled ? 'opacity-40 pointer-events-none' : ''">
+                        <button type="button" @click="form.reschedule_fee_type = 'flat'"
+                          class="flex-1 py-1.5 font-medium transition-colors"
+                          :class="form.reschedule_fee_type === 'flat' ? 'bg-nfuko-primary text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
+                          Flat
+                        </button>
+                        <button type="button" @click="form.reschedule_fee_type = 'percentage'"
+                          class="flex-1 py-1.5 font-medium border-l border-neutral-200 transition-colors dark:border-neutral-700"
+                          :class="form.reschedule_fee_type === 'percentage' ? 'bg-nfuko-primary text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
+                          %
+                        </button>
+                      </div>
                     </div>
                     <div class="pr-2">
                       <input v-model.number="form.reschedule_fee_amount" type="number" min="0" :disabled="!form.reschedule_fee_enabled"
@@ -194,9 +204,12 @@ defineExpose({ openDrawer })
                         placeholder="—" />
                     </div>
                     <div class="pr-2">
-                      <SearchableSelect v-model="form.reschedule_fee_collection"
-                        :options="[{id:'savings',name:'Savings'},{id:'capitalize',name:'Capitalize'},{id:'cash',name:'Cash'}]"
-                        :disabled="!form.reschedule_fee_enabled" />
+                      <select v-model="form.reschedule_fee_collection" :disabled="!form.reschedule_fee_enabled"
+                        class="block w-full rounded-lg border border-neutral-200 bg-white px-2 py-1.5 text-xs outline-none focus:border-nfuko-primary disabled:bg-neutral-50 disabled:text-neutral-400 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white">
+                        <option value="savings">Savings</option>
+                        <option value="capitalize">Capitalize</option>
+                        <option value="cash">Cash</option>
+                      </select>
                     </div>
                     <div class="flex justify-center">
                       <input v-model="form.reschedule_fee_enabled" type="checkbox"
@@ -213,8 +226,19 @@ defineExpose({ openDrawer })
                       <div class="text-[10px] text-neutral-400">Different product selected</div>
                     </div>
                     <div class="pr-2">
-                      <SearchableSelect v-model="form.reschedule_product_change_fee_type" :options="[{id:'flat',name:'Flat'},{id:'percentage',name:'%'}]"
-                        :disabled="!form.reschedule_product_change_fee_enabled" />
+                      <div class="flex rounded-lg border border-neutral-200 overflow-hidden text-xs dark:border-neutral-700"
+                           :class="!form.reschedule_product_change_fee_enabled ? 'opacity-40 pointer-events-none' : ''">
+                        <button type="button" @click="form.reschedule_product_change_fee_type = 'flat'"
+                          class="flex-1 py-1.5 font-medium transition-colors"
+                          :class="form.reschedule_product_change_fee_type === 'flat' ? 'bg-nfuko-primary text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
+                          Flat
+                        </button>
+                        <button type="button" @click="form.reschedule_product_change_fee_type = 'percentage'"
+                          class="flex-1 py-1.5 font-medium border-l border-neutral-200 transition-colors dark:border-neutral-700"
+                          :class="form.reschedule_product_change_fee_type === 'percentage' ? 'bg-nfuko-primary text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
+                          %
+                        </button>
+                      </div>
                     </div>
                     <div class="pr-2">
                       <input v-model.number="form.reschedule_product_change_fee_amount" type="number" min="0"
@@ -228,9 +252,12 @@ defineExpose({ openDrawer })
                         placeholder="—" />
                     </div>
                     <div class="pr-2">
-                      <SearchableSelect v-model="form.reschedule_product_change_fee_collection"
-                        :options="[{id:'savings',name:'Savings'},{id:'capitalize',name:'Capitalize'},{id:'cash',name:'Cash'}]"
-                        :disabled="!form.reschedule_product_change_fee_enabled" />
+                      <select v-model="form.reschedule_product_change_fee_collection" :disabled="!form.reschedule_product_change_fee_enabled"
+                        class="block w-full rounded-lg border border-neutral-200 bg-white px-2 py-1.5 text-xs outline-none focus:border-nfuko-primary disabled:bg-neutral-50 disabled:text-neutral-400 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white">
+                        <option value="savings">Savings</option>
+                        <option value="capitalize">Capitalize</option>
+                        <option value="cash">Cash</option>
+                      </select>
                     </div>
                     <div class="flex justify-center">
                       <input v-model="form.reschedule_product_change_fee_enabled" type="checkbox"
@@ -247,8 +274,19 @@ defineExpose({ openDrawer })
                       <div class="text-[10px] text-neutral-400">Same product kept</div>
                     </div>
                     <div class="pr-2">
-                      <SearchableSelect v-model="form.reschedule_same_product_fee_type" :options="[{id:'flat',name:'Flat'},{id:'percentage',name:'%'}]"
-                        :disabled="!form.reschedule_same_product_fee_enabled" />
+                      <div class="flex rounded-lg border border-neutral-200 overflow-hidden text-xs dark:border-neutral-700"
+                           :class="!form.reschedule_same_product_fee_enabled ? 'opacity-40 pointer-events-none' : ''">
+                        <button type="button" @click="form.reschedule_same_product_fee_type = 'flat'"
+                          class="flex-1 py-1.5 font-medium transition-colors"
+                          :class="form.reschedule_same_product_fee_type === 'flat' ? 'bg-nfuko-primary text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
+                          Flat
+                        </button>
+                        <button type="button" @click="form.reschedule_same_product_fee_type = 'percentage'"
+                          class="flex-1 py-1.5 font-medium border-l border-neutral-200 transition-colors dark:border-neutral-700"
+                          :class="form.reschedule_same_product_fee_type === 'percentage' ? 'bg-nfuko-primary text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
+                          %
+                        </button>
+                      </div>
                     </div>
                     <div class="pr-2">
                       <input v-model.number="form.reschedule_same_product_fee_amount" type="number" min="0"
@@ -262,9 +300,12 @@ defineExpose({ openDrawer })
                         placeholder="—" />
                     </div>
                     <div class="pr-2">
-                      <SearchableSelect v-model="form.reschedule_same_product_fee_collection"
-                        :options="[{id:'savings',name:'Savings'},{id:'capitalize',name:'Capitalize'},{id:'cash',name:'Cash'}]"
-                        :disabled="!form.reschedule_same_product_fee_enabled" />
+                      <select v-model="form.reschedule_same_product_fee_collection" :disabled="!form.reschedule_same_product_fee_enabled"
+                        class="block w-full rounded-lg border border-neutral-200 bg-white px-2 py-1.5 text-xs outline-none focus:border-nfuko-primary disabled:bg-neutral-50 disabled:text-neutral-400 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white">
+                        <option value="savings">Savings</option>
+                        <option value="capitalize">Capitalize</option>
+                        <option value="cash">Cash</option>
+                      </select>
                     </div>
                     <div class="flex justify-center">
                       <input v-model="form.reschedule_same_product_fee_enabled" type="checkbox"
@@ -284,8 +325,19 @@ defineExpose({ openDrawer })
                       <div class="text-[10px] text-amber-700 dark:text-amber-400">Applied manually per reschedule</div>
                     </div>
                     <div class="pr-2">
-                      <SearchableSelect v-model="form.reschedule_other_charges_type" :options="[{id:'flat',name:'Flat'},{id:'percentage',name:'%'}]"
-                        :disabled="!form.reschedule_other_charges_enabled" />
+                      <div class="flex rounded-lg border border-neutral-200 overflow-hidden text-xs dark:border-neutral-700"
+                           :class="!form.reschedule_other_charges_enabled ? 'opacity-40 pointer-events-none' : ''">
+                        <button type="button" @click="form.reschedule_other_charges_type = 'flat'"
+                          class="flex-1 py-1.5 font-medium transition-colors"
+                          :class="form.reschedule_other_charges_type === 'flat' ? 'bg-nfuko-primary text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
+                          Flat
+                        </button>
+                        <button type="button" @click="form.reschedule_other_charges_type = 'percentage'"
+                          class="flex-1 py-1.5 font-medium border-l border-neutral-200 transition-colors dark:border-neutral-700"
+                          :class="form.reschedule_other_charges_type === 'percentage' ? 'bg-nfuko-primary text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
+                          %
+                        </button>
+                      </div>
                     </div>
                     <div class="pr-2">
                       <input v-model.number="form.reschedule_other_charges_amount" type="number" min="0"
@@ -299,9 +351,12 @@ defineExpose({ openDrawer })
                         placeholder="—" />
                     </div>
                     <div class="pr-2">
-                      <SearchableSelect v-model="form.reschedule_other_charges_collection"
-                        :options="[{id:'savings',name:'Savings'},{id:'capitalize',name:'Capitalize'},{id:'cash',name:'Cash'}]"
-                        :disabled="!form.reschedule_other_charges_enabled" />
+                      <select v-model="form.reschedule_other_charges_collection" :disabled="!form.reschedule_other_charges_enabled"
+                        class="block w-full rounded-lg border border-neutral-200 bg-white px-2 py-1.5 text-xs outline-none focus:border-nfuko-primary disabled:bg-neutral-50 disabled:text-neutral-400 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white">
+                        <option value="savings">Savings</option>
+                        <option value="capitalize">Capitalize</option>
+                        <option value="cash">Cash</option>
+                      </select>
                     </div>
                     <div class="flex justify-center">
                       <input v-model="form.reschedule_other_charges_enabled" type="checkbox"
