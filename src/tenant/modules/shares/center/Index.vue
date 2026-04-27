@@ -2,25 +2,29 @@
     <TableDrawer :automaticCreate="false" ref="drawer" :printTable="true" drawerWidth=" w-1/2" :show-add-button="false"
         :url="tableUrl" state="recentShareTransactionList" :drawerTitle="automaticCreate?.[statusFilter]?.['title']"
         :columns="columns" @save="saveUser" :showTableAction="true">
+        <template #sub-header>
+            <AnalysisTile :data="stats" grid-class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-3" />
+        </template>
         <template #header-action>
             <PainPageHeader title="Shares Center" dec="Manage all share accounts/Recent shares transactions ." />
         </template>
         <template #salutation_name="{ item }">
-            <span>
-                <Button @click="navigateToProfile(item)"
-                    class="flex items-center gap-2 font-semibold text-nfuko-action text-sm dark:text-white">
-                    <span>{{ item?.salutation_name }}</span>
-                </Button>
-            </span>
+
+            <Button @click="navigateToProfile(item)" class="  font-semibold text-nfuko-action text-sm dark:text-white">
+                <span>{{ item?.salutation_name }}</span>
+            </Button>
+
         </template>
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters"
                 @update:modelValue="(e) => { OpenThedrawer(e) }" />
         </template>
-        <template #actions>
-            <TabelActionButtons title="revert" color="danger" icon="CirclePlus" @action="() => { 
-                automaticCreate['share-transaction-revert'].action()
+        <template #actions="{ item }">
+            <TabelActionButtons v-if="item?.payment_mode != 'withdrawal'" title="revert" color="danger" icon="CirclePlus"
+                @action="() => {
+                    automaticCreate['share-transaction-revert'].action()
                 }" />
+            <TabelActionButtons v-else title="revert" color="default" icon="CirclePlus" />
         </template>
         <template #drawer="{ action, data }">
             <component :is="drawerComponet" :data="{ ...data, action }" v-model:form="formData" />
@@ -30,10 +34,13 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { SellShares, TransferShares, WithdrawShares } from '.'
-import { Confirm, setLocalValues } from '@/Global'
+import { AnalysisTile, Confirm, setLocalValues } from '@/Global'
 import { useRouter } from 'vue-router';
 import { shareCenterApi } from '@/tenant/apis/shares';
+import { pomPinia } from 'septor-store';
 const { TranUniShares: SellSharesApi } = shareCenterApi()
+const Store = pomPinia();
+
 const router = useRouter(), drawer = ref<any>(null),
     formData = ref<any[]>([]), statusFilter = ref<string>(''),
     filters = ['sell shares', 'transfer shares', 'share withdrawal'],
@@ -43,59 +50,58 @@ const router = useRouter(), drawer = ref<any>(null),
             title: "Sell Shares",
             componet: SellShares,
             action: () => submitData('sell-shares')
-            
+
         },
         "transfer shares": {
             title: "transfer shares",
             componet: TransferShares,
             action: () => submitData('transfer-shares')
-            
+
         },
         "share withdrawal": {
             title: "share withdrawal",
             componet: WithdrawShares,
             action: () => submitData('share-withdrawal')
-            
+
         },
         "share-transaction-revert": {
             title: "share transaction revert",
             componet: WithdrawShares,
-            action: () => submitData('share-transaction-revert', 'Are you sure you want to revert this transaction','warning',false)
-            
+            action: () => submitData('share-transaction-revert', 'Are you sure you want to revert this transaction', 'warning', false)
+
         },
 
     })
 
-function submitData(end: string = '', des?: string, type?: 'warning',toggle?:true) {
+function submitData(end: string = '', des?: string, type?: 'warning', toggle: boolean = true) {
     Confirm({
-      title: 'Confirm shares transaction',
-      des,
-      type,
-      confirm: async () => {
-          SellSharesApi(`holders/${end}`, formData.value).then(v => {
-              if (v?.code == 200)
-              statusFilter.value = "y"
-            if(toggle)
-                  drawer.value?.toggleDrawer()
-              statusFilter.value = ''
-          })
-      }, cancel: () => {},
+        title: 'Confirm shares transaction',
+        des,
+        type,
+        confirm: async () => {
+            SellSharesApi(`holders/${end}`, formData.value).then(v => {
+                if (v?.code == 200)
+                    statusFilter.value = "y"
+                if (toggle)
+                    drawer.value?.toggleDrawer()
+                statusFilter.value = ''
+            })
+        }, cancel: () => { },
     });
-
 }
 function saveUser(type: string, data: any) {
     if (automaticCreate.value[statusFilter.value]?.action) automaticCreate.value[statusFilter.value]?.action()
-
 }
 const columns = [
-    { key: 'member_code', label: 'code', sticky: 'left', width: '14em', },
+    { key: 'member_code', label: 'code', sticky: 'left', copy: true },
     { key: 'salutation_name', label: 'Member', },
     { key: 'reference', label: 'reference', width: '14em', copy: true },
     { key: 'amount', label: 'amount', type: "money" },
     { key: 'charge_amount', label: 'charges', type: "money" },
-    { key: 'payment_mode', label: 'method', },
-    { key: 'narration', label: 'narration', tooltip:true,width: '14em', },
-    { key: 'created_at', label: 'created at', type: 'date', width: '10em' ,onSearch: { type: 'date-range', }},
+    { key: 'account_type', label: 'method', tooltip: true, width: '7.6em', },
+    { key: 'payment_mode', label: 'type', },
+    { key: 'narration', label: 'narration', tooltip: true, width: '14em', },
+    { key: 'created_at', label: 'created at', type: 'date', width: '10em', onSearch: { type: 'date-range', } },
     { key: 'actions', label: 'Actions', }
 ]
 const drawerComponet = computed(() => automaticCreate.value[statusFilter.value]?.componet)
@@ -116,4 +122,69 @@ function navigateToProfile(item: any) {
     setLocalValues('memberProfile', { ...item, id: item?.member_id })
     router.push(`/tenant/member/profile`)
 }
+
+const stats = computed(() => [
+    {
+        title: 'Share balance',
+        value: Store?.recentShareTransactionList?.payload?.share_capitalization?.balance ?? 0,
+        trendColor: 'text-emerald-500',
+        bgColor: 'bg-[#f0f9f6]',
+        iconColor: 'text-[#2d9d78]',
+        type: 'number'
+    },
+    {
+        title: 'Share Capitalization',
+        value: Store?.recentShareTransactionList?.payload?.share_capitalization?.open_capital ?? 0,
+        trendColor: 'text-emerald-500',
+        bgColor: 'bg-[#f0f9f6]',
+        iconColor: 'text-[#2d9d78]',
+        type: 'number'
+
+    },
+    {
+        title: 'Share Price',
+        value: Store?.recentShareTransactionList?.payload?.price_now_for_share ?? 0,
+        trendColor: 'text-emerald-500',
+        bgColor: 'bg-[#f0f9f6]',
+        iconColor: 'text-[#2d9d78]',
+        type: 'number'
+
+    },
+    {
+        title: 'Share Limit',
+        value: Store?.recentShareTransactionList?.payload?.share_limit ?? 0,
+        trendColor: 'text-emerald-500',
+        bgColor: 'bg-[#f0f9f6]',
+        iconColor: 'text-[#2d9d78]',
+        type: 'number'
+
+    },
+    {
+        title: "Total Share Value",
+        value: Store?.recentShareTransactionList?.payload?.total_share_value ?? 0,
+        trendColor: 'text-emerald-500',
+        bgColor: 'bg-[#f0f9f6]',
+        iconColor: 'text-[#2d9d78]',
+        type: 'number'
+
+
+    }, {
+        title: 'share Holders',
+        value: Store?.recentShareTransactionList?.payload?.total_holder ?? 0,
+        trendColor: 'text-emerald-500',
+        bgColor: 'bg-[#f0f9f6]',
+        iconColor: 'text-[#2d9d78]',
+        type: 'number'
+    },
+    {
+        title: 'Total Shares',
+        value: Store?.recentShareTransactionList?.payload?.total_share ?? 0,
+        trendColor: 'text-emerald-500',
+        bgColor: 'bg-[#f0f9f6]',
+        iconColor: 'text-[#2d9d78]',
+        type: 'number'
+    },
+
+])
+
 </script>

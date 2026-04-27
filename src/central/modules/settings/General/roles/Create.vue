@@ -24,7 +24,7 @@ const form = ref([
         label: 'description',
         name: 'dec',
         type: 'text',
-        required: true, placeholder: 'Enter Description'
+        required: false, placeholder: 'Enter Description'
     },
 
 ])
