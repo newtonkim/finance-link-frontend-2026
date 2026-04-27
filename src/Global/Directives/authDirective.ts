@@ -3,6 +3,8 @@ import { localStoragePicker } from "../Helpers";
 export default {
   async mounted(el: any, binding: any) {
     const permission = binding.value;
+    
+    // console.log(el,permission);
 
     // No permission required — always show
     if (!permission) return;
@@ -15,6 +17,7 @@ export default {
     if (!userPermissions.length) return;
     
     
+// console.log(permission,userPermissions.includes(permission));
 
     if (!userPermissions.includes(permission)) {
       el.parentNode && el.parentNode.removeChild(el);

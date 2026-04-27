@@ -1,6 +1,6 @@
 <template>
-    <div class="flex h-full fle x-1 flex-col  px-1 py-3 ">
-        <!-- {{ drawerOpen }} -->
+    <div class="flex h-full fle x-1 flex-col  px-1 py-3 " v-auth="permission">
+     
         <div class="flex items-center justify-between">
             <div v-if="$slots['header-action']" class='my-2'>
                 <slot name="header-action" />
@@ -119,6 +119,7 @@ import useTableHelpers from './util/tableHelpers.ts';
 
 
 const props = defineProps({
+    permission: { type: String, default: null, required: false },
     addButtonText: {
         type: Object,
         default: () => ({ icon: Plus, text: 'Add New', link: '#' })

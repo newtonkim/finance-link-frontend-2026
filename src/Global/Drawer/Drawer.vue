@@ -12,7 +12,11 @@
     >
       <SheetHeader class="py-4 border-b border-neutral-100 dark:border-neutral-800">
         <SheetTitle class="text-xl font-bold text-neutral-900 dark:text-white capitalize">
-          {{ props.title ? `${props.title}`.toLocaleLowerCase() : "" }} 
+          <span>
+ <!-- {{ props.title ? `${props.title}`.toLocaleLowerCase() : "" }} -->
+            <span v-html='props?.title?.toLocaleLowerCase()'></span>
+          </span>
+          
         </SheetTitle>
       </SheetHeader>
       <div class="">
@@ -60,8 +64,6 @@
 <script setup lang="ts">
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/Global";
 import { Button } from "@/Global";
-import { formawtacher } from "../Forminputs/formWatcher";
-const formStore = formawtacher()
 
 const props = withDefaults(
   defineProps<{
