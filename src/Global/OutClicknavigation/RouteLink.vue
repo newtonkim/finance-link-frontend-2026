@@ -78,4 +78,5 @@ function getRoutePath(route) {
     return `/${props.prifix}/${route.path}`;
 }
  
+// trigger
 </script>
