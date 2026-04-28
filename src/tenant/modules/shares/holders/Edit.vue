@@ -222,6 +222,7 @@ async function promtValueOnUpdate() {
     label: 'joined date',
     name: 'joined_date',
     value: props.data.joined_date,
+      maxDate: new Date(),
 
     type: 'date',
     required: true,

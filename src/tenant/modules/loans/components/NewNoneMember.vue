@@ -42,6 +42,7 @@ const fields = ref<any[]>([
     label: 'Date Of Birth',
     name: 'date_of_birth',
     type: 'datec',
+      maxDate: new Date(),
     required: true,
     props: { placeholder: 'Select Start & End Dates' },
   },
@@ -134,6 +135,8 @@ const fields = ref<any[]>([
     label: 'joined date',
     name: 'joined_date',
     type: 'date',
+        max: new Date().toISOString().split('T')[0],
+
     required: true,
     placeholder: 'Referred by',
   },

@@ -34,6 +34,8 @@ const fields = ref<any[]>([
         label: 'Starts At / Expires At',
         name: 'date',
         type: 'datec',
+      maxDate: new Date(),
+
         required: true,
         range: true,
         'multi-calendars': true,

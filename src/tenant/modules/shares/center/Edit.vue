@@ -113,6 +113,8 @@ async function promtValueOnUpdate() {
     name: 'date_of_birth',
     type: 'datec',
     required: true,
+      maxDate: new Date(),
+
     value: props.data.dob,
 
     props: { placeholder: 'Select Start & End Dates' },
