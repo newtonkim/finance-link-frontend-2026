@@ -137,7 +137,7 @@ const fields = ref<any[]>([
     label: 'Other Contacts',
     name: 'other_contacts',
     type: 'phone',
-    required: true,
+    required: false,
     placeholder: 'Enter Other Contacts',
   },
   {
@@ -174,6 +174,7 @@ const fields = ref<any[]>([
     name: 'nationality',
     type: 'nationality',
     required: true,
+    value:'Ugandan',
     placeholder: 'Enter Nationality',
   },
   {
@@ -211,6 +212,7 @@ const fields = ref<any[]>([
     name: 'joined_date',
     type: 'date',
     required: true,
+    max: new Date().toISOString().split('T')[0],
     placeholder: 'join date ',
   },
   {
