@@ -114,6 +114,7 @@ async function promtValueOnUpdate() {
     type: 'datec',
     required: true,
     value: props.data.dob,
+      maxDate: new Date(),
 
     props: { placeholder: 'Select Start & End Dates' },
   },
@@ -222,6 +223,7 @@ async function promtValueOnUpdate() {
     label: 'joined date',
     name: 'joined_date',
     value: props.data.joined_date,
+    max: new Date().toISOString().split('T')[0],
 
     type: 'date',
     required: true,

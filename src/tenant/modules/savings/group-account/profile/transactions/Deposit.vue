@@ -54,6 +54,8 @@ function initialize() {
             required: false,
             placeholder: 'Amount to withdraw',
             value: new Date().toISOString().split('T')[0],
+      maxDate: new Date(),
+
         },
           {
             label: 'Depositing member',

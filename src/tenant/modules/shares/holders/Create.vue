@@ -124,6 +124,8 @@ const fields = ref<any[]>([
     name: 'date_of_birth',
     type: 'datec',
     required: true,
+      maxDate: new Date(),
+
     props: { placeholder: 'Select Start & End Dates' },
   },
   {

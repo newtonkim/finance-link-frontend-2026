@@ -80,6 +80,8 @@ const loading = ref(true),
       name: 'dcreated',
       type: 'date',
       required: true,
+      maxDate: new Date(),
+
       placeholder: 'Enter Date Create',
     },
     {

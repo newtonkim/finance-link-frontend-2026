@@ -53,6 +53,8 @@ function initialize() {
             label: 'transaction date ',
             name: 'transaction_date',
             type: 'datec',
+      maxDate: new Date(),
+
             required: false,
             placeholder: 'Amount to withdraw',
             value: new Date().toISOString().split('T')[0],

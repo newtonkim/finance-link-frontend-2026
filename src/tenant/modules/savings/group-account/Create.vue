@@ -65,6 +65,8 @@ const loading = ref(true),
           name: 'dcreated',
           type: 'datec',
           required: true,
+      maxDate: new Date(),
+
           placeholder: 'Enter Date Create',
         },
         {
