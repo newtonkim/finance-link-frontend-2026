@@ -30,7 +30,10 @@ const menuItems = computed(() => {
   ]
 })
 
-const navigate = (path: string) => router.push(path)
+const navigate = (path: string) => {
+  if (!path) return
+  router.push(path)
+}
 
 const handleLogout = async () => {
   await authStore.logout()
