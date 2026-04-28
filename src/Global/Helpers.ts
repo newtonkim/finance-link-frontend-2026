@@ -6,7 +6,7 @@ const encryptStorage = new EncryptStorage(import.meta.env.VITE_ENCRYPT_STORAGE)
 import { notify } from '@/Global/Toasters'
 // import * as XLSX from 'xlsx'
 import { fetchTableData } from './landingLayout/util'
-import { type PrintOptions } from './printing';
+import { type PrintOptions } from './printing'
 
 export * from './numericHelpers'
 
@@ -188,7 +188,7 @@ export function pickAsettingKeyValue(key: string) {
   try {
     const data = encryptStorage.getItem(keysToUse.systemSettings)
     // console.log(data);
-    
+
     return data[key]
   } catch (error) {
     console.error('failed to get this  key:', error)
@@ -240,7 +240,6 @@ export function addNumberCommas(number: any, delimeter = ',') {
   return `${number}`.toString().replace(/\B(?=(\d{3})+(?!\d))/g, delimeter)
 }
 export const formatCurrency = (amount: number | string, currencyCode = 'UGX') => {
-  
   return new Intl.NumberFormat('en-UG', {
     style: 'currency',
     currency: currencyCode,
@@ -405,7 +404,6 @@ export function formDataFormatV2(fields: any[]) {
 
   return fd
 }
-
 
 export function formDataFormat(data: any) {
   // first version
@@ -639,7 +637,7 @@ export function RouteStructure(route: any, routePath: string | null) {
     meta: {
       label: route.label,
       permissions: route.permissions,
-    }
+    },
   }
 }
 export function checkIfObjectPlain(collection: any) {
@@ -700,6 +698,9 @@ export function feedback(res: any, success?: string, fail?: string) {
       success: false,
     }
   }
+  if (msg.msg == 'Request failed with status code 500') {
+    msg.msg = 'Something is wrong on there server side /please contact help desk to fix this issue'
+  }
 
   if (res?.code == 200) {
     // if (!res || res.code == 200) {
@@ -710,9 +711,8 @@ export function feedback(res: any, success?: string, fail?: string) {
       success: successStatus,
     }
   }
-  if(!res)
-    msg.msg = 'Something went wrong'
-  
+  if (!res) msg.msg = 'Something went wrong'
+
   notify(msg)
   return {
     success: successStatus,
@@ -777,7 +777,7 @@ export const exportToExcel = async ({
   name = 'export',
   sheetName = 'Sheet1',
 }) => {
-  const XLSX = await import('xlsx');
+  const XLSX = await import('xlsx')
   if (!data.length && !headers.length) {
     console.warn('No data or headers provided')
 
