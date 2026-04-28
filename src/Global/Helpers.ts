@@ -398,7 +398,10 @@ export function formDataFormatV2(fields: any[]) {
       fd.append(key, value)
     }
   })
-  fd.append('branch_id', getLocalValues('activeBranch'))
+  const branch_id = getLocalValues('activeBranch')
+  if (branch_id && branch_id !== 'undefined' && branch_id !== 'null') {
+    fd.append('branch_id', branch_id)
+  }
 
   return fd
 }
@@ -440,7 +443,10 @@ export function formDataFormat(data: any) {
       formData.append(lowerCaseKeys, value)
     }
   }
-  formData.append('branch_id', getLocalValues('activeBranch'))
+  const branch_id = getLocalValues('activeBranch')
+  if (branch_id && branch_id !== 'undefined' && branch_id !== 'null') {
+    formData.append('branch_id', branch_id)
+  }
 
   return formData
 }

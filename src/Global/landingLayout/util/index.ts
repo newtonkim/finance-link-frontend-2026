@@ -128,7 +128,7 @@ export async function fetchTableData({
   const branch_id = getLocalValues('activeBranch' as const)
   // const method = resolveMethod(props?.url, data, props?.method)
   const quer = props?.url.includes('?') ? `${props?.url}&` : `${props?.url}?`
-  const branchQuery = branch_id ? `branch_id=${branch_id}` : ''
+  const branchQuery = (branch_id && branch_id !== 'undefined' && branch_id !== 'null') ? `branch_id=${branch_id}` : ''
   const collection = {
     reload: !!props.reload ? 0 : 1, // dont think am stupid i know that
     // reload: !!props.reload ? 0 : 1, // dont think am stupid i know that

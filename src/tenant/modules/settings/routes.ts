@@ -28,7 +28,7 @@ const Notifications = () => import('./pages/Notifications.vue')
 const TransactionCharges = () => import('./pages/TransactionCharges.vue')
 const BranchList = () => import('@/tenant/modules/settings/branches/Index.vue')
 const GeneralCharges = () => import('@/tenant/modules/settings/general-charges/Index.vue')
-const Capitalize = () => import('@/tenant/modules/settings/shares-dividends/Capitalize/Index.vue')
+const Capitalize = () => import('@/tenant/modules/settings/shares-dividends/Capitalize/index.vue')
 const LoanChargesIndex = () => import('@/tenant/modules/settings/loan-charges/Index.vue')
 
 export const settingsRoutes: RouteRecordRaw[] = [
