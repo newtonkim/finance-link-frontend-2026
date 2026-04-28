@@ -18,8 +18,21 @@ export function shareCenterApi() {
     feedback(getCharges)
     return getCharges
   }
+  async function shareTransactionCharge(data: {type:string,shares:any}) {
+    const getCharges = await fetchTableData({
+      data: formDataFormat(data),
+      Store,
+      props: {
+          url: '/shares/transactions/charge',
+        method: 'post',
+        time: 0,
+        state: 'charge-transactions',
+      },
+    })
+    return getCharges.payload
+  }
 
   return {
-    TranUniShares,
+    TranUniShares,shareTransactionCharge
   }
 }

@@ -2,6 +2,10 @@
 import { ref, onMounted, watch, computed } from "vue";
 import { Form, pickAsettingKeyValue } from "@/Global";
 const emits = defineEmits(["update:form"]);
+import { shareCenterApi } from '@/tenant/apis/shares';
+const { shareTransactionCharge } = shareCenterApi()
+let debounceTimer: any = null
+
 const props = defineProps({
   data: {
     type: Object,
@@ -39,6 +43,8 @@ function intialize() {
           field.helper = `<span class="text-red-500">You can't sell more than ${maxShare} shares</span>`
         }
         share_no.value = shn
+        findACharge()
+
       }
     },
     {
@@ -62,6 +68,8 @@ function intialize() {
       required: true,
       placeholder: "10,000",
       change: (value: number) => {
+        clearTimeout(debounceTimer)
+        debounceTimer = setTimeout(() => {
         const memebr = fields.value.find((f: any) => f.name === 'member_id')
         const field = fields.value.find((f: any) => f.name === 'amount')
         const shn = (Math.floor(value / sharePrice.value)) + Number(memebr?.value?.selected?.total_shares ?? 0)
@@ -72,7 +80,18 @@ function intialize() {
           field.helper = `<span class="text-red-500">Memeber reached maximum shares of ${maxShare}/${shn}</span>`
         }
         share_no.value = shn
+        findACharge()
+            }, 900)
       },
+    },
+    {
+      label: "charge",
+      name: "charges_amount",
+      type: "number",
+      required: false,
+      disabled: true,
+      placeholder: "10,000",
+
     },
     {
       label: "price",
@@ -114,9 +133,6 @@ function intialize() {
 onMounted(async () => {
   try {
     const res = await pickAsettingKeyValue("sacco-share-price-value");
-    console.log(res);
-
-
     sharePrice.value = Number(res || 0);
     intialize()
   } catch (e) {
@@ -129,6 +145,7 @@ watch(
   () => fields.value,
   (val) => {
     const total_shares = fields.value.find((f: any) => f.name === 'share_no')
+    // findACharge()
     if (total_shares >= maxShare) {
       emits("update:form", []);// prevent form submission
     } else {
@@ -137,6 +154,22 @@ watch(
   },
   { deep: true }
 );
+
+function findACharge() {
+  clearTimeout(debounceTimer)
+  debounceTimer = setTimeout(() => {
+    const share_no = fields.value.find((f: any) => f.name === 'share_no')
+    shareTransactionCharge({
+      type: "selling",
+      shares: share_no?.value,
+    }).then((res) => {
+    const charge =  fields.value.find((f: any) => f.name === 'charges_amount')
+    if(charge)
+    charge.value = res?.cost
+    })
+  }, 500)
+}
+
 </script>
 <template>
   <div class="card shadow-md p-6 bg-white dark:bg-neutral-800 rounded-md h-[86vh] overflow-y-auto">

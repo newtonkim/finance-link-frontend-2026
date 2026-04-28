@@ -1,5 +1,5 @@
 <template>
-    <TableDrawer :automaticCreate="false" ref="drawer" :printTable="true" drawerWidth=" w-1/2" :show-add-button="false"
+    <TableDrawer :automaticCreate="false" ref="drawer"   drawerWidth=" w-1/2" :show-add-button="false"
         :url="tableUrl" state="recentShareTransactionList" :drawerTitle="automaticCreate?.[statusFilter]?.['title']"
         :columns="columns" @save="saveUser" :showTableAction="true">
         <template #sub-header>
@@ -67,7 +67,7 @@ const router = useRouter(), drawer = ref<any>(null),
         "share-transaction-revert": {
             title: "share transaction revert",
             componet: WithdrawShares,
-            action: () => submitData('share-transaction-revert', 'Are you sure you want to revert this transaction', 'warning', false)
+            action: () => submitData('share-transaction-revert', 'Are you sure you want to revert this transaction(not yet working)', 'warning', false)
 
         },
 
