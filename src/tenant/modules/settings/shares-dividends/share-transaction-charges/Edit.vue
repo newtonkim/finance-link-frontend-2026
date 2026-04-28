@@ -66,10 +66,10 @@ const createRow = (index: number, values: any = {}) => [
   },
   {
     label: "id",
-    key: "id",
-    name: `rows[${index}][id]`,
+    name: "id",
     type: "number",
     disabled: true,
+    hidden: true,
     required: true,
     value: props?.data?.id || "",
   },
@@ -141,7 +141,7 @@ onMounted(() => {
 
         <Form
           :action="data?.action"
-          parentStyle="grid grid-cols-1    md:grid-cols-2 gap-5"
+          parentStyle="grid grid-cols-1    md:grid-cols-1 gap-5"
           v-model:form="rows[index]"
         />
       </div>
