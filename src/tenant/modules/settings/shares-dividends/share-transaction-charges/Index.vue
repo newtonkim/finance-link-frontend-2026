@@ -1,5 +1,5 @@
 <template>
-    <TableDrawer ref="drawer" drawer-Width=" w-2/3" :url="tableUrl" state="sharrTransactionChargesList"
+    <TableDrawer ref="drawer" drawer-Width=" w-2/3" :url="tableUrl" state="shareTransactionChargesList"
         :drawerTitle="drawerTitle" :columns="columns" :showTableAction="true">
         <template #header-action>
             <PainPageHeader v-once title="Share Transaction Charges List" dec="Manage share transaction charges." />
@@ -31,7 +31,4 @@ const statusFilter = ref('selling'),
         { key: 'created_at', label: 'created at', width: '14em ', type: 'date' },
         { key: 'actions', label: 'Actions', show: ['edit'] }
     ]
-
-
-
 </script>
