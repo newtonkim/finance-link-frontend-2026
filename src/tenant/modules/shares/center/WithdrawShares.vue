@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from "vue";
 import { Form, pickAsettingKeyValue } from "@/Global";
+import { shareCenterApi } from '@/tenant/apis/shares';
+const { shareTransactionCharge } = shareCenterApi()
+let debounceTimer: any = null
 const emits = defineEmits(["update:form"]);
 const props = defineProps({
   data: {
@@ -13,24 +16,24 @@ const loading = ref<boolean>(true);
 const getField = (name: string) =>
   fields.value.find((f) => f.name === name);
 
-  function watcher() {
-    setTimeout(() => {
-         const field = getField('amount')
-       const value = field.value??0
-      const member_id = getField('member_id')
-      const shn = Math.floor(value / sharePrice.value)
-      const theselectShares = member_id?.selected?.total_shares
-      const share_no = fields.value.find((f: any) => f.name === 'share_no')
-        member_id.helper = `You have ${theselectShares} shares`
-      field.error = null ;
-      if (shn > theselectShares) {
-        field.error = `You can't sell more than ${theselectShares} shares`
-      } else if (value && sharePrice.value) {
-        field.helper = `<span class="text-nfuko-primary">At UGX ${sharePrice.value} per share. How much is the customer is receiving on the account?`
-      }
-      share_no.value = shn
-    },500)
-  }
+function watcher() {
+  setTimeout(() => {
+    const field = getField('amount')
+    const value = field.value ?? 0
+    const member_id = getField('member_id')
+    const shn = Math.floor(value / sharePrice.value)
+    const theselectShares = member_id?.selected?.total_shares
+    const share_no = fields.value.find((f: any) => f.name === 'share_no')
+    member_id.helper = `You have ${theselectShares} shares`
+    field.error = null;
+    if (shn > theselectShares) {
+      field.error = `You can't sell more than ${theselectShares} shares`
+    } else if (value && sharePrice.value) {
+      field.helper = `<span class="text-nfuko-primary">At UGX ${sharePrice.value} per share. How much is the customer is receiving on the account?`
+    }
+    share_no.value = shn
+  }, 500)
+}
 const fields = ref([
   {
     label: "Select Member",
@@ -44,8 +47,8 @@ const fields = ref([
     helper: "A member buying the shares. Only shareholders appear here",
     colSpan: 2,
     change: (value: any) => {
-     watcher()
-      
+      watcher()
+
     }
   },
   {
@@ -55,7 +58,7 @@ const fields = ref([
     required: true,
     placeholder: "10,000",
     change: (value: number) => {
-     watcher()
+      watcher()
     },
   },
   {
@@ -97,10 +100,25 @@ watch(
   () => fields.value,
   (val) => {
     emits("update:form", val);
+    findACharge()
 
   },
   { deep: true }
 );
+function findACharge() {
+  clearTimeout(debounceTimer)
+  debounceTimer = setTimeout(() => {
+    const share_no = fields.value.find((f: any) => f.name === 'share_no')
+    shareTransactionCharge({
+      type: "withdrawal",
+      shares: share_no?.value,
+    }).then((res) => {
+      const charge = fields.value.find((f: any) => f.name === 'charges_amount')
+      if (charge)
+        charge.value = res?.cost
+    })
+  }, 500)
+}
 </script>
 <template>
   <div class="card shadow-md p-6 bg-white dark:bg-neutral-800 rounded-md h-[86vh] overflow-y-auto">

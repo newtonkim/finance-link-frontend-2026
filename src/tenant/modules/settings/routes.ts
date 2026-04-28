@@ -29,6 +29,7 @@ const TransactionCharges = () => import('./pages/TransactionCharges.vue')
 const BranchList = () => import('@/tenant/modules/settings/branches/Index.vue')
 const GeneralCharges = () => import('@/tenant/modules/settings/general-charges/Index.vue')
 const Capitalize = () => import('@/tenant/modules/settings/shares-dividends/Capitalize/index.vue')
+const ShareTransactionCharges = () => import('@/tenant/modules/settings/shares-dividends/share-transaction-charges/Index.vue')
 const LoanChargesIndex = () => import('@/tenant/modules/settings/loan-charges/Index.vue')
 
 export const settingsRoutes: RouteRecordRaw[] = [
@@ -61,6 +62,11 @@ export const settingsRoutes: RouteRecordRaw[] = [
         path: 'branches',
         name: 'tenant-settings-branch-list',
         component: BranchList,
+      },
+      {
+        path: 'share-transaction-charges',
+        name: 'tenant-settings-share-transaction-charges-list',
+        component: ShareTransactionCharges,
       },
       {
         path: 'capitalize',

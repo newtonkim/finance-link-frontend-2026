@@ -2,7 +2,9 @@
 import { ref, onMounted, watch, computed } from "vue";
 import { Form, pickAsettingKeyValue } from "@/Global";
 import { notify } from "@/Global/Toasters";
-
+import { shareCenterApi } from '@/tenant/apis/shares';
+const { shareTransactionCharge } = shareCenterApi()
+let debounceTimer: any = null
 const emits = defineEmits(["update:form"]);
 
 const props = defineProps({
@@ -60,6 +62,15 @@ const fields = ref<any[]>([
     placeholder: "100.0",
     helper: "",
   },
+  {
+      label: "charge",
+      name: "charges_amount",
+      type: "number",
+      required: false,
+      disabled: true,
+      placeholder: "10,000",
+
+    },
   {
     label: "Transaction Date",
     name: "trans_date",
@@ -161,6 +172,7 @@ watch([shareNo, receivingMember], ([shares, receiver]) => {
 watch(
   fields,
   (val) => {
+    findACharge()
     emits("update:form", val);
   },
   { deep: true }
@@ -175,6 +187,20 @@ onMounted(async () => {
     loading.value = false;
   }
 });
+function findACharge() {
+  clearTimeout(debounceTimer)
+  debounceTimer = setTimeout(() => {
+    const share_no = fields.value.find((f: any) => f.name === 'share_no')
+    shareTransactionCharge({
+      type: "transfer",
+      shares: share_no?.value,
+    }).then((res) => {
+    const charge =  fields.value.find((f: any) => f.name === 'charges_amount')
+    if(charge)
+    charge.value = res?.cost
+    })
+  }, 500)
+}
 </script>
 
 <template>
