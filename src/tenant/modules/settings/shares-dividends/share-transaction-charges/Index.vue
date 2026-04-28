@@ -2,7 +2,7 @@
     <TableDrawer ref="drawer" drawer-Width=" w-2/3" :url="tableUrl" state="shareTransactionChargesList"
         :drawerTitle="drawerTitle" :columns="columns" :showTableAction="true">
         <template #header-action>
-            <PainPageHeader v-once title="Share Transaction Charges List" dec="Manage share transaction charges." />
+            <PainPageHeader v-once title="Share Transaction Charge List" dec="Manage share transaction charges." />
         </template>
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
@@ -19,7 +19,7 @@ import { ref, computed } from 'vue'
 import { Create, Details, Edit } from '.'
 const statusFilter = ref('selling'),
     drawerTitle = ref('Create Tenant'),
-    filters = ['selling', 'buying', 'transfer', 'withdrawal'],
+    filters = ['all','selling', 'buying', 'transfer', 'withdrawal'],
     tableUrl = computed(() => `settings/shares-dividends/share-transaction-charges/list?status=${statusFilter.value}`)
     , columns = [
         { key: 'code', label: 'charge code', sticky: 'left', copy: true, width: '14em', },
