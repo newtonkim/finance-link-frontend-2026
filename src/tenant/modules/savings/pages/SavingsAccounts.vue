@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, computed } from 'vue'
-import { Search, Plus, SlidersHorizontal } from 'lucide-vue-next'
+import { Search, Plus, SlidersHorizontal, Zap, CheckCircle2 } from 'lucide-vue-next'
 import { savingsAccountsApi } from '@/tenant/apis/savingsAccounts/savingsAccountsApi'
 import { savingsProductsApi, type SavingsProduct } from '@/tenant/apis/savingsProducts/api'
 import { toast } from 'vue-sonner'
@@ -21,6 +21,7 @@ interface SavingsAccount {
   savings_product: { id: number; name: string } | null
 }
 interface Meta { current_page: number; last_page: number; total: number }
+interface PostingResult { posted: number; skipped: number; errors: { account_no: string; reason: string }[] }
 
 const currencyStore = useCurrencyStore()
 const currency = computed(() => currencyStore.currencyCode)
@@ -28,6 +29,8 @@ const currency = computed(() => currencyStore.currencyCode)
 const accounts = ref<SavingsAccount[]>([])
 const meta = ref<Meta>({ current_page: 1, last_page: 1, total: 0 })
 const loading = ref(false)
+const posting = ref(false)
+const postingResult = ref<PostingResult | null>(null)
 const search = ref('')
 let searchTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -111,6 +114,20 @@ async function onCreateSuccess(newAccount: any) {
     viewDrawer.value?.openDrawer({ id: newAccount.id })
   }
 }
+
+async function runPostInterest() {
+  posting.value = true
+  postingResult.value = null
+  try {
+    const res = await savingsAccountsApi.postRegularInterest()
+    postingResult.value = res.data?.summary ?? null
+    toast.success(`Interest posting complete — ${postingResult.value?.posted ?? 0} accounts posted.`)
+  } catch (err: any) {
+    toast.error(err?.response?.data?.message ?? 'Interest posting failed.')
+  } finally {
+    posting.value = false
+  }
+}
 </script>
 
 <template>
@@ -121,13 +138,39 @@ async function onCreateSuccess(newAccount: any) {
         <h1 class="text-2xl font-bold text-neutral-900 dark:text-white">Members Savings Account</h1>
         <p class="text-sm text-neutral-500 dark:text-neutral-400">Manage all member savings accounts and their balances.</p>
       </div>
-      <button
-        class="inline-flex items-center gap-2 rounded-full bg-nfuko-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-nfuko-primary/90 transition-colors shadow-sm"
-        @click="createDrawer?.openDrawer()"
-      >
-        <Plus class="h-4 w-4" />
-        Add Account
-      </button>
+      <div class="flex items-center gap-2">
+        <button
+          type="button" @click="runPostInterest" :disabled="posting"
+          class="flex items-center gap-2 rounded-full bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Zap class="h-4 w-4" />
+          {{ posting ? 'Posting...' : 'Post Monthly Interest' }}
+        </button>
+        <button
+          class="inline-flex items-center gap-2 rounded-full bg-nfuko-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-nfuko-primary/90 transition-colors shadow-sm"
+          @click="createDrawer?.openDrawer()"
+        >
+          <Plus class="h-4 w-4" />
+          Add Account
+        </button>
+      </div>
+    </div>
+
+    <!-- Interest posting result banner -->
+    <div v-if="postingResult" class="rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/20">
+      <p class="text-sm font-semibold text-green-800 dark:text-green-300">Interest posting complete</p>
+      <div class="mt-2 flex flex-wrap gap-6 text-sm text-green-700 dark:text-green-400">
+        <span class="flex items-center gap-1"><CheckCircle2 class="h-4 w-4" /> {{ postingResult.posted }} posted</span>
+        <span>{{ postingResult.skipped }} skipped</span>
+        <span v-if="postingResult.errors.length > 0" class="text-red-600 dark:text-red-400">
+          {{ postingResult.errors.length }} error{{ postingResult.errors.length > 1 ? 's' : '' }}
+        </span>
+      </div>
+      <ul v-if="postingResult.errors.length > 0" class="mt-2 space-y-0.5 text-xs text-red-600 dark:text-red-400">
+        <li v-for="err in postingResult.errors" :key="err.account_no">
+          {{ err.account_no }}: {{ err.reason }}
+        </li>
+      </ul>
     </div>
 
     <!-- Search + Filters -->

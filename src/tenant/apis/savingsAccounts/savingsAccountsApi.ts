@@ -25,6 +25,9 @@ export const savingsAccountsApi = {
   charge(id: number, data: Record<string, any>) {
     return tenantClient.post(`/savings-accounts/${id}/charge`, data)
   },
+  postRegularInterest() {
+    return tenantClient.post('/savings/regular-interest/post-interest')
+  },
   // Fixed deposit endpoints
   interestPostings(id: number) {
     return tenantClient.get(`/savings-accounts/${id}/interest-postings`)
