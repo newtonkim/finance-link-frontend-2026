@@ -1,5 +1,4 @@
-import { computed, onMounted, ref, watch } from 'vue'
-import { Plus } from 'lucide-vue-next'
+import { computed, onBeforeMount, onMounted, ref, watch } from 'vue'
 import {
   formDataFormatV2,
   createUrl,
@@ -11,7 +10,6 @@ import {
 import { pomPinia } from 'septor-store'
 import { ACTION_CONFIG, dataTabelFilter, fetchTableData } from './index'
 import { formawtacher } from '@/Global/Forminputs/formWatcher'
-// import { formawtacher } from './formWatcher';
 
 export default function useTableHelpers(props: any, emit: any) {
   const formStore = formawtacher()
@@ -341,10 +339,11 @@ export default function useTableHelpers(props: any, emit: any) {
   function filterDataByString(value: string) {
     searchQuery.value = value
   }
-  onMounted(async () => {
-    callOnmount()
-  })
 
+  onBeforeMount(() => {
+  callOnmount()
+  
+})
   watch(
     () => props?.url,
     () => {
