@@ -5,8 +5,24 @@ export function shareCenterApi() {
   const Store = pomPinia()
 
   async function TranUniShares(ends:string,data: any[]) {
+    console.log(data,'======');
+    
     const getCharges = await fetchTableData({
       data: formDataFormatV2(data),
+      Store,
+      props: {
+          url: '/shares/'+ends,
+        method: 'post',
+        time: 0,
+        state: 'memberAccountList',
+      },
+    })
+    feedback(getCharges)
+    return getCharges
+  }
+  async function revertShareTransaction(ends:string,data: any[]) {
+    const getCharges = await fetchTableData({
+      data: formDataFormat(data),
       Store,
       props: {
           url: '/shares/'+ends,
@@ -33,6 +49,6 @@ export function shareCenterApi() {
   }
 
   return {
-    TranUniShares,shareTransactionCharge
+    TranUniShares,shareTransactionCharge,revertShareTransaction
   }
 }

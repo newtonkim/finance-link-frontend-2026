@@ -18,7 +18,6 @@ export function Confirm({ items, show = true, confirm, cancel, type,title ,des}:
   des?: string
 }) {
   const showDialog = ref(show)
-
   // Ensure container exists
   let container = document.getElementById('dialog-root')
   if (!container) {
