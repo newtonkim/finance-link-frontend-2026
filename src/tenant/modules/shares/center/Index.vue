@@ -1,7 +1,7 @@
 <template>
-    <TableDrawer :automaticCreate="false" ref="drawer"   drawerWidth=" w-1/2" :show-add-button="false"
-        :url="tableUrl" state="recentShareTransactionList" :drawerTitle="automaticCreate?.[statusFilter]?.['title']"
-        :columns="columns" @save="saveUser" :showTableAction="true">
+    <TableDrawer :automaticCreate="false" ref="drawer" drawerWidth=" w-1/2" :show-add-button="false" :url="tableUrl"
+        state="recentShareTransactionList" :drawerTitle="automaticCreate?.[statusFilter]?.['title']" :columns="columns"
+        @save="saveUser" :showTableAction="true">
         <template #sub-header>
             <AnalysisTile :data="stats" grid-class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-3" />
         </template>
@@ -9,20 +9,18 @@
             <PainPageHeader title="Shares Center" dec="Manage all share accounts/Recent shares transactions ." />
         </template>
         <template #salutation_name="{ item }">
-
             <Button @click="navigateToProfile(item)" class="  font-semibold text-nfuko-action text-sm dark:text-white">
                 <span>{{ item?.salutation_name }}</span>
             </Button>
-
         </template>
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters"
                 @update:modelValue="(e) => { OpenThedrawer(e) }" />
         </template>
         <template #actions="{ item }">
-            <TabelActionButtons v-if="item?.payment_mode != 'withdrawal'" title="revert" color="danger" icon="CirclePlus"
-                @action="() => {
-                    automaticCreate['share-transaction-revert'].action()
+            <TabelActionButtons v-if="item?.payment_mode != 'withdrawal' && !item?.reversed" title="revert"
+                color="danger" icon="CirclePlus" @action="() => {
+                    automaticCreate['share-transaction-revert'].action(item)
                 }" />
             <TabelActionButtons v-else title="revert" color="default" icon="CirclePlus" />
         </template>
@@ -38,9 +36,8 @@ import { AnalysisTile, Confirm, setLocalValues } from '@/Global'
 import { useRouter } from 'vue-router';
 import { shareCenterApi } from '@/tenant/apis/shares';
 import { pomPinia } from 'septor-store';
-const { TranUniShares: SellSharesApi } = shareCenterApi()
+const { TranUniShares: SellSharesApi, revertShareTransaction } = shareCenterApi()
 const Store = pomPinia();
-
 const router = useRouter(), drawer = ref<any>(null),
     formData = ref<any[]>([]), statusFilter = ref<string>(''),
     filters = ['sell shares', 'transfer shares', 'share withdrawal'],
@@ -50,7 +47,6 @@ const router = useRouter(), drawer = ref<any>(null),
             title: "Sell Shares",
             componet: SellShares,
             action: () => submitData('sell-shares')
-
         },
         "transfer shares": {
             title: "transfer shares",
@@ -67,18 +63,34 @@ const router = useRouter(), drawer = ref<any>(null),
         "share-transaction-revert": {
             title: "share transaction revert",
             componet: WithdrawShares,
-            action: () => submitData('share-transaction-revert', 'Are you sure you want to revert this transaction(not yet working)', 'warning', false)
+            action: (data: any) => {
+                submitData('share-transaction-revert', 'Are you sure you want to revert this transaction(not yet working)', 'warning', false, data)
+            }
 
         },
 
     })
 
-function submitData(end: string = '', des?: string, type?: 'warning', toggle: boolean = true) {
+function submitData(end: string = '', des?: string, type:string= 'warning', toggle: boolean = true, data = null) {
     Confirm({
         title: 'Confirm shares transaction',
         des,
         type,
         confirm: async () => {
+            if (end == 'share-transaction-revert') {
+                revertShareTransaction(`holders/${end}`, data).then(v => {
+                    // if (v?.code == 200)
+                        statusFilter.value = "y"
+                    // if (toggle)
+                    //     drawer.value?.toggleDrawer()
+                    statusFilter.value = ''
+                })
+                return
+
+            }
+            // console.log(formData.value);
+
+
             SellSharesApi(`holders/${end}`, formData.value).then(v => {
                 if (v?.code == 200)
                     statusFilter.value = "y"
