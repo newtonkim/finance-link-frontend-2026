@@ -111,9 +111,10 @@ async function promtValueOnUpdate() {
   {
     label: 'Date Of Birth',
     name: 'date_of_birth',
-    type: 'datec',
+    type: 'date',
     required: true,
     value: props.data.dob,
+    max: new Date().toISOString().split('T')[0],
 
     props: { placeholder: 'Select Start & End Dates' },
   },

@@ -122,9 +122,11 @@ const fields = ref<any[]>([
   {
     label: 'Date Of Birth',
     name: 'date_of_birth',
-    type: 'datec',
+    type: 'date',
+    max: new Date().toISOString().split('T')[0],
+
     required: true,
-      maxDate: new Date(),
+      // maxDate: new Date(),
 
     props: { placeholder: 'Select Start & End Dates' },
   },

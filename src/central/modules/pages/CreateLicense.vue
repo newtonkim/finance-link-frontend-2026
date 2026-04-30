@@ -2,9 +2,6 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { ChevronLeft, Search, Check } from 'lucide-vue-next';
-import { Card } from '@/Global/ui/card';
-import { Button } from '@/Global/ui/button';
-import { Input } from '@/Global/ui/input';
 
 const router = useRouter();
 
@@ -86,7 +83,7 @@ function cancel() {
 
 function submitForm() {
     // TODO: Submit to API
-    console.log('Creating license:', form.value);
+    // console.log('Creating license:', form.value);
     router.push('/central/licenses');
 }
 </script>
@@ -103,7 +100,6 @@ function submitForm() {
                 Create New License
             </h1>
         </div>
-
         <!-- Form Card -->
         <Card class="border-neutral-100 dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-2xl overflow-hidden">
             <div class="p-8 space-y-6">

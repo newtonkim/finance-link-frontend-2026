@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { SellShares, TransferShares, WithdrawShares } from '.'
-import { AnalysisTile, Confirm, setLocalValues } from '@/Global'
+import { Confirm, setLocalValues } from '@/Global'
 import { useRouter } from 'vue-router';
 import { shareCenterApi } from '@/tenant/apis/shares';
 import { pomPinia } from 'septor-store';
@@ -58,52 +58,14 @@ const router = useRouter(), drawer = ref<any>(null),
             title: "share withdrawal",
             componet: WithdrawShares,
             action: () => submitData('share-withdrawal')
-
         },
         "share-transaction-revert": {
             title: "share transaction revert",
             componet: WithdrawShares,
-            action: (data: any) => {
-                submitData('share-transaction-revert', 'Are you sure you want to revert this transaction(not yet working)', 'warning', false, data)
-            }
-
+            action: (data: any) => submitData('share-transaction-revert', 'Are you sure you want to revert this transaction(not yet working)', 'warning', false, data)
         },
 
     })
-
-function submitData(end: string = '', des?: string, type:string= 'warning', toggle: boolean = true, data = null) {
-    Confirm({
-        title: 'Confirm shares transaction',
-        des,
-        type,
-        confirm: async () => {
-            if (end == 'share-transaction-revert') {
-                revertShareTransaction(`holders/${end}`, data).then(v => {
-                    // if (v?.code == 200)
-                        statusFilter.value = "y"
-                    // if (toggle)
-                    //     drawer.value?.toggleDrawer()
-                    statusFilter.value = ''
-                })
-                return
-
-            }
-            // console.log(formData.value);
-
-
-            SellSharesApi(`holders/${end}`, formData.value).then(v => {
-                if (v?.code == 200)
-                    statusFilter.value = "y"
-                if (toggle)
-                    drawer.value?.toggleDrawer()
-                statusFilter.value = ''
-            })
-        }, cancel: () => { },
-    });
-}
-function saveUser(type: string, data: any) {
-    if (automaticCreate.value[statusFilter.value]?.action) automaticCreate.value[statusFilter.value]?.action()
-}
 const columns = [
     { key: 'member_code', label: 'code', sticky: 'left', copy: true },
     { key: 'salutation_name', label: 'Member', },
@@ -117,6 +79,34 @@ const columns = [
     { key: 'actions', label: 'Actions', }
 ]
 const drawerComponet = computed(() => automaticCreate.value[statusFilter.value]?.componet)
+function submitData(end: string = '', des?: string, type: string = 'warning', toggle: boolean = true, data = null) {
+    Confirm({
+        title: 'Confirm shares transaction',
+        des,
+        type,
+        confirm: async () => {
+            if (end == 'share-transaction-revert') {
+                revertShareTransaction(`holders/${end}`, data).then(v => {
+                    statusFilter.value = "y"
+                    statusFilter.value = ''
+                })
+                return
+
+            }
+            SellSharesApi(`holders/${end}`, formData.value).then(v => {
+                if (v?.code == 200)
+                    statusFilter.value = "y"
+                if (toggle)
+                    drawer.value?.toggleDrawer()
+                statusFilter.value = ''
+            })
+        }, cancel: () => { },
+    });
+}
+function saveUser(type: string, data: any) {
+    if (automaticCreate.value[statusFilter.value]?.action) automaticCreate.value[statusFilter.value]?.action()
+}
+
 function OpenThedrawer(item: any, action = "") {
     statusFilter.value = item
     setTimeout(() => {

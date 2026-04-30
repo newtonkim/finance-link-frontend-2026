@@ -25,8 +25,8 @@ const fields = ref<any[]>([
     name: 'member_type',
     type: 'select',
     required: true,
-    placeholder: 'Search member type', 
-    class:"no-print",
+    placeholder: 'Search member type',
+    class: "no-print",
 
     options: OptionList.memberTypeOptions
   },
@@ -122,9 +122,10 @@ const fields = ref<any[]>([
   {
     label: 'Date Of Birth',
     name: 'date_of_birth',
-    type: 'datec',
+    type: 'date',
     required: true,
-      maxDate: new Date(),
+    max: new Date().toISOString().split('T')[0],
+    // maxDate: new Date(),
     props: { placeholder: 'Select Start & End Dates' },
   },
   {
@@ -175,7 +176,7 @@ const fields = ref<any[]>([
     name: 'nationality',
     type: 'nationality',
     required: true,
-    value:'Ugandan',
+    value: 'Ugandan',
     placeholder: 'Enter Nationality',
   },
   {
@@ -191,7 +192,7 @@ const fields = ref<any[]>([
     type: 'profile',
     required: false,
     placeholder: 'Enter prifile picture',
-    class:"no-print"
+    class: "no-print"
   },
   {
     label: 'Next of Kin',
@@ -272,7 +273,7 @@ const sharesError = computed(() => {
   if (additionalForm.value.shares_quantity < min) return `Minimum is ${min}`
   return ''
 })
- 
+
 onMounted(() => {
   promtValueOnUpdate()
   checkForSettings()

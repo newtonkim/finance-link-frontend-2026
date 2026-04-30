@@ -111,9 +111,10 @@ async function promtValueOnUpdate() {
   {
     label: 'Date Of Birth',
     name: 'date_of_birth',
-    type: 'datec',
+    type: 'date',
     required: true,
-      maxDate: new Date(),
+      // maxDate: new Date(),
+    max: new Date().toISOString().split('T')[0],
 
     value: props.data.dob,
 
