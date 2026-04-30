@@ -19,6 +19,7 @@
             <PainPageHeader title="Transfer Savings Account" dec="Manage all transfers savings accounts ." />
         </template>
         <template #searchSideAction>
+           
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
         <template #drawer="{ action, data }">

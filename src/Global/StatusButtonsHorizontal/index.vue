@@ -1,9 +1,9 @@
 <template>
 
   <div
-    class="flex min-w-[200px] py-1 mx-1 px-1 rounded-lg border border-neutral-200 bg-neutral-50 p-[1px] dark:border-neutral-700 dark:bg-neutral-800 dark:ring-1 dark:ring-inset dark:ring-white/5 overflow-x-auto">
+    class="flex min-w-[200px] py-1 mx-1 px-1 rounded-lg border border-neutral-200 bg-neutral-50 p-[1px] dark:border-neutral-700 dark:bg-neutral-800 dark:ring-1 dark:ring-inset dark:ring-white/5">
     <template v-if="filters?.length > maxLength">
-      <div class="w-full">
+      <div class="w-full  overflow-x-auto">
         <SearchableSelect class="p-0" v-model="selectedFilter" :options="defineFiltersPertten()"
           placeholder="filters" />
       </div>
