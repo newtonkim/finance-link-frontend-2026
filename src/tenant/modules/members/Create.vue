@@ -280,13 +280,13 @@ onMounted(() => {
 })
 </script>
 <template>
-  <div class="card shadow-md p-4 py-10 bg-white dark:bg-neutral-800 rounded-md h -[86vh] over flow-y-auto">
+  <card class="card shadow-md px-4 py-3 bg-white dark:bg-neutral-800 rounded-md h -[86vh] over flow-y-auto border-0">
     <span v-if='loadingMount'></span>
-    <Form :action="data?.action" v-else parentStyle="grid  grid-cols-2 gap-4 md:gap-6" v-model:form="fields" />
+    <Form :action="data?.action" v-else parentStyle="grid  grid-cols-2 gap-3" v-model:form="fields" />
     <div v-setting='"sacco-share-on-member-creation-create-share-account-at-the-same-time"'
-      class="mt-6 rounded-2xl border border-nfuko-primary-200 bg-nfuko-primary-50/60 overflow-hidden">
+      class="mt-0 rounded-2xl border border-nfuko-primary-200 bg-nfuko-primary-50/60 overflow-hidden">
       <!-- Section header -->
-      <div class="flex items-center gap-2.5 px-5 py-3 bg-nfuko-primary-100/80 border-b border-nfuko-primary-200">
+      <div class="flex items-center   px-5 py-3 bg-nfuko-primary-100/80 border-b border-nfuko-primary-200">
         <Share2 class="h-4 w-4 text-nfuko-primary-700" />
         <span class="text-[12px] font-bold text-nfuko-primary-800 uppercase tracking-wider">Share Purchase</span>
         <span
@@ -295,7 +295,7 @@ onMounted(() => {
         </span>
       </div>
 
-      <div class="p-5 space-y-4">
+      <div class="p-5 space-y-3">
         <div class="flex items-start gap-3 px-4 py-3 rounded-xl bg-white border border-nfuko-primary-200">
           <AlertCircle class="h-4 w-4 text-nfuko-primary-600 shrink-0 mt-0.5" />
           <p class="text-[12px] text-nfuko-primary-800 leading-relaxed">
@@ -354,5 +354,8 @@ onMounted(() => {
         </div>
       </div>
     </div>
-  </div>
+    <br/>
+    <br/>
+
+  </card>
 </template>

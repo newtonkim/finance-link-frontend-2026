@@ -1,7 +1,7 @@
 <template>
     <div class="card shadow-md p-4  bg-white dark:bg-neutral-800 rounded-md h-[80vh] overflow-y-auto"
         style="overflow: auto">
-        <Form :action="data?.action" parentStyle="grid  grid-cols-1 gap-4 md:gap-6" v-model:form="fields" />
+        <Form :action="data?.action" parentStyle="grid  grid-cols-1 gap-3" v-model:form="fields" />
     </div>
 </template>
 <script setup lang="ts">

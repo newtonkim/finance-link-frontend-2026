@@ -105,8 +105,8 @@ onMounted(() => {
 </script>
 <template>
 
-    <div class="card shadow-md p-4 py-10 bg-white dark:bg-neutral-800 rounded-md">
+    <div class="card shadow-md px-4 py-3 bg-white dark:bg-neutral-800 rounded-md">
         <span v-if='loading'></span>
-        <Form v-else @results="onFormResults" parentStyle="grid  grid-cols-1 gap-4 md:gap-6" v-model:form="fields" />
+        <Form v-else @results="onFormResults" parentStyle="grid  grid-cols-1 gap-3" v-model:form="fields" />
     </div>
 </template>

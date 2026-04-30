@@ -265,9 +265,9 @@ onMounted(() => {
 })
 </script>
 <template>
-  <div class="h-[75vh] overflow-auto card shadow-md p-4 py-10 bg-white dark:bg-neutral-800 rounded-md">
+  <div class="h-[75vh] overflow-auto card shadow-md px-4 py-3 bg-white dark:bg-neutral-800 rounded-md">
     <span v-if='loadingMount'></span>
-    <Form :action="data?.action" v-else parentStyle="grid  grid-cols-2 gap-4 md:gap-6" v-model:form="fields" />
+    <Form :action="data?.action" v-else parentStyle="grid  grid-cols-2 gap-3" v-model:form="fields" />
     <div v-setting='"sacco-share-on-member-creation-create-share-account-at-the-same-time"'
       class="mt-6 rounded-2xl border border-nfuko-primary-200 bg-nfuko-primary-50/60 overflow-hidden">
       <!-- Section header -->

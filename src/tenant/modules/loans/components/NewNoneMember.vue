@@ -168,7 +168,7 @@ watch(() => fields.value, (data) => {
 
 </script>
 <template>
-  <div class="h-[85vh] overflow-auto card shadow-md p-4 py-10 bg-white dark:bg-neutral-800 rounded-md">
-    <Form :action="data?.action" parentStyle="grid  grid-cols-2 gap-4 md:gap-6" v-model:form="fields" />
+  <div class="h-[85vh] overflow-auto card shadow-md px-4 py-3 bg-white dark:bg-neutral-800 rounded-md">
+    <Form :action="data?.action" parentStyle="grid  grid-cols-2 gap-3" v-model:form="fields" />
   </div>
 </template>

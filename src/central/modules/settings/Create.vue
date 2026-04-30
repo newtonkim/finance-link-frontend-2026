@@ -161,7 +161,7 @@ watch(() => formValues.value, (value) => {
             <div v-if="remount">
                 <div v-if="currentStep <= 1">
 
-                    <Form v-model:form="form" parentStyle="grid grid-cols-2 sm:grid-cols-1 gap-4 md:gap-6 p-5"
+                    <Form v-model:form="form" parentStyle="grid grid-cols-2 sm:grid-cols-1 gap-3 p-5"
                         @results="onFormResults" />
                 </div>
                 <tenantStep3 v-else-if="currentStep <= 2" @change="storeStep3Data" />

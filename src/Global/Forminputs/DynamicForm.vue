@@ -200,10 +200,10 @@ defineExpose({
 })
 
 const getGridClass = (len: number = 1) => {
-    if (len <= 1) return 'grid grid-cols-1 gap-4 md:gap-6 space-y-2'
-    if (len === 2) return 'grid grid-cols-2 gap-4 md:gap-6 space-y-2'
-    if (len >= 3) return 'grid grid-cols-3 gap-4 md:gap-6 space-y-2'
-    return 'grid grid-cols-4 gap-4 md:gap-6 space-y-2'
+    if (len <= 1) return 'grid grid-cols-1 gap-3 space-y-2'
+    if (len === 2) return 'grid grid-cols-2 gap-3 space-y-2'
+    if (len >= 3) return 'grid grid-cols-3 gap-3 space-y-2'
+    return 'grid grid-cols-4 gap-3 space-y-2'
 }
 
 

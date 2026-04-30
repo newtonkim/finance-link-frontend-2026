@@ -87,7 +87,7 @@ watch(() => form.value, (value) => {
         <Card
             class="border-neutral-100 h-[79vh] dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-2xl overflow-hidden">
             <div v-if="remount">
-                <Form v-model:form="form" parentStyle="grid grid-cols-2 sm:grid-cols-1 gap-4 md:gap-6 px-4 py-0"
+                <Form v-model:form="form" parentStyle="grid grid-cols-2 sm:grid-cols-1 gap-3 px-4 py-0"
                     @results="onFormResults" />
             </div>
         </Card>
