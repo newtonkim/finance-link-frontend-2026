@@ -1,9 +1,9 @@
 <template>
-    <div class="px-4 flex justify-center">
+    <div class="px-4 flex justify-center v-center h-[90vh] overflow-auto">
         <div
             class="w-full bg-white dark:bg-neutral-900 rounded-2xl shadow-lg border border-neutral-200 dark:border-neutral-800 flex flex-col">
             <div
-                class="flex items-center justify-between px-5 py-4 border-b border-neutral-200 dark:border-neutral-800 sticky top-0 bg-white dark:bg-neutral-900 z-10">
+                class="flex items-center justify-between px-2 py-2 border-b border-neutral-200 dark:border-neutral-800 sticky top-0 bg-white dark:bg-neutral-900 z-10">
                 <h1 class="text-xl font-semibold tracking-tight">
                     Select Columns
                 </h1>
@@ -11,6 +11,7 @@
                     class="text-xs px-3 py-1 rounded-full border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition">
                     {{ allSelected ? 'Unselect All' : 'Select All' }}
                 </Button>
+                
             </div>
             <div class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-800">
                 <div class="relative">
@@ -33,7 +34,7 @@
                         class="w-4 h-4 accent-nfuko-primary-600 cursor-pointer" />
                     <span
                         class="text-sm capitalize text-neutral-700 dark:text-neutral-200 group-hover:text-nfuko-primary-600 transition">
-                        {{ label }}
+                        {{ displayLabel(label) }}
                     </span>
                 </label>
             </div>
@@ -55,6 +56,7 @@
 </template>
 
 <script setup lang="ts">
+import { forEach } from 'lodash'
 import { SearchCheck } from 'lucide-vue-next'
 import { computed, onMounted, ref, type PropType } from 'vue'
 import * as XLSX from 'xlsx'
@@ -72,6 +74,11 @@ const props:any = defineProps({
     rows: {
         type: Array,
         default: () => [], // actual table data
+    },
+    templateDisplayLabels: {
+        type: Array as PropType<string[]>,
+      
+        required: false,
     },
 })
 
@@ -96,6 +103,22 @@ const filteredData = computed(() => {
 const allSelected = computed(() =>
     selected.value.length === Object.keys(props.data).length
 )
+function displayLabel(items:any) {
+    const lable=[]
+    if (props.templateDisplayLabels && Array.isArray(props.templateDisplayLabels)) {
+        props.templateDisplayLabels.forEach(element => {
+            // console.log(element,items);
+            
+            lable.push(items[element]??element)
+            
+        });
+      
+     return lable.join(',')
+    }else{
+        return items
+    }
+    
+}
 
 const toggleAll = () => {
     if (allSelected.value) {

@@ -88,7 +88,7 @@
                     </div>
 
                     <div v-if="buttonTypeClicked == 'download-template'">
-                        <UploadTemplateColumn :defaults="importDefaults" :title="title"
+                        <UploadTemplateColumn :defaults="importDefaults" :title="title" :templateDisplayLabels="templateDisplayLabels"
                             :data="provideDataTotheParent" />
                     </div>
                     <div v-else-if="buttonTypeClicked == 'import-data'">
@@ -119,6 +119,7 @@ import useTableHelpers from './util/tableHelpers.ts';
 
 
 const props = defineProps({
+    templateDisplayLabels: { type: Array, default: null, required: false },
     permission: { type: String, default: null, required: false },
     addButtonText: {
         type: Object,
