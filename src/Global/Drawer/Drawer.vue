@@ -13,8 +13,7 @@
       <SheetHeader class="py-4 border-b border-neutral-100 dark:border-neutral-800">
         <SheetTitle class="text-xl font-bold text-neutral-900 dark:text-white capitalize">
           <span>
- <!-- {{ props.title ? `${props.title}`.toLocaleLowerCase() : "" }} -->
-            <span v-html='props?.title?.toLocaleLowerCase()'></span>
+            <span v-html='props?.title.toLocaleLowerCase()'></span>
           </span>
           
         </SheetTitle>
@@ -22,7 +21,7 @@
       <div class="">
         <form @submit.prevent="handleSave" class="flex flex-col h-screen">
           <div
-            class="flex- overflow-auto px-4 py-1  border-b border-neutral-100 dark:border-neutral-800 h-[96vh] overflow-auto"
+            class="  px-4 py-1  border-b border-neutral-100 dark:border-neutral-800 max-h-[calc(100vh-150px)] overflow-auto"
           >
             <slot name="body" />
           </div>
