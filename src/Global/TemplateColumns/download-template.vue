@@ -1,5 +1,5 @@
 <template>
-    <div class="px-4 flex justify-center v-center h-[90vh] overflow-auto">
+    <div class="px-4 flex justify-center items-center min-h-screen bg-neutral-50 dark:bg-neutral-900 overflow-y-auto">
         <div
             class="w-full bg-white dark:bg-neutral-900 rounded-2xl shadow-lg border border-neutral-200 dark:border-neutral-800 flex flex-col">
             <div
@@ -22,7 +22,7 @@
                     </span>
                 </div>
             </div>
-            <div class=" h-[65vh]">
+            <div class=" max-h-[calc(100vh-250px)]">
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-4 py-3 max-h-[58vh] overflow-y-auto custom-scrollbar">
                 <label v-for="(label, key) in filteredData" :key="key"
