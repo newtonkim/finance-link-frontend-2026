@@ -122,7 +122,7 @@ export default function useTableHelpers(props: any, emit: any) {
         Store,
       })
       drawerTitle.value = 'import columns'
-      provideDataTotheParent.value = res?.payload ?? res
+      provideDataTotheParent.value =res?.payload?.data?? res?.payload ?? res
     }
     buttonTypeClicked.value = action
     if (drawer) toggleDrawer()
