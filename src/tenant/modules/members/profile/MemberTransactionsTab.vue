@@ -4,7 +4,7 @@ import { RotateCcw, Printer } from 'lucide-vue-next';
 
 const props = defineProps<{
     transactions: any[];
-    mode: 'all' | 'deposit' | 'withdrawal'; // which tab we are on
+    mode: 'all' | 'deposit' | 'withdrawal'|'share-transaction'; // which tab we are on
     actionColor: string; // bg class for pagination current page button
     formatDate: (d?: string) => string;
     formatDateTime: (d?: string) => string;
@@ -41,10 +41,14 @@ const filtered = computed(() => {
     if (startDate.value) txns = txns.filter(t => (t.transaction_date || t.created_at || '').slice(0, 10) >= startDate.value);
     if (endDate.value) txns = txns.filter(t => (t.transaction_date || t.created_at || '').slice(0, 10) <= endDate.value);
 
-    if (props.mode === 'deposit' || props.mode === 'withdrawal') {
-        const rootFilter = props.mode === 'deposit' ? isDeposit : isWithdrawal;
-        // Collect references of root transactions that match this tab
-        const rootRefs = new Set(txns.filter(rootFilter).map((t: any) => t.reference).filter(Boolean));
+    if (props.mode === 'deposit' || props.mode === 'withdrawal' || props.mode === 'share-transaction') {
+        if(props.mode==='share-transaction'){
+            txns = txns.filter((t: any) => t.type === 'share-transaction');
+
+        }else{
+
+            const rootFilter = props.mode === 'deposit' ? isDeposit :isWithdrawal;
+             const rootRefs = new Set(txns.filter(rootFilter).map((t: any) => t.reference).filter(Boolean));
         // Also collect reversal_of IDs for reversal transactions whose original is in this group
         const rootIds = new Set(txns.filter(rootFilter).map((t: any) => t.id));
         return txns.filter((t: any) => {
@@ -62,6 +66,7 @@ const filtered = computed(() => {
             }
             return false;
         });
+        }
     }
 
     return txns;
@@ -91,7 +96,7 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
                     Clear
                 </button>
             </div>
-            <div>
+            <!-- <div>
                 <button v-if="mode === 'all'"
                     class="h-10 px-6 text-[13px] font-bold rounded-full bg-[#334155] text-white hover:bg-[#1e293b] transition-colors shadow-sm">
                     Export
@@ -104,7 +109,7 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
                     class="h-10 px-6 text-[13px] font-bold rounded-full bg-[#ea580c] text-white hover:bg-[#c2410c] transition-colors shadow-sm">
                     Record Withdrawal
                 </button>
-            </div>
+            </div> -->
         </div>
 
         <!-- Table filters row -->
@@ -180,8 +185,8 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
                         <!-- Amount -->
                         <td class="py-3.5 px-5">
                             <span class="text-[14px] font-mono font-bold"
-                                :class="txn.type === 'deposit' ? 'text-emerald-600' : 'text-red-600'">
-                                {{ txn.type === 'deposit' ? '+' : '-' }}{{ txn.amount_formatted || formatCurrency(txn.amount) }}
+                                :class="txn.type != 'withdrawal' ? 'text-emerald-600' : 'text-red-600'">
+                                {{ txn.amount_formatted || formatCurrency(txn.amount) }}
                             </span>
                         </td>
                         <td class="py-3.5 px-5">

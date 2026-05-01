@@ -247,6 +247,41 @@ export const formatCurrency = (amount: number | string, currencyCode = 'UGX') =>
     maximumFractionDigits: 2,
   }).format(Number(amount || 0))
 }
+export  const formatCurrency2 = (event: Event) => {
+    const input = event.target as HTMLInputElement;
+
+    // Keep only digits and one decimal point
+    let rawVal = input.value.replace(/[^\d.]/g, '');
+    const parts = rawVal.split('.');
+    if (parts.length > 2) {
+        rawVal = parts[0] + '.' + parts.slice(1).join('');
+    }
+
+    // Cursor position
+    const cursorPosition = input.selectionStart || 0;
+
+    // Split integer & decimal
+    const [intPart, decPart] = rawVal.split('.');
+
+    // Format integer part safely
+    const formattedInt = intPart
+        ? Number(intPart).toLocaleString()
+        : '';
+
+    const formatted = decPart !== undefined
+        ? `${formattedInt}.${decPart}`
+        : formattedInt;
+
+
+    // Restore cursor (basic adjustment)
+    setTimeout(() => {
+        const newPos = Math.min(formatted.length, cursorPosition + (formatted.length - rawVal.length));
+        input.setSelectionRange(newPos, newPos);
+    });
+
+    // Emit clean numeric value (no commas)
+return rawVal
+};
 export const formatMoneyValue = (amount: number | string, minimumFractionDigits = 2) => {
   return new Intl.NumberFormat('en-UG', {
     minimumFractionDigits,

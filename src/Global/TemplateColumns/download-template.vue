@@ -1,5 +1,5 @@
 <template>
-    <div class="px-4 flex    min-h-screen bg-neutral-50 dark:bg-neutral-900 overflow-y-auto">
+    <div class="px-4 flex  h-[80vh]  bg-neutral-50 dark:bg-neutral-900 overflow-y-auto">
         <div
             class="w-full bg-white dark:bg-neutral-900 rounded-2xl shadow-lg border border-neutral-200 dark:border-neutral-800 flex flex-col">
             <div
@@ -11,7 +11,7 @@
                     class="text-xs px-3 py-1 rounded-full border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition">
                     {{ allSelected ? 'Unselect All' : 'Select All' }}
                 </Button>
-                
+
             </div>
             <div class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-800">
                 <div class="relative">
@@ -22,22 +22,20 @@
                     </span>
                 </div>
             </div>
-            <div class=" max-h-[calc(100vh-250px)] overflow-y-auto">
+            <div class="  overflow-y-auto h-[60vh]">
+                <!-- <div class=" max-h-[calc(100vh-250px)] overflow-y-auto"> -->
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-4 py-3  overflow-y-auto custom-scrollbar">
-                <label v-for="(label, key) in filteredData" :key="key"
-                    class="flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer border border-transparent hover:border-nfuko-primary-300 hover:bg-nfuko-primary-50 dark:hover:bg-neutral-800 transition group">
-                    <input 
-                    :checked="defaults.includes(label)"
-                    
-                    type="checkbox" :value="key" v-model="selected"
-                        class="w-4 h-4 accent-nfuko-primary-600 cursor-pointer" />
-                    <span
-                        class="text-sm capitalize text-neutral-700 dark:text-neutral-200 group-hover:text-nfuko-primary-600 transition">
-                        {{ displayLabel(label) }}
-                    </span>
-                </label>
-            </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-4 py-3  overflow-y-auto custom-scrollbar h-[]">
+                    <label v-for="(label, key) in filteredData" :key="key"
+                        class="flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer border border-transparent hover:border-nfuko-primary-300 hover:bg-nfuko-primary-50 dark:hover:bg-neutral-800 transition group">
+                        <input :checked="defaults.includes(label)" type="checkbox" :value="key" v-model="selected"
+                            class="w-4 h-4 accent-nfuko-primary-600 cursor-pointer" />
+                        <span
+                            class="text-sm capitalize text-neutral-700 dark:text-neutral-200 group-hover:text-nfuko-primary-600 transition">
+                            {{ displayLabel(label) }}
+                        </span>
+                    </label>
+                </div>
             </div>
             <div
                 class="flex items-center justify-between px-5 py-1 bottom-0 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 sticky bottom-0">
@@ -56,15 +54,22 @@
 </template>
 
 <script setup lang="ts">
-import { forEach } from 'lodash'
 import { SearchCheck } from 'lucide-vue-next'
 import { computed, onMounted, ref, type PropType } from 'vue'
 import * as XLSX from 'xlsx'
+import { pomPinia } from 'septor-store'
 
-const props:any = defineProps({
+import { fetchTableData } from '../landingLayout/util'
+const Store = pomPinia()
+
+const props: any = defineProps({
     data: {
         type: Object,
         required: true, // { key: "Label" }
+    },
+    url: {
+        type: String,
+        required: false,
     },
     defaults: {
         type: Array as PropType<string[]>,
@@ -77,23 +82,24 @@ const props:any = defineProps({
     },
     templateDisplayLabels: {
         type: Array as PropType<string[]>,
-      
+
         required: false,
     },
 })
 
 const selected = ref<string[]>([])
 const search = ref('')
+const collection = ref(props.data)
 
 const filteredData = computed(() => {
- 
-  
-    if (!search.value) return props.data
 
-    
-   
+
+    if (!search.value) return collection.value
+
+
+
     return Object.fromEntries(
-        Object.entries(props.data).filter(([_, value]) => {
+        Object.entries(collection.value).filter(([_, value]) => {
             return String(value).toLowerCase().includes(search.value.toLowerCase())
         }
         )
@@ -101,34 +107,55 @@ const filteredData = computed(() => {
 })
 
 const allSelected = computed(() =>
-    selected.value.length === Object.keys(props.data).length
+    selected.value.length === Object.keys(collection.value).length
 )
-function displayLabel(items:any) {
-    const lable=[]
+function displayLabel(items: any) {
+    const lable = []
     if (props.templateDisplayLabels && Array.isArray(props.templateDisplayLabels)) {
         props.templateDisplayLabels.forEach(element => {
             // console.log(element,items);
-            
-            lable.push(items[element]??element)
-            
+
+            lable.push(items[element] ?? element)
+
         });
-      
-     return lable.join(',')
-    }else{
+
+        return lable.join(',')
+    } else {
         return items
     }
-    
+
 }
 
 const toggleAll = () => {
     if (allSelected.value) {
         selected.value = []
     } else {
-        selected.value = Object.keys(props.data)
+        selected.value = Object.keys(collection.value)
     }
 }
-onMounted(()=>{
-       selected.value=[...(selected.value??[]),...(props.defaults??[])];
+async function handleTableAction(item: any = {}, action: string, drawer = true) {
+    const res = await fetchTableData({
+        data: { ...item, },
+        props: {
+            ...props,
+            reload: false, // dont refectch data
+            //   reload: false, // dont refectch data
+            state: "downloadTemplate",
+            url: props.url,
+        },
+        Store,
+    });
+    collection.value = res?.payload?.data ?? res?.payload ?? res
+
+
+}
+onMounted(() => {
+    collection.value=props.data
+    selected.value = [...(selected.value ?? []), ...(props.defaults ?? [])];
+
+    if (props?.url) {
+        handleTableAction(props?.url, null)
+    }
 })
 
 const exportColumns = () => {
@@ -158,7 +185,7 @@ const exportColumns = () => {
     const filteredRows = props.rows.map((row: any) => {
         const newRow: any = {}
         selected.value.forEach(key => {
-            newRow[props.data[key]] = `${row[key]}`.toLocaleUpperCase()
+            newRow[collection.value[key]] = `${row[key]}`.toLocaleUpperCase()
         })
         return newRow
     })

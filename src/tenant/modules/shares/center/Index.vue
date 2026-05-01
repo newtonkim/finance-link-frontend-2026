@@ -38,7 +38,6 @@ import { Confirm, setLocalValues } from '@/Global'
 import { useRouter } from 'vue-router';
 import { shareCenterApi } from '@/tenant/apis/shares';
 import { pomPinia } from 'septor-store';
-import { title } from 'process';
 const { TranUniShares: SellSharesApi, revertShareTransaction } = shareCenterApi()
 const Store = pomPinia();
 const router = useRouter(), drawer = ref<any>(null),
@@ -87,10 +86,10 @@ const exportItems = ref([
     action: () => {
       const vl = {
         actionSlot: "share-transaction-template-",
-        // item: vl,
+        // componet: 
         title: "share Transaction Template",
       };
-      OpenThedrawer(vl, "share-transaction-template-");
+      OpenThedrawer( "share-transaction-template-");
     },
   },
    {
@@ -98,10 +97,10 @@ const exportItems = ref([
     action: () => {
      const  vl= {
         actionSlot: "share-sales-template",
-        // item: vl,
+        // componet: 
         title: "share sales Template",
       };
-      OpenThedrawer(vl, "share-sales-template");
+      OpenThedrawer( "share-sales-template");
     },
   },
 
@@ -111,21 +110,27 @@ const exportItems = ref([
         const  vl= {
         actionSlot: "share-dividend-template",
         title: "share dividend Template",
-        // item: vl,
+        // componet: 
       };
-      OpenThedrawer(vl, "share-dividend-template");
+      OpenThedrawer( "share-dividend-template");
     },
   },
    
  
 ]);
+// function OpenThedrawer(item: any, action = "") {
+//    statusFilter.value = item
+//    alert()
+//   automaticCreate.value = { actionSlot: action, ...item };
+//   setTimeout(() => {
+//     drawer.value.toggleDrawer();
+//   }, 100);
+// }
 function OpenThedrawer(item: any, action = "") {
-   statusFilter.value = item
-   alert()
-  automaticCreate.value = { actionSlot: action, ...item };
-  setTimeout(() => {
-    drawer.value.toggleDrawer();
-  }, 100);
+    statusFilter.value = item
+    setTimeout(() => {
+        drawer.value.toggleDrawer();
+    }, 100);
 }
 const drawerComponet = computed(() => automaticCreate.value[statusFilter.value]?.componet)
 function submitData(end: string = '', des?: string, type: string = 'warning', toggle: boolean = true, data = null) {

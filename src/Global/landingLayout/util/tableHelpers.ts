@@ -11,7 +11,7 @@ import { pomPinia } from 'septor-store'
 import { ACTION_CONFIG, dataTabelFilter, fetchTableData } from './index'
 import { formawtacher } from '@/Global/Forminputs/formWatcher'
 
-export default function useTableHelpers(props: any, emit: any) {
+export default function useTableHelpers(props?: any, emit?: any) {
   const formStore = formawtacher()
 
   const drawerOpen = ref(false)
@@ -25,9 +25,9 @@ export default function useTableHelpers(props: any, emit: any) {
   const submitChanges = ref<any>(null)
   const provideDataTotheParent = ref<any>([])
   const finalSubmitAction = ref<string | null>(null)
-  const drawerTitle = ref(props.drawerTitle)
+  const drawerTitle = ref(props?.drawerTitle)
   const drawerShooter2 = ref<boolean | null>(true)
-  const drawerWidth = ref(props.drawerWidth)
+  const drawerWidth = ref(props?.drawerWidth)
   const currentPage = ref(1)
   const dropdownDownload = [
     { label: 'PDF', value: 'PDF', route: 'export-pdf' },
