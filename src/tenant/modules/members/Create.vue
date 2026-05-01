@@ -27,6 +27,12 @@ const props = defineProps({
     default: {},
   },
 })
+const today = new Date();
+const minAgeDate = new Date(
+  today.getFullYear() - 18,
+  today.getMonth(),
+  today.getDate()
+);
 const fields = ref<any[]>([
   {
     label: 'Member type',
@@ -173,7 +179,7 @@ const fields = ref<any[]>([
     name: 'date_of_birth',
     type: 'date',
     required: true,
-    max: new Date().toISOString().split('T')[0],
+    max: minAgeDate.toISOString().split('T')[0],
     // maxDate: new Date(),
     props: { placeholder: 'Select Start & End Dates' },
   },

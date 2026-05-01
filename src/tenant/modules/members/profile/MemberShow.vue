@@ -18,6 +18,7 @@ import NewAccountDrawer from './NewAccountDrawer.vue';
 import CustomFeeDrawer from './CustomFeeDrawer.vue';
 import { memberProfileApi } from '@/tenant/apis/savings/member-profileApi';
 import Details from '@/Global/DetailsTable/Details.vue';
+import Statement from './statement.vue';
 const { getMemberProfileDetail } = memberProfileApi();
 
 const router = useRouter();
@@ -62,6 +63,7 @@ const tabs = computed(() => [
     { id: 'withdrawal', label: 'Withdrawal', icon: MinusCircle, count: member.transactions?.filter((t: any) => ['withdrawal', 'withdraw'].includes(t.type?.toLowerCase())).length || 0 },
     { id: 'loans', label: 'Loans', icon: Wallet, count: member.loans?.length || 0 },
     { id: 'shares', label: 'Shares', icon: BarChart3, count: null },
+    { id: 'statement', label: 'Statement', icon: Printer, },
 ]);
 
 // ── Drawer refs ──────────────────────────────────────────────────────────────
@@ -251,14 +253,12 @@ const columns = [
                             :format-date="formatDate" :format-date-time="formatDateTime"
                             :format-currency="formatCurrency" @print="printReceipt" @reverse="confirmDeleteTxn"
                             @open-drawer="depositDrawer?.open('withdraw')" />
-                         <MemberLoansTab
-        :loans="member.Loans"
-        :formatDate="formatDate"
-        :formatDateTime="formatDateTime"
-        :formatCurrency="formatCurrency"
-        actionColor="bg-[#cda434]" 
-        @view="()=>{}"
-    />
+                        <MemberLoansTab :loans="member.Loans" v-if="activeTab === 'loans'" :formatDate="formatDate"
+                            :formatDateTime="formatDateTime" :formatCurrency="formatCurrency" actionColor="bg-[#cda434]"
+                            @view="() => { }" />
+                        <Statement v-if="activeTab === 'statement'" :data="member" :formatDate="formatDate"
+                            :formatDateTime="formatDateTime" :formatCurrency="formatCurrency" actionColor="bg-[#cda434]"
+                            @view="() => { }" />
 
 
                         <!-- Shares placeholder -->

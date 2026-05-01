@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import { RotateCcw, Printer } from 'lucide-vue-next';
 
 const props = defineProps<{
+    showTable: boolean;
     transactions: any[];
     mode: 'all' | 'deposit' | 'withdrawal'|'share-transaction'; // which tab we are on
     actionColor: string; // bg class for pagination current page button
@@ -14,6 +15,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     print: [txn: any];
+    showTable: false;
     reverse: [txn: any];
     openDrawer: [];
 }>();
@@ -85,7 +87,7 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
 <template>
     <div class="flex flex-col">
         <!-- Top Controls -->
-        <div class="py-4 bg-transparent flex flex-wrap gap-4 justify-between items-center px-4 md:px-6">
+        <div class="py-4 bg-transparent flex flex-wrap gap-4 justify-between items-center px-4 md:px-6" v-if="!showTable">
             <div class="flex items-center gap-3">
                 <input v-model="startDate" type="date"
                     class="h-10 px-4 rounded-full bg-[#f1f5f9] border-0 text-[13px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#cda434]/50 cursor-pointer min-w-[140px]" />
@@ -113,7 +115,7 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
         </div>
 
         <!-- Table filters row -->
-        <div class="py-2 pb-5 flex flex-col sm:flex-row justify-between items-center gap-4 px-4 md:px-6">
+        <div class="py-2 pb-5 flex flex-col sm:flex-row justify-between items-center gap-4 px-4 md:px-6" v-if="!showTable">
             <div class="flex items-center gap-2 text-[13px] text-[#64748b]">
                 Show
                 <select v-model="perPage" @change="currentPage = 1"
@@ -256,7 +258,7 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
         </div>
 
         <!-- Pagination -->
-        <div class="py-5 px-4 md:px-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-[13px] text-[#64748b]">
+        <div class="py-5 px-4 md:px-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-[13px] text-[#64748b]" v-if="!showTable">
             <div>
                 Showing {{ filtered.length ? (currentPage - 1) * perPage + 1 : 0 }}
                 to {{ Math.min(currentPage * perPage, filtered.length) }} of {{ filtered.length }} entries

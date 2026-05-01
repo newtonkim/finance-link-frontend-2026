@@ -133,6 +133,7 @@ function onBranchChange(val: number) {
         :modelValue="activeBranch"
         :options="(Store as any)?.['system-branches']?.payload?.data ?? []"
         @update:modelValue="onBranchChange"
+        :selectDefaultIndex="0"
       />
     </div>
 
