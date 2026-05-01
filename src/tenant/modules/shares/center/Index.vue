@@ -1,6 +1,8 @@
 <template>
-    <TableDrawer :automaticCreate="false" ref="drawer" drawerWidth=" w-1/2" :show-add-button="false" :url="tableUrl"
-        state="recentShareTransactionList" :drawerTitle="automaticCreate?.[statusFilter]?.['title']" :columns="columns"
+    <TableDrawer
+    :exportItems="exportItems"
+     :automaticCreate="false" ref="drawer" drawerWidth=" w-1/2" :show-add-button="false" :url="tableUrl"
+        state="recentShareTransactionList" :drawerTitle="automaticCreate?.[statusFilter]?.['title']?? automaticCreate?.['title']" :columns="columns"
         @save="saveUser" :showTableAction="true">
         <template #sub-header>
             <AnalysisTile :data="stats" grid-class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-3" />
@@ -78,6 +80,58 @@ const columns = [
     { key: 'created_at', label: 'created at', type: 'date', width: '10em', onSearch: { type: 'date-range', } },
     { key: 'actions', label: 'Actions', }
 ]
+const exportItems = ref([
+  {
+    label: "share Transaction Template",
+    action: () => {
+      const vl = {
+        actionSlot: "share-transaction-template-",
+        // componet: 
+        title: "share Transaction Template",
+      };
+      OpenThedrawer( "share-transaction-template-");
+    },
+  },
+   {
+    label: "share sales Template",
+    action: () => {
+     const  vl= {
+        actionSlot: "share-sales-template",
+        // componet: 
+        title: "share sales Template",
+      };
+      OpenThedrawer( "share-sales-template");
+    },
+  },
+
+  {
+    label: "share dividend Template",
+    action: () => {
+        const  vl= {
+        actionSlot: "share-dividend-template",
+        title: "share dividend Template",
+        // componet: 
+      };
+      OpenThedrawer( "share-dividend-template");
+    },
+  },
+   
+ 
+]);
+// function OpenThedrawer(item: any, action = "") {
+//    statusFilter.value = item
+//    alert()
+//   automaticCreate.value = { actionSlot: action, ...item };
+//   setTimeout(() => {
+//     drawer.value.toggleDrawer();
+//   }, 100);
+// }
+function OpenThedrawer(item: any, action = "") {
+    statusFilter.value = item
+    setTimeout(() => {
+        drawer.value.toggleDrawer();
+    }, 100);
+}
 const drawerComponet = computed(() => automaticCreate.value[statusFilter.value]?.componet)
 function submitData(end: string = '', des?: string, type: string = 'warning', toggle: boolean = true, data = null) {
     Confirm({
@@ -107,12 +161,12 @@ function saveUser(type: string, data: any) {
     if (automaticCreate.value[statusFilter.value]?.action) automaticCreate.value[statusFilter.value]?.action()
 }
 
-function OpenThedrawer(item: any, action = "") {
-    statusFilter.value = item
-    setTimeout(() => {
-        drawer.value.toggleDrawer();
-    }, 100);
-}
+// function OpenThedrawer(item: any, action = "") {
+//     statusFilter.value = item
+//     setTimeout(() => {
+//         drawer.value.toggleDrawer();
+//     }, 100);
+// }
 
 watch(drawer.value?.drawerOpen, (v) => {
     if (!v) {

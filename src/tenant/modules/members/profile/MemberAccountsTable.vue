@@ -32,13 +32,13 @@
         >
           Fixed Deposit Details
         </button>
-        <button
+        <!-- <button
           @click="emit('customFee', item)"
           class="flex items-center gap-2 px-[14px] py-1.5 text-[12px] font-bold rounded-full border border-amber-200 text-amber-700 bg-amber-50 hover:bg-amber-100"
         >
           <Star :size="12" />
           Custom Fees
-        </button>
+        </button> -->
         <TabelActionButtons
           title="withdrawal"
           color="secondary"

@@ -2,7 +2,7 @@
 import { RouterLink } from 'vue-router';
 import { computed } from 'vue';
 import { Edit, Star } from 'lucide-vue-next';
-import { formatCurrency, NameInitials,SearchableSelect } from '@/Global';
+import { formatCurrency, NameInitials, SearchableSelect } from '@/Global';
 import { memberProfileApi } from '@/tenant/apis/savings/member-profileApi';
 
 const props = defineProps<{
@@ -20,7 +20,7 @@ const emit = defineEmits<{
     avatarClick: [];
 }>();
 const memberStatues = computed(() => [
-      {
+    {
         name: "Rejected",
         id: 'rejected',
     },
@@ -71,7 +71,7 @@ const formatCleanDate = (date: any) => {
 }
 </script>
 <template>
-    
+
     <div class="w-full lg:w-[280px] shrink-0 flex flex-col gap-6">
         <!-- Member Card -->
         <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
@@ -89,7 +89,7 @@ const formatCleanDate = (date: any) => {
             <div class="flex justify-center -mt-12 relative z-10 px-4">
                 <div @click="emit('avatarClick')"
                     class="w-[96px] h-[96px] rounded-full border-[3px] border-[#cda434] bg-white flex items-center justify-center overflow-hidden cursor-pointer shadow-sm relative">
-                    <img v-if="member.avatar_url" :src="member.avatar_url" alt="Avatar"
+                    <img v-if="member.profile" :src="member.profile.replace('/public/', '/storage/')" alt="Avatar"
                         class="w-full h-full object-cover" />
                     <span v-else class="text-2xl font-bold text-[#cda434]">{{ NameInitials(member.name) }}</span>
                     <div v-if="uploadProcessing" class="absolute inset-0 bg-black/60 flex items-center justify-center">
@@ -111,12 +111,12 @@ const formatCleanDate = (date: any) => {
                         <span class="w-1.5 h-1.5 rounded-full bg-[#22a053]"></span>
                         Active Member
                     </span>
-                    <span v-else-if="`${member?.status}`  === 'pending'"
+                    <span v-else-if="`${member?.status}` === 'pending'"
                         class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-amber-50 text-amber-600">
                         <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                         Pending Approval
                     </span>
-                    <span v-else-if="`${member?.status}`  === 'rejected'"
+                    <span v-else-if="`${member?.status}` === 'rejected'"
                         class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-red-50 text-red-500">
                         <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
                         Rejected
@@ -134,8 +134,8 @@ const formatCleanDate = (date: any) => {
                     <div class="p-4 border-r border-b border-gray-100">
                         <span
                             class="block text-[11px] font-bold text-[#788896] uppercase tracking-wider mb-2">Shares</span>
-                        <span class="text-[17px] font-extrabold text-gray-900">{{ formatCurrency(member?.share_value)
-                        }}</span>
+                        <span class="text-[17px] font-extrabold text-gray-900">{{ Number(member?.share_value)
+                            }}</span>
                     </div>
                     <div class="p-4 border-b border-gray-100">
                         <span
@@ -146,7 +146,7 @@ const formatCleanDate = (date: any) => {
                         <span
                             class="block text-[11px] font-bold text-[#788896] uppercase tracking-wider mb-2">Marital</span>
                         <span class="text-[16px] font-bold text-gray-900 capitalize">{{ member.marital_status || '—'
-                        }}</span>
+                            }}</span>
                     </div>
                     <div class="p-4">
                         <span
@@ -155,7 +155,7 @@ const formatCleanDate = (date: any) => {
                     </div>
                 </div>
             </div>
- 
+
         </div>
         <div class="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
             <h3 class="text-[12px] font-bold text-[#64748b] uppercase tracking-wider mb-5">
@@ -163,19 +163,10 @@ const formatCleanDate = (date: any) => {
             </h3>
 
             <div class="space-y-[18px]">
-                 <SearchableSelect
-                label="status"
-                name="status"
-                type="select"
-                required 
-                :options="memberStatues"
-                v-model="member.status"
-                :value="member?.status"
-                 @update:modelValue="(val) => ChangMemberStatus({id:member.id,code:member.memeber_code,status:val})"
-                placeholder="Select status"
-                dataOnMount
-            
-             />
+                <SearchableSelect label="status" name="status" type="select" required :options="memberStatues"
+                    v-model="member.status" :value="member?.status"
+                    @update:modelValue="(val) => ChangMemberStatus({ id: member.id, code: member.memeber_code, status: val })"
+                    placeholder="Select status" dataOnMount />
                 <div v-for="(item, index) in quickInfo" :key="index" :class="[
                     'flex justify-between items-center',
                     item.border ? 'pt-1 border-t border-gray-100 mt-1' : ''
@@ -188,7 +179,7 @@ const formatCleanDate = (date: any) => {
                         {{ item.value }}
                     </span>
                 </div>
-                
+
             </div>
         </div>
 

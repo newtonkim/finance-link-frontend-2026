@@ -45,13 +45,14 @@ const filters = ["my group members", "Guarantors"], statusFilter = ref('my group
         <Table :dataFilter="Object.values(application?.my_groups_member ?? {})" :columns="myGroupsColumns">
 
             <template #member_has_active_loan="{ item }">
-                <span class="text-sm text-neutral-800 dark:text-neutral-200 truncate"
-                    :class="item.member_has_active_loan ? 'text-nfuko-danger' : 'text-nfuko-action'">
-                    {{ item?.member_has_active_loan ? "Active Loan" : "No Active Loan" }}
-                </span>
+                <div class="text-sm text-neutral-800 dark:text-neutral-200 truncate flex items-center flex-wrap"
+                    :class="item.loandetails?.length ? 'text-nfuko-danger/70' : 'text-nfuko-action'">
+                    {{ item?.loandetails?.length ? "Active Loan :=>" : "No Active Loan" }}
+                    {{ item?.loandetails?.length&&item?.loandetails.map((x: any) =>x.member_has_active_loan).join(", ") }}
+                </div>
             </template>
             <template #actions="{ item }">
-                <TabelActionButtons v-if="item?.member_has_active_loan" @action="() => navigateIntoLoanDetails(item)"
+                <TabelActionButtons v-if="item?.loandetails?.length" @action="() => navigateIntoLoanDetails(item?.loandetails[0])"
                     title="loan details" color="danger" icon="CirclePile" />
                 <TabelActionButtons v-else title="loan details" color="default" icon="CirclePile" />
             </template>
