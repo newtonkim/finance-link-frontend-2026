@@ -150,7 +150,7 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
                         <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">{{ mode === 'all' ? 'Receipt' : 'Reference &#x21C5;' }}</th>
                         <th v-if="mode !== 'all'" class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Date Added &#x21C5;</th>
                         <th v-if="mode === 'all'" class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Added by</th>
-                        <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider text-center">Action</th>
+                        <th v-if="!showTable" class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider text-center">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -241,7 +241,7 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
                         <td v-if="mode === 'all'" class="py-3.5 px-5 text-[13px] text-foreground">{{ txn.deposited_by || '—' }}</td>
 
                         <!-- Action -->
-                        <td class="py-3.5 px-5 text-center">
+                        <td v-if="!showTable" class="py-3.5 px-5 text-center">
                             <button @click="emit('reverse', txn)"
                                 :disabled="txn.is_reversed || txn.type === 'reversal' || txn.is_reversible === false"
                                 :title="txn.is_reversed ? 'Already reversed' : txn.type === 'reversal' ? 'Reversal entry' : txn.is_reversible === false ? 'Non-reversible charge' : 'Reverse Transaction'"

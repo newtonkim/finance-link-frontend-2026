@@ -256,7 +256,8 @@ const columns = [
                         <MemberLoansTab :loans="member.Loans" v-if="activeTab === 'loans'" :formatDate="formatDate"
                             :formatDateTime="formatDateTime" :formatCurrency="formatCurrency" actionColor="bg-[#cda434]"
                             @view="() => { }" />
-                        <Statement v-if="activeTab === 'statement'" :data="member" :formatDate="formatDate"
+                            
+                        <Statement v-if="activeTab === 'statement'" :profileDetails="profileDetails" :data="member" :formatDate="formatDate"
                             :formatDateTime="formatDateTime" :formatCurrency="formatCurrency" actionColor="bg-[#cda434]"
                             @view="() => { }" />
 

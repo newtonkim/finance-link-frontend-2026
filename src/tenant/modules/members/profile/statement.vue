@@ -1,5 +1,6 @@
 <template>
     <div>
+        <!-- {{ data }} -->
         <div class="flex justify-start items-center gap-3 mb-4 no-print m-4">
             <select v-model="selectedType" class="border border-gray-300 rounded-lg px-3 py-2 text-sm f  ">
                 <option value="all">All Transactions</option>
@@ -15,7 +16,6 @@
                 Print
             </button>
         </div>
-
         <MemberTransactionsTab
         :showTable="true"
          :formatDateTime="formatDateTime" :formatDate="formatDate"
@@ -34,13 +34,16 @@
                 <div>
                     <p><span class="font-semibold">Generated:</span> {{ new Date().toLocaleDateString() }}</p>
                 </div>
-                <div class="text-right">
+                <!-- <div class="text-right">
                     <p><span class="font-semibold">Currency:</span> UGX</p>
+                </div> -->
+                <div class="text-right">
+                    <p><span class="font-semibold">Account Balance:</span> {{ formatCurrency(profileDetails.details.total_balance) }}</p>
                 </div>
             </div>
 
             <div class="overflow-hidden border rounded-lg">
-                <table class="w-full text-sm">
+                <table class="w-full text-sm ">
                     <thead class="bg-gray-100 text-gray-700 uppercase text-xs">
                         <tr>
                             <th class="px-2 py-3 text-left">Date</th>
@@ -53,23 +56,23 @@
 
                     <tbody class="divide-y">
                         <tr v-for="item in filteredCollection" :key="item.id" class="hover:bg-gray-50">
-                            <td class="px-4 py-2">
+                            <td class="px-1 py-1">
                                 {{ formatDateSafe(item.transaction_date) }}
                             </td>
 
-                            <td class="px-2 py-2 font-medium">
+                            <td class="px-1 py-1 ">
                                 {{ formatType(item.type) }}
                             </td>
 
-                            <td class="px-2 py-2 text-right">
-                                {{ formatCurrencySafe(item.amount) }}
+                            <td class="px-1 py-1 text-right">
+                                {{ formatCurrency(item.amount) }}
                             </td>
 
-                            <td class="px-2 py-2 text-right text-red-500">
-                                {{ formatCurrencySafe(item.charge_amount) }}
+                            <td class="px-1 py-1 text-right text-red-500">
+                                {{ formatCurrency(item.charge_amount) }}
                             </td>
 
-                            <td class="px-2 py-2 text-gray-600">
+                            <td class="px-1 py-1 text-gray-600 clamp-1">
                                 {{ item.narration }}
                             </td>
                         </tr>
@@ -82,11 +85,11 @@
                             </td>
 
                             <td class="px-4 py-3 text-right font-bold text-n-600">
-                                {{ formatCurrencySafe(totalAmount) }}
+                                {{ formatCurrency(totalAmount) }}
                             </td>
 
                             <td class="px-4 py-3 text-right font-bold text-red-600">
-                                {{ formatCurrencySafe(totalCharges) }}
+                                {{ formatCurrency(totalCharges) }}
                             </td>
 
                             <td></td>
@@ -105,7 +108,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import MemberTransactionsTab from './MemberTransactionsTab.vue'
-import { printElementId } from '@/Global'
+import { formatCurrency, printElementId } from '@/Global'
 
 interface Transaction {
     id: number
@@ -121,10 +124,11 @@ interface DataType {
 }
 
 const props = defineProps<{
-    data?: DataType
+    data?: DataType,
+    profileDetails: any
     formatDate?: (date: string) => string
     formatDateTime?: (date: string) => string
-    formatCurrency?: (amount: number) => string
+    // formatCurrency?: (amount: number) => string
 }>()
 
 const selectedType = ref('all')
@@ -155,15 +159,10 @@ const totalCharges = computed(() => {
 })
 
 const formatType = (type: string) => {
-    return type.replace(/-/g, ' ').toUpperCase()
+    return type.replace(/-/g, ' ')
 }
 
-const formatCurrencySafe = (value: any) => {
-    return props.formatCurrency
-        ? props.formatCurrency(Number(value || 0))
-        : Number(value || 0).toLocaleString()
-}
-
+ 
 const formatDateSafe = (date?: string) => {
     return props.formatDate ? props.formatDate(date || '') : date
 }
