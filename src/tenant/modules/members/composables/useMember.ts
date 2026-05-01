@@ -61,6 +61,7 @@ export function useMember() {
         next_of_kin_contact: '',
         initial_deposit: '',
         status: '',
+        total_balance: '',
         joined_at: '',
         created_at: '',
         avatar_url: null as string | null,
@@ -78,7 +79,6 @@ export function useMember() {
 
     async function fetchMember(silent = false) {
   const profile =  getLocalValues('memberProfile')
-  
 
         const id = Number(profile.id);
         if (!id) return;
