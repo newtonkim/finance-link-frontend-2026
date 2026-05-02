@@ -32,6 +32,7 @@ const { TranUniShares: SellSharesApi } = shareCenterApi()
 const drawer = ref<any>(null),
     drawerComponet = computed(() => automaticCreate.value[statusFilter.value]?.componet),
     statusFilter = ref('sell shares'),
+    formData = ref<any[]>([]),
     drawerTitle = ref('Create Tenant'), filters = ['sell shares', 'transfer shares', 'share withdrawal'],
     tableUrl = computed(() => `/shares/holders/list?status=${statusFilter.value}`)
 

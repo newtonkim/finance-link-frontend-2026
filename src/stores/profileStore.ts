@@ -28,7 +28,7 @@ export const useProfileStore = defineStore('profile', () => {
       name: details?.name || tenantUser?.name || authUser?.name || 'User',
       email: details?.email || tenantUser?.email || authUser?.email || '',
       role: details?.role || (authUser as any)?.role || 'Administrator',
-      avatar: tenantUser?.avatar || null,
+      avatar: details?.avatar || tenantUser?.avatar || authUser?.avatar || null,
       status: details?.status || 'active',
       is_tenant_admin: details?.is_tenant_admin || false,
       branch_id: details?.branch_id || null,
@@ -49,7 +49,24 @@ export const useProfileStore = defineStore('profile', () => {
     }
   }
 
-  async function fetchFullProfile() {
+  // Guard to prevent duplicate concurrent fetches
+  let _fetchPromise: Promise<void> | null = null
+
+  async function fetchFullProfile(force = false) {
+    // If already fetched and not forced, skip
+    if (!force && staffDetails.value && !isLoading.value) return
+    // If a fetch is already in flight, return the same promise
+    if (_fetchPromise) return _fetchPromise
+
+    _fetchPromise = _doFetchFullProfile()
+    try {
+      await _fetchPromise
+    } finally {
+      _fetchPromise = null
+    }
+  }
+
+  async function _doFetchFullProfile() {
     isLoading.value = true
 
     const storedPerms = getLocalValues('userPermissions')
@@ -90,8 +107,22 @@ export const useProfileStore = defineStore('profile', () => {
     isUploadingAvatar.value = true
     try {
       const { data } = await staffApi.uploadAvatar(id, file)
+      const { avatar_url } = data as any
       if (tenantUserStore.user) {
-        tenantUserStore.user.avatar = (data as any).avatar_url
+        tenantUserStore.user.avatar = avatar_url
+      }
+      if (authStore.user) {
+        authStore.user.avatar = avatar_url
+        // Update local storage to persist the avatar change
+        const storedUser = localStorage.getItem('auth_user')
+        if (storedUser) {
+          const userObj = JSON.parse(storedUser)
+          userObj.avatar = avatar_url
+          localStorage.setItem('auth_user', JSON.stringify(userObj))
+        }
+      }
+      if (staffDetails.value) {
+        (staffDetails.value as any).avatar = avatar_url
       }
     } finally {
       isUploadingAvatar.value = false

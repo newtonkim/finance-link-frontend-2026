@@ -30,7 +30,6 @@ const props = defineProps<{
     reload?: string
     dataOnMount?: boolean
     data?: any
-    slot
 }>();
 
 const emit = defineEmits(['update:modelValue', 'update:itemSelected']);

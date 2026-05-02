@@ -39,7 +39,7 @@ import { useRouter } from 'vue-router';
 import { shareCenterApi } from '@/tenant/apis/shares';
 import { pomPinia } from 'septor-store';
 const { TranUniShares: SellSharesApi } = shareCenterApi()
-const Store = pomPinia();
+const Store = pomPinia() as any;
 
 const router = useRouter(), drawer = ref<any>(null),
     formData = ref<any[]>([]), statusFilter = ref<string>(''),

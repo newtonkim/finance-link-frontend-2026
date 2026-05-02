@@ -32,7 +32,7 @@ const permissionGroups = computed(() => {
 })
 
 async function syncData() {
-  await profileStore.fetchFullProfile()
+  await profileStore.fetchFullProfile(true)
   toast.success('Profile data refreshed.')
 }
 </script>

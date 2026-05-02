@@ -25,6 +25,6 @@ export interface MenuRoutes {
   prifix?: string;
   children?: MenuRoutesChildren[];
   component?: Component | (() => Promise<Component>);
-
+  group?: string;
 }
 

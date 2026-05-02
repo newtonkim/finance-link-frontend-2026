@@ -67,8 +67,8 @@ async function onAvatarSelected(event: Event) {
   try {
     await profileStore.uploadAvatar(file)
     toast.success('Avatar updated.')
-  } catch {
-    // Backend endpoint not yet available — keep the local preview silently
+  } catch (error) {
+    toast.error('Failed to update avatar.')
   }
   if (avatarInputRef.value) avatarInputRef.value.value = ''
 }
