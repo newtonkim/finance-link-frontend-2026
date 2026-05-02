@@ -267,7 +267,9 @@ async function promtValueOnUpdate() {
   {
     label: 'joined date',
     name: 'joined_date',
-    value: props.data.joined_date,
+   value: props.data.joined_date
+  ? props.data.joined_date.split(' ')[0]
+  : '',
     max: new Date().toISOString().split('T')[0],
 
     type: 'date',
