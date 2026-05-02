@@ -35,4 +35,11 @@ export const staffApi = {
   getReferredMembers(id: number) {
     return tenantClient.get(`/staff/${id}/referred-members`)
   },
+  uploadAvatar(id: number, file: File) {
+    const form = new FormData()
+    form.append('avatar', file)
+    return tenantClient.post(`/staff/${id}/avatar`, form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
 }
