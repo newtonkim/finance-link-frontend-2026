@@ -11,21 +11,24 @@ import {
 } from '@/Global/ui/dropdown-menu'
 
 import { useAuthStore } from '@/stores/auth'
+import { useTenantUserStore } from '@/stores/tenantUserStore'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const tenantUserStore = useTenantUserStore()
+tenantUserStore.load()
 
 const props = defineProps<{
   user?: Record<string, any> | null
 }>()
 
 const menuItems = computed(() => {
-  const userId = props.user?.id || ''
+  const userId = tenantUserStore.user?.id || props.user?.id || ''
   return [
     {
       label: 'Profile',
       icon: User,
-      path: userId ? `/tenant/settings/staff/${userId}` : '/settings/profile',
+      path: '/tenant/my-profile',
     },
   ]
 })
@@ -43,27 +46,26 @@ const handleLogout = async () => {
 
 <template>
   <DropdownMenuSeparator class="bg-white/90 shadow-lg border-0 z-50" />
-  <DropdownMenuGroup>
+  <DropdownMenuGroup class="p-1">
     <DropdownMenuItem
       v-for="item in menuItems"
       :key="item.path"
       @click="navigate(item.path)"
-      class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-accent hover:text-accent-foreground cursor-pointer focus:bg-accent focus:text-accent-foreground"
+      class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-neutral-100 dark:hover:bg-white/5 cursor-pointer focus:bg-neutral-100 dark:focus:bg-white/5"
     >
-      <component :is="item.icon" class="mr-2 h-4 w-4" />
-      {{ item.label }}
+      <component :is="item.icon" class="h-4 w-4" />
+      <span>{{ item.label }}</span>
     </DropdownMenuItem>
   </DropdownMenuGroup>
 
-  <DropdownMenuSeparator />
-
+  <DropdownMenuSeparator class="bg-neutral-100 dark:bg-white/5" />
   <DropdownMenuItem
-    class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-red-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/50 dark:hover:text-red-400 cursor-pointer focus:bg-red-50 focus:text-red-600 dark:focus:bg-red-950/50 dark:focus:text-red-400"
+    class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-semibold text-red-500 transition-all duration-200 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 cursor-pointer focus:bg-red-50 dark:focus:bg-red-500/10 focus:text-red-600 dark:focus:text-red-400 m-1"
     @click="handleLogout"
     data-test="logout-button"
   >
-    <LogOut class="mr-2 h-4 w-4" />
-    Log out
+    <LogOut class="h-4 w-4" />
+    <span>Log out</span>
   </DropdownMenuItem>
 </template>
 

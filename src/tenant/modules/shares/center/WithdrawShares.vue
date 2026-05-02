@@ -18,11 +18,11 @@ const getField = (name: string) =>
 
 function watcher() {
   setTimeout(() => {
-    const field = getField('amount')
-    const value = field.value ?? 0
-    const member_id = getField('member_id')
-    const shn = Math.floor(value / sharePrice.value)
-    const theselectShares = member_id?.selected?.total_shares
+    const field = getField('amount') as any
+    const value = Number(field.value ?? 0)
+    const member_id = getField('member_id') as any
+    const shn = Math.floor(value / Number(sharePrice.value))
+    const theselectShares = member_id?.selected?.total_shares || 0
     const share_no = fields.value.find((f: any) => f.name === 'share_no')
     member_id.helper = `You have ${theselectShares} shares`
     field.error = null;
@@ -122,6 +122,6 @@ function findACharge() {
 </script>
 <template>
   <div class="card shadow-md p-6 bg-white dark:bg-neutral-800 rounded-md h-[86vh] overflow-y-auto">
-    <Form v-if="!loading" :action="data?.action" parentStyle="grid  grid-cols-1 gap-3" v-model:form="fields" />
+    <Form v-if="!loading" :action="data?.action" parentStyle="grid  grid-cols-1 gap-4 md:gap-6" v-model:form="(fields as any)" />
   </div>
 </template>

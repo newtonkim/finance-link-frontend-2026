@@ -59,6 +59,9 @@
   --color-nfuko-primary-900: #0A2318; /* YOUR ORIGINAL PRIMARY (Sidebar/Headers) */
   --color-nfuko-primary-950: #05120C; /* Near-black for extreme contrast text */
 
+  /* Sidebar Active State */
+  --color-nfuko-nav-active: rgba(57, 181, 136, 0.15); /* Active sidebar link background */
+
   /* Functional Alpha Variants (Great for "Active" Sidebar links) */
   --color-nfuko-primary-10: rgba(10, 35, 24, 0.1); /* Soft highlight */
   --color-nfuko-primary-20: rgba(10, 35, 24, 0.2); /* Subtle overlay */

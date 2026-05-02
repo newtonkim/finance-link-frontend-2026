@@ -28,10 +28,7 @@ import { TableDrawer, StatusButtonsHorizontal, setLocalValues } from '@/Global'
 import { useRouter } from 'vue-router';
 import { Plus } from 'lucide-vue-next';
 const router = useRouter();
-
-const 
-//formData = ref<Record<string, any>>({}),
- statusFilter = ref('sell shares'),
+const statusFilter = ref('sell shares'),
     drawerTitle = ref('Create Tenant'), filters = ['sell shares', 'transfer shares', 'share withdrawal'],
     tableUrl = computed(() => `/shares/holders/list?status=${statusFilter.value}`)
     // title: Record<string, string> = {
