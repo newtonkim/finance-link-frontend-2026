@@ -26,12 +26,12 @@ const tabs = [
 ]
 
 const GRADIENTS = [
-  'from-emerald-500 to-teal-600',
-  'from-violet-500 to-purple-600',
-  'from-blue-500 to-indigo-600',
-  'from-orange-500 to-amber-600',
-  'from-rose-500 to-pink-600',
-  'from-cyan-500 to-sky-600',
+  'from-nfuko-primary to-nfuko-primary-700',
+  'from-nfuko-action to-nfuko-primary-600',
+  'from-nfuko-primary-500 to-nfuko-primary-900',
+  'from-nfuko-yellow to-nfuko-primary-600',
+  'from-nfuko-action to-nfuko-primary-800',
+  'from-nfuko-primary-400 to-nfuko-primary-700',
 ]
 
 const avatarGradient = computed(() => {
