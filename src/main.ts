@@ -7,14 +7,19 @@ import router from './router'
 import { useAuthStore } from './stores/auth'
 import { VueDatePicker } from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
-import {  vauth, vsetting,Button } from './Global' 
-import { TableDrawer,Table,Imploading, StatusButtonsHorizontal, CopyData,TabelActionButtons,DetailsTable,Form,PainPageHeader ,Drawer} from '@/Global'
+import { TableDrawer,Table,Imploading, StatusButtonsHorizontal, CopyData,TabelActionButtons,DetailsTable,Form,PainPageHeader ,Drawer,vauth, vsetting,Button,AnalysisTile ,Card,Input} from '@/Global'
+
+
+
 const app = createApp(App)
 const pinia = createPinia() 
 app.use(pinia)
 .use(router)
+.component('AnalysisTile', AnalysisTile)
 .component('DatePicker', VueDatePicker)
 .component('Button', Button)
+.component('Card', Card)
+.component('Input', Input)
 .component('TableDrawer', TableDrawer)
 .component('Drawer', Drawer)
 .component('StatusButtonsHorizontal', StatusButtonsHorizontal)
@@ -25,7 +30,6 @@ app.use(pinia)
 .component('Form', Form)
 .component('Imploading', Imploading)
 .component('PainPageHeader', PainPageHeader)
-
 .directive('auth', vauth)
 .directive('setting', vsetting)
 const authStore = useAuthStore(pinia)

@@ -42,6 +42,9 @@ const fields = ref<any[]>([
     label: 'Date Of Birth',
     name: 'date_of_birth',
     type: 'datec',
+    max: new Date().toISOString().split('T')[0],
+
+      // maxDate: new Date(),
     required: true,
     props: { placeholder: 'Select Start & End Dates' },
   },
@@ -134,6 +137,8 @@ const fields = ref<any[]>([
     label: 'joined date',
     name: 'joined_date',
     type: 'date',
+        max: new Date().toISOString().split('T')[0],
+
     required: true,
     placeholder: 'Referred by',
   },
@@ -163,7 +168,7 @@ watch(() => fields.value, (data) => {
 
 </script>
 <template>
-  <div class="h-[85vh] overflow-auto card shadow-md p-4 py-10 bg-white dark:bg-neutral-800 rounded-md">
-    <Form :action="data?.action" parentStyle="grid  grid-cols-2 gap-4 md:gap-6" v-model:form="fields" />
+  <div class="h-[85vh] overflow-auto card shadow-md px-4 py-3 bg-white dark:bg-neutral-800 rounded-md">
+    <Form :action="data?.action" parentStyle="grid  grid-cols-2 gap-3" v-model:form="fields" />
   </div>
 </template>

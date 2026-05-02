@@ -112,7 +112,7 @@ onMounted(() => {
         :action="data.action"
         v-if="!loading"
         v-model:form="form"
-        parentStyle="grid grid-cols-2 sm:grid-cols-1 gap-4 md:gap-6 px-4 py-0"
+        parentStyle="grid grid-cols-2 sm:grid-cols-1 gap-3 px-4 py-0"
       />
       <div class="h-[40vh] overflow-auto">
         <Table

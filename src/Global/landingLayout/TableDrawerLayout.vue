@@ -41,12 +41,14 @@
                     <div class="flex items-center gap-2 board-r-1 mx-2" v-if="showTableAction">
                         <!-- {{ downloadItems }} -->
                         <Imploading
+
+                        tooltip="download the list as excel,pdf, csv, etc file"
                             v-if="showTableAction == true || (Array.isArray(showTableAction) && showTableAction.includes('download'))"
                             icon="Download" :items="downloadItems" @select="handleDownload" />
-                        <Imploading
+                        <Imploading tooltip="Migrate/import  data from other source"
                             v-if="showTableAction == true || (Array.isArray(showTableAction) && showTableAction.includes('migrate'))"
                             :items="exportItems" @select="handleImport" />
-                        <Imploading
+                        <Imploading tooltip="Print the list"
                             v-if="printSizes?.length && (showTableAction == true || (Array.isArray(showTableAction) && showTableAction.includes('print')))"
                             icon="Printer" :items="printItems?.length ? printItems : sizePapers(printSizes ?? [])"
                             @select="handlePrint" />
@@ -88,7 +90,7 @@
                     </div>
 
                     <div v-if="buttonTypeClicked == 'download-template'">
-                        <UploadTemplateColumn :defaults="importDefaults" :title="title"
+                        <UploadTemplateColumn :defaults="importDefaults" :title="title" :templateDisplayLabels="templateDisplayLabels"
                             :data="provideDataTotheParent" />
                     </div>
                     <div v-else-if="buttonTypeClicked == 'import-data'">
@@ -119,6 +121,7 @@ import useTableHelpers from './util/tableHelpers.ts';
 
 
 const props = defineProps({
+    templateDisplayLabels: { type: Array, default: null, required: false },
     permission: { type: String, default: null, required: false },
     addButtonText: {
         type: Object,

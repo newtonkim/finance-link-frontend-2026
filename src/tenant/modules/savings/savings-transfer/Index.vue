@@ -1,10 +1,8 @@
 <template>
-    <TableDrawer
-    ref="drawer"
-     :drawerWidth="drawerTitle?.width" :url="tableUrl" state="transferList"
+    <TableDrawer ref="drawer" :drawerWidth="drawerTitle?.width" :url="tableUrl" state="transferList"
         :drawerTitle="drawerTitle?.title" :columns="columns" @save="saveUser">
         <template #code="{ item }">
-            <div class=" items-center gap-2">
+            <div class=" items-center gap-1">
                 <CopyData :show="item.code" />
                 <div class="flex items-center justify-between">
                     <div :class="(statusMap as any)[item.status]?.className" class="text-[10px]  tracking-wide">{{
@@ -21,19 +19,19 @@
             <PainPageHeader title="Transfer Savings Account" dec="Manage all transfers savings accounts ." />
         </template>
         <template #searchSideAction>
+           
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
         <template #drawer="{ action, data }">
-            <Details v-if="['view'].includes(action)" :data="data" @actionTaken="()=>refresh()" />
-            <!-- <Create v-if="['add', 'edit','',' '].includes(action)" :data="{ ...data, action }" v-model:form="formData" /> -->
-            <Create   v-else :data="{ ...data, action }" v-model:form="formData" />
+            <Details v-if="['view'].includes(action)" :data="data" @actionTaken="() => refresh()" />
+            <Create v-else :data="{ ...data, action }" v-model:form="formData" />
         </template>
     </TableDrawer>
 </template>
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Create, Details } from '.'
-import {  statusMap } from '@/Global'
+import { statusMap } from '@/Global'
 const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
     drawer = ref<any>(null),
     drawerTitle = ref<any>({ title: 'Create Transfer', width: 'w-1/2' }),
@@ -58,10 +56,10 @@ const columns = [
     { key: 'actions', label: 'Actions', show: ['view', 'delete'] }
 ]
 
-function refresh(){
-   drawer.value?.toggleDrawer()
-   setTimeout(() => {
-       drawer.value?.toggleDrawer()
-   },300)
+function refresh() {
+    drawer.value?.toggleDrawer()
+    setTimeout(() => {
+        drawer.value?.toggleDrawer()
+    }, 300)
 }
 </script>

@@ -3,7 +3,7 @@
         <div class="  mb-6">
             <DetailsTable :data="props.data" :columns="columns" />
         </div>
-        <Form :action="data.action" parentStyle="grid  grid-cols-2 gap-4 md:gap-6 px-2" v-model:form="fields" />
+        <Form :action="data.action" parentStyle="grid  grid-cols-2 gap-3 px-2" v-model:form="fields" />
     </div>
 </template>
 <script setup lang="ts">
@@ -53,6 +53,8 @@ function initialize() {
             label: 'transaction date ',
             name: 'transaction_date',
             type: 'datec',
+      maxDate: new Date(),
+
             required: false,
             placeholder: 'Amount to withdraw',
             value: new Date().toISOString().split('T')[0],

@@ -111,6 +111,8 @@ const handleChange = (field: any, index: number) => {
 };
 function FormValidate() {
     const data = prfields.value.filter((field: any) => shouldShowField(field)) || [];
+    console.log(prfields.value);
+
     if (isTriggered) {
         data.forEach((field: any) => {
             // field?.error = null
@@ -134,8 +136,8 @@ function FormValidate() {
             } else if (field?.error?.length > 0) {
                 const isEmpty = field.value === null || field.value === undefined || field.value === '';
                 if (isEmpty) {
-                    
-                }else{
+
+                } else {
                     field.error = false
                 }
                 // field.showError = true
@@ -153,6 +155,7 @@ function FormValidate() {
     formStore.isFormSubmitted = false
 
     return data.some((field: any) => {
+
         if (field.error) {
             console.log(field);
 
@@ -197,10 +200,10 @@ defineExpose({
 })
 
 const getGridClass = (len: number = 1) => {
-    if (len <= 1) return 'grid grid-cols-1 gap-4 md:gap-6 space-y-2'
-    if (len === 2) return 'grid grid-cols-2 gap-4 md:gap-6 space-y-2'
-    if (len >= 3) return 'grid grid-cols-3 gap-4 md:gap-6 space-y-2'
-    return 'grid grid-cols-4 gap-4 md:gap-6 space-y-2'
+    if (len <= 1) return 'grid grid-cols-1 gap-3 space-y-2'
+    if (len === 2) return 'grid grid-cols-2 gap-3 space-y-2'
+    if (len >= 3) return 'grid grid-cols-3 gap-3 space-y-2'
+    return 'grid grid-cols-4 gap-3 space-y-2'
 }
 
 
@@ -255,12 +258,13 @@ function shouldShowField(field: any) {
 <template>
     <div class="">
 
-        <div :class="(parentStyle || '') + ' space-y-2  print-container'">
+        <div
+            :class="(parentStyle || 'grid grid-cols-1 xl:grid-cols-6 sm:grid-cols-2 md:grid-cols-3 gap-5') + ' space-y-2  print-container'">
             <template v-for="(field, index) in prfields" :key="index" class="pom ">
                 <template v-if="shouldShowField(field)">
                     <template v-if="field.group >= 0">
                         <div :class="[field?.class, 'capitalize']">
-                            {{field?.label?.toLowerCase().replace(/^./, (c: any)=>c.toUpperCase())}}
+                            {{field?.label?.toLowerCase().replace(/^./, (c: any) => c.toUpperCase())}}
                         </div>
                         <DynamicForm :parentStyle="getGridClass(field.group ?? field?.fields?.length)"
                             :form="field.fields" :action="field.action" @results="emits('results', $event)"
@@ -336,7 +340,7 @@ function shouldShowField(field: any) {
                                             :class="[field?.class, field.suffix ? ' rounded-xl rounded-l-none ' : ''].join(' ')"
                                             :id="field.name" v-model="field.value"
                                             :placeholder="field?.placeholder || ''"
-                                            @input="() => field?.change && handleChange(field, Number(index))" />
+                                            @change="() => field?.change && handleChange(field, Number(index))" />
                                         <!-- {{ field.error }} -->
                                     </div>
                                     <div v-if="field.error" class="mt-2 px-1 text-xs text-red-500 font-medium">{{

@@ -1,6 +1,5 @@
 <template>
-    <TableDrawer :tableDetaultHeight="'min-h-[20vh]'" drawerWidth="w-2/4"
-        :addButtonText="{ text: 'View SMS Setting', icon: Plus }" :drawerShowFooter="false" :url="tableUrl"
+    <TableDrawer :tableDetaultHeight="'min-h-[20vh]'" drawerWidth="w-2/4" :addButtonText="{ text: 'View SMS Setting', icon: Plus }" :drawerShowFooter="false" :url="tableUrl"
         state="notificationlist" :drawerTitle="drawerTitle" :showTableAction="false" :columns="columns">
         <template #header-action>
             <PainPageHeader title="Notification List" dec="Message/notification shared" />
@@ -15,7 +14,7 @@
                 </span>
             </div>
         </template>
-        <template #drawer="{ }">
+        <template #drawer>
             <settings />
         </template>
     </TableDrawer>

@@ -57,7 +57,7 @@ const urlShaffle = computed(() => `/central/settings/permisions/holders_list?id=
   <div>
   
     <label class="px-5">Attach User Permission</label>
-    <Form v-model:form="form" parentStyle="grid grid-cols-2 sm:grid-cols-1 gap-4 md:gap-6 px-5"
+    <Form v-model:form="form" parentStyle="grid grid-cols-2 sm:grid-cols-1 gap-3 px-5"
       @results="onFormResults" />
   </div>
   <TableDrawer ref="drawer" drawerWidth="w-1/2" :showAddButton="false" :url="urlShaffle"

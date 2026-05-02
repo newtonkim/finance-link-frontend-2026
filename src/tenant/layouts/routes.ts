@@ -1,5 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router'
-import { routebuilder } from '@/Global'
+import { getSystemSetting, routebuilder } from '@/Global'
 import {
   LayoutGrid,
   Users,
@@ -14,7 +14,9 @@ import {
   TrendingDown,
 } from 'lucide-vue-next'
 import type { MenuRoutes } from '@/Global/types/helpers'
+  const checkForVailableSetting = getSystemSetting()
 
+  const memberSwitch=['true',true,1].includes(checkForVailableSetting?.['system-used-by-money-lenders']) ? 'clients' : 'Members'
 export const tenantRoutes: MenuRoutes[] = [
   {
     path: 'Dashboard',
@@ -32,7 +34,7 @@ export const tenantRoutes: MenuRoutes[] = [
     component: () => import('@/tenant/modules/profile/pages/MyProfile.vue'),
   },
   {
-    label: 'Members',
+    label:  checkForVailableSetting?.['system-used-by-money-lenders'] ? 'Staff &  clients' : 'Members',
     icon: Users,
     permissions: 'members-module-link-view',
     showSideBar: true,
@@ -40,12 +42,12 @@ export const tenantRoutes: MenuRoutes[] = [
     group: 'MEMBERS',
     children: [
       {
-        title: 'Sacco Member',
+        title: 'Sacco '+memberSwitch,
         titleStyle: 'green',
         items: [
           {
             path: 'member',
-            label: 'member',
+            label:  memberSwitch,
             component: () => import('@/tenant/modules/members/Index.vue'),
             permissions: 'members-list',
           },

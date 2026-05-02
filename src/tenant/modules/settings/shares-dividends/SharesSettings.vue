@@ -8,7 +8,6 @@ import { useSharesSettings } from "../composables/useSharesSettings";
 import ManageSharesDrawer from "../components/shares-dividends/ManageSharesDrawer.vue";
 import DividendDrawer from "../components/shares-dividends/DividendDrawer.vue";
 import { sharemanagment } from ".";
-import { t } from "vue-router/dist/index-DFCq6eJK.js";
 
 const { currencyCode } = storeToRefs(useCurrencyStore());
 const drawerOpen = ref(false);

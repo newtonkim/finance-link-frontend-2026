@@ -1,8 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive, computed, watch } from 'vue';
-import { Form, getSystemSetting } from '@/Global';
+import { Form, getSystemSetting, tryCatch } from '@/Global';
 import { AlertCircle, TrendingUp } from 'lucide-vue-next';
 const emits = defineEmits(['update:form']);
+import { memberAccountApi } from '@/tenant/apis'
+import debounce from 'lodash/debounce'
+import { pomPinia } from 'septor-store'
+
+const Store = pomPinia()
+
+const { getProductCharges } = memberAccountApi()
+
 const OptionList = reactive({
   memberTypeOptions: [{ id: 'new_member', name: 'New Member' }, { id: 'existing_member', name: 'Existing Member' }],
   salutationOptions: [{ id: 'Mr', name: 'Mr' }, { id: 'Mrs', name: 'Mrs' }, { id: 'Ms', name: 'Ms' }, { id: 'Dr', name: 'Dr' }, { id: 'Prof', name: 'Prof' }],
@@ -19,14 +27,20 @@ const props = defineProps({
     default: {},
   },
 })
+const today = new Date();
+const minAgeDate = new Date(
+  today.getFullYear() - 18,
+  today.getMonth(),
+  today.getDate()
+);
 const fields = ref<any[]>([
   {
     label: 'Member type',
     name: 'member_type',
     type: 'select',
     required: true,
-    placeholder: 'Search member type', 
-    class:"no-print",
+    placeholder: 'Search member type',
+    class: "no-print",
 
     options: OptionList.memberTypeOptions
   },
@@ -37,15 +51,19 @@ const fields = ref<any[]>([
     required: false,
     placeholder: 'Search products',
     url: "global/savings-products",
+    dataOnMount: true,
+    selectOnOneItem: true,
+
     dependsOn: {
       conditions: [
         {
           field: 'member_type',
-          condition: (val: any) => val === 'existing_member'
+          condition: (val: any) => !settingList?.value['system-used-by-money-lender']
         }
       ],
     },
   },
+
   {
     label: 'is share holder',
     name: 'is_share_holder',
@@ -69,7 +87,7 @@ const fields = ref<any[]>([
   {
     label: 'inital deposit',
     name: 'inital_deposit',
-    type: 'number',
+    type: 'money',
     required: true,
     placeholder: 'Select initial deposit',
     dependsOn: {
@@ -79,7 +97,45 @@ const fields = ref<any[]>([
           condition: (val: any) => val === 'new_member'
         }
       ],
+    },
+    change: async (val: any) => {
+      const amount = val?.target ? val.target.value : val
+      // alert()
+      watchChangeInProductOrCharges(fields, amount)
+    },
+  },
+  {
+    label: 'charges',
+    name: 'charges',
+    type: 'text',
+    required: true,
+    disabled: true,
+    placeholder: 'Enter charges',
+    dependsOn: {
+      conditions: [
+        {
+          field: 'member_type',
+          condition: (val: any) => val == 'new_member' && !settingList?.value['system-used-by-money-lender']
+        },
+
+      ],
     }
+  },
+  {
+    label: 'Payment Mode',
+    name: 'payment_method',
+    type: 'select',
+    value:"cash",
+    required: false,
+    options: [
+      { id: 'cash', name: 'Cash' },
+      { id: 'bank_transfer', name: 'Bank Transfer' },
+      { id: 'mobile_money', name: 'Mobile Money' },
+      { id: 'cheque', name: 'Cheque' },
+      { id: 'teller', name: 'Teller' },
+      { id: 'ussd', name: 'USSD' },
+    ],
+    placeholder: 'payment mothod',
   },
   {
     label: 'opening balance',
@@ -122,8 +178,10 @@ const fields = ref<any[]>([
   {
     label: 'Date Of Birth',
     name: 'date_of_birth',
-    type: 'datec',
+    type: 'date',
     required: true,
+    max: minAgeDate.toISOString().split('T')[0],
+    // maxDate: new Date(),
     props: { placeholder: 'Select Start & End Dates' },
   },
   {
@@ -137,14 +195,14 @@ const fields = ref<any[]>([
     label: 'Other Contacts',
     name: 'other_contacts',
     type: 'phone',
-    required: true,
+    required: false,
     placeholder: 'Enter Other Contacts',
   },
   {
     label: 'Mobile Money Number',
     name: 'mobile_money_number',
     type: 'phone',
-    required: true,
+    required: false,
     placeholder: 'Enter Primary Contact',
   },
   {
@@ -158,22 +216,25 @@ const fields = ref<any[]>([
     label: 'NATIONAL ID (NIN)',
     name: 'national_id',
     type: 'text',
-    required: true,
+       required: settingList.value['sacco-members-member-nin-mandatory'],
+
     placeholder: 'Enter national id (NIN)',
   },
   {
     label: 'Marital Status',
     name: 'marital_status',
     type: 'select',
-    required: true,
+    required: false,
     options: OptionList.maritalOptions,
     placeholder: 'Enter Marital Status',
   },
+
   {
     label: 'Nationality',
     name: 'nationality',
     type: 'nationality',
     required: true,
+    value: 'Ugandan',
     placeholder: 'Enter Nationality',
   },
   {
@@ -189,20 +250,20 @@ const fields = ref<any[]>([
     type: 'profile',
     required: false,
     placeholder: 'Enter prifile picture',
-    class:"no-print"
+    class: "no-print"
   },
   {
     label: 'Next of Kin',
     name: 'next_of_kin',
     type: 'text',
-    required: true,
+    required: settingList.value['sacco-members-member-next-of-kin-nin-mandatory'],
     placeholder: 'Enter Next of Kin',
   },
   {
     label: 'Next of Kin Contact',
     name: 'next_of_kin_contact',
     type: 'phone',
-    required: true,
+    required: settingList.value['sacco-members-member-next-of-kin-nin-mandatory'],
     placeholder: 'Enter Next of Kin Contact',
   },
 
@@ -211,6 +272,7 @@ const fields = ref<any[]>([
     name: 'joined_date',
     type: 'date',
     required: true,
+    max: new Date().toISOString().split('T')[0],
     placeholder: 'join date ',
   },
   {
@@ -258,10 +320,16 @@ const loadingMount = computed(() => loading.value)
 function checkForSettings() {
   const checkForVaailableSetting = getSystemSetting()
   settingList.value = {
+    "sacco-on-create-member-address-mandatory": (checkForVaailableSetting?.['sacco-on-create-member-address-mandatory'] ?? 0),
+    "sacco-members-member-nin-mandatory": (checkForVaailableSetting?.['sacco-on-create-member-nin-mandatory'] ?? 0),
+    "sacco-members-member-next-of-kin-nin-mandatory": (checkForVaailableSetting?.['sacco-on-create-member-next-of-kin-nin-mandatory'] ?? 0),
     "hide-initial-deposit-field": (checkForVaailableSetting?.['sacco-members-hide-initial-deposit-field'] ?? 0),
+    "system-used-by-money-lender": (checkForVaailableSetting?.['system-used-by-money-lenders'] ?? 0),
     "sacco-members-free-input-code": (checkForVaailableSetting?.['sacco-members-free-input-code'] ?? 0),
     "sacco-share-price-value": parseFloat(checkForVaailableSetting?.['sacco-share-price-value'] ?? 0),
     "sacco-share-on-member-creation-create-share-minimum-value": parseFloat(checkForVaailableSetting?.['sacco-share-on-member-creation-create-share-minimum-value'] ?? 0)
+
+
   }
 }
 const sharesError = computed(() => {
@@ -269,20 +337,40 @@ const sharesError = computed(() => {
   if (additionalForm.value.shares_quantity < min) return `Minimum is ${min}`
   return ''
 })
- 
+
+
+const watchChangeInProductOrCharges = debounce(async (fields: any, amount: any) => {
+  const finedProduct = fields.value.find((f: any) => f.name === 'product_id')
+  const chargeField = fields.value.find((f: any) => f.name === 'charges')
+
+  if (!finedProduct || !finedProduct.value) return
+  tryCatch(async () => {
+    const res: any = await getProductCharges({
+      product_id: finedProduct.value,
+      amount: amount,
+      type: 'deposit',
+    })
+
+    if (chargeField) {
+      chargeField.value = `${res?.cost ?? 0} (charges)`
+      chargeField.hidden = false
+      chargeField.label = 'charges'
+    }
+  })
+}, 900)
 onMounted(() => {
   promtValueOnUpdate()
   checkForSettings()
 })
 </script>
 <template>
-  <div class="card shadow-md p-4 py-10 bg-white dark:bg-neutral-800 rounded-md h -[86vh] over flow-y-auto">
+  <card class="card shadow-md px-4 py-3 bg-white dark:bg-neutral-800 rounded-md h -[86vh] over flow-y-auto border-0">
     <span v-if='loadingMount'></span>
-    <Form :action="data?.action" v-else parentStyle="grid  grid-cols-2 gap-4 md:gap-6" v-model:form="fields" />
+    <Form :action="data?.action" v-else parentStyle="grid  grid-cols-2 gap-3" v-model:form="fields" />
     <div v-setting='"sacco-share-on-member-creation-create-share-account-at-the-same-time"'
-      class="mt-6 rounded-2xl border border-nfuko-primary-200 bg-nfuko-primary-50/60 overflow-hidden">
+      class="mt-0 rounded-2xl border border-nfuko-primary-200 bg-nfuko-primary-50/60 overflow-hidden">
       <!-- Section header -->
-      <div class="flex items-center gap-2.5 px-5 py-3 bg-nfuko-primary-100/80 border-b border-nfuko-primary-200">
+      <div class="flex items-center   px-5 py-3 bg-nfuko-primary-100/80 border-b border-nfuko-primary-200">
         <Share2 class="h-4 w-4 text-nfuko-primary-700" />
         <span class="text-[12px] font-bold text-nfuko-primary-800 uppercase tracking-wider">Share Purchase</span>
         <span
@@ -291,7 +379,7 @@ onMounted(() => {
         </span>
       </div>
 
-      <div class="p-5 space-y-4">
+      <div class="p-5 space-y-3">
         <div class="flex items-start gap-3 px-4 py-3 rounded-xl bg-white border border-nfuko-primary-200">
           <AlertCircle class="h-4 w-4 text-nfuko-primary-600 shrink-0 mt-0.5" />
           <p class="text-[12px] text-nfuko-primary-800 leading-relaxed">
@@ -350,5 +438,8 @@ onMounted(() => {
         </div>
       </div>
     </div>
-  </div>
+    <br />
+    <br />
+
+  </card>
 </template>

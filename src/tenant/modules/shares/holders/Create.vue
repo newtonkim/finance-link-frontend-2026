@@ -122,8 +122,12 @@ const fields = ref<any[]>([
   {
     label: 'Date Of Birth',
     name: 'date_of_birth',
-    type: 'datec',
+    type: 'date',
+    max: new Date().toISOString().split('T')[0],
+
     required: true,
+      // maxDate: new Date(),
+
     props: { placeholder: 'Select Start & End Dates' },
   },
   {
@@ -276,9 +280,9 @@ onMounted(() => {
 })
 </script>
 <template>
-  <div class="card shadow-md p-4 py-10 bg-white dark:bg-neutral-800 rounded-md h -[86vh] over flow-y-auto">
+  <card class="card shadow-md p-2 py-10 bg-white dark:bg-neutral-800 rounded-md h -[86vh] over flow-y-auto">
     <span v-if='loadingMount'></span>
-    <Form :action="data?.action" v-else parentStyle="grid  grid-cols-2 gap-4 md:gap-6" v-model:form="fields" />
+    <Form :action="data?.action" v-else parentStyle="grid  grid-cols-2 gap-3" v-model:form="fields" />
     <div v-setting='"sacco-share-on-member-creation-create-share-account-at-the-same-time"'
       class="mt-6 rounded-2xl border border-nfuko-primary-200 bg-nfuko-primary-50/60 overflow-hidden">
       <!-- Section header -->
@@ -350,5 +354,5 @@ onMounted(() => {
         </div>
       </div>
     </div>
-  </div>
+  </card>
 </template>

@@ -206,6 +206,6 @@ function findACharge() {
 <template>
   <div class="card shadow-md p-6 bg-white dark:bg-neutral-800 rounded-md h-[86vh] overflow-y-auto">
     <!-- {{ fields }} -->
-    <Form v-if="!loading" :action="data?.action" parentStyle="grid grid-cols-1 gap-4 md:gap-6" v-model:form="fields" />
+    <Form v-if="!loading" :action="data?.action" parentStyle="grid grid-cols-1 gap-3" v-model:form="fields" />
   </div>
 </template>

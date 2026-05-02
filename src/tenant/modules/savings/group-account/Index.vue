@@ -7,8 +7,11 @@
   }" :showTableAction="true" :drawerRemount="drawerRemount"
     :automaticCreate="automaticCreate.actionSlot != 'create-none-member'" :drawerWidth="drawerTitle?.width"
     :url="tableUrl" state="groupAccountList" :drawerTitle="drawerTitle?.title" :columns="columns" @save="saveUser"
-    ref="drawer">
+    ref="drawer"
+    :templateDisplayLabels="['code','member_name']"
+    >
     <template #header-action>
+      
       <div class="space-y-3">
         <PainPageHeader title="Group Savings"
           dec="Manage and monitor institutional savings groups, their membership tiers, and overall performance." />

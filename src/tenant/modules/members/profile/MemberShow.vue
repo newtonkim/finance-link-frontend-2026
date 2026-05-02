@@ -12,14 +12,16 @@ import MemberSidebar from './MemberSidebar.vue';
 import MemberActionBar from './MemberActionBar.vue';
 import MemberAccountsTable from './MemberAccountsTable.vue';
 import MemberTransactionsTab from './MemberTransactionsTab.vue';
+import MemberLoansTab from './MemberLoansTab.vue';
 import DepositWithdrawDrawer from './DepositWithdrawDrawer.vue';
 import NewAccountDrawer from './NewAccountDrawer.vue';
 import CustomFeeDrawer from './CustomFeeDrawer.vue';
 import { memberProfileApi } from '@/tenant/apis/savings/member-profileApi';
 import Details from '@/Global/DetailsTable/Details.vue';
+import Statement from './statement.vue';
 const { getMemberProfileDetail } = memberProfileApi();
 
-const router = useRouter(); 
+const router = useRouter();
 const { currencyCode } = storeToRefs(useCurrencyStore());
 
 const {
@@ -31,11 +33,11 @@ const {
 } = useMember();
 const profileDetails = ref<any>(null)
 
- 
+
 async function initialize() {
     pageLoading.value = true;
     const details = await getMemberProfileDetail({})
-    let data:any = {};
+    let data: any = {};
     const { member_details, member_accounts } = details
     // const accounts = details.member_accounts
     for (const key in member_details) {
@@ -61,6 +63,7 @@ const tabs = computed(() => [
     { id: 'withdrawal', label: 'Withdrawal', icon: MinusCircle, count: member.transactions?.filter((t: any) => ['withdrawal', 'withdraw'].includes(t.type?.toLowerCase())).length || 0 },
     { id: 'loans', label: 'Loans', icon: Wallet, count: member.loans?.length || 0 },
     { id: 'shares', label: 'Shares', icon: BarChart3, count: null },
+    { id: 'statement', label: 'Statement', icon: Printer, },
 ]);
 
 // ── Drawer refs ──────────────────────────────────────────────────────────────
@@ -150,7 +153,7 @@ const columns = [
             { key: 'opb', label: 'opening balance' },
             { key: 'referred_by', label: 'Referred By' },
             { key: 'created_by', label: 'Created By' },
-            { key: 'joined_date', label: 'Joined Date',type: 'date' },
+            { key: 'joined_date', label: 'Joined Date', type: 'date' },
             { key: 'created_at', label: 'Created At' },
         ]
     },
@@ -194,7 +197,8 @@ const columns = [
                     <!-- Accounts table -->
                     <div v-if="profileDetails?.accounts">
 
-                        <MemberAccountsTable @reload="initialize" :member="profileDetails?.details ?? {}"   :accounts="profileDetails.accounts ?? []" :currency-code="currencyCode"
+                        <MemberAccountsTable @reload="initialize" :member="profileDetails?.details ?? {}"
+                            :accounts="profileDetails.accounts ?? []" :currency-code="currencyCode"
                             :format-currency="formatCurrency" @new-account="newAccountDrawer?.openDrawer()"
                             @custom-fee="(account) => customFeeDrawer?.openDrawer(account)" />
                     </div>
@@ -244,8 +248,22 @@ const columns = [
                             :format-currency="formatCurrency" @print="printReceipt" @reverse="confirmDeleteTxn"
                             @open-drawer="depositDrawer?.open('withdraw')" />
 
+                        <MemberTransactionsTab v-show="activeTab === 'shares'" :transactions="member.transactions"
+                            mode="share-transaction" action-color="bg-[#ea580c]" :show-account-column="true"
+                            :format-date="formatDate" :format-date-time="formatDateTime"
+                            :format-currency="formatCurrency" @print="printReceipt" @reverse="confirmDeleteTxn"
+                            @open-drawer="depositDrawer?.open('withdraw')" />
+                        <MemberLoansTab :loans="member.Loans" v-if="activeTab === 'loans'" :formatDate="formatDate"
+                            :formatDateTime="formatDateTime" :formatCurrency="formatCurrency" actionColor="bg-[#cda434]"
+                            @view="() => { }" />
+                            
+                        <Statement v-if="activeTab === 'statement'" :profileDetails="profileDetails" :data="member" :formatDate="formatDate"
+                            :formatDateTime="formatDateTime" :formatCurrency="formatCurrency" actionColor="bg-[#cda434]"
+                            @view="() => { }" />
+
+
                         <!-- Shares placeholder -->
-                        <div v-show="activeTab === 'shares'" class="p-12 text-center">
+                        <!-- <div v-show="activeTab === 'shares'" class="p-12 text-center">
                             <div
                                 class="w-12 h-12 rounded-full bg-[#f1f5f9] flex items-center justify-center mx-auto mb-3">
                                 <BarChart3 :size="20" class="text-[#64748b]" />
@@ -254,10 +272,10 @@ const columns = [
                             <p class="text-[13px] text-[#64748b] mt-1 max-w-sm mx-auto">Track and manage member shares,
                                 certificates, and
                                 dividends here.</p>
-                        </div>
+                        </div> -->
 
                         <!-- Loans placeholder -->
-                        <div v-show="activeTab === 'loans'" class="p-12 text-center">
+                        <!-- <div v-show="activeTab === 'loans'" class="p-12 text-center">
                             <div
                                 class="w-12 h-12 rounded-full bg-[#eff6ff] flex items-center justify-center mx-auto mb-3">
                                 <Wallet :size="20" class="text-[#2563eb]" />
@@ -266,7 +284,7 @@ const columns = [
                             <p class="text-[13px] text-[#64748b] mt-1 max-w-sm mx-auto">Manage loan applications,
                                 disbursements, and repayments
                                 for this member.</p>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
@@ -280,49 +298,49 @@ const columns = [
             :savings-products="savingsProducts" :currency-code="currencyCode" @success="fetchMember(true)" />
 
         <CustomFeeDrawer ref="customFeeDrawer" :currency-code="currencyCode" @success="fetchMember(true)" />
- 
-            <Transition name="fade">
-                <div v-if="showTxnDeleteDialog" class="fixed inset-0 z-50 flex items-center justify-center">
-                    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showTxnDeleteDialog = false">
+
+        <Transition name="fade">
+            <div v-if="showTxnDeleteDialog" class="fixed inset-0 z-50 flex items-center justify-center">
+                <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showTxnDeleteDialog = false">
+                </div>
+                <div
+                    class="relative z-10 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-neutral-900 dark:border dark:border-neutral-800">
+                    <div class="flex items-start gap-4">
+                        <div
+                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
+                            <RotateCcw :size="20" class="text-amber-600 dark:text-amber-400" />
+                        </div>
+                        <div>
+                            <h3 class="text-base font-semibold text-neutral-900 dark:text-white">Reverse Transaction
+                            </h3>
+                            <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+                                Reverse transaction <strong class="text-neutral-700 dark:text-neutral-200">{{
+                                    txnToDelete?.reference }}</strong>?
+                            </p>
+                            <p class="mt-2 text-[12px] text-neutral-400 dark:text-neutral-500">
+                                A counter-transaction will be created to undo this entry. The original transaction
+                                remains
+                                in the audit trail marked as <em>reversed</em>.
+                            </p>
+                        </div>
                     </div>
-                    <div
-                        class="relative z-10 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-neutral-900 dark:border dark:border-neutral-800">
-                        <div class="flex items-start gap-4">
-                            <div
-                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
-                                <RotateCcw :size="20" class="text-amber-600 dark:text-amber-400" />
-                            </div>
-                            <div>
-                                <h3 class="text-base font-semibold text-neutral-900 dark:text-white">Reverse Transaction
-                                </h3>
-                                <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-                                    Reverse transaction <strong class="text-neutral-700 dark:text-neutral-200">{{
-                                        txnToDelete?.reference }}</strong>?
-                                </p>
-                                <p class="mt-2 text-[12px] text-neutral-400 dark:text-neutral-500">
-                                    A counter-transaction will be created to undo this entry. The original transaction
-                                    remains
-                                    in the audit trail marked as <em>reversed</em>.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="mt-6 flex justify-end gap-3">
-                            <button @click="showTxnDeleteDialog = false"
-                                class="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800">
-                                Cancel
-                            </button>
-                            <button @click="executeDeleteTxn" :disabled="isDeletingTxn"
-                                class="flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 transition-colors disabled:opacity-50">
-                                <span v-if="isDeletingTxn"
-                                    class="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white"></span>
-                                <RotateCcw v-else :size="14" />
-                                Confirm Reversal
-                            </button>
-                        </div>
+                    <div class="mt-6 flex justify-end gap-3">
+                        <button @click="showTxnDeleteDialog = false"
+                            class="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800">
+                            Cancel
+                        </button>
+                        <button @click="executeDeleteTxn" :disabled="isDeletingTxn"
+                            class="flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700 transition-colors disabled:opacity-50">
+                            <span v-if="isDeletingTxn"
+                                class="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white"></span>
+                            <RotateCcw v-else :size="14" />
+                            Confirm Reversal
+                        </button>
                     </div>
                 </div>
-            </Transition>
-      
+            </div>
+        </Transition>
+
     </div>
 
     <!-- Printable Receipt -->

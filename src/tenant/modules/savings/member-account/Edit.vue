@@ -1,11 +1,11 @@
 <template>
-  <div class="card shadow-md p-4 py-10 bg-white dark:bg-neutral-800 rounded-md h-[84vh] overflow-auto">
+  <div class="card shadow-md px-4 py-3 bg-white dark:bg-neutral-800 rounded-md h-[84vh] overflow-auto">
     
     <span v-if="loading"></span>
     <Form
       :action="data?.action"
       v-else
-      parentStyle="grid  grid-cols-1 gap-4 md:gap-6"
+      parentStyle="grid  grid-cols-1 gap-3"
       v-model:form="fields"
     />
   </div>

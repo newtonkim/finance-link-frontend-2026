@@ -1,6 +1,6 @@
 <template>
     <div class="card shadow-md p-4 py-1 h-full bg-white dark:bg-neutral-800 rounded-md">
-        <Form :action="data?.action" parentStyle="grid  grid-cols-1 gap-4 md:gap-6" v-model:form="fields" />
+        <Form :action="data?.action" parentStyle="grid  grid-cols-1 gap-3" v-model:form="fields" />
     </div>
 </template>
 <script setup lang="ts">

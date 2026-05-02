@@ -23,7 +23,7 @@
       <div class="flex items-center gap-2">
         <TabelActionButtons v-if="item?.total_loan_balance > 0" @action="() => navigateIntoLoanDetails(item)"
           title="loan details" color="danger" icon="CirclePile" />
-        <TabelActionButtons v-else title="loan details" color="default" icon="CirclePile" />
+        <TabelActionButtons v-else title="No loan" color="default" icon="CirclePile" />
       </div>
     </template>
  
@@ -107,7 +107,7 @@ const columns = [
   { key: "member_code", label: "Member Code", sticky: "left", width: "14em", copy: true },
   { key: "member_name", label: "Member Name", sticky: "left", width: "14em" },
   { key: "member_status", label: "Status", type: "status" },
-  { key: "total_loan_balance", label: "Active loan balance", type: "money" },
+  { key: "total_loan_balance", label: "loan balance", type: "money" },
   { key: "created_at", label: "created_at", width: "14em" },
   { key: "actions", label: "Actions" },
 ];

@@ -41,26 +41,46 @@ const parseMoney = (val: string): string => {
 
 const handleInput = (event: Event) => {
     const input = event.target as HTMLInputElement;
-    const rawVal = input.value;
-    
-    // Calculate cursor position adjustment
+
+    // Keep only digits and one decimal point
+    let rawVal = input.value.replace(/[^\d.]/g, '');
+    const parts = rawVal.split('.');
+    if (parts.length > 2) {
+        rawVal = parts[0] + '.' + parts.slice(1).join('');
+    }
+
+    // Cursor position
     const cursorPosition = input.selectionStart || 0;
-    const rawLengthBefore = rawVal.length;
 
-    // Format the value
-    const formatted = formatMoney(rawVal);
+    // Split integer & decimal
+    const [intPart, decPart] = rawVal.split('.');
+
+    // Format integer part safely
+    const formattedInt = intPart
+        ? Number(intPart).toLocaleString()
+        : '';
+
+    const formatted = decPart !== undefined
+        ? `${formattedInt}.${decPart}`
+        : formattedInt;
+
     displayValue.value = formatted;
-    
-    // Restore cursor position roughly
-    setTimeout(() => {
-        const lengthDiff = formatted.length - rawLengthBefore;
-        const newCursorPos = Math.max(0, cursorPosition + lengthDiff);
-        input.setSelectionRange(newCursorPos, newCursorPos);
-    }, 0);
 
-    // Emit the clean numeric string to the parent form (or empty string if cleared)
-    const cleanVal = parseMoney(formatted);
-    emit('update:modelValue', cleanVal);
+    // Restore cursor (basic adjustment)
+    setTimeout(() => {
+        const newPos = Math.min(formatted.length, cursorPosition + (formatted.length - rawVal.length));
+        input.setSelectionRange(newPos, newPos);
+    });
+
+    // Emit clean numeric value (no commas)
+    // console.log( formatted.replace(/,/g, ''));
+    console.log(formatted);
+    
+  
+    
+    emit('update:modelValue', formatted.replace(/,/g, ''));
+    // emit('update:modelValue', cleanVal);
+
 };
 
 // Initialize and watch for external changes (like form.reset())
@@ -83,7 +103,7 @@ watch(() => props.modelValue, (newVal) => {
         </span>
         <input
             :value="displayValue"
-            @input="handleInput"
+            @change="handleInput"
             type="text"
             class="rounded-xl cursor-pointer  hover:border-nfuko-primary-300 hover:bg-nfuko-primary-50 dark:hover:bg-neutral-800 transition group"
             inputmode="decimal"

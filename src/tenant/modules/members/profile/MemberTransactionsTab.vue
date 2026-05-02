@@ -3,8 +3,9 @@ import { ref, computed } from 'vue';
 import { RotateCcw, Printer } from 'lucide-vue-next';
 
 const props = defineProps<{
+    showTable: boolean;
     transactions: any[];
-    mode: 'all' | 'deposit' | 'withdrawal'; // which tab we are on
+    mode: 'all' | 'deposit' | 'withdrawal'|'share-transaction'; // which tab we are on
     actionColor: string; // bg class for pagination current page button
     formatDate: (d?: string) => string;
     formatDateTime: (d?: string) => string;
@@ -14,6 +15,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     print: [txn: any];
+    showTable: false;
     reverse: [txn: any];
     openDrawer: [];
 }>();
@@ -41,10 +43,14 @@ const filtered = computed(() => {
     if (startDate.value) txns = txns.filter(t => (t.transaction_date || t.created_at || '').slice(0, 10) >= startDate.value);
     if (endDate.value) txns = txns.filter(t => (t.transaction_date || t.created_at || '').slice(0, 10) <= endDate.value);
 
-    if (props.mode === 'deposit' || props.mode === 'withdrawal') {
-        const rootFilter = props.mode === 'deposit' ? isDeposit : isWithdrawal;
-        // Collect references of root transactions that match this tab
-        const rootRefs = new Set(txns.filter(rootFilter).map((t: any) => t.reference).filter(Boolean));
+    if (props.mode === 'deposit' || props.mode === 'withdrawal' || props.mode === 'share-transaction') {
+        if(props.mode==='share-transaction'){
+            txns = txns.filter((t: any) => t.type === 'share-transaction');
+
+        }else{
+
+            const rootFilter = props.mode === 'deposit' ? isDeposit :isWithdrawal;
+             const rootRefs = new Set(txns.filter(rootFilter).map((t: any) => t.reference).filter(Boolean));
         // Also collect reversal_of IDs for reversal transactions whose original is in this group
         const rootIds = new Set(txns.filter(rootFilter).map((t: any) => t.id));
         return txns.filter((t: any) => {
@@ -62,6 +68,7 @@ const filtered = computed(() => {
             }
             return false;
         });
+        }
     }
 
     return txns;
@@ -80,7 +87,7 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
 <template>
     <div class="flex flex-col">
         <!-- Top Controls -->
-        <div class="py-4 bg-transparent flex flex-wrap gap-4 justify-between items-center px-4 md:px-6">
+        <div class="py-4 bg-transparent flex flex-wrap gap-4 justify-between items-center px-4 md:px-6" v-if="!showTable">
             <div class="flex items-center gap-3">
                 <input v-model="startDate" type="date"
                     class="h-10 px-4 rounded-full bg-[#f1f5f9] border-0 text-[13px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#cda434]/50 cursor-pointer min-w-[140px]" />
@@ -91,7 +98,7 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
                     Clear
                 </button>
             </div>
-            <div>
+            <!-- <div>
                 <button v-if="mode === 'all'"
                     class="h-10 px-6 text-[13px] font-bold rounded-full bg-[#334155] text-white hover:bg-[#1e293b] transition-colors shadow-sm">
                     Export
@@ -104,11 +111,11 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
                     class="h-10 px-6 text-[13px] font-bold rounded-full bg-[#ea580c] text-white hover:bg-[#c2410c] transition-colors shadow-sm">
                     Record Withdrawal
                 </button>
-            </div>
+            </div> -->
         </div>
 
         <!-- Table filters row -->
-        <div class="py-2 pb-5 flex flex-col sm:flex-row justify-between items-center gap-4 px-4 md:px-6">
+        <div class="py-2 pb-5 flex flex-col sm:flex-row justify-between items-center gap-4 px-4 md:px-6" v-if="!showTable">
             <div class="flex items-center gap-2 text-[13px] text-[#64748b]">
                 Show
                 <select v-model="perPage" @change="currentPage = 1"
@@ -143,7 +150,7 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
                         <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">{{ mode === 'all' ? 'Receipt' : 'Reference &#x21C5;' }}</th>
                         <th v-if="mode !== 'all'" class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Date Added &#x21C5;</th>
                         <th v-if="mode === 'all'" class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Added by</th>
-                        <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider text-center">Action</th>
+                        <th v-if="!showTable" class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider text-center">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -180,8 +187,8 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
                         <!-- Amount -->
                         <td class="py-3.5 px-5">
                             <span class="text-[14px] font-mono font-bold"
-                                :class="txn.type === 'deposit' ? 'text-emerald-600' : 'text-red-600'">
-                                {{ txn.type === 'deposit' ? '+' : '-' }}{{ txn.amount_formatted || formatCurrency(txn.amount) }}
+                                :class="txn.type != 'withdrawal' ? 'text-emerald-600' : 'text-red-600'">
+                                {{ txn.amount_formatted || formatCurrency(txn.amount) }}
                             </span>
                         </td>
                         <td class="py-3.5 px-5">
@@ -234,7 +241,7 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
                         <td v-if="mode === 'all'" class="py-3.5 px-5 text-[13px] text-foreground">{{ txn.deposited_by || '—' }}</td>
 
                         <!-- Action -->
-                        <td class="py-3.5 px-5 text-center">
+                        <td v-if="!showTable" class="py-3.5 px-5 text-center">
                             <button @click="emit('reverse', txn)"
                                 :disabled="txn.is_reversed || txn.type === 'reversal' || txn.is_reversible === false"
                                 :title="txn.is_reversed ? 'Already reversed' : txn.type === 'reversal' ? 'Reversal entry' : txn.is_reversible === false ? 'Non-reversible charge' : 'Reverse Transaction'"
@@ -251,7 +258,7 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
         </div>
 
         <!-- Pagination -->
-        <div class="py-5 px-4 md:px-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-[13px] text-[#64748b]">
+        <div class="py-5 px-4 md:px-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-[13px] text-[#64748b]" v-if="!showTable">
             <div>
                 Showing {{ filtered.length ? (currentPage - 1) * perPage + 1 : 0 }}
                 to {{ Math.min(currentPage * perPage, filtered.length) }} of {{ filtered.length }} entries

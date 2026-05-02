@@ -1,7 +1,9 @@
 <template>
-    <TableDrawer :automaticCreate="false" ref="drawer"   drawerWidth=" w-1/2" :show-add-button="false"
-        :url="tableUrl" state="recentShareTransactionList" :drawerTitle="automaticCreate?.[statusFilter]?.['title']"
-        :columns="columns" @save="saveUser" :showTableAction="true">
+    <TableDrawer
+    :exportItems="exportItems"
+     :automaticCreate="false" ref="drawer" drawerWidth=" w-1/2" :show-add-button="false" :url="tableUrl"
+        state="recentShareTransactionList" :drawerTitle="automaticCreate?.[statusFilter]?.['title']?? automaticCreate?.['title']" :columns="columns"
+        @save="saveUser" :showTableAction="true">
         <template #sub-header>
             <AnalysisTile :data="stats" grid-class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-3" />
         </template>
@@ -9,20 +11,18 @@
             <PainPageHeader title="Shares Center" dec="Manage all share accounts/Recent shares transactions ." />
         </template>
         <template #salutation_name="{ item }">
-
             <Button @click="navigateToProfile(item)" class="  font-semibold text-nfuko-action text-sm dark:text-white">
                 <span>{{ item?.salutation_name }}</span>
             </Button>
-
         </template>
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters"
                 @update:modelValue="(e) => { OpenThedrawer(e) }" />
         </template>
         <template #actions="{ item }">
-            <TabelActionButtons v-if="item?.payment_mode != 'withdrawal'" title="revert" color="danger" icon="CirclePlus"
-                @action="() => {
-                    automaticCreate['share-transaction-revert'].action()
+            <TabelActionButtons v-if="item?.payment_mode != 'withdrawal' && !item?.reversed" title="revert"
+                color="danger" icon="CirclePlus" @action="() => {
+                    automaticCreate['share-transaction-revert'].action(item)
                 }" />
             <TabelActionButtons v-else title="revert" color="default" icon="CirclePlus" />
         </template>
@@ -34,13 +34,12 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { SellShares, TransferShares, WithdrawShares } from '.'
-import { AnalysisTile, Confirm, setLocalValues } from '@/Global'
+import { Confirm, setLocalValues } from '@/Global'
 import { useRouter } from 'vue-router';
 import { shareCenterApi } from '@/tenant/apis/shares';
 import { pomPinia } from 'septor-store';
-const { TranUniShares: SellSharesApi } = shareCenterApi()
+const { TranUniShares: SellSharesApi, revertShareTransaction } = shareCenterApi()
 const Store = pomPinia() as any;
-
 const router = useRouter(), drawer = ref<any>(null),
     formData = ref<any[]>([]), statusFilter = ref<string>(''),
     filters = ['sell shares', 'transfer shares', 'share withdrawal'],
@@ -50,7 +49,6 @@ const router = useRouter(), drawer = ref<any>(null),
             title: "Sell Shares",
             componet: SellShares,
             action: () => submitData('sell-shares')
-
         },
         "transfer shares": {
             title: "transfer shares",
@@ -62,23 +60,93 @@ const router = useRouter(), drawer = ref<any>(null),
             title: "share withdrawal",
             componet: WithdrawShares,
             action: () => submitData('share-withdrawal')
-
         },
         "share-transaction-revert": {
             title: "share transaction revert",
             componet: WithdrawShares,
-            action: () => submitData('share-transaction-revert', 'Are you sure you want to revert this transaction(not yet working)', 'warning', false)
-
+            action: (data: any) => submitData('share-transaction-revert', 'Are you sure you want to revert this transaction(not yet working)', 'warning', false, data)
         },
 
     })
+const columns = [
+    { key: 'member_code', label: 'code', sticky: 'left', copy: true },
+    { key: 'salutation_name', label: 'Member', },
+    { key: 'reference', label: 'reference', width: '14em', copy: true },
+    { key: 'amount', label: 'amount', type: "money" },
+    { key: 'charge_amount', label: 'charges', type: "money" },
+    { key: 'account_type', label: 'method', tooltip: true, width: '7.6em', },
+    { key: 'payment_mode', label: 'type', },
+    { key: 'narration', label: 'narration', tooltip: true, width: '14em', },
+    { key: 'created_at', label: 'created at', type: 'date', width: '10em', onSearch: { type: 'date-range', } },
+    { key: 'actions', label: 'Actions', }
+]
+const exportItems = ref([
+  {
+    label: "share Transaction Template",
+    action: () => {
+      const vl = {
+        actionSlot: "share-transaction-template-",
+        // componet: 
+        title: "share Transaction Template",
+      };
+      OpenThedrawer( "share-transaction-template-");
+    },
+  },
+   {
+    label: "share sales Template",
+    action: () => {
+     const  vl= {
+        actionSlot: "share-sales-template",
+        // componet: 
+        title: "share sales Template",
+      };
+      OpenThedrawer( "share-sales-template");
+    },
+  },
 
-function submitData(end: string = '', des?: string, type?: 'warning', toggle: boolean = true) {
+  {
+    label: "share dividend Template",
+    action: () => {
+        const  vl= {
+        actionSlot: "share-dividend-template",
+        title: "share dividend Template",
+        // componet: 
+      };
+      OpenThedrawer( "share-dividend-template");
+    },
+  },
+   
+ 
+]);
+// function OpenThedrawer(item: any, action = "") {
+//    statusFilter.value = item
+//    alert()
+//   automaticCreate.value = { actionSlot: action, ...item };
+//   setTimeout(() => {
+//     drawer.value.toggleDrawer();
+//   }, 100);
+// }
+function OpenThedrawer(item: any, action = "") {
+    statusFilter.value = item
+    setTimeout(() => {
+        drawer.value.toggleDrawer();
+    }, 100);
+}
+const drawerComponet = computed(() => automaticCreate.value[statusFilter.value]?.componet)
+function submitData(end: string = '', des?: string, type: string = 'warning', toggle: boolean = true, data = null) {
     Confirm({
         title: 'Confirm shares transaction',
         des,
         type,
         confirm: async () => {
+            if (end == 'share-transaction-revert') {
+                revertShareTransaction(`holders/${end}`, data).then(v => {
+                    statusFilter.value = "y"
+                    statusFilter.value = ''
+                })
+                return
+
+            }
             SellSharesApi(`holders/${end}`, formData.value).then(v => {
                 if (v?.code == 200)
                     statusFilter.value = "y"
@@ -92,25 +160,13 @@ function submitData(end: string = '', des?: string, type?: 'warning', toggle: bo
 function saveUser(type: string, data: any) {
     if (automaticCreate.value[statusFilter.value]?.action) automaticCreate.value[statusFilter.value]?.action()
 }
-const columns = [
-    { key: 'member_code', label: 'code', sticky: 'left', copy: true },
-    { key: 'salutation_name', label: 'Member', },
-    { key: 'reference', label: 'reference', width: '14em', copy: true },
-    { key: 'amount', label: 'amount', type: "money" },
-    { key: 'charge_amount', label: 'charges', type: "money" },
-    { key: 'account_type', label: 'method', tooltip: true, width: '7.6em', },
-    { key: 'payment_mode', label: 'type', },
-    { key: 'narration', label: 'narration', tooltip: true, width: '14em', },
-    { key: 'created_at', label: 'created at', type: 'date', width: '10em', onSearch: { type: 'date-range', } },
-    { key: 'actions', label: 'Actions', }
-]
-const drawerComponet = computed(() => automaticCreate.value[statusFilter.value]?.componet)
-function OpenThedrawer(item: any, action = "") {
-    statusFilter.value = item
-    setTimeout(() => {
-        drawer.value.toggleDrawer();
-    }, 100);
-}
+
+// function OpenThedrawer(item: any, action = "") {
+//     statusFilter.value = item
+//     setTimeout(() => {
+//         drawer.value.toggleDrawer();
+//     }, 100);
+// }
 
 watch(drawer.value?.drawerOpen, (v) => {
     if (!v) {

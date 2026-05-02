@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import debounce from 'lodash/debounce'
 import { ref, onMounted, reactive, computed, watch } from 'vue';
-import { Form, getSystemSetting, tryCatch } from '@/Global';
+import { Form, getSystemSetting } from '@/Global';
 import { AlertCircle, TrendingUp } from 'lucide-vue-next';
-
 const emits = defineEmits(['update:form']);
 const OptionList = reactive({
   memberTypeOptions: [{ id: 'new_member', name: 'New Member' }, { id: 'existing_member', name: 'Existing Member' }],
@@ -16,7 +14,6 @@ const settingList = ref<Record<string, any>>({})
 const additionalForm = ref({ shares_quantity: 0 });
 const errors = ref<Record<string, any>>({ shares_quantity: 0 });
 const sharesError = ref('')
-
 const settingsStore = ref<any>(null) // Or import and use the actual store if available
 const props = defineProps({
   data: {
@@ -60,47 +57,28 @@ async function promtValueOnUpdate() {
     type: 'select',
     required: true,
     placeholder: 'Search member type',
-    // change: (value: any, field: any, index: number) => {
-    //   const existsIndex = fields.value.findIndex(f => f.name === 'member_id')
-    //   if (value === 'existing_member') {
-    //     if (existsIndex === -1) {
-    //       fields.value.splice(index + 1, 0, {
-    //         label: 'products',
-    //         name: 'product_id',
-    //         type: 'select',
-    //         required: true,
-    //         placeholder: 'Search products',
-    //         url: "global/savings-products",
-    //       });
-    //     }
-    //   } else {
-    //     if (existsIndex !== -1) {
-    //       fields.value.splice(existsIndex, 1);
-    //     }
-    //   }
-    // },
+    change: (value: any, field: any, index: number) => {
+      const existsIndex = fields.value.findIndex(f => f.name === 'member_id')
+      if (value === 'existing_member') {
+        if (existsIndex === -1) {
+          fields.value.splice(index + 1, 0, {
+            label: 'products',
+            name: 'product_id',
+            type: 'select',
+            required: true,
+            placeholder: 'Search products',
+            url: "global/savings-products",
+          });
+        }
+      } else {
+        if (existsIndex !== -1) {
+          fields.value.splice(existsIndex, 1);
+        }
+      }
+    },
 
     options: OptionList.memberTypeOptions
   },
-  //  {
-  //   label: 'products',
-  //   name: 'product_id',
-  //   type: 'select',
-  //   required: false,
-  //   placeholder: 'Search products',
-  //   url: "global/savings-products",
-  //   dataOnMount: true,
-  //   selectOnOneItem: true,
-
-  //   dependsOn: {
-  //     conditions: [
-  //       {
-  //         field: 'member_type',
-  //         condition: (val: any) => !settingList?.value['system-used-by-money-lender']
-  //       }
-  //     ],
-  //   },
-  // },
   {
     label: 'Full Name',
     name: 'full_name',
@@ -110,26 +88,6 @@ async function promtValueOnUpdate() {
     value: props.data.full_name,
 
   },
-  //  {
-  //   label: 'inital deposit',
-  //   name: 'inital_deposit',
-  //   type: 'money',
-  //   required: true,
-  //   placeholder: 'Select initial deposit',
-  //   dependsOn: {
-  //     conditions: [
-  //       {
-  //         field: 'member_type',
-  //         condition: (val: any) => val === 'new_member'
-  //       }
-  //     ],
-  //   },
-  //   change: async (val: any) => {
-  //     const amount = val?.target ? val.target.value : val
-  //     // alert()
-  //     watchChangeInProductOrCharges(fields, amount)
-  //   },
-  // },
   {
     label: 'Salutation',
     name: 'Salutation',
@@ -153,11 +111,12 @@ async function promtValueOnUpdate() {
   {
     label: 'Date Of Birth',
     name: 'date_of_birth',
-    type: 'datec',
+    type: 'date',
     required: true,
-    value: props.data.dob,
       // maxDate: new Date(),
     max: new Date().toISOString().split('T')[0],
+
+    value: props.data.dob,
 
     props: { placeholder: 'Select Start & End Dates' },
   },
@@ -183,7 +142,7 @@ async function promtValueOnUpdate() {
     label: 'Mobile Money Number',
     name: 'mobile_money_number',
     type: 'phone',
-    required: false,
+    required: true,
     value: props.data.MM_number,
 
     placeholder: 'Enter Primary Contact',
@@ -229,9 +188,9 @@ async function promtValueOnUpdate() {
     label: 'Address',
     name: 'address',
     value: props.data.address,
-      required: settingList.value['sacco-on-create-member-address-mandatory'],
 
     type: 'textarea',
+    required: true,
     placeholder: 'Enter Address',
   },
   {
@@ -249,8 +208,7 @@ async function promtValueOnUpdate() {
     value: props.data.nokin,
 
     type: 'text',
-      required: settingList.value['sacco-members-member-next-of-kin-nin-mandatory'],
-
+    required: true,
     placeholder: 'Enter Next of Kin',
   },
   {
@@ -259,18 +217,14 @@ async function promtValueOnUpdate() {
     value: props.data.next_contact,
 
     type: 'phone',
-    required: settingList.value['sacco-members-member-next-of-kin-nin-mandatory'],
-
+    required: true,
     placeholder: 'Enter Next of Kin Contact',
   },
 
   {
     label: 'joined date',
     name: 'joined_date',
-   value: props.data.joined_date
-  ? props.data.joined_date.split(' ')[0]
-  : '',
-    max: new Date().toISOString().split('T')[0],
+    value: props.data.joined_date,
 
     type: 'date',
     required: true,
@@ -293,39 +247,15 @@ additionalForm.value.shares_quantity = props.data?.share_no
   loading.value = false
 }
 
-const watchChangeInProductOrCharges = debounce(async (fields: any, amount: any) => {
-  const finedProduct = fields.value.find((f: any) => f.name === 'product_id')
-  const chargeField = fields.value.find((f: any) => f.name === 'charges')
-
-  if (!finedProduct || !finedProduct.value) return
-  tryCatch(async () => {
-    const res: any = await getProductCharges({
-      product_id: finedProduct.value,
-      amount: amount,
-      type: 'deposit',
-    })
-
-    if (chargeField) {
-      chargeField.value = `${res?.cost ?? 0} (charges)`
-      chargeField.hidden = false
-      chargeField.label = 'charges'
-    }
-  })
-}, 900)
 const loadingMount = computed(() => loading.value)
 function checkForSettings() {
   const checkForVaailableSetting = getSystemSetting()
   settingList.value = {
-    "sacco-on-create-member-address-mandatory": (checkForVaailableSetting?.['sacco-on-create-member-address-mandatory'] ?? 0),
-    "sacco-members-member-nin-mandatory": (checkForVaailableSetting?.['sacco-on-create-member-nin-mandatory'] ?? 0),
-    "sacco-members-member-next-of-kin-nin-mandatory": (checkForVaailableSetting?.['sacco-on-create-member-next-of-kin-nin-mandatory'] ?? 0),
-    // "sacco-members-member-next-of-kin-contact-mandatory": (checkForVaailableSetting?.['sacco-members-member-next-of-kin-contact-mandatory'] ?? 0),
     "hide-initial-deposit-field": (checkForVaailableSetting?.['sacco-members-hide-initial-deposit-field'] ?? 0),
-    "system-used-by-money-lender": (checkForVaailableSetting?.['system-used-by-money-lenders'] ?? 0),
     "sacco-members-free-input-code": (checkForVaailableSetting?.['sacco-members-free-input-code'] ?? 0),
     "sacco-share-price-value": parseFloat(checkForVaailableSetting?.['sacco-share-price-value'] ?? 0),
     "sacco-share-on-member-creation-create-share-minimum-value": parseFloat(checkForVaailableSetting?.['sacco-share-on-member-creation-create-share-minimum-value'] ?? 0)
-}
+  }
   // console.log(settingList.value);
 
 }
@@ -336,46 +266,46 @@ watch(
     const codeIndex = val.findIndex(f => f.name === 'code');
     const fullNameIndex = val.findIndex(f => f.name === 'full_name');
 
-    // if ((settingList.value?.['hide-initial-deposit-field'])) {
-    //   const initalDepositIndex = val.findIndex(f => f.name === 'inital_deposit')
-    //   const referredByIndex = val.findIndex(f => f.name === 'referred_by')
-    //   if (initalDepositIndex === -1 && referredByIndex !== 1) {
-    //     fields.value.splice(referredByIndex + 1, 0, {
-    //       label: 'inital deposit',
-    //       name: 'inital_deposit',
-    //       type: 'number',
-    //       required: true,
-    //       placeholder: 'Select initial deposit',
-    //       dependsOn: {
-    //         conditions: [
-    //           {
-    //             field: 'member_type',
-    //             condition: (val: any) => val === 'existing_member'
-    //           }
-    //         ],
-    //       }
-    //     }
-    //     //  {
-    //     //   label: 'opening balance',
-    //     //   name: 'opening_balance',
-    //     //   type: 'money',
-    //     //   value:props.data.opening_balnace,
-    //     //   required: true,
-    //     //   placeholder: 'Enter opening balance',
-    //     //   dependsOn: {
-    //     //     conditions: [
-    //     //       {
-    //     //         field: 'member_type',
-    //     //         condition: (val: any) => val === 'new_member'
-    //     //       }
-    //     //     ],
+    if ((settingList.value?.['hide-initial-deposit-field'])) {
+      const initalDepositIndex = val.findIndex(f => f.name === 'inital_deposit')
+      const referredByIndex = val.findIndex(f => f.name === 'referred_by')
+      if (initalDepositIndex === -1 && referredByIndex !== 1) {
+        fields.value.splice(referredByIndex + 1, 0, {
+          label: 'inital deposit',
+          name: 'inital_deposit',
+          type: 'number',
+          required: true,
+          placeholder: 'Select initial deposit',
+          dependsOn: {
+            conditions: [
+              {
+                field: 'member_type',
+                condition: (val: any) => val === 'existing_member'
+              }
+            ],
+          }
+        }
+        //  {
+        //   label: 'opening balance',
+        //   name: 'opening_balance',
+        //   type: 'money',
+        //   value:props.data.opening_balnace,
+        //   required: true,
+        //   placeholder: 'Enter opening balance',
+        //   dependsOn: {
+        //     conditions: [
+        //       {
+        //         field: 'member_type',
+        //         condition: (val: any) => val === 'new_member'
+        //       }
+        //     ],
 
 
-    //     //   },
-    //     // }
-    //     ,)
-    //   }
-    // }
+        //   },
+        // }
+        ,)
+      }
+    }
 
     ///////
     if (settingList.value?.['sacco-members-free-input-code']) {
@@ -410,7 +340,7 @@ onMounted(() => {
 <!-- {{ props.data }} -->
   <div class="card shadow-md p-4  bg-white dark:bg-neutral-800 rounded-md h-[85vh] overflow-y-auto">
     <span v-if='loadingMount'></span>
-    <Form :action="data?.action" v-else parentStyle="grid  grid-cols-2 gap-4 md:gap-6" v-model:form="fields" />
+    <Form :action="data?.action" v-else parentStyle="grid  grid-cols-2 gap-3" v-model:form="fields" />
     <div v-setting='"sacco-share-on-member-creation-create-share-account-at-the-same-time"'
       class="mt-6 rounded-2xl border border-nfuko-primary-200 bg-nfuko-primary-50/60 overflow-hidden">
       <!-- Section header -->

@@ -17,6 +17,8 @@ const props = defineProps({
     required: true,
     placeholder: 'Enter transfer date',
     value: new Date().toISOString().split('T')[0],
+    max: new Date().toISOString().split('T')[0],
+
   },
   {
     label: 'select From',

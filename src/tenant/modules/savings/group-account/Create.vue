@@ -1,5 +1,5 @@
 <template>
-  <div class="card shadow-md p-4 py-5 bg-white dark:bg-neutral-800 rounded-md h-[82vh] overflow-hidden">
+  <card class="card shadow-md  border-0 px-2 bg-white dark:bg-neutral-800 rounded-md h-[82vh] overflow-hidden">
     <span v-if="loading"></span>
     <div class="grid grid-cols-8" v-else>
       <div class="col-span-3">
@@ -17,14 +17,14 @@
         </div>
       </div>
       <div class="col-span-5">
-        <Form :action="data?.action" parentStyle="grid  grid-cols-1 gap-4  " v-model:form="fields" />
+        <Form :action="data?.action" parentStyle="grid  grid-cols-1 gap-3  " v-model:form="fields" />
       </div>
     </div>
-  </div>
+  </card>
 </template>
 <script setup lang="ts">
-import { ref, onMounted,   } from 'vue'
-import { Form,  UploadLogo } from '@/Global'
+import { ref, onMounted, } from 'vue'
+import { Form, UploadLogo } from '@/Global'
 const loading = ref(true),
   props = defineProps({
     data: {
@@ -33,7 +33,7 @@ const loading = ref(true),
     },
   }),
   fields = ref<any[]>([
-    
+
     {
       label: 'Group official name',
       name: 'group_name',
@@ -41,7 +41,7 @@ const loading = ref(true),
       required: true,
       placeholder: 'Enter Group official name',
     },
-     {
+    {
       label: 'add group member',
       name: 'memberslist',
       type: 'multi-select',
@@ -63,8 +63,11 @@ const loading = ref(true),
         {
           label: 'Date Create',
           name: 'dcreated',
-          type: 'datec',
+          type: 'date',
           required: true,
+          max: new Date().toISOString().split('T')[0],
+
+
           placeholder: 'Enter Date Create',
         },
         {
@@ -76,7 +79,7 @@ const loading = ref(true),
         },
       ],
     },
-   
+
     {
       label: 'primary Admin contact',
       name: 'phone1',

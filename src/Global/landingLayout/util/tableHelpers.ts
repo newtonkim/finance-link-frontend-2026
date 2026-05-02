@@ -1,13 +1,18 @@
-import { computed, onMounted, ref, watch } from 'vue'
-import { Plus } from 'lucide-vue-next'
-import { formDataFormatV2, createUrl, feedback, printElement, downloadFile, printElementId } from '@/Global'
+import { computed, onBeforeMount, onMounted, ref, watch } from 'vue'
+import {
+  formDataFormatV2,
+  createUrl,
+  feedback,
+  printElement,
+  downloadFile,
+  printElementId,
+} from '@/Global'
 import { pomPinia } from 'septor-store'
 import { ACTION_CONFIG, dataTabelFilter, fetchTableData } from './index'
 import { formawtacher } from '@/Global/Forminputs/formWatcher'
-// import { formawtacher } from './formWatcher';
 
-export default function useTableHelpers(props: any, emit: any) {
-const formStore = formawtacher()
+export default function useTableHelpers(props?: any, emit?: any) {
+  const formStore = formawtacher()
 
   const drawerOpen = ref(false)
   const showDelete = ref(false)
@@ -20,9 +25,9 @@ const formStore = formawtacher()
   const submitChanges = ref<any>(null)
   const provideDataTotheParent = ref<any>([])
   const finalSubmitAction = ref<string | null>(null)
-  const drawerTitle = ref(props.drawerTitle)
+  const drawerTitle = ref(props?.drawerTitle)
   const drawerShooter2 = ref<boolean | null>(true)
-  const drawerWidth = ref(props.drawerWidth)
+  const drawerWidth = ref(props?.drawerWidth)
   const currentPage = ref(1)
   const dropdownDownload = [
     { label: 'PDF', value: 'PDF', route: 'export-pdf' },
@@ -117,7 +122,7 @@ const formStore = formawtacher()
         Store,
       })
       drawerTitle.value = 'import columns'
-      provideDataTotheParent.value = res?.payload ?? res
+      provideDataTotheParent.value =res?.payload?.data?? res?.payload ?? res
     }
     buttonTypeClicked.value = action
     if (drawer) toggleDrawer()
@@ -173,18 +178,18 @@ const formStore = formawtacher()
       data: formDataScoping,
       props: {
         ...props,
-        state: props?.state ,
+        state: props?.state,
         url: createUrl(props?.url, customeUrl),
       },
       Store,
     })
     const response = feedback(res)
-      // console.log({response,data});
+    // console.log({response,data});
 
     if (response.success) {
-      Store[props?.state] = res;
-      toggleDrawer();
-      (window as any).setTimeout(() => {
+      Store[props?.state] = res
+      toggleDrawer()
+      ;(window as any).setTimeout(() => {
         submitChanges.value = false
       }, 2000)
       // setTimeout(() => {
@@ -200,42 +205,41 @@ const formStore = formawtacher()
     // }
   }
   async function saveDrawerData(data: any) {
-
     formStore.isFormSubmitted = true
-    setTimeout(async() => {
-     const AnyErrorsFoundInTheFOrm = formStore.AnyErrorsFoundInTheFOrm 
-    const formdata = formStore.currentFormValues
-   
-    if (AnyErrorsFoundInTheFOrm) {
-    } else {
-      if (props.automaticCreate) {
-        await automaticCreateFun(formdata)
-        // no matter what stop  here
+    setTimeout(async () => {
+      const AnyErrorsFoundInTheFOrm = formStore.AnyErrorsFoundInTheFOrm
+      const formdata = formStore.currentFormValues
 
-        return
-      } else if (finalSubmitAction.value == 'import-data') {
-        return
+      if (AnyErrorsFoundInTheFOrm) {
+      } else {
+        if (props.automaticCreate) {
+          await automaticCreateFun(formdata)
+          // no matter what stop  here
+
+          return
+        } else if (finalSubmitAction.value == 'import-data') {
+          return
+        }
+        //   console.log(data, '====2');
+
+        save(formdata, finalSubmitAction.value ?? 'create')
+        // save(data, finalSubmitAction.value ?? 'create')
+        buttonTypeClicked.value = buttonTypeClicked.value
+        // alert()
+        // setTimeout(() => {
+        //   submitChanges.value = false
+        // }, 2000)
+        // if (props.drawerRemount) {
+        //   // alert("drawerRemount")
+        //   toggleDrawer()
+        //   setTimeout(() => {
+        //     toggleDrawer()
+        //   }, 100)
+        // }
+        // if all it ok
+        //Store.isSubmitted==false;
       }
-      //   console.log(data, '====2');
-
-      save(formdata, finalSubmitAction.value ?? 'create')
-      // save(data, finalSubmitAction.value ?? 'create')
-      buttonTypeClicked.value = buttonTypeClicked.value
-      // alert()
-      // setTimeout(() => {
-      //   submitChanges.value = false
-      // }, 2000)
-      // if (props.drawerRemount) {
-      //   // alert("drawerRemount")
-      //   toggleDrawer()
-      //   setTimeout(() => {
-      //     toggleDrawer()
-      //   }, 100)
-      // }
-      // if all it ok
-      //Store.isSubmitted==false;
-    }
-   }, 800);
+    }, 800)
   }
   const handleAction = async (item: any, action: keyof typeof ACTION_CONFIG) => {
     const fn = (ACTION_CONFIG?.[action] as { action?: (payload: any) => void } | undefined)?.action
@@ -335,10 +339,11 @@ const formStore = formawtacher()
   function filterDataByString(value: string) {
     searchQuery.value = value
   }
-  onMounted(async () => {
-    callOnmount()
-  })
 
+  onBeforeMount(() => {
+  callOnmount()
+  
+})
   watch(
     () => props?.url,
     () => {
@@ -347,10 +352,12 @@ const formStore = formawtacher()
   )
   watch(
     () => props.drawerShowFooter,
-    (vl) => { 
+    (vl) => {
       drawerShooter2.value = vl // on side of central it help
-    },{
-      immediate:true,deep:true
+    },
+    {
+      immediate: true,
+      deep: true,
     },
   )
   watch(
@@ -358,11 +365,13 @@ const formStore = formawtacher()
     (v) => {
       drawerTitle.value = props.drawerTitle
       drawerWidth.value = props.drawerWidth
-      drawerShooter2.value==null?drawerShooter2.value=props.drawerShowFooter:drawerShooter2.value
+      drawerShooter2.value == null
+        ? (drawerShooter2.value = props.drawerShowFooter)
+        : drawerShooter2.value
       // if (drawerShooter2.value == null) {
       //   drawerShooter2.value = props.drawerShowFooter
       // }else {
-      //   drawerShooter2.value = drawerShooter2.value 
+      //   drawerShooter2.value = drawerShooter2.value
       // }
       if (!v) {
         //reset the drawer data when the drawer is closed
@@ -376,9 +385,7 @@ const formStore = formawtacher()
   function callOnmount() {
     if (props?.state && props?.url) fetchTableData({ data: null, props, Store })
 
-      
-      drawerShooter2.value = props.drawerShowFooter
-    
+    drawerShooter2.value = props.drawerShowFooter
   }
 
   function refresh() {
@@ -394,7 +401,8 @@ const formStore = formawtacher()
   }
 
   return {
-    dataPageLinks,printDataInDrawer,
+    dataPageLinks,
+    printDataInDrawer,
     submitChanges,
     dataFilter,
     handleAction,

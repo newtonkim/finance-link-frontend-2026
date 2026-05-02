@@ -23,6 +23,13 @@ const settingsCards = [
         // route: { name: "tenant-settings-email-list" },
         action: "Manage Email →"
     },
+    // {
+    //     title: "Shared Notification",
+    //     description: "All shared notifications.",
+    //     type: "link",
+    //     // route: { name: "tenant-settings-email-list" },
+    //     action: "Manage Email →"
+    // },
     {
         title: "Push notification ",
         description: "Configure basic organisation information and settings.",

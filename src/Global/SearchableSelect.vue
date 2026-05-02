@@ -29,6 +29,8 @@ const props = defineProps<{
     state?: string
     reload?: string
     dataOnMount?: boolean
+    selectDefaultIndex?: number
+    selectOnOneItem?: boolean
     data?: any
 }>();
 
@@ -48,6 +50,8 @@ const remoteUrl = debounce(async (url: string) => {
             props: { url, reload: props.reload ?? false, state: generateAstate, },
             Store,
         });
+        // console.log(generateAstate);
+
         const checker = await Store?.[generateAstate]?.payload?.data ?? Store?.[generateAstate]?.payload ?? Store?.[generateAstate] ?? [];
 
         collection.value = checker
@@ -67,7 +71,7 @@ const selectedOption = computed(() => {
 const filteredOptions = computed(() => {
     const options = props?.url ? collection.value : props.options
     // console.log(options);
-    
+
     if (!searchQuery.value) return options;
 
     const query = searchQuery.value.toLowerCase();
@@ -123,9 +127,26 @@ watch(props, async (newVal) => {
         // close
         await toggleDropdown();
     }
+    if (newVal?.selectDefaultIndex >= 0) {
+        /// slet the first item in the drop down
+     setTimeout(() => {
+            selectOption(filteredOptions.value[newVal.selectDefaultIndex ?? 0])
+     },1000)
+    }
+    if (newVal?.selectOnOneItem && filteredOptions.value?.length === 1) {
+        if (filteredOptions.value?.length < 1) {
+            setTimeout(() => {
+                selectOption(filteredOptions.value[0]);
+            }, 2000)
+        } else
+            selectOption(filteredOptions.value[0])
+    }
+
 }, { immediate: true, deep: true });
 
 
+
+ 
 watch(searchQuery, (newVal) => {
     if (searchQuery.value?.length >= 3 && props.url) {
         remoteUrl(props.url)
@@ -167,7 +188,7 @@ const inputClass =
                     :class="{ 'rotate-180': isOpen }" />
             </div>
         </div>
-           
+
 
         <Transition enter-active-class="transition duration-100 ease-out"
             enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100"
@@ -198,7 +219,8 @@ const inputClass =
                         <Check v-if="option.id === modelValue"
                             class="h-4 w-4  text-nfuko-primary dark:text-[#8ba8a2]" />
                     </li>
-                    <li v-if="(filteredOptions as any)?.length === 0" class="px-4 py-8 text-center text-sm text-neutral-400">
+                    <li v-if="(filteredOptions as any)?.length === 0"
+                        class="px-4 py-8 text-center text-sm text-neutral-400">
                         No results found
                     </li>
                 </ul>
