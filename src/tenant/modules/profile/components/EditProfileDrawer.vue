@@ -84,7 +84,7 @@ async function save() {
         </div>
       </div>
 
-      <SheetFooter class="px-6 py-4 border-t border-neutral-100 dark:border-neutral-800 flex-row justify-end gap-3">
+      <SheetFooter class="px-6 py-4 border-t border-neutral-100 dark:border-neutral-800 flex-row justify-between gap-3">
         <Button
           variant="outline"
           class="rounded-xl"

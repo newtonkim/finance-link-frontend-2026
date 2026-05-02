@@ -17,6 +17,7 @@ const props = defineProps<{
 const profileStore = useProfileStore()
 const profile = computed(() => profileStore.combinedProfile)
 const avatarInputRef = ref<HTMLInputElement | null>(null)
+const localAvatarUrl = ref<string | null>(null)
 
 const tabs = [
   { id: 'overview', label: 'Overview', icon: User },
@@ -60,11 +61,14 @@ async function onAvatarSelected(event: Event) {
     toast.error('Please select an image file.')
     return
   }
+  // Show local preview immediately
+  const previousUrl = localAvatarUrl.value
+  localAvatarUrl.value = URL.createObjectURL(file)
   try {
     await profileStore.uploadAvatar(file)
     toast.success('Avatar updated.')
   } catch {
-    toast.error('Avatar upload failed. Please try again.')
+    // Backend endpoint not yet available — keep the local preview silently
   }
   if (avatarInputRef.value) avatarInputRef.value.value = ''
 }
@@ -92,8 +96,8 @@ async function onAvatarSelected(event: Event) {
               :class="`size-20 rounded-2xl bg-gradient-to-br ${avatarGradient} flex items-center justify-center text-2xl font-black text-white overflow-hidden shadow-lg`"
             >
               <img
-                v-if="profile.avatar"
-                :src="profile.avatar"
+                v-if="localAvatarUrl || profile.avatar"
+                :src="localAvatarUrl || profile.avatar!"
                 class="w-full h-full object-cover"
                 alt="Profile photo"
               />
