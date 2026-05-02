@@ -63,7 +63,6 @@ const tabs = computed(() => [
   },
 //   { id: "Gurrantors", label: "Gurrantors", icon: Wallet, count:null },
   { id: "loans", label: "Member With Loans", icon: Wallet, count: (member.value as any)?.loans?.length || 0 },
-  { id: "shares", label: "Shares", icon: BarChart3, count: null },
 ]);
 
 // ── Drawer refs ──────────────────────────────────────────────────────────────
@@ -253,24 +252,8 @@ const formatDateTime = (dateString?: string) => {
                 @print="printReceipt"
               />
             </div>
-            <!-- <div class="w-full overflow-x-auto" v-if="activeTab === 'Gurrantors'">
-              <GroupMembersWithLoansTab
-                
-              />
-            </div> -->
-
-            <!-- Shares -->
-            <div v-show="activeTab === 'shares'" class="p-12 text-center">
-              <div
-                class="w-12 h-12 rounded-full bg-[#f1f5f9] flex items-center justify-center mx-auto mb-3"
-              >
-                <BarChart3 :size="20" class="text-[#64748b]" />
-              </div>
-              <h4 class="text-[15px] font-bold text-[#0f172a]">Shares History</h4>
-              <p class="text-[13px] text-[#64748b] mt-1 max-w-sm mx-auto">
-                Track and manage member shares, certificates, and dividends here.
-              </p>
-            </div>
+           
+ 
           </div>
         </div>
       </div>

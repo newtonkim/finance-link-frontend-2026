@@ -1,8 +1,7 @@
 <template>
     <div>
-        <!-- {{ data }} -->
         <div class="flex justify-start items-center gap-3 mb-4 no-print m-4">
-            <select v-model="selectedType" class="border border-gray-300 rounded-lg px-3 py-2 text-sm f  ">
+            <select v-model="selectedType" class="border border-gray-200 rounded-lg px-3 py-2 text-sm f  ">
                 <option value="all">All Transactions</option>
                 <option v-for="type in types" :key="type" :value="type">
                     {{ formatType(type) }}
@@ -22,86 +21,104 @@
             :formatCurrency="formatCurrency" :transactions="filteredCollection" mode="all"
             action-color="bg-[#16a34a]" />
 
-        <div id="print-area" class="bg-white text-gray-800 px-2" v-if="showTransactionTable">
-            <div class="text-center border-b pb-4 mb-6">
-                <h1 class="text-2xl font-bold tracking-wide">Member Statement</h1>
-                <p class="text-sm text-gray-500 mt-1">
-                    {{ selectedType === 'all' ? 'All Transactions' : formatType(selectedType) }}
-                </p>
-            </div>
+        <div
+  id="print-area"
+  v-if="showTransactionTable"
+  class=" text-gray-800 p-2 border border-gray-100"
+>
+  <div class="text-center border-b pb-5 mb-6">
+    <h1 class="text-3xl font-semibold tracking-tight text-gray-900">
+      Member Statement
+    </h1>
+    <p class="text-sm text-gray-500 mt-2">
+      {{ selectedType === 'all' ? 'All Transactions' : formatType(selectedType) }}
+    </p>
+  </div>
 
-            <div class="flex justify-between text-sm mb-6">
-                <div>
-                    <p><span class="font-semibold">Generated:</span> {{ new Date().toLocaleDateString() }}</p>
-                </div>
-                <!-- <div class="text-right">
-                    <p><span class="font-semibold">Currency:</span> UGX</p>
-                </div> -->
-                <div class="text-right">
-                    <p><span class="font-semibold">Account Balance:</span> {{ formatCurrency(profileDetails.details.total_balance) }}</p>
-                </div>
-            </div>
+  <div class="flex justify-between items-center text-sm mb-6">
+    <div class="space-y-1">
+      <p>
+        <span class="text-gray-500">Generated:</span>
+        <span class="font-medium text-gray-700">
+          {{ new Date().toLocaleDateString() }}
+        </span>
+      </p>
+    </div>
 
-            <div class="overflow-hidden border rounded-lg">
-                <table class="w-full text-sm ">
-                    <thead class="bg-gray-100 text-gray-700 uppercase text-xs">
-                        <tr>
-                            <th class="px-2 py-3 text-left">Date</th>
-                            <th class="px-2 py-3 text-left">Type</th>
-                            <th class="px-2 py-3 text-right">Amount</th>
-                            <th class="px-2 py-3 text-right">Charge</th>
-                            <th class="px-2 py-3 text-left">Narration</th>
-                        </tr>
-                    </thead>
+    <div class="text-right space-y-1">
+      <p>
+        <span class="text-gray-900 text-lg font-semibold">Account Balance : </span>
+        <span class="ftext-sm  text-nfuko-action-600">
+          {{ formatCurrency(profileDetails.details.total_balance) }}
+        </span>
+      </p>
+    </div>
+  </div>
 
-                    <tbody class="divide-y">
-                        <tr v-for="item in filteredCollection" :key="item.id" class="hover:bg-gray-50">
-                            <td class="px-1 py-1">
-                                {{ formatDateSafe(item.transaction_date) }}
-                            </td>
+  <div class="">
+    <table class="w-full text-sm table auto ">
+      <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide border-b border-gray-100">
+        <tr>
+          <th class="px-1 py-1 text-left">Date</th>
+          <th class="px-1 py-1 text-left">Type</th>
+          <th class="px-1 py-1 text-right">Amount</th>
+          <th class="px-1 py-1 text-right">Charge</th>
+          <th class="px-1 py-1 text-left">Narration</th>
+        </tr>
+      </thead>
 
-                            <td class="px-1 py-1 ">
-                                {{ formatType(item.type) }}
-                            </td>
+      <tbody class="divide-y divide-gray-100">
+        <tr
+          v-for="item in filteredCollection"
+          :key="item.id"
+          class="hover:bg-gray-50 transition"
+        >
+          <td class="px-1 py-1 text-gray-700">
+            {{ formatDateSafe(item.transaction_date) }}
+          </td>
 
-                            <td class="px-1 py-1 text-right">
-                                {{ formatCurrency(item.amount) }}
-                            </td>
+          <td class="px-1 py-1 font-medium text-gray-800">
+            {{ formatType(item.type) }}
+          </td>
 
-                            <td class="px-1 py-1 text-right text-red-500">
-                                {{ formatCurrency(item.charge_amount) }}
-                            </td>
+          <td class="px-1 py-1 text-right font-semibold text-gray-900">
+            {{ formatCurrency(item.amount) }}
+          </td>
 
-                            <td class="px-1 py-1 text-gray-600 clamp-1">
-                                {{ item.narration }}
-                            </td>
-                        </tr>
-                    </tbody>
+          <td class="px-1 py-1 text-right font-medium text-red-500">
+            {{ formatCurrency(item.charge_amount) }}
+          </td>
 
-                    <tfoot class="bg-gray-50 border-t">
-                        <tr>
-                            <td colspan="2" class="p-2 font-semibold">
-                                Total
-                            </td>
+          <td class="px-1 py-1 text-gray-500 max-w-[200px]  ">
+            {{ item.narration }}
+          </td>
+        </tr>
+      </tbody>
 
-                            <td class="px-4 py-3 text-right font-bold text-n-600">
-                                {{ formatCurrency(totalAmount) }}
-                            </td>
+      <tfoot class="bg-gray-50 border-t">
+        <tr>
+          <td colspan="2" class="px-1 py-1 font-semibold text-gray-700">
+            Total
+          </td>
 
-                            <td class="px-4 py-3 text-right font-bold text-red-600">
-                                {{ formatCurrency(totalCharges) }}
-                            </td>
+          <td class="px-1 py-1 text-right font-bold text-gray-900">
+            {{ formatCurrency(totalAmount) }}
+          </td>
 
-                            <td></td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
+          <td class="px-1 py-1 text-right font-bold text-red-600">
+            {{ formatCurrency(totalCharges) }}
+          </td>
 
-            <div class="mt-6 text-xs text-gray-400 text-center">
-                <p>This is a system-generated statement.</p>
-            </div>
-        </div>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="mt-6 text-xs text-gray-400 text-center">
+    <p>This is a system-generated statement.</p>
+  </div>
+</div>
     </div>
 </template>
 

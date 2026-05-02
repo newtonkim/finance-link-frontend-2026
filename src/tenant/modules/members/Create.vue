@@ -125,6 +125,7 @@ const fields = ref<any[]>([
     label: 'Payment Mode',
     name: 'payment_method',
     type: 'select',
+    value:"cash",
     required: false,
     options: [
       { id: 'cash', name: 'Cash' },

@@ -23,8 +23,8 @@
   </card>
 </template>
 <script setup lang="ts">
-import { ref, onMounted,   } from 'vue'
-import { Form,  UploadLogo } from '@/Global'
+import { ref, onMounted, } from 'vue'
+import { Form, UploadLogo } from '@/Global'
 const loading = ref(true),
   props = defineProps({
     data: {
@@ -33,7 +33,7 @@ const loading = ref(true),
     },
   }),
   fields = ref<any[]>([
-    
+
     {
       label: 'Group official name',
       name: 'group_name',
@@ -41,7 +41,7 @@ const loading = ref(true),
       required: true,
       placeholder: 'Enter Group official name',
     },
-     {
+    {
       label: 'add group member',
       name: 'memberslist',
       type: 'multi-select',
@@ -63,9 +63,10 @@ const loading = ref(true),
         {
           label: 'Date Create',
           name: 'dcreated',
-          type: 'datec',
+          type: 'date',
           required: true,
-      maxDate: new Date(),
+          max: new Date().toISOString().split('T')[0],
+
 
           placeholder: 'Enter Date Create',
         },
@@ -78,7 +79,7 @@ const loading = ref(true),
         },
       ],
     },
-   
+
     {
       label: 'primary Admin contact',
       name: 'phone1',
