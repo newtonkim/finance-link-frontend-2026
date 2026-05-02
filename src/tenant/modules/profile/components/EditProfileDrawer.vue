@@ -41,7 +41,7 @@ async function save() {
 
 <template>
   <Sheet :open="open" @update:open="emit('update:open', $event)">
-    <SheetContent side="right" class="w-[420px] flex flex-col gap-0 p-0">
+    <SheetContent side="right" class="w-[420px] flex flex-col gap-0 p-0 bg-white dark:bg-neutral-900 border-l border-neutral-200 dark:border-neutral-800">
       <SheetHeader class="px-6 py-5 border-b border-neutral-100 dark:border-neutral-800">
         <SheetTitle class="text-lg font-black text-neutral-900 dark:text-white">
           Edit Profile

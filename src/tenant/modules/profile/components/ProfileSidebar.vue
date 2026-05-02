@@ -102,7 +102,7 @@ async function onAvatarSelected(event: Event) {
               <!-- Upload spinner overlay -->
               <div
                 v-if="profileStore.isUploadingAvatar"
-                class="absolute inset-0 bg-black/40 flex items-center justify-center rounded-2xl"
+                class="absolute inset-0 bg-black/50 flex items-center justify-center rounded-2xl"
               >
                 <svg class="animate-spin size-6 text-white" viewBox="0 0 24 24" fill="none">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
@@ -110,18 +110,36 @@ async function onAvatarSelected(event: Event) {
                 </svg>
               </div>
 
-              <!-- Camera hover overlay -->
+              <!-- Hover darken overlay -->
               <div
                 v-else
-                class="absolute inset-0 bg-black/40 flex items-center justify-center rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <Camera class="size-6 text-white" />
-              </div>
+                class="absolute inset-0 bg-black/30 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"
+              />
             </div>
 
-            <!-- Active status dot -->
+            <!-- Permanent camera badge (always visible) -->
+            <button
+              v-if="!profileStore.isUploadingAvatar"
+              class="absolute -bottom-2 -right-2 size-7 rounded-full bg-white dark:bg-neutral-800 border-2 border-neutral-200 dark:border-neutral-700 flex items-center justify-center shadow-md hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors"
+              title="Upload photo"
+              @click.stop="triggerAvatarUpload"
+            >
+              <Camera class="size-3.5 text-neutral-600 dark:text-neutral-300" />
+            </button>
+
+            <!-- Active status dot (only when not uploading) -->
             <span
-              class="absolute -bottom-1 -right-1 size-4 rounded-full border-2 border-white dark:border-neutral-900"
+              v-if="profileStore.isUploadingAvatar"
+              class="absolute -top-1 -right-1 size-4 rounded-full bg-white dark:bg-neutral-900 flex items-center justify-center"
+            >
+              <svg class="animate-spin size-3 text-nfuko-primary" viewBox="0 0 24 24" fill="none">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+              </svg>
+            </span>
+            <span
+              v-else
+              class="absolute -top-1 -right-1 size-3.5 rounded-full border-2 border-white dark:border-neutral-900"
               :class="profile.status === 'active' ? 'bg-emerald-500' : 'bg-neutral-400'"
             />
           </div>
