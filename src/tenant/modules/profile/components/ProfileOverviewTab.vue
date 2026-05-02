@@ -19,22 +19,25 @@ const statCards = computed(() => [
     label: 'Status',
     icon: CheckCircle2,
     value: profile.value.status,
-    accent: 'border-l-emerald-500',
-    iconClass: 'text-emerald-600 dark:text-emerald-400',
+    accent: 'border-l-nfuko-action',
+    iconClass: 'text-nfuko-action',
+    bg: 'bg-nfuko-action/8',
   },
   {
     label: 'Member Since',
     icon: Calendar,
     value: formatDateUs(profile.value.staff_data?.created_at),
-    accent: 'border-l-indigo-500',
-    iconClass: 'text-indigo-600 dark:text-indigo-400',
+    accent: 'border-l-nfuko-primary',
+    iconClass: 'text-nfuko-primary dark:text-nfuko-primary-300',
+    bg: 'bg-nfuko-primary/5',
   },
   {
     label: 'Access Level',
     icon: ShieldCheck,
     value: profile.value.is_tenant_admin ? 'Admin' : 'Staff',
-    accent: 'border-l-violet-500',
-    iconClass: 'text-violet-600 dark:text-violet-400',
+    accent: 'border-l-nfuko-yellow',
+    iconClass: 'text-nfuko-yellow',
+    bg: 'bg-nfuko-yellow/8',
   },
 ])
 </script>
@@ -48,11 +51,13 @@ const statCards = computed(() => [
         :key="card.label"
         :class="`bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border-l-4 ${card.accent} p-6`"
       >
-        <component :is="card.icon" :class="`size-5 mb-3 ${card.iconClass}`" />
-        <div class="text-xs font-bold text-neutral-400 uppercase tracking-wider">
+        <div :class="`inline-flex items-center justify-center size-9 rounded-xl mb-4 ${card.bg}`">
+          <component :is="card.icon" :class="`size-5 ${card.iconClass}`" />
+        </div>
+        <div class="text-xs font-bold text-nfuko-text-muted uppercase tracking-wider">
           {{ card.label }}
         </div>
-        <div class="text-xl font-black text-neutral-900 dark:text-white mt-1 capitalize">
+        <div class="text-xl font-black text-nfuko-primary dark:text-white mt-1 capitalize">
           {{ card.value }}
         </div>
       </div>
@@ -69,17 +74,17 @@ const statCards = computed(() => [
       <CardContent class="px-8 pb-7">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="space-y-1">
-            <div class="text-xs font-bold text-neutral-400 uppercase tracking-wider">Designation</div>
+            <div class="text-xs font-bold text-nfuko-text-muted uppercase tracking-wider">Designation</div>
             <div class="text-sm font-semibold text-neutral-900 dark:text-white">{{ profile.role }}</div>
           </div>
 
           <div class="space-y-1">
-            <div class="text-xs font-bold text-neutral-400 uppercase tracking-wider">Staff ID</div>
+            <div class="text-xs font-bold text-nfuko-text-muted uppercase tracking-wider">Staff ID</div>
             <div class="text-sm font-semibold text-neutral-900 dark:text-white">#{{ profile.id }}</div>
           </div>
 
           <div class="space-y-1">
-            <div class="text-xs font-bold text-neutral-400 uppercase tracking-wider">Email Address</div>
+            <div class="text-xs font-bold text-nfuko-text-muted uppercase tracking-wider">Email Address</div>
             <div class="text-sm font-semibold text-neutral-900 dark:text-white">{{ profile.email }}</div>
           </div>
 
@@ -87,19 +92,19 @@ const statCards = computed(() => [
             v-if="profileStore.branchName"
             class="space-y-1"
           >
-            <div class="text-xs font-bold text-neutral-400 uppercase tracking-wider">Branch</div>
+            <div class="text-xs font-bold text-nfuko-text-muted uppercase tracking-wider">Branch</div>
             <div class="text-sm font-semibold text-neutral-900 dark:text-white">{{ profileStore.branchName }}</div>
           </div>
 
           <div class="space-y-2 md:col-span-2">
-            <div class="text-xs font-bold text-neutral-400 uppercase tracking-wider">Capabilities</div>
+            <div class="text-xs font-bold text-nfuko-text-muted uppercase tracking-wider">Capabilities</div>
             <div class="flex flex-wrap gap-2">
               <Badge
                 v-for="cap in capabilities"
                 :key="cap.label"
                 :class="cap.enabled
-                  ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-none font-bold'
-                  : 'bg-neutral-100 text-neutral-400 dark:bg-neutral-800 dark:text-neutral-500 border-none font-bold'"
+                  ? 'bg-nfuko-action/10 text-nfuko-action border-none font-bold'
+                  : 'bg-nfuko-primary/5 text-nfuko-primary-300 dark:bg-neutral-800 dark:text-neutral-500 border-none font-bold'"
               >
                 {{ cap.label }}
               </Badge>
