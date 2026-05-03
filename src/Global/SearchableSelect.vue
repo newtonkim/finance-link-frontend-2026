@@ -31,7 +31,8 @@ const props = defineProps<{
     dataOnMount?: boolean
     selectDefaultIndex?: number
     selectOnOneItem?: boolean
-    data?: any
+    data?: any;
+    method?: string;
 }>();
 
 const emit = defineEmits(['update:modelValue', 'update:itemSelected']);
@@ -47,14 +48,14 @@ const remoteUrl = debounce(async (url: string) => {
         const res = await fetchTableData({
             data: Object.keys(data).length > 0 ? data : null,
             saveData: props?.saveData ?? true,
-            props: { url, reload: props.reload ?? false, state: generateAstate, },
+            props: { url, reload: props.reload ?? false, state: generateAstate, method: props.method },
             Store,
         });
         // console.log(generateAstate);
 
         const checker = await Store?.[generateAstate]?.payload?.data ?? Store?.[generateAstate]?.payload ?? Store?.[generateAstate] ?? [];
 
-        collection.value = checker
+        collection.value = Array.isArray(checker) ? checker : []
     })
 }, 1000);
 
@@ -64,13 +65,14 @@ const collection = shallowRef<any[]>([]);
 const containerRef = ref<HTMLElement | null>(null);
 const selectedOption = computed(() => {
     const options = props?.url ? collection.value : props.options
-    if (options?.length === 0) return []
+    if (!Array.isArray(options) || options?.length === 0) return null
     return options?.find(opt => opt.id === props.modelValue);
 });
 
 const filteredOptions = computed(() => {
     const options = props?.url ? collection.value : props.options
-    // console.log(options);
+    
+    if (!Array.isArray(options)) return [];
 
     if (!searchQuery.value) return options;
 

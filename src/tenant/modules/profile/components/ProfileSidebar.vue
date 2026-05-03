@@ -97,7 +97,7 @@ async function onAvatarSelected(event: Event) {
             >
               <img
                 v-if="localAvatarUrl || profile.avatar"
-                :src="localAvatarUrl || profile.avatar!"
+                :src="(localAvatarUrl || profile.avatar!) as string"
                 class="w-full h-full object-cover"
                 alt="Profile photo"
               />

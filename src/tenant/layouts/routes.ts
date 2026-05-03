@@ -286,7 +286,7 @@ export const tenantRoutes: MenuRoutes[] = [
     label: 'Manage Expenses',
     icon: Receipt,
     showSideBar: true,
-    component: () => import('@/tenant/components/globals/ComingSoon.vue'),
+    component: () => import('@/tenant/modules/expenses/Index.vue'),
     group: 'FINANCIALS',
   },
   {

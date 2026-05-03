@@ -12,6 +12,7 @@ export interface Staff {
   can_vote_on_loans?: boolean
   can_manage_branch?: boolean
   can_finalise_loan?: boolean
+  avatar?: string | null
   created_at?: string
   updated_at?: string
 }
