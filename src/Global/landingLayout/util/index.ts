@@ -139,7 +139,7 @@ export async function fetchTableData({
     reqs: {
       ...props,
       url: quer + branchQuery,
-      method: 'post',
+      method: props?.method ?? 'post',
       data,
     },
     config: props?.config,

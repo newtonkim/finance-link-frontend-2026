@@ -1,36 +1,94 @@
 <script setup lang="ts">
-import debounce from 'lodash/debounce'
 import { ref, onMounted, reactive, computed, watch } from 'vue';
-import { Form, getSystemSetting, tryCatch } from '@/Global';
-import { AlertCircle, TrendingUp } from 'lucide-vue-next';
+import { Form, getSystemSetting } from '@/Global';
+import { AlertCircle, TrendingUp, Share2 } from 'lucide-vue-next';
 
-const emits = defineEmits(['update:form']);
-const OptionList = reactive({
+interface Option {
+  id: string | number;
+  name: string;
+}
+
+const OptionList = reactive<{
+  memberTypeOptions: Option[];
+  salutationOptions: Option[];
+  genderOptions: Option[];
+  maritalOptions: Option[];
+}>({
   memberTypeOptions: [{ id: 'new_member', name: 'New Member' }, { id: 'existing_member', name: 'Existing Member' }],
   salutationOptions: [{ id: 'Mr', name: 'Mr' }, { id: 'Mrs', name: 'Mrs' }, { id: 'Ms', name: 'Ms' }, { id: 'Dr', name: 'Dr' }, { id: 'Prof', name: 'Prof' }],
   genderOptions: [{ id: 'male', name: 'Male' }, { id: 'female', name: 'Female' }, { id: 'other', name: 'Other' }],
   maritalOptions: [{ id: 'single', name: 'Single' }, { id: 'married', name: 'Married' }, { id: 'divorced', name: 'Divorced' }, { id: 'widowed', name: 'Widowed' }]
 })
 const loading = ref(true)
-const settingList = ref<Record<string, any>>({})
+const settingList = ref<Record<string, string | number | boolean>>({})
 const additionalForm = ref({ shares_quantity: 0 });
-const errors = ref<Record<string, any>>({ shares_quantity: 0 });
+const errors = ref<Record<string, string | number>>({ shares_quantity: 0 });
 const sharesError = ref('')
+interface Member {
+  id: number;
+  member_type: string;
+  full_name: string;
+  salutation: string;
+  sex: string;
+  dob: string;
+  primary_contact: string;
+  other_contacts: string;
+  MM_number: string;
+  email: string;
+  NIN: string;
+  marital_status: string;
+  from: string;
+  address: string;
+  profile: string;
+  nokin: string;
+  next_contact: string;
+  joined_date: string;
+  referred_by: string | number;
+  memeber_code: string;
+  share_no: number;
+  action?: string;
+}
 
-const settingsStore = ref<any>(null) // Or import and use the actual store if available
 const props = defineProps({
   data: {
-    type: Object,
-    default: {},
+    type: Object as () => Member,
+    default: () => ({} as Member),
   },
 })
-const fields = ref<any[]>([])
+
+interface FormField {
+  label: string;
+  name: string;
+  type: string;
+  value?: unknown;
+  options?: Option[];
+  props?: Record<string, unknown>;
+  required?: boolean;
+  hidden?: boolean;
+  placeholder?: string;
+  error?: string;
+  suffix?: string;
+  url?: string;
+  dataOnMount?: boolean;
+  selectOnOneItem?: boolean;
+  dependsOn?: {
+    conditions: {
+      field: string;
+      condition: (val: unknown) => boolean;
+    }[];
+  };
+  change?: (value: unknown, field?: FormField, index?: number) => void;
+  max?: string;
+}
+
+const fields = ref<FormField[]>([])
 watch(() => additionalForm.value, (val) => {
   const field = fields.value.find(f => f.name === 'shares_quantity')
   if (field) {
     field.value = val.shares_quantity
   } else {
     fields.value.push({
+      label: 'shares_quantity',
       name: 'shares_quantity',
       value: val.shares_quantity,
       required: true,
@@ -96,7 +154,7 @@ async function promtValueOnUpdate() {
   //     conditions: [
   //       {
   //         field: 'member_type',
-  //         condition: (val: any) => !settingList?.value['system-used-by-money-lender']
+  //         condition: (val: unknown) => !settingList?.value['system-used-by-money-lender']
   //       }
   //     ],
   //   },
@@ -120,11 +178,11 @@ async function promtValueOnUpdate() {
   //     conditions: [
   //       {
   //         field: 'member_type',
-  //         condition: (val: any) => val === 'new_member'
+  //         condition: (val: unknown) => val === 'new_member'
   //       }
   //     ],
   //   },
-  //   change: async (val: any) => {
+  //   change: async (val: unknown) => {
   //     const amount = val?.target ? val.target.value : val
   //     // alert()
   //     watchChangeInProductOrCharges(fields, amount)
@@ -229,7 +287,7 @@ async function promtValueOnUpdate() {
     label: 'Address',
     name: 'address',
     value: props.data.address,
-      required: settingList.value['sacco-on-create-member-address-mandatory'],
+      required: !!settingList.value['sacco-on-create-member-address-mandatory'],
 
     type: 'textarea',
     placeholder: 'Enter Address',
@@ -249,7 +307,7 @@ async function promtValueOnUpdate() {
     value: props.data.nokin,
 
     type: 'text',
-      required: settingList.value['sacco-members-member-next-of-kin-nin-mandatory'],
+      required: !!settingList.value['sacco-members-member-next-of-kin-nin-mandatory'],
 
     placeholder: 'Enter Next of Kin',
   },
@@ -259,7 +317,7 @@ async function promtValueOnUpdate() {
     value: props.data.next_contact,
 
     type: 'phone',
-    required: settingList.value['sacco-members-member-next-of-kin-nin-mandatory'],
+    required: !!settingList.value['sacco-members-member-next-of-kin-nin-mandatory'],
 
     placeholder: 'Enter Next of Kin Contact',
   },
@@ -292,26 +350,27 @@ additionalForm.value.shares_quantity = props.data?.share_no
   }  
   loading.value = false
 }
+const settingsStore = ref<Record<string, unknown> | null>(null) // Or import and use the actual store if available
 
-const watchChangeInProductOrCharges = debounce(async (fields: any, amount: any) => {
-  const finedProduct = fields.value.find((f: any) => f.name === 'product_id')
-  const chargeField = fields.value.find((f: any) => f.name === 'charges')
+// const watchChangeInProductOrCharges = debounce(async (fields: Ref<FormField[]>, amount: string | number) => {
+//   const finedProduct = fields.value.find((f: FormField) => f.name === 'product_id')
+//   const chargeField = fields.value.find((f: FormField) => f.name === 'charges')
 
-  if (!finedProduct || !finedProduct.value) return
-  tryCatch(async () => {
-    const res: any = await getProductCharges({
-      product_id: finedProduct.value,
-      amount: amount,
-      type: 'deposit',
-    })
+//   if (!finedProduct || !finedProduct.value) return
+//   tryCatch(async () => {
+//     const res = await getProductCharges({
+//       product_id: finedProduct.value,
+//       amount: amount,
+//       type: 'deposit',
+//     })
 
-    if (chargeField) {
-      chargeField.value = `${res?.cost ?? 0} (charges)`
-      chargeField.hidden = false
-      chargeField.label = 'charges'
-    }
-  })
-}, 900)
+//     if (chargeField) {
+//       chargeField.value = `${res?.cost ?? 0} (charges)`
+//       chargeField.hidden = false
+//       chargeField.label = 'charges'
+//     }
+//   })
+// }, 900)
 const loadingMount = computed(() => loading.value)
 function checkForSettings() {
   const checkForVaailableSetting = getSystemSetting()
@@ -350,7 +409,7 @@ watch(
     //         conditions: [
     //           {
     //             field: 'member_type',
-    //             condition: (val: any) => val === 'existing_member'
+    //             condition: (val: unknown) => val === 'existing_member'
     //           }
     //         ],
     //       }
@@ -366,7 +425,7 @@ watch(
     //     //     conditions: [
     //     //       {
     //     //         field: 'member_type',
-    //     //         condition: (val: any) => val === 'new_member'
+    //     //         condition: (val: unknown) => val === 'new_member'
     //     //       }
     //     //     ],
 
@@ -434,8 +493,8 @@ onMounted(() => {
             (total:
             <strong>
               UGX {{
-                (settingList?.['sacco-share-price-value'] ?? 1) *
-                (settingList?.['sacco-share-on-member-creation-create-share-minimum-value'] ?? 0)
+                Number(settingList?.['sacco-share-price-value'] ?? 1) *
+                Number(settingList?.['sacco-share-on-member-creation-create-share-minimum-value'] ?? 0)
               }}
             </strong>)
             to register a member.
@@ -454,8 +513,8 @@ onMounted(() => {
                 Shares
               </span>
               <input v-model.number="additionalForm.shares_quantity" type="number"
-                :min="settingsStore?.minSharesOnOnboarding"
-                :placeholder="`Min. ${settingsStore?.minSharesOnOnboarding}`"
+                :min="(settingsStore?.minSharesOnOnboarding as number)"
+                :placeholder="`Min. ${settingsStore?.minSharesOnOnboarding ?? ''}`"
                 class="flex-1 bg-white px-4 py-3 text-sm font-mono font-bold text-neutral-800 outline-none placeholder:text-neutral-400" />
             </div>
             <p v-if="sharesError" class="text-[11px] text-red-600 font-medium">{{ sharesError }}</p>
@@ -472,7 +531,7 @@ onMounted(() => {
                 </p>
                 <p class="text-[18px] font-black text-nfuko-primary-700 font-mono leading-tight">
                   UGX {{
-                    additionalForm.shares_quantity * settingList?.['sacco-share-price-value']?.toLocaleString('en-US', {
+                    (additionalForm.shares_quantity * Number(settingList?.['sacco-share-price-value'] ?? 0)).toLocaleString('en-US', {
                       minimumFractionDigits: 2
                     }) }}
                 </p>

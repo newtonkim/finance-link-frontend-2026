@@ -174,6 +174,7 @@ export default function useTableHelpers(props?: any, emit?: any) {
       customeUrl = 'create'
     }
     const formDataScoping: any = formDataFormatV2(data)
+    formStore.loading = true
     const res = await fetchTableData({
       data: formDataScoping,
       props: {
@@ -183,6 +184,7 @@ export default function useTableHelpers(props?: any, emit?: any) {
       },
       Store,
     })
+    formStore.loading = false
     const response = feedback(res)
     // console.log({response,data});
 

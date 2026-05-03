@@ -37,6 +37,8 @@
               <div class="w-1/3 ">
                 <Button
                   variant="outline"
+                  type="button"
+                  :disabled="formStore.loading"
                   class="flex-1 h-11 w-full mx-2 font-bold border-neutral-200 dark:border-neutral-800"
                   @click="()=>handleCancel()"
                 >
@@ -48,9 +50,12 @@
                 <!-- @click="handleSave" -->
                 <Button
                   type="submit"
-                  class="flex-1 h-11  mr-5 w-full font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors"
+                  :disabled="formStore.loading"
+                  class="flex-1 h-11  mr-5 w-full font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors flex items-center justify-center gap-2"
                 >
-                  Save
+                  <Spinner v-if="formStore.loading" class="w-4 h-4" />
+                  <span v-else>Save</span>
+                  <span v-if="formStore.loading">Saving...</span>
                 </Button>
               </div>
             </div>
@@ -61,8 +66,11 @@
   </Sheet>
 </template>
 <script setup lang="ts">
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/Global";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, Spinner } from "@/Global";
 import { Button } from "@/Global";
+import { formawtacher } from "@/Global/Forminputs/formWatcher";
+
+const formStore = formawtacher();
 
 const props = withDefaults(
   defineProps<{
@@ -79,13 +87,15 @@ const props = withDefaults(
 const emit = defineEmits(["update:open", "save", "cancel", "submit"]);
 
 const handleSave = () => {
- 
+  if (formStore.loading) return;
   emit("save", "create");
   emit("submit");
 };
 
 const handleCancel = () => {
+  if (formStore.loading) return;
   emit("cancel");
   emit("update:open", false);
 };
 </script>
+
