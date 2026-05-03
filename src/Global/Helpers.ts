@@ -578,9 +578,7 @@ export function printElementId(IdElement = '', options?: PrintOptions) {
                     .w-full.rounded-lg.border.focus:border-nfuko-primary{
                       border-bottom: 2px solid !important;
                     } 
-                    .flex.items-center.justify-between.gap {
-                    display: none !important;
-                    }
+                   
                     div{ border: none !important; }
                     textarea ,input{  border-bottom: 1.4px solid gray !important; }
                         body {
