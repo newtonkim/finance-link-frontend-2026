@@ -162,11 +162,12 @@ onMounted(() => {
 });
 
 watch(
-  () => props.data,
-  (data) => {
-    initialize(data ?? {});
-  },
-  { deep: true }
+  () => props.data?.id,
+  (newId, oldId) => {
+    if (newId !== oldId) {
+      initialize(props.data ?? {});
+    }
+  }
 );
 
 watch(

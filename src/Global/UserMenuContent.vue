@@ -12,11 +12,13 @@ import {
 
 import { useAuthStore } from '@/stores/auth'
 import { useTenantUserStore } from '@/stores/tenantUserStore'
+import { useProfileStore } from '@/stores/profileStore'
 import { getTenantSubdomain } from '@/Global'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const tenantUserStore = useTenantUserStore()
+const profileStore = useProfileStore()
 tenantUserStore.load()
 
 const props = defineProps<{
@@ -40,7 +42,16 @@ const navigate = (path: string) => {
 }
 
 const handleLogout = async () => {
-  await authStore.logout()
+  const res = await authStore.logout()
+  tenantUserStore.clear()
+  profileStore.clear()
+  const backendRedirect = res?.data?.redirect_url
+  
+  if (backendRedirect) {
+    router.push(backendRedirect)
+    return
+  }
+
   const subdomain = getTenantSubdomain()
   if (subdomain) {
     router.push('/tenant/login')

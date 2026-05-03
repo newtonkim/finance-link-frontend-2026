@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { logoutApi, type AuthSuccessData, type AuthUser } from '@/central/api/auth'
 import { setBearerToken } from 'septor-store';
-import { storeUserLogedinData, storeUserPermissions } from '@/Global';
+import { storeUserLogedinData, storeUserPermissions, removeKey } from '@/Global';
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<AuthUser | null>(null)
@@ -34,16 +34,21 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function logout() {
+    let response = null
     try {
       if (token.value) {
-        await logoutApi()
+        response = await logoutApi()
       }
     } finally {
       token.value = null
       user.value = null
       localStorage.removeItem('token')
       localStorage.removeItem('auth_user')
+      removeKey('loginUserData')
+      removeKey('userPermissions')
+      removeKey('activeBranch')
     }
+    return response
   }
 
   return { user, token, setAuthSession, hydrateAuth, logout }

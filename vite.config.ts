@@ -15,6 +15,7 @@ export default defineConfig({
 
   server: {
     port: 3000,
+    host: true, // Allow access via subdomains like wazalendosacco.localhost
     open: false,
     hmr: {
       protocol: 'ws',

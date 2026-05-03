@@ -651,6 +651,11 @@ export function getTenantSubdomain(): string | null {
     .split(':')[0] // Strip port if present
     .toLowerCase()
 
+  // Fallback for local development on localhost
+  if (!centralDomain && hostname.endsWith('.localhost')) {
+    return hostname.split('.')[0]
+  }
+
   // If hostname exactly matches central domain → not a tenant
   if (!centralDomain || hostname === centralDomain) return null
 
@@ -658,7 +663,7 @@ export function getTenantSubdomain(): string | null {
   // e.g. "abc.staging.mfukoplus.com" or "abc.mfukoplus.com"
   if (hostname.endsWith(`.${centralDomain}`)) {
     const subdomain = hostname.slice(0, -(centralDomain.length + 1))
-    if (!subdomain || ['admin', 'www', 'localhost'].includes(subdomain)) return null
+    if (!subdomain || ['admin', 'www', 'localhost', 'api', 'central'].includes(subdomain)) return null
     return subdomain
   }
 

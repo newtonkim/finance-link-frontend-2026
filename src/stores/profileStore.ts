@@ -135,6 +135,12 @@ export const useProfileStore = defineStore('profile', () => {
     await staffApi.update(id, { password: newPassword })
   }
 
+  function clear() {
+    staffDetails.value = null
+    permissions.value = []
+    branchName.value = null
+  }
+
   return {
     staffDetails,
     permissions,
@@ -147,5 +153,6 @@ export const useProfileStore = defineStore('profile', () => {
     updateProfile,
     uploadAvatar,
     changePassword,
+    clear,
   }
 })
