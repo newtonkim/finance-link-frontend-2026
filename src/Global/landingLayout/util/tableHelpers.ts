@@ -44,7 +44,7 @@ export default function useTableHelpers(props?: any, emit?: any) {
     DrawerMounted.value = true
   }
 
-  async function handlePrint(values: any) {
+  async function handlePrint(values: any,url=null) {
     if (values.value) {
       const res = await fetchTableData({
         data: {
@@ -53,9 +53,9 @@ export default function useTableHelpers(props?: any, emit?: any) {
           ...values,
         },
         props: {
-          ...props,
+          ...(props??{}),
           state: values.value,
-          url: createUrl(props?.url, 'print'),
+          url: url??createUrl(props?.url, 'print'),
         },
         Store,
       })
@@ -351,7 +351,7 @@ export default function useTableHelpers(props?: any, emit?: any) {
     },
   )
   watch(
-    () => props.drawerShowFooter,
+    () => props?.drawerShowFooter,
     (vl) => {
       drawerShooter2.value = vl // on side of central it help
     },
@@ -366,10 +366,10 @@ export default function useTableHelpers(props?: any, emit?: any) {
       drawerTitle.value = props.drawerTitle
       drawerWidth.value = props.drawerWidth
       drawerShooter2.value == null
-        ? (drawerShooter2.value = props.drawerShowFooter)
+        ? (drawerShooter2.value = props?.drawerShowFooter)
         : drawerShooter2.value
       // if (drawerShooter2.value == null) {
-      //   drawerShooter2.value = props.drawerShowFooter
+      //   drawerShooter2.value = props?.drawerShowFooter
       // }else {
       //   drawerShooter2.value = drawerShooter2.value
       // }
@@ -385,7 +385,7 @@ export default function useTableHelpers(props?: any, emit?: any) {
   function callOnmount() {
     if (props?.state && props?.url) fetchTableData({ data: null, props, Store })
 
-    drawerShooter2.value = props.drawerShowFooter
+    drawerShooter2.value = props?.drawerShowFooter
   }
 
   function refresh() {
