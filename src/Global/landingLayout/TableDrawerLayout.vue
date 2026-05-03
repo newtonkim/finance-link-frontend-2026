@@ -156,7 +156,7 @@ const props = defineProps({
     drawerShowFooter: { type: Boolean, default: true },
     drawerTitle: { type: String, default: 'Drawer Title' },
     drawerWidth: { type: String, default: '30rem' },
-    importDefaults: { type: Array, default: ['id', 'branch_id'], required: false },
+    importDefaults: { type: Array, default: [], required: false },
     title: { type: String, required: false },
     /**
      * if  u want the drawer to make the create request   automaticly 

@@ -1,40 +1,35 @@
 <template>
-    --
-    <TableDrawer
-    ref="drawer"
-    :addButtonText="{ text: 'Create/Change Share holder', icon: Plus }"
-     :printTable="true"  drawerWidth=" w-2/3" :url="tableUrl"
-        state="ShareholderList" :drawerTitle="drawerTitle" :columns="columns" 
-        :showTableAction="true">
+    <TableDrawer :showTableAction="false" ref="drawer"
+        :addButtonText="{ text: 'Create/Change Share holder', icon: Plus }" :printTable="true" drawerWidth=" w-2/3"
+        :url="tableUrl" state="ShareholderList" :drawerTitle="drawerTitle" :columns="columns">
         <template #header-action>
             <PainPageHeader title="Shares Holders List" dec="Manage all share holders." />
         </template>
         <template #salutation_name="{ item }">
             <span>
                 <Button @click="navigateToProfile(item)"
-                    class="flex items-center gap-2 font-semibold text-nfuko-action text-sm dark:text-white">
+                    class=" font-semibold text-nfuko-action text-sm dark:text-white">
                     <span>{{ item?.salutation_name }}</span>
                 </Button>
             </span>
         </template>
         <template #searchSideAction>
-            <!-- <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" /> -->
-              <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters"
+            <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters"
                 @update:modelValue="(e) => { OpenThedrawer(e) }" />
         </template>
-        <template #actions="{item}">
-            <TabelActionButtons title="certificate" color="secondary" icon="Printer" @action="() => printShareCertificate(item)" />
+        <template #actions="{ item }">
+            <TabelActionButtons title="certificate" color="secondary" icon="Printer"
+                @action="() => printShareCertificate(item)" />
 
         </template>
-         <template #drawer="{ action, data }">
+        <template #drawer="{ action, data }">
             <component :is="drawerComponet" :data="{ ...data, action }" v-model:form="formData" />
         </template>
     </TableDrawer>
 </template>
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-// import { Create, Details, Edit } from '.'
-import { TableDrawer, StatusButtonsHorizontal, setLocalValues, TabelActionButtons,useTableHelpers,Confirm } from '@/Global'
+import { useTableHelpers, Confirm, setLocalValues } from '@/Global'
 import { shareCenterApi } from '@/tenant/apis/shares';
 import { SellShares, TransferShares, WithdrawShares } from '@/tenant/modules/shares/center/index.ts'
 
@@ -46,32 +41,32 @@ const { handlePrint } = useTableHelpers({});
 const statusFilter = ref('sell shares'), drawer = ref<any>(null),
     drawerTitle = ref('Create Tenant'), filters = ['sell shares', 'transfer shares', 'share withdrawal'],
     tableUrl = computed(() => `/shares/holders/list?status=${statusFilter.value}`)
- const drawerComponet = computed(() => automaticCreate.value[statusFilter.value]?.componet)
- const  formData = ref<any[]>([]), automaticCreate = ref<any>({
-        "sell shares": {
-            title: "Sell Shares",
-            componet: SellShares,
-            action: () => submitData('sell-shares')
-        },
-        "transfer shares": {
-            title: "transfer shares",
-            componet: TransferShares,
-            action: () => submitData('transfer-shares')
+const drawerComponet = computed(() => automaticCreate.value[statusFilter.value]?.componet)
+const formData = ref<any[]>([]), automaticCreate = ref<any>({
+    "sell shares": {
+        title: "Sell Shares",
+        componet: SellShares,
+        action: () => submitData('sell-shares')
+    },
+    "transfer shares": {
+        title: "transfer shares",
+        componet: TransferShares,
+        action: () => submitData('transfer-shares')
 
-        },
-        "share withdrawal": {
-            title: "share withdrawal",
-            componet: WithdrawShares,
-            action: () => submitData('share-withdrawal')
-        },
-        "share-transaction-revert": {
-            title: "share transaction revert",
-            componet: WithdrawShares,
-            action: (data: any) => submitData('share-transaction-revert', 'Are you sure you want to revert this transaction(not yet working)', 'warning', false, data)
-        },
+    },
+    "share withdrawal": {
+        title: "share withdrawal",
+        componet: WithdrawShares,
+        action: () => submitData('share-withdrawal')
+    },
+    "share-transaction-revert": {
+        title: "share transaction revert",
+        componet: WithdrawShares,
+        action: (data: any) => submitData('share-transaction-revert', 'Are you sure you want to revert this transaction(not yet working)', 'warning', false, data)
+    },
 
-    })
-    function submitData(end: string = '', des?: string, type: string = 'warning', toggle: boolean = true, data = null) {
+})
+function submitData(end: string = '', des?: string, type: string = 'warning', toggle: boolean = true, data = null) {
     Confirm({
         title: 'Confirm shares transaction',
         des,
@@ -96,16 +91,16 @@ const statusFilter = ref('sell shares'), drawer = ref<any>(null),
     });
 }
 const columns = [
-    { key: 'share_code', label: 'code', sticky: 'left', copy: true },
-    { key: 'member_type', label: 'Member type' },
-    { key: 'salutation_name', label: 'Member', sticky: 'left',  },
+    { key: 'share_code', label: 'code', sticky: 'left', copy: true, width: '16em' },
+    // { key: 'member_type', label: 'Member type' },
+    { key: 'salutation_name', label: 'Member', sticky: 'left', },
     { key: 'primary_contact', label: 'phone', },
     { key: 'other_contacts', label: 'Other Contacts', },
-    { key: 'share_value', label: 'share value', type: "money",width: '9em',tooltip: true },
-    { key: 'share_no', label: 'share no', type: "money",width: '9em',tooltip: true },
-    { key: 'total_value', label: 'total value', type: "money",width: '9em',tooltip: true },
-    { key: 'purchased_at', label: 'purchased at', type: 'date',width: '8em ', },
-    { key: 'created_at', label: 'created at', type: 'date',width: '8em ', },
+    { key: 'share_value', label: 'share value', type: "money", tooltip: true },
+    { key: 'share_no', label: 'share no', type: "money", tooltip: true },
+    { key: 'total_value', label: 'total value', type: "money", tooltip: true },
+    { key: 'purchased_at', label: 'purchased at', type: 'date', width: '8em ', },
+    { key: 'created_at', label: 'created at', type: 'date', width: '8em ', },
     { key: 'actions', label: 'Actions', show: ['share'] }
 ]
 function navigateToProfile(item: any) {
@@ -114,7 +109,7 @@ function navigateToProfile(item: any) {
 }
 function printShareCertificate(item: any) {
     // alert()
-    handlePrint({value:item},'/shares/holders/print-certificate')
+    handlePrint({ value: item }, '/shares/holders/print-certificate')
 }
 function OpenThedrawer(item: any, action = "") {
     statusFilter.value = item

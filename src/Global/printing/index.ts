@@ -165,7 +165,7 @@ export function setPrintSize(options: PrintOptions, orientation?: 'portrait' | '
 // }
 
  export function printElement(htmldata: string, options: PrintOptions) {
-  const printWindow = window.open('', '', 'height=600,width=400')
+  const printWindow = window.open('', '', 'height=900,width=900')
   if (!printWindow) return
 
   const pageSize = options.size && paperSizes[options.size] || options.size

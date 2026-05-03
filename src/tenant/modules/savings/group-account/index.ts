@@ -4,5 +4,6 @@ export { default as Details } from './Show.vue';
 export { default as CreateNoneMember } from './NewNoneMember.vue';
 export { default as AddExistingMember } from './AddExistingMember.vue';
 export { default as AddGroupTab } from './AddGroupTab.vue';
+export * from '@/tenant/modules/savings/group-account/template';
 // export { default as GroupProfile } from './Group-profile.vue';
 // export { default as Edit } from './Edit.vue';

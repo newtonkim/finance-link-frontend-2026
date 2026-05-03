@@ -4,14 +4,11 @@
     view: 'group-saving-details',
     edit: 'group-saving-update',
     delete: 'group-saving-delete'
-  }" :showTableAction="true" :drawerRemount="drawerRemount"
-    :automaticCreate="automaticCreate.actionSlot != 'create-none-member'" :drawerWidth="drawerTitle?.width"
-    :url="tableUrl" state="groupAccountList" :drawerTitle="drawerTitle?.title" :columns="columns" @save="saveUser"
-    ref="drawer"
-    :templateDisplayLabels="['code','member_name']"
-    >
+  }" :showTableAction="true" :drawerRemount="drawerRemount" :exportItems="exportItems"  
+    :automaticCreate="triger" :drawerWidth="drawerTitle?.width" :url="tableUrl" state="groupAccountList"
+    :drawerTitle="drawerTitle?.title" :columns="columns" @save="saveUser" ref="drawer">
     <template #header-action>
-      
+
       <div class="space-y-3">
         <PainPageHeader title="Group Savings"
           dec="Manage and monitor institutional savings groups, their membership tiers, and overall performance." />
@@ -39,7 +36,7 @@
       <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
     </template>
     <template #drawer="{ action, data }">
-
+      <GroupTemplate v-if="'download-group-savings-template' == automaticCreate.actionSlot" />
       <AddGroupTab v-if="automaticCreate.actionSlot == 'create-none-member'"
         :data="{ ...automaticCreate, ...data, action }" v-model:form="formData" />
       <Create v-else-if="['add', 'edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
@@ -50,7 +47,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { pomPinia } from 'septor-store';
-import { Create, Details, AddGroupTab } from '.'
+import { Create, Details, AddGroupTab, GroupTemplate } from '.'
 import { TableDrawer, StatusButtonsHorizontal, addNumberCommas, AnalysisTile, PainPageHeader, TabelActionButtons, setLocalValues, CopyData } from '@/Global'
 import { useRouter } from 'vue-router';
 import { groupSavingsApi } from '@/tenant/apis/savings/group-savingsApi';
@@ -58,7 +55,7 @@ const Store = pomPinia();
 const props = defineProps<{
   data?: any
 }>(),
-  automaticCreate = ref({ drawerActions: true, actionSlot: null, item: null }),
+  automaticCreate = ref<any>({ drawerActions: true, actionSlot: null, item: null }),
   drawer = ref<any>(null),
   drawerRemount = ref(false),
   formData = ref<Record<string, any>>({})
@@ -151,8 +148,8 @@ async function saveUser(type: string, data: any, sumited: any) {
   }
 
 }
-function OpenThedrawer(item: any) {
-  automaticCreate.value = { drawerActions: true, actionSlot: 'create-none-member', item }
+function OpenThedrawer(item: any, actionSlot = "create-none-member") {
+  automaticCreate.value = { drawerActions: true, actionSlot, item }
   drawerTitle.value = { title: "add member to group", width: "w-2/4" }
   drawer.value.toggleDrawer()
   drawer.value.buttonTypeClicked = automaticCreate.value.actionSlot
@@ -165,9 +162,46 @@ watch(() => drawer.value?.drawerOpen, (val) => {
   immediate: true,
   deep: true
 })
+
+const triger = computed(() => {
+  return !['create-none-member', 'download-group-savings-template','download-group-member-template'].includes(automaticCreate.value.actionSlot)
+})
 function navigateToProfile(item: any) {
 
   router.push(`/tenant/group-savings/profile`)
   setLocalValues('groupProfile' as any, item)
 }
+
+const exportItems = ref([
+  {
+    label: "Group savings Template",
+    action: (vl) => {
+      automaticCreate.value = {
+        actionSlot: "download-group-savings-template",
+        item: vl,
+      };
+      OpenThedrawer(vl, "download-group-savings-template");
+    },
+  },
+  {
+    label: "Group member Template",
+    action: (vl) => {
+      automaticCreate.value = {
+        actionSlot: "download-group-member-template",
+        item: vl,
+      };
+      OpenThedrawer(vl, "download-group-member-template");
+    },
+  },
+
+])
+
+watch(
+  () => drawer.value?.drawerOpen,
+  (v) => {
+    if (!v) {
+      automaticCreate.value = {};
+    }
+  }
+);
 </script>

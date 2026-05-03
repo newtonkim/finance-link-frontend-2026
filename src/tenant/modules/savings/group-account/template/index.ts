@@ -1,0 +1,1 @@
+export {default as GroupTemplate} from './group-template.vue'
