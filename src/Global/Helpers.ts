@@ -582,6 +582,10 @@ export function printElementId(IdElement = '', options?: PrintOptions) {
                             padding: 0;
                             width: 100%;
                         }
+                             input::placeholder,
+    textarea::placeholder {
+        color: transparent;
+    }
                     }
 
                     @page {
