@@ -32,7 +32,6 @@ const props = defineProps<{
     selectDefaultIndex?: number
     selectOnOneItem?: boolean
     data?: any
-    slot
 }>();
 
 const emit = defineEmits(['update:modelValue', 'update:itemSelected']);

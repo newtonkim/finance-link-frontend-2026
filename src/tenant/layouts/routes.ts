@@ -10,6 +10,8 @@ import {
   Landmark,
   PieChart,
   FileText,
+  Receipt,
+  TrendingDown,
 } from 'lucide-vue-next'
 import type { MenuRoutes } from '@/Global/types/helpers'
 
@@ -24,6 +26,13 @@ export const tenantRoutes: MenuRoutes[] = [
     icon: LayoutGrid,
     permissions: 'dashboard-module-link-view',
     component: () => import('@/tenant/modules/dashboard/pages/Dashboard.vue'),
+    group: 'OVERVIEW',
+  },
+  {
+    path: 'my-profile',
+    label: 'my-profile',
+    showSideBar: false,
+    component: () => import('@/tenant/modules/profile/pages/MyProfile.vue'),
   },
   {
     label:  checkForVailableSetting?.['system-used-by-money-lenders'] ? 'Staff &  clients' : 'Members',
@@ -31,6 +40,7 @@ export const tenantRoutes: MenuRoutes[] = [
     permissions: 'members-module-link-view',
     showSideBar: true,
     prifix: 'tenant',
+    group: 'MEMBERS',
     children: [
       {
         title: 'Sacco '+memberSwitch,
@@ -108,12 +118,14 @@ export const tenantRoutes: MenuRoutes[] = [
     icon: Handshake,
     showSideBar: true,
     component: () => import('@/tenant/modules/savings/group-account/Index.vue'),
+    group: 'SAVINGS & TRANSFERS',
   },
   {
     path: 'group-savings/profile',
     label: 'group-profile',
     component: () => import('@/tenant/modules/savings/group-account/profile/Group-profile.vue'),
     showSideBar: false,
+    group: 'SAVINGS & TRANSFERS',
     // permissions: 'member-profile',
   },
   ///////////
@@ -124,21 +136,24 @@ export const tenantRoutes: MenuRoutes[] = [
     showSideBar: true,
     icon: ArrowLeftRight,
     component: () => import('@/tenant/modules/savings/savings-transfer/Index.vue'),
+    group: 'SAVINGS & TRANSFERS',
     // component: () => import('@/tenant/modules/savings/pages/SavingsTransfer.vue'),
   },
 
   {
     type: 'label',
-    label: 'LOAS/SHARES/C.O.A',
+    label: 'LOANS & SHARES',
     icon: BookOpen,
     showSideBar: true,
+    group: 'LOANS & SHARES',
   },
   {
-    label: 'Loans',
+    label: 'Manage Loans',
     icon: Coins,
     // permissions: "loan-module-link-view",
     showSideBar: true,
     prifix: 'tenant',
+    group: 'LOANS & SHARES',
     children: [
       {
         title: 'LOANS',
@@ -215,6 +230,7 @@ export const tenantRoutes: MenuRoutes[] = [
     // permissions: "shares-module-link-view",
     showSideBar: true,
     prifix: 'tenant',
+    group: 'LOANS & SHARES',
     children: [
       {
         title: 'SHARES',
@@ -264,6 +280,23 @@ export const tenantRoutes: MenuRoutes[] = [
     permissions: 'chart-of-accounts-module-link-view',
     showSideBar: true,
     component: () => import('@/tenant/modules/accounting/pages/ChartOfAccounts.vue'),
+    group: 'FINANCIALS',
+  },
+  {
+    path: 'expenses',
+    label: 'Manage Expenses',
+    icon: Receipt,
+    showSideBar: true,
+    component: () => import('@/tenant/components/globals/ComingSoon.vue'),
+    group: 'FINANCIALS',
+  },
+  {
+    path: 'asset-depreciation',
+    label: 'Asset Depreciation',
+    icon: TrendingDown,
+    showSideBar: true,
+    component: () => import('@/tenant/components/globals/ComingSoon.vue'),
+    group: 'FINANCIALS',
   },
 
   {
@@ -271,12 +304,14 @@ export const tenantRoutes: MenuRoutes[] = [
     label: 'REPORTS/Configuration',
     icon: FileText,
     showSideBar: true,
+    group: 'REPORTS & SETTINGS',
   },
   {
     label: 'Reports',
     icon: FileText,
     showSideBar: true,
     prifix: 'tenant',
+    group: 'REPORTS & SETTINGS',
     children: [
       {
         title: 'FINANCIAL REPORTS',

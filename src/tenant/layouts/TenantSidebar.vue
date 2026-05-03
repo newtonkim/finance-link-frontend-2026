@@ -12,6 +12,8 @@ import {
   HandCoins,
   Wallet,
   Vote,
+  Receipt,
+  TrendingDown,
 } from 'lucide-vue-next'
 import {
   Sidebar,
@@ -35,6 +37,7 @@ import { tenantRoutes } from "@/tenant/layouts/routes.ts";
 import { OutClickNav } from '@/Global/OutClicknavigation';
 import { saccoBrandingState } from '@/tenant/apis/saccobranding/saccoBrandingApi'
 import { pomPinia } from 'septor-store'
+import type { MenuRoutes } from '@/Global/types/helpers'
 
 const Store = pomPinia() as any
 const route = useRoute()
@@ -55,12 +58,45 @@ const isSettingsActive = computed(() => route.path.startsWith('/tenant/settings'
 const tenant = tenantStore.currentTenant as any
 // const fullRemount = computed(() => Store.fullRemount)
 const tenantRoutesReactive = computed(() => tenantRoutes)
+onMounted(() => {
+  // Any necessary onMounted logic
+})
+
+// Group routes by their `group` field for section rendering
+const groupedRoutes = computed(() => {
+  const groups: { label: string; routes: MenuRoutes[] }[] = []
+  const groupMap = new Map<string, MenuRoutes[]>()
+  const order: string[] = []
+
+  for (const r of tenantRoutes) {
+    const group = r.group || ''
+    if (!groupMap.has(group)) {
+      groupMap.set(group, [])
+      order.push(group)
+    }
+    // Skip label-type items; group headers replace their role
+    if (r.type !== 'label') {
+      groupMap.get(group)!.push(r)
+    }
+  }
+
+  for (const label of order) {
+    const routes = groupMap.get(label)!
+    if (routes.length > 0) {
+      groups.push({ label, routes })
+    }
+  }
+
+  return groups
+})
+
 
 </script>
 
 <template>
   <Sidebar collapsible="icon" variant="inset" class="bg-[#0A2318] text-white border-r-0">
     <SidebarHeader class="px-4 py-4">
+      <!-- Logo + Sacco Name -->
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
           <div class="flex shrink-0 items-center justify-center rounded-2xl transition-all duration-500 overflow-hidden"
@@ -91,6 +127,7 @@ const tenantRoutesReactive = computed(() => tenantRoutes)
         <SidebarTrigger class="text-nfuko-nav-text hover:bg-white/10 hover:text-white transition-colors" />
       </div>
 
+      <!-- Address & Email (preserved, shown when available) -->
       <div v-if="state === 'expanded' && (tenant?.settings?.address || tenant?.settings?.email)"
         class="mt-4 flex flex-col gap-2 border-t border-white/5 pt-4">
         <div v-if="tenant?.settings?.address" class="flex items-start gap-2 text-nfuko-nav-text">
@@ -104,47 +141,41 @@ const tenantRoutesReactive = computed(() => tenantRoutes)
       </div>
     </SidebarHeader>
 
-    <!-- NAVIGATION -->
-     <div class='flex   flex-col h-full py-2 px-3'>
-    <SidebarContent class="flex-1 h-full flex flex-col h-full   overflow-y-auto min-h-0 gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden px-3 flex flex-col flex-1">
-      <SidebarGroup >
-        <SidebarGroupLabel v-if="state === 'expanded'" class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
-          Navigation
-        </SidebarGroupLabel>
-        <SidebarSeparator v-else class="bg-white/5 mx-2 my-2" />
-        
-        <OutClickNav class="flex-1 h-full" :links="tenantRoutesReactive" />
-      </SidebarGroup>
-   
-    
-      <SidebarGroup class="mt-2">
-        <SidebarGroupLabel v-if="state === 'expanded'" class="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-nfuko-nav-text/50">
-          Configuration
-        </SidebarGroupLabel>
-        <SidebarSeparator v-else class="bg-white/5 mx-2 my-2" />
-        <SidebarMenu v-auth='"settings-module-link-view"'>
-          <SidebarMenuItem>
-            <SidebarMenuButton :tooltip="'Settings'" @click="router.push('/tenant/settings')" :class="[
-              'relative px-0 py-2.5 hover:bg-white/5 transition-all duration-200 group',
-              isSettingsActive ? 'bg-white/5' : ''
-            ]">
-              <div class="flex w-full items-center gap-3 pl-4 pr-3">
-                <Settings class="h-4 w-4 transition-colors duration-200"
-                  :class="isSettingsActive ? 'text-bg-nfuko-yellow' : 'text-nfuko-nav-text group-hover:text-bg-nfuko-yellow'" />
-                <span class="flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200"
-                  :class="isSettingsActive ? 'text-bg-nfuko-yellow' : 'text-nfuko-nav-text group-hover:text-white'">
-                  Settings
-                </span>
-              </div>
-              <div v-if="isSettingsActive"
-                class="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-[3px] bg-nfuko-yellow rounded-r-full shadow-[0_0_10px_rgba(201,168,76,0.5)]" />
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarGroup>
-
-      </SidebarContent>
-    </div>
+    <!-- NAVIGATION: Grouped Sections -->
+    <SidebarContent class="flex-1 overflow-y-auto min-h-0 overflow-auto group-data-[collapsible=icon]:overflow-hidden px-3 flex flex-col">
+      <template v-for="group in groupedRoutes" :key="group.label">
+        <SidebarGroup class="py-0">
+          <SidebarGroupLabel v-if="state === 'expanded' && group.label"
+            class="px-2 pt-4 pb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-nfuko-nav-text/40 flex items-center gap-2">
+            {{ group.label }}
+          </SidebarGroupLabel>
+          <SidebarSeparator v-else class="bg-white/5 mx-2 my-2" />
+          
+          <SidebarMenu>
+            <OutClickNav class="!h-auto !py-0 !flex-none" :links="group.routes" />
+            
+            <!-- Manual addition of Settings to REPORTING group to ensure independence -->
+            <SidebarMenuItem v-if="group.label === 'REPORTS & SETTINGS'" v-auth='"settings-module-link-view"'>
+              <SidebarMenuButton :tooltip="'Settings'" @click="router.push('/tenant/settings')" :class="[
+                'relative px-0 py-2.5 hover:bg-white/5 transition-all duration-200 group',
+                isSettingsActive ? 'bg-nfuko-nav-active rounded-xl' : ''
+              ]">
+                <div class="flex w-full items-center gap-3 pl-1 pr-3">
+                  <Settings class="h-4 w-4 transition-colors duration-200"
+                    :class="isSettingsActive ? 'text-nfuko-yellow' : 'text-nfuko-nav-text group-hover:text-nfuko-yellow'" />
+                  <span class="flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200"
+                    :class="isSettingsActive ? 'text-white' : 'text-nfuko-nav-text group-hover:text-white'">
+                    Settings
+                  </span>
+                </div>
+                <div v-if="isSettingsActive"
+                  class="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-[3px] bg-nfuko-yellow rounded-r-full shadow-[0_0_10px_rgba(201,168,76,0.5)]" />
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+      </template>
+    </SidebarContent>
 
     <SidebarFooter class="shrink-0 p-4 space-y-3">
       <div

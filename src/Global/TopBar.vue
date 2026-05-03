@@ -36,6 +36,8 @@ const activeBranch = ref(null)
 const subdomain = getSubdomainName()
 // import { useBranchStore } from '@/stores/branchStore';
 import SearchableSelect from './SearchableSelect.vue'
+import { useTenantUserStore } from '@/stores/tenantUserStore'
+import { useProfileStore } from '@/stores/profileStore'
 
 const interceptor = subdomain ? tenantClient : apiClient
 
@@ -73,10 +75,14 @@ function watchBranchchanges(branch: any) {
 }
 
 const authStore = useAuthStore()
-const user = computed(() => authStore.user)
+const tenantUserStore = useTenantUserStore()
+const profileStore = useProfileStore()
+const user = computed(() => profileStore.combinedProfile)
 const userName = computed(() => String(user.value?.name ?? 'User'))
 
 onMounted(async () => {
+  tenantUserStore.load()
+  profileStore.fetchFullProfile()
   watchBranchchanges(getLocalValues('activeBranch' as const))
   await fetchBranches()
 })
@@ -132,7 +138,7 @@ function onBranchChange(val: number) {
       </div>
       <SearchableSelect
         :modelValue="activeBranch"
-        :options="(Store as any)?.['system-branches']?.payload?.data ?? []"
+        :options="((Store as any)?.['system-branches']?.payload?.data as any) ?? []"
         @update:modelValue="onBranchChange"
         :selectDefaultIndex="0"
       />
@@ -141,19 +147,19 @@ function onBranchChange(val: number) {
     <div class="flex items-center gap-4">
       <div class="flex -space-x-3 mr-2">
         <Avatar
-          class="size-8 border-[2.5px] border-white dark:border-[#111111] grayscale hover:grayscale-0 transition-all cursor-pointer"
+          class="size-8 border-[2.5px] border-white dark:border-[#111111] hover:shadow-md transition-all cursor-pointer"
         >
           <AvatarImage src="https://i.pravatar.cc/150?u=1" />
           <AvatarFallback>JD</AvatarFallback>
         </Avatar>
         <Avatar
-          class="size-8 border-[2.5px] border-white dark:border-[#111111] grayscale hover:grayscale-0 transition-all cursor-pointer"
+          class="size-8 border-[2.5px] border-white dark:border-[#111111] hover:shadow-md transition-all cursor-pointer"
         >
           <AvatarImage src="https://i.pravatar.cc/150?u=2" />
           <AvatarFallback>AS</AvatarFallback>
         </Avatar>
         <Avatar
-          class="size-8 border-[2.5px] border-white dark:border-[#111111] grayscale hover:grayscale-0 transition-all cursor-pointer"
+          class="size-8 border-[2.5px] border-white dark:border-[#111111] hover:shadow-md transition-all cursor-pointer"
         >
           <AvatarImage src="https://i.pravatar.cc/150?u=3" />
           <AvatarFallback>WK</AvatarFallback>
@@ -189,14 +195,22 @@ function onBranchChange(val: number) {
       </Button>
 
       <DropdownMenu>
-        <DropdownMenuTrigger>
-          <div
-            class="size-8 rounded-full bg-[#F1F5F9] dark:bg-white/10 flex items-center justify-center font-bold text-xs text-neutral-600 dark:text-neutral-300 border border-neutral-200/50 dark:border-white/10 cursor-pointer hover:bg-neutral-200 dark:hover:bg-white/20 transition-all shadow-sm"
-          >
-            {{ getInitials(userName) }}
+        <DropdownMenuTrigger as-child>
+          <div class="flex items-center gap-3 px-2 py-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-white/5 transition-all cursor-pointer border border-neutral-200/50 dark:border-white/10 shadow-sm group">
+            <div
+              class="size-8 rounded-full bg-nfuko-yellow text-[#0A2318] flex items-center justify-center font-bold text-xs shadow-inner overflow-hidden"
+            >
+              <img v-if="user?.avatar" :src="(user.avatar as string)" class="h-full w-full object-cover" />
+              <span v-else>{{ getInitials(userName) }}</span>
+            </div>
+            <div class="hidden sm:flex flex-col text-left pr-1 min-w-[80px]">
+              <span class="text-[12px] font-bold text-neutral-900 dark:text-white leading-tight group-hover:text-nfuko-primary dark:group-hover:text-bg-nfuko-yellow transition-colors">{{ userName }}</span>
+              <span class="text-[10px] font-medium text-neutral-500 dark:text-neutral-400 capitalize">{{ (user as any)?.role ?? 'User' }}</span>
+            </div>
+            <ChevronDown class="size-3.5 text-neutral-400 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors mr-1" />
           </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" class="w-56">
+        <DropdownMenuContent align="end" class="w-56 p-1 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-xl rounded-xl">
           <UserMenuContent :user="user" />
         </DropdownMenuContent>
       </DropdownMenu>
