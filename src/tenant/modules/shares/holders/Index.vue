@@ -19,15 +19,20 @@
         <template #searchSideAction>
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
+        <template #actions="{item}">
+            <TabelActionButtons title="certificate" color="secondary" icon="Printer" @action="() => printShareCertificate(item)" />
+
+        </template>
     </TableDrawer>
 </template>
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 // import { Create, Details, Edit } from '.'
-import { TableDrawer, StatusButtonsHorizontal, setLocalValues } from '@/Global'
+import { TableDrawer, StatusButtonsHorizontal, setLocalValues, TabelActionButtons,useTableHelpers } from '@/Global'
 import { useRouter } from 'vue-router';
 import { Plus } from 'lucide-vue-next';
 const router = useRouter();
+const { handlePrint } = useTableHelpers({});
 const statusFilter = ref('sell shares'),
     drawerTitle = ref('Create Tenant'), filters = ['sell shares', 'transfer shares', 'share withdrawal'],
     tableUrl = computed(() => `/shares/holders/list?status=${statusFilter.value}`)
@@ -50,10 +55,14 @@ const columns = [
     { key: 'total_value', label: 'total value', type: "money",width: '9em',tooltip: true },
     { key: 'purchased_at', label: 'purchased at', type: 'date',width: '8em ', },
     { key: 'created_at', label: 'created at', type: 'date',width: '8em ', },
-    // { key: 'actions', label: 'Actions', show: ['edit'] }
+    { key: 'actions', label: 'Actions', show: ['share'] }
 ]
 function navigateToProfile(item: any) {
     router.push(`/tenant/member/profile`)
     setLocalValues('memberProfile', { ...item, id: item?.member_id })
+}
+function printShareCertificate(item: any) {
+    // alert()
+    handlePrint({value:item},'/shares/holders/print-certificate')
 }
 </script>
