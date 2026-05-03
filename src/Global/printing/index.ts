@@ -67,7 +67,7 @@ export function sizePapers(show = ['Pages', 'US']) {
 function parseSize(size?: string): SizeDimensions {
   if (!size) return { width: 100, height: 200 } // fallback dimensions
 
-  const parts = size.split(' ')
+  const parts = `${size}`.split(' ')
   let width = 0,
     height = 0
 
@@ -124,36 +124,80 @@ export function setPrintSize(options: PrintOptions, orientation?: 'portrait' | '
  * Print HTML content directly on current page without opening new window
  */
 
-export function printElement(htmldata: string, options: PrintOptions) {
-  const element = document.createElement('div')
-  element.innerHTML = htmldata
+// export function printElement(htmldata: string, options: PrintOptions) {
+  
 
+//   const printWindow = window.open('', '', 'height=600,width=400')
+//   if (!printWindow) return 
+//   printWindow.document.open()
+//   printWindow.document.write(`
+// <html><head><title>Print</title></head><body>
+// ${htmldata}
+//     </body></html>
+    
+//     `)
+//   // printWindow.document.close()
+
+//   printWindow.onload = () => {
+//     const style = printWindow.document.createElement('style')
+//     const pageSize = paperSizes[options.size] || options.size
+//     const orientation = getOrientation(options.size)
+
+//     style.innerHTML = `
+//       @page {
+//         size: ${pageSize} ${orientation};
+//         margin: 5mm;
+//       }
+//       body {
+//         margin: 0;
+//         font-family: Arial, sans-serif;
+//       }
+//     `
+     
+//      printWindow.document.close()
+//       printWindow.focus()
+
+//   setTimeout(() => {
+//     printWindow.print()
+//     printWindow.close()
+//   }, 300)
+//   }
+// }
+
+ export function printElement(htmldata: string, options: PrintOptions) {
   const printWindow = window.open('', '', 'height=600,width=400')
   if (!printWindow) return
 
-  printWindow.document.write('<html><head><title>Print</title></head><body>')
-  printWindow.document.write(element.innerHTML)
-  printWindow.document.write('</body></html>')
-  printWindow.document.close()
+  const pageSize = options.size && paperSizes[options.size] || options.size
+  const orientation = options.size?getOrientation(options.size):null
 
-  printWindow.onload = () => {
-    const style = printWindow.document.createElement('style')
-    const pageSize = paperSizes[options.size] || options.size
-    const orientation = getOrientation(options.size)
+  printWindow.document.open()
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Print</title>
+        <style>
+          @page {
+            size: ${pageSize} ${orientation};
+            margin: 5mm;
+          }
+          body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+          }
+        </style>
+      </head>
+      <body>
+        ${htmldata}
+      </body>
+    </html>
+  `)
+  printWindow.document.close()  
 
-    style.innerHTML = `
-      @page {
-        size: ${pageSize} ${orientation};
-        margin: 5mm;
-      }
-      body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-      }
-    `
-    printWindow.document.head.appendChild(style)
-    printWindow.focus()
+  printWindow.focus()
+
+  setTimeout(() => {
     printWindow.print()
     printWindow.close()
-  }
+  }, 300)
 }
