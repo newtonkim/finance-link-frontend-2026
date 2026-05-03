@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   LayoutGrid,
@@ -29,12 +29,14 @@ import {
   useSidebar,
 
 } from '@/Global'
-import TenantNavUser from './TenantNavUser.vue'
+// import TenantNavUser from './TenantNavUser.vue'
 import { useTenantContextStore } from '@/stores/tenantContext'
 import { tenantRoutes } from "@/tenant/layouts/routes.ts";
 import { OutClickNav } from '@/Global/OutClicknavigation';
 import { saccoBrandingState } from '@/tenant/apis/saccobranding/saccoBrandingApi'
+import { pomPinia } from 'septor-store'
 
+const Store = pomPinia() as any
 const route = useRoute()
 const router = useRouter()
 const { state } = useSidebar()
@@ -49,8 +51,10 @@ function toggleDarkMode() {
 const isSettingsActive = computed(() => route.path.startsWith('/tenant/settings'))
 
 
-const tenant = tenantStore.currentTenant as any
 
+const tenant = tenantStore.currentTenant as any
+// const fullRemount = computed(() => Store.fullRemount)
+const tenantRoutesReactive = computed(() => tenantRoutes)
 
 </script>
 
@@ -108,7 +112,8 @@ const tenant = tenantStore.currentTenant as any
           Navigation
         </SidebarGroupLabel>
         <SidebarSeparator v-else class="bg-white/5 mx-2 my-2" />
-        <OutClickNav class="flex-1 h-full" :links="tenantRoutes" />
+        
+        <OutClickNav class="flex-1 h-full" :links="tenantRoutesReactive" />
       </SidebarGroup>
    
     

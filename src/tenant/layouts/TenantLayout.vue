@@ -15,6 +15,7 @@ onMounted(() => {
 })
 const Store = pomPinia() as any, route = useRoute()
 const routeKey = computed(() => route.fullPath)
+const fullRemount = computed(() => Store.fullRemount)
 const toggleSubmenu = () => {
     Store.showSubmenu = null
     
@@ -22,7 +23,7 @@ const toggleSubmenu = () => {
 </script>
 
 <template>
-  <SidebarProvider>
+  <SidebarProvider :key="fullRemount">
     <TenantSidebar />
     <SidebarInset class="bg-[#f8faf9] dark:bg-[#0a0a0a]" @click="toggleSubmenu">
       <TopBar title="Tenant Portal" />

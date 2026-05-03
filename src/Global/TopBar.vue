@@ -71,6 +71,7 @@ function watchBranchchanges(branch: any) {
   ;(Store as any).activeBranch = branch
   activeBranch.value = branch
 }
+
 const authStore = useAuthStore()
 const user = computed(() => authStore.user)
 const userName = computed(() => String(user.value?.name ?? 'User'))
