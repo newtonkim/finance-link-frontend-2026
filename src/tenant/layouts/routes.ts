@@ -14,6 +14,7 @@ import {
   TrendingDown,
 } from 'lucide-vue-next'
 import type { MenuRoutes } from '@/Global/types/helpers'
+
   const checkForVailableSetting = getSystemSetting()
 
   const memberSwitch=['true',true,1].includes(checkForVailableSetting?.['system-used-by-money-lenders']) ? 'clients' : 'Members'

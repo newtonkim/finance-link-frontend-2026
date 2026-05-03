@@ -1,6 +1,5 @@
 <template>
   <div class="card shadow-md px-4 py-3 bg-white dark:bg-neutral-800 rounded-md">
-
     <span v-if="loading"></span>
     <Form :action="data?.action" v-else parentStyle="grid  grid-cols-1 gap-3" v-model:form="fields" />
   </div>
@@ -34,7 +33,26 @@ const emits = defineEmits(['update:form']),
       url: 'global/member-dropdown-list',
       placeholder: 'select a member',
       dataOnMount: true,
+     
     },
+    
+     {
+          label: 'free input code',
+          name: 'code',
+          value:settingList.value?.['free-code'] ,
+          type: 'text',
+          required: true,
+          placeholder: 'Enter code',
+           dependsOn: {
+        conditions: [
+          
+          {
+            condition:(val)=> settingList.value?.['free-code'] ,
+            field: 'member',
+          },
+        ],
+      }
+        },
     {
       label: 'savings product',
       name: 'product_id',
@@ -146,11 +164,12 @@ async function promtValueOnUpdate() {
 }
 function checkForSettings() {
   const checkForVaailableSetting = getSystemSetting()
-  console.log(checkForVaailableSetting);
   
   settingList.value = {
     'hide-initial-deposit-field': checkForVaailableSetting?.['sacco-members-hide-initial-deposit-field'] ?? 0,
+    'free-code': checkForVaailableSetting?.['sacco-savings-accounts-free-input-code'] ?? 0,
   }
+  console.log(checkForVaailableSetting);    
 } 
 const watchChangeInProductOrCharges=debounce(async (fields: any, amount: any) => {
   const finedProduct = fields.value.find((f: any) => f.name === 'product_id')
@@ -177,4 +196,24 @@ onMounted(() => {
   promtValueOnUpdate()
   checkForSettings()
 })
+// watch(()=>fields.value, (val) => {
+//       const codeIndex = val.findIndex(f => f.name === 'code');
+//     const memberIndex = val.findIndex(f => f.name === 'member');
+//  if (settingList.value?.['free-code']) {
+//       if (codeIndex === -1 && memberIndex !== -1) {
+//         fields.value.splice(memberIndex + 1, 0, {
+//           label: 'free input code',
+//           name: 'code',
+//           type: 'text',
+//           required: true,
+//           placeholder: 'Enter code',
+//         })
+//       }
+
+//     } else {
+//       if (codeIndex !== -1) {
+//         fields.value.splice(codeIndex, 1)
+//       }
+//     }
+// },{deep:true})
 </script>

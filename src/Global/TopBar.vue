@@ -73,6 +73,7 @@ function watchBranchchanges(branch: any) {
   ;(Store as any).activeBranch = branch
   activeBranch.value = branch
 }
+
 const authStore = useAuthStore()
 const tenantUserStore = useTenantUserStore()
 const profileStore = useProfileStore()

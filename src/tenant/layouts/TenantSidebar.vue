@@ -31,13 +31,15 @@ import {
   useSidebar,
 
 } from '@/Global'
-import TenantNavUser from './TenantNavUser.vue'
+// import TenantNavUser from './TenantNavUser.vue'
 import { useTenantContextStore } from '@/stores/tenantContext'
 import { tenantRoutes } from "@/tenant/layouts/routes.ts";
 import { OutClickNav } from '@/Global/OutClicknavigation';
 import { saccoBrandingState } from '@/tenant/apis/saccobranding/saccoBrandingApi'
+import { pomPinia } from 'septor-store'
 import type { MenuRoutes } from '@/Global/types/helpers'
 
+const Store = pomPinia() as any
 const route = useRoute()
 const router = useRouter()
 const { state } = useSidebar()
@@ -52,8 +54,10 @@ function toggleDarkMode() {
 const isSettingsActive = computed(() => route.path.startsWith('/tenant/settings'))
 
 
-const tenant = tenantStore.currentTenant as any
 
+const tenant = tenantStore.currentTenant as any
+// const fullRemount = computed(() => Store.fullRemount)
+const tenantRoutesReactive = computed(() => tenantRoutes)
 onMounted(() => {
   // Any necessary onMounted logic
 })

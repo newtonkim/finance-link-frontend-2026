@@ -98,9 +98,9 @@ function navigateToMoreLoanEdit(item: any) {
   router.push(`loan-applications/${item.id}/edit`)
 }
 function daysPendingClass(days: number) {
-  if (days >= 15) return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-  if (days >= 8) return 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-  if (days >= 4) return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+  if (days >= 15) return 'bg-red-100/20 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+  if (days >= 8) return 'bg-orange-100/20 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+  if (days >= 4) return 'bg-amber-100/20 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
   return 'text-neutral-500 dark:text-neutral-400'
 }
 const exportItems = ref([

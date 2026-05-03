@@ -125,6 +125,7 @@ function storeLocalChanages(id: string, value: string, action: string) {
 
 }
 async function confirmAndSaveChanges(data?: any) {
+  
   const customeUrl = props?.outerlinks?.['create'] ?? "save-changed-settings";
   const { id, settings_action } = collectedData.value
   const url = createUrl(props?.url, customeUrl)
@@ -138,8 +139,12 @@ async function confirmAndSaveChanges(data?: any) {
       url: url
     }, Store
   });
-  if (res.payload)
+  if (res.payload){
     storeSettings(Object.values(res.payload))
+    Store.fullRemount =  Math.random()
+    
+  
+  }
 }
 
 function storeSettings(useStoreAlltheGotSettings: any[]) {
@@ -147,6 +152,8 @@ function storeSettings(useStoreAlltheGotSettings: any[]) {
   useStoreAlltheGotSettings.forEach((value: any, index: number) => {
     (newsettings as any)[value.name] = value?.['settings_action']?.['action'] ?? value;
   })
+  console.log({newsettings});
+  
   appendOnAjsonStore({ data: newsettings, key: keysToUse.systemSettings })
 }
 
@@ -157,7 +164,7 @@ function stateGenerator(name: string) {
   return `${name}`.replace(/\W+/g, "-");
 }
 async function intializetheData() {
-  const customeUrl = props?.outerlinks?.['list'] ?? null //?? "settings-list";
+  // const customeUrl = props?.outerlinks?.['list'] ?? null //?? "settings-list";
   // const state = createUrl(props?.url, customeUrl);
   const theListData = stateGenerator(props?.outerlinks?.['list'] ?? props?.state ?? "settings-list");
   const res = await fetchTableData({
