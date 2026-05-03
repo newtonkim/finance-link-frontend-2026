@@ -1,8 +1,7 @@
 <template>
-    <TableDrawer
-    :exportItems="exportItems"
-     :automaticCreate="false" ref="drawer" drawerWidth=" w-1/2" :show-add-button="false" :url="tableUrl"
-        state="recentShareTransactionList" :drawerTitle="automaticCreate?.[statusFilter]?.['title']?? automaticCreate?.['title']" :columns="columns"
+    <TableDrawer :exportItems="exportItems" :automaticCreate="false" ref="drawer" drawerWidth=" w-1/2"
+        :show-add-button="false" :url="tableUrl" state="recentShareTransactionList"
+        :drawerTitle="automaticCreate?.[statusFilter]?.['title'] ?? automaticCreate?.['title']" :columns="columns"
         @save="saveUser" :showTableAction="true">
         <template #sub-header>
             <AnalysisTile :data="stats" grid-class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-3" />
@@ -81,42 +80,42 @@ const columns = [
     { key: 'actions', label: 'Actions', }
 ]
 const exportItems = ref([
-  {
-    label: "share Transaction Template",
-    action: () => {
-      const vl = {
-        actionSlot: "share-transaction-template-",
-        // componet: 
-        title: "share Transaction Template",
-      };
-      OpenThedrawer( "share-transaction-template-");
+    {
+        label: "share Transaction Template",
+        action: () => {
+            const vl = {
+                actionSlot: "share-transaction-template-",
+                // componet: 
+                title: "share Transaction Template",
+            };
+            OpenThedrawer("share-transaction-template-");
+        },
     },
-  },
-   {
-    label: "share sales Template",
-    action: () => {
-     const  vl= {
-        actionSlot: "share-sales-template",
-        // componet: 
-        title: "share sales Template",
-      };
-      OpenThedrawer( "share-sales-template");
+    {
+        label: "share sales Template",
+        action: () => {
+            const vl = {
+                actionSlot: "share-sales-template",
+                // componet: 
+                title: "share sales Template",
+            };
+            OpenThedrawer("share-sales-template");
+        },
     },
-  },
 
-  {
-    label: "share dividend Template",
-    action: () => {
-        const  vl= {
-        actionSlot: "share-dividend-template",
-        title: "share dividend Template",
-        // componet: 
-      };
-      OpenThedrawer( "share-dividend-template");
+    {
+        label: "share dividend Template",
+        action: () => {
+            const vl = {
+                actionSlot: "share-dividend-template",
+                title: "share dividend Template",
+                // componet: 
+            };
+            OpenThedrawer("share-dividend-template");
+        },
     },
-  },
-   
- 
+
+
 ]);
 // function OpenThedrawer(item: any, action = "") {
 //    statusFilter.value = item

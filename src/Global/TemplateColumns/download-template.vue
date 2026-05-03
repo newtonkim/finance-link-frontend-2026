@@ -107,7 +107,7 @@ const filteredData = computed(() => {
 })
 
 const allSelected = computed(() =>
-    selected.value.length === Object.keys(collection.value).length
+    selected.value.length === collection.value&& Object.keys(collection.value).length
 )
 function displayLabel(items: any) {
     const lable = []
@@ -152,6 +152,9 @@ async function handleTableAction(item: any = {}, action: string, drawer = true) 
 onMounted(() => {
     collection.value=props.data
     selected.value = [...(selected.value ?? []), ...(props.defaults ?? [])];
+   
+    console.log(selected.value);
+    
 
     if (props?.url) {
         handleTableAction(props?.url, null)
@@ -169,7 +172,7 @@ const exportColumns = () => {
     const fullFileName = `${filename}_template_${date}.xlsx`
     if (!selected.value.length) return
     if (!props.rows.length) {
-        const headers = selected.value.map(key => key.toLocaleUpperCase()
+        const headers = selected.value.map(key => `${key}`.toLocaleUpperCase()
             .replace(/\//g, '_')
             .replace(/\s+/g, '_')
             .replace(/[^\w-]/g, ''))

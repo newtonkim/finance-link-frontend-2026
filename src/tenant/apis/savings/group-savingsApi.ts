@@ -33,6 +33,7 @@ export function groupSavingsApi() {
       return res
     }
   }
+  
   async function getGroupProfileDetail(data: any = {}) {
     const getDetails = await fetchTableData({
       data: { ...data, group_id: getLocalValues('groupProfile' as any).id },
