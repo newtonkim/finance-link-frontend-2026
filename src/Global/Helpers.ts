@@ -648,6 +648,7 @@ export function getTenantSubdomain(): string | null {
   const centralDomain = (import.meta.env.VITE_BASE_URL as string)
     ?.replace(/^https?:\/\//, '')
     .replace(/\/$/, '')
+    .split(':')[0] // Strip port if present
     .toLowerCase()
 
   // If hostname exactly matches central domain → not a tenant
