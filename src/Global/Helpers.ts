@@ -247,41 +247,36 @@ export const formatCurrency = (amount: number | string, currencyCode = 'UGX') =>
     maximumFractionDigits: 2,
   }).format(Number(amount || 0))
 }
-export  const formatCurrency2 = (event: Event) => {
-    const input = event.target as HTMLInputElement;
+export const formatCurrency2 = (event: Event) => {
+  const input = event.target as HTMLInputElement
 
-    // Keep only digits and one decimal point
-    let rawVal = input.value.replace(/[^\d.]/g, '');
-    const parts = rawVal.split('.');
-    if (parts.length > 2) {
-        rawVal = parts[0] + '.' + parts.slice(1).join('');
-    }
+  // Keep only digits and one decimal point
+  let rawVal = input.value.replace(/[^\d.]/g, '')
+  const parts = rawVal.split('.')
+  if (parts.length > 2) {
+    rawVal = parts[0] + '.' + parts.slice(1).join('')
+  }
 
-    // Cursor position
-    const cursorPosition = input.selectionStart || 0;
+  // Cursor position
+  const cursorPosition = input.selectionStart || 0
 
-    // Split integer & decimal
-    const [intPart, decPart] = rawVal.split('.');
+  // Split integer & decimal
+  const [intPart, decPart] = rawVal.split('.')
 
-    // Format integer part safely
-    const formattedInt = intPart
-        ? Number(intPart).toLocaleString()
-        : '';
+  // Format integer part safely
+  const formattedInt = intPart ? Number(intPart).toLocaleString() : ''
 
-    const formatted = decPart !== undefined
-        ? `${formattedInt}.${decPart}`
-        : formattedInt;
+  const formatted = decPart !== undefined ? `${formattedInt}.${decPart}` : formattedInt
 
+  // Restore cursor (basic adjustment)
+  setTimeout(() => {
+    const newPos = Math.min(formatted.length, cursorPosition + (formatted.length - rawVal.length))
+    input.setSelectionRange(newPos, newPos)
+  })
 
-    // Restore cursor (basic adjustment)
-    setTimeout(() => {
-        const newPos = Math.min(formatted.length, cursorPosition + (formatted.length - rawVal.length));
-        input.setSelectionRange(newPos, newPos);
-    });
-
-    // Emit clean numeric value (no commas)
-return rawVal
-};
+  // Emit clean numeric value (no commas)
+  return rawVal
+}
 export const formatMoneyValue = (amount: number | string, minimumFractionDigits = 2) => {
   return new Intl.NumberFormat('en-UG', {
     minimumFractionDigits,
@@ -577,6 +572,17 @@ export function printElementId(IdElement = '', options?: PrintOptions) {
                 ${styles}
                 <style>
                     @media print {
+                    *{
+                    border-radius: 0px !important;
+                    }
+                    .w-full.rounded-lg.border.focus:border-nfuko-primary{
+                      border-bottom: 2px solid !important;
+                    } 
+                    .flex.items-center.justify-between.gap {
+                    display: none !important;
+                    }
+                    div{ border: none !important; }
+                    textarea ,input{  border-bottom: 1.4px solid gray !important; }
                         body {
                             margin: 0;
                             padding: 0;
@@ -607,7 +613,7 @@ export function printElementId(IdElement = '', options?: PrintOptions) {
   setTimeout(() => {
     newWindow.print()
     newWindow.close()
-  }, 500)
+  }, 1000)
 }
 export type UseInitialsReturn = {
   getInitials: (fullName?: string) => string
