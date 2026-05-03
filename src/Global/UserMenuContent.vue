@@ -12,6 +12,7 @@ import {
 
 import { useAuthStore } from '@/stores/auth'
 import { useTenantUserStore } from '@/stores/tenantUserStore'
+import { getTenantSubdomain } from '@/Global'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -40,7 +41,12 @@ const navigate = (path: string) => {
 
 const handleLogout = async () => {
   await authStore.logout()
-  router.push('/central/login')
+  const subdomain = getTenantSubdomain()
+  if (subdomain) {
+    router.push('/tenant/login')
+  } else {
+    router.push('/central/login')
+  }
 }
 </script>
 
