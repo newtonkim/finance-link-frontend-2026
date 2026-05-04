@@ -8,7 +8,7 @@
     :automaticCreate="automaticCreate.actionSlot != 'create-none-member'" :drawerWidth="drawerTitle?.width"
     :url="tableUrl" state="groupAccountList" :drawerTitle="drawerTitle?.title" :columns="columns" @save="saveUser"
     ref="drawer">
-    <template #header-action> 
+    <template #header-action>
       <div class="space-y-3">
         <PainPageHeader title="Group Savings"
           dec="Manage and monitor institutional savings groups, their membership tiers, and overall performance." />
@@ -40,6 +40,7 @@
         [
           'import-group-account-savings',
           'import-group-account-member',
+          'import-groups'
 
         ].includes((automaticCreate as any).actionSlot)
       " :title="(automaticCreate as any)?.actionSlot"
@@ -175,7 +176,7 @@ watch(() => drawer.value?.drawerOpen, (val) => {
 })
 
 const triger = computed(() => {
-  return !['download-group-savings-template', 'download-group-member-template', 'import-group-account-member', 'import-group-account-savings'].includes(automaticCreate.value.actionSlot)
+  return !['download-group-savings-template', 'download-group-member-template', 'import-group-account-member', 'import-group-account-savings','import-groups'].includes(automaticCreate.value.actionSlot)
 })
 function navigateToProfile(item: any) {
 
@@ -206,7 +207,18 @@ const exportItems = ref([
     },
   },
   {
-    label: "import group savings",
+    label: "import groups",
+    action: (vl) => {
+      automaticCreate.value = {
+        actionSlot: "import-groups",
+        item: vl,
+      };
+      OpenThedrawer(vl, "import-groups");
+      drawerTitle.value = { title: "import groups", width: "w-1/2" }
+    },
+  },
+  {
+    label: "import group members",
     action: (vl) => {
       automaticCreate.value = {
         actionSlot: "import-group-account-member",
@@ -216,6 +228,7 @@ const exportItems = ref([
       drawerTitle.value = { title: "import group member", width: "w-1/2" }
     },
   },
+
 ])
 
 watch(
