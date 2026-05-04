@@ -87,24 +87,24 @@ export const tenantRoutes: MenuRoutes[] = [
             label: 'Staff',
             component: () => import('@/tenant/modules/staff/Index.vue'),
           },
-            {
-            path: 'staff-salaries',
-            label: 'Staff Salaries',
-            showSideBar: true,
-            component: () => import('@/tenant/components/globals/ComingSoon.vue'),
-          },
-          {
-            path: 'staff-advances',
-            label: 'Staff Advances',
-            showSideBar: true,
-            component: () => import('@/tenant/components/globals/ComingSoon.vue'),
-          },
-          {
-            path: 'staff-allowances',
-            label: 'Staff Allowances',
-            showSideBar: true,
-            component: () => import('@/tenant/components/globals/ComingSoon.vue'),
-          },
+          //   {
+          //   path: 'staff-salaries',
+          //   label: 'Staff Salaries',
+          //   showSideBar: true,
+          //   component: () => import('@/tenant/components/globals/ComingSoon.vue'),
+          // },
+          // {
+          //   path: 'staff-advances',
+          //   label: 'Staff Advances',
+          //   showSideBar: true,
+          //   component: () => import('@/tenant/components/globals/ComingSoon.vue'),
+          // },
+          // {
+          //   path: 'staff-allowances',
+          //   label: 'Staff Allowances',
+          //   showSideBar: true,
+          //   component: () => import('@/tenant/components/globals/ComingSoon.vue'),
+          // },
         ],
       },
     
