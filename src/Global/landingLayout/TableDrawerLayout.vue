@@ -177,6 +177,7 @@ const props = defineProps({
     drawerRemount: { type: Boolean, required: false, default: true },
     state: { type: String, required: false },
     url: { type: String, required: false },
+    method: { type: String, required: false },
     // module: { type: String, required: false },
     /**
      * {

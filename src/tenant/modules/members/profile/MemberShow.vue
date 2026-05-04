@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeMount } from 'vue';
+import { ref, computed, onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
 import { toast } from 'vue-sonner';
 import { storeToRefs } from 'pinia';
@@ -31,13 +31,17 @@ const {
     approving, rejecting, approveMember, rejectMember,
     deleting, deleteMember,
 } = useMember();
-const profileDetails = ref<any>(null)
+interface ProfileDetails {
+    details: Record<string, unknown>;
+    accounts: unknown[];
+}
+const profileDetails = ref<ProfileDetails | null>(null)
 
 
 async function initialize() {
     pageLoading.value = true;
     const details = await getMemberProfileDetail({})
-    let data: any = {};
+    const data: Record<string, unknown> = {};
     const { member_details, member_accounts } = details
     // const accounts = details.member_accounts
     for (const key in member_details) {
@@ -59,8 +63,8 @@ onBeforeMount(() => {
 const tabs = computed(() => [
     { id: 'profile', label: 'Profile', icon: UserCircle2, count: null },
     { id: 'transactions', label: 'Transactions', icon: FileText, count: member.transactions?.length || 0 },
-    { id: 'savings', label: 'Savings', icon: TrendingUp, count: member.transactions?.filter((t: any) => t.type?.toLowerCase() === 'deposit').length || 0 },
-    { id: 'withdrawal', label: 'Withdrawal', icon: MinusCircle, count: member.transactions?.filter((t: any) => ['withdrawal', 'withdraw'].includes(t.type?.toLowerCase())).length || 0 },
+    { id: 'savings', label: 'Savings', icon: TrendingUp, count: member.transactions?.filter((t: { type?: string }) => t.type?.toLowerCase() === 'deposit').length || 0 },
+    { id: 'withdrawal', label: 'Withdrawal', icon: MinusCircle, count: member.transactions?.filter((t: { type?: string }) => ['withdrawal', 'withdraw'].includes(t.type?.toLowerCase())).length || 0 },
     { id: 'loans', label: 'Loans', icon: Wallet, count: member.loans?.length || 0 },
     { id: 'shares', label: 'Shares', icon: BarChart3, count: null },
     { id: 'statement', label: 'Statement', icon: Printer, },
@@ -73,10 +77,10 @@ const customFeeDrawer = ref<InstanceType<typeof CustomFeeDrawer> | null>(null);
 
 // ── Transaction reversal ────────────────────────────────────────────────────
 const showTxnDeleteDialog = ref(false);
-const txnToDelete = ref<any>(null);
+const txnToDelete = ref<{ id: number; reference: string; is_reversed: boolean; type: string; is_reversible: boolean } | null>(null);
 const isDeletingTxn = ref(false);
 
-const confirmDeleteTxn = (txn: any) => {
+const confirmDeleteTxn = (txn: { id: number; reference: string; is_reversed: boolean; type: string; is_reversible: boolean }) => {
     if (txn.is_reversed || txn.type === 'reversal' || txn.is_reversible === false) return;
     txnToDelete.value = txn;
     showTxnDeleteDialog.value = true;
@@ -92,17 +96,32 @@ const executeDeleteTxn = async () => {
         txnToDelete.value = null;
         // Refresh member data so balances and the full transaction list are up to date
         fetchMember(true);
-    } catch (error: any) {
-        toast.error(error?.response?.data?.message || 'Failed to reverse transaction.');
+    } catch (error: unknown) {
+        const err = error as { response?: { data?: { message?: string } } };
+        toast.error(err?.response?.data?.message || 'Failed to reverse transaction.');
     } finally {
         isDeletingTxn.value = false;
     }
 };
 
 // ── Receipt printing ─────────────────────────────────────────────────────────
-const printingTxn = ref<any>(null);
+const printingTxn = ref<{
+    type: string;
+    reference: string;
+    amount: number;
+    amount_formatted?: string;
+    charge?: number;
+    deposited_by?: string;
+} | null>(null);
 
-const printReceipt = (txn: any) => {
+const printReceipt = (txn: {
+    type: string;
+    reference: string;
+    amount: number;
+    amount_formatted?: string;
+    charge?: number;
+    deposited_by?: string;
+}) => {
     printingTxn.value = txn;
     setTimeout(() => {
         document.body.classList.add('receipt-print');
@@ -230,30 +249,30 @@ const columns = [
 
                         <!-- Transactions tab -->
                         <MemberTransactionsTab v-show="activeTab === 'transactions'" :transactions="member.transactions"
-                            mode="all" action-color="bg-[#cda434]" :format-date="formatDate"
+                            mode="all" action-color="bg-[#cda434]" :format-date="formatDate" :show-table="false"
                             :format-date-time="formatDateTime" :format-currency="formatCurrency" @print="printReceipt"
                             @reverse="confirmDeleteTxn" />
 
                         <!-- Savings tab -->
                         <MemberTransactionsTab v-show="activeTab === 'savings'" :transactions="member.transactions"
-                            mode="deposit" action-color="bg-[#16a34a]" :show-account-column="true"
+                            mode="deposit" action-color="bg-[#16a34a]" :show-account-column="true" :show-table="false"
                             :format-date="formatDate" :format-date-time="formatDateTime"
                             :format-currency="formatCurrency" @print="printReceipt" @reverse="confirmDeleteTxn"
                             @open-drawer="depositDrawer?.open('deposit')" />
 
                         <!-- Withdrawal tab -->
                         <MemberTransactionsTab v-show="activeTab === 'withdrawal'" :transactions="member.transactions"
-                            mode="withdrawal" action-color="bg-[#ea580c]" :show-account-column="true"
+                            mode="withdrawal" action-color="bg-[#ea580c]" :show-account-column="true" :show-table="false"
                             :format-date="formatDate" :format-date-time="formatDateTime"
                             :format-currency="formatCurrency" @print="printReceipt" @reverse="confirmDeleteTxn"
                             @open-drawer="depositDrawer?.open('withdraw')" />
 
                         <MemberTransactionsTab v-show="activeTab === 'shares'" :transactions="member.transactions"
-                            mode="share-transaction" action-color="bg-[#ea580c]" :show-account-column="true"
+                            mode="share-transaction" action-color="bg-[#ea580c]" :show-account-column="true" :show-table="false"
                             :format-date="formatDate" :format-date-time="formatDateTime"
                             :format-currency="formatCurrency" @print="printReceipt" @reverse="confirmDeleteTxn"
                             @open-drawer="depositDrawer?.open('withdraw')" />
-                        <MemberLoansTab :loans="member.Loans" v-if="activeTab === 'loans'" :formatDate="formatDate"
+                        <MemberLoansTab :loans="member.loans" v-if="activeTab === 'loans'" :formatDate="formatDate"
                             :formatDateTime="formatDateTime" :formatCurrency="formatCurrency" actionColor="bg-[#cda434]"
                             @view="() => { }" />
                             

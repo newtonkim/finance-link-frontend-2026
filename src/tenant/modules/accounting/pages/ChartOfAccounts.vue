@@ -21,12 +21,15 @@ interface Account {
   ifrs_category: string | null
 }
 interface Meta { current_page: number; last_page: number; total: number }
+type AccountType = 'ASSET' | 'LIABILITY' | 'EQUITY' | 'INCOME' | 'EXPENSE'
+type AccountTypeFilter = 'ALL' | AccountType
 
 // ─── State ────────────────────────────────────────────────────────────────────
 const accounts  = ref<Account[]>([])
 const meta      = ref<Meta>({ current_page: 1, last_page: 1, total: 0 })
 const loading   = ref(false)
 const search    = ref('')
+const typeFilter = ref<AccountTypeFilter>('ALL')
 const showForm  = ref(false)
 let   timer: ReturnType<typeof setTimeout> | null = null
 
@@ -34,9 +37,28 @@ let   timer: ReturnType<typeof setTimeout> | null = null
 async function fetchAccounts(page = 1) {
   loading.value = true
   try {
-    const res = await chartOfAccountsApi.list({ search: search.value || undefined, page })
+    const res = await chartOfAccountsApi.list({
+      search: search.value || undefined,
+      page,
+      account_type: typeFilter.value === 'ALL' ? undefined : typeFilter.value
+    })
     accounts.value = res.data?.data ?? []
-    if (res.data?.meta) meta.value = res.data.meta
+
+    if (res.data?.meta) {
+      meta.value = {
+        current_page: Number(res.data.meta.current_page ?? 1),
+        last_page: Number(res.data.meta.last_page ?? 1),
+        total: Number(res.data.meta.total ?? accounts.value.length),
+      }
+    } else if (res.data?.current_page) {
+      meta.value = {
+        current_page: Number(res.data.current_page ?? 1),
+        last_page: Number(res.data.last_page ?? 1),
+        total: Number(res.data.total ?? accounts.value.length),
+      }
+    } else {
+      meta.value = { current_page: 1, last_page: 1, total: accounts.value.length }
+    }
   } finally {
     loading.value = false
   }
@@ -46,6 +68,8 @@ watch(search, () => {
   if (timer) clearTimeout(timer)
   timer = setTimeout(() => fetchAccounts(1), 400)
 })
+
+watch(typeFilter, () => fetchAccounts(1))
 
 onMounted(() => fetchAccounts(1))
 
@@ -70,6 +94,18 @@ function toggleGroup(type: string) {
 const pages = computed(() =>
   Array.from({ length: meta.value.last_page }, (_, i) => i + 1),
 )
+const canGoPrev = computed(() => meta.value.current_page > 1)
+const canGoNext = computed(() => meta.value.current_page < meta.value.last_page)
+
+function goPrev() {
+  if (!canGoPrev.value) return
+  fetchAccounts(meta.value.current_page - 1)
+}
+
+function goNext() {
+  if (!canGoNext.value) return
+  fetchAccounts(meta.value.current_page + 1)
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const typeColors: Record<string, string> = {
@@ -87,6 +123,15 @@ const typeLabel: Record<string, string> = {
   INCOME:    'Income',
   EXPENSE:   'Expenses',
 }
+
+const typeFilters: Array<{ value: AccountTypeFilter; label: string }> = [
+  { value: 'ALL', label: 'All' },
+  { value: 'ASSET', label: 'Assets' },
+  { value: 'LIABILITY', label: 'Liabilities' },
+  { value: 'EQUITY', label: 'Equity' },
+  { value: 'INCOME', label: 'Income' },
+  { value: 'EXPENSE', label: 'Expenses' },
+]
 </script>
 
 <template>
@@ -117,6 +162,22 @@ const typeLabel: Record<string, string> = {
         placeholder="Search by code or name..."
         class="w-full rounded-full border border-neutral-200 bg-white py-2.5 pl-11 pr-4 text-sm outline-none transition focus: border-nfuko-primary focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
       />
+    </div>
+
+    <!-- Type Filter -->
+    <div class="flex flex-wrap items-center gap-2">
+      <button
+        v-for="opt in typeFilters"
+        :key="opt.value"
+        type="button"
+        @click="typeFilter = opt.value"
+        class="rounded-full px-3 py-1.5 text-xs font-semibold transition-colors"
+        :class="typeFilter === opt.value
+          ? 'bg-nfuko-primary text-white'
+          : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700'"
+      >
+        {{ opt.label }}
+      </button>
     </div>
 
     <!-- Loading -->
@@ -241,7 +302,18 @@ const typeLabel: Record<string, string> = {
         <p class="text-xs text-neutral-400">
           Page {{ meta.current_page }} of {{ meta.last_page }} ({{ meta.total }} accounts)
         </p>
-        <div class="flex gap-1">
+        <div class="flex items-center gap-1">
+          <button
+            type="button"
+            @click="goPrev"
+            :disabled="!canGoPrev"
+            class="h-8 rounded-lg px-3 text-xs font-medium transition-colors"
+            :class="canGoPrev
+              ? 'text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+              : 'cursor-not-allowed text-neutral-300 dark:text-neutral-700'"
+          >
+            Prev
+          </button>
           <button
             v-for="page in pages"
             :key="page"
@@ -250,6 +322,17 @@ const typeLabel: Record<string, string> = {
             :class="page === meta.current_page ? ' bg-nfuko-primary text-white' : 'text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800'"
           >
             {{ page }}
+          </button>
+          <button
+            type="button"
+            @click="goNext"
+            :disabled="!canGoNext"
+            class="h-8 rounded-lg px-3 text-xs font-medium transition-colors"
+            :class="canGoNext
+              ? 'text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+              : 'cursor-not-allowed text-neutral-300 dark:text-neutral-700'"
+          >
+            Next
           </button>
         </div>
       </div>

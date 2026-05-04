@@ -24,6 +24,7 @@ export function dateTime(time: string) {
   return tryCatch(() => {
     if (`${time}`.trim()?.length < 9) return ''
     const date = new Date(time)
+    if (isNaN(date.getTime())) return ''
     const formatted = date.toISOString().replace('T', ' ').substring(0, 19)
     return formatted
   })
@@ -33,6 +34,7 @@ export function date(time: string) {
     if (`${time}`.trim()?.length < 9) return ''
 
     const date = new Date(time)
+    if (isNaN(date.getTime())) return ''
     const formatted = date.toISOString().split('T')[0]
     return formatted
   })
@@ -442,6 +444,10 @@ export function formDataFormat(data: any) {
   for (const key in data) {
     const value = data[key]
 
+    if (value === null || value === undefined || value === 'null' || value === 'undefined' || value === '') {
+      continue
+    }
+
     if (Array.isArray(value)) {
       // Handle arrays
       value.forEach((element, index) => {
@@ -466,9 +472,13 @@ export function formDataFormat(data: any) {
       formData.append(`${lowerCaseKeys}`.toLocaleLowerCase(), JSON.stringify(value))
     } else {
       const lowerCaseKeys = `${key}`.toLocaleLowerCase().replace('+S', '_')
-      // Handle primitive values and Files
-
-      formData.append(lowerCaseKeys, value)
+      
+      // Convert booleans to something FormData handles well (strings "true"/"false")
+      if (typeof value === 'boolean') {
+        formData.append(lowerCaseKeys, value ? 'true' : 'false')
+      } else {
+        formData.append(lowerCaseKeys, value)
+      }
     }
   }
   const branch_id = getLocalValues('activeBranch')
@@ -646,7 +656,13 @@ export function getTenantSubdomain(): string | null {
   const centralDomain = (import.meta.env.VITE_BASE_URL as string)
     ?.replace(/^https?:\/\//, '')
     .replace(/\/$/, '')
+    .split(':')[0] // Strip port if present
     .toLowerCase()
+
+  // Fallback for local development on localhost
+  if (!centralDomain && hostname.endsWith('.localhost')) {
+    return hostname.split('.')[0]
+  }
 
   // If hostname exactly matches central domain → not a tenant
   if (!centralDomain || hostname === centralDomain) return null
@@ -655,7 +671,7 @@ export function getTenantSubdomain(): string | null {
   // e.g. "abc.staging.mfukoplus.com" or "abc.mfukoplus.com"
   if (hostname.endsWith(`.${centralDomain}`)) {
     const subdomain = hostname.slice(0, -(centralDomain.length + 1))
-    if (!subdomain || ['admin', 'www', 'localhost'].includes(subdomain)) return null
+    if (!subdomain || ['admin', 'www', 'localhost', 'api', 'central'].includes(subdomain)) return null
     return subdomain
   }
 

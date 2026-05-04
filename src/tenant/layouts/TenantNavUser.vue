@@ -13,8 +13,12 @@ import {
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/Global/ui/sidebar'
 import { useTenantUserStore } from '@/stores/tenantUserStore'
 import { useBranchStore } from '@/stores/branchStore'
+import { useAuthStore } from '@/stores/auth'
+import { useProfileStore } from '@/stores/profileStore'
 
 const router = useRouter()
+const authStore = useAuthStore()
+const profileStore = useProfileStore()
 const store = useTenantUserStore()
 const branchStore = useBranchStore()
 const { isMobile, state } = useSidebar()
@@ -32,10 +36,17 @@ const initials = computed(() => {
     .join('')
 })
 
-const logout = () => {
+const logout = async () => {
+  const res = await authStore.logout()
   store.clear()
+  profileStore.clear()
   branchStore.clear()
-  router.push('/tenant/login')
+  
+  if (res?.data?.redirect_url) {
+    router.push(res.data.redirect_url)
+  } else {
+    router.push('/tenant/login')
+  }
 }
 </script>
 
