@@ -273,6 +273,7 @@ const fields = ref<any[]>([
     type: 'date',
     required: true,
     max: new Date().toISOString().split('T')[0],
+    value: new Date().toISOString().split('T')[0],
     placeholder: 'join date ',
   },
   {

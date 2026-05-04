@@ -135,11 +135,12 @@ watch(props, async (newVal) => {
             selectOption(filteredOptions.value[newVal.selectDefaultIndex ?? 0])
      },1000)
     }
-    if (newVal?.selectOnOneItem && filteredOptions.value?.length === 1) {
+    if (newVal?.selectOnOneItem ) {
+        
         if (filteredOptions.value?.length < 1) {
             setTimeout(() => {
                 selectOption(filteredOptions.value[0]);
-            }, 2000)
+            }, 3000)
         } else
             selectOption(filteredOptions.value[0])
     }
