@@ -12,6 +12,17 @@
     @save="saveExpense"
     :showTableAction="true"
   >
+   <template #add-action="">
+
+        <Button v-if="mode === 'Categories'" @click="OpenThedrawer('create category')" class="bg-nfuko-action text-white shadow-md">
+            <Plus class="w-4 h-4 mr-2" />
+            New Category
+        </Button>
+        <Button v-else @click="OpenThedrawer('record expense')" class="bg-nfuko-primary text-white shadow-md">
+            <Plus class="w-4 h-4 mr-2" />
+            Record Expense
+        </Button>
+      </template>
     <template #sub-header>
       <AnalysisTile v-if="mode !== 'Categories'" :data="stats" grid-class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-3" />
     </template>
@@ -56,15 +67,8 @@
           @update:modelValue="(e) => { expenseStatus = e }"
         />
 
-        <Button v-if="mode === 'Categories'" @click="OpenThedrawer('create category')" class="bg-nfuko-action text-white shadow-md">
-            <Plus class="w-4 h-4 mr-2" />
-            New Category
-        </Button>
-        <Button v-else @click="OpenThedrawer('record expense')" class="bg-nfuko-primary text-white shadow-md">
-            <Plus class="w-4 h-4 mr-2" />
-            Record Expense
-        </Button>
       </div>
+     
     </template>
     <template #status="{ item }">
       <Badge :variant="getStatusVariant(item.status) as any" :class="getStatusClass(item.status)">
