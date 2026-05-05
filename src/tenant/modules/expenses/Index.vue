@@ -1,54 +1,49 @@
 <template>
-  <TableDrawer
-    :automaticCreate="false"
-    ref="drawer"
-    drawerWidth="w-1/2"
-    :show-add-button="false"
-    :url="tableUrl"
-    method="get"
-    state="expenseList"
-    :drawerTitle="automaticCreate?.[activeAction]?.['title'] ?? 'Expense Management'"
-    :columns="columns"
-    @save="saveExpense"
-    :showTableAction="true"
-  >
+  <div class="h-full">
+    <BudgetManager v-if="mode === 'Budgets'" v-model:mode="mode" />
+    <ExpenseReports v-else-if="mode === 'Reports'" />
+    <TableDrawer
+      v-else
+      :automaticCreate="false"
+      ref="drawer"
+      drawerWidth="w-1/2"
+      :show-add-button="false"
+      :url="tableUrl"
+      method="get"
+      state="expenseList"
+      :drawerTitle="automaticCreate?.[activeAction]?.['title'] ?? 'Expense Management'"
+      :columns="columns"
+      @save="saveExpense"
+      :showTableAction="true"
+    >
     <template #sub-header>
-      <AnalysisTile v-if="mode !== 'Categories'" :data="stats" grid-class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-3" />
+      <AnalysisTile v-if="mode !== 'Categories'" :data="stats" grid-class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" />
     </template>
     <template #header-action>
       <PainPageHeader title="Expense Management" dec="Record and track all institutional expenses." />
     </template>
     <template #searchSideAction>
       <div class="flex items-center gap-3">
-        <!-- Mode Switcher (Expenses vs Categories) -->
+        <!-- Mode Switcher -->
         <div class="flex p-1 bg-neutral-100 dark:bg-neutral-900 rounded-lg gap-1 border border-neutral-200 dark:border-neutral-700">
           <button 
-            @click="mode = 'Expenses'"
+            v-for="m in (['Expenses', 'Categories', 'Budgets', 'Reports'] as const)"
+            :key="m"
+            @click="mode = m"
             :class="[
               'px-4 py-1 text-xs font-bold rounded-md transition-all duration-200',
-              mode !== 'Categories' 
+              mode === m 
                 ? 'bg-nfuko-primary text-white shadow-sm' 
                 : 'text-neutral-400 hover:text-neutral-600'
             ]"
           >
-            Expenses
-          </button>
-          <button 
-            @click="mode = 'Categories'"
-            :class="[
-              'px-4 py-1 text-xs font-bold rounded-md transition-all duration-200',
-              mode === 'Categories' 
-                ? 'bg-nfuko-action text-white shadow-sm' 
-                : 'text-neutral-400 hover:text-neutral-600'
-            ]"
-          >
-            Categories
+            {{ m }}
           </button>
         </div>
 
         <!-- Status Filters (Only for Expenses) -->
         <StatusButtonsHorizontal
-          v-if="mode !== 'Categories'"
+          v-if="mode === 'Expenses'"
           v-memo="[mode, expenseStatus]"
           :maxLength="10"
           :filters="['All', 'Pending', 'Approved', 'Paid', 'Rejected']"
@@ -60,7 +55,7 @@
             <Plus class="w-4 h-4 mr-2" />
             New Category
         </Button>
-        <Button v-else @click="OpenThedrawer('record expense')" class="bg-nfuko-primary text-white shadow-md">
+        <Button v-else-if="mode === 'Expenses'" @click="OpenThedrawer('record expense')" class="bg-nfuko-primary text-white shadow-md">
             <Plus class="w-4 h-4 mr-2" />
             Record Expense
         </Button>
@@ -74,39 +69,52 @@
     
     <template #actions="{ item }">
       <div class="flex justify-center gap-2">
-        <button v-if="item.status === 'Pending'" @click="handleApprove(item)" title="Approve" class="flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-600 transition-colors hover:bg-emerald-100">
-          <CheckCircle class="w-4 h-4" /> Approve
+        <button v-if="item.status === 'Pending'" @click="OpenThedrawer('review', item)" title="Review" class="flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-600 transition-colors hover:bg-amber-100">
+          <HelpCircle class="w-4 h-4" /> Review
         </button>
         <button v-if="item.status === 'Approved'" @click="OpenThedrawer('pay', item)" title="Pay" class="flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-600 transition-colors hover:bg-blue-100">
           <Wallet class="w-4 h-4" /> Pay
         </button>
-        <button v-if="item.status === 'Pending'" @click="OpenThedrawer('record expense', item)" title="Edit" class="flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-blue-600 transition-colors hover:bg-blue-100">
+        <button v-if="['Pending', 'Draft'].includes(item.status)" @click="OpenThedrawer('record expense', item)" title="Edit" class="flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-blue-600 transition-colors hover:bg-blue-100">
           <Edit class="w-4 h-4" />
         </button>
       </div>
     </template>
 
     <template #drawer="{ action, data }">
-      <component :is="drawerComponent" :data="{ ...data, action }" v-model:form="formData" />
+      <component 
+        :is="drawerComponent" 
+        :data="{ ...data, action }" 
+        v-model:form="formData" 
+        @approve="(comments) => handleApprove(data, comments)"
+        @reject="(comments) => handleReject(data, comments)"
+        @query="(comments) => handleQuery(data, comments)"
+      />
     </template>
   </TableDrawer>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import { Plus, CheckCircle, Wallet, Edit } from 'lucide-vue-next'
+import { useRoute } from 'vue-router'
+import { Plus, CheckCircle, Wallet, Edit, HelpCircle, Banknote, Clock, PieChart, AlertCircle } from 'lucide-vue-next'
 import { TableDrawer, AnalysisTile, PainPageHeader, StatusButtonsHorizontal, Badge, Button, scopeValues } from '@/Global'
 import ExpenseForm from './components/ExpenseForm.vue'
 import CategoryForm from './components/CategoryForm.vue'
 import PayExpenseForm from './components/PayExpenseForm.vue'
+import BudgetManager from './components/BudgetManager.vue'
+import ExpenseReviewForm from './components/ExpenseReviewForm.vue'
+import ExpenseReports from './components/ExpenseReports.vue'
 import { useExpenseApi } from '@/tenant/apis/expenses/expenseApi'
 import { formawtacher } from '@/Global/Forminputs/formWatcher'
 
-const { createExpense, createExpenseCategory, getExpenseStats, approveExpense, payExpense, updateExpense } = useExpenseApi()
+const route = useRoute()
+const { createExpense, createExpenseCategory, getExpenseStats, approveExpense, rejectExpense, queryExpense, payExpense, updateExpense } = useExpenseApi()
 const formStore = formawtacher()
 const drawer = ref<any>(null)
 const formData = ref<any>({})
-const mode = ref<'Expenses' | 'Categories'>('Expenses')
+const mode = ref<'Expenses' | 'Categories' | 'Budgets' | 'Reports'>((route.query.mode as any) || 'Expenses')
 const expenseStatus = ref<'All' | 'Pending' | 'Approved' | 'Paid' | 'Rejected'>('All')
 const activeAction = ref<string>('record expense')
 const expenseStats = ref<any>({ total_spent: 0, budget_remaining: 0, pending_approvals: 0 })
@@ -126,6 +134,11 @@ const automaticCreate = ref<any>({
     title: 'Create Expense Category',
     component: CategoryForm,
     action: (data: any) => submitCategory(data)
+  },
+  'review': {
+    title: 'Review Expense',
+    component: ExpenseReviewForm,
+    action: null // Handled via component emits
   },
   'approve': {
     title: 'Approve Expense',
@@ -150,7 +163,7 @@ const columns = computed(() => {
   }
   return [
     { key: 'title', label: 'Expense Title', sticky: 'left', copy: true },
-    { key: 'reference_no', label: 'Ref #', copy: true },
+    { key: 'reference_no', label: 'Ref #', copy: true, class: 'font-mono text-[10px]' },
     { key: 'category_name', label: 'Category' },
     { key: 'vendor_name', label: 'Vendor/Recipient' },
     { key: 'amount', label: 'Amount', type: 'money' },
@@ -205,11 +218,34 @@ async function submitCategory(data: any) {
   }
 }
 
-async function handleApprove(data: any) {
+async function handleApprove(data: any, comments: string = '') {
     formStore.loading = true
-    const result = await approveExpense(data.id)
+    const result = await approveExpense(data.id, { comments })
     formStore.loading = false
     if (isSuccessful(result)) {
+        drawer.value?.toggleDrawer()
+        drawer.value?.refresh()
+        fetchStats()
+    }
+}
+
+async function handleReject(data: any, comments: string) {
+    formStore.loading = true
+    const result = await rejectExpense(data.id, comments)
+    formStore.loading = false
+    if (isSuccessful(result)) {
+        drawer.value?.toggleDrawer()
+        drawer.value?.refresh()
+        fetchStats()
+    }
+}
+
+async function handleQuery(data: any, comments: string) {
+    formStore.loading = true
+    const result = await queryExpense(data.id, comments)
+    formStore.loading = false
+    if (isSuccessful(result)) {
+        drawer.value?.toggleDrawer()
         drawer.value?.refresh()
         fetchStats()
     }
@@ -236,8 +272,8 @@ function saveExpense(type: string, data: any) {
     const cleanData = Array.isArray(data) ? scopeValues(data) : data
 
     if (activeAction.value === 'pay') {
-        // For 'pay', formData holds the original record, and 'cleanData' holds the new form values
-        action(formData.value, cleanData)
+        // For 'pay', formData holds the original record and the new form values
+        action(formData.value, { ...formData.value, ...cleanData })
     } else if (['record expense', 'create category'].includes(activeAction.value)) {
         // For these, 'cleanData' is the new form values
         action(cleanData)
@@ -254,45 +290,52 @@ function getStatusVariant(status: string) {
     'Approved': 'secondary',
     'Paid': 'default',
     'Rejected': 'destructive',
-    'Draft': 'secondary'
+    'Draft': 'secondary',
+    'Queried': 'outline'
   }
   return variants[status] || 'secondary'
 }
 
 function getStatusClass(status: string) {
   const classes: Record<string, string> = {
+    'Draft': 'bg-neutral-50 text-neutral-500 border-neutral-200',
     'Pending': 'bg-amber-50 text-amber-700 border-amber-200',
-    'Approved': 'bg-blue-50 text-blue-700 border-blue-200',
-    'Paid': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    'Approved': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    'Paid': 'bg-blue-50 text-blue-700 border-blue-200',
     'Rejected': 'bg-rose-50 text-rose-700 border-rose-200',
+    'Queried': 'bg-orange-50 text-orange-700 border-orange-200',
   }
   return classes[status] || ''
 }
 
 const stats = computed(() => [
   {
-    title: 'Total Spent (Month)',
-    value: expenseStats.value.total_spent, 
-    trendColor: 'text-rose-500',
-    bgColor: 'bg-rose-50',
-    iconColor: 'text-rose-600',
-    type: 'money'
-  },
-  {
-    title: 'Budget Remaining',
-    value: expenseStats.value.budget_remaining, 
-    trendColor: 'text-emerald-500',
-    bgColor: 'bg-emerald-50',
-    iconColor: 'text-emerald-600',
-    type: 'money'
-  },
-  {
     title: 'Pending Approvals',
     value: expenseStats.value.pending_approvals, 
-    trendColor: 'text-amber-500',
-    bgColor: 'bg-amber-50',
-    iconColor: 'text-amber-600',
+    trendColor: 'text-nfuko-yellow',
+    bgColor: 'bg-nfuko-yellow/10',
+    iconColor: 'text-nfuko-yellow',
+    icon: Clock,
     type: 'number'
+  },
+  {
+    title: 'Budget Utilisation',
+    value: expenseStats.value.budget_utilisation_pct || 0, 
+    suffix: '%',
+    trendColor: (expenseStats.value.budget_utilisation_pct > 90) ? 'text-nfuko-red' : 'text-nfuko-green',
+    bgColor: 'bg-nfuko-green/10',
+    iconColor: 'text-nfuko-green',
+    icon: PieChart,
+    type: 'number'
+  },
+  {
+    title: 'Unreconciled Amount',
+    value: expenseStats.value.unreconciled_amount || 0, 
+    trendColor: 'text-nfuko-gray',
+    bgColor: 'bg-nfuko-gray/10',
+    iconColor: 'text-nfuko-gray',
+    icon: AlertCircle,
+    type: 'money'
   }
 ])
 

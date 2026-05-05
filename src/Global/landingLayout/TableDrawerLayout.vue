@@ -112,7 +112,7 @@
 <script setup>
 import Pagination from '@/Global/Pagination.vue';
 import Drawer from '../Drawer/Drawer.vue';
-import { Plus } from 'lucide-vue-next';
+import { Plus, Printer } from 'lucide-vue-next';
 import ConfirmationDialog from '../confirmationDialog/confirmationDialog.vue';
 import Searchbar from './Components/Searchbar.vue';
 import { Imploading, UploadTemplateColumn, uploadTemplateColumData, sizePapers, } from '@/Global';
