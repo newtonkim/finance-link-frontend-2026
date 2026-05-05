@@ -21,8 +21,9 @@
       <div class="">
         <form @submit.prevent="handleSave" class="flex flex-col h-screen">
           <div
-            class="  px-4 py-1  border-b border-neutral-100 dark:border-neutral-800 max-h-[calc(100vh-150px)] overflow-auto"
+            class="  px-4 py-1  border-b border-neutral-100 dark:border-neutral-800 max-h-[calc(100vh-100px)] overflow-auto"
           >
+            <!-- class="  px-4 py-1  border-b border-neutral-100 dark:border-neutral-800 max-h-[calc(100vh-150px)] overflow-auto" -->
             <slot name="body" />
           </div>
           <SheetFooter
