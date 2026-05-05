@@ -1,5 +1,6 @@
 import type { RouteRecordRaw } from 'vue-router'
 // /Users/nazil/Desktop/Nugu soft/mfukopro-be-fe/Frontend/src/tenant/modules/settings/routes.ts
+const ActionLogs = () => import('@/tenant/modules/settings/compliance-audit/Index.vue')
 const memberspermissions = () => import('./roles-permission/index.vue')
 const Settings = () => import('./pages/Settings.vue')
 const SettingsDashboard = () => import('./pages/SettingsDashboard.vue')
@@ -96,6 +97,21 @@ export const settingsRoutes: RouteRecordRaw[] = [
       {
         path: 'members-roles-permission',
         name: 'tenant-settings-members-roles-permission',
+        component: memberspermissions,
+      },
+      {
+        path: 'tenant-compliance-aml',
+        name: 'tenant-compliance-aml',
+        component: memberspermissions,
+      },
+      {
+        path: 'tenant-compliance-audit-logs',
+        name: 'tenant-compliance-audit-logs',
+        component: ActionLogs,
+      },
+      {
+        path: 'tenant-compliance-reports',
+        name: 'tenant-compliance-reports',
         component: memberspermissions,
       },
       {
