@@ -4,13 +4,11 @@
     view: 'group-saving-details',
     edit: 'group-saving-update',
     delete: 'group-saving-delete'
-  }" :showTableAction="true" :drawerRemount="drawerRemount" :exportItems="exportItems"  
-  :drawer-show-footer="triger"
-   :automaticCreate="automaticCreate.actionSlot != 'create-none-member'"
-    :drawerWidth="drawerTitle?.width" :url="tableUrl" state="groupAccountList"
-    :drawerTitle="drawerTitle?.title" :columns="columns" @save="saveUser" ref="drawer">
+  }" :showTableAction="true" :drawerRemount="drawerRemount" :exportItems="exportItems" :drawer-show-footer="triger"
+    :automaticCreate="automaticCreate.actionSlot != 'create-none-member'" :drawerWidth="drawerTitle?.width"
+    :url="tableUrl" state="groupAccountList" :drawerTitle="drawerTitle?.title" :columns="columns" @save="saveUser"
+    ref="drawer">
     <template #header-action>
- <!-- :automaticCreate="automaticCreate.actionSlot != 'create-none-member'" -->
       <div class="space-y-3">
         <PainPageHeader title="Group Savings"
           dec="Manage and monitor institutional savings groups, their membership tiers, and overall performance." />
@@ -38,13 +36,15 @@
       <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
     </template>
     <template #drawer="{ action, data }">
-         <uploadTemplateColumData upload-trick="row" v-if="
+      <uploadTemplateColumData upload-trick="row" v-if="
         [
           'import-group-account-savings',
           'import-group-account-member',
-           
+          'import-groups'
+
         ].includes((automaticCreate as any).actionSlot)
-      " :title="(automaticCreate as any)?.actionSlot" :url="`/group-account-savings/${(automaticCreate as any)?.actionSlot}`"
+      " :title="(automaticCreate as any)?.actionSlot"
+        :url="`/group-account-savings/${(automaticCreate as any)?.actionSlot}`"
         :submit-url="(automaticCreate as any).actionSlot" submit="import" />
 
       <GroupTemplate v-if="'download-group-savings-template' == automaticCreate.actionSlot" />
@@ -59,8 +59,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { pomPinia } from 'septor-store';
-import { Create, Details, AddGroupTab, GroupTemplate ,SavingGroupMemberTemplate} from '.'
-import { TableDrawer, StatusButtonsHorizontal, addNumberCommas, AnalysisTile, PainPageHeader, TabelActionButtons, setLocalValues, CopyData,uploadTemplateColumData } from '@/Global'
+import { Create, Details, AddGroupTab, GroupTemplate, SavingGroupMemberTemplate } from '.'
+import { TableDrawer, StatusButtonsHorizontal, addNumberCommas, AnalysisTile, PainPageHeader, TabelActionButtons, setLocalValues, CopyData, uploadTemplateColumData } from '@/Global'
 import { useRouter } from 'vue-router';
 import { groupSavingsApi } from '@/tenant/apis/savings/group-savingsApi';
 const Store = pomPinia();
@@ -111,7 +111,7 @@ const stats = computed(() => [
   {
     title: 'Total Group',
     value: addNumberCommas(
-      (Store as any).$state?.groupAccountList?.payload?.total_analysis?.total_groups ?? 0
+      (Store as any).groupAccountList?.payload?.total_analysis?.total_groups ?? 0
     ),
     trendColor: 'text-emerald-500',
     bgColor: 'bg-[#f0f9f6]',
@@ -120,7 +120,7 @@ const stats = computed(() => [
   {
     title: 'Active Group',
     value: addNumberCommas(
-      (Store as any).$state?.groupAccountList?.payload?.total_analysis?.active_groups ?? 0
+      (Store as any).groupAccountList?.payload?.total_analysis?.active_groups ?? 0
     ),
     trendColor: 'text-emerald-500',
     bgColor: 'bg-[#f0f9f6]',
@@ -176,14 +176,13 @@ watch(() => drawer.value?.drawerOpen, (val) => {
 })
 
 const triger = computed(() => {
-  return !['download-group-savings-template','download-group-member-template','import-group-account-member','import-group-account-savings'].includes(automaticCreate.value.actionSlot)
+  return !['download-group-savings-template', 'download-group-member-template', 'import-group-account-member', 'import-group-account-savings','import-groups'].includes(automaticCreate.value.actionSlot)
 })
 function navigateToProfile(item: any) {
 
   router.push(`/tenant/group-savings/profile`)
   setLocalValues('groupProfile' as any, item)
 }
-
 const exportItems = ref([
   {
     label: "Group savings Template",
@@ -199,7 +198,6 @@ const exportItems = ref([
   {
     label: "Group member Template",
     action: (vl) => {
-      
       automaticCreate.value = {
         actionSlot: "download-group-member-template",
         item: vl,
@@ -209,9 +207,19 @@ const exportItems = ref([
     },
   },
   {
-    label: "import group savings",
+    label: "import groups",
     action: (vl) => {
-      
+      automaticCreate.value = {
+        actionSlot: "import-groups",
+        item: vl,
+      };
+      OpenThedrawer(vl, "import-groups");
+      drawerTitle.value = { title: "import groups", width: "w-1/2" }
+    },
+  },
+  {
+    label: "import group members",
+    action: (vl) => {
       automaticCreate.value = {
         actionSlot: "import-group-account-member",
         item: vl,

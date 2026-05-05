@@ -26,14 +26,14 @@
       <div class="flex items-center gap-3">
         <!-- Mode Switcher -->
         <div class="flex p-1 bg-neutral-100 dark:bg-neutral-900 rounded-lg gap-1 border border-neutral-200 dark:border-neutral-700">
-          <button 
+          <button
             v-for="m in (['Expenses', 'Categories', 'Budgets', 'Reports'] as const)"
             :key="m"
             @click="mode = m"
             :class="[
               'px-4 py-1 text-xs font-bold rounded-md transition-all duration-200',
-              mode === m 
-                ? 'bg-nfuko-primary text-white shadow-sm' 
+              mode === m
+                ? 'bg-nfuko-primary text-white shadow-sm'
                 : 'text-neutral-400 hover:text-neutral-600'
             ]"
           >
@@ -60,19 +60,21 @@
             Record Expense
         </Button>
       </div>
+
     </template>
     <template #status="{ item }">
       <Badge :variant="getStatusVariant(item.status) as any" :class="getStatusClass(item.status)">
         {{ item.status }}
       </Badge>
     </template>
-    
+
     <template #actions="{ item }">
       <div class="flex justify-center gap-2">
         <button v-if="item.status === 'Pending'" @click="OpenThedrawer('review', item)" title="Review" class="flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-600 transition-colors hover:bg-amber-100">
           <HelpCircle class="w-4 h-4" /> Review
         </button>
-        <button v-if="item.status === 'Approved'" @click="OpenThedrawer('pay', item)" title="Pay" class="flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-600 transition-colors hover:bg-blue-100">
+        <button v-if="item.status === 'Approved'" @click="OpenThedrawer('pay', item)" title="Pay"
+          class="flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-600 transition-colors hover:bg-blue-100">
           <Wallet class="w-4 h-4" /> Pay
         </button>
         <button v-if="['Pending', 'Draft'].includes(item.status)" @click="OpenThedrawer('record expense', item)" title="Edit" class="flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-blue-600 transition-colors hover:bg-blue-100">
@@ -82,10 +84,10 @@
     </template>
 
     <template #drawer="{ action, data }">
-      <component 
-        :is="drawerComponent" 
-        :data="{ ...data, action }" 
-        v-model:form="formData" 
+      <component
+        :is="drawerComponent"
+        :data="{ ...data, action }"
+        v-model:form="formData"
         @approve="(comments) => handleApprove(data, comments)"
         @reject="(comments) => handleReject(data, comments)"
         @query="(comments) => handleQuery(data, comments)"
@@ -142,7 +144,7 @@ const automaticCreate = ref<any>({
   },
   'approve': {
     title: 'Approve Expense',
-    component: null, // No form needed for simple approval
+    component: null,
     action: (data: any) => handleApprove(data)
   },
   'pay': {
@@ -252,34 +254,27 @@ async function handleQuery(data: any, comments: string) {
 }
 
 async function handlePay(data: any, submissionData: any) {
-    // submissionData comes from the form in the drawer (e.g. payment details)
-    // data is the original expense record
-    formStore.loading = true
-    const result = await payExpense(data.id, submissionData)
-    formStore.loading = false
-    if (isSuccessful(result)) {
-        drawer.value?.toggleDrawer()
-        drawer.value?.refresh()
-        fetchStats()
-    }
+  formStore.loading = true
+  const result = await payExpense(data.id, submissionData)
+  formStore.loading = false
+  if (isSuccessful(result)) {
+    drawer.value?.toggleDrawer()
+    drawer.value?.refresh()
+    fetchStats()
+  }
 }
 
 function saveExpense(type: string, data: any) {
   const action = automaticCreate.value[activeAction.value]?.action
   if (action) {
-    // data is the array of fields from DynamicForm via tableHelpers
-    // We need to convert it to a clean object using scopeValues
     const cleanData = Array.isArray(data) ? scopeValues(data) : data
 
     if (activeAction.value === 'pay') {
-        // For 'pay', formData holds the original record and the new form values
         action(formData.value, { ...formData.value, ...cleanData })
     } else if (['record expense', 'create category'].includes(activeAction.value)) {
-        // For these, 'cleanData' is the new form values
-        action(cleanData)
+      action(cleanData)
     } else {
-        // For other actions (like approve), 'data' is the record itself
-        action(data)
+      action(data)
     }
   }
 }
@@ -311,7 +306,7 @@ function getStatusClass(status: string) {
 const stats = computed(() => [
   {
     title: 'Pending Approvals',
-    value: expenseStats.value.pending_approvals, 
+    value: expenseStats.value.pending_approvals,
     trendColor: 'text-nfuko-yellow',
     bgColor: 'bg-nfuko-yellow/10',
     iconColor: 'text-nfuko-yellow',
@@ -320,7 +315,7 @@ const stats = computed(() => [
   },
   {
     title: 'Budget Utilisation',
-    value: expenseStats.value.budget_utilisation_pct || 0, 
+    value: expenseStats.value.budget_utilisation_pct || 0,
     suffix: '%',
     trendColor: (expenseStats.value.budget_utilisation_pct > 90) ? 'text-nfuko-red' : 'text-nfuko-green',
     bgColor: 'bg-nfuko-green/10',
@@ -330,7 +325,7 @@ const stats = computed(() => [
   },
   {
     title: 'Unreconciled Amount',
-    value: expenseStats.value.unreconciled_amount || 0, 
+    value: expenseStats.value.unreconciled_amount || 0,
     trendColor: 'text-nfuko-gray',
     bgColor: 'bg-nfuko-gray/10',
     iconColor: 'text-nfuko-gray',

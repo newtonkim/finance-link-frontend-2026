@@ -28,6 +28,7 @@ const fields = ref<any[]>([
       required: false,
       url:'group-account-savings/collect-group-saving-account-list'+`?group_id=${props.data?.item?.id}`,
       dataOnMount: true,
+      selectOnOneItem: true,
        
     },
   {

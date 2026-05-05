@@ -323,13 +323,13 @@ const exportData = () => {
             </div>
 
         <!-- Not Found State -->
-        <div v-else class="flex flex-col items-center justify-center py-20 text-neutral-500 bg-white dark:bg-neutral-900 rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800">
+        <!-- <div v-else class="flex flex-col items-center justify-center py-20 text-neutral-500 bg-white dark:bg-neutral-900 rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800">
             <UserCog class="h-10 w-10 mb-4 opacity-20" />
             <h3 class="text-lg font-medium text-neutral-900 dark:text-white">Profile not found</h3>
             <p class="text-sm">We couldn't find the details for this staff member.</p>
             <RouterLink to="/tenant/settings/staff" class="mt-4 text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline text-sm font-medium">
                 Back to Staff List
             </RouterLink>
-        </div>
+        </div> -->
     </div>
 </template>
