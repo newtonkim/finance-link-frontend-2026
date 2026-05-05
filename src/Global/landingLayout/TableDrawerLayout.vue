@@ -84,7 +84,7 @@
                     <div>
                         <button v-if="printTable" @click="printDataInDrawer"
                             class="  gap-1 px-5 absolute  rounded-md top-4 right-12 no-print bg-nfuko-primary-600  text-white text-sm font-medium  ">
-                            <Printer class="h-10 " />
+                            <!-- <Printer class="h-10 " /> -->
                             <span>Print</span>
                         </button>
                     </div>
