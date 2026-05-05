@@ -13,7 +13,9 @@ import {
     Bell,
     Shield,
     ChevronRight,
-    CalendarDays
+    CalendarDays,
+    Wallet,
+    Archive
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -31,6 +33,8 @@ const modules = [
     {permission:"settings-notifications-link-view", name: 'Notifications', icon: Bell, path: '/tenant/settings/notifications' },
     {permission:"settings-System-Security-link-view", name: 'System & Security', icon: Shield, path: '/tenant/settings/system' },
     {permission:"settings-module-link-view", name: 'Public Holidays & Leave', icon: CalendarDays, path: '/tenant/settings/public-holidays' },
+    {permission:"settings-module-link-view", name: 'Expense Management', icon: Wallet, path: '/tenant/settings/expense-management' },
+    {permission:"settings-module-link-view", name: 'Asset Management', icon: Archive, path: '/tenant/settings/assets' },
 ]
 
 const isActive = (path: string) => route.path.startsWith(path)
@@ -48,7 +52,7 @@ const navigate = (path: string) => {
                 Modules</h2>
         </div>
         <nav class="flex-1 p-2 space-y-1">
-            <button v-for="mod in modules" v-auth="mod?.permission" :key="mod.name" @click="navigate(mod.path)" :class="[
+            <button v-for="(mod, index) in modules" v-auth="mod?.permission" :key="index" @click="navigate(mod.path)" :class="[
                 'w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors capitalize',
                 isActive(mod.path)
                     ? 'bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-white'

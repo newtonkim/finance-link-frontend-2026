@@ -393,7 +393,7 @@ export const tenantRoutes: MenuRoutes[] = [
             path: 'reports/expenses',
             label: 'Expenses Report',
             showSideBar: true,
-            component: () => import('@/tenant/components/globals/ComingSoon.vue'),
+            component: () => import('@/tenant/modules/expenses/components/ExpenseReports.vue'),
           },
           {
             path: 'reports/charges',

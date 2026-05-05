@@ -141,7 +141,7 @@ async function confirmAndSaveChanges(data?: any) {
   });
   if (res.payload){
     storeSettings(Object.values(res.payload))
-    Store.fullRemount =  Math.random()
+    ;(Store as any).fullRemount = Math.random()
     
   
   }

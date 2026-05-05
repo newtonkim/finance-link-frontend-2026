@@ -9,16 +9,23 @@
     </div>
 
     <div class="space-y-4">
-      <SearchableSelect 
-        label="Bank/Cash Account" 
-        v-model="form.chart_of_account_id"
-        url="/chart-of-accounts?type=Asset&is_postable=true"
-        placeholder="Select source of funds" 
-        method="get" 
-        :required="true" 
-      />
+      <div class="space-y-2">
+        <Label>Amount</Label>
+        <Input type="number" v-model="form.amount" required min="0.01" step="0.01" />
+      </div>
 
-      <div class="grid grid-cols-2 gap-4">
+      <div class="relative z-50">
+        <SearchableSelect 
+          label="Bank/Cash Account" 
+          v-model="form.chart_of_account_id"
+          url="/chart-of-accounts?type=Asset&is_postable=true"
+          placeholder="Select source of funds" 
+          method="get" 
+          :required="true" 
+        />
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 relative z-0">
         <div class="space-y-2">
           <Label>Payment Date</Label>
           <Input type="date" v-model="form.payment_date" required />
@@ -46,5 +53,8 @@ const emit = defineEmits(['update:form'])
 onMounted(() => {
   // Pre-fill today's date
   props.form.payment_date = new Date().toISOString().split('T')[0]
+  if (!props.form.amount) {
+    props.form.amount = props.data.amount
+  }
 })
 </script>
