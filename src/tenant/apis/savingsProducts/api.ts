@@ -1,3 +1,4 @@
+import { getLocalValues } from '@/Global'
 import { tenantClient } from '../tenantClient'
 
 export interface Charge {
@@ -11,7 +12,9 @@ export interface Charge {
 
 export interface SavingsProduct {
   id?: number
+
   name: string
+  branch_id?: string
   type: 'fixed' | 'standard'
   minimum_balance: number | string
   minimum_maturity_months: number
@@ -47,6 +50,9 @@ export const savingsProductsApi = {
     return tenantClient.get(`/savings-products/${id}`)
   },
   create(data: SavingsProduct) {
+   const  activeBranch = getLocalValues('activeBranch' as const) as any
+
+    data.branch_id = activeBranch
     return tenantClient.post('/savings-products', data)
   },
   update(id: number, data: SavingsProduct) {
