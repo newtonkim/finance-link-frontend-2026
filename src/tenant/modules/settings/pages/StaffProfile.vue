@@ -331,6 +331,6 @@ const exportData = () => {
             <RouterLink to="/tenant/settings/staff" class="mt-4 text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline text-sm font-medium">
                 Back to Staff List
             </RouterLink>
-        </div> -->
-    </div>
+        </div> 
+    </div>-->
 </template>
