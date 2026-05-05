@@ -20,11 +20,14 @@
               <span v-if="stat?.type=='money'">
                 {{ formatCurrency(stat.value) }}
               </span>
-              <span v-if="stat?.type=='number'">
+              <span v-else-if="stat?.type=='number'">
                 {{ addNumberCommas(stat.value) }}
               </span>
               <span v-else>
                 {{ stat.value }}
+              </span>
+              <span v-if="stat.suffix" class="ml-0.5 text-xs font-medium text-neutral-500">
+                {{ stat.suffix }}
               </span>
             </span>
 

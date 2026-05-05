@@ -11,7 +11,9 @@ import {
     ShieldCheck,
     Bell,
     Shield,
-    CalendarDays
+    CalendarDays,
+    Wallet,
+    Archive
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -28,6 +30,8 @@ const modules = [
     { name: 'Notifications', icon: Bell, path: '/tenant/settings/notifications', color: 'bg-pink-50 text-pink-600 dark:bg-pink-900/20 dark:text-pink-400' },
     { name: 'Public Holidays', icon: CalendarDays, path: '/tenant/settings/public-holidays', color: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400' },
     { name: 'System', icon: Shield, path: '/tenant/settings/system', color: 'bg-slate-50 text-slate-600 dark:bg-slate-900/20 dark:text-slate-400' },
+    { name: 'Expense Management', icon: Wallet, path: '/tenant/settings/expense-management', color: 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400' },
+    { name: 'Asset Management', icon: Archive, path: '/tenant/settings/assets', color: 'bg-teal-50 text-teal-600 dark:bg-teal-900/20 dark:text-teal-400' },
 ]
 
 const navigate = (path: string) => {

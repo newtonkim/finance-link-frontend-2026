@@ -321,7 +321,6 @@ const exportData = () => {
                     </div>
                 </div>
             </div>
-        </div>
 
         <!-- Not Found State -->
         <!-- <div v-else class="flex flex-col items-center justify-center py-20 text-neutral-500 bg-white dark:bg-neutral-900 rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800">
@@ -331,6 +330,6 @@ const exportData = () => {
             <RouterLink to="/tenant/settings/staff" class="mt-4 text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline text-sm font-medium">
                 Back to Staff List
             </RouterLink>
-        </div> 
-    </div>-->
+        </div> -->
+    </div>
 </template>

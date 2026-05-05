@@ -70,6 +70,7 @@
 <script setup>
 import { onMounted, ref, onBeforeUnmount } from 'vue';
 import { Search, } from 'lucide-vue-next';
+import { SearchableSelect } from '@/Global';
 const searchBy = ref({});
 const searchQuery = ref('');
 const activeFilter = ref({})
