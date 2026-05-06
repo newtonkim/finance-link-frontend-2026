@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { ArrowLeft, HandCoins, Save, Send, ChevronRight, Plus, Trash2, Shield } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { useLoanApplicationEdit } from '../composables/useLoanApplicationEdit'
@@ -56,40 +56,13 @@ function closeProductDropdown() { setTimeout(() => { showProductDropdown.value =
 function clearProduct() { form.value.loan_product_id = null; productSearch.value = ''; void onProductChange() }
 
 // ─── Amount input ─────────────────────────────────────────────────────────────
-const amountInputRef = ref<HTMLInputElement | null>(null)
-
-const FMT = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-const FMT_LIVE = new Intl.NumberFormat('en-US', { maximumFractionDigits: 10 })
-
-onMounted(() => {
-  if (amountInputRef.value && form.value.requested_amount != null)
-    amountInputRef.value.value = FMT.format(Number(form.value.requested_amount))
+const requestedAmountDisplay = computed({
+  get: () => form.value.requested_amount != null ? form.value.requested_amount.toLocaleString('en-US') : '',
+  set: (val: string) => {
+    const num = parseFloat(val.replace(/[^0-9.]/g, ''))
+    form.value.requested_amount = isNaN(num) ? null : num
+  },
 })
-watch(() => form.value.requested_amount, (v) => {
-  if (amountInputRef.value && document.activeElement !== amountInputRef.value)
-    amountInputRef.value.value = v != null ? FMT.format(Number(v)) : ''
-})
-
-function onAmountInput(e: Event) {
-  const input = e.target as HTMLInputElement
-  const cursor = input.selectionStart ?? input.value.length
-  const prevLen = input.value.length
-  const raw = input.value.replace(/[^0-9.]/g, '')
-  const n = parseFloat(raw)
-  form.value.requested_amount = isNaN(n) ? null : n
-  if (!raw) { input.value = ''; return }
-  const dotIdx = raw.indexOf('.')
-  const intRaw = dotIdx >= 0 ? raw.slice(0, dotIdx) : raw
-  const decSuffix = dotIdx >= 0 ? raw.slice(dotIdx) : ''
-  const formatted = FMT_LIVE.format(parseInt(intRaw || '0', 10)) + decSuffix
-  input.value = formatted
-  const newPos = Math.max(0, cursor + (formatted.length - prevLen))
-  input.setSelectionRange(newPos, newPos)
-}
-function onAmountBlur() {
-  if (amountInputRef.value)
-    amountInputRef.value.value = form.value.requested_amount != null ? FMT.format(form.value.requested_amount) : ''
-}
 
 // ─── Stepper ──────────────────────────────────────────────────────────────────
 const currentStep = ref(1)
@@ -176,10 +149,9 @@ function removeCollateralItem(i: number) { collateralItems.value.splice(i, 1) }
                             <div class="grid gap-4 sm:grid-cols-2">
                                 <div>
                                     <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Requested Amount <span class="text-red-500">*</span></label>
-                                    <input ref="amountInputRef" type="text" inputmode="decimal" placeholder="0.00"
+                                    <input v-model="requestedAmountDisplay" type="text" inputmode="decimal" placeholder="0.00"
                                         class="w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:bg-neutral-800 dark:text-white"
-                                        :class="fieldError('requested_amount') ? 'border-red-400' : 'border-neutral-200 dark:border-neutral-700'"
-                                        @input="onAmountInput" @blur="onAmountBlur" />
+                                        :class="fieldError('requested_amount') ? 'border-red-400' : 'border-neutral-200 dark:border-neutral-700'" />
                                     <p v-if="fieldError('requested_amount')" class="mt-1 text-xs text-red-500">{{ fieldError('requested_amount') }}</p>
                                 </div>
                                 <div>
