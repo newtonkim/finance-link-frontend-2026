@@ -412,7 +412,7 @@ const previewMoneyLocal = (f: any, r: any) => previewMoney(f, r, formatMoneyValu
                   max="100"
                   step="0.01"
                   placeholder="0"
-                  class="w-full rounded-xl border border-neutral-200 py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                  class="w-full rounded-xl border border-neutral-200 py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   :class="
                     fieldError('savings_appraisal_threshold')
                       ? 'border-red-400 dark:border-red-500'
