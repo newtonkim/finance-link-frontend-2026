@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { ArrowLeft, HandCoins, ChevronRight, Printer } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { useLoanApplicationCreate } from '../composables/useLoanApplicationCreate'
@@ -68,7 +68,20 @@ function selectProduct(p: LoanProduct) {
 
 // ─── Amount input ─────────────────────────────────────────────────────────────
 const printTheApplication = ref(false)
-const amountDisplay = ref('')
+const amountInputRef = ref<HTMLInputElement | null>(null)
+
+function setAmountFormatted(val: number | null | undefined, decimals = true) {
+  if (!amountInputRef.value) return
+  amountInputRef.value.value = val != null
+    ? Number(val).toLocaleString(undefined, decimals ? { minimumFractionDigits: 2, maximumFractionDigits: 2 } : { maximumFractionDigits: 0 })
+    : ''
+}
+
+onMounted(() => setAmountFormatted(form.value.requested_amount))
+watch(() => form.value.requested_amount, (v) => {
+  if (document.activeElement !== amountInputRef.value) setAmountFormatted(v)
+})
+
 function onAmountInput(e: Event) {
   const input = e.target as HTMLInputElement
   const cursorEnd = input.selectionEnd ?? input.value.length
@@ -76,31 +89,20 @@ function onAmountInput(e: Event) {
   const raw = input.value.replace(/[^0-9.]/g, '')
   const num = parseFloat(raw)
   form.value.requested_amount = isNaN(num) ? null : num
-  if (!raw) {
-    input.value = ''
-    amountDisplay.value = ''
-    return
-  }
+  if (!raw) { input.value = ''; return }
   const parts = raw.split('.')
   const intFormatted = parseInt(parts[0] || '0', 10).toLocaleString()
   const formatted = parts.length > 1 ? `${intFormatted}.${parts[1]}` : intFormatted
   input.value = formatted
-  amountDisplay.value = formatted
   const newPos = Math.max(0, cursorEnd + (formatted.length - oldLen))
   input.setSelectionRange(newPos, newPos)
 }
 function onAmountFocus() {
-  amountDisplay.value =
-    form.value.requested_amount != null ? String(form.value.requested_amount) : ''
+  if (!amountInputRef.value) return
+  amountInputRef.value.value = form.value.requested_amount != null ? String(form.value.requested_amount) : ''
 }
 function onAmountBlur() {
-  amountDisplay.value =
-    form.value.requested_amount != null
-      ? Number(form.value.requested_amount).toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })
-      : ''
+  setAmountFormatted(form.value.requested_amount)
 }
 
 // ─── Stepper ──────────────────────────────────────────────────────────────────
@@ -218,7 +220,7 @@ printTheApplication.value = v
               <div>
                 <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Requested Amount
                   <span class="text-red-500">*</span></label>
-                <input :value="amountDisplay" type="text" inputmode="decimal" placeholder="0.00"
+                <input ref="amountInputRef" type="text" inputmode="decimal" placeholder="0.00"
                   class="w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:bg-neutral-800 dark:text-white"
                   :class="fieldError('requested_amount')
                     ? 'border-red-400'
