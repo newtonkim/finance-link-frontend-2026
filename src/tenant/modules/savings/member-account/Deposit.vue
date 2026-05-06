@@ -9,7 +9,8 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { DetailsTable, Form } from '@/Global'
-const emits = defineEmits(['update:form']),
+const emits = defineEmits(['update:form','reload']),
+
     props = defineProps({
         data: {
             type: Object,
@@ -24,14 +25,14 @@ const emits = defineEmits(['update:form']),
             { key: 'member_name', label: 'memeber name', },
             { key: 'account_code', label: 'account code', copy: true },
             { key: 'product', label: 'product', },
-            { key: 'blc', label: 'balance',type: "money" },
+            { key: 'blc', label: 'balance', type: "money" },
             { key: 'type', label: 'type', copy: true },
             { key: 'created_at', label: 'created', tyope: "dateTime" },
         ]
     },
     ],
     fields = ref<any>([]);
-        const paymentModeOptions = [
+const paymentModeOptions = [
     { id: 'cash', name: 'Cash' },
     { id: 'bank_transfer', name: 'Bank Transfer' },
     { id: 'mobile_money', name: 'Mobile Money' },
@@ -53,28 +54,28 @@ function initialize() {
             label: 'transaction date ',
             name: 'transaction_date',
             type: 'datec',
-      maxDate: new Date(),
+            maxDate: new Date(),
 
             required: false,
             placeholder: 'Amount to withdraw',
             value: new Date().toISOString().split('T')[0],
         },
-         {
-            label:  'payment mode',
+        {
+            label: 'payment mode',
             name: 'payment_method',
             type: 'select',
             required: false,
-            options:paymentModeOptions,
+            options: paymentModeOptions,
             placeholder: 'method of payment',
         },
-         {
-            label:  'Transaction Reference',
+        {
+            label: 'Transaction Reference',
             name: 'transaction_reference',
             type: 'text',
             required: false,
             placeholder: 'Transaction Reference',
         },
-         {
+        {
             label: 'deposited by',
             name: 'deposited_by',
             type: 'text',

@@ -80,6 +80,7 @@ export function useMember() {
     async function fetchMember(silent = false) {
   const profile =  getLocalValues('memberProfile')
 
+ 
         const id = Number(profile.id);
         if (!id) return;
         if (!silent) pageLoading.value = true;

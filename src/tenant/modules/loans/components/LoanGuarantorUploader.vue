@@ -49,7 +49,7 @@ async function saveLoanGuarantors() {
   emit("updated", 1);
 }
 async function saveLoanGuarantorsNoneMember() {
-  
+
   await saveLoanApplicationNoneMemberGuarantors(form.value);
   emit("updated", 1);
 }
@@ -76,15 +76,66 @@ function SetGuarantorContribution(item: any) {
     <!-- Select Area -->
     <div class="mt-5 space-y-3">
       <MultiSearchableSelect v-if="statusFilter === 'Group'" v-model="selected" :url="application?.group_memberships === 'allowed_to_be_guaranteed_by_other_groups'
-          ? 'group-account-savings/groups-drop-down-list'
-          : undefined
+        ? 'group-account-savings/groups-drop-down-list'
+        : undefined
         " :options="application?.group_memberships !== 'allowed_to_be_guaranteed_by_other_groups'
-            ? application?.group_memberships
-            : undefined
-          " placeholder="Select groups" @update:itemSelected="handleSelected" />
+          ? application?.group_memberships
+          : undefined
+          " placeholder="Select groups" @update:itemSelected="handleSelected">
+        <template #option="{ item }">
+          <div class="overflow-auto">
+            <table class="min-w-full text-sm text-left border border-neutral-200 rounded-lg overflow-hidden">
+              <tbody>
+                <tr class="border-b border-neutral-200">
+                  <td class="px-3   text-xs uppercase text-neutral-500 tracking-wide w-32">
+                    Name
+                  </td>
+                  <td class="px-3   font-medium text-neutral-500">
+                    {{ item.name || '—' }}
+                  </td>
+                </tr>
 
-      <MultiSearchableSelect v-else v-model="memberSelected" :options="[]" url="global/member-dropdown-list-total-balance-accouts"
-        placeholder="Select members" @update:itemSelected="handleSelected" />
+                <tr>
+
+                  <td colspan="2" class="px-3 py-2 font-medium text-neutral-500 text-sm">
+                    ACC: {{ item.account_code || '—' }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </template>
+      </MultiSearchableSelect>
+
+      <MultiSearchableSelect v-else v-model="memberSelected" :options="[]"
+        url="global/member-dropdown-list-total-balance-accouts" placeholder="Select members"
+        @update:itemSelected="handleSelected">
+        <template #option="{ item }">
+          <div class="overflow-auto">
+            <table class="min-w-full text-sm text-left border border-neutral-200 rounded-lg overflow-hidden">
+              <tbody>
+                <tr class="border-b border-neutral-200">
+                  <td class="px-3   text-xs uppercase text-neutral-500 tracking-wide w-32">
+                    Name
+                  </td>
+                  <td class="px-3   font-medium text-neutral-500">
+                    {{ item.name || '—' }}
+                  </td>
+                </tr>
+
+                <tr>
+
+                  <td colspan="2" class="px-3 py-2 font-medium text-neutral-500 text-sm">
+
+                    ACC: {{ item.account_code || '—' }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </template>
+      </MultiSearchableSelect>
     </div>
 
     <!-- Selected Guarantors -->
@@ -118,13 +169,12 @@ function SetGuarantorContribution(item: any) {
   </div>
 
   <Drawer :open="statusFilter === 'n-members'" :showFooter="true" title="Add Guarantor"
-  @cancel="()=>{statusFilter = 'Group'}"
-   @save="
-    async() => {
-     await  saveLoanGuarantorsNoneMember();
-     
-    }
-  ">
+    @cancel="() => { statusFilter = 'Group' }" @save="
+      async () => {
+        await saveLoanGuarantorsNoneMember();
+
+      }
+    ">
     <template #body>
       <NewNoneMember :data="application" v-model:form="form" />
     </template>

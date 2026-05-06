@@ -50,6 +50,7 @@ async function initialize() {
     }
     profileDetails.value = { details: data, accounts: member_accounts };
     pageLoading.value = false;
+      fetchMember()
 }
 
 // ── Tabs ────────────────────────────────────────────────────────────────────
@@ -57,17 +58,17 @@ const activeTab = ref('profile');
 onBeforeMount(() => {
     profileDetails.value = null
     initialize();
-    fetchMember()
+  
 });
 
 const tabs = computed(() => [
-    { id: 'profile', label: 'Profile', icon: UserCircle2, count: null },
-    { id: 'transactions', label: 'Transactions', icon: FileText, count: member.transactions?.length || 0 },
-    { id: 'savings', label: 'Savings', icon: TrendingUp, count: member.transactions?.filter((t: { type?: string }) => t.type?.toLowerCase() === 'deposit').length || 0 },
-    { id: 'withdrawal', label: 'Withdrawal', icon: MinusCircle, count: member.transactions?.filter((t: { type?: string }) => ['withdrawal', 'withdraw'].includes(t.type?.toLowerCase())).length || 0 },
-    { id: 'loans', label: 'Loans', icon: Wallet, count: member.loans?.length || 0 },
-    { id: 'shares', label: 'Shares', icon: BarChart3, count: null },
-    { id: 'statement', label: 'Statement', icon: Printer, },
+    { id: 'profile', label: 'member Profile', icon: UserCircle2, count: null },
+    { id: 'transactions', label: 'member Transactions', icon: FileText, count: member.transactions?.length || 0 },
+    { id: 'savings', label: 'member Savings', icon: TrendingUp, count: member.transactions?.filter((t: { type?: string }) => t.type?.toLowerCase() === 'deposit').length || 0 },
+    { id: 'withdrawal', label: 'member Withdrawal', icon: MinusCircle, count: member.transactions?.filter((t: { type?: string }) => ['withdrawal', 'withdraw'].includes(t.type?.toLowerCase())).length || 0 },
+    { id: 'loans', label: 'member Loans', icon: Wallet, count: member.loans?.length || 0 },
+    { id: 'shares', label: 'member Shares', icon: BarChart3, count: null },
+    { id: 'statement', label: 'member Statement', icon: Printer, },
 ]);
 
 // ── Drawer refs ──────────────────────────────────────────────────────────────
@@ -79,6 +80,7 @@ const customFeeDrawer = ref<InstanceType<typeof CustomFeeDrawer> | null>(null);
 const showTxnDeleteDialog = ref(false);
 const txnToDelete = ref<{ id: number; reference: string; is_reversed: boolean; type: string; is_reversible: boolean } | null>(null);
 const isDeletingTxn = ref(false);
+const formData = ref<any>({});
 
 const confirmDeleteTxn = (txn: { id: number; reference: string; is_reversed: boolean; type: string; is_reversible: boolean }) => {
     if (txn.is_reversed || txn.type === 'reversal' || txn.is_reversible === false) return;
@@ -90,7 +92,7 @@ const executeDeleteTxn = async () => {
     if (!txnToDelete.value) return;
     isDeletingTxn.value = true;
     try {
-        await tenantClient.post(`/transactions/${txnToDelete.value.id}/reverse`);
+        await tenantClient.post(`/transactions/${txnToDelete.value.id}/reverse`, formData.value);
         toast.success('Transaction reversed successfully.');
         showTxnDeleteDialog.value = false;
         txnToDelete.value = null;
@@ -156,7 +158,7 @@ const columns = [
             { key: 'memeber_code', label: 'Member Code', copy: true },
             { key: 'full_name', label: 'Full Name' },
             { key: 'email', label: 'Email' },
-            { key: 'from ', label: 'From' },
+            { key: 'from', label: 'From' },
             { key: 'marital_status', label: 'Marital Status', type: 'status' },
             { key: 'primary_contact', label: 'Primary Contact' },
             { key: 'NIN', label: 'NIN' },
@@ -330,11 +332,13 @@ const columns = [
                             <RotateCcw :size="20" class="text-amber-600 dark:text-amber-400" />
                         </div>
                         <div>
-                            <h3 class="text-base font-semibold text-neutral-900 dark:text-white">Reverse Transaction
-                            </h3>
+                            <!-- <h3 class="text-base font-semibold text-neutral-900 dark:text-white">Reverse Transaction
+                            </h3> -->
                             <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-                                Reverse transaction <strong class="text-neutral-700 dark:text-neutral-200">{{
-                                    txnToDelete?.reference }}</strong>?
+                                Reverse transaction <strong class="text-neutral-700 dark:text-neutral-200">{{txnToDelete?.reference }}</strong>?
+                            </p>
+                            <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+                                <textarea class="w-full"  placeholder="Enter  a reason for the reversal" v-model="formData.reason" rows="2" />
                             </p>
                             <p class="mt-2 text-[12px] text-neutral-400 dark:text-neutral-500">
                                 A counter-transaction will be created to undo this entry. The original transaction

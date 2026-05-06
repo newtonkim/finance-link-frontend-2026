@@ -11,7 +11,7 @@ const props = defineProps({
   data: {
     type: Object,
     default: () => ({}),
-  },
+  }, 
 });
 
 const sharePrice = ref<number>(pickAsettingKeyValue("sacco-share-price-value"));

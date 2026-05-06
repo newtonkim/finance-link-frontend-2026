@@ -153,6 +153,7 @@ const handleDelete = () => deleteMember(() => router.push('/tenant/members'));
 
                     <!-- Accounts table -->
                     <MemberAccountsTable
+                    @reload="()=>console.log(true)"
                         :accounts="member.savings_accounts"
                         :currency-code="currencyCode"
                         :format-currency="formatCurrency"
@@ -302,7 +303,7 @@ const handleDelete = () => deleteMember(() => router.push('/tenant/members'));
             :member="member"
             :currency-code="currencyCode"
             :current-balance="currentBalance"
-            @success="fetchMember(true)"
+            @success="()=>{fetchMember(true);pageLoading=true}"
         />
 
         <NewAccountDrawer
@@ -311,13 +312,13 @@ const handleDelete = () => deleteMember(() => router.push('/tenant/members'));
             :savings-accounts="member.savings_accounts"
             :savings-products="savingsProducts"
             :currency-code="currencyCode"
-            @success="fetchMember(true)"
+            @success="()=>{fetchMember(true);pageLoading=true}"
         />
 
         <CustomFeeDrawer
             ref="customFeeDrawer"
             :currency-code="currencyCode"
-            @success="fetchMember(true)"
+            @success="()=>{fetchMember(true);pageLoading=true}"
         />
 
         <!-- Transaction Reversal Dialog -->

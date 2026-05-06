@@ -202,7 +202,10 @@ const inputClass =
                         :class="[
                             (modelValue || []).includes(option.id) ? 'bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white font-semibold' : 'text-neutral-600 dark:text-neutral-400'
                         ]">
+                        <slot name="option" :item="option">
                         <span class="block truncate">{{ option.name }}</span>
+                        </slot>
+                        
                         <Check v-if="(modelValue || []).includes(option.id)" class="h-4 w-4 text-nfuko-primary dark:text-[#8ba8a2]" />
                     </li>
                     <li v-if="filteredOptions.length === 0" class="px-4 py-8 text-center text-sm text-neutral-400">

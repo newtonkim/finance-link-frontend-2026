@@ -86,6 +86,8 @@ function submitData(end: string = '', des?: string, type: string = 'warning', to
                 if (toggle)
                     drawer.value?.toggleDrawer()
                 statusFilter.value = ''
+
+                
             })
         }, cancel: () => { },
     });
