@@ -57,7 +57,18 @@ function clearProduct() { form.value.loan_product_id = null; productSearch.value
 
 // ─── Amount input ─────────────────────────────────────────────────────────────
 const amountDisplay = ref('')
-function onAmountInput(e: Event) { const raw = (e.target as HTMLInputElement).value.replace(/,/g, ''); amountDisplay.value = raw; const n = parseFloat(raw); form.value.requested_amount = isNaN(n) ? null : n }
+function onAmountInput(e: Event) {
+  const input = e.target as HTMLInputElement
+  const raw = input.value.replace(/,/g, '')
+  const n = parseFloat(raw)
+  form.value.requested_amount = isNaN(n) ? null : n
+  if (raw === '' || raw === '-') { amountDisplay.value = raw; return }
+  const [intPart, decPart] = raw.split('.')
+  const formatted = Number(intPart).toLocaleString()
+  amountDisplay.value = decPart !== undefined ? `${formatted}.${decPart}` : formatted
+  const cursorFromEnd = input.value.length - (input.selectionEnd ?? input.value.length)
+  requestAnimationFrame(() => { const newLen = amountDisplay.value.length; input.setSelectionRange(newLen - cursorFromEnd, newLen - cursorFromEnd) })
+}
 function onAmountFocus() { amountDisplay.value = form.value.requested_amount != null ? String(form.value.requested_amount) : '' }
 function onAmountBlur() { amountDisplay.value = form.value.requested_amount != null ? Number(form.value.requested_amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '' }
 watch(() => form.value.requested_amount, v => { if (v != null && !amountDisplay.value) amountDisplay.value = Number(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }, { immediate: true })

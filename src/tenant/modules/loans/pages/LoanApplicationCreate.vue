@@ -70,10 +70,23 @@ function selectProduct(p: LoanProduct) {
 const printTheApplication = ref(false)
 const amountDisplay = ref('')
 function onAmountInput(e: Event) {
-  const raw = (e.target as HTMLInputElement).value.replace(/,/g, '')
-  amountDisplay.value = raw
+  const input = e.target as HTMLInputElement
+  const raw = input.value.replace(/,/g, '')
   const num = parseFloat(raw)
   form.value.requested_amount = isNaN(num) ? null : num
+  if (raw === '' || raw === '-') {
+    amountDisplay.value = raw
+    return
+  }
+  const [intPart, decPart] = raw.split('.')
+  const formatted = Number(intPart).toLocaleString()
+  amountDisplay.value = decPart !== undefined ? `${formatted}.${decPart}` : formatted
+  // preserve cursor position relative to end
+  const cursorFromEnd = input.value.length - (input.selectionEnd ?? input.value.length)
+  requestAnimationFrame(() => {
+    const newLen = amountDisplay.value.length
+    input.setSelectionRange(newLen - cursorFromEnd, newLen - cursorFromEnd)
+  })
 }
 function onAmountFocus() {
   amountDisplay.value =
