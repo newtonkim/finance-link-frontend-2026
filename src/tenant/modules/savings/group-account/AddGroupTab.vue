@@ -13,7 +13,7 @@
             <div v-if="activeTab === 'None Existing'">
                 <CreateNoneMember :data="data" v-model:form="formData" />
             </div>
-            <div v-if="activeTab === 'Exiting'">
+            <div v-if="activeTab === 'Existing'">
                 <AddExistingMember :data="data" v-model:form="formData" />
             </div>
         </div>
@@ -23,7 +23,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { AddExistingMember, CreateNoneMember } from '.'
-const tabs = ['None Existing', 'Exiting']
+const tabs = ['None Existing', 'Existing']
 const activeTab = ref('None Existing')
 const props = defineProps({
     data: {

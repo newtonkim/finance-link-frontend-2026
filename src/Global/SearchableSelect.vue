@@ -56,6 +56,19 @@ const remoteUrl = debounce(async (url: string) => {
         const checker = await Store?.[generateAstate]?.payload?.data ?? Store?.[generateAstate]?.payload ?? Store?.[generateAstate] ?? [];
 
         collection.value = Array.isArray(checker) ? checker : []
+         if (props?.selectOnOneItem) {
+        
+        
+        if (filteredOptions.value?.length < 1) {
+            setTimeout(() => {
+            if(filteredOptions.value?.length === 1)
+                selectOption(filteredOptions.value[0]);
+            }, 3000)
+        } else{
+            if(filteredOptions.value?.length === 1)
+            selectOption(filteredOptions.value[0])
+        }
+    }
     })
 }, 1000);
 
@@ -135,14 +148,18 @@ watch(props, async (newVal) => {
             selectOption(filteredOptions.value[newVal.selectDefaultIndex ?? 0])
      },1000)
     }
-    if (newVal?.selectOnOneItem ) {
+    if (newVal?.selectOnOneItem) {
+        
         
         if (filteredOptions.value?.length < 1) {
             setTimeout(() => {
+            if(filteredOptions.value?.length === 1)
                 selectOption(filteredOptions.value[0]);
             }, 3000)
-        } else
+        } else{
+            if(filteredOptions.value?.length === 1)
             selectOption(filteredOptions.value[0])
+        }
     }
 
 }, { immediate: true, deep: true });
@@ -218,7 +235,13 @@ const inputClass =
                         :class="[
                             option.id === modelValue ? 'bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white font-semibold' : 'text-neutral-600 dark:text-neutral-400'
                         ]">
-                        <span class="block truncate">{{ option.name }}</span>
+                        <span class="block truncate">
+
+<slot name="option" :item="option">
+      <span class="block truncate">{{ option.name }}</span>
+</slot>
+
+                        </span>
                         <Check v-if="option.id === modelValue"
                             class="h-4 w-4  text-nfuko-primary dark:text-[#8ba8a2]" />
                     </li>

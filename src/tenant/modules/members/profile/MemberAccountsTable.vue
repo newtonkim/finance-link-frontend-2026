@@ -58,11 +58,13 @@
         v-if="currentAction === 'deposit'"
         :data="{ action, ...automaticCreate }"
         v-model:form="formData"
+         @success="emit('reload')"
       />
       <Withdrawal
         v-else-if="currentAction === 'withdrawal'"
         :data="{ action, ...automaticCreate }"
         v-model:form="formData"
+         @success="emit('reload')"
       />
       <Details
         v-else-if="action === 'view'"

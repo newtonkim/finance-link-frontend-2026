@@ -4,6 +4,8 @@ import { HandCoins } from 'lucide-vue-next';
 import { ref } from 'vue';
 import FormField from '@/Global/FormField.vue';
 import MoneyInput from '@/Global/MoneyInput.vue';
+import { watch } from 'vue';
+import { notify } from '@/Global/Toasters';
 const emit = defineEmits(['select', 'action'])
 const props = withDefaults(
   defineProps<{
@@ -27,6 +29,26 @@ function getValue(item: any, key: string) {
 function actionClick(index: any) {
   modalOpen.value = { show: !modalOpen.value.show, index }
 }
+
+watch(
+  () => props.items[modalOpen.value.index]?.contribution,
+  (val) => {
+    const item = props.items[modalOpen.value.index]
+    if (!item) return
+
+    if (val > item.balance) {
+      item.contribution = item.balance
+      notify({
+        type: 'warning',
+        msg: 'Contribution cannot be greater than balance',
+      })
+    }
+
+    if (val < 0) {
+      item.contribution = 0
+    }
+  }
+)
 </script>
 <template>
   <div class="">
@@ -50,6 +72,9 @@ function actionClick(index: any) {
           </span>
           <span class="text-[10px] text-neutral-400 dark:text-neutral-500">
             {{ getValue(item, typeKey) }}
+          </span>
+          <span class="text-[10px] text-neutral-400 dark:text-neutral-500">
+            {{ getValue(item, 'account_code') }}
           </span>
         </div>
 

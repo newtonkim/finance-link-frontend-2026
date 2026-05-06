@@ -14,7 +14,7 @@ export function shareCenterApi() {
           url: '/shares/'+ends,
         method: 'post',
         time: 0,
-        state: 'memberAccountList',
+        state: 'recentShareTransactionList',
       },
     })
     feedback(getCharges)
@@ -28,7 +28,7 @@ export function shareCenterApi() {
           url: '/shares/'+ends,
         method: 'post',
         time: 0,
-        state: 'memberAccountList',
+        state: 'recentShareTransactionList',
       },
     })
     feedback(getCharges)

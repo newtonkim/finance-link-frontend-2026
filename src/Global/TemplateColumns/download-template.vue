@@ -29,7 +29,7 @@
                     <label v-for="(label, key) in filteredData" :key="key"
                         class="flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer border border-transparent hover:border-nfuko-primary-300 hover:bg-nfuko-primary-50 dark:hover:bg-neutral-800 transition group">
                         <input :checked="defaults.includes(label)" type="checkbox" :value="key" v-model="selected"
-                            class="w-4 h-4 accent-nfuko-primary-600 cursor-pointer" />
+                            class="w-4 h-4 accent-nfuko-primary-600 cursor-pointer"  @input="checkTheInput" />
                         <span
                             class="text-sm capitalize text-neutral-700 dark:text-neutral-200 group-hover:text-nfuko-primary-600 transition">
                             {{ displayLabel(label) }}
@@ -55,11 +55,12 @@
 
 <script setup lang="ts">
 import { SearchCheck } from 'lucide-vue-next'
-import { computed, onMounted, ref, type PropType } from 'vue'
+import { computed, onMounted, ref, watch, type PropType } from 'vue'
 import * as XLSX from 'xlsx'
 import { pomPinia } from 'septor-store'
 
 import { fetchTableData } from '../landingLayout/util'
+import { notify } from '../Toasters'
 const Store = pomPinia()
 
 const props: any = defineProps({
@@ -153,13 +154,39 @@ onMounted(() => {
     collection.value=props.data
     selected.value = [...(selected.value ?? []), ...(props.defaults ?? [])];
    
-    console.log(selected.value);
+    // console.log(selected.value);
     
 
     if (props?.url) {
         handleTableAction(props?.url, null)
     }
 })
+watch(() => selected.value, (val) => {
+    // dont touch the defaults
+    // selected.value = [...(selected.value ?? []), ...(props.defaults ?? [])];
+},{
+    immediate: true,
+    deep: true})
+
+    function checkTheInput(e: any) {
+// alert()
+if(props.defaults.includes(e.target.value)){
+    selected.value = [...(selected.value ?? []), ...(props.defaults ?? [])];
+  notify({
+    type: 'error',
+    msg: 'Default columns cannot be unchecked',
+
+})
+}
+    // selected.value = [...(selected.value ?? []), ...(props.defaults ?? [])];
+        
+        // if (e.target.checked) {
+        //     selected.value.push(e.target.value)
+        // } else {
+        //     selected.value = selected.value.filter(item => item !== e.target.value)
+        // }
+
+    }
 
 const exportColumns = () => {
     const date = new Date().toISOString().slice(0, 10)

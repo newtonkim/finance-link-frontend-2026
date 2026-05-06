@@ -40,7 +40,7 @@ async function initialize() {
       details: data,
       accounts: group_accounts,
       members: group_members,
-    }; 
+    };
   }
   pageLoading.value = false;
 }
@@ -54,15 +54,15 @@ onBeforeMount(() => {
 });
 
 const tabs = computed(() => [
-  { id: "members", label: "members", icon: Users, count: null },
+  { id: "members", label: "group members", icon: Users, count: null },
   {
     id: "transactions",
-    label: "Transactions",
+    label: "group Transactions",
     icon: FileText,
     count: (member.value as any)?.transactions?.length || 0,
   },
-//   { id: "Gurrantors", label: "Gurrantors", icon: Wallet, count:null },
-  { id: "loans", label: "Member With Loans", icon: Wallet, count: (member.value as any)?.loans?.length || 0 },
+  //   { id: "Gurrantors", label: "Gurrantors", icon: Wallet, count:null },
+  { id: "loans", label: "group Member With Loans", icon: Wallet, count: (member.value as any)?.loans?.length || 0 },
 ]);
 
 // ── Drawer refs ──────────────────────────────────────────────────────────────
@@ -143,8 +143,8 @@ const formatDateTime = (dateString?: string) => {
       <div class="relative h-12 w-12">
         <div class="absolute inset-0 rounded-full border-4 border-[#cda434]/20"></div>
         <div
-          class="absolute inset-0 rounded-full border-4 border-transparent border-t-[#cda434] border-r-[#cda434] animate-spin"
-        ></div>
+          class="absolute inset-0 rounded-full border-4 border-transparent border-t-[#cda434] border-r-[#cda434] animate-spin">
+        </div>
         <div class="absolute inset-2 rounded-full bg-[#cda434]/10"></div>
       </div>
       <div class="text-[12px] font-bold uppercase tracking-widest text-[#cda434]">
@@ -157,103 +157,64 @@ const formatDateTime = (dateString?: string) => {
   <div v-else>
     <div class="min-h-screen bg-background text-foreground relative overflow-x-hidden">
       <!-- Layout -->
-      <div
-        class="relative z-10 p-5 flex flex-col lg:flex-row gap-5 max-w-full overflow-hidden"
-      >
+      <div class="relative z-10 p-5 flex flex-col lg:flex-row gap-5 max-w-full overflow-hidden">
         <!-- Sidebar -->
-        <MemberSidebar
-          class="w-full lg:w-[300px] shrink-0"
-          :data="profileDetails?.details ?? {}"
-          :computed-age="''"
-          :format-date="formatDate"
-          :member-initials="memberInitials"
-          :upload-processing="uploadProcessing"
-        />
+        <MemberSidebar class="w-full lg:w-[300px] shrink-0" :data="profileDetails?.details ?? {}" :computed-age="''"
+          :format-date="formatDate" :member-initials="memberInitials" :upload-processing="uploadProcessing" />
 
         <!-- Main Content -->
         <div class="flex-1 flex flex-col gap-5 min-w-0">
           <!-- Accounts -->
           <div v-if="profileDetails?.accounts" class="w-full overflow-x-auto">
             <MemberAccountsTable @reload="initialize" :member="profileDetails?.details ?? {}"
-                            :accounts="Array.isArray(profileDetails.accounts) ? profileDetails.accounts : []"
-                            :currency-code="currencyCode" :format-currency="formatCurrency"
-                            @new-account="newAccountDrawer?.openDrawer()"
-                            @custom-fee="(account) => customFeeDrawer?.openDrawer(account)" />
+              :accounts="Array.isArray(profileDetails.accounts) ? profileDetails.accounts : []"
+              :currency-code="currencyCode" :format-currency="formatCurrency"
+              @new-account="newAccountDrawer?.openDrawer()"
+              @custom-fee="(account) => customFeeDrawer?.openDrawer(account)" />
           </div>
 
           <!-- Tabs -->
-          <div
-            class="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm"
-          >
+          <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
             <!-- Tab bar -->
-            <div
-              class="flex overflow-x-auto border-b border-gray-100 px-4 whitespace-nowrap"
-            >
-              <button
-                v-for="tab in tabs"
-                :key="tab.id"
-                @click="activeTab = tab.id"
-                :class="[
-                  'relative flex items-center gap-2 px-4 py-4 text-[13px] font-bold transition-colors whitespace-nowrap',
-                  activeTab === tab.id
-                    ? 'text-[#cda434]'
-                    : 'text-[#788896] hover:text-gray-900',
-                ]"
-              >
+            <div class="flex overflow-x-auto border-b border-gray-100 px-4 whitespace-nowrap">
+              <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" :class="[
+                'relative flex items-center gap-2 px-4 py-4 text-[13px] font-bold transition-colors whitespace-nowrap capitalize',
+                activeTab === tab.id
+                  ? 'text-[#cda434]'
+                  : 'text-[#788896] hover:text-gray-900',
+              ]">
                 <component :is="tab.icon" :size="16" />
                 {{ tab.label }}
 
-                <span
-                  v-if="tab.count !== null"
-                  class="inline-flex items-center justify-center min-w-[20px] h-[20px] px-1.5 rounded-md text-[11px] font-bold font-mono bg-gray-100 text-[#788896]"
-                >
+                <span v-if="tab.count !== null"
+                  class="inline-flex items-center justify-center min-w-[20px] h-[20px] px-1.5 rounded-md text-[11px] font-bold font-mono bg-gray-100 text-[#788896]">
                   {{ tab.count }}
                 </span>
 
-                <div
-                  v-if="activeTab === tab.id"
-                  class="absolute bottom-0 left-4 right-4 h-[3px] bg-[#cda434] rounded-t-full"
-                ></div>
+                <div v-if="activeTab === tab.id"
+                  class="absolute bottom-0 left-4 right-4 h-[3px] bg-[#cda434] rounded-t-full"></div>
               </button>
             </div>
 
             <!-- Members -->
             <div v-if="activeTab === 'members'" class="w-full overflow-x-auto">
-              <MemberGroupList
-                @reload="initialize"
-                :member="profileDetails?.members ?? {}"
-                :accounts="
-                  Array.isArray(profileDetails?.members) ? profileDetails.members : []
-                "
-                :currency-code="currencyCode" :format-currency="formatCurrency"
-                @new-account="newAccountDrawer?.openDrawer()"
-              />
+              <MemberGroupList @reload="initialize" :member="profileDetails?.members ?? {}" :accounts="Array.isArray(profileDetails?.members) ? profileDetails.members : []
+                " :currency-code="currencyCode" :format-currency="formatCurrency"
+                @new-account="newAccountDrawer?.openDrawer()" />
             </div>
 
             <!-- Transactions -->
             <div class="w-full overflow-x-auto" v-if="activeTab === 'transactions'">
-              <MemberTransactionsTab
-                :transactions="member?.transactions"
-                mode="all"
-                action-color="bg-[#cda434]"
-                :format-date="formatDate"
-                :format-date-time="formatDateTime"
-                :format-currency="formatCurrency"
-                @print="printReceipt"
-              />
+              <MemberTransactionsTab :transactions="member?.transactions" mode="all" action-color="bg-[#cda434]"
+                :format-date="formatDate" :format-date-time="formatDateTime" :format-currency="formatCurrency"
+                @print="printReceipt" />
             </div>
             <div class="w-full overflow-x-auto" v-if="activeTab === 'loans'">
-              <GroupMembersWithLoansTab
-                mode="all"
-                action-color="bg-[#cda434]"
-                :format-date="formatDate"
-                :format-date-time="formatDateTime"
-                :format-currency="formatCurrency"
-                @print="printReceipt"
-              />
+              <GroupMembersWithLoansTab mode="all" action-color="bg-[#cda434]" :format-date="formatDate"
+                :format-date-time="formatDateTime" :format-currency="formatCurrency" @print="printReceipt" />
             </div>
-           
- 
+
+
           </div>
         </div>
       </div>

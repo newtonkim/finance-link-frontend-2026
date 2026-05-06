@@ -139,19 +139,28 @@ function submitData(end: string = '', des?: string, type: string = 'warning', to
         type,
         confirm: async () => {
             if (end == 'share-transaction-revert') {
+                statusFilter.value = ''
                 revertShareTransaction(`holders/${end}`, data).then(v => {
-                    statusFilter.value = "y"
-                    statusFilter.value = ''
+                    setTimeout(() => {
+                        statusFilter.value = "y"
+                    },)
+                 
                 })
                 return
 
             }
             SellSharesApi(`holders/${end}`, formData.value).then(v => {
-                if (v?.code == 200)
-                    statusFilter.value = "y"
+                if (v?.code == 200){
+                    setTimeout(() => {
+                        statusFilter.value = " "
+                    }, 1000);
+                }
                 if (toggle)
                     drawer.value?.toggleDrawer()
-                statusFilter.value = ''
+                setTimeout(() => {
+                        statusFilter.value = ''
+                }, 1000);
+            
             })
         }, cancel: () => { },
     });
@@ -160,13 +169,7 @@ function saveUser(type: string, data: any) {
     if (automaticCreate.value[statusFilter.value]?.action) automaticCreate.value[statusFilter.value]?.action()
 }
 
-// function OpenThedrawer(item: any, action = "") {
-//     statusFilter.value = item
-//     setTimeout(() => {
-//         drawer.value.toggleDrawer();
-//     }, 100);
-// }
-
+ 
 watch(drawer.value?.drawerOpen, (v) => {
     if (!v) {
         formData.value = [];

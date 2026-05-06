@@ -26,7 +26,7 @@
             <Edit v-if="['edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
             <Details v-if="['view'].includes(action)" :data="data" />
             <component
-                :defaults="['dob', 'name', 'salutation', 'gender', 'phone', 'dob', 'address', 'joined_date', 'nationality']"
+                :defaults="['dob', 'name', 'account_number','salutation', 'gender', 'phone', 'dob', 'address', 'joined_date', 'nationality']"
                 v-else-if="migrationComponent" :is="migrationComponent.component" :data="{ ...data, action }"
                 :url="migrationComponent?.url" />
         </template>

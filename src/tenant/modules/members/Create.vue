@@ -277,7 +277,7 @@ const fields = ref<any[]>([
     placeholder: 'join date ',
   },
   {
-    label: 'referred by',
+    label: 'referred by (staff who brought this member)',
     name: 'referred_by',
     type: 'select',
     required: false,
