@@ -143,14 +143,14 @@ watch(() => props.print, (v) => {
                 </thead>
                 <tbody>
                     <tr v-for="(charge, index) in data?.loan_product_details?.charges" :key="index" class="border-t">
-                        <td class="px-3 py-2">{{ charge.name }}</td>
-                        <td class="px-3 py-2 capitalize">{{ charge.charge_type }}</td>
+                        <td class="px-3 py-2">{{ charge?.name }}</td>
+                        <td class="px-3 py-2 capitalize">{{ charge?.charge_type }}</td>
                         <td class="px-3 py-2 text-right font-medium">
-                            <span v-if="charge.charge_type === 'percentage'">
-                                {{ charge.value }}%
+                            <span v-if="charge?.charge_type === 'percentage'">
+                                {{ charge?.value }}%
                             </span>
                             <span v-else>
-                                {{ formatCurrency(charge.value) }}
+                                {{ formatCurrency(charge?.value) }}
                             </span>
                         </td>
                     </tr>
