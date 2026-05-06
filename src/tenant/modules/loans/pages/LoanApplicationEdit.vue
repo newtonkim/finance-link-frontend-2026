@@ -59,15 +59,19 @@ function clearProduct() { form.value.loan_product_id = null; productSearch.value
 const amountDisplay = ref('')
 function onAmountInput(e: Event) {
   const input = e.target as HTMLInputElement
-  const raw = input.value.replace(/,/g, '')
+  const cursorEnd = input.selectionEnd ?? input.value.length
+  const oldLen = input.value.length
+  const raw = input.value.replace(/[^0-9.]/g, '')
   const n = parseFloat(raw)
   form.value.requested_amount = isNaN(n) ? null : n
-  if (raw === '' || raw === '-') { amountDisplay.value = raw; return }
-  const [intPart, decPart] = raw.split('.')
-  const formatted = Number(intPart).toLocaleString()
-  amountDisplay.value = decPart !== undefined ? `${formatted}.${decPart}` : formatted
-  const cursorFromEnd = input.value.length - (input.selectionEnd ?? input.value.length)
-  requestAnimationFrame(() => { const newLen = amountDisplay.value.length; input.setSelectionRange(newLen - cursorFromEnd, newLen - cursorFromEnd) })
+  if (!raw) { input.value = ''; amountDisplay.value = ''; return }
+  const parts = raw.split('.')
+  const intFormatted = parseInt(parts[0] || '0', 10).toLocaleString()
+  const formatted = parts.length > 1 ? `${intFormatted}.${parts[1]}` : intFormatted
+  input.value = formatted
+  amountDisplay.value = formatted
+  const newPos = Math.max(0, cursorEnd + (formatted.length - oldLen))
+  input.setSelectionRange(newPos, newPos)
 }
 function onAmountFocus() { amountDisplay.value = form.value.requested_amount != null ? String(form.value.requested_amount) : '' }
 function onAmountBlur() { amountDisplay.value = form.value.requested_amount != null ? Number(form.value.requested_amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '' }
