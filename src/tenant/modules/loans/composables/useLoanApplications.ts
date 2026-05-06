@@ -133,8 +133,7 @@ export function useLoanApplications() {
           time: 0,
           reqs: {
             url: 'settings/branches/branches-dropdown-list',
-            method: 'post',
-            data: {},
+            method: 'get',
           },
           mStore: { mUse: true },
         }

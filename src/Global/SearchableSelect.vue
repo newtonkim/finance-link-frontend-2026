@@ -96,6 +96,7 @@ const filteredOptions = computed(() => {
 });
 
 const selectOption = (option: Option) => {
+    if (!option) return;
     emit('update:modelValue', option.id);
     emit('update:itemSelected', option);
     setTimeout(() => {
@@ -143,10 +144,10 @@ watch(props, async (newVal) => {
         await toggleDropdown();
     }
     if (newVal?.selectDefaultIndex >= 0) {
-        /// slet the first item in the drop down
-     setTimeout(() => {
-            selectOption(filteredOptions.value[newVal.selectDefaultIndex ?? 0])
-     },1000)
+        setTimeout(() => {
+            const item = filteredOptions.value[newVal.selectDefaultIndex ?? 0]
+            if (item) selectOption(item)
+        }, 1000)
     }
     if (newVal?.selectOnOneItem) {
         
