@@ -47,7 +47,7 @@ export function useLoanApplicationCreate() {
 
       const activeBranchId = getLocalValues(keysToUse.activeBranch as any)
       if (activeBranchId) {
-        form.value.branch_id = activeBranchId
+        form.value.branch_id = Number(activeBranchId)
         showBranchSelect.value = branches.value.length > 1
       } else if (branches.value.length === 1) {
         form.value.branch_id = branches.value[0].id
@@ -70,8 +70,9 @@ export function useLoanApplicationCreate() {
       router.push({ name: 'tenant-loans' })
     } catch (err: any) {
       if (err?.response?.status === 422) {
-        errors.value = err.response.data.errors ?? {}
-        toast.error('Please fix the errors below.')
+        const errs = err.response.data.errors ?? {}
+        errors.value = errs
+        Object.values(errs).forEach((messages: any) => toast.error(messages[0]))
       } else {
         toast.error(err?.response?.data?.message ?? 'Failed to save loan application.')
       }
@@ -92,8 +93,9 @@ export function useLoanApplicationCreate() {
       router.push({ name: 'tenant-loans-show', params: { id } })
     } catch (err: any) {
       if (err?.response?.status === 422) {
-        errors.value = err.response.data.errors ?? {}
-        toast.error('Please fix the errors below.')
+        const errs = err.response.data.errors ?? {}
+        errors.value = errs
+        Object.values(errs).forEach((messages: any) => toast.error(messages[0]))
       } else {
         toast.error(err?.response?.data?.message ?? 'Failed to submit loan application.')
       }
