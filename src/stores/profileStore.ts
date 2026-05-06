@@ -4,7 +4,7 @@ import { staffApi, type Staff } from '@/tenant/apis/staff/api'
 import { branchesApi } from '@/tenant/apis/branches/branchesApi'
 import { useAuthStore } from './auth'
 import { useTenantUserStore } from './tenantUserStore'
-import { getLocalValues } from '@/Global'
+import { getLocalValues, getSubdomainName } from '@/Global'
 import { toast } from 'vue-sonner'
 
 export const useProfileStore = defineStore('profile', () => {
@@ -76,7 +76,9 @@ export const useProfileStore = defineStore('profile', () => {
 
     const userId = tenantUserStore.user?.id || authStore.user?.id
 
-    if (userId) {
+    // Only fetch tenant staff details when on a tenant page — the staff API
+    // requires an active tenant DB connection which is unavailable on central routes.
+    if (userId && getSubdomainName()) {
       try {
         const { data } = await staffApi.get(userId)
         staffDetails.value = data.data || data

@@ -83,6 +83,7 @@ const canProceed = computed(() => {
         return !!plan && !!duration
     }
     return form.value.every((field: any) => {
+        if (field.error) return false
         if (field.required) {
             return !!field.value
         }

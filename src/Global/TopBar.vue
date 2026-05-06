@@ -50,8 +50,7 @@ async function fetchBranches() {
             time: 0,
             reqs: {
                 url: 'settings/branches/branches-dropdown-list',
-                method: 'post',
-                data: {},
+                method: 'get',
             },
             axiosInstance: interceptor,
             // mStore: { mUse: false },
@@ -84,7 +83,9 @@ onMounted(async () => {
   tenantUserStore.load()
   profileStore.fetchFullProfile()
   watchBranchchanges(getLocalValues('activeBranch' as const))
-  await fetchBranches()
+  if (subdomain) {
+    await fetchBranches()
+  }
 })
 
 function onBranchChange(val: number) {

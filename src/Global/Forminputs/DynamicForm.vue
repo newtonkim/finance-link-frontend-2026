@@ -6,7 +6,7 @@ import MultiSearchableSelect from '@/Global/MultiSearchableSelect.vue'
 import PhoneInput from '@/Global/PhoneInput.vue';
 import FormField from '@/Global/FormField.vue';
 import MoneyInput from '@/Global/MoneyInput.vue';
-import { Printer, UserCircle2 } from 'lucide-vue-next';
+import { Printer, UserCircle2, Eye, EyeOff } from 'lucide-vue-next';
 import { pomPinia } from 'septor-store';
 import { formawtacher } from './formWatcher';
 const Store = pomPinia();
@@ -59,6 +59,26 @@ onMounted(() => {
     formStore.isFormSubmitted = false
 })
 const avatarPreviews = ref<Record<number, string>>({});
+const showPasswordFields = ref<Record<number, boolean>>({});
+
+function handlePasswordChange(field: any, index: number) {
+    field.change?.(field.value, field, index);
+    if (field.matchName) {
+        const matchField = prfields.value.find((f: any) => f.name === field.matchName);
+        if (matchField) {
+            const mismatch = field.value !== matchField.value;
+            field.error = mismatch ? 'Password mismatch' : null;
+            field.showError = mismatch;
+        }
+    }
+    const dependentField = prfields.value.find((f: any) => f.matchName === field.name);
+    if (dependentField && dependentField.value !== undefined && dependentField.value !== null && dependentField.value !== '') {
+        const mismatch = field.value !== dependentField.value;
+        dependentField.error = mismatch ? 'Password mismatch' : null;
+        dependentField.showError = mismatch;
+    }
+    DatawhistleBlower(prfields.value);
+}
 
 const inputClass = 'w-full rounded-lg border focus:border-nfuko-primary/50 focus:ring-1    bg-white px-3 py-2.5 text-sm outline-none transition  border-nfuko-primary/10 focus:ring-1 focus:ring-bg-nfuko-primary/90 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#8ba8a2]/90 dark:focus:ring-[#8ba8a2]/90';
 function DatawhistleBlower(newFields: any) {
@@ -289,6 +309,29 @@ function shouldShowField(field: any) {
                                             class="px-2 flex items-center bg-neutral-100 dark:bg-red-200 border border-l-0 rounded-xl rounded-l-none text-sm text-neutral-500 dark:text-neutral-400 font-medium">
                                             {{ field.suffix }}
                                         </div>
+                                    </div>
+                                </template>
+
+                                <!-- Password -->
+                                <template v-else-if="field.type === 'password'">
+                                    <div class="relative">
+                                        <input
+                                            :id="field.name"
+                                            :type="showPasswordFields[index] ? 'text' : 'password'"
+                                            v-model="field.value"
+                                            v-bind="field.props ?? {}"
+                                            :class="[inputClass, field?.class, 'pr-11']"
+                                            class="rounded-xl"
+                                            @input="() => handlePasswordChange(field, Number(index))"
+                                        />
+                                        <button
+                                            type="button"
+                                            @click="showPasswordFields[index] = !showPasswordFields[index]"
+                                            class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
+                                        >
+                                            <EyeOff v-if="showPasswordFields[index]" class="size-4" />
+                                            <Eye v-else class="size-4" />
+                                        </button>
                                     </div>
                                 </template>
 
