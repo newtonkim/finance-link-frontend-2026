@@ -8,6 +8,7 @@ export interface MemberOption {
     id: number
     name: string
     member_no: string
+    phone: string | null
     savings_account: { account_no: string; balance: number } | null
 }
 

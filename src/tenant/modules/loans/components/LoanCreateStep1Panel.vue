@@ -113,6 +113,10 @@ const { formatAmount } = useLoanApplicationHelpers()
                   }}</span>
                   <div class="flex items-center gap-2 text-[10px] text-neutral-500">
                     <span>{{ item.member_no }}</span>
+                    <template v-if="item.phone">
+                      <span class="text-neutral-300">·</span>
+                      <span class="text-nfuko-action font-medium">{{ item.phone }}</span>
+                    </template>
                     <template v-if="item.savings_account">
                       <span class="text-neutral-300">·</span>
                       <span>{{ item.savings_account.account_no }}</span>
@@ -171,7 +175,7 @@ const { formatAmount } = useLoanApplicationHelpers()
     </div>
 
     <!-- Sidebar: Product details + Loan Officer -->
-    <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-6 relative z-10">
       <div
         v-if="selectedProduct"
         class="rounded-2xl border border-neutral-100 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
