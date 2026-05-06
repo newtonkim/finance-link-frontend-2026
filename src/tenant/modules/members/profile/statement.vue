@@ -24,7 +24,7 @@
         </h1>
      
         <p class="text-sm text-gray-500 mt-2">
-          {{ selectedType === 'all' ? 'All Transactions' : formatType((selectedType??[]).join(', ')) }}
+          {{ !selectedType.length ? 'All Transactions' : formatType(selectedType.join(', ')) }}
         </p>
       </div>
 
@@ -143,7 +143,7 @@ const props = defineProps<{
   // formatCurrency?: (amount: number) => string
 }>()
 
-const selectedType = ref('all')
+const selectedType = ref<(string | number)[]>([])
 const showTransactionTable = ref(false)
 
 const collection = computed(() => props.data?.transactions ?? [])
@@ -154,17 +154,8 @@ const types = computed(() => {
 })
 
 const filteredCollection = computed(() => {
-  if (selectedType.value === 'all') return collection.value
-  return collection.value.filter(t =>{
-    if( Array.isArray(selectedType.value)) {
-
-     return selectedType.value.includes(t.type)
-    }else{
-      return t.type === selectedType.value
-    }
-
-  })
-  // return collection.value.filter(t => t.type === selectedType.value)
+  if (!selectedType.value.length) return collection.value
+  return collection.value.filter(t => selectedType.value.includes(t.type))
 })
 
 const totalAmount = computed(() => {
