@@ -171,7 +171,7 @@ const { formatAmount } = useLoanApplicationHelpers()
     </div>
 
     <!-- Sidebar: Product details + Loan Officer -->
-    <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-6 relative z-10">
       <div
         v-if="selectedProduct"
         class="rounded-2xl border border-neutral-100 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
