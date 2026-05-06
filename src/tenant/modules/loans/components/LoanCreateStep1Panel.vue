@@ -115,7 +115,7 @@ const { formatAmount } = useLoanApplicationHelpers()
                     <span>{{ item.member_no }}</span>
                     <template v-if="item.phone">
                       <span class="text-neutral-300">·</span>
-                      <span>{{ item.phone }}</span>
+                      <span class="text-nfuko-action font-medium">{{ item.phone }}</span>
                     </template>
                     <template v-if="item.savings_account">
                       <span class="text-neutral-300">·</span>
