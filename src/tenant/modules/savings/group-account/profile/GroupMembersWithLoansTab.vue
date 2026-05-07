@@ -54,7 +54,8 @@ function navigateIntoLoanDetails(item: any) {
         router.push(`/tenant/loan-applications/${item?.application_id}`)
 }
 const columns = [
-    { key: 'code', label: 'Reference', sticky: 'left' },
+    { key: 'code', label: 'loan code', sticky: 'left' },
+    { key: 'account_code', label: 'Account Code', sticky: 'left' },
     { key: 'member_code', label: 'Member Code', sticky: 'left' },
     { key: 'member_name', label: 'Member Name', sticky: 'left' },
     { key: 'member_phone', label: 'Member Phone' },

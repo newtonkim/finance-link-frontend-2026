@@ -1,7 +1,7 @@
 <template>
   <div class="inline-flex">
     <button
-      @click="handleClick"
+      @click="()=>!disabled?handleClick():null"
       type="button"
       v-bind="$attrs"
       class="flex items-center gap-1 px-3 py-2 text-center rounded-full text-[14px] font-small text-gray-600   
@@ -28,6 +28,7 @@ const props = defineProps({
   icon: String,
   title: String,
   color: String,
+  disabled: Boolean,
   customClass: String,
 })
 

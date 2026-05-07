@@ -1,6 +1,7 @@
 <template>
     <div class="card shadow-sm px-4 h-full bg-white dark:bg-neutral-800 rounded-md" v-if="fields?.length">
         <div class="  mb-6">
+            <!-- {{ props?.data }} -->
             <DetailsTable :data="props.data" :columns="columns" />
         </div>
         <Form :action="data.action" parentStyle="grid  grid-cols-2 gap-3 px-2" v-model:form="fields" />
@@ -9,7 +10,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { DetailsTable, Form } from '@/Global'
-const emits = defineEmits(['update:form','reload']),
+const emits = defineEmits(['update:form', 'reload']),
 
     props = defineProps({
         data: {
@@ -61,12 +62,16 @@ function initialize() {
             value: new Date().toISOString().split('T')[0],
         },
         {
-            label: 'payment mode',
-            name: 'payment_method',
+            label: 'payment mode (Debit Account)',
+            name: 'payment_mode_id',
             type: 'select',
-            required: false,
-            options: paymentModeOptions,
-            placeholder: 'method of payment',
+            url: "global/chart-of-accounts",
+            data: { account_type: 'ASSET' },
+            dataOnMount: true,
+            options: [],
+            value: props?.data?.payment_mod,
+            placeholder: 'Select income account',
+            // condition: (val: string) => ['on_registration', 'on_loan_application'].includes(val)
         },
         {
             label: 'Transaction Reference',

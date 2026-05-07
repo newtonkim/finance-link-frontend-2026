@@ -2,7 +2,14 @@
   <div class="card shadow-md px-4 py-3 bg-white dark:bg-neutral-800 rounded-md">
     <span v-if="loading"></span>
     <Form :action="data?.action" v-else parentStyle="grid  grid-cols-1 gap-3" v-model:form="fields" />
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
   </div>
+
 </template>
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
@@ -33,6 +40,7 @@ const emits = defineEmits(['update:form']),
       url: 'global/member-dropdown-list',
       placeholder: 'select a member',
       dataOnMount: true,
+      value: props?.data?.member_id,
      
     },
     
@@ -41,7 +49,7 @@ const emits = defineEmits(['update:form']),
           name: 'code',
           value:settingList.value?.['free-code'] ,
           type: 'text',
-          required: true,
+          required: false,
           placeholder: 'Enter code',
            dependsOn: {
         conditions: [
@@ -132,6 +140,17 @@ const emits = defineEmits(['update:form']),
           },
         ],
       }
+    },
+     {
+        label: 'payment mode (Debit Account)',
+        name: 'payment_mode_id',
+        type: 'select',
+        url: "global/chart-of-accounts",
+        data: { account_type: 'ASSET' },
+        dataOnMount: true,
+        options: [],
+        placeholder: 'Select income account',
+        // condition: (val: string) => ['on_registration', 'on_loan_application'].includes(val)
     },
     {
       label: 'Status',

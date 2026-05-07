@@ -14,6 +14,25 @@ interface Option {
     [key: string]: any;
 }
 
+/**
+ * dataOnMount - to fetch data on mount
+ *  options - for static options its optional
+ * url - for remote data
+ * modelValue - for v-model
+ * error - for error message
+ * placeholder - for placeholder
+ * label - for label
+ * disabled - for disabled the select
+ * remote - for remote data 
+ * data -  data posted to the api {query}
+ * saveData- keep data in store and pasistent
+ * state - for your data store to use
+ * reClean on every mount recall data
+ * selectDefaultIndex - for default selected index
+ * selectOnOneItem - for select only  when the options length is 1
+ * appendOptions - for append options to any othe data [options]
+ * method - for request method
+ * **/
 const props = defineProps<{
     modelValue: string | number | null;
     options?: Option[];
@@ -28,9 +47,11 @@ const props = defineProps<{
     saveData?: boolean;
     state?: string
     reload?: string
+    reClean?: boolean
     dataOnMount?: boolean
     selectDefaultIndex?: number
     selectOnOneItem?: boolean
+    appendOptions?: Option[]
     data?: any;
     method?: string;
 }>();
@@ -39,7 +60,6 @@ const emit = defineEmits(['update:modelValue', 'update:itemSelected']);
 const remoteUrl = debounce(async (url: string) => {
     if (!url) return;
     tryCatch(async () => {
-        // console.log(props.reload);
 
         const data = { ...props.data }
         if (searchQuery.value?.length >= 3)
@@ -53,22 +73,28 @@ const remoteUrl = debounce(async (url: string) => {
         });
         // console.log(generateAstate);
 
-        const checker = await Store?.[generateAstate]?.payload?.data ?? Store?.[generateAstate]?.payload ?? Store?.[generateAstate] ?? [];
+        let checker = await Store?.[generateAstate]?.payload?.data ?? Store?.[generateAstate]?.payload ?? Store?.[generateAstate] ?? [];
 
-        collection.value = Array.isArray(checker) ? checker : []
-         if (props?.selectOnOneItem) {
-        
-        
-        if (filteredOptions.value?.length < 1) {
-            setTimeout(() => {
-            if(filteredOptions.value?.length === 1)
-                selectOption(filteredOptions.value[0]);
-            }, 3000)
-        } else{
-            if(filteredOptions.value?.length === 1)
-            selectOption(filteredOptions.value[0])
+        if (props.appendOptions) {
+            if (Array.isArray(props.appendOptions))
+                checker = [...(props.appendOptions ?? []), ...checker,]
+
+
+
         }
-    }
+        collection.value = Array.isArray(checker) ? checker : []
+
+        if (props?.selectOnOneItem) {
+            if (filteredOptions.value?.length < 1) {
+                setTimeout(() => {
+                    if (filteredOptions.value?.length === 1)
+                        selectOption(filteredOptions.value[0]);
+                }, 3000)
+            } else {
+                if (filteredOptions.value?.length === 1)
+                    selectOption(filteredOptions.value[0])
+            }
+        }
     })
 }, 1000);
 
@@ -83,8 +109,9 @@ const selectedOption = computed(() => {
 });
 
 const filteredOptions = computed(() => {
-    const options = props?.url ? collection.value : props.options
-    
+
+    let options = props?.url ? collection.value : [...props.options, ...(props.appendOptions ?? [])]
+
     if (!Array.isArray(options)) return [];
 
     if (!searchQuery.value) return options;
@@ -110,11 +137,18 @@ const toggleDropdown = async () => {
     if (isOpen.value)
         searchQuery.value = '';
     const generateAstate = props?.state ?? `${props?.url}`.replace(/[^a-zA-Z0-9]/g, "-");
-    const DataAlreadyCollected = Store[generateAstate]?.payload?.data ?? Store[generateAstate]?.payload
+    let DataAlreadyCollected = Store[generateAstate]?.payload?.data ?? Store[generateAstate]?.payload
 
     if (props.url && !DataAlreadyCollected?.length) {
         remoteUrl(props.url)
     } else {
+        if (props.appendOptions) {
+            if (Array.isArray(props.appendOptions))
+                DataAlreadyCollected = [...(props.appendOptions ?? []), ...DataAlreadyCollected,]
+
+
+
+        }
 
         collection.value = DataAlreadyCollected
     }
@@ -128,6 +162,10 @@ const closeDropdown = (e: MouseEvent) => {
 
 onMounted(() => {
     window.addEventListener('click', closeDropdown);
+    if (props.reClean) {
+        const generateAstate = props?.state ?? `${props?.url}`.replace(/[^a-zA-Z0-9]/g, "-");
+        Store[generateAstate] = []
+    }
 });
 
 onUnmounted(() => {
@@ -144,31 +182,36 @@ watch(props, async (newVal) => {
     }
     if (newVal?.selectDefaultIndex >= 0) {
         /// slet the first item in the drop down
-     setTimeout(() => {
+        setTimeout(() => {
             selectOption(filteredOptions.value[newVal.selectDefaultIndex ?? 0])
-     },1000)
+        }, 1000)
     }
     if (newVal?.selectOnOneItem) {
-        
-        
+
+
         if (filteredOptions.value?.length < 1) {
             setTimeout(() => {
-            if(filteredOptions.value?.length === 1)
-                selectOption(filteredOptions.value[0]);
+                if (filteredOptions.value?.length === 1)
+                    selectOption(filteredOptions.value[0]);
             }, 3000)
-        } else{
-            if(filteredOptions.value?.length === 1)
-            selectOption(filteredOptions.value[0])
+        } else {
+            if (filteredOptions.value?.length === 1)
+                selectOption(filteredOptions.value[0])
         }
     }
+
+
+
 
 }, { immediate: true, deep: true });
 
 
 
- 
+
 watch(searchQuery, (newVal) => {
     if (searchQuery.value?.length >= 3 && props.url) {
+
+
         remoteUrl(props.url)
     }
 }, { immediate: true, deep: true });
@@ -237,9 +280,9 @@ const inputClass =
                         ]">
                         <span class="block truncate">
 
-<slot name="option" :item="option">
-      <span class="block truncate">{{ option.name }}</span>
-</slot>
+                            <slot name="option" :item="option">
+                                <span class="block truncate capitalize">{{ option?.name }}</span>
+                            </slot>
 
                         </span>
                         <Check v-if="option.id === modelValue"

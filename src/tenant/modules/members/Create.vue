@@ -45,10 +45,11 @@ const fields = ref<any[]>([
     options: OptionList.memberTypeOptions
   },
   {
-    label: 'products',
+    label: 'saving products',
     name: 'product_id',
     type: 'select',
     required: false,
+    reClean: true,
     placeholder: 'Search products',
     url: "global/savings-products",
     dataOnMount: true,
@@ -95,7 +96,11 @@ const fields = ref<any[]>([
         {
           field: 'member_type',
           condition: (val: any) => val === 'new_member'
-        }
+        },
+        {
+          field: 'member_type',
+          condition: (val: any) => !settingList?.value['hide-initial-deposit-field']
+        },
       ],
     },
     change: async (val: any) => {
@@ -104,6 +109,7 @@ const fields = ref<any[]>([
       watchChangeInProductOrCharges(fields, amount)
     },
   },
+
   {
     label: 'charges',
     name: 'charges',
@@ -115,27 +121,48 @@ const fields = ref<any[]>([
       conditions: [
         {
           field: 'member_type',
-          condition: (val: any) => val == 'new_member' && !settingList?.value['system-used-by-money-lender']
+          condition: (val: any) => val == 'new_member' && !settingList?.value['system-used-by-money-lender'] && !settingList?.value['hide-initial-deposit-field']
         },
 
       ],
     }
   },
-  {
-    label: 'Payment Mode',
-    name: 'payment_method',
+  // {
+  //   label: 'Payment Mode',
+  //   name: 'payment_method',
+  //   type: 'select',
+  //   value: "cash",
+  //   required: false,
+  //   options: [
+  //     { id: 'cash', name: 'Cash' },
+  //     { id: 'bank_transfer', name: 'Bank Transfer' },
+  //     { id: 'mobile_money', name: 'Mobile Money' },
+  //     { id: 'cheque', name: 'Cheque' },
+  //     { id: 'teller', name: 'Teller' },
+  //     { id: 'ussd', name: 'USSD' },
+  //   ],
+  //   placeholder: 'payment mothod',
+  // },
+    {
+    label: 'payment mode (Debit Account)',
+    name: 'payment_mode_id',
     type: 'select',
-    value:"cash",
-    required: false,
-    options: [
-      { id: 'cash', name: 'Cash' },
-      { id: 'bank_transfer', name: 'Bank Transfer' },
-      { id: 'mobile_money', name: 'Mobile Money' },
-      { id: 'cheque', name: 'Cheque' },
-      { id: 'teller', name: 'Teller' },
-      { id: 'ussd', name: 'USSD' },
-    ],
-    placeholder: 'payment mothod',
+    url: "global/chart-of-accounts",
+    data: { account_type: 'ASSET' },
+    dataOnMount: true,
+    options: [],
+    selectDefaultIndex: 0,
+    placeholder: 'Select income account',
+    dependsOn: {
+      conditions: [
+        {
+          field: 'member_type',
+          condition: (val: any) => val == 'new_member' && !settingList?.value['system-used-by-money-lender'] && !settingList?.value['hide-initial-deposit-field']
+        },
+
+      ],
+    }
+    // condition: (val: string) => ['on_registration', 'on_loan_application'].includes(val)
   },
   {
     label: 'opening balance',
@@ -158,6 +185,22 @@ const fields = ref<any[]>([
     type: 'text',
     required: true,
     placeholder: 'Enter Full Name',
+  },
+  {
+    label: 'Member Code',
+    name: 'code',
+    type: 'text',
+    required: false,
+    placeholder: 'Enter custom member code',
+    dependsOn: {
+      conditions: [
+        {
+          field: 'full_name',
+          condition: (val: any) => settingList?.value['sacco-members-free-input-code']
+        }
+      ],
+    }
+
   },
   {
     label: 'Salutation',
@@ -216,7 +259,7 @@ const fields = ref<any[]>([
     label: 'NATIONAL ID (NIN)',
     name: 'national_id',
     type: 'text',
-       required: settingList.value['sacco-members-member-nin-mandatory'],
+    required: settingList.value['sacco-members-member-nin-mandatory'],
 
     placeholder: 'Enter national id (NIN)',
   },

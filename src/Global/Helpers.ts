@@ -786,16 +786,55 @@ export function createUrl(url: string, ...actions: string[]) {
   return url2.join('/') + `/${actions.join('/')}`
 }
 
+// export async function copyToClipboard(text: string) {
+//   try {
+//     await navigator.clipboard.writeText(text)
+//     notify({ pos: 'br', type: 'info', msg: 'Copied!' })
+//   } catch (err) {
+//     notify({ pos: 'br', type: 'warning', msg: 'failed to copy' })
+//     console.error('Failed to copy:', err)
+//   }
+// }
 export async function copyToClipboard(text: string) {
   try {
-    await navigator.clipboard.writeText(text)
-    notify({ pos: 'br', type: 'info', msg: 'Copied!' })
+    if (navigator?.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text)
+    } else {
+      const textarea = document.createElement('textarea')
+      textarea.value = text
+
+      textarea.style.position = 'fixed'
+      textarea.style.opacity = '0'
+
+      document.body.appendChild(textarea)
+
+      textarea.focus()
+      textarea.select()
+
+      const successful = document.execCommand('copy')
+
+      document.body.removeChild(textarea)
+
+      if (!successful) {
+        throw new Error('Fallback copy failed')
+      }
+    }
+
+    notify({
+      pos: 'br',
+      type: 'info',
+      msg: 'Copied!',
+    })
   } catch (err) {
-    notify({ pos: 'br', type: 'warning', msg: 'failed to copy' })
     console.error('Failed to copy:', err)
+
+    notify({
+      pos: 'br',
+      type: 'warning',
+      msg: 'Failed to copy',
+    })
   }
 }
-
 export function exptendAformField({ fields, nextto, field }: any) {
   const existsIndex = fields.value.findIndex((f: any) => f.name === nextto)
   if (existsIndex === 1) {

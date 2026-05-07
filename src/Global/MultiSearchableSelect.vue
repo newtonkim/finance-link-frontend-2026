@@ -25,6 +25,7 @@ const props = defineProps<{
     state?: string
     dataOnMount?: boolean
     data?: any
+    appendOptions?: Option[]
 }>();
 
 const emit = defineEmits(['update:modelValue', 'update:itemSelected']);
@@ -152,6 +153,24 @@ defineExpose({
     filteredOptions
 });
 
+watch(props, async (newVal) => {
+    if (newVal?.dataOnMount) {
+        searchQuery.value = String(props.modelValue ?? '');
+        // opens
+        await toggleDropdown();
+        // close
+        await toggleDropdown();
+    }
+    
+
+    if(newVal.appendOptions){
+        if(!Array.isArray(props.appendOptions)) return
+        alert(  )
+        collection.value = [...(props.appendOptions??[]),...collection.value,]
+    }
+
+}, { immediate: true, deep: true });
+
 const inputClass =
     'w-full rounded-lg border focus:border-nfuko-primary focus:ring-1 focus:ring- bg-nfuko-[#FCDC04]   bg-white px-3 py-2.5 text-sm outline-none transition  border-nfuko-primary/10 focus:ring-1 focus:ring-[ bg-nfuko-primary]/90 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#8ba8a2]/90 dark:focus:ring-[#8ba8a2]/90';
 
@@ -203,7 +222,7 @@ const inputClass =
                             (modelValue || []).includes(option.id) ? 'bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white font-semibold' : 'text-neutral-600 dark:text-neutral-400'
                         ]">
                         <slot name="option" :item="option">
-                        <span class="block truncate">{{ option.name }}</span>
+                        <span class="block truncate">{{ option?.name }}</span>
                         </slot>
                         
                         <Check v-if="(modelValue || []).includes(option.id)" class="h-4 w-4 text-nfuko-primary dark:text-[#8ba8a2]" />
