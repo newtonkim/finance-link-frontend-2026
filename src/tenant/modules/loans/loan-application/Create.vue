@@ -142,7 +142,7 @@ printTheApplication.value = v
 </script>
 
 <template>
-  <div class="flex h-full flex-1 flex-col gap-6 bg-[#f8faf9] p-4 md:p-6 dark:bg-[#0a0a0a]">
+  <div class="flex h-full flex-1 flex-col gap-6 bg-[#f8faf9] px-4 md:p-6 dark:bg-[#0a0a0a]">
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-4" v-if="from!=='drawer'">
 
@@ -280,6 +280,10 @@ printTheApplication.value = v
         @prev="prevStep" @go-to-step="goToStep" @save="save()" @save-and-submit="saveAndSubmit()"
         @retry-eligibility="triggerEligibilityCheck" />
     </form>
+    <br>
+    <br>
+    <br>
+    <br>
   </div>
   <span v-if="printTheApplication">
 
