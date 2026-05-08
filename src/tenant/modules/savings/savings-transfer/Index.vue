@@ -1,6 +1,14 @@
 <template>
     <TableDrawer ref="drawer" :drawerWidth="drawerTitle?.width" :url="tableUrl" state="transferList"
         :drawerTitle="drawerTitle?.title" :columns="columns" @save="saveUser">
+            <template #member_name="{ item }">
+            <span>
+                <Button @click="navigateToProfile(item)"
+                    class="flex items-center gap-2 font-semibold text-nfuko-action text-sm dark:text-white">
+                    <span>{{ item?.member_name }}</span>
+                </Button>
+            </span>
+        </template>
         <template #code="{ item }">
             <div class=" items-center gap-1">
                 <CopyData :show="item.code" />
@@ -31,7 +39,11 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Create, Details } from '.'
-import { statusMap } from '@/Global'
+import {  setLocalValues, statusMap } from '@/Global'
+
+import { useRouter } from 'vue-router';
+
+const router = useRouter()
 const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
     drawer = ref<any>(null),
     drawerTitle = ref<any>({ title: 'Create Transfer', width: 'w-1/2' }),
@@ -52,7 +64,7 @@ const columns = [
     { key: 'transfer_to_product', label: 'transfer to', width: '14em ', },
     { key: 'transfer_amount', label: 'transfer', type: "money" },
     { key: 'account_balance', label: 'balance', type: "money" },
-    { key: 'created_at', label: 'created at', type: 'date' },
+    { key: 'created_at', label: 'created at', type: 'date' , width: '10em',},
     { key: 'actions', label: 'Actions', show: ['view', 'delete'] }
 ]
 
@@ -61,5 +73,9 @@ function refresh() {
     setTimeout(() => {
         drawer.value?.toggleDrawer()
     }, 300)
+}
+function navigateToProfile(item: any) {
+    router.push(`/tenant/member/profile`)
+    setLocalValues('memberProfile', {...item,id: item?.member_id})
 }
 </script>

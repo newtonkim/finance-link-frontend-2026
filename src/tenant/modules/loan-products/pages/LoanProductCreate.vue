@@ -270,7 +270,7 @@ const previewMoneyLocal = (f: any, r: any) => previewMoney(f, r, formatMoneyValu
                 class="w-full rounded-xl border border-neutral-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
               />
               <p class="mt-1 text-xs text-neutral-400 dark:text-neutral-500">
-                Days beyond due date before penalty or cancellation.
+                Days beyond due date before the loan starts being paid.
               </p>
             </div>
             <div>

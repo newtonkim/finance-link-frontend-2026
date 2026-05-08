@@ -109,15 +109,19 @@ const { formatAmount } = useLoanApplicationHelpers()
               <template #option="{ item }">
                 <div class="flex flex-col py-0.5">
                   <span class="font-semibold text-neutral-900 dark:text-white">{{
-                    item?.name
+                    item.name
                   }}</span>
                   <div class="flex items-center gap-2 text-[10px] text-neutral-500">
-                    <span>{{ item?.member_no }}</span>
-                    <template v-if="option?.savings_account">
+                    <span>{{ item.member_no }}</span>
+                    <template v-if="item.phone">
                       <span class="text-neutral-300">·</span>
-                      <span>{{ item?.savings_account?.account_no }}</span>
+                      <span class="text-nfuko-action font-medium">{{ item.phone }}</span>
+                    </template>
+                    <template v-if="item.savings_account">
+                      <span class="text-neutral-300">·</span>
+                      <span>{{ item.savings_account.account_no }}</span>
                       <span class="font-medium text-nfuko-primary dark:text-bg-nfuko-yellow">{{
-                        formatAmount(item?.savings_account?.balance)
+                        formatAmount(item.savings_account.balance)
                       }}</span>
                     </template>
                   </div>
@@ -171,7 +175,7 @@ const { formatAmount } = useLoanApplicationHelpers()
     </div>
 
     <!-- Sidebar: Product details + Loan Officer -->
-    <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-6 relative z-10">
       <div
         v-if="selectedProduct"
         class="rounded-2xl border border-neutral-100 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"

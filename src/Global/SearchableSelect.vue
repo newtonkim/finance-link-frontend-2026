@@ -62,9 +62,10 @@ const remoteUrl = debounce(async (url: string) => {
     tryCatch(async () => {
 
         const data = { ...props.data }
-        if (searchQuery.value?.length >= 3)
-            data.search_keyword = searchQuery.value
+        if (searchQuery.value?.length >= 3) data.search_keyword = searchQuery.value
         const generateAstate = await props?.state ?? `${url}`.replace(/[^a-zA-Z0-9]/g, "-");
+       
+        
         const res = await fetchTableData({
             data: Object.keys(data).length > 0 ? data : null,
             saveData: props?.saveData ?? true,
@@ -82,7 +83,7 @@ const remoteUrl = debounce(async (url: string) => {
 
 
         }
-        collection.value = Array.isArray(checker) ? checker : []
+        collection.value =  checker
 
         if (props?.selectOnOneItem) {
             if (filteredOptions.value?.length < 1) {
@@ -123,6 +124,7 @@ const filteredOptions = computed(() => {
 });
 
 const selectOption = (option: Option) => {
+    if (!option) return;
     emit('update:modelValue', option.id);
     emit('update:itemSelected', option);
     setTimeout(() => {
@@ -136,6 +138,10 @@ const toggleDropdown = async () => {
     isOpen.value = !isOpen.value;
     if (isOpen.value)
         searchQuery.value = '';
+    fetchData()
+};
+
+function fetchData() {
     const generateAstate = props?.state ?? `${props?.url}`.replace(/[^a-zA-Z0-9]/g, "-");
     let DataAlreadyCollected = Store[generateAstate]?.payload?.data ?? Store[generateAstate]?.payload
 
@@ -145,23 +151,29 @@ const toggleDropdown = async () => {
         if (props.appendOptions) {
             if (Array.isArray(props.appendOptions))
                 DataAlreadyCollected = [...(props.appendOptions ?? []), ...DataAlreadyCollected,]
-
-
-
         }
 
         collection.value = DataAlreadyCollected
     }
-};
-
+}
 const closeDropdown = (e: MouseEvent) => {
-    if (containerRef.value && !containerRef.value.contains(e.target as Node)) {
+    const target = e.target as Node;
+
+    if (
+        isOpen.value &&
+        containerRef.value &&
+        !containerRef.value.contains(target)
+    ) {
         isOpen.value = false;
     }
 };
 
 onMounted(() => {
-    window.addEventListener('click', closeDropdown);
+    // window.addEventListener('click', closeDropdown);
+      window.addEventListener(
+        'mousedown',
+        closeDropdown
+    );
     if (props.reClean) {
         const generateAstate = props?.state ?? `${props?.url}`.replace(/[^a-zA-Z0-9]/g, "-");
         Store[generateAstate] = []
@@ -169,16 +181,17 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-    window.removeEventListener('click', closeDropdown);
+    window.removeEventListener(
+        'mousedown',
+        closeDropdown
+    );
+    // window.removeEventListener('click', closeDropdown);
 });
 
 watch(props, async (newVal) => {
     if (newVal?.dataOnMount) {
-        searchQuery.value = String(props.modelValue ?? '');
-        // opens
-        await toggleDropdown();
-        // close
-        await toggleDropdown();
+        // searchQuery.value = String(props.modelValue ?? ''); new add this line and i have commented it bring 14 issues
+        fetchData()
     }
     if (newVal?.selectDefaultIndex >= 0) {
         /// slet the first item in the drop down
@@ -199,24 +212,12 @@ watch(props, async (newVal) => {
                 selectOption(filteredOptions.value[0])
         }
     }
-
-
-
-
 }, { immediate: true, deep: true });
-
-
-
-
 watch(searchQuery, (newVal) => {
     if (searchQuery.value?.length >= 3 && props.url) {
-
-
         remoteUrl(props.url)
     }
 }, { immediate: true, deep: true });
-
-
 defineExpose({
     toggleDropdown,
     closeDropdown,
@@ -233,7 +234,8 @@ const inputClass =
 </script>
 
 <template>
-    <div ref="containerRef" class="relative w-full" :class="[props?.class]">
+
+    <div ref="containerRef" class="relative w-full " :class="[props?.class]">
         <div @click="toggleDropdown" :class="[
             inputClass,
             error ? 'border-red-500 focus-within:ring-red-500/10' : 'border-neutral-200 focus-within: border-nfuko-primary',
@@ -261,6 +263,7 @@ const inputClass =
                 class="absolute   mt-2 w-full o verflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xl dark:border-neutral-800 dark:bg-neutral-900">
                 <div class="p-2 border-b border-neutral-100 dark:border-neutral-800">
                     <div class="relative flex items-center">
+                        <!-- {{ searchQuery }}=== -->
                         <Search class="absolute left-3.5 h-4 w-4 text-neutral-400" />
                         <input v-model="searchQuery" type="text" :placeholder="'Search...' + placeholder"
                             class="w-full rounded-lg bg-neutral-50 dark:bg-neutral-950 px-10 py-2 text-sm outline-none focus:ring-0 placeholder:text-neutral-400"
@@ -271,6 +274,7 @@ const inputClass =
                         </button>
                     </div>
                 </div>
+                <!-- {{ filteredOptions }} -->
 
                 <ul class="max-h-60 overflow-auto py-1 scrollbar-hide">
                     <li v-for="option in filteredOptions" :key="option.id" @click.stop="selectOption(option)"

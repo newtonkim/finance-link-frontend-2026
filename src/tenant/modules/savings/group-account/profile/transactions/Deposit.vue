@@ -23,20 +23,13 @@ const emits = defineEmits(['update:form']),
         list: [
             { key: 'account_code', label: 'account code', copy: true },
             { key: 'product', label: 'product', },
-            { key: 'blc', label: 'balance',type: "money" },
+            { key: 'blc', label: 'balance', type: "money" },
             { key: 'created_at', label: 'created', tyope: "dateTime" },
         ]
     },
     ],
     fields = ref<any>([]);
-const paymentModeOptions = [
-    { id: 'cash', name: 'Cash' },
-    { id: 'bank_transfer', name: 'Bank Transfer' },
-    { id: 'mobile_money', name: 'Mobile Money' },
-    { id: 'cheque', name: 'Cheque' },
-    { id: 'teller', name: 'Teller' },
-    { id: 'ussd', name: 'USSD' },
-];
+
 
 function initialize() {
     fields.value = [
@@ -47,6 +40,18 @@ function initialize() {
             required: true,
             placeholder: 'select a ',
         },
+         {
+            label: 'payment mode (Debit Account)',
+            name: 'payment_mode_id',
+            type: 'select',
+            url: "global/chart-of-accounts",
+            data: { account_type: 'ASSET' },
+            dataOnMount: true,
+            options: [],
+            selectDefaultIndex: 0,
+            value:props?.data?.payment_mod,
+            placeholder: 'Select income account',
+        },
         {
             label: 'transaction date ',
             name: 'transaction_date',
@@ -54,10 +59,10 @@ function initialize() {
             required: false,
             placeholder: 'Amount to withdraw',
             value: new Date().toISOString().split('T')[0],
-      maxDate: new Date(),
+            maxDate: new Date(),
 
         },
-          {
+        {
             label: 'Depositing member',
             name: 'member_id',
             type: 'select',
@@ -65,21 +70,15 @@ function initialize() {
             url: 'global/member-dropdown-list',
             placeholder: 'Enter member name',
         },
-          {
+       
+        {
             label: 'Deposited by',
             name: 'deposited_by',
             type: 'text',
             // required: true, 
             placeholder: 'Enter name of person making the deposit',
         },
-        {
-            label: 'payment mode',
-            name: 'payment_method',
-            type: 'select',
-            required: false,
-            options: paymentModeOptions,
-            placeholder: 'method of payment',
-        },
+      
         {
             label: 'Transaction Reference',
             name: 'transaction_reference',

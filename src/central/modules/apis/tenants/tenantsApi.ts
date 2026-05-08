@@ -2,29 +2,16 @@
 import { fetchTableData, formDataFormat, scopeValues } from '@/Global'
 import { notify } from '@/Global/Toasters/ToastMsg'
 import { pomPinia } from 'septor-store'
+import { apiClient } from '@/central/api/client'
 
 export function tenantsApi() {
   const Store = pomPinia()
 
   async function create(data: any) {
-    
-    const res: any = await fetchTableData({
-      data: formDataFormat(scopeValues(data)),
-      props: { url: 'central/tenants', state: 'createTenants' },
-      Store,
-    })
-
-    let msg: Record<string, string> = {
-      msg: 'Failed to create Tenants',
-      type: 'Error',
-    }
-    if (!res || res.status == 200) {
-      msg = {
-        msg: 'Tenants created successfully',
-        type: 'Success',
-      }
-    }
-    notify(msg)
+    const payload = formDataFormat(scopeValues(data))
+    // Use apiClient directly so validation errors (422) are thrown and
+    // can be caught by the caller with the full backend error payload.
+    const res = await apiClient.post('central/tenants', payload)
     return res
   }
   async function fetchPositions(data?: any) {

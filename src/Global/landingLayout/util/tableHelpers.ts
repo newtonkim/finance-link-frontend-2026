@@ -10,6 +10,7 @@ import {
 import { pomPinia } from 'septor-store'
 import { ACTION_CONFIG, dataTabelFilter, fetchTableData } from './index'
 import { formawtacher } from '@/Global/Forminputs/formWatcher'
+import { set } from 'lodash'
 
 export default function useTableHelpers(props?: any, emit?: any) {
   const formStore = formawtacher()
@@ -17,6 +18,7 @@ export default function useTableHelpers(props?: any, emit?: any) {
   const drawerOpen = ref(false)
   const showDelete = ref(false)
   const searchQuery = ref('')
+  const deepSearch = ref(false)
   // const emit = defineEmits(['save', 'submit', 'update:title']);
   const selected = ref<Record<string, unknown> | null>(null)
   const Store = pomPinia()
@@ -44,7 +46,7 @@ export default function useTableHelpers(props?: any, emit?: any) {
     DrawerMounted.value = true
   }
 
-  async function handlePrint(values: any,url=null) {
+  async function handlePrint(values: any, url = null) {
     if (values.value) {
       const res = await fetchTableData({
         data: {
@@ -53,9 +55,9 @@ export default function useTableHelpers(props?: any, emit?: any) {
           ...values,
         },
         props: {
-          ...(props??{}),
+          ...(props ?? {}),
           state: values.value,
-          url: url??createUrl(props?.url, 'print'),
+          url: url ?? createUrl(props?.url, 'print'),
         },
         Store,
       })
@@ -122,7 +124,7 @@ export default function useTableHelpers(props?: any, emit?: any) {
         Store,
       })
       drawerTitle.value = 'import columns'
-      provideDataTotheParent.value =res?.payload?.data?? res?.payload ?? res
+      provideDataTotheParent.value = res?.payload?.data ?? res?.payload ?? res
     }
     buttonTypeClicked.value = action
     if (drawer) toggleDrawer()
@@ -321,7 +323,11 @@ export default function useTableHelpers(props?: any, emit?: any) {
   }
   const callNewPage = changeThePage
   const onSearch = (type: string, data: unknown) => {
+    deepSearch.value = true
     save(data, type)
+    setTimeout(() => {
+ deepSearch.value = false
+    },2000)
   }
   const dataFilter = computed(() => {
     // alert(props?.state)
@@ -329,8 +335,14 @@ export default function useTableHelpers(props?: any, emit?: any) {
       ? (Store[props.state as keyof typeof Store] as any)?.payload
       : null) ??
       props.data ?? { data: [] }
-
-    return dataTabelFilter(collection?.data ?? collection, searchQuery.value)
+// console.log(deepSearch.value,searchQuery.value);
+    const filteredData = dataTabelFilter(
+      collection?.data ?? collection,
+      searchQuery.value,
+      deepSearch.value,
+    )
+  
+    return filteredData
   })
   const dataPageLinks = computed(() => {
     return (
@@ -339,13 +351,13 @@ export default function useTableHelpers(props?: any, emit?: any) {
     )
   })
   function filterDataByString(value: string) {
+    // deepSearch.value = true
     searchQuery.value = value
   }
 
   onBeforeMount(() => {
-  callOnmount()
-  
-})
+    callOnmount()
+  })
   watch(
     () => props?.url,
     () => {

@@ -105,12 +105,21 @@ export const ACTION_CONFIG = {
   },
 }
 
-export const dataTabelFilter = (collection: any, searchQuery: any) => {
+export const dataTabelFilter =  (collection: any, searchQuery: any,deepSearch: boolean) => {
+  // console.log(deepSearch);
+  
   const sliptTheString = searchQuery?.split(' ').map((stng: any) => `${stng}`.toLowerCase())
-  return (collection ?? []).filter((item: any) => {
+  const list= (collection ?? []).filter((item: any) => {
+    if(deepSearch){ // lets not filete into the data existing data let pick dirent
+     
+return true
+    }
     const stng = JSON.stringify(item)
     return sliptTheString.some((query: any) => stng.toLowerCase().includes(query))
-  })
+  });
+  // if(deepSearch) return list
+  // console.log(list,searchQuery,collection);
+  return list
 }
 export async function fetchTableData({
   data,
@@ -131,6 +140,9 @@ export async function fetchTableData({
   const quer = props?.url.includes('?') ? `${props?.url}&` : `${props?.url}?`
   const branchQuery =
     branch_id && branch_id !== 'undefined' && branch_id !== 'null' ? `branch_id=${branch_id}` : ''
+
+
+    
   const collection = {
     reload: !!props.reload ? 0 : 1, // dont think am stupid i know that
     // reload: !!props.reload ? 0 : 1, // dont think am stupid i know that
@@ -151,19 +163,19 @@ export async function fetchTableData({
   return await Store.stateGenaratorApi(collection)
 }
 
-function buildUrlWithQuery(url: string, params: Record<string, any>) {
-  const [path, existingQuery = ''] = `${url ?? ''}`.split('?')
-  const searchParams = new URLSearchParams(existingQuery)
+function buildUrlWithQuery(url: string,) {
+const parsedUrl = new URL(url);
 
-  Object.entries(params).forEach(([key, value]) => {
-    if (value === undefined || value === null || value === '' || value === 'undefined') {
-      return
-    }
+const params = new URLSearchParams(parsedUrl.search);
 
-    searchParams.set(key, String(value))
-  })
+const uniqueParams = new URLSearchParams();
 
-  const query = searchParams.toString()
+for (const [key, value] of params.entries()) {
+  if (!uniqueParams.has(key)) {
+    uniqueParams.append(key, value);
+  }
+}
+parsedUrl.search = uniqueParams.toString();
 
-  return query ? `${path}?${query}` : path
+console.log(parsedUrl.toString());
 }

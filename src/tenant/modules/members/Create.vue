@@ -151,7 +151,7 @@ const fields = ref<any[]>([
     data: { account_type: 'ASSET' },
     dataOnMount: true,
     options: [],
-    selectDefaultIndex: 0,
+    // selectDefaultIndex: 0,
     placeholder: 'Select income account',
     dependsOn: {
       conditions: [
@@ -408,6 +408,7 @@ onMounted(() => {
 })
 </script>
 <template>
+  
   <card class="card shadow-md px-4 py-3 bg-white dark:bg-neutral-800 rounded-md h -[86vh] over flow-y-auto border-0">
     <span v-if='loadingMount'></span>
     <Form :action="data?.action" v-else parentStyle="grid  grid-cols-2 gap-3" v-model:form="fields" />

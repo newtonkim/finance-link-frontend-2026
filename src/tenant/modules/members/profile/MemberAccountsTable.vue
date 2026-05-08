@@ -32,13 +32,7 @@
         >
           Fixed Deposit Details
         </button>
-        <!-- <button
-          @click="emit('customFee', item)"
-          class="flex items-center gap-2 px-[14px] py-1.5 text-[12px] font-bold rounded-full border border-amber-200 text-amber-700 bg-amber-50 hover:bg-amber-100"
-        >
-          <Star :size="12" />
-          Custom Fees
-        </button> -->
+      
         <TabelActionButtons
           title="withdrawal"
           color="secondary"
@@ -54,6 +48,7 @@
       </div>
     </template>
     <template #drawer="{ action, data }">
+     
       <Deposit
         v-if="currentAction === 'deposit'"
         :data="{ action, ...automaticCreate }"
@@ -92,7 +87,6 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { Deposit, Withdrawal } from "@/tenant/modules/savings/member-account";
-import { TableDrawer, TabelActionButtons } from "@/Global";
 import { memberAccountApi, memberProfileApi } from "@/tenant/apis";
 import ViewAccountDrawer from "@/tenant/modules/savings/components/ViewAccountDrawer.vue";
 import EditAccountDrawer from "@/tenant/modules/savings/components/EditAccountDrawer.vue";

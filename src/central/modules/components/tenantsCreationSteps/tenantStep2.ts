@@ -27,6 +27,15 @@ export const tenantStep2 = [{
     name: 'admin_password',
     type: 'password',
     required: true,
+    props: { placeholder: 'Enter password' },
+},
+{
+    label: 'confirm Password',
+    name: 'confirm_password',
+    type: 'password',
+    required: true,
+    matchName: 'admin_password',
+    props: { placeholder: 'Re-enter password' },
 },
 
 ]

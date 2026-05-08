@@ -68,26 +68,14 @@ function selectProduct(p: LoanProduct) {
 
 // ─── Amount input ─────────────────────────────────────────────────────────────
 const printTheApplication = ref(false)
-const amountDisplay = ref('')
-function onAmountInput(e: Event) {
-  const raw = (e.target as HTMLInputElement).value.replace(/,/g, '')
-  amountDisplay.value = raw
-  const num = parseFloat(raw)
-  form.value.requested_amount = isNaN(num) ? null : num
-}
-function onAmountFocus() {
-  amountDisplay.value =
-    form.value.requested_amount != null ? String(form.value.requested_amount) : ''
-}
-function onAmountBlur() {
-  amountDisplay.value =
-    form.value.requested_amount != null
-      ? Number(form.value.requested_amount).toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })
-      : ''
-}
+
+const requestedAmountDisplay = computed({
+  get: () => form.value.requested_amount != null ? form.value.requested_amount.toLocaleString('en-US') : '',
+  set: (val: string) => {
+    const num = parseFloat(val.replace(/[^0-9.]/g, ''))
+    form.value.requested_amount = isNaN(num) ? null : num
+  },
+})
 
 // ─── Stepper ──────────────────────────────────────────────────────────────────
 const currentStep = ref(1)
@@ -204,12 +192,9 @@ printTheApplication.value = v
               <div>
                 <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Requested Amount
                   <span class="text-red-500">*</span></label>
-                <input :value="amountDisplay" type="text" inputmode="decimal" placeholder="0.00"
+                <input v-model="requestedAmountDisplay" type="text" inputmode="decimal" placeholder="0.00"
                   class="w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:bg-neutral-800 dark:text-white"
-                  :class="fieldError('requested_amount')
-                    ? 'border-red-400'
-                    : 'border-neutral-200 dark:border-neutral-700'
-                    " @input="onAmountInput" @focus="onAmountFocus" @blur="onAmountBlur" />
+                  :class="fieldError('requested_amount') ? 'border-red-400' : 'border-neutral-200 dark:border-neutral-700'" />
                 <p v-if="fieldError('requested_amount')" class="mt-1 text-xs text-red-500">
                   {{ fieldError('requested_amount') }}
                 </p>

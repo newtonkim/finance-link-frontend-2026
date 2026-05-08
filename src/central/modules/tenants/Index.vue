@@ -38,6 +38,7 @@ import { tenantsApi } from '../apis'
 import Show from './Show.vue'
 import { pomPinia } from 'septor-store'
 import { notify } from '@/Global/Toasters/ToastMsg'
+import { formawtacher } from '@/Global/Forminputs/formWatcher'
 const formData = ref<Record<string, any>>({})
 const statusFilter = ref('all')
 const drawerTitle = ref('Create Tenant')
@@ -46,17 +47,33 @@ const { create, Erase } = tenantsApi()
 import { toast } from 'vue-sonner';
 
 const Store = pomPinia()
+const formStore = formawtacher()
 
 const tableUrl = computed(() => `/central/tenants/list?status=${statusFilter.value}`)
 const showFooter = ref(false)
 const triggerAction: Record<string, Function> = {
     delete: Erase,
     async create() {
-        const res = await create(formData.value)
-        if (!res || res.status === 200) {
+        formStore.setLoading(true)
+        try {
+            await create(formData.value)
+            toast.success('Tenant created successfully.')
             formData.value = {}
             tableRef.value?.refresh()
             tableRef.value?.toggleDrawer()
+        } catch (err: any) {
+            const errors = err?.response?.data?.errors
+            if (errors) {
+                // Show each field's first validation message
+                Object.values(errors).forEach((messages: any) => {
+                    toast.error(messages[0])
+                })
+            } else {
+                const message = err?.response?.data?.message ?? 'Failed to create tenant.'
+                toast.error(message)
+            }
+        } finally {
+            formStore.setLoading(false)
         }
     }
 }

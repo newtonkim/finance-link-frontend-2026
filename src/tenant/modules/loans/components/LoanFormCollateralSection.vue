@@ -47,12 +47,15 @@ const isSecured = computed(() => {
     const noValueRequired = totalRequired.value <= 0
     const thresholdCount = props.selectedProduct?.max_securities || 0
     const noCountRequired = thresholdCount <= 0
-    
+
     if (noValueRequired && noCountRequired) return true
 
     const valueSecured = noValueRequired || totalProvided.value >= totalRequired.value
     const countSecured = noCountRequired || items.value.length >= thresholdCount
-    
+
+    // If a value threshold exists and is fully covered, count is waived
+    if (!noValueRequired && valueSecured) return true
+
     return valueSecured && countSecured
 })
 
