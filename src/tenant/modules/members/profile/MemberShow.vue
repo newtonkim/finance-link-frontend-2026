@@ -221,7 +221,7 @@ const columns = [
                         <MemberAccountsTable @reload="initialize" :member="profileDetails?.details ?? {}"
                             :accounts="profileDetails.accounts ?? []" :currency-code="currencyCode"
                             :format-currency="formatCurrency" @new-account="newAccountDrawer?.openDrawer()"
-                            @custom-fee="(account) => customFeeDrawer?.openDrawer(account)" />
+                            @custom-fee="(account) => customFeeDrawer?.openDrawer(account)" /> 
                     </div>
 
                     <!-- Tabs -->

@@ -101,9 +101,9 @@ const columns = [
   { key: 'phone', label: 'admin phone', sticky: 'left', width: '14em' },
   { key: 'status', label: 'Status', type: 'status' },
   { key: 'total_in_group', label: 'total members', type: 'number', width: '10em' },
-  { key: 'dcreated', label: 'joined', },
+  { key: 'dcreated', label: 'joined',onSearch: { type: 'date-range', }  },
   { key: 'created_by', label: 'Created By', width: '10em' },
-  { key: 'created_at', label: 'Created At', type: 'date', width: '9em' },
+  { key: 'created_at', label: 'Created At', type: 'date', width: '9em',onSearch: { type: 'date-range', }  },
   { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 ]
 

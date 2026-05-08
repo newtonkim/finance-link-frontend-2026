@@ -4,6 +4,7 @@ import { onMounted, ref, computed } from 'vue'
 import { savingsAccountsApi } from '@/tenant/apis/savingsAccounts/savingsAccountsApi'
 import InterestPostingHistory from '@/tenant/modules/savings/components/InterestPostingHistory.vue'
 import { useCurrencyStore } from '@/stores/currency'
+import { notify } from '@/Global/Toasters'
 
 const { memebrAccountReversalAmount } = memberAccountApi()
 const currencyStore = useCurrencyStore()
@@ -46,7 +47,7 @@ const columns: any[] = [
         type: 'Table',
         column: [
             { key: 'reference', label: 'reference', sticky: "left" },
-            { key: 'total', label: 'total', type: "money" },
+            { key: 'total', label: 'before charge', type: "money" },
             { key: 'charge', label: 'charge', type: "money", sticky: "left" },
             { key: 'amount', label: 'balance', type: "money", sticky: "left" },
             { key: 'type', label: 'type', sticky: "left" },
@@ -92,6 +93,8 @@ async function loadFdDetails() {
 
 async function prepareTheFeaturesData() {
     loading.value = true
+
+
     if (props.data.transactionList)
         props.data.transactionList.forEach((element: any) => {
             columns[1]?.list.push({ amount: element.amount, total: element.total, charge: element.charge, created_at: element.created_at, "narration": element.narration, transaction_date: element.transaction_date, type: element.type, mode: element.mode, "transfer_by": element.by, reference: element.reference } as any)
@@ -107,6 +110,7 @@ onMounted(async () => {
 
 <template>
     <div class="h-[90vh] overflow-auto">
+        <!-- {{ columns }} -->
         <div v-if="loading">Loading...</div>
         <DetailsTable v-else :data="data" :columns="columns">
             <template #actions="{ item }">
@@ -115,6 +119,7 @@ onMounted(async () => {
                         :data="item" @action="() => memebrAccountReversalAmount({ ...item, charge_reversal: true })"
                         :color="['charge-reversal', 'reversed'].includes(item.type) ? 'secondary' : 'default'"
                         icon="Undo" title="charge reversal" />
+                    <TabelActionButtons @action="() => notify({msg:'Not implemented',type:'warning'})" v-else :data="item" color="default" icon="Undo" title="charge reversal" />
                     <TabelActionButtons :disabled="['true', '1', true].includes(item.reversed)" :data="item"
                         @action="() => memebrAccountReversalAmount(item)"
                         :color="['charge-reversal', 'reversed'].includes(item.type) ? 'secondary' : 'danger'"
@@ -172,7 +177,8 @@ onMounted(async () => {
                         </div>
                         <div>
                             <p class="text-xs text-neutral-500">Maturity Action</p>
-                            <p class="font-semibold text-neutral-800 capitalize">{{ fdAccount.maturity_action ?? '—' }}</p>
+                            <p class="font-semibold text-neutral-800 capitalize">{{ fdAccount.maturity_action ?? '—' }}
+                            </p>
                         </div>
                     </div>
                 </div>

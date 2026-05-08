@@ -18,8 +18,13 @@
                 @update:modelValue="(e) => { OpenThedrawer(e) }" />
         </template>
         <template #actions="{ item }">
-            <TabelActionButtons title="certificate" color="secondary" icon="Printer"
+            <div>
+
+            <TabelActionButtons title="full certificate" color="neutral" icon="Printer"
+                @action="() => printShareCertificate(item,'print-full-certificate')" />
+            <TabelActionButtons title="last certificate" color="info" icon="Printer"
                 @action="() => printShareCertificate(item)" />
+            </div>
 
         </template>
         <template #drawer="{ action, data }">
@@ -87,7 +92,7 @@ function submitData(end: string = '', des?: string, type: string = 'warning', to
                     drawer.value?.toggleDrawer()
                 statusFilter.value = ''
 
-                
+
             })
         }, cancel: () => { },
     });
@@ -99,7 +104,7 @@ const columns = [
     { key: 'primary_contact', label: 'phone', },
     { key: 'other_contacts', label: 'Other Contacts', },
     { key: 'share_value', label: 'share value', type: "money", tooltip: true },
-    { key: 'share_no', label: 'share no', type: "money", tooltip: true },
+    { key: 'share_no', label: 'share no', type: "number", tooltip: true },
     { key: 'total_value', label: 'total value', type: "money", tooltip: true },
     { key: 'purchased_at', label: 'purchased at', type: 'date', width: '8em ', },
     { key: 'created_at', label: 'created at', type: 'date', width: '8em ', },
@@ -109,9 +114,9 @@ function navigateToProfile(item: any) {
     router.push(`/tenant/member/profile`)
     setLocalValues('memberProfile', { ...item, id: item?.member_id })
 }
-function printShareCertificate(item: any) {
+function printShareCertificate(item: any,endpoint='print-certificate') {
     // alert()
-    handlePrint({ value: item }, '/shares/holders/print-certificate')
+    handlePrint({ value: item }, '/shares/holders/'+endpoint)
 }
 function OpenThedrawer(item: any, action = "") {
     statusFilter.value = item

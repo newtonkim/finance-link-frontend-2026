@@ -1,7 +1,7 @@
 <template>
   <div :title="String(show ?? copy)" v-if="show ?? copy" class="w-full flex items-center justify-between   bg-white dark:bg-neutral-900 rounded-lg ">
     <div class="flex-1 min-w-0">
-      <p class="text-sm text-neutral-500 dark:text-neutral-200 truncate line-clamp-2">
+      <p class="text-sm text-neutral-500 dark:text-neutral-200 truncate line-clamp-2" :class="props.class">
         <slot v-if="$slots['text']" name="text" :item="show ?? copy" />
         <span v-else>
           {{ show ?? copy }}

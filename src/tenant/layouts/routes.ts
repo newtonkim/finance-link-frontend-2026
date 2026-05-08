@@ -139,6 +139,16 @@ export const tenantRoutes: MenuRoutes[] = [
     group: 'SAVINGS & TRANSFERS',
     // component: () => import('@/tenant/modules/savings/pages/SavingsTransfer.vue'),
   },
+  {
+    path: 'savings-transfer-details',
+    label: 'savings transfer',
+    permissions: 'savings-transfer-module-link-view',
+    showSideBar: true,
+    icon: ArrowLeftRight,
+    component: () => import('@/tenant/modules/savings/savings-transfer/full-details.vue'),
+    group: 'SAVINGS & TRANSFERS',
+    // component: () => import('@/tenant/modules/savings/pages/SavingsTransfer.vue'),
+  },
 
   {
     type: 'label',

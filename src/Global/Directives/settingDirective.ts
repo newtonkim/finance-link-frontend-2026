@@ -8,6 +8,8 @@ export default {
     if (!settings) return;
 
     const list = await getSystemSetting();
+    console.log(list);
+    
     const usersettingss =   list?.[settings];
     if (!usersettingss) {
       el.parentNode && el.parentNode.removeChild(el);

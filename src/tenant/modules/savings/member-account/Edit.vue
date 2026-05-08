@@ -106,6 +106,17 @@ const emits = defineEmits(["update:form"]),
       ],
       placeholder: "Enter account Status",
     },
+     {
+        label: 'Accounts',
+        name: 'credit_account_id',
+        type: 'select',
+        url: "global/chart-of-accounts",
+        data: { account_type: 'INCOME' },
+        dataOnMount: true,
+        options: [],
+        placeholder: 'Select income account',
+        // condition: (val: string) => ['on_registration', 'on_loan_application'].includes(val)
+    },
     {
       label: "Opening Balance",
       name: "opening_balance",

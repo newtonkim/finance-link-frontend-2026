@@ -28,6 +28,7 @@ function intialize() {
       name: "member_id",
       type: "select",
       required: true,
+      dataOnMount:true,
       placeholder: "Search member",
       url: "global/member-share-total-dropdown-list",
       optionLabel: "salutation_name",
@@ -36,10 +37,11 @@ function intialize() {
       colSpan: 2,
       change: async (value: any) => {
         Store['member-account-select'] = []// clear the state manualy
-
-        const memebr = fields.value.find((f: any) => f.name === 'member_id')
         const account_id = fields.value.find((f: any) => f.name === 'account_id')
-        const payment_mode = fields.value.find((f: any) => f.name === 'payment_mode')
+        const memebr = fields.value.find((f: any) => f.name === 'member_id')
+        account_id.url=null//
+        account_id.dataOnMount=null//
+    
         const shn = Number(Math.floor(value / sharePrice.value)) + Number(memebr?.value?.selected?.total_shares ?? 0)
         const field = fields.value.find((f: any) => f.name === 'amount')
         const share_no = fields.value.find((f: any) => f.name === 'share_no')
@@ -48,9 +50,13 @@ function intialize() {
           field.helper = `<span class="text-red-500">You can't sell more than ${maxShare} shares</span>`
         }
         share_no.value = shn
-        account_id.url = 'global/member-saving-accounts-dropdown-list?member_id=' + value// update url for account
+        setTimeout(() => {
+          // remount the  dropdown
+              account_id.dataOnMount=true//
+          account_id.helper = `<span class="text-nfuko-primary">Select account receiving money <span class='text-red-500'>(How does the customer want to pay for the shares)</span></span>`
+          account_id.url = 'global/member-saving-accounts-dropdown-list?member_id=' + value// update url for account
+        },400)
         await findACharge()
-        payment_mode.value = null
 
 
       }
@@ -62,14 +68,18 @@ function intialize() {
       required: true,
       value: "cash",
       placeholder: "Select an account receiving money",
-      options: [
-        { name: "select", id: null },
-        { name: "Account", id: "Account" },
-        { name: "Cash", id: "cash" },
-        { name: "Bank", id: "bank" },
-      ],
+      url:'global/chart-of-accounts',
+      appendOptions:[
+        {
+          id:'member-account',
+          name:'member account',
+      },
+        {
+          id:'Cash',
+          name:'Cash',
+      }
+    ],
       helper: "How does the customer want to pay for the shares?",
-      colSpan: 2,
     },
     {
       label: "Member Account",
@@ -84,7 +94,7 @@ function intialize() {
         conditions: [
           {
             field: 'payment_mode',
-            condition: (val: any) => `${val}`.toLowerCase() === 'account',
+            condition: (val: any) => `${val}`.toLowerCase() === 'member-account',
           }
         ],
       }

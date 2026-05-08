@@ -188,10 +188,12 @@ defineExpose({ open });
                                 <h3 class="text-[16px] font-black text-gray-900 tracking-tight">
                                     {{ drawerOpen === 'deposit' ? 'Deposit Form' : 'Withdraw Form' }}
                                 </h3>
-                                <p class="text-[11px] font-bold text-gray-700 mt-0.5">{{ member.name }} · {{ member.member_number }}</p>
+                                <p class="text-[11px] font-bold text-gray-700 mt-0.5">{{ member.name }} · {{
+                                    member.member_number }}</p>
                             </div>
                         </div>
-                        <button @click="close" class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-800 hover:bg-black/10 transition-all">
+                        <button @click="close"
+                            class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-800 hover:bg-black/10 transition-all">
                             <X :size="18" stroke-width="2.5" />
                         </button>
                     </div>
@@ -202,27 +204,32 @@ defineExpose({ open });
                             <!-- Date + Account -->
                             <div class="grid grid-cols-2 gap-5">
                                 <div>
-                                    <label class="block text-[11px] font-bold text-gray-900 uppercase tracking-widest mb-2">
+                                    <label
+                                        class="block text-[11px] font-bold text-gray-900 uppercase tracking-widest mb-2">
                                         {{ drawerOpen === 'deposit' ? 'Deposit' : 'Withdrawal' }} date
                                     </label>
                                     <div class="relative">
-                                        <Calendar :size="15" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-800 pointer-events-none" />
+                                        <Calendar :size="15"
+                                            class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-800 pointer-events-none" />
                                         <input v-model="form.deposit_date" type="date"
                                             class="w-full py-3.5 pl-11 pr-4 rounded-xl bg-black/5 border border-gray-600/50 text-gray-900 text-[14px] font-bold focus:outline-none focus:bg-white focus:border-[#cda434] transition-all" />
                                     </div>
-                                    <p v-if="errors.deposit_date" class="mt-1 text-[11px] text-red-600 font-bold">{{ errors.deposit_date }}</p>
+                                    <p v-if="errors.deposit_date" class="mt-1 text-[11px] text-red-600 font-bold">{{
+                                        errors.deposit_date }}</p>
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] font-bold text-gray-900 uppercase tracking-widest mb-2">
-                                        Account <span v-if="(member.savings_accounts ?? []).length > 1" class="text-red-600 ml-0.5">*</span>
+                                    <label
+                                        class="block text-[11px] font-bold text-gray-900 uppercase tracking-widest mb-2">
+                                        Account <span v-if="(member.savings_accounts ?? []).length > 1"
+                                            class="text-red-600 ml-0.5">*</span>
                                     </label>
                                     <SearchableSelect :modelValue="form.savings_account_id"
-                                        @update:modelValue="form.savings_account_id = $event"
-                                        :options="accountOptions" placeholder="Select Account"
-                                        :error="errors.savings_account_id" />
+                                        @update:modelValue="form.savings_account_id = $event" :options="accountOptions"
+                                        placeholder="Select Account" :error="errors.savings_account_id" />
                                     <p v-if="(member.savings_accounts ?? []).length > 1 && !form.savings_account_id"
                                         class="mt-1 text-[10px] text-amber-600 font-semibold">
-                                        This member has {{ (member.savings_accounts ?? []).length }} accounts — please select one
+                                        This member has {{ (member.savings_accounts ?? []).length }} accounts — please
+                                        select one
                                     </p>
                                 </div>
                             </div>
@@ -230,62 +237,79 @@ defineExpose({ open });
                             <!-- Min balance badge (withdrawal) -->
                             <div v-if="drawerOpen === 'withdraw' && selectedAccount && (selectedAccount as any).consider_min_balance && Number((selectedAccount as any).minimum_balance) > 0"
                                 class="flex items-center gap-4 px-4 py-2.5 rounded-xl bg-amber-50 border border-amber-200 text-[12px] font-medium text-amber-800">
-                                <span>Min Balance: <strong>{{ currencyCode }} {{ formatMoneyValue(Number((selectedAccount as any).minimum_balance)) }}</strong></span>
+                                <span>Min Balance: <strong>{{ currencyCode }} {{
+                                    formatMoneyValue(Number((selectedAccount as any).minimum_balance))
+                                        }}</strong></span>
                                 <span class="text-amber-400">|</span>
-                                <span>Withdrawable: <strong>{{ currencyCode }} {{ formatMoneyValue(Number((selectedAccount as any).withdrawable_amount)) }}</strong></span>
+                                <span>Withdrawable: <strong>{{ currencyCode }} {{
+                                    formatMoneyValue(Number((selectedAccount as any).withdrawable_amount))
+                                        }}</strong></span>
                             </div>
 
                             <!-- Amount + Person -->
                             <div class="grid grid-cols-2 gap-5">
                                 <div>
-                                    <label class="block text-[11px] font-bold text-gray-900 uppercase tracking-widest mb-2">
+                                    <label
+                                        class="block text-[11px] font-bold text-gray-900 uppercase tracking-widest mb-2">
                                         Amount to {{ drawerOpen === 'deposit' ? 'deposit' : 'withdraw' }}
                                     </label>
                                     <div class="relative">
-                                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[13px] font-black text-gray-900">{{ currencyCode }}</span>
+                                        <span
+                                            class="absolute left-4 top-1/2 -translate-y-1/2 text-[13px] font-black text-gray-900">{{
+                                            currencyCode }}</span>
                                         <input v-model="formattedAmount" type="text" placeholder="0.00"
                                             :class="['w-full py-3.5 pl-16 pr-4 rounded-xl bg-black/5 border text-gray-900 text-[16px] font-mono font-bold placeholder-gray-600 focus:outline-none focus:bg-white transition-all',
                                                 withdrawalAmountError ? 'border-red-500 focus:border-red-500' : 'border-gray-600/50 focus:border-[#cda434]']" />
                                     </div>
-                                    <p v-if="withdrawalAmountError" class="mt-1 text-[11px] text-red-600 font-bold">{{ withdrawalAmountError }}</p>
-                                    <p v-else-if="errors.amount" class="mt-1 text-[11px] text-red-600 font-bold">{{ errors.amount }}</p>
+                                    <p v-if="withdrawalAmountError" class="mt-1 text-[11px] text-red-600 font-bold">{{
+                                        withdrawalAmountError }}</p>
+                                    <p v-else-if="errors.amount" class="mt-1 text-[11px] text-red-600 font-bold">{{
+                                        errors.amount }}</p>
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] font-bold text-gray-900 uppercase tracking-widest mb-2">
+                                    <label
+                                        class="block text-[11px] font-bold text-gray-900 uppercase tracking-widest mb-2">
                                         {{ drawerOpen === 'deposit' ? 'Deposited by' : 'Withdrawn by' }}
                                     </label>
                                     <div class="relative">
-                                        <UserCircle2 :size="15" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-800 pointer-events-none" />
+                                        <UserCircle2 :size="15"
+                                            class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-800 pointer-events-none" />
                                         <input v-model="form.deposited_by" type="text" :placeholder="member.name"
                                             class="w-full py-3.5 pl-11 pr-4 rounded-xl bg-black/5 border border-gray-600/50 text-gray-900 text-[14px] font-bold placeholder-gray-600 focus:outline-none focus:bg-white focus:border-[#cda434] transition-all" />
                                     </div>
-                                    <p v-if="errors.deposited_by" class="mt-1 text-[11px] text-red-600 font-bold">{{ errors.deposited_by }}</p>
+                                    <p v-if="errors.deposited_by" class="mt-1 text-[11px] text-red-600 font-bold">{{
+                                        errors.deposited_by }}</p>
                                 </div>
                             </div>
 
                             <!-- Reference + Payment Mode -->
                             <div class="grid grid-cols-2 gap-5">
                                 <div>
-                                    <label class="block text-[11px] font-bold text-gray-900 uppercase tracking-widest mb-2">Transaction Reference</label>
+                                    <label
+                                        class="block text-[11px] font-bold text-gray-900 uppercase tracking-widest mb-2">Transaction
+                                        Reference</label>
                                     <div class="relative">
-                                        <FileText :size="15" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-800 pointer-events-none" />
+                                        <FileText :size="15"
+                                            class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-800 pointer-events-none" />
                                         <input v-model="form.transaction_reference" type="text" readonly
                                             class="w-full py-3.5 pl-11 pr-4 rounded-xl bg-black/5 border border-gray-600/50 text-gray-900 text-[14px] font-mono font-bold cursor-default focus:outline-none transition-all" />
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] font-bold text-gray-900 uppercase tracking-widest mb-2">Payment mode</label>
+                                    <label
+                                        class="block text-[11px] font-bold text-gray-900 uppercase tracking-widest mb-2">Payment
+                                        mode</label>
                                     <SearchableSelect :modelValue="form.payment_mode"
-                                        @update:modelValue="form.payment_mode = $event"
-                                        :options="paymentModeOptions" placeholder="Select payment mode"
-                                        :error="errors.payment_mode" />
+                                        @update:modelValue="form.payment_mode = $event" :options="paymentModeOptions"
+                                        placeholder="Select payment mode" :error="errors.payment_mode" />
                                 </div>
                             </div>
 
                             <!-- Narration + Loan Repayment -->
                             <div class="grid grid-cols-2 gap-5">
                                 <div class="space-y-2">
-                                    <label class="block text-[11px] font-bold text-gray-900 uppercase tracking-widest mb-2">
+                                    <label
+                                        class="block text-[11px] font-bold text-gray-900 uppercase tracking-widest mb-2">
                                         <div class="flex items-center gap-1.5">
                                             <MessageSquare :size="13" />
                                             {{ drawerOpen === 'deposit' ? 'Deposit' : 'Withdrawal' }} Narration
@@ -295,11 +319,16 @@ defineExpose({ open });
                                         :placeholder="drawerOpen === 'withdraw' ? 'Withdrawal reason...' : 'Additional narration (optional)...'"
                                         rows="2"
                                         class="w-full py-3.5 px-4 rounded-xl bg-black/5 border border-gray-600/50 text-gray-900 text-[14px] font-bold placeholder-gray-600 focus:outline-none focus:bg-white focus:border-[#cda434] transition-all resize-none"></textarea>
-                                    <p class="rounded-lg border border-gray-200 bg-white/70 px-3 py-2 text-[12px] text-gray-700">{{ systemNarration }}</p>
-                                    <p v-if="errors.narration" class="mt-1 text-[11px] text-red-600 font-bold">{{ errors.narration }}</p>
+                                    <p
+                                        class="rounded-lg border border-gray-200 bg-white/70 px-3 py-2 text-[12px] text-gray-700">
+                                        {{ systemNarration }}</p>
+                                    <p v-if="errors.narration" class="mt-1 text-[11px] text-red-600 font-bold">{{
+                                        errors.narration }}</p>
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] font-bold text-gray-900 uppercase tracking-widest mb-2">Use for loan repayment</label>
+                                    <label
+                                        class="block text-[11px] font-bold text-gray-900 uppercase tracking-widest mb-2">Use
+                                        for loan repayment</label>
                                     <SearchableSelect :modelValue="form.use_for_loan_repayment"
                                         @update:modelValue="form.use_for_loan_repayment = $event"
                                         :options="loanRepaymentOptions" placeholder="Select option" />
@@ -310,8 +339,10 @@ defineExpose({ open });
                             <div :class="['rounded-xl p-5 border-none mt-2 shadow-sm',
                                 drawerOpen === 'deposit' ? 'bg-[#c6e4d6]' : 'bg-[#ffebd6]']">
                                 <div class="flex items-center justify-between mb-4">
-                                    <span class="text-[11px] font-bold text-gray-900 uppercase tracking-widest">Current Balance</span>
-                                    <span class="text-[14px] font-black text-gray-900 font-mono tracking-tight">{{ currencyCode }} {{ formatMoneyValue(currentBalance) }}</span>
+                                    <span class="text-[11px] font-bold text-gray-900 uppercase tracking-widest">Current
+                                        Balance</span>
+                                    <span class="text-[14px] font-black text-gray-900 font-mono tracking-tight">{{
+                                        currencyCode }} {{ formatMoneyValue(currentBalance) }}</span>
                                 </div>
                                 <div class="flex items-center justify-between pt-4 border-t border-white/40">
                                     <span class="text-[11px] font-bold text-gray-900 uppercase tracking-widest">
@@ -327,7 +358,8 @@ defineExpose({ open });
                     </form>
 
                     <!-- Footer -->
-                    <div class="px-6 py-4 bg-[#979f9f]/90 border-t border-gray-400 flex items-center justify-end gap-3 z-10 relative shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                    <div
+                        class="px-6 py-4 bg-[#979f9f]/90 border-t border-gray-400 flex items-center justify-end gap-3 z-10 relative shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
                         <button @click="close" type="button"
                             class="px-6 py-2.5 rounded-lg text-[13px] font-bold text-gray-800 border border-gray-500 hover:bg-gray-400/50 transition-all">
                             Close
@@ -336,7 +368,8 @@ defineExpose({ open });
                             :disabled="processing || !form.savings_account_id || !form.amount || Number(form.amount) <= 0 || !!withdrawalAmountError"
                             :class="['px-7 py-2.5 rounded-lg text-[13px] font-bold transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2',
                                 drawerOpen === 'deposit' ? 'bg-[#5cb88a] text-white hover:bg-[#4a9f75]' : 'bg-orange-600 text-white hover:bg-orange-700']">
-                            <div v-if="processing" class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
+                            <div v-if="processing"
+                                class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
                             Submit
                         </button>
                     </div>
@@ -347,9 +380,26 @@ defineExpose({ open });
 </template>
 
 <style scoped>
-.drawer-fade-enter-active, .drawer-fade-leave-active { transition: opacity 0.25s ease; }
-.drawer-fade-enter-from, .drawer-fade-leave-to { opacity: 0; }
-.drawer-slide-enter-active { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-.drawer-slide-leave-active { transition: transform 0.2s ease-in; }
-.drawer-slide-enter-from, .drawer-slide-leave-to { transform: translateX(100%); }
+.drawer-fade-enter-active,
+.drawer-fade-leave-active {
+    transition: opacity 0.25s ease;
+}
+
+.drawer-fade-enter-from,
+.drawer-fade-leave-to {
+    opacity: 0;
+}
+
+.drawer-slide-enter-active {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.drawer-slide-leave-active {
+    transition: transform 0.2s ease-in;
+}
+
+.drawer-slide-enter-from,
+.drawer-slide-leave-to {
+    transform: translateX(100%);
+}
 </style>
