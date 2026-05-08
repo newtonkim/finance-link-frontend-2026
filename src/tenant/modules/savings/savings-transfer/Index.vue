@@ -9,11 +9,11 @@
                 </Button>
             </span>
         </template>
-        <template #code="{ item }">
-            <div class=" items-center gap-1">
+        <template #code="{ item }"  >
+            <div class=" items-center gap-1 font-semibold text-nfuko-action text-sm dark:text-white" >
                 <CopyData :show="item.code" />
-                <div class="flex items-center justify-between">
-                    <div :class="(statusMap as any)[item.status]?.className" class="text-[10px]  tracking-wide">{{
+                <div class="flex items-center justify-between" @click="navigateToProfileFulldetailes(item)">
+                    <div :class="(statusMap as any)[item.status]?.className" class="text-[10px]  tracking-wide " >{{
                         item.status }}</div>
                     <div v-if="item.count > 1"
                         class="mx-10 bg-nfuko-primary text-white text-[9px] font-bold  rounded-full min-w-[20px] text-center "
@@ -77,5 +77,9 @@ function refresh() {
 function navigateToProfile(item: any) {
     router.push(`/tenant/member/profile`)
     setLocalValues('memberProfile', {...item,id: item?.member_id})
+}
+function navigateToProfileFulldetailes(item: any) {
+    router.push(`/tenant/savings-transfer-details`)
+    setLocalValues('transaferDetails', {...item})
 }
 </script>
