@@ -25,6 +25,7 @@ export function useTrialBalance() {
   const result      = ref<any>(null)
   const hideZero    = ref(true)
   const exporting   = ref(false)
+  const error       = ref<string | null>(null)
 
   // Drill-down drawer
   const drawerOpen     = ref(false)
@@ -34,6 +35,7 @@ export function useTrialBalance() {
   const drawerTotal    = ref(0)
   const drawerLastPage = ref(1)
   const drawerLoading  = ref(false)
+  const drawerError    = ref<string | null>(null)
 
   // ── Computed ────────────────────────────────────────────────────────────────
   const allAccounts = computed(() => result.value?.accounts ?? [])
@@ -73,10 +75,13 @@ export function useTrialBalance() {
   async function generate() {
     loading.value = true
     result.value  = null
+    error.value   = null
     try {
       result.value = mode.value === 'period'
         ? await trialBalanceApi.getTrialBalance({ from: periodFrom.value, to: periodTo.value })
         : await trialBalanceApi.getTrialBalance({ date: asOfDate.value })
+    } catch (e: any) {
+      error.value = e?.response?.data?.message ?? 'Failed to load trial balance.'
     } finally {
       loading.value = false
     }
@@ -98,6 +103,7 @@ export function useTrialBalance() {
   async function fetchDrillDown() {
     if (!drawerAccount.value) return
     drawerLoading.value = true
+    drawerError.value   = null
     try {
       const res = await trialBalanceApi.getLedgerLines({
         account_id: drawerAccount.value.id,
@@ -108,6 +114,8 @@ export function useTrialBalance() {
       drawerLines.value    = drawerPage.value === 1 ? res.data : [...drawerLines.value, ...res.data]
       drawerTotal.value    = res.total
       drawerLastPage.value = res.last_page
+    } catch (e: any) {
+      drawerError.value = e?.response?.data?.message ?? 'Failed to load ledger lines.'
     } finally {
       drawerLoading.value = false
     }
@@ -148,9 +156,9 @@ export function useTrialBalance() {
   onMounted(() => generate())
 
   return {
-    mode, asOfDate, periodFrom, periodTo, hideZero, loading, result, exporting,
+    mode, asOfDate, periodFrom, periodTo, hideZero, loading, result, exporting, error,
     accounts, totals, isBalanced, drFrom, drTo,
-    drawerOpen, drawerAccount, drawerLines, drawerPage, drawerTotal, drawerLastPage, drawerLoading,
+    drawerOpen, drawerAccount, drawerLines, drawerPage, drawerTotal, drawerLastPage, drawerLoading, drawerError,
     generate, openDrillDown, loadMore,
     fmt, fmtCell, fmtNum, typeColor, dateLabel,
   }
