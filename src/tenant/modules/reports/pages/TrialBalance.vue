@@ -1,103 +1,23 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { Scale, X, AlertTriangle, CheckCircle } from 'lucide-vue-next'
-import { Spinner, formatMoneyValue } from '@/Global'
-import { trialBalanceApi } from '@/tenant/apis/reports/trialBalanceApi'
+import { Scale, X, AlertTriangle, CheckCircle, Download } from 'lucide-vue-next'
+import { Spinner } from '@/Global'
+import { useTrialBalance } from '../composables/useTrialBalance'
 
-// ── State ─────────────────────────────────────────────────────────────────────
-const mode        = ref<'as_of_date' | 'period'>('as_of_date')
-const asOfDate    = ref(new Date().toISOString().split('T')[0])
-const periodFrom  = ref(new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0])
-const periodTo    = ref(new Date().toISOString().split('T')[0])
-const loading     = ref(false)
-const result      = ref<any>(null)
-
-// Drill-down drawer
-const drawerOpen     = ref(false)
-const drawerAccount  = ref<any>(null)
-const drawerLines    = ref<any[]>([])
-const drawerPage     = ref(1)
-const drawerTotal    = ref(0)
-const drawerLastPage = ref(1)
-const drawerLoading  = ref(false)
-
-// ── Computed ──────────────────────────────────────────────────────────────────
-const accounts = computed(() => result.value?.accounts ?? [])
-const totals   = computed(() => result.value?.totals ?? null)
-const isBalanced = computed(() => totals.value?.is_balanced === true)
-
-const drFrom = computed(() => result.value?.from ?? result.value?.date ?? asOfDate.value)
-const drTo   = computed(() => result.value?.to   ?? result.value?.date ?? asOfDate.value)
-
-// ── Actions ───────────────────────────────────────────────────────────────────
-async function generate() {
-  loading.value = true
-  result.value  = null
-  try {
-    if (mode.value === 'period') {
-      result.value = await trialBalanceApi.getTrialBalance({ from: periodFrom.value, to: periodTo.value })
-    } else {
-      result.value = await trialBalanceApi.getTrialBalance({ date: asOfDate.value })
-    }
-  } finally {
-    loading.value = false
-  }
-}
-
-async function openDrillDown(account: any, side: 'debit' | 'credit') {
-  if (!account.is_postable) return
-  const amount = side === 'debit'
-    ? (mode.value === 'period' ? account.period_debit : account.closing_debit)
-    : (mode.value === 'period' ? account.period_credit : account.closing_credit)
-  if (!amount) return
-
-  drawerAccount.value = account
-  drawerPage.value    = 1
-  drawerLines.value   = []
-  drawerOpen.value    = true
-  await fetchDrillDown()
-}
-
-async function fetchDrillDown() {
-  if (!drawerAccount.value) return
-  drawerLoading.value = true
-  try {
-    const res = await trialBalanceApi.getLedgerLines({
-      account_id: drawerAccount.value.id,
-      from: drFrom.value,
-      to:   drTo.value,
-      page: drawerPage.value,
-    })
-    drawerLines.value    = drawerPage.value === 1 ? res.data : [...drawerLines.value, ...res.data]
-    drawerTotal.value    = res.total
-    drawerLastPage.value = res.last_page
-  } finally {
-    drawerLoading.value = false
-  }
-}
-
-async function loadMore() {
-  drawerPage.value++
-  await fetchDrillDown()
-}
-
-function fmt(v: number) { return formatMoneyValue(v ?? 0) }
-function fmtCell(v: number) { return v ? formatMoneyValue(v) : '—' }
-
-function typeColor(type: string) {
-  const map: Record<string, string> = {
-    ASSET: 'text-blue-600', LIABILITY: 'text-orange-600',
-    EQUITY: 'text-purple-600', INCOME: 'text-green-600', EXPENSE: 'text-red-600',
-  }
-  return map[type] ?? 'text-neutral-500'
-}
+const {
+  mode, asOfDate, periodFrom, periodTo, hideZero, loading, result, exporting, error,
+  accounts, totals, isBalanced, drFrom, drTo,
+  drawerOpen, drawerAccount, drawerLines, drawerPage, drawerTotal, drawerLastPage, drawerLoading, drawerError,
+  generate, openDrillDown, loadMore,
+  exportCsv, exportExcel, exportPdf,
+  fmt, fmtCell, typeColor,
+} = useTrialBalance()
 </script>
 
 <template>
   <div class="flex flex-col gap-6 p-6">
 
     <!-- Header -->
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between flex-wrap gap-3">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-nfuko-primary/10 flex items-center justify-center">
           <Scale class="w-5 h-5 text-nfuko-primary" />
@@ -106,6 +26,34 @@ function typeColor(type: string) {
           <h1 class="text-2xl font-bold text-neutral-900 dark:text-white">Trial Balance</h1>
           <p class="text-sm text-neutral-500">Verify that total debits equal total credits across all accounts.</p>
         </div>
+      </div>
+
+      <!-- Export buttons — shown only when data is loaded -->
+      <div v-if="result" class="flex items-center gap-2">
+        <button
+          @click="exportCsv"
+          :disabled="exporting"
+          class="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-600 transition hover:bg-neutral-50 disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+        >
+          <Download class="w-3.5 h-3.5" />
+          CSV
+        </button>
+        <button
+          @click="exportExcel"
+          :disabled="exporting"
+          class="flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-600 transition hover:bg-neutral-50 disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+        >
+          <Download class="w-3.5 h-3.5" />
+          Excel
+        </button>
+        <button
+          @click="exportPdf"
+          :disabled="exporting"
+          class="flex items-center gap-1.5 rounded-lg bg-nfuko-primary px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-nfuko-primary/90 disabled:opacity-50 shadow-sm"
+        >
+          <Download class="w-3.5 h-3.5" />
+          PDF
+        </button>
       </div>
     </div>
 
