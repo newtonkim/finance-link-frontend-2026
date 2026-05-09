@@ -38,11 +38,11 @@ function initialize() {
       type: "select",
       required: true,
       placeholder: "Select parent expense account",
-      url: "chart-of-accounts?type=Expense&is_parent=true", 
+      url: "chart-of-accounts?type=Expense&list=true",
       method: "get",
       optionLabel: "name",
       optionValue: "id",
-      helper: "This category will be created as a sub-account under this GL.",
+      helper: "Select the GL expense account this category will post under.",
       colSpan: 2,
     },
   ];

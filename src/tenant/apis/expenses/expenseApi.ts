@@ -95,6 +95,20 @@ export function useExpenseApi() {
     return response
   }
 
+  async function getExpenseDetail(id: number | string) {
+    const response = await fetchTableData({
+      data: {},
+      Store,
+      props: {
+        url: `/expenses/${id}`,
+        method: 'get',
+        time: 0,
+        state: 'expenseDetail',
+      },
+    })
+    return (response as ApiResponse).payload
+  }
+
   async function getExpenseStats() {
     const response = await fetchTableData({
       data: {},
@@ -354,6 +368,7 @@ export function useExpenseApi() {
     createExpense,
     updateExpense,
     voidExpense,
+    getExpenseDetail,
     getExpenseStats,
     getExpenseCategories,
     createExpenseCategory,
