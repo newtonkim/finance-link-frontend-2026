@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { Calendar, Filter } from 'lucide-vue-next'
+import { Calendar, Filter, Scale } from 'lucide-vue-next'
 import { Spinner, formatMoneyValue } from '@/Global'
 import { reportsApi } from '@/tenant/apis/reports/reportsApi'
 import type { ReportFilters, FilterOptions } from '@/tenant/apis/reports/reportsApi'
@@ -70,7 +70,27 @@ function fmt(value: string | number | null): string {
         >
           Member Statement
         </router-link>
+        <RouterLink
+          :to="{ name: 'tenant-trial-balance' }"
+          class="rounded-full bg-white border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50 shadow-sm"
+        >
+          Trial Balance
+        </RouterLink>
       </div>
+    </div>
+
+    <!-- Quick Navigation Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <RouterLink to="/tenant/reports/trial-balance"
+        class="flex items-center gap-4 rounded-2xl border border-neutral-100 bg-white p-5 shadow-sm transition hover:shadow-md hover:border-nfuko-primary/30 dark:border-neutral-800 dark:bg-neutral-900">
+        <div class="w-10 h-10 rounded-xl bg-nfuko-primary/10 flex items-center justify-center flex-shrink-0">
+          <Scale class="w-5 h-5 text-nfuko-primary" />
+        </div>
+        <div>
+          <p class="font-bold text-neutral-900 dark:text-white text-sm">Trial Balance</p>
+          <p class="text-xs text-neutral-500 mt-0.5">Verify DR = CR across all GL accounts.</p>
+        </div>
+      </RouterLink>
     </div>
 
     <!-- Filters -->
