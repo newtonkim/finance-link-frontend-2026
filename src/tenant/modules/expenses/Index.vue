@@ -15,6 +15,7 @@
       :columns="columns"
       @save="saveExpense"
       :showTableAction="true"
+      :drawerShowFooter="activeAction !== 'review'"
     >
     <template #sub-header>
       <AnalysisTile v-if="mode !== 'Categories'" :data="stats" grid-class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" />
@@ -46,7 +47,7 @@
           v-if="mode === 'Expenses'"
           v-memo="[mode, expenseStatus]"
           :maxLength="10"
-          :filters="['All', 'Pending', 'Approved', 'Paid', 'Rejected']"
+          :filters="['All', 'Draft', 'Submitted', 'Pending', 'Queried', 'Approved', 'Paid', 'Rejected']"
           v-model="expenseStatus"
           @update:modelValue="(e) => { expenseStatus = e }"
         />
@@ -70,27 +71,32 @@
 
     <template #actions="{ item }">
       <div class="flex justify-center gap-2">
-        <button v-if="item.status === 'Pending'" @click="OpenThedrawer('review', item)" title="Review" class="flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-600 transition-colors hover:bg-amber-100">
+        <button v-if="['Submitted', 'Pending', 'Queried'].includes(item.status)" @click="OpenThedrawer('review', item)" title="Review" class="flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-600 transition-colors hover:bg-amber-100">
           <HelpCircle class="w-4 h-4" /> Review
         </button>
         <button v-if="item.status === 'Approved'" @click="OpenThedrawer('pay', item)" title="Pay"
           class="flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-600 transition-colors hover:bg-blue-100">
           <Wallet class="w-4 h-4" /> Pay
         </button>
-        <button v-if="['Pending', 'Draft'].includes(item.status)" @click="OpenThedrawer('record expense', item)" title="Edit" class="flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-blue-600 transition-colors hover:bg-blue-100">
+        <button v-if="['Draft', 'Submitted', 'Queried'].includes(item.status)" @click="OpenThedrawer('record expense', item)" title="Edit" class="flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-blue-600 transition-colors hover:bg-blue-100">
           <Edit class="w-4 h-4" />
+        </button>
+        <button v-if="['Paid', 'Rejected', 'Void', 'Reconciled', 'Approved'].includes(item.status)" @click="OpenThedrawer('review', item)" title="View"
+          class="flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1 text-xs font-bold text-neutral-500 transition-colors hover:bg-neutral-200">
+          <Eye class="w-4 h-4" /> View
         </button>
       </div>
     </template>
 
-    <template #drawer="{ action, data }">
+    <template #drawer>
       <component
         :is="drawerComponent"
-        :data="{ ...data, action }"
+        :key="drawerKey"
+        :data="{ ...editingItem, action: activeAction }"
         v-model:form="formData"
-        @approve="(comments) => handleApprove(data, comments)"
-        @reject="(comments) => handleReject(data, comments)"
-        @query="(comments) => handleQuery(data, comments)"
+        @approve="(comments) => handleApprove(editingItem, comments)"
+        @reject="(comments) => handleReject(editingItem, comments)"
+        @query="(comments) => handleQuery(editingItem, comments)"
       />
     </template>
   </TableDrawer>
@@ -100,7 +106,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { Plus, CheckCircle, Wallet, Edit, HelpCircle, Banknote, Clock, PieChart, AlertCircle } from 'lucide-vue-next'
+import { Plus, CheckCircle, Wallet, Edit, HelpCircle, Banknote, Clock, PieChart, AlertCircle, Eye } from 'lucide-vue-next'
 import { TableDrawer, AnalysisTile, PainPageHeader, StatusButtonsHorizontal, Badge, Button, scopeValues } from '@/Global'
 import ExpenseForm from './components/ExpenseForm.vue'
 import CategoryForm from './components/CategoryForm.vue'
@@ -112,10 +118,12 @@ import { useExpenseApi } from '@/tenant/apis/expenses/expenseApi'
 import { formawtacher } from '@/Global/Forminputs/formWatcher'
 
 const route = useRoute()
-const { createExpense, createExpenseCategory, getExpenseStats, approveExpense, rejectExpense, queryExpense, payExpense, updateExpense } = useExpenseApi()
+const { createExpense, createExpenseCategory, getExpenseStats, approveExpense, rejectExpense, queryExpense, payExpense, updateExpense, getExpenseDetail } = useExpenseApi()
 const formStore = formawtacher()
 const drawer = ref<any>(null)
-const formData = ref<any>({})
+const formData = ref<any>({})      // two-way binding for DynamicForm fields array
+const editingItem = ref<any>({})   // original item data passed into the drawer
+const drawerKey = ref(0)
 const mode = ref<'Expenses' | 'Categories' | 'Budgets' | 'Reports'>((route.query.mode as any) || 'Expenses')
 const expenseStatus = ref<'All' | 'Pending' | 'Approved' | 'Paid' | 'Rejected'>('All')
 const activeAction = ref<string>('record expense')
@@ -177,9 +185,17 @@ const columns = computed(() => {
 
 const drawerComponent = computed(() => automaticCreate.value[activeAction.value]?.component)
 
-function OpenThedrawer(item: string, data: any = null) {
+async function OpenThedrawer(item: string, data: any = null) {
   activeAction.value = item
-  formData.value = data ? { ...data } : {}
+  editingItem.value = data ? { ...data } : {}
+  formData.value = {}
+  drawerKey.value++
+
+  if (item === 'review' && data?.id) {
+    const detail = await getExpenseDetail(data.id)
+    if (detail) editingItem.value = { ...(detail as any) }
+  }
+
   setTimeout(() => {
     drawer.value.toggleDrawer()
   }, 100)
@@ -200,7 +216,7 @@ async function fetchStats() {
 
 async function submitExpense(data: any) {
   formStore.loading = true
-  const editingId = formData.value?.id
+  const editingId = editingItem.value?.id
   const result = editingId ? await updateExpense(editingId, data) : await createExpense(data)
   formStore.loading = false
   if (isSuccessful(result)) {
@@ -270,7 +286,9 @@ function saveExpense(type: string, data: any) {
     const cleanData = Array.isArray(data) ? scopeValues(data) : data
 
     if (activeAction.value === 'pay') {
-        action(formData.value, { ...formData.value, ...cleanData })
+        // PayExpenseForm mutates formData directly (no DynamicForm pipeline),
+        // so read from formData instead of formStore.currentFormValues
+        action(editingItem.value, { ...formData.value })
     } else if (['record expense', 'create category'].includes(activeAction.value)) {
       action(cleanData)
     } else {
@@ -281,12 +299,14 @@ function saveExpense(type: string, data: any) {
 
 function getStatusVariant(status: string) {
   const variants: Record<string, string> = {
+    'Draft': 'secondary',
+    'Submitted': 'outline',
     'Pending': 'outline',
+    'Queried': 'outline',
     'Approved': 'secondary',
     'Paid': 'default',
     'Rejected': 'destructive',
-    'Draft': 'secondary',
-    'Queried': 'outline'
+    'Void': 'secondary',
   }
   return variants[status] || 'secondary'
 }
@@ -294,11 +314,14 @@ function getStatusVariant(status: string) {
 function getStatusClass(status: string) {
   const classes: Record<string, string> = {
     'Draft': 'bg-neutral-50 text-neutral-500 border-neutral-200',
+    'Submitted': 'bg-sky-50 text-sky-700 border-sky-200',
     'Pending': 'bg-amber-50 text-amber-700 border-amber-200',
+    'Queried': 'bg-orange-50 text-orange-700 border-orange-200',
     'Approved': 'bg-emerald-50 text-emerald-700 border-emerald-200',
     'Paid': 'bg-blue-50 text-blue-700 border-blue-200',
+    'Reconciled': 'bg-teal-50 text-teal-700 border-teal-200',
     'Rejected': 'bg-rose-50 text-rose-700 border-rose-200',
-    'Queried': 'bg-orange-50 text-orange-700 border-orange-200',
+    'Void': 'bg-neutral-100 text-neutral-400 border-neutral-200',
   }
   return classes[status] || ''
 }
@@ -345,6 +368,7 @@ watch(mode, (value) => {
 watch(() => drawer.value?.drawerOpen, (v) => {
   if (!v) {
     formData.value = {}
+    editingItem.value = {}
   }
 })
 </script>
