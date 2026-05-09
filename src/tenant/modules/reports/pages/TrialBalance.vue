@@ -1,134 +1,15 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
 import { Scale, X, AlertTriangle, CheckCircle } from 'lucide-vue-next'
-import { Spinner, formatMoneyValue } from '@/Global'
-import { trialBalanceApi } from '@/tenant/apis/reports/trialBalanceApi'
+import { Spinner } from '@/Global'
+import { useTrialBalance } from '../composables/useTrialBalance'
 
-// ── State ─────────────────────────────────────────────────────────────────────
-const mode        = ref<'as_of_date' | 'period'>('as_of_date')
-const asOfDate    = ref(new Date().toISOString().split('T')[0])
-const periodFrom  = ref(new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0])
-const periodTo    = ref(new Date().toISOString().split('T')[0])
-const loading     = ref(false)
-const result      = ref<any>(null)
-
-// Drill-down drawer
-const drawerOpen     = ref(false)
-const drawerAccount  = ref<any>(null)
-const drawerLines    = ref<any[]>([])
-const drawerPage     = ref(1)
-const drawerTotal    = ref(0)
-const drawerLastPage = ref(1)
-const drawerLoading  = ref(false)
-
-// ── Computed ──────────────────────────────────────────────────────────────────
-const hideZero   = ref(true)
-const allAccounts = computed(() => result.value?.accounts ?? [])
-const totals      = computed(() => result.value?.totals ?? null)
-const isBalanced  = computed(() => totals.value?.is_balanced === true)
-
-const accounts = computed(() => {
-  if (!hideZero.value) return allAccounts.value
-
-  // Collect IDs of postable accounts that have any non-zero amount
-  const activeIds = new Set(
-    allAccounts.value
-      .filter((a: any) => a.is_postable && (
-        a.closing_debit || a.closing_credit ||
-        a.opening_debit || a.opening_credit ||
-        a.period_debit  || a.period_credit
-      ))
-      .map((a: any) => a.id)
-  )
-
-  // Keep header accounts only if they have at least one active child
-  // Build a parent→children map from gl_code prefixes (level-based)
-  // Simpler: keep a header if any postable account after it (before the next same-level header) is active
-  const filtered: any[] = []
-  let pendingHeader: any = null
-
-  for (const account of allAccounts.value) {
-    if (!account.is_postable) {
-      pendingHeader = account
-    } else {
-      if (activeIds.has(account.id)) {
-        if (pendingHeader) {
-          filtered.push(pendingHeader)
-          pendingHeader = null
-        }
-        filtered.push(account)
-      }
-    }
-  }
-
-  return filtered
-})
-
-const drFrom = computed(() => result.value?.from ?? result.value?.date ?? asOfDate.value)
-const drTo   = computed(() => result.value?.to   ?? result.value?.date ?? asOfDate.value)
-
-// ── Actions ───────────────────────────────────────────────────────────────────
-async function generate() {
-  loading.value = true
-  result.value  = null
-  try {
-    if (mode.value === 'period') {
-      result.value = await trialBalanceApi.getTrialBalance({ from: periodFrom.value, to: periodTo.value })
-    } else {
-      result.value = await trialBalanceApi.getTrialBalance({ date: asOfDate.value })
-    }
-  } finally {
-    loading.value = false
-  }
-}
-
-async function openDrillDown(account: any, side: 'debit' | 'credit') {
-  if (!account.is_postable) return
-  const amount = side === 'debit'
-    ? (mode.value === 'period' ? account.period_debit : account.closing_debit)
-    : (mode.value === 'period' ? account.period_credit : account.closing_credit)
-  if (!amount) return
-
-  drawerAccount.value = account
-  drawerPage.value    = 1
-  drawerLines.value   = []
-  drawerOpen.value    = true
-  await fetchDrillDown()
-}
-
-async function fetchDrillDown() {
-  if (!drawerAccount.value) return
-  drawerLoading.value = true
-  try {
-    const res = await trialBalanceApi.getLedgerLines({
-      account_id: drawerAccount.value.id,
-      from: drFrom.value,
-      to:   drTo.value,
-      page: drawerPage.value,
-    })
-    drawerLines.value    = drawerPage.value === 1 ? res.data : [...drawerLines.value, ...res.data]
-    drawerTotal.value    = res.total
-    drawerLastPage.value = res.last_page
-  } finally {
-    drawerLoading.value = false
-  }
-}
-
-async function loadMore() {
-  drawerPage.value++
-  await fetchDrillDown()
-}
-
-function fmt(v: number) { return formatMoneyValue(v ?? 0) }
-function fmtCell(v: number) { return v ? formatMoneyValue(v) : '—' }
-
-function typeColor(type: string) {
-  const map: Record<string, string> = {
-    ASSET: 'text-blue-600', LIABILITY: 'text-orange-600',
-    EQUITY: 'text-purple-600', INCOME: 'text-green-600', EXPENSE: 'text-red-600',
-  }
-  return map[type] ?? 'text-neutral-500'
-}
+const {
+  mode, asOfDate, periodFrom, periodTo, hideZero, loading, result, exporting, error,
+  accounts, totals, isBalanced, drFrom, drTo,
+  drawerOpen, drawerAccount, drawerLines, drawerPage, drawerTotal, drawerLastPage, drawerLoading, drawerError,
+  generate, openDrillDown, loadMore,
+  fmt, fmtCell, typeColor,
+} = useTrialBalance()
 </script>
 
 <template>
