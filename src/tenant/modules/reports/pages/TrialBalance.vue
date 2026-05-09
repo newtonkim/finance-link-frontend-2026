@@ -22,9 +22,47 @@ const drawerLastPage = ref(1)
 const drawerLoading  = ref(false)
 
 // ── Computed ──────────────────────────────────────────────────────────────────
-const accounts = computed(() => result.value?.accounts ?? [])
-const totals   = computed(() => result.value?.totals ?? null)
-const isBalanced = computed(() => totals.value?.is_balanced === true)
+const hideZero   = ref(true)
+const allAccounts = computed(() => result.value?.accounts ?? [])
+const totals      = computed(() => result.value?.totals ?? null)
+const isBalanced  = computed(() => totals.value?.is_balanced === true)
+
+const accounts = computed(() => {
+  if (!hideZero.value) return allAccounts.value
+
+  // Collect IDs of postable accounts that have any non-zero amount
+  const activeIds = new Set(
+    allAccounts.value
+      .filter((a: any) => a.is_postable && (
+        a.closing_debit || a.closing_credit ||
+        a.opening_debit || a.opening_credit ||
+        a.period_debit  || a.period_credit
+      ))
+      .map((a: any) => a.id)
+  )
+
+  // Keep header accounts only if they have at least one active child
+  // Build a parent→children map from gl_code prefixes (level-based)
+  // Simpler: keep a header if any postable account after it (before the next same-level header) is active
+  const filtered: any[] = []
+  let pendingHeader: any = null
+
+  for (const account of allAccounts.value) {
+    if (!account.is_postable) {
+      pendingHeader = account
+    } else {
+      if (activeIds.has(account.id)) {
+        if (pendingHeader) {
+          filtered.push(pendingHeader)
+          pendingHeader = null
+        }
+        filtered.push(account)
+      }
+    }
+  }
+
+  return filtered
+})
 
 const drFrom = computed(() => result.value?.from ?? result.value?.date ?? asOfDate.value)
 const drTo   = computed(() => result.value?.to   ?? result.value?.date ?? asOfDate.value)
@@ -146,6 +184,15 @@ function typeColor(type: string) {
         class="rounded-full bg-nfuko-primary px-6 py-2 text-sm font-semibold text-white transition hover:bg-nfuko-primary/90 shadow-sm">
         Generate
       </button>
+
+      <!-- Hide zero-balance toggle -->
+      <label class="ml-auto flex items-center gap-2 cursor-pointer select-none">
+        <div @click="hideZero = !hideZero"
+          :class="['relative w-9 h-5 rounded-full transition-colors', hideZero ? 'bg-nfuko-primary' : 'bg-neutral-300 dark:bg-neutral-600']">
+          <span :class="['absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform', hideZero ? 'translate-x-4' : '']" />
+        </div>
+        <span class="text-xs text-neutral-500 font-medium">Hide zero balances</span>
+      </label>
     </div>
 
     <!-- Loading -->
