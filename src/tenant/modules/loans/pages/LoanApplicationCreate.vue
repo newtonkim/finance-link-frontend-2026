@@ -10,6 +10,7 @@ import LoanFormCollateralSection from '../components/LoanFormCollateralSection.v
 import LoanCreateStep1Panel from '../components/LoanCreateStep1Panel.vue'
 import LoanCreateStep3Panel from '../components/LoanCreateStep3Panel.vue'
 import loanApplicationPagePrint from '@/tenant/modules/loans/components/loanApplicationPagePrint.vue'
+import CurrencyInput from '@/Global/CurrencyInput.vue'
 import { type MemberOption } from '../composables/useLoanApplicationForm'
 import { type LoanProduct } from '@/tenant/apis/loanProducts/loanProductsApi'
 import { type CollateralItem } from '../components/LoanFormCollateralSection.vue'
@@ -66,16 +67,8 @@ function selectProduct(p: LoanProduct) {
   void onProductChange()
 }
 
-// ─── Amount input ─────────────────────────────────────────────────────────────
+// ─── Print ────────────────────────────────────────────────────────────────────
 const printTheApplication = ref(false)
-
-const requestedAmountDisplay = computed({
-  get: () => form.value.requested_amount != null ? form.value.requested_amount.toLocaleString('en-US') : '',
-  set: (val: string) => {
-    const num = parseFloat(val.replace(/[^0-9.]/g, ''))
-    form.value.requested_amount = isNaN(num) ? null : num
-  },
-})
 
 // ─── Stepper ──────────────────────────────────────────────────────────────────
 const currentStep = ref(1)
@@ -192,7 +185,7 @@ printTheApplication.value = v
               <div>
                 <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Requested Amount
                   <span class="text-red-500">*</span></label>
-                <input v-model="requestedAmountDisplay" type="text" inputmode="decimal" placeholder="0.00"
+                <CurrencyInput v-model="form.requested_amount" placeholder="0.00"
                   class="w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:bg-neutral-800 dark:text-white"
                   :class="fieldError('requested_amount') ? 'border-red-400' : 'border-neutral-200 dark:border-neutral-700'" />
                 <p v-if="fieldError('requested_amount')" class="mt-1 text-xs text-red-500">

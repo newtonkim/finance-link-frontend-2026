@@ -9,6 +9,7 @@ import LoanDocumentUploader from '../components/LoanDocumentUploader.vue'
 import LoanFormStepIndicator from '../components/LoanFormStepIndicator.vue'
 import LoanFormRepaymentPreview from '../components/LoanFormRepaymentPreview.vue'
 import LoanEditStep1Panel from '../components/LoanEditStep1Panel.vue'
+import CurrencyInput from '@/Global/CurrencyInput.vue'
 
 const router = useRouter()
 const { formatAmount } = useLoanApplicationHelpers()
@@ -54,15 +55,6 @@ watch(products, list => { if (form.value.loan_product_id && !productSearch.value
 function selectProduct(p: { id: number; name: string; code?: string }) { form.value.loan_product_id = p.id; productSearch.value = p.code ? `${p.name} (${p.code})` : p.name; showProductDropdown.value = false; void onProductChange() }
 function closeProductDropdown() { setTimeout(() => { showProductDropdown.value = false }, 200) }
 function clearProduct() { form.value.loan_product_id = null; productSearch.value = ''; void onProductChange() }
-
-// ─── Amount input ─────────────────────────────────────────────────────────────
-const requestedAmountDisplay = computed({
-  get: () => form.value.requested_amount != null ? form.value.requested_amount.toLocaleString('en-US') : '',
-  set: (val: string) => {
-    const num = parseFloat(val.replace(/[^0-9.]/g, ''))
-    form.value.requested_amount = isNaN(num) ? null : num
-  },
-})
 
 // ─── Stepper ──────────────────────────────────────────────────────────────────
 const currentStep = ref(1)
@@ -149,7 +141,7 @@ function removeCollateralItem(i: number) { collateralItems.value.splice(i, 1) }
                             <div class="grid gap-4 sm:grid-cols-2">
                                 <div>
                                     <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Requested Amount <span class="text-red-500">*</span></label>
-                                    <input v-model="requestedAmountDisplay" type="text" inputmode="decimal" placeholder="0.00"
+                                    <CurrencyInput v-model="form.requested_amount" placeholder="0.00"
                                         class="w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-nfuko-primary/30 dark:bg-neutral-800 dark:text-white"
                                         :class="fieldError('requested_amount') ? 'border-red-400' : 'border-neutral-200 dark:border-neutral-700'" />
                                     <p v-if="fieldError('requested_amount')" class="mt-1 text-xs text-red-500">{{ fieldError('requested_amount') }}</p>

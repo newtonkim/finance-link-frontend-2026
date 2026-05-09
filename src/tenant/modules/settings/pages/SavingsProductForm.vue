@@ -220,19 +220,11 @@ const { monthlyFeeSummary } = useMonthlyFeeSummary(form, currency)
                         </div>
 
                         <div>
-                            <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Status</label>
-                            <select v-model="form.status" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow">
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Minimum Balance (KSh)</label>
+                            <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Minimum Balance ({{ currency }})</label>
                             <input v-model="form.minimum_balance" type="number" step="0.01" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow">
                         </div>
 
-                        <div>
+                        <div v-if="form.type === 'fixed'">
                             <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Min Maturity (Months)</label>
                             <input v-model="form.minimum_maturity_months" type="number" class="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm text-neutral-900 focus: border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-bg-nfuko-primary dark:border-neutral-700 dark:text-white dark:focus:border-bg-nfuko-yellow dark:focus:ring-bg-nfuko-yellow">
                         </div>

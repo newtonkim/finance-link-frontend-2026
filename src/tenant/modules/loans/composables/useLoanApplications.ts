@@ -133,12 +133,12 @@ export function useLoanApplications() {
           time: 0,
           reqs: {
             url: 'settings/branches/branches-dropdown-list',
-            method: 'get',
+            method: 'post',
           },
           mStore: { mUse: true },
         }
-        await Store.stateGenaratorApi(collection)
-        branches.value = Store.$state['system-branches']?.payload??[]
+        await (Store as any).stateGenaratorApi(collection)
+        branches.value = (Store as any)['system-branches']?.payload?.data ?? []
       })
     } catch {
       // non-blocking

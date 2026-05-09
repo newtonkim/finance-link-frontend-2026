@@ -35,6 +35,15 @@
         </button>
       </template>
 
+      <template #savings-product-creation>
+        <RouterLink
+          to="/tenant/settings/savings-products"
+          class="inline-flex items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-bold text-white transition-all hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
+        >
+          Manage Products →
+        </RouterLink>
+      </template>
+
     </SettingCard>
   </div>
 
@@ -91,8 +100,8 @@ const settingsCards = [
   {
     title: "Savings Product Creation",
     description: "Define savings products and attach charges.",
-    type: "link",
-    route: { to: "/tenant/settings/savings-products" },
+    type: "button",
+    slot: "savings-product-creation",
     action: "Manage Products →"
   }
 ]

@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ArrowLeft, HandCoins, Pencil, XCircle, RotateCcw } from 'lucide-vue-next'
-import { useRouter } from 'vue-router'
 import type { LoanApplication } from '../../../apis/loans/loanApplicationsApi'
 
-const props = defineProps<{
+defineProps<{
     application: LoanApplication | null
     cancelling: boolean
     reopening: boolean
@@ -13,19 +12,11 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
+    back: []
     edit: []
     reopen: []
     cancel: []
 }>()
-
-const router = useRouter()
-const goBack = () => {
-  if (window.history.length > 1) {
-    router.back()
-  } else {
-    router.push({ name: 'tenant-loans' })
-  }
-}
 </script>
 
 <template>
@@ -33,7 +24,7 @@ const goBack = () => {
         <div class="flex items-center gap-3">
             <button
                 class="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white"
-                @click="goBack">
+                @click="emit('back')">
                 <ArrowLeft class="h-4 w-4" />
                 Back
             </button>

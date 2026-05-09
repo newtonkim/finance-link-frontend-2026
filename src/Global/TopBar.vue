@@ -43,154 +43,169 @@ import { fetchTableData } from './landingLayout/util'
 const interceptor = subdomain ? tenantClient : apiClient
 
 async function fetchBranches() {
-  activeBranch.value = getLocalValues('activeBranch' as const) as any
-  tryCatch(async () => { 
-   await fetchTableData({
-      data: {},
-      props: {
-        reload: 1,
-        state: 'system-branches',
-        saveData: true,
-        url: 'settings/branches/branches-dropdown-list',
-      },
-      Store,
+    activeBranch.value = getLocalValues('activeBranch' as const) as any
+    tryCatch(async () => {
+        const collection = {
+            reload: 0,
+            StateStore: 'system-branches',
+            time: 0,
+            reqs: {
+                url: 'settings/branches/branches-dropdown-list',
+                method: 'post',
+            },
+            axiosInstance: interceptor,
+            mStore: { mUse: true },
+        }
+        await (Store as any).stateGenaratorApi(collection)
+        const branches = (Store as any)?.['system-branches']?.payload?.data || []
+        const currentActive = getLocalValues('activeBranch' as const)
+        const exists = branches.find((b: any) => b.id == currentActive)
+
+        if (!exists && branches.length > 0) {
+            watchBranchchanges(branches[0].id)
+        } else if (exists && currentActive) {
+            // Ensure tenant_branch_context is in sync even when branch is already valid
+            syncBranchContext(currentActive)
+        }
     })
-        if (!getLocalValues('activeBranch' as const)) {
-        watchBranchchanges((Store as any)?.['system-branches']?.payload?.data[0]?.id)
-      }
-  })
 }
 defineProps<{
   title: string
 }>()
 
+function syncBranchContext(branchId: any) {
+  try {
+    const raw = localStorage.getItem('tenant_branch_context')
+    const ctx = raw ? JSON.parse(raw) : {}
+    // Sanitize branchId - handle string "undefined"/"null" and NaN
+    const sanitizedId = (branchId && branchId !== 'undefined' && branchId !== 'null' && !isNaN(Number(branchId))) 
+        ? Number(branchId) 
+        : null
+    ctx.active_branch_id = sanitizedId
+    localStorage.setItem('tenant_branch_context', JSON.stringify(ctx))
+  } catch {
+    const sanitizedId = (branchId && branchId !== 'undefined' && branchId !== 'null' && !isNaN(Number(branchId))) 
+        ? Number(branchId) 
+        : null
+    localStorage.setItem('tenant_branch_context', JSON.stringify({ active_branch_id: sanitizedId }))
+  }
+}
+
 function watchBranchchanges(branch: any) {
   activeBranch.value = branch
   setLocalValues('activeBranch' as const, branch)
-    ; (Store as any).activeBranch = branch
+  ;(Store as any).activeBranch = branch
   activeBranch.value = branch
+  // Keep tenant_branch_context in sync so tenantClient interceptor
+  // sends X-Acting-Branch-Id header on all requests
+  syncBranchContext(branch)
 }
 
 const authStore = useAuthStore()
 const tenantUserStore = useTenantUserStore()
 const profileStore = useProfileStore()
-const user = computed(() => profileStore.combinedProfile)
-const userName = computed(() => String(user.value?.name ?? 'User'))
+
+const user = computed(() => {
+  if (subdomain) {
+    return tenantUserStore.user
+  }
+  return authStore.user
+})
+
+const userName = computed(() => user.value?.name || 'User')
+const userEmail = computed(() => user.value?.email || '')
+const initials = computed(() => getInitials(userName.value))
+const avatarUrl = computed(() => profileStore.profile?.avatar_url || user.value?.avatar_url)
 
 onMounted(async () => {
-  tenantUserStore.load()
-  // profileStore.fetchFullProfile()
   watchBranchchanges(getLocalValues('activeBranch' as const))
   if (subdomain) {
     await fetchBranches()
   }
 })
-
-function onBranchChange(val: number) {
-  setLocalValues('activeBranch' as const, val)
-  watchBranchchanges(val)
-}
 </script>
 
 <template>
   <header
-    class="flex h-16 shrink-0 items-center gap-2 px-6 border-b border-neutral-100 dark:border-white/10 bg-white/50 dark:bg-[#111111]/80 backdrop-blur-sm sticky top-0 z-10 justify-between">
-    <div class="flex items-center gap-3">
-      <div class="size-8 rounded-lg bg-neutral-100 dark:bg-white/10 flex items-center justify-center">
-        <LayoutGrid class="size-4 text-neutral-600 dark:text-neutral-300" />
-      </div>
-      <Breadcrumb>
+    class="flex h-14 items-center gap-4 border-b bg-white px-4 dark:bg-neutral-950 lg:h-[60px] lg:px-6 sticky top-0 z-50 shadow-sm"
+  >
+    <div class="flex items-center gap-4 lg:gap-6">
+      <Breadcrumb class="hidden md:flex">
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbPage class="text-neutral-900 dark:text-white font-bold text-sm">{{ title }}
+            <BreadcrumbPage class="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+              {{ title }}
             </BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
     </div>
 
-    <div class="flex items-center gap-4 flex-1 max-w-sm mx-12">
-      <div class="relative w-full">
-        <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-neutral-400 dark:text-neutral-500" />
-        <Input placeholder="Search anything"
-          class="pl-10 h-10 bg-[#F1F5F9] dark:bg-white/10 border-none rounded-[14px] focus-visible:ring-1 focus-visible:ring-bg-nfuko-primary/5 dark:focus-visible:ring-white/10 text-sm dark:text-white dark:placeholder-neutral-500" />
-        <div
-          class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-[2px] text-[10px] font-bold text-neutral-400 dark:text-neutral-500">
-          <span
-            class="bg-white/50 dark:bg-white/10 px-1 rounded border border-neutral-200/50 dark:border-white/10">⌘</span>
-          <span
-            class="bg-white/50 dark:bg-white/10 px-1 rounded border border-neutral-200/50 dark:border-white/10">K</span>
-        </div>
-      </div>
-      <SearchableSelect :selectOnOneItem="true" :modelValue="activeBranch" sele
-        :options="((Store as any)?.['system-branches']?.payload?.data as any) ?? []" @update:modelValue="onBranchChange"
-        :selectDefaultIndex="0" />
-    </div>
-
-    <div class="flex items-center gap-4">
-      <div class="flex -space-x-3 mr-2">
-        <Avatar
-          class="size-8 border-[2.5px] border-white dark:border-[#111111] hover:shadow-md transition-all cursor-pointer">
-          <AvatarImage src="https://i.pravatar.cc/150?u=1" />
-          <AvatarFallback>JD</AvatarFallback>
-        </Avatar>
-        <Avatar
-          class="size-8 border-[2.5px] border-white dark:border-[#111111] hover:shadow-md transition-all cursor-pointer">
-          <AvatarImage src="https://i.pravatar.cc/150?u=2" />
-          <AvatarFallback>AS</AvatarFallback>
-        </Avatar>
-        <Avatar
-          class="size-8 border-[2.5px] border-white dark:border-[#111111] hover:shadow-md transition-all cursor-pointer">
-          <AvatarImage src="https://i.pravatar.cc/150?u=3" />
-          <AvatarFallback>WK</AvatarFallback>
-        </Avatar>
-        <div
-          class="size-8 rounded-full bg-neutral-100 dark:bg-white/10 text-[10px] font-bold flex items-center justify-center text-neutral-500 dark:text-neutral-400 border-[2.5px] border-white dark:border-[#111111] cursor-pointer hover:bg-neutral-200 dark:hover:bg-white/20">
-          +2
-        </div>
+    <div class="ml-auto flex items-center gap-2 md:gap-4">
+      <div v-if="subdomain" class="hidden sm:flex items-center gap-2 mr-2 min-w-[200px]">
+        <SearchableSelect
+          :list="(Store as any)?.['system-branches']?.payload?.data"
+          v-model="activeBranch"
+          @update:modelValue="watchBranchchanges"
+          placeholder="Select Branch"
+        >
+          <template #icon>
+            <Building2 class="h-4 w-4 text-neutral-500" />
+          </template>
+        </SearchableSelect>
       </div>
 
-      <Button variant="ghost" size="icon"
-        class="rounded-lg bg-neutral-50 dark:bg-white/10 hover:bg-neutral-100 dark:hover:bg-white/20 size-9 border border-neutral-100 dark:border-white/10 shadow-sm">
-        <Plus class="size-4 text-neutral-600 dark:text-neutral-300" />
-      </Button>
+      <div class="relative hidden md:block w-full max-w-[300px]">
+        <Search class="absolute left-2.5 top-2.5 h-4 w-4 text-neutral-500 dark:text-neutral-400" />
+        <Input
+          type="search"
+          placeholder="Search..."
+          class="w-full bg-neutral-50 pl-8 text-sm focus-visible:ring-nfuko-action dark:bg-neutral-900"
+        />
+      </div>
 
-      <div class="h-6 w-px bg-neutral-200 dark:bg-white/10 mx-1"></div>
-
-      <Button variant="ghost" size="icon"
-        class="relative rounded-lg hover:bg-neutral-100 dark:hover:bg-white/10 size-9">
-        <Bell class="size-5 text-neutral-600 dark:text-neutral-300" />
-        <span
-          class="absolute -top-1 -right-1 size-5 bg-[#F1F5F9] dark:bg-white/10 border-2 border-white dark:border-[#111111] rounded-full flex items-center justify-center text-[9px] font-extrabold text-neutral-900 dark:text-white shadow-sm">
-          24
-        </span>
+      <Button
+        variant="ghost"
+        size="icon"
+        class="h-9 w-9 rounded-full text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
+      >
+        <Bell class="h-5 w-5" />
+        <span class="sr-only">Notifications</span>
       </Button>
 
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
-          <div
-            class="flex items-center gap-3 px-2 py-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-white/5 transition-all cursor-pointer border border-neutral-200/50 dark:border-white/10 shadow-sm group">
-            <div
-              class="size-8 rounded-full bg-nfuko-yellow text-[#0A2318] flex items-center justify-center font-bold text-xs shadow-inner overflow-hidden">
-              <img v-if="user?.avatar" :src="(user.avatar as string)" class="h-full w-full object-cover" />
-              <span v-else>{{ getInitials(userName) }}</span>
+          <Button
+            variant="ghost"
+            class="flex items-center gap-2 rounded-full px-2 py-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          >
+            <Avatar class="h-8 w-8 border-2 border-white shadow-sm dark:border-neutral-800">
+              <AvatarImage :src="avatarUrl" :alt="userName" />
+              <AvatarFallback class="bg-nfuko-action/10 text-xs font-semibold text-nfuko-action">
+                {{ initials }}
+              </AvatarFallback>
+            </Avatar>
+            <div class="hidden flex-col items-start text-left lg:flex">
+              <span class="text-sm font-semibold text-neutral-900 dark:text-white leading-none">
+                {{ userName }}
+              </span>
+              <span class="text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5 leading-none">
+                {{ userEmail }}
+              </span>
             </div>
-            <div class="hidden sm:flex flex-col text-left pr-1 min-w-[80px]">
-              <span
-                class="text-[12px] font-bold text-neutral-900 dark:text-white leading-tight group-hover:text-nfuko-primary dark:group-hover:text-bg-nfuko-yellow transition-colors">{{
-                userName }}</span>
-              <span class="text-[10px] font-medium text-neutral-500 dark:text-neutral-400 capitalize">{{ (user as
-                any)?.role ?? 'User' }}</span>
-            </div>
-            <ChevronDown
-              class="size-3.5 text-neutral-400 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors mr-1" />
-          </div>
+            <ChevronDown class="h-4 w-4 text-neutral-500" />
+          </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end"
-          class="w-56 p-1 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-xl rounded-xl">
-          <UserMenuContent :user="user" />
+        <DropdownMenuContent align="end" class="w-64 p-0 shadow-lg" :side-offset="8">
+          <UserMenuContent :user="user" :initials="initials" />
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
   </header>
 </template>
+
+<style scoped>
+:deep(.avatar-ring) {
+  @apply ring-2 ring-white dark:ring-neutral-950;
+}
+</style>

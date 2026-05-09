@@ -51,14 +51,15 @@
   </TableDrawer>
 </template>
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router';
+import { ref, computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router';
 import LoanApplicationCreate from './LoanApplicationCreate.vue';
 import { pomPinia } from 'septor-store';
 import LoanApplicationSummaryCards from '../components/LoanApplicationSummaryCards.vue';
 const Store = pomPinia();
 const router = useRouter();
-const statusFilter = ref('all'),
+const route = useRoute();
+const statusFilter = ref((route.query.status as string) || 'all'),
  drawer = ref<any>(null),
  automaticCreate = ref<any>({}),
   drawerTitle = ref('Create Tenant'), filters = ['all', 'Submitted', 'Draft', 'Disbursed', 'Approved', 'committee_voting'],
@@ -86,6 +87,10 @@ const columns = [
   { key: 'created_at', label: 'created at', sticky: 'left', type: 'date', onSearch: { type: 'date-range', } },
   { key: 'action', label: 'action', },
 ]
+watch(statusFilter, (val) => {
+  router.replace({ query: val !== 'all' ? { status: val } : {} })
+})
+
 function navigateToMoreLoanDetails(item: any) {
   router.push(`loan-applications/${item.id}`)
 }
