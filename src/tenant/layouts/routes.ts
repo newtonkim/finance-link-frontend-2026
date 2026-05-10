@@ -331,7 +331,7 @@ export const tenantRoutes: MenuRoutes[] = [
             path: 'reports/trial-balance',
             label: 'Trial Balance',
             showSideBar: true,
-            component: () => import('@/tenant/components/globals/ComingSoon.vue'),
+            component: () => import('@/tenant/modules/reports/pages/TrialBalance.vue'),
           },
           {
             path: 'reports/income-statement',
