@@ -205,7 +205,7 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-:deep(.avatar-ring) {
+/* :deep(.avatar-ring) {
   @apply ring-2 ring-white dark:ring-neutral-950;
-}
+} */
 </style>
