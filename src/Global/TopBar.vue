@@ -56,9 +56,8 @@ async function fetchBranches() {
             axiosInstance: interceptor,
             mStore: { mUse: true },
         }
-        await Store.stateGenaratorApi(collection)
-        const branches = Store?.['system-branches']?.payload?.data || []
-        
+        await (Store as any).stateGenaratorApi(collection)
+        const branches = (Store as any)?.['system-branches']?.payload?.data || []
         const currentActive = getLocalValues('activeBranch' as const)
         const exists = branches.find((b: any) => b.id == currentActive)
 
@@ -145,7 +144,11 @@ onMounted(async () => {
     <div class="ml-auto flex items-center gap-2 md:gap-4">
       <div v-if="subdomain" class="hidden sm:flex items-center gap-2 mr-2 min-w-[200px]">
         <SearchableSelect
+<<<<<<< HEAD
           :options="Store?.['system-branches']?.payload?.data"
+=======
+          :list="(Store as any)?.['system-branches']?.payload?.data"
+>>>>>>> 04f90b6 (fix: resolve branch synchronization and loan list methods)
           v-model="activeBranch"
           @update:modelValue="watchBranchchanges"
           placeholder="Select Branch"
@@ -206,7 +209,13 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+<<<<<<< HEAD
 /* :deep(.avatar-ring) {
   @apply ring-2 ring-white dark:ring-neutral-950;
 } */
+=======
+:deep(.avatar-ring) {
+  @apply ring-2 ring-white dark:ring-neutral-950;
+}
+>>>>>>> 04f90b6 (fix: resolve branch synchronization and loan list methods)
 </style>
