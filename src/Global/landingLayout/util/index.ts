@@ -109,17 +109,21 @@ export const dataTabelFilter =  (collection: any, searchQuery: any,deepSearch: b
   // console.log(deepSearch);
   
   const sliptTheString = searchQuery?.split(' ').map((stng: any) => `${stng}`.toLowerCase())
-  const list= (collection ?? []).filter((item: any) => {
-    if(deepSearch){ // lets not filete into the data existing data let pick dirent
-     
-return true
-    }
-    const stng = JSON.stringify(item)
-    return sliptTheString.some((query: any) => stng.toLowerCase().includes(query))
-  });
-  // if(deepSearch) return list
-  // console.log(list,searchQuery,collection);
-  return list
+  if(Array.isArray(collection)){
+
+    const list= (collection ?? []).filter((item: any) => {
+      if(deepSearch){ // lets not filete into the data existing data let pick dirent
+       
+  return true
+      }
+      const stng = JSON.stringify(item)
+      return sliptTheString.some((query: any) => stng.toLowerCase().includes(query))
+    });
+    // if(deepSearch) return list
+    // console.log(list,searchQuery,collection);
+    return list
+  }
+  return [];
 }
 export async function fetchTableData({
   data,

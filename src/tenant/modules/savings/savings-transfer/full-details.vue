@@ -21,8 +21,6 @@ const detailsTable = computed(() => {
     if (!details.value) return []
 
     return [ 
-
-      
         {
             field: 'Transfer From Product',
             value: details.value?.transfer_from_product

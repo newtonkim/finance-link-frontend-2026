@@ -101,372 +101,302 @@ watch(() => additionalForm.value, (val) => {
 async function promtValueOnUpdate() {
   loading.value = true
   if (props.data) {
-  fields.value=  [
-   {
-    hidden:true,
-    label: 'id',
-    name: 'id',
-    type: 'text',
-    required: true,
-    value: props.data.id,
-    placeholder: '',
-  },
-  {
-    label: 'Member type',
-    name: 'member_type',
-    value: props.data.member_type,
-    type: 'select',
-    required: true,
-    placeholder: 'Search member type',
-    // change: (value: any, field: any, index: number) => {
-    //   const existsIndex = fields.value.findIndex(f => f.name === 'member_id')
-    //   if (value === 'existing_member') {
-    //     if (existsIndex === -1) {
-    //       fields.value.splice(index + 1, 0, {
-    //         label: 'products',
-    //         name: 'product_id',
-    //         type: 'select',
-    //         required: true,
-    //         placeholder: 'Search products',
-    //         url: "global/savings-products",
-    //       });
-    //     }
-    //   } else {
-    //     if (existsIndex !== -1) {
-    //       fields.value.splice(existsIndex, 1);
-    //     }
-    //   }
-    // },
+    fields.value = [
+      {
+        hidden: true,
+        label: 'id',
+        name: 'id',
+        type: 'text',
+        required: true,
+        value: props.data.id,
+        placeholder: '',
+      },
+      {
+        label: 'Member type',
+        name: 'member_type',
+        value: props.data.member_type,
+        type: 'select',
+        required: true,
+        placeholder: 'Search member type',
+        // change: (value: any, field: any, index: number) => {
+        //   const existsIndex = fields.value.findIndex(f => f.name === 'member_id')
+        //   if (value === 'existing_member') {
+        //     if (existsIndex === -1) {
+        //       fields.value.splice(index + 1, 0, {
+        //         label: 'products',
+        //         name: 'product_id',
+        //         type: 'select',
+        //         required: true,
+        //         placeholder: 'Search products',
+        //         url: "global/savings-products",
+        //       });
+        //     }
+        //   } else {
+        //     if (existsIndex !== -1) {
+        //       fields.value.splice(existsIndex, 1);
+        //     }
+        //   }
+        // },
 
-    options: OptionList.memberTypeOptions
-  },
-  //  {
-  //   label: 'products',
-  //   name: 'product_id',
-  //   type: 'select',
-  //   required: false,
-  //   placeholder: 'Search products',
-  //   url: "global/savings-products",
-  //   dataOnMount: true,
-  //   selectOnOneItem: true,
+        options: OptionList.memberTypeOptions
+      },
+      //  {
+      //   label: 'products',
+      //   name: 'product_id',
+      //   type: 'select',
+      //   required: false,
+      //   placeholder: 'Search products',
+      //   url: "global/savings-products",
+      //   dataOnMount: true,
+      //   selectOnOneItem: true,
 
-  //   dependsOn: {
-  //     conditions: [
-  //       {
-  //         field: 'member_type',
-  //         condition: (val: unknown) => !settingList?.value['system-used-by-money-lender']
-  //       }
-  //     ],
-  //   },
-  // },
-  {
-    label: 'Full Name',
-    name: 'full_name',
-    type: 'text',
-    required: true,
-    placeholder: 'Enter Full Name',
-    value: props.data.full_name,
+      //   dependsOn: {
+      //     conditions: [
+      //       {
+      //         field: 'member_type',
+      //         condition: (val: unknown) => !settingList?.value['system-used-by-money-lender']
+      //       }
+      //     ],
+      //   },
+      // },
+      {
+        label: 'Full Name',
+        name: 'full_name',
+        type: 'text',
+        required: true,
+        placeholder: 'Enter Full Name',
+        value: props.data.full_name,
 
-  },
-  //  {
-  //   label: 'inital deposit',
-  //   name: 'inital_deposit',
-  //   type: 'money',
-  //   required: true,
-  //   placeholder: 'Select initial deposit',
-  //   dependsOn: {
-  //     conditions: [
-  //       {
-  //         field: 'member_type',
-  //         condition: (val: unknown) => val === 'new_member'
-  //       }
-  //     ],
-  //   },
-  //   change: async (val: unknown) => {
-  //     const amount = val?.target ? val.target.value : val
-  //     // alert()
-  //     watchChangeInProductOrCharges(fields, amount)
-  //   },
-  // },
-  {
-    label: 'Salutation',
-    name: 'Salutation',
-    type: 'select',
-    value: props.data.salutation,
-    required: true,
-    placeholder: 'Search Salutation',
-    options: OptionList.salutationOptions
-    
-  },
-  {
-    label: 'gender',
-    name: 'gender',
-    type: 'select',
-    required: true,
-    value: props.data.sex,
+      },
+      {
+        label: 'Member Code',
+        name: 'code',
+        type: 'text',
+        required: false,
+        placeholder: 'Enter custom member code',
+        dependsOn: {
+          conditions: [
+            {
+              field: 'full_name',
+              condition: (val: any) => settingList?.value['sacco-members-free-input-code'] as boolean
+            }
+          ],
+        }
 
-    placeholder: 'Search gender',
-    options: OptionList.genderOptions
-  },
-  {
-    label: 'Date Of Birth',
-    name: 'date_of_birth',
-    type: 'datec',
-    required: true,
-    value: props.data.dob,
-      // maxDate: new Date(),
-    max: new Date().toISOString().split('T')[0],
+      },
+      //  {
+      //   label: 'inital deposit',
+      //   name: 'inital_deposit',
+      //   type: 'money',
+      //   required: true,
+      //   placeholder: 'Select initial deposit',
+      //   dependsOn: {
+      //     conditions: [
+      //       {
+      //         field: 'member_type',
+      //         condition: (val: unknown) => val === 'new_member'
+      //       }
+      //     ],
+      //   },
+      //   change: async (val: unknown) => {
+      //     const amount = val?.target ? val.target.value : val
+      //     // alert()
+      //     watchChangeInProductOrCharges(fields, amount)
+      //   },
+      // },
+      {
+        label: 'Salutation',
+        name: 'Salutation',
+        type: 'select',
+        value: props.data.salutation,
+        required: true,
+        placeholder: 'Search Salutation',
+        options: OptionList.salutationOptions
 
-    props: { placeholder: 'Select Start & End Dates' },
-  },
-  {
-    label: 'Primary Contact',
-    name: 'primary_contact',
-    type: 'phone',
-    required: true,
-    value: props.data.primary_contact,
+      },
+      {
+        label: 'gender',
+        name: 'gender',
+        type: 'select',
+        required: true,
+        value: props.data.sex,
 
-    placeholder: 'Enter Primary Contact',
-  },
-  {
-    label: 'Other Contacts',
-    name: 'other_contacts',
-    type: 'phone',
-    value: props.data.other_contacts,
+        placeholder: 'Search gender',
+        options: OptionList.genderOptions
+      },
+      {
+        label: 'Date Of Birth',
+        name: 'date_of_birth',
+        type: 'datec',
+        required: true,
+        value: props.data.dob,
+        // maxDate: new Date(),
+        max: new Date().toISOString().split('T')[0],
 
-    required: true,
-    placeholder: 'Enter Other Contacts',
-  },
-  {
-    label: 'Mobile Money Number',
-    name: 'mobile_money_number',
-    type: 'phone',
-    required: false,
-    value: props.data.MM_number,
+        props: { placeholder: 'Select Start & End Dates' },
+      },
+      {
+        label: 'Primary Contact',
+        name: 'primary_contact',
+        type: 'phone',
+        required: true,
+        value: props.data.primary_contact,
 
-    placeholder: 'Enter Primary Contact',
-  },
-  {
-    label: 'Email',
-    name: 'email',
-    type: 'text',
-    value: props.data.email,
+        placeholder: 'Enter Primary Contact',
+      },
+      {
+        label: 'Other Contacts',
+        name: 'other_contacts',
+        type: 'phone',
+        value: props.data.other_contacts,
 
-    required: true,
-    placeholder: 'Enter Email',
-  },
-  {
-    label: 'NATIONAL ID (NIN)',
-    name: 'national_id',
-    value: props.data.NIN,
+        required: false,
+        placeholder: 'Enter Other Contacts',
+      },
+      {
+        label: 'Mobile Money Number',
+        name: 'mobile_money_number',
+        type: 'phone',
+        required: false,
+        value: props.data.MM_number,
 
-    type: 'text',
-    required: true,
-    placeholder: 'Enter national id (NIN)',
-  },
-  {
-    label: 'Marital Status',
-    name: 'marital_status',
-    value: props.data.marital_status,
+        placeholder: 'Enter Primary Contact',
+      },
+      {
+        label: 'Email',
+        name: 'email',
+        type: 'text',
+        value: props.data.email,
 
-    type: 'select',
-    required: true,
-    options: OptionList.maritalOptions,
-    placeholder: 'Enter Marital Status',
-  },
-  {
-    label: 'Nationality',
-    name: 'nationality',
-    type: 'nationality',
-    value: props.data.from,
+        required: true,
+        placeholder: 'Enter Email',
+      },
+      {
+        label: 'NATIONAL ID (NIN)',
+        name: 'national_id',
+        value: props.data.NIN,
 
-    required: true,
-    placeholder: 'Enter Nationality',
-  },
-  {
-    label: 'Address',
-    name: 'address',
-    value: props.data.address,
-      required: !!settingList.value['sacco-on-create-member-address-mandatory'],
+        type: 'text',
+        required: settingList.value['sacco-members-member-nin-mandatory'] as boolean,
+        placeholder: 'Enter national id (NIN)',
+      },
+      {
+        label: 'Marital Status',
+        name: 'marital_status',
+        value: props.data.marital_status,
 
-    type: 'textarea',
-    placeholder: 'Enter Address',
-  },
-  {
-    label: 'profile picture',
-    name: 'profile_picture',
-    type: 'profile',
-    required: false,
-    value: props.data.profile,
+        type: 'select',
+        required: false,
+        options: OptionList.maritalOptions,
+        placeholder: 'Enter Marital Status',
+      },
+      {
+        label: 'Nationality',
+        name: 'nationality',
+        type: 'nationality',
+        value: props.data.from,
 
-    placeholder: 'Enter prifile picture',
-  },
-  {
-    label: 'Next of Kin',
-    name: 'next_of_kin',
-    value: props.data.nokin,
+        required: true,
+        placeholder: 'Enter Nationality',
+      },
+      {
+        label: 'Address',
+        name: 'address',
+        value: props.data.address,
+        required: !!settingList.value['sacco-on-create-member-address-mandatory'],
 
-    type: 'text',
-      required: !!settingList.value['sacco-members-member-next-of-kin-nin-mandatory'],
+        type: 'textarea',
+        placeholder: 'Enter Address',
+      },
+      {
+        label: 'profile picture',
+        name: 'profile_picture',
+        type: 'profile',
+        required: false,
+        value: props.data.profile,
 
-    placeholder: 'Enter Next of Kin',
-  },
-  {
-    label: 'Next of Kin Contact',
-    name: 'next_of_kin_contact',
-    value: props.data.next_contact,
+        placeholder: 'Enter prifile picture',
+      },
+      {
+        label: 'Next of Kin',
+        name: 'next_of_kin',
+        value: props.data.nokin,
 
-    type: 'phone',
-    required: !!settingList.value['sacco-members-member-next-of-kin-nin-mandatory'],
+        type: 'text',
+        required: !!settingList.value['sacco-members-member-next-of-kin-nin-mandatory'],
 
-    placeholder: 'Enter Next of Kin Contact',
-  },
+        placeholder: 'Enter Next of Kin',
+      },
+      {
+        label: 'Next of Kin Contact',
+        name: 'next_of_kin_contact',
+        value: props.data.next_contact,
 
-  {
-    label: 'joined date',
-    name: 'joined_date',
-   value: props.data.joined_date
-  ? props.data.joined_date.split(' ')[0]
-  : '',
-    max: new Date().toISOString().split('T')[0],
+        type: 'phone',
+        required: !!settingList.value['sacco-members-member-next-of-kin-nin-mandatory'],
 
-    type: 'date',
-    required: true,
-    placeholder: 'join date ',
-  },
-  {
-    label: 'referred by',
-    name: 'referred_by',
-    type: 'select',
-    value: props.data.referred_by,
-    required: false,
-    url: 'staff/users-drop-down',
-    placeholder: 'Referred by',
-    dataOnMount: true,
-  },
-]
-   
-additionalForm.value.shares_quantity = props.data?.share_no
-  }  
+        placeholder: 'Enter Next of Kin Contact',
+      },
+
+      {
+        label: 'joined date',
+        name: 'joined_date',
+        value: props.data.joined_date
+          ? props.data.joined_date.split(' ')[0]
+          : '',
+        max: new Date().toISOString().split('T')[0],
+
+        type: 'date',
+        required: true,
+        placeholder: 'join date ',
+      },
+      {
+        label: 'referred by',
+        name: 'referred_by',
+        type: 'select',
+        value: props.data.referred_by,
+        required: false,
+        url: 'staff/users-drop-down',
+        placeholder: 'Referred by',
+        dataOnMount: true,
+      },
+    ]
+
+    additionalForm.value.shares_quantity = props.data?.share_no
+  }
   loading.value = false
 }
 const settingsStore = ref<Record<string, unknown> | null>(null) // Or import and use the actual store if available
 
-// const watchChangeInProductOrCharges = debounce(async (fields: Ref<FormField[]>, amount: string | number) => {
-//   const finedProduct = fields.value.find((f: FormField) => f.name === 'product_id')
-//   const chargeField = fields.value.find((f: FormField) => f.name === 'charges')
 
-//   if (!finedProduct || !finedProduct.value) return
-//   tryCatch(async () => {
-//     const res = await getProductCharges({
-//       product_id: finedProduct.value,
-//       amount: amount,
-//       type: 'deposit',
-//     })
-
-//     if (chargeField) {
-//       chargeField.value = `${res?.cost ?? 0} (charges)`
-//       chargeField.hidden = false
-//       chargeField.label = 'charges'
-//     }
-//   })
-// }, 900)
 const loadingMount = computed(() => loading.value)
 function checkForSettings() {
   const checkForVaailableSetting = getSystemSetting()
   settingList.value = {
+
     "sacco-on-create-member-address-mandatory": (checkForVaailableSetting?.['sacco-on-create-member-address-mandatory'] ?? 0),
     "sacco-members-member-nin-mandatory": (checkForVaailableSetting?.['sacco-on-create-member-nin-mandatory'] ?? 0),
     "sacco-members-member-next-of-kin-nin-mandatory": (checkForVaailableSetting?.['sacco-on-create-member-next-of-kin-nin-mandatory'] ?? 0),
     // "sacco-members-member-next-of-kin-contact-mandatory": (checkForVaailableSetting?.['sacco-members-member-next-of-kin-contact-mandatory'] ?? 0),
-    "hide-initial-deposit-field": (checkForVaailableSetting?.['sacco-members-hide-initial-deposit-field'] ?? 0),
+    "hide-initial-deposit-field": (checkForVaailableSetting?.['sacco-members-show-initial-deposit-field'] ?? 0),
     "system-used-by-money-lender": (checkForVaailableSetting?.['system-used-by-money-lenders'] ?? 0),
     "sacco-members-free-input-code": (checkForVaailableSetting?.['sacco-members-free-input-code'] ?? 0),
     "sacco-share-price-value": parseFloat(checkForVaailableSetting?.['sacco-share-price-value'] ?? 0),
     "sacco-share-on-member-creation-create-share-minimum-value": parseFloat(checkForVaailableSetting?.['sacco-share-on-member-creation-create-share-minimum-value'] ?? 0)
-}
-  // console.log(settingList.value);
+  }
 
 }
 
-watch(
-  () => fields.value,
-  (val) => {
-    const codeIndex = val.findIndex(f => f.name === 'code');
-    const fullNameIndex = val.findIndex(f => f.name === 'full_name');
-
-    // if ((settingList.value?.['hide-initial-deposit-field'])) {
-    //   const initalDepositIndex = val.findIndex(f => f.name === 'inital_deposit')
-    //   const referredByIndex = val.findIndex(f => f.name === 'referred_by')
-    //   if (initalDepositIndex === -1 && referredByIndex !== 1) {
-    //     fields.value.splice(referredByIndex + 1, 0, {
-    //       label: 'inital deposit',
-    //       name: 'inital_deposit',
-    //       type: 'number',
-    //       required: true,
-    //       placeholder: 'Select initial deposit',
-    //       dependsOn: {
-    //         conditions: [
-    //           {
-    //             field: 'member_type',
-    //             condition: (val: unknown) => val === 'existing_member'
-    //           }
-    //         ],
-    //       }
-    //     }
-    //     //  {
-    //     //   label: 'opening balance',
-    //     //   name: 'opening_balance',
-    //     //   type: 'money',
-    //     //   value:props.data.opening_balnace,
-    //     //   required: true,
-    //     //   placeholder: 'Enter opening balance',
-    //     //   dependsOn: {
-    //     //     conditions: [
-    //     //       {
-    //     //         field: 'member_type',
-    //     //         condition: (val: unknown) => val === 'new_member'
-    //     //       }
-    //     //     ],
-
-
-    //     //   },
-    //     // }
-    //     ,)
-    //   }
-    // }
-
-    ///////
-    if (settingList.value?.['sacco-members-free-input-code']) {
-      if (codeIndex === -1 && fullNameIndex !== -1) {
-        fields.value.splice(fullNameIndex + 1, 0, {
-          label: 'free input code',
-          name: 'code',
-          value:props.data.memeber_code,
-          type: 'text',
-          required: true,
-          placeholder: 'Enter code',
-        })
-      }
-
-    } else {
-      if (codeIndex !== -1) {
-        fields.value.splice(codeIndex, 1)
-      }
-    }
-  },
-  { deep: true }
-)
 
 onMounted(() => {
   promtValueOnUpdate()
   checkForSettings()
   // console.log(props.data);
-  
+
 })
 </script>
 <template>
-<!-- {{ props.data }} -->
+  <!-- {{ props.data }} -->
   <div class="card shadow-md p-4  bg-white dark:bg-neutral-800 rounded-md h-[85vh] overflow-y-auto">
     <span v-if='loadingMount'></span>
     <Form :action="data?.action" v-else parentStyle="grid  grid-cols-2 gap-4 md:gap-6" v-model:form="fields" />
@@ -531,9 +461,10 @@ onMounted(() => {
                 </p>
                 <p class="text-[18px] font-black text-nfuko-primary-700 font-mono leading-tight">
                   UGX {{
-                    (additionalForm.shares_quantity * Number(settingList?.['sacco-share-price-value'] ?? 0)).toLocaleString('en-US', {
-                      minimumFractionDigits: 2
-                    }) }}
+                    (additionalForm.shares_quantity * Number(settingList?.['sacco-share-price-value'] ??
+                      0)).toLocaleString('en-US', {
+                        minimumFractionDigits: 2
+                  }) }}
                 </p>
               </div>
             </div>

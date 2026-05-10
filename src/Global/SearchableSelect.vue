@@ -234,7 +234,6 @@ const inputClass =
 </script>
 
 <template>
-
     <div ref="containerRef" class="relative w-full " :class="[props?.class]">
         <div @click="toggleDropdown" :class="[
             inputClass,

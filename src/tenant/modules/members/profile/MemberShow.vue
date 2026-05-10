@@ -315,8 +315,8 @@ const columns = [
         <DepositWithdrawDrawer ref="depositDrawer" :member="member" :currency-code="currencyCode"
             :current-balance="currentBalance" @success="fetchMember(true)" />
 
-        <NewAccountDrawer ref="newAccountDrawer" :member-id="member.id" :savings-accounts="member.savings_accounts"
-            :savings-products="savingsProducts" :currency-code="currencyCode" @success="fetchMember(true)" />
+        <!-- <NewAccountDrawer ref="newAccountDrawer" :member-id="member.id" :savings-accounts="member.savings_accounts"
+            :savings-products="savingsProducts" :currency-code="currencyCode" @success="fetchMember(true)" /> -->
 
         <CustomFeeDrawer ref="customFeeDrawer" :currency-code="currencyCode" @success="fetchMember(true)" />
 
