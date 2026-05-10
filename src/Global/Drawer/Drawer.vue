@@ -18,12 +18,12 @@
           
         </SheetTitle>
       </SheetHeader>
-      <div class="">
-        <form @submit.prevent="handleSave" class="flex flex-col h-screen">
+      <div class="w-full min-w-0">
+        <form @submit.prevent="handleSave" class="flex flex-col h-screen w-full min-w-0">
           <div
-            class="  px-4 py-1  border-b border-neutral-100 dark:border-neutral-800 max-h-[calc(100vh-100px)] overflow-auto"
+            class="px-4 py-1 border-b border-neutral-100 dark:border-neutral-800 max-h-[calc(100vh-100px)] overflow-y-auto overflow-x-hidden w-full min-w-0"
           >
-            <!-- class="  px-4 py-1  border-b border-neutral-100 dark:border-neutral-800 max-h-[calc(100vh-150px)] overflow-auto" -->
+            <!-- class="px-4 py-1 border-b border-neutral-100 dark:border-neutral-800 max-h-[calc(100vh-150px)] overflow-y-auto overflow-x-hidden" -->
             <slot name="body" />
           </div>
           <SheetFooter
