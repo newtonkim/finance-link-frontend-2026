@@ -175,6 +175,12 @@ export default function useTableHelpers(props?: any, emit?: any) {
     } else {
       customeUrl = 'create'
     }
+    let NewUrl = null
+    if (props?.outerpathlinks?.['create']) {
+      NewUrl = props?.outerpathlinks?.['create']
+    } else {
+      NewUrl = createUrl(props?.url, customeUrl)
+    }
     const formDataScoping: any = formDataFormatV2(data)
     formStore.loading = true
     const res = await fetchTableData({
@@ -182,7 +188,7 @@ export default function useTableHelpers(props?: any, emit?: any) {
       props: {
         ...props,
         state: props?.state,
-        url: createUrl(props?.url, customeUrl),
+        url: NewUrl,
       },
       Store,
     })
@@ -214,6 +220,7 @@ export default function useTableHelpers(props?: any, emit?: any) {
       const AnyErrorsFoundInTheFOrm = formStore.AnyErrorsFoundInTheFOrm
       const formdata = formStore.currentFormValues
 
+      console.log(formdata, '====2');
       if (AnyErrorsFoundInTheFOrm) {
       } else {
         if (props.automaticCreate) {
@@ -224,7 +231,7 @@ export default function useTableHelpers(props?: any, emit?: any) {
         } else if (finalSubmitAction.value == 'import-data') {
           return
         }
-        //   console.log(data, '====2');
+        // emit('submit', data, submitChanges.value)
 
         save(formdata, finalSubmitAction.value ?? 'create')
         // save(data, finalSubmitAction.value ?? 'create')
@@ -266,7 +273,7 @@ export default function useTableHelpers(props?: any, emit?: any) {
       })
     } else if (['edit', 'view'].includes(action)) {
       DrawerMounted.value = false
-      //   alert()
+        // alert()
       if (fn) fn(item)
       toggleDrawer() // open the drawer on this action clicked
       if (props?.state && props?.url && ['edit', 'view'].includes(action)) {
@@ -326,8 +333,8 @@ export default function useTableHelpers(props?: any, emit?: any) {
     deepSearch.value = true
     save(data, type)
     setTimeout(() => {
- deepSearch.value = false
-    },2000)
+      deepSearch.value = false
+    }, 2000)
   }
   const dataFilter = computed(() => {
     // alert(props?.state)
@@ -335,13 +342,13 @@ export default function useTableHelpers(props?: any, emit?: any) {
       ? (Store[props.state as keyof typeof Store] as any)?.payload
       : null) ??
       props.data ?? { data: [] }
-// console.log(deepSearch.value,searchQuery.value);
+    // console.log(deepSearch.value,searchQuery.value);
     const filteredData = dataTabelFilter(
       collection?.data ?? collection,
       searchQuery.value,
       deepSearch.value,
     )
-  
+
     return filteredData
   })
   const dataPageLinks = computed(() => {

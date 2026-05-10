@@ -30,6 +30,11 @@ const emits = defineEmits(['update:form']),
       type: Object,
       default: {},
     },
+    disableMemberFields: {
+      type: Boolean,
+      default: false,
+      required: false
+    }
   }),
   fields = ref<any[]>([
     {
@@ -41,26 +46,28 @@ const emits = defineEmits(['update:form']),
       placeholder: 'select a member',
       dataOnMount: true,
       value: props?.data?.member_id,
-     
+      disabled: props?.disableMemberFields,
+
+
     },
-    
-     {
-          label: 'free input code',
-          name: 'code',
-          value:settingList.value?.['free-code'] ,
-          type: 'text',
-          required: false,
-          placeholder: 'Enter code',
-           dependsOn: {
+
+    {
+      label: 'free input code',
+      name: 'code',
+      value: settingList.value?.['free-code'],
+      type: 'text',
+      required: false,
+      placeholder: 'Enter code',
+      dependsOn: {
         conditions: [
-          
+
           {
-            condition:(val)=> settingList.value?.['free-code'] ,
+            condition: (val) => settingList.value?.['free-code'],
             field: 'member',
           },
         ],
       }
-        },
+    },
     {
       label: 'savings product',
       name: 'product_id',
@@ -77,7 +84,7 @@ const emits = defineEmits(['update:form']),
 
       }
     },
-   
+
     {
       label: 'is New Account',
       name: 'new_account',
@@ -85,7 +92,7 @@ const emits = defineEmits(['update:form']),
       required: true,
       options: yesNoOptions,
       value: 1,
-      disabled: true,
+      // disabled: true,
       placeholder: 'Enter is New Account',
     },
     {
@@ -108,12 +115,13 @@ const emits = defineEmits(['update:form']),
         conditions: [
           {
             field: 'new_account',
-            condition: (val: any) => Number(val) === 1 && settingList.value['hide-initial-deposit-field'],
+            condition: (val: any) => settingList.value['hide-initial-deposit-field'],
+            // condition: (val: any) => Number(val) === 1 && !settingList.value['hide-initial-deposit-field'],
           },
-          {
-            field: 'cm_balance',
-            condition: (val: any) => Number(val) >= 0
-          },
+          // {
+          //   field: 'cm_balance',
+          //   condition: (val: any) => Number(val) >= 0
+          // },
         ],
       },
       change: async (val: any) => {
@@ -121,7 +129,7 @@ const emits = defineEmits(['update:form']),
         watchChangeInProductOrCharges(fields, amount)
       },
     },
-     {
+    {
       label: 'charges',
       name: 'charges',
       type: 'text',
@@ -141,16 +149,16 @@ const emits = defineEmits(['update:form']),
         ],
       }
     },
-     {
-        label: 'payment mode (Debit Account)',
-        name: 'payment_mode_id',
-        type: 'select',
-        url: "global/chart-of-accounts",
-        data: { account_type: 'ASSET' },
-        dataOnMount: true,
-        options: [],
-        placeholder: 'Select income account',
-        // condition: (val: string) => ['on_registration', 'on_loan_application'].includes(val)
+    {
+      label: 'payment mode (Debit Account)',
+      name: 'payment_mode_id',
+      type: 'select',
+      url: "global/chart-of-accounts",
+      data: { account_type: 'ASSET' },
+      dataOnMount: true,
+      options: [],
+      placeholder: 'Select income account',
+      // condition: (val: string) => ['on_registration', 'on_loan_application'].includes(val)
     },
     {
       label: 'Status',
@@ -183,14 +191,14 @@ async function promtValueOnUpdate() {
 }
 function checkForSettings() {
   const checkForVaailableSetting = getSystemSetting()
-  
+
   settingList.value = {
-    'hide-initial-deposit-field': checkForVaailableSetting?.['sacco-members-hide-initial-deposit-field'] ?? 0,
+    'hide-initial-deposit-field': checkForVaailableSetting?.['sacco-members-show-initial-deposit-field'] ?? 0,
     'free-code': checkForVaailableSetting?.['sacco-savings-accounts-free-input-code'] ?? 0,
   }
-  console.log(checkForVaailableSetting);    
-} 
-const watchChangeInProductOrCharges=debounce(async (fields: any, amount: any) => {
+  console.log(checkForVaailableSetting);
+}
+const watchChangeInProductOrCharges = debounce(async (fields: any, amount: any) => {
   const finedProduct = fields.value.find((f: any) => f.name === 'product_id')
   const chargeField = fields.value.find((f: any) => f.name === 'charges')
 
@@ -209,7 +217,7 @@ const watchChangeInProductOrCharges=debounce(async (fields: any, amount: any) =>
       chargeField.label = 'charges'
     }
   })
-}, 900) 
+}, 900)
 
 onMounted(() => {
   promtValueOnUpdate()

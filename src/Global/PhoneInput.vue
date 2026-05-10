@@ -10,14 +10,14 @@ interface Country {
 }
 
 const props = defineProps<{
-     modelValue: string | null| number| undefined;
+     modelValue: any;
     countryCode?: string;
     placeholder?: string;
     error?: string;
     disabled?: boolean;
     inputClass?: string;
     containerClass?: string;
-    BigClass?: string;
+    BigClass?: any;
     countryButtonClass?: string;
 }>();
 

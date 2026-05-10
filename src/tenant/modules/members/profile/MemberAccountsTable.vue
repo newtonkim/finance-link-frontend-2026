@@ -1,95 +1,52 @@
 <template>
-  <TableDrawer
-    ref="drawer"
-    :data="accounts"
-    :columns="columns"
-    :drawerTitle="drawerTitle?.title"
-    :drawerWidth="drawerTitle?.width"
-    :drawerShowFooter="showFooter"
-    :drawerRemount="drawerRemount"
-    :automaticCreate="false"
-    :showTableAction="false"
-    :showSearchbar="false"
-    tableDetaultHeight=""
-    @save="handleSave"
-  >
-    <template #add-action>
-      <button
-        @click="emit('newAccount')"
-        class="flex items-center gap-2 px-[18px] py-[9px] text-[13px] font-bold rounded-full bg-[#08262a] text-white shadow-sm"
-      >
-        <Plus :size="15" stroke-width="2.5" v-once />
-        New Account
-      </button>
-    </template>
+  <!-- {{ member.id }} -->
+  <TableDrawer ref="drawer" :data="accounts" :columns="columns" :drawerTitle="drawerTitle?.title"
+    :drawerWidth="drawerTitle?.width" :drawerShowFooter="showFooter" :drawerRemount="drawerRemount"
+    :automaticCreate="drawerTitle?.automaticCreate" :showTableAction="false" :showSearchbar="false"
+    tableDetaultHeight="" @save="handleSave" :addButtonText="{ text: 'New Account', icon: Plus }" :outerpathlinks="{
+      create: '/members-account/create',
+    }
+      ">
+
     <template #actions="{ item }">
       <div class="flex items-center gap-2">
         <!-- FD Details button — only for fixed deposit accounts -->
-        <button
-          v-if="item.account_type === 'fixed'"
-          @click="viewDrawer?.openDrawer({ id: item.id })"
-          class="flex items-center gap-2 px-[14px] py-1.5 text-[12px] font-bold rounded-full border border-blue-200 text-blue-700 bg-blue-50 hover:bg-blue-100"
-        >
+        <button v-if="item.account_type === 'fixed'" @click="viewDrawer?.openDrawer({ id: item.id })"
+          class="flex items-center gap-2 px-[14px] py-1.5 text-[12px] font-bold rounded-full border border-blue-200 text-blue-700 bg-blue-50 hover:bg-blue-100">
           Fixed Deposit Details
         </button>
-      
-        <TabelActionButtons
-          title="withdrawal"
-          color="secondary"
-          icon="CircleMinus"
-          @action="() => openDrawer(item, 'withdrawal')"
-        />
-        <TabelActionButtons
-          title="deposit"
-          color="custom"
-          icon="CircleDollarSign"
-          @action="() => openDrawer(item, 'deposit')"
-        />
+
+        <TabelActionButtons title="withdrawal" color="secondary" icon="CircleMinus"
+          @action="() => openDrawer(item, 'withdrawal')" />
+        <TabelActionButtons title="deposit" color="custom" icon="CircleDollarSign"
+          @action="() => openDrawer(item, 'deposit')" />
       </div>
     </template>
     <template #drawer="{ action, data }">
-     
-      <Deposit
-        v-if="currentAction === 'deposit'"
-        :data="{ action, ...automaticCreate }"
-        v-model:form="formData"
-         @success="emit('reload')"
-      />
-      <Withdrawal
-        v-else-if="currentAction === 'withdrawal'"
-        :data="{ action, ...automaticCreate }"
-        v-model:form="formData"
-         @success="emit('reload')"
-      />
-      <Details
-        v-else-if="action === 'view'"
-        :data="data"
-      />
+      <Deposit v-if="currentAction === 'deposit'" :data="{ action, ...automaticCreate }" v-model:form="formData"
+        @success="emit('reload')" />
+      <Withdrawal v-else-if="currentAction === 'withdrawal'" :data="{ action, ...automaticCreate }"
+        v-model:form="formData" @success="emit('reload')" />
+      <Details v-else-if="action === 'view'" :data="data" />
+      <Create v-else :disableMemberFields="true" :data="{ ...props.member, member_id: props?.member?.id }"
+        @success="emit('reload')" />
     </template>
   </TableDrawer>
 
   <!-- Full FD account view with interest history and maturity controls -->
-  <ViewAccountDrawer
-    ref="viewDrawer"
-    :currency="props.currencyCode"
-    :format-balance="formatBalance"
-    :status-class="statusClass"
-    @edit-account="onEditAccount"
-  />
+  <ViewAccountDrawer ref="viewDrawer" :currency="props.currencyCode" :format-balance="formatBalance"
+    :status-class="statusClass" @edit-account="onEditAccount" />
 
-  <EditAccountDrawer
-    ref="editDrawer"
-    :savings-products="savingsProducts"
-    @success="emit('reload')"
-  />
+  <EditAccountDrawer ref="editDrawer" :savings-products="savingsProducts" @success="emit('reload')" />
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { Deposit, Withdrawal } from "@/tenant/modules/savings/member-account";
 import { memberAccountApi, memberProfileApi } from "@/tenant/apis";
 import ViewAccountDrawer from "@/tenant/modules/savings/components/ViewAccountDrawer.vue";
 import EditAccountDrawer from "@/tenant/modules/savings/components/EditAccountDrawer.vue";
+import { Create } from "@/tenant/modules/savings/member-account/index.ts";
 import { savingsProductsApi } from "@/tenant/apis/savingsProducts/api";
 
 memberProfileApi();
@@ -117,7 +74,7 @@ async function loadSavingsProducts() {
   try {
     const res = await savingsProductsApi.list({ status: 'active' });
     savingsProducts.value = res.data?.data ?? [];
-  } catch {}
+  } catch { }
 }
 
 async function onEditAccount(account: any) {
@@ -147,21 +104,40 @@ const drawerConfigs: Record<string, any> = {
     width: "w-2/4",
     title: "Deposit Savings Account",
     action: memberAccountDepositAmount,
+    automaticCreate: false
   },
   withdrawal: {
     width: "w-2/4",
     title: "Withdraw Savings Account",
     action: memberAccountWithdrawalAmount,
+    automaticCreate: false
+
+  },
+  create: {
+    width: "w-2/4",
+    title: "Create Savings Account",
+    action: () => { },
+    automaticCreate: true
+
   },
 };
-const drawerTitle = ref<any>(drawerConfigs.deposit);
+const drawerTitle = ref<any>(null);
 
-async function handleSave() {
-  const actionKey = currentAction.value;
-  const config = drawerConfigs[actionKey];
-  if (!config) return;
-  drawerRemount.value = await config.action(formData.value, automaticCreate.value);
-  emit('reload', drawer.value?.drawerOpen);
+async function handleSave(action) {
+
+
+  if (action == 'add') {
+    drawerTitle.value = drawerConfigs.create;
+
+
+  } else {
+
+    const actionKey = currentAction.value;
+    const config = drawerConfigs[actionKey];
+    if (!config) return;
+    drawerRemount.value = await config.action(formData.value, automaticCreate.value);
+    emit('reload', drawer.value?.drawerOpen);
+  }
 }
 
 function openDrawer(item: any, action: "deposit" | "withdrawal") {
@@ -180,10 +156,23 @@ function openDrawer(item: any, action: "deposit" | "withdrawal") {
 }
 
 const columns = [
-  { key: "code", label: "Account Code", sticky: "left", width: "14em", copy: true },
-  { key: "account_type", label: "Account Type", width: "14em" },
+  { key: "code", label: "Account number", sticky: "left", copy: true },
+  { key: "account_type", label: "Account Type" },
   { key: "balance", label: "Balance", type: "money" },
   { key: "status", label: "Status", type: "status" },
   { key: "actions", label: "Actions" },
 ];
+watch(
+  () => drawer.value?.drawerOpen,
+  (v) => {
+    if (!v) {
+      automaticCreate.value = {};
+      if( drawerTitle.value?.title == drawerConfigs?.create?.title){
+        emit('reload', drawer.value?.drawerOpen);
+        // let not afffect others
+    }
+
+    }
+  }
+);
 </script>

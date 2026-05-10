@@ -141,9 +141,9 @@ export const tenantRoutes: MenuRoutes[] = [
   },
   {
     path: 'savings-transfer-details',
-    label: 'savings transfer',
+    label: 'savings details',
     permissions: 'savings-transfer-module-link-view',
-    showSideBar: true,
+    showSideBar: false,
     icon: ArrowLeftRight,
     component: () => import('@/tenant/modules/savings/savings-transfer/full-details.vue'),
     group: 'SAVINGS & TRANSFERS',

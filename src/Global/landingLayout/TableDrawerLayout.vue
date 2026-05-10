@@ -82,7 +82,7 @@
                 <div id="print-container-drawer">
 
                     <div>
-                        <button v-if="printTable" @click="printDataInDrawer"
+                        <button v-if="printTable" @click="printDataInDrawer"  type="button"
                             class="  gap-1 px-5 absolute  rounded-md top-4 right-12 no-print bg-nfuko-primary-600  text-white text-sm font-medium  ">
                             <!-- <Printer class="h-10 " /> -->
                             <span>Print</span>
@@ -206,6 +206,7 @@ const props = defineProps({
  * }
  */
     outerlinks: { type: Object, required: false },
+    outerpathlinks: { type: Object, required: false },
     actionSlot: { type: [String, null, Boolean], default: false },
 
 });

@@ -262,7 +262,7 @@ const loadingMount = computed(() => loading.value)
 function checkForSettings() {
   const checkForVaailableSetting = getSystemSetting()
   settingList.value = {
-    "hide-initial-deposit-field": (checkForVaailableSetting?.['sacco-members-hide-initial-deposit-field'] ?? 0),
+    "hide-initial-deposit-field": (checkForVaailableSetting?.['sacco-members-show-initial-deposit-field'] ?? 0),
     "sacco-members-free-input-code": (checkForVaailableSetting?.['sacco-members-free-input-code'] ?? 0),
     "sacco-share-price-value": parseFloat(checkForVaailableSetting?.['sacco-share-price-value'] ?? 0),
     "sacco-share-on-member-creation-create-share-minimum-value": parseFloat(checkForVaailableSetting?.['sacco-share-on-member-creation-create-share-minimum-value'] ?? 0)

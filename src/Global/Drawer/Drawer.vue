@@ -48,7 +48,6 @@
               </div>
 
               <div class="w-1/3 ">
-                <!-- @click="handleSave" -->
                 <Button
                   type="submit"
                   :disabled="formStore.loading"
@@ -88,12 +87,14 @@ const props = withDefaults(
 const emit = defineEmits(["update:open", "save", "cancel", "submit"]);
 
 const handleSave = () => {
+  
   if (formStore.loading) return;
   emit("save", "create");
   emit("submit");
 };
 
 const handleCancel = () => {
+
   if (formStore.loading) return;
   emit("cancel");
   emit("update:open", false);

@@ -99,7 +99,7 @@ const fields = ref<any[]>([
         },
         {
           field: 'member_type',
-          condition: (val: any) => !settingList?.value['hide-initial-deposit-field']
+          condition: (val: any) => settingList?.value['hide-initial-deposit-field']
         },
       ],
     },
@@ -127,22 +127,7 @@ const fields = ref<any[]>([
       ],
     }
   },
-  // {
-  //   label: 'Payment Mode',
-  //   name: 'payment_method',
-  //   type: 'select',
-  //   value: "cash",
-  //   required: false,
-  //   options: [
-  //     { id: 'cash', name: 'Cash' },
-  //     { id: 'bank_transfer', name: 'Bank Transfer' },
-  //     { id: 'mobile_money', name: 'Mobile Money' },
-  //     { id: 'cheque', name: 'Cheque' },
-  //     { id: 'teller', name: 'Teller' },
-  //     { id: 'ussd', name: 'USSD' },
-  //   ],
-  //   placeholder: 'payment mothod',
-  // },
+
     {
     label: 'payment mode (Debit Account)',
     name: 'payment_mode_id',
@@ -156,8 +141,8 @@ const fields = ref<any[]>([
     dependsOn: {
       conditions: [
         {
-          field: 'member_type',
-          condition: (val: any) => val == 'new_member' && !settingList?.value['system-used-by-money-lender'] && !settingList?.value['hide-initial-deposit-field']
+          field: 'inital_deposit',
+          condition: (val: any) =>  val&&  !settingList?.value['system-used-by-money-lender'] && settingList?.value['hide-initial-deposit-field']
         },
 
       ],
@@ -367,7 +352,7 @@ function checkForSettings() {
     "sacco-on-create-member-address-mandatory": (checkForVaailableSetting?.['sacco-on-create-member-address-mandatory'] ?? 0),
     "sacco-members-member-nin-mandatory": (checkForVaailableSetting?.['sacco-on-create-member-nin-mandatory'] ?? 0),
     "sacco-members-member-next-of-kin-nin-mandatory": (checkForVaailableSetting?.['sacco-on-create-member-next-of-kin-nin-mandatory'] ?? 0),
-    "hide-initial-deposit-field": (checkForVaailableSetting?.['sacco-members-hide-initial-deposit-field'] ?? 0),
+    "hide-initial-deposit-field": (checkForVaailableSetting?.['sacco-members-show-initial-deposit-field'] ?? 0),
     "system-used-by-money-lender": (checkForVaailableSetting?.['system-used-by-money-lenders'] ?? 0),
     "sacco-members-free-input-code": (checkForVaailableSetting?.['sacco-members-free-input-code'] ?? 0),
     "sacco-share-price-value": parseFloat(checkForVaailableSetting?.['sacco-share-price-value'] ?? 0),
