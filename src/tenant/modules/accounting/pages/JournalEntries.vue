@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import { Plus, Search, FileText, Calendar, X } from 'lucide-vue-next'
+import { Plus, Search, FileText, Calendar, X, Check } from 'lucide-vue-next'
 import { Spinner, Pagination, formatMoneyValue } from '@/Global'
 import { journalEntriesApi } from '@/tenant/apis/journalEntries/journalEntriesApi'
 import { downloadFile } from '@/Global/Helpers'
@@ -64,6 +64,17 @@ async function exportEntries(format: 'csv' | 'pdf') {
     console.error('Export failed', e)
   } finally {
     exporting.value = false
+  }
+}
+
+async function postDraft(entry: any) {
+  if (!entry?.id) return
+  loading.value = true
+  try {
+    await journalEntriesApi.postExisting(entry.id)
+    await fetchEntries(meta.value.current_page)
+  } finally {
+    loading.value = false
   }
 }
 
@@ -172,15 +183,18 @@ function fmt(n: string | number | null) {
             <tr class="bg-neutral-50 dark:bg-neutral-800/40">
               <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-neutral-400">Date</th>
               <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-neutral-400">Voucher No</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-neutral-400">Type</th>
               <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wide text-neutral-400">Description</th>
               <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wide text-neutral-400">Total Amount</th>
               <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide text-neutral-400">Status</th>
+              <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wide text-neutral-400">Actions</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-neutral-50 dark:divide-neutral-800">
             <tr v-for="entry in entries" :key="entry.id" class="hover:bg-neutral-50/60 dark:hover:bg-neutral-800/40 transition-colors">
               <td class="px-6 py-4 text-neutral-700 dark:text-neutral-300">{{ String(entry.entry_date).split(' ')[0] }}</td>
               <td class="px-6 py-4 font-mono font-semibold text-nfuko-primary">{{ entry.voucher_number }}</td>
+              <td class="px-6 py-4 text-xs font-semibold uppercase text-neutral-500">{{ entry.journal_type }}</td>
               <td class="px-6 py-4">
                  <div class="flex flex-col">
                    <span class="font-medium text-neutral-900 dark:text-white">{{ entry.description || 'No description' }}</span>
@@ -189,9 +203,25 @@ function fmt(n: string | number | null) {
               </td>
               <td class="px-6 py-4 text-right font-mono font-bold">{{ fmt(entry.total_amount) }}</td>
               <td class="px-6 py-4 text-center">
-                <span class="inline-flex rounded-full bg-green-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                <span
+                  class="inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                  :class="entry.status === 'posted'
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                    : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'"
+                >
                   {{ entry.status }}
                 </span>
+              </td>
+              <td class="px-6 py-4 text-right">
+                <button
+                  v-if="entry.status === 'draft'"
+                  type="button"
+                  @click="postDraft(entry)"
+                  class="inline-flex items-center gap-1.5 rounded-lg bg-nfuko-primary px-3 py-1.5 text-xs font-bold text-white hover:bg-nfuko-primary/90"
+                >
+                  <Check class="h-3.5 w-3.5" />
+                  Post
+                </button>
               </td>
             </tr>
           </tbody>

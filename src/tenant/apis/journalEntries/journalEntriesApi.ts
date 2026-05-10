@@ -7,6 +7,12 @@ export const journalEntriesApi = {
   store(data: Record<string, any>) {
     return tenantClient.post('/journal-entries', data)
   },
+  show(id: number | string) {
+    return tenantClient.get(`/journal-entries/${id}`)
+  },
+  postExisting(id: number | string) {
+    return tenantClient.post(`/journal-entries/${id}/post`)
+  },
   export(params?: { search?: string; date_from?: string; date_to?: string; format: 'csv' | 'pdf' }) {
     return tenantClient.get('/journal-entries/export', { params, responseType: 'blob' })
   }
