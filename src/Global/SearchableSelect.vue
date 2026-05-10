@@ -111,7 +111,7 @@ const selectedOption = computed(() => {
 
 const filteredOptions = computed(() => {
 
-    let options = props?.url ? collection.value : [...props.options, ...(props.appendOptions ?? [])]
+    let options = props?.url ? collection.value : [...(props?.options??[]), ...(props.appendOptions ?? [])]
 
     if (!Array.isArray(options)) return [];
 

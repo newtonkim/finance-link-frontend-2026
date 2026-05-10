@@ -50,6 +50,8 @@ function initialize() {
             options: [],
             selectDefaultIndex: 0,
             value:props?.data?.payment_mod,
+    required: true,
+
             placeholder: 'Select income account',
         },
         {
