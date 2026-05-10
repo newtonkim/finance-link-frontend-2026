@@ -5,7 +5,6 @@ import SearchableSelect from '@/Global/SearchableSelect.vue'
 import { List, Paperclip, Plus, Trash2 } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { journalEntriesApi } from '@/tenant/apis/journalEntries/journalEntriesApi'
-import { chartOfAccountsApi } from '@/tenant/apis/chartOfAccounts/chartOfAccountsApi'
 
 const props = defineProps<{
   open: boolean
@@ -36,7 +35,7 @@ const lines = ref<JournalLine[]>([])
 const loading = ref(false)
 const submitMode = ref<'draft' | 'posted'>('posted')
 const errors = ref<Record<string, string[]>>({})
-const accounts = ref<Array<{ id: number; name: string }>>([])
+
 
 const entryTypes = [
   { value: 'ADJUSTING', label: 'Adjusting' },
@@ -77,21 +76,7 @@ watch(() => form.value.entry_date, value => {
 watch(() => props.open, async isOpen => {
   if (!isOpen) return
   resetForm()
-  await fetchAccounts()
 })
-
-async function fetchAccounts() {
-  if (accounts.value.length > 0) return
-  try {
-    const res = await chartOfAccountsApi.list({ list: 1 } as any)
-    const all = Array.isArray(res.data?.data) ? res.data.data : Array.isArray(res.data) ? res.data : []
-    accounts.value = all
-      .filter((account: any) => account.is_active && account.is_postable && account.allow_manual)
-      .map((account: any) => ({ id: account.id, name: `${account.gl_code} - ${account.name}` }))
-  } catch {
-    toast.error('Failed to load chart of accounts.')
-  }
-}
 
 function resetForm() {
   form.value = {
@@ -219,19 +204,20 @@ function fmt(amount: number) {
     :open="open"
     @update:open="emit('update:open', $event)"
     title="New journal entry"
-    width="w-full max-w-6xl"
+    width="w-full md:max-w-[calc(100vw-16rem)] xl:max-w-6xl"
+    :showFooter="true"
   >
     <template #body>
-      <div class="flex flex-col gap-7">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div class="flex items-center gap-4">
-            <h2 class="text-2xl font-bold text-neutral-950 dark:text-white">New journal entry</h2>
+      <div class="flex w-full min-w-0 flex-col gap-7">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between min-w-0">
+          <div class="flex items-center gap-4 min-w-0">
+            <h2 class="truncate text-2xl font-bold text-neutral-950 dark:text-white">New journal entry</h2>
             <span class="rounded-full bg-amber-50 px-4 py-1 text-sm font-bold tracking-wide text-amber-800">DRAFT</span>
           </div>
-          <span class="font-mono text-lg font-semibold text-neutral-500">{{ entryNoPreview }}</span>
+          <span class="truncate font-mono text-lg font-semibold text-neutral-500">{{ entryNoPreview }}</span>
         </div>
 
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div class="grid w-full grid-cols-1 gap-4 md:grid-cols-4 min-w-0">
           <label class="flex flex-col gap-1.5">
             <span class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Entry date</span>
             <input v-model="form.entry_date" type="date" class="h-11 rounded-lg border border-neutral-200 bg-white px-3 text-sm outline-none focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-900 dark:text-white" />
@@ -266,28 +252,28 @@ function fmt(amount: number) {
           <span v-if="errors.description" class="text-xs text-red-500">{{ errors.description[0] }}</span>
         </label>
 
-        <div class="flex flex-col gap-3">
+        <div class="flex w-full min-w-0 flex-col gap-3">
           <div class="flex items-center gap-2">
             <List class="h-4 w-4 text-neutral-500" />
             <h3 class="text-sm font-bold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">Entry Lines</h3>
           </div>
 
-          <div class="overflow-x-auto rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">
+          <div class="w-full overflow-x-auto rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">
             <table class="w-full min-w-[980px] text-sm">
               <thead class="bg-neutral-50 dark:bg-neutral-800/50">
                 <tr>
-                  <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-neutral-600">Account</th>
-                  <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-neutral-600">Description</th>
-                  <th class="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-neutral-600">Cost Centre</th>
-                  <th class="px-4 py-3 text-right text-xs font-bold uppercase tracking-wide text-neutral-600">Debit</th>
-                  <th class="px-4 py-3 text-right text-xs font-bold uppercase tracking-wide text-neutral-600">Credit</th>
-                  <th class="px-4 py-3"></th>
+                  <th class="w-[30%] min-w-[250px] px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-neutral-600">Account</th>
+                  <th class="w-[25%] min-w-[200px] px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-neutral-600">Description</th>
+                  <th class="w-[15%] min-w-[150px] px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-neutral-600">Cost Centre</th>
+                  <th class="w-[12%] min-w-[120px] px-4 py-3 text-right text-xs font-bold uppercase tracking-wide text-neutral-600">Debit</th>
+                  <th class="w-[12%] min-w-[120px] px-4 py-3 text-right text-xs font-bold uppercase tracking-wide text-neutral-600">Credit</th>
+                  <th class="w-[6%] min-w-[60px] px-4 py-3"></th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
                 <tr v-for="(line, index) in lines" :key="line.id">
                   <td class="px-4 py-3">
-                    <SearchableSelect v-model="line.chart_of_account_id" :options="accounts" placeholder="Select account" />
+                    <SearchableSelect v-model="line.chart_of_account_id" url="global/chart-of-accounts" placeholder="Select account" />
                   </td>
                   <td class="px-4 py-3">
                     <input v-model="line.description" type="text" placeholder="Line memo" class="h-10 w-full rounded-lg border border-neutral-200 bg-white px-3 text-sm outline-none focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-950 dark:text-white" />

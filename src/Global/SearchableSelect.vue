@@ -7,7 +7,6 @@ const Store = pomPinia() as any;
 import debounce from 'lodash/debounce';
 import { tryCatch } from './Helpers';
 
-
 interface Option {
     id: string | number;
     name: string;
@@ -106,7 +105,7 @@ const containerRef = ref<HTMLElement | null>(null);
 const selectedOption = computed(() => {
     const options = props?.url ? collection.value : props.options
     if (!Array.isArray(options) || options?.length === 0) return null
-    return options?.find(opt => opt.id === props.modelValue);
+    return options?.find(opt => opt.id == props.modelValue);
 });
 
 const filteredOptions = computed(() => {
@@ -127,17 +126,16 @@ const selectOption = (option: Option) => {
     if (!option) return;
     emit('update:modelValue', option.id);
     emit('update:itemSelected', option);
-    setTimeout(() => {
-        isOpen.value = false;
-    })
+    isOpen.value = false;
     searchQuery.value = '';
 };
 
 const toggleDropdown = async () => {
     if (props.disabled) return;
     isOpen.value = !isOpen.value;
-    if (isOpen.value)
+    if (isOpen.value) {
         searchQuery.value = '';
+    }
     fetchData()
 };
 
@@ -156,9 +154,9 @@ function fetchData() {
         collection.value = DataAlreadyCollected
     }
 }
+
 const closeDropdown = (e: MouseEvent) => {
     const target = e.target as Node;
-
     if (
         isOpen.value &&
         containerRef.value &&
@@ -258,15 +256,16 @@ const inputClass =
             leave-active-class="transition duration-75 ease-in" leave-from-class="transform scale-100 opacity-100"
             leave-to-class="transform scale-95 opacity-0">
             <div style="z-index:9999" v-if="isOpen"
-                class="absolute   mt-2 w-full o verflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xl dark:border-neutral-800 dark:bg-neutral-900">
+                class="absolute mt-2 w-full overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xl dark:border-neutral-800 dark:bg-neutral-900">
                 <div class="p-2 border-b border-neutral-100 dark:border-neutral-800">
                     <div class="relative flex items-center">
                         <!-- {{ searchQuery }}=== -->
                         <Search class="absolute left-3.5 h-4 w-4 text-neutral-400" />
                         <input v-model="searchQuery" type="text" :placeholder="'Search...' + placeholder"
                             class="w-full rounded-lg bg-neutral-50 dark:bg-neutral-950 px-10 py-2 text-sm outline-none focus:ring-0 placeholder:text-neutral-400"
+                            @keydown.enter.prevent
                             @click.stop />
-                        <button v-if="searchQuery" @click.stop="searchQuery = ''"
+                        <button type="button" v-if="searchQuery" @click.stop="searchQuery = ''"
                             class="absolute right-3.5 p-0.5 hover:bg-neutral-200 dark:hover:bg-neutral-800 rounded-full transition-colors">
                             <X class="h-3 w-3 text-neutral-400" />
                         </button>
@@ -278,7 +277,7 @@ const inputClass =
                     <li v-for="option in filteredOptions" :key="option.id" @click.stop="selectOption(option)"
                         class="relative flex cursor-pointer select-none items-center justify-between px-4 py-2.5 text-sm transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-800"
                         :class="[
-                            option.id === modelValue ? 'bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white font-semibold' : 'text-neutral-600 dark:text-neutral-400'
+                            option.id == modelValue ? 'bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white font-semibold' : 'text-neutral-600 dark:text-neutral-400'
                         ]">
                         <span class="block truncate">
 
@@ -287,7 +286,7 @@ const inputClass =
                             </slot>
 
                         </span>
-                        <Check v-if="option.id === modelValue"
+                        <Check v-if="option.id == modelValue"
                             class="h-4 w-4  text-nfuko-primary dark:text-[#8ba8a2]" />
                     </li>
                     <li v-if="(filteredOptions as any)?.length === 0"
