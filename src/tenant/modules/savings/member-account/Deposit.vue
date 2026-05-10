@@ -1,7 +1,7 @@
 <template>
     <div class="card shadow-sm px-4 h-full bg-white dark:bg-neutral-800 rounded-md" v-if="fields?.length">
         <div class="  mb-6">
-          
+
             <DetailsTable :data="props.data" :columns="columns" />
         </div>
         <Form :action="data.action" parentStyle="grid  grid-cols-2 gap-3 px-2" v-model:form="fields" />
@@ -33,7 +33,7 @@ const emits = defineEmits(['update:form', 'reload']),
     },
     ],
     fields = ref<any>([]);
- 
+
 
 function initialize() {
     fields.value = [
@@ -52,7 +52,7 @@ function initialize() {
             data: { account_type: 'ASSET' },
             dataOnMount: true,
             options: [],
-    required: true,
+            required: true,
 
             value: props?.data?.payment_mod,
 
