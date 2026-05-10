@@ -115,7 +115,7 @@ const user = computed(() => {
 const userName = computed(() => user.value?.name || 'User')
 const userEmail = computed(() => user.value?.email || '')
 const initials = computed(() => getInitials(userName.value))
-const avatarUrl = computed(() => profileStore.profile?.avatar_url || user.value?.avatar_url)
+const avatarUrl = computed(() => profileStore.combinedProfile?.avatar || user.value?.avatar)
 
 onMounted(async () => {
   watchBranchchanges(getLocalValues('activeBranch' as const))

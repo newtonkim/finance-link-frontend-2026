@@ -261,7 +261,7 @@ function historyTextClass(action: string) {
 
       <div v-if="data.approval_history?.length" class="space-y-3">
         <div v-for="(h, i) in data.approval_history" :key="i"
-             :class="['relative pl-10 pb-1', i < data.approval_history.length - 1 ? 'before:content-[\'\'] before:absolute before:left-[15px] before:top-8 before:bottom-0 before:w-0.5 before:bg-neutral-100 dark:before:bg-neutral-800' : '']">
+             :class="['relative pl-10 pb-1', Number(i) < data.approval_history.length - 1 ? 'before:content-[\'\'] before:absolute before:left-[15px] before:top-8 before:bottom-0 before:w-0.5 before:bg-neutral-100 dark:before:bg-neutral-800' : '']">
           <div :class="['absolute left-0 top-1 w-7 h-7 rounded-full border-2 flex items-center justify-center z-10', historyBubbleClass(h.action)]">
             <CheckCircle v-if="h.action?.toLowerCase() === 'approved'" class="w-3.5 h-3.5 text-emerald-500" />
             <XCircle    v-else-if="h.action?.toLowerCase() === 'rejected'" class="w-3.5 h-3.5 text-rose-500" />
