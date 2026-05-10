@@ -293,6 +293,14 @@ export const tenantRoutes: MenuRoutes[] = [
     group: 'FINANCIALS',
   },
   {
+    path: 'journal-entries',
+    label: 'Journal Entries',
+    icon: FileText,
+    showSideBar: true,
+    component: () => import('@/tenant/modules/accounting/pages/JournalEntries.vue'),
+    group: 'FINANCIALS',
+  },
+  {
     path: 'expenses',
     label: 'Manage Expenses',
     icon: Receipt,
