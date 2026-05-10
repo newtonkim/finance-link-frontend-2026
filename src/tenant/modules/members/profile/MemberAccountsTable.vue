@@ -42,6 +42,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
+import { Plus } from "lucide-vue-next";
 import { Deposit, Withdrawal } from "@/tenant/modules/savings/member-account";
 import { memberAccountApi, memberProfileApi } from "@/tenant/apis";
 import ViewAccountDrawer from "@/tenant/modules/savings/components/ViewAccountDrawer.vue";

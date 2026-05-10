@@ -115,7 +115,7 @@ const user = computed(() => {
 const userName = computed(() => user.value?.name || 'User')
 const userEmail = computed(() => user.value?.email || '')
 const initials = computed(() => getInitials(userName.value))
-const avatarUrl = computed(() => profileStore.profile?.avatar_url || user.value?.avatar_url)
+const avatarUrl = computed(() => profileStore.combinedProfile?.avatar || user.value?.avatar)
 
 onMounted(async () => {
   watchBranchchanges(getLocalValues('activeBranch' as const))
@@ -203,3 +203,13 @@ onMounted(async () => {
     </div>
   </header>
 </template>
+
+<style scoped>
+:deep(.avatar-ring) {
+  box-shadow: 0 0 0 2px white;
+}
+
+.dark :deep(.avatar-ring) {
+  box-shadow: 0 0 0 2px #0a0a0a;
+}
+</style>
