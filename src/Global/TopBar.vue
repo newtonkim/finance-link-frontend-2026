@@ -115,7 +115,7 @@ const user = computed(() => {
 const userName = computed(() => user.value?.name || 'User')
 const userEmail = computed(() => user.value?.email || '')
 const initials = computed(() => getInitials(userName.value))
-const avatarUrl = computed(() => profileStore.profile?.avatar_url || user.value?.avatar_url)
+const avatarUrl = computed(() => profileStore.combinedProfile?.avatar || user.value?.avatar)
 
 onMounted(async () => {
   watchBranchchanges(getLocalValues('activeBranch' as const))
@@ -205,13 +205,11 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-<<<<<<< HEAD
-/* :deep(.avatar-ring) {
-  @apply ring-2 ring-white dark:ring-neutral-950;
-} */
-=======
 :deep(.avatar-ring) {
-  @apply ring-2 ring-white dark:ring-neutral-950;
+  box-shadow: 0 0 0 2px white;
 }
->>>>>>> 04f90b6 (fix: resolve branch synchronization and loan list methods)
+
+.dark :deep(.avatar-ring) {
+  box-shadow: 0 0 0 2px #0a0a0a;
+}
 </style>
