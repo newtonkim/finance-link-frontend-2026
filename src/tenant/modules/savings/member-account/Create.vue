@@ -156,6 +156,8 @@ const emits = defineEmits(['update:form']),
       url: "global/chart-of-accounts",
       data: { account_type: 'ASSET' },
       dataOnMount: true,
+    required: true,
+
       options: [],
       placeholder: 'Select income account',
       // condition: (val: string) => ['on_registration', 'on_loan_application'].includes(val)

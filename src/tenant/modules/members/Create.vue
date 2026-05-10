@@ -136,6 +136,8 @@ const fields = ref<any[]>([
     data: { account_type: 'ASSET' },
     dataOnMount: true,
     options: [],
+    required: true,
+
     // selectDefaultIndex: 0,
     placeholder: 'Select income account',
     dependsOn: {

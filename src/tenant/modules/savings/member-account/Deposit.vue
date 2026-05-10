@@ -52,6 +52,8 @@ function initialize() {
             data: { account_type: 'ASSET' },
             dataOnMount: true,
             options: [],
+    required: true,
+
             value: props?.data?.payment_mod,
 
             placeholder: 'Select income account',
