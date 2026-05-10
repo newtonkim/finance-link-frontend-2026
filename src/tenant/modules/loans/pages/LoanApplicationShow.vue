@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useLoanApplicationShow } from '../composables/useLoanApplicationShow'
 import { useLoanAppraisalActions } from '../composables/useLoanAppraisalActions'
 import { useLoanDisbursement } from '../composables/useLoanDisbursement'
@@ -56,6 +57,67 @@ watch(
   { immediate: true },
 )
 
+const router = useRouter()
+
+// ─── Workflow step navigation ─────────────────────────────────────────────────
+const workflowStepKeys = ['draft', 'submitted', 'under_review', 'recommended', 'approved', 'disbursed']
+
+const statusToStepIndex: Record<string, number> = {
+  draft: 0,
+  submitted: 1,
+  under_review: 2, awaiting_documents: 2, returned_for_correction: 1,
+  recommended: 3, officer_recommended: 3, bm_recommended: 3, committee_voting: 3,
+  approved: 4, disbursement_pending: 4,
+  disbursed: 5,
+}
+
+const currentStepIndex = computed(() => statusToStepIndex[application.value?.status ?? ''] ?? 0)
+const viewedStepIndex = ref(0)
+
+watch(
+  currentStepIndex,
+  (idx) => { viewedStepIndex.value = idx },
+  { immediate: true },
+)
+
+const isViewingPreviousStep = computed(() => viewedStepIndex.value < currentStepIndex.value)
+const viewedStepKey = computed(() => workflowStepKeys[viewedStepIndex.value] ?? 'draft')
+
+function handleBack() {
+  if (viewedStepIndex.value > 0) {
+    viewedStepIndex.value--
+  } else {
+    router.push({ name: 'tenant-loans' })
+  }
+}
+
+// ─── Step summary data ────────────────────────────────────────────────────────
+const stepSummary = computed(() => {
+  const app = application.value
+  if (!app) return null
+  switch (viewedStepKey.value) {
+    case 'draft':
+      return { title: 'Draft Stage', detail: `Application created on ${app.created_at ? new Date(app.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}.` }
+    case 'submitted':
+      return { title: 'Submitted Stage', detail: app.submitted_at ? `Submitted on ${new Date(app.submitted_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}.` : 'Not yet submitted.' }
+    case 'under_review':
+      return { title: 'Under Review Stage', detail: app.reviewed_at ? `Taken for review on ${new Date(app.reviewed_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}.` : 'Taken for review.' }
+    case 'recommended':
+      return {
+        title: 'Recommended Stage',
+        detail: app.recommended_at
+          ? `Recommended on ${new Date(app.recommended_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}${app.recommended_by ? ` by ${app.recommended_by.name}` : ''}.`
+          : 'Awaiting recommendation.',
+      }
+    case 'approved':
+      return { title: 'Approved Stage', detail: app.approved_at ? `Approved on ${new Date(app.approved_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}.` : 'Awaiting approval.' }
+    case 'disbursed':
+      return { title: 'Disbursed Stage', detail: app.disbursed_at ? `Disbursed on ${new Date(app.disbursed_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}.` : 'Not yet disbursed.' }
+    default:
+      return null
+  }
+})
+
 const editableStatuses          = ['draft', 'returned_for_correction']
 const cancellableStatuses       = ['draft', 'submitted', 'under_review', 'awaiting_documents', 'officer_recommended', 'bm_recommended', 'committee_voting']
 const reopenableStatuses        = ['cancelled', 'declined']
@@ -100,6 +162,7 @@ const showDetailsSection = computed(() => !isApproved.value && !isDisbursed.valu
       :editable-statuses="editableStatuses"
       :cancellable-statuses="cancellableStatuses"
       :reopenable-statuses="reopenableStatuses"
+      @back="handleBack"
       @edit="openEdit"
       @reopen="reopen"
       @cancel="openCancelModal"
@@ -113,11 +176,35 @@ const showDetailsSection = computed(() => !isApproved.value && !isDisbursed.valu
       <!-- ── Left column ── -->
       <div class="flex flex-col gap-6">
 
-        <LoanWorkflowPipeline :application="application" />
+        <LoanWorkflowPipeline
+          :application="application"
+          :viewed-step-index="isViewingPreviousStep ? viewedStepIndex : undefined"
+        />
 
-        <!-- Status action panels -->
+        <!-- Previous-step summary banner -->
+        <div
+          v-if="isViewingPreviousStep && stepSummary"
+          class="rounded-2xl border border-nfuko-primary/20 bg-nfuko-primary/5 p-5 dark:border-nfuko-primary/30 dark:bg-nfuko-primary/10"
+        >
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <p class="text-sm font-semibold text-nfuko-primary dark:text-bg-nfuko-yellow">
+                Viewing: {{ stepSummary.title }}
+              </p>
+              <p class="mt-0.5 text-sm text-neutral-600 dark:text-neutral-400">{{ stepSummary.detail }}</p>
+            </div>
+            <button
+              class="shrink-0 rounded-lg border border-nfuko-primary/30 px-3 py-1.5 text-xs font-medium text-nfuko-primary transition hover:bg-nfuko-primary/10 dark:text-bg-nfuko-yellow"
+              @click="viewedStepIndex = currentStepIndex"
+            >
+              Return to current step
+            </button>
+          </div>
+        </div>
+
+        <!-- Status action panels (only shown when on the current step) -->
         <LoanCommitteeVotingPanel
-          v-if="isCommitteeVoting"
+          v-if="isCommitteeVoting && !isViewingPreviousStep"
           :application="application"
           :vote-tally="voteTally"
           :committee-votes="committeeVotes"
@@ -125,7 +212,7 @@ const showDetailsSection = computed(() => !isApproved.value && !isDisbursed.valu
           @open-vote="openVoteModal"
         />
         <LoanActionPanel
-          v-else-if="!isApproved"
+          v-else-if="!isApproved && !isViewingPreviousStep"
           :application="application"
           :taking-for-review="takingForReview"
           :resuming-review="resumingReview"

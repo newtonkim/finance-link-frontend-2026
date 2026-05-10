@@ -423,6 +423,9 @@ export const loanApplicationsApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
   },
+  updateDocument(applicationId: number, documentId: number, data: { name: string; notes?: string }) {
+    return tenantClient.patch(`/loan-applications/${applicationId}/documents/${documentId}`, data)
+  },
   deleteDocument(applicationId: number, documentId: number) {
     return tenantClient.delete(`/loan-applications/${applicationId}/documents/${documentId}`)
   },

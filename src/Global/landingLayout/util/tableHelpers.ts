@@ -366,6 +366,12 @@ export default function useTableHelpers(props?: any, emit?: any) {
     callOnmount()
   })
   watch(
+    () => (Store as any).activeBranch,
+    () => {
+      refresh()
+    },
+  )
+  watch(
     () => props?.url,
     () => {
       callOnmount()

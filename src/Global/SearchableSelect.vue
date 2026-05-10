@@ -193,8 +193,7 @@ watch(props, async (newVal) => {
         // searchQuery.value = String(props.modelValue ?? ''); new add this line and i have commented it bring 14 issues
         fetchData()
     }
-    if (newVal?.selectDefaultIndex >= 0) {
-        /// slet the first item in the drop down
+    if (newVal?.selectDefaultIndex >= 0 && !props.modelValue) {
         setTimeout(() => {
             selectOption(filteredOptions.value[newVal.selectDefaultIndex ?? 0])
         }, 1000)

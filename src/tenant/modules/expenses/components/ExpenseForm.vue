@@ -240,7 +240,7 @@ onMounted(() => {
 watch(
   () => props.data?.id,
   (newId, oldId) => {
-    if (newId !== oldId) {
+    if (newId !== undefined && newId !== oldId) {
       initialize(props.data ?? {});
     }
   }

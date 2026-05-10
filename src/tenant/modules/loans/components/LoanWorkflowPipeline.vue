@@ -4,7 +4,7 @@ import { XCircle as XCircleIcon, Check } from 'lucide-vue-next'
 import { useLoanApplicationHelpers } from '../composables/useLoanApplicationHelpers'
 import type { LoanApplication } from '../../../apis/loans/loanApplicationsApi'
 
-const props = defineProps<{ application: LoanApplication }>()
+const props = defineProps<{ application: LoanApplication; viewedStepIndex?: number }>()
 
 const { statusLabel, formatDate } = useLoanApplicationHelpers()
 
@@ -72,13 +72,18 @@ function stepStatus(key: string): 'completed' | 'current' | 'pending' {
             <template v-for="(step, idx) in workflowSteps" :key="step.key">
                 <div class="flex shrink-0 flex-col items-center gap-1.5" style="min-width:72px">
                     <div class="flex h-8 w-8 items-center justify-center rounded-full transition-colors"
-                        :class="isTerminalNegative && stepStatus(step.key) === 'current'
-                            ? 'bg-neutral-300 dark:bg-neutral-600'
-                            : stepStatus(step.key) === 'completed'
-                                ? 'bg-emerald-500'
-                                : stepStatus(step.key) === 'current'
-                                    ? 'bg-nfuko-primary'
-                                    : 'bg-neutral-200 dark:bg-neutral-700'">
+                        :class="[
+                            isTerminalNegative && stepStatus(step.key) === 'current'
+                                ? 'bg-neutral-300 dark:bg-neutral-600'
+                                : stepStatus(step.key) === 'completed'
+                                    ? 'bg-emerald-500'
+                                    : stepStatus(step.key) === 'current'
+                                        ? 'bg-nfuko-primary'
+                                        : 'bg-neutral-200 dark:bg-neutral-700',
+                            viewedStepIndex !== undefined && viewedStepIndex === idx
+                                ? 'ring-2 ring-offset-1 ring-nfuko-primary dark:ring-offset-neutral-900'
+                                : '',
+                        ]">
                         <Check v-if="stepStatus(step.key) === 'completed'" class="h-4 w-4 text-white" />
                         <div v-else-if="stepStatus(step.key) === 'current' && !isTerminalNegative"
                             class="h-2.5 w-2.5 rounded-full bg-white" />
