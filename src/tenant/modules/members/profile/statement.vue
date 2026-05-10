@@ -24,7 +24,7 @@
         </h1>
      
         <p class="text-sm text-gray-500 mt-2">
-          {{ !selectedType.length ? 'All Transactions' : formatType(selectedType.join(', ')) }}
+          {{ !Array.isArray(selectedType) || !selectedType.length ? 'All Transactions' : formatType(selectedType.join(', ')) }}
         </p>
       </div>
 
@@ -143,7 +143,7 @@ const props = defineProps<{
   // formatCurrency?: (amount: number) => string
 }>()
 
-const selectedType = ref<(string | number)[]>([])
+const selectedType = ref<(string | number | null)[]>([])
 const showTransactionTable = ref(false)
 
 const collection = computed(() => props.data?.transactions ?? [])
