@@ -156,7 +156,7 @@ export function useTrialBalance() {
       : asOfDate.value
   }
 
-<<<<<<< HEAD
+
   // ── Export helpers ──────────────────────────────────────────────────────────
   function buildExportRows(): { isPeriod: boolean; dataRows: (string | number)[][]; totalsRow: (string | number)[] | null } {
     const isPeriod = mode.value === 'period'
@@ -358,8 +358,7 @@ export function useTrialBalance() {
     }
   }
 
-=======
->>>>>>> feat/phase1-fd-maturity-trial-balance
+
   // ── Auto-load ────────────────────────────────────────────────────────────────
   onMounted(() => generate())
 
@@ -368,10 +367,7 @@ export function useTrialBalance() {
     accounts, totals, isBalanced, drFrom, drTo,
     drawerOpen, drawerAccount, drawerLines, drawerPage, drawerTotal, drawerLastPage, drawerLoading, drawerError,
     generate, openDrillDown, loadMore,
-<<<<<<< HEAD
     exportCsv, exportExcel, exportPdf,
-=======
->>>>>>> feat/phase1-fd-maturity-trial-balance
     fmt, fmtCell, fmtNum, typeColor, dateLabel,
   }
 }
