@@ -14,7 +14,7 @@ interface Option {
 }
 
 const props = defineProps<{
-    modelValue: (string | number|null)[];
+    modelValue: (string | number | null)[];
     options: Option[];
     placeholder?: string;
     label?: string;
@@ -38,13 +38,13 @@ const hasFetched = ref(false);
 
 const remoteUrl = debounce(async (url: string) => {
     if (!url || loading.value) return;
-    
+
     const result = tryCatch(async () => {
         loading.value = true;
         const data: any = { ...props.data }
         if (searchQuery.value?.length >= 3)
             data.search_keyword = searchQuery.value
-            
+
         const res = await fetchTableData({
             data: Object.keys(data).length > 0 ? data : null,
             props: { url, reload: false, state: props?.state },
@@ -71,7 +71,7 @@ const remoteUrl = debounce(async (url: string) => {
 //     return options.filter(opt => props.modelValue.includes(opt.id));
 // });
 
-const selectedOptions=ref<Option[]>([]);
+const selectedOptions = ref<Option[]>([]);
 
 const filteredOptions = computed(() => {
     const options = props?.url ? collection.value : props.options
@@ -83,6 +83,8 @@ const filteredOptions = computed(() => {
 });
 
 const toggleSelectOption = (option: Option) => {
+
+
     const current = Array.isArray(props.modelValue) ? [...props.modelValue] : [];
     const index = current.indexOf(option.id);
     if (index === -1) {
@@ -90,10 +92,10 @@ const toggleSelectOption = (option: Option) => {
     } else {
         current.splice(index, 1);
     }
-    selectedOptions.value=[...selectedOptions.value.filter(o=>o.id!==option.id), option];  
+    selectedOptions.value = [...selectedOptions.value.filter(o => o.id !== option.id), option];
     emit('update:modelValue', current);
     // console.log(selectedOptions.value);
-    
+
     emit('update:itemSelected', selectedOptions.value); // emit all selected
     // don't close, let them select multiple
 };
@@ -103,7 +105,7 @@ const toggleDropdown = () => {
     isOpen.value = !isOpen.value;
     if (isOpen.value) {
         searchQuery.value = '';
-        
+
         const generateAstate = props?.state ?? `${props?.url}`.replace(/[^a-zA-Z0-9]/g, "-");
         const DataAlreadyCollected = Store[generateAstate]?.payload?.data ?? Store[generateAstate]?.payload
 
@@ -161,32 +163,49 @@ watch(props, async (newVal) => {
         // close
         await toggleDropdown();
     }
-    
 
-    if(newVal.appendOptions){
-        if(!Array.isArray(props.appendOptions)) return
-        alert(  )
-        collection.value = [...(props.appendOptions??[]),...collection.value,]
+
+    if (newVal.appendOptions) {
+        if (!Array.isArray(props.appendOptions)) return
+        alert()
+        collection.value = [...(props.appendOptions ?? []), ...collection.value,]
     }
 
 }, { immediate: true, deep: true });
 
-const inputClass =
-    'w-full rounded-lg border focus:border-nfuko-primary focus:ring-1 focus:ring- bg-nfuko-[#FCDC04]   bg-white px-3 py-2.5 text-sm outline-none transition  border-nfuko-primary/10 focus:ring-1 focus:ring-[ bg-nfuko-primary]/90 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#8ba8a2]/90 dark:focus:ring-[#8ba8a2]/90';
+const inputClass = 'w-full rounded-lg border focus:border-nfuko-primary focus:ring-1 focus:ring- bg-nfuko-[#FCDC04]   bg-white px-3 py-2.5 text-sm outline-none transition  border-nfuko-primary/10 focus:ring-1 focus:ring-[ bg-nfuko-primary]/90 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:focus:border-[#8ba8a2]/90 dark:focus:ring-[#8ba8a2]/90';
 
+function removeSelectOption(index: number) {
+    selectedOptions.value.splice(index, 1);
+    const current = Array.isArray(props.modelValue) ? [...props.modelValue] : [];
+    current.splice(index, 1);
+    emit('update:modelValue', current);
+    emit('update:itemSelected', selectedOptions.value);
+
+}
 </script>
 
 <template>
     <div ref="containerRef" class="relative w-full">
-        <div @click="toggleDropdown"
-            :class="[
-                inputClass,
-                error ? 'border-red-500 focus-within:ring-red-500/10' : 'border-neutral-200 focus-within: border-nfuko-primary',
-                disabled ? 'opacity-50 cursor-not-allowed bg-neutral-50 dark:bg-neutral-950' : 'hover:border-neutral-300 dark:hover:border-neutral-700'
-            ]">
+        <div @click="toggleDropdown" :class="[
+            inputClass,
+            error ? 'border-red-500 focus-within:ring-red-500/10' : 'border-neutral-200 focus-within: border-nfuko-primary',
+            disabled ? 'opacity-50 cursor-not-allowed bg-neutral-50 dark:bg-neutral-950' : 'hover:border-neutral-300 dark:hover:border-neutral-700'
+        ]">
             <div class="flex items-center justify-between gap-2">
-                <span v-if="selectedOptions.length" class="block truncate text-neutral-900 dark:text-neutral-100 font-medium">
-                    {{ selectedOptions.map(o => o.name).join(', ') }}
+                <span v-if="selectedOptions.length"
+                    class="block truncate text-neutral-900 dark:text-neutral-100 font-medium">
+                    <div v-if="selectedOptions.length" class="flex flex-wrap gap-2">
+                        <span v-for="(item, index) in selectedOptions" :key="item?.id"
+                            class="flex items-center gap-2 px-2 py-1 rounded-full bg-nfuko-secondary  text-xs whitespace-nowrap">
+                            {{ item.name }}
+
+                            <button type="button" @click.stop="removeSelectOption(index)"
+                                class="flex items-center justify-center w-4 h-4 rounded-full bg-nfuko-red/10 text-nfuko-red/50  transition">
+                                ×
+                            </button>
+                        </span>
+                    </div>
                 </span>
                 <span v-else class="block truncate text-neutral-400">
                     {{ placeholder || 'Select option' }}
@@ -222,10 +241,11 @@ const inputClass =
                             (modelValue || []).includes(option.id) ? 'bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-white font-semibold' : 'text-neutral-600 dark:text-neutral-400'
                         ]">
                         <slot name="option" :item="option">
-                        <span class="block truncate">{{ option?.name }}</span>
+                            <span class="block truncate">{{ option?.name }}</span>
                         </slot>
-                        
-                        <Check v-if="(modelValue || []).includes(option.id)" class="h-4 w-4 text-nfuko-primary dark:text-[#8ba8a2]" />
+
+                        <Check v-if="(modelValue || []).includes(option.id)"
+                            class="h-4 w-4 text-nfuko-primary dark:text-[#8ba8a2]" />
                     </li>
                     <li v-if="filteredOptions.length === 0" class="px-4 py-8 text-center text-sm text-neutral-400">
                         No results found

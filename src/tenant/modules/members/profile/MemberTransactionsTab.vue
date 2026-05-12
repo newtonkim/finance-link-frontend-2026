@@ -142,10 +142,11 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
                         <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">S/N</th>
                         <th v-if="mode === 'all'" class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Trans Type</th>
                         <th v-if="showAccountColumn" class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Account &#x21C5;</th>
-                        <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">account Transaction balance &#x21C5;</th>
+                        <!-- <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Account Before Transaction &#x21C5;</th> -->
                         <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Amount Deposited &#x21C5;</th>
                         <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Charge &#x21C5;</th>
-                        <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Amount &#x21C5;</th>
+                        <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Amount After Charges &#x21C5;</th>
+                        <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Running blc &#x21C5;</th>
                         <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Description &#x21C5;</th>
                         <th v-if="mode !== 'all'" class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Paid by &#x21C5;</th>
                         <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">{{ mode === 'all' ? 'Date' : 'Transaction Date &#x21C5;' }}</th>
@@ -187,12 +188,12 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
                         </td>
 
                         <!-- Amount -->
-                        <td class="py-3.5 px-5">
+                        <!-- <td class="py-3.5 px-5">
                             <span class="text-[14px] font-mono font-bold"
                                 >
                                 {{ formatCurrency(txn.running_balance) }}
                             </span>
-                        </td>
+                        </td> -->
                          <td class="py-3.5 px-5">
                             <span class="text-[14px] font-mono font-bold"
                                 >
@@ -214,6 +215,12 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
                             </span>
                         </td>
 
+                        <!-- running bal -->
+                        <td class="py-3.5 px-5 text-[13px] text-foreground">
+                           
+                            <div v-if="!txn?.type.includes('charge')" >{{formatCurrency( Number(txn.amount??0)+Number(txn.running_balance??0) )}}</div> 
+                            <div v-else >-</div> 
+                        </td>
                         <!-- Description -->
                         <td class="py-3.5 px-5 text-[13px] text-foreground">
                             <div>{{ txn.narration || (txn.type === 'deposit' ? 'Deposit' : 'Withdrawal') }}</div>

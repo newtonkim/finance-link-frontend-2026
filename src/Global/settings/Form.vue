@@ -3,7 +3,7 @@
   <div v-if='fields?.length > 0' class="h-[90vh] overflow-y-auto">
     <div
       class="mb-1 justify-between px-0 py-1 rounded-xl dark:border-neutral-800 hover:shadow-sm hover:border-neutral-300 dark:hover:border-neutral-700 transition-all duration-200 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800 dark:hover:shadow-sm dark:hover:border-neutral-700 capitalize  dark:bg-neutral-900   border-neutral-200  "
-      v-for="field in fields">
+      v-for="(field, indx) in fields">
 
       <div>
 
@@ -20,7 +20,63 @@
             {{ field.description }}
           </p>
         </div>
-        <button class="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-all duration-300"
+        <div v-if="field?.settings_action?.['children-fields']" class="flex flex-col items-end gap-3">
+          <!-- Toggle -->
+          <button type="button" @click="() => { toggleSwitchForChildren(field) }" :class="[
+            'relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 shadow-sm',
+            field.settings_action.action
+              ? 'bg-nfuko-primary dark:bg-nfuko-yellow'
+              : 'bg-neutral-300 dark:bg-neutral-700'
+          ]">
+            <span :class="[
+              'inline-flex h-5 w-5 transform rounded-full bg-white shadow-md transition-all duration-300',
+              field.settings_action.action
+                ? 'translate-x-5'
+                : 'translate-x-1'
+            ]" />
+          </button>
+
+          <!-- Children -->
+          <div v-if="
+            field?.settings_action?.['children-fields']?.length > 0 &&
+            field.settings_action.action
+          " class="w-[420px] rounded-2xl ">
+            <div v-for="(childField, ci) in field.settings_action['children-fields']" :key="ci" class="space-y-2">
+              <div v-if="childField?.type === 'multiselect'" class="flex flex-col gap-2">
+
+                <MultiSearchableSelect :options="childField.options" class="w-full" @update:item-selected="
+                  (v) => multiselectedOptions(v, indx, ci, field.id)
+                " />
+
+                <p class="px-4 py-2   bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 text-xs font-medium border-top border-neutral-200 dark:border-neutral-700"
+                  v-if="(childrenValues?.[field?.id]?.['settings_action']?.['children-fields'] || field.settings_action['children-fields']?.[ci]?.action)">
+                  Code Display Template: <br />
+
+                  <input type="text"
+                    @change="(v) => { 
+                      childrenValues[field.id]['settings_action']['children-fields'][ci].action = v.target.value  }"
+                    class="w-full rounded border px-2 py-1 text-sm" :value="((childrenValues[field.id]?.['settings_action']?.['children-fields']?.[ci]?.action ?? field.settings_action['children-fields']?.[ci]?.action)?.split(',')).map(v => {
+                      const re = (v)
+                      return `${re} `;
+                    }).join('-')" />
+
+
+                </p>
+                <div class="w-full flex justify-end bg-neutral-100 dark:bg-neutral-800">
+                  {{ childrenValues?.[field?.id]?.['settings_action']?.['children-fields']?.[ci]?.action }}
+                  <Button
+                    class="prounded-full w-[90px] p-2 rounded-md m-2   bg-nfuko-accent text-neutral-700 dark:text-neutral-200 text-xs font-medium border border-neutral-200 dark:border-neutral-700"
+                    @click="() => storeLocalChanages(field.id, childrenValues?.[field?.id], { ...childrenValues?.[field?.id], id: field.id },)">
+                    save {{ childrenValues?.[field?.id]?.action }}
+                  </Button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+        <button v-else
+          class="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-all duration-300"
           type="button"
           @click="() => storeLocalChanages(field.id, String(field.settings_action.action = !field.settings_action.action), field,)"
           :class="[
@@ -53,7 +109,7 @@
   </div>
   <div v-else>
     <p class="text-center text-sm text-neutral-400">
-<EmptySvg/>
+      <EmptySvg />
 
     </p>
   </div>
@@ -68,6 +124,9 @@
 import { ref, watch, computed, onMounted, nextTick } from "vue";
 import { appendOnAjsonStore, ConfirmDialog, createUrl, EmptySvg, fetchTableData, keysToUse } from "..";
 import { pomPinia } from 'septor-store';
+import MultiSearchableSelect from "../MultiSearchableSelect.vue";
+const childrenValues = ref<any>({});
+
 const Store = pomPinia();
 
 const props = defineProps({
@@ -125,9 +184,11 @@ function storeLocalChanages(id: string, value: string, action: string) {
 
 }
 async function confirmAndSaveChanges(data?: any) {
-  
+
   const customeUrl = props?.outerlinks?.['create'] ?? "save-changed-settings";
   const { id, settings_action } = collectedData.value
+  console.log(collectedData.value);
+
   const url = createUrl(props?.url, customeUrl)
   const generateAstate = props?.state ?? `${url}`.replace(/[^a-zA-Z0-9]/g, "-");
 
@@ -139,11 +200,11 @@ async function confirmAndSaveChanges(data?: any) {
       url: url
     }, Store
   });
-  if (res.payload){
+  if (res.payload) {
     storeSettings(Object.values(res.payload))
-    ;(Store as any).fullRemount = Math.random()
-    
-  
+      ; (Store as any).fullRemount = Math.random()
+
+
   }
 }
 
@@ -152,8 +213,8 @@ function storeSettings(useStoreAlltheGotSettings: any[]) {
   useStoreAlltheGotSettings.forEach((value: any, index: number) => {
     (newsettings as any)[value.name] = value?.['settings_action']?.['action'] ?? value;
   })
-  console.log({newsettings});
-  
+  console.log({ newsettings });
+
   appendOnAjsonStore({ data: newsettings, key: keysToUse.systemSettings })
 }
 
@@ -187,6 +248,24 @@ onMounted(() => {
   })
 
 });
+function multiselectedOptions(value: any, parentIndex: any, childIndex: any, settingId) {
 
+  fields.value[parentIndex]['settings_action']['action'] = true
+  fields.value[parentIndex]['settings_action']['children-fields'][childIndex].action = value.map(v => (v.id)).join(',')
+
+  childrenValues.value[settingId] = fields.value[parentIndex]
+}
+const codeSequnceCustom = (val) => val.replace(/[{}]/g, "");
+
+
+
+function toggleSwitchForChildren(field: any) {
+  field.settings_action.action = !field.settings_action.action
+  // console.log(field.settings_action.action);
+  if (field.settings_action.action == false) {
+    storeLocalChanages(field.id, childrenValues?.[field?.id], field,)
+  }
+
+}
 
 </script>

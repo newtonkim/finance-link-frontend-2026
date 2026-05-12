@@ -44,6 +44,18 @@ const loading = ref(true),
       },
 
     },
+     {
+      label: 'payment mode (Debit Account)',
+      name: 'payment_mode_id',
+      type: 'select',
+      url: "global/chart-of-accounts",
+      data: { account_type: 'ASSET' },
+      dataOnMount: true,
+    required: true,
+      options: [],
+      placeholder: 'Select income account',
+      // condition: (val: string) => ['on_registration', 'on_loan_application'].includes(val)
+    },
     {
       label: 'new account',
       name: 'new_account',

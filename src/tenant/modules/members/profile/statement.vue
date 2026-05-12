@@ -54,9 +54,11 @@
             <tr>
               <th class="px-1 py-1 text-left">Date</th>
               <th class="px-1 py-1 text-left">Type</th>
-              <th class="px-1 py-1 text-right">Amount</th>
-              <th class="px-1 py-1 text-right">Before Transaction balance</th>
+              <th class="px-1 py-1 text-right">deposit</th>
+              <th class="px-1 py-1 text-right">After Charge</th>
+              <!-- <th class="px-1 py-1 text-right">Before Transaction balance</th> -->
               <th class="px-1 py-1 text-right">Charge</th>
+              <th class="px-1 py-1 text-right">running blc</th>
               <th class="px-1 py-1 text-left">Narration</th>
             </tr>
           </thead>
@@ -72,14 +74,21 @@
               </td>
 
               <td class="px-1 py-1 text-right font-semibold text-gray-900">
-                {{ formatCurrency(item.amount) }}
+                {{ formatCurrency(item.amount_before_charge) }}
               </td>
               <td class="px-1 py-1 text-right font-semibold text-gray-900">
-                {{ formatCurrency(item?.running_balance) }}
+                {{ formatCurrency(item.amount) }}
               </td>
+              <!-- <td class="px-1 py-1 text-right font-semibold text-gray-900">
+                {{ formatCurrency(item?.running_balance) }}
+              </td> -->
 
               <td class="px-1 py-1 text-right font-medium text-red-500">
                 {{ formatCurrency(item.charge_amount) }}
+              </td>
+              <td class="px-1 py-1 text-right font-medium text-green-500">
+               <div v-if="!item?.type.includes('charge')" >{{formatCurrency( Number(item.amount??0)+Number(item.running_balance??0) )}}</div> 
+                            <div v-else >-</div> 
               </td>
 
               <td class="px-1 py-1 text-gray-500 max-w-[200px]  ">
