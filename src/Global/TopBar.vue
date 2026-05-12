@@ -56,9 +56,8 @@ async function fetchBranches() {
             axiosInstance: interceptor,
             mStore: { mUse: true },
         }
-        await Store.stateGenaratorApi(collection)
-        const branches = Store?.['system-branches']?.payload?.data || []
-        
+        await (Store as any).stateGenaratorApi(collection)
+        const branches = (Store as any)?.['system-branches']?.payload?.data || []
         const currentActive = getLocalValues('activeBranch' as const)
         const exists = branches.find((b: any) => b.id == currentActive)
 
@@ -116,7 +115,7 @@ const user = computed(() => {
 const userName = computed(() => user.value?.name || 'User')
 const userEmail = computed(() => user.value?.email || '')
 const initials = computed(() => getInitials(userName.value))
-const avatarUrl = computed(() => profileStore.profile?.avatar_url || user.value?.avatar_url)
+const avatarUrl = computed(() => profileStore.combinedProfile?.avatar || user.value?.avatar)
 
 onMounted(async () => {
   watchBranchchanges(getLocalValues('activeBranch' as const))
@@ -206,7 +205,11 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-/* :deep(.avatar-ring) {
-  @apply ring-2 ring-white dark:ring-neutral-950;
-} */
+:deep(.avatar-ring) {
+  box-shadow: 0 0 0 2px white;
+}
+
+.dark :deep(.avatar-ring) {
+  box-shadow: 0 0 0 2px #0a0a0a;
+}
 </style>

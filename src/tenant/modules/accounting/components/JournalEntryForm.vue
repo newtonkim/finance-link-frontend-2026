@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { Drawer } from '@/Global'
+import { computed, ref, watch } from 'vue'
+import { Drawer, formatMoneyValue } from '@/Global'
 import SearchableSelect from '@/Global/SearchableSelect.vue'
-import { Plus, Trash2 } from 'lucide-vue-next'
+import { List, Paperclip, Plus, Trash2 } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { journalEntriesApi } from '@/tenant/apis/journalEntries/journalEntriesApi'
-import { chartOfAccountsApi } from '@/tenant/apis/chartOfAccounts/chartOfAccountsApi'
-import { formatMoneyValue } from '@/Global'
 
 const props = defineProps<{
   open: boolean
@@ -18,63 +16,89 @@ interface JournalLine {
   id: string
   chart_of_account_id: string | number | null
   description: string
+  cost_centre: string
   debit_amount: number | ''
   credit_amount: number | ''
 }
 
+const today = new Date().toISOString().split('T')[0]
 const form = ref({
-  entry_date: new Date().toISOString().split('T')[0],
+  entry_date: today,
+  period: today.slice(0, 7),
+  entry_type: 'ADJUSTING',
+  currency: 'UGX',
   reference: '',
   description: '',
 })
 
 const lines = ref<JournalLine[]>([])
 const loading = ref(false)
+const submitMode = ref<'draft' | 'posted'>('posted')
 const errors = ref<Record<string, string[]>>({})
-const accounts = ref<any[]>([])
 
-// Fetch Eligible Accounts
-async function fetchAccounts() {
-  if (accounts.value.length > 0) return
-  try {
-    const res = await chartOfAccountsApi.list({ list: 1 } as any)
-    const all = Array.isArray(res.data?.data) ? res.data.data : Array.isArray(res.data) ? res.data : []
-    accounts.value = all
-      .filter(a => a.is_postable && a.allow_manual)
-      .map(a => ({ id: a.id, name: `${a.gl_code} - ${a.name}` }))
-  } catch (e) {
-    console.error('Failed to fetch accounts', e)
-  }
-}
 
-// Reset form
+const entryTypes = [
+  { value: 'ADJUSTING', label: 'Adjusting' },
+  { value: 'MANUAL', label: 'Manual' },
+  { value: 'OPENING', label: 'Opening' },
+  { value: 'CLOSING', label: 'Closing' },
+  { value: 'REVERSAL', label: 'Reversal' },
+]
+
+const currencies = [
+  { value: 'UGX', label: 'UGX - Ugandan Shilling' },
+  { value: 'USD', label: 'USD - US Dollar' },
+]
+
+const costCentres = ['Finance', 'Operations', 'Administration', 'Branch']
+
+const periodOptions = computed(() => {
+  const base = new Date(`${form.value.entry_date || today}T00:00:00`)
+  return [-1, 0, 1].map(offset => {
+    const date = new Date(base.getFullYear(), base.getMonth() + offset, 1)
+    const value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+    return {
+      value,
+      label: date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }),
+    }
+  })
+})
+
+const totalDebit = computed(() => lines.value.reduce((sum, line) => sum + (Number(line.debit_amount) || 0), 0))
+const totalCredit = computed(() => lines.value.reduce((sum, line) => sum + (Number(line.credit_amount) || 0), 0))
+const inBalance = computed(() => totalDebit.value > 0 && Math.abs(totalDebit.value - totalCredit.value) < 0.01)
+const entryNoPreview = computed(() => `JE-${new Date(form.value.entry_date || today).getFullYear()}-...`)
+
+watch(() => form.value.entry_date, value => {
+  if (value) form.value.period = value.slice(0, 7)
+})
+
+watch(() => props.open, async isOpen => {
+  if (!isOpen) return
+  resetForm()
+})
+
 function resetForm() {
   form.value = {
-    entry_date: new Date().toISOString().split('T')[0],
+    entry_date: today,
+    period: today.slice(0, 7),
+    entry_type: 'ADJUSTING',
+    currency: 'UGX',
     reference: '',
     description: '',
   }
-  lines.value = [
-    createEmptyLine(),
-    createEmptyLine()
-  ]
+  lines.value = [createEmptyLine(), createEmptyLine()]
   errors.value = {}
 }
 
-watch(() => props.open, async (isOpen) => {
-  if (isOpen) {
-    resetForm()
-    await fetchAccounts()
-  }
-})
-
 function createEmptyLine(): JournalLine {
   return {
-    id: Math.random().toString(36).substring(7),
+    id: Math.random().toString(36).slice(2),
     chart_of_account_id: '',
     description: '',
+    cost_centre: 'Finance',
     debit_amount: '',
-    credit_amount: ''
+    credit_amount: '',
   }
 }
 
@@ -90,63 +114,88 @@ function removeLine(index: number) {
   lines.value.splice(index, 1)
 }
 
-// Enforce DR/CR exclusivity and auto-add rows
 function handleAmountChange(index: number, type: 'debit' | 'credit') {
   const line = lines.value[index]
   if (type === 'debit' && Number(line.debit_amount) > 0) line.credit_amount = ''
   if (type === 'credit' && Number(line.credit_amount) > 0) line.debit_amount = ''
-  
-  // If editing the very last row, automatically add a new row to ensure there's always space
-  if (index === lines.value.length - 1 && (Number(line.debit_amount) > 0 || Number(line.credit_amount) > 0 || String(line.chart_of_account_id) !== '')) {
-    addLine()
+}
+
+function populatedLines() {
+  return lines.value.filter(line =>
+    String(line.chart_of_account_id || '') !== '' ||
+    Number(line.debit_amount) > 0 ||
+    Number(line.credit_amount) > 0 ||
+    line.description.trim() !== '',
+  )
+}
+
+function validateClient(mode: 'draft' | 'posted') {
+  const validLines = populatedLines()
+
+  if (!form.value.description.trim()) {
+    toast.error('Enter a description or memo.')
+    return false
   }
-}
 
-// Calculations
-const totalDebit = computed(() => lines.value.reduce((sum, line) => sum + (Number(line.debit_amount) || 0), 0))
-const totalCredit = computed(() => lines.value.reduce((sum, line) => sum + (Number(line.credit_amount) || 0), 0))
-const inBalance = computed(() => totalDebit.value > 0 && Math.abs(totalDebit.value - totalCredit.value) < 0.01)
-
-function formatMoney(amount: number) {
-  return formatMoneyValue(amount)
-}
-
-async function handleSubmit() {
-  // Clear empty lines from submission (lines with no account and no debits/credits)
-  const validLines = lines.value.filter(l => String(l.chart_of_account_id) !== '' || Number(l.debit_amount) > 0 || Number(l.credit_amount) > 0)
-  
   if (validLines.length < 2) {
-    return toast.error('A journal entry must have at least two populated lines.')
-  }
-  if (!inBalance.value) {
-    return toast.error('Journal entry is out of balance.')
+    toast.error('A journal entry must have at least two populated lines.')
+    return false
   }
 
+  const hasInvalidLine = validLines.some(line =>
+    !line.chart_of_account_id ||
+    (Number(line.debit_amount) <= 0 && Number(line.credit_amount) <= 0) ||
+    (Number(line.debit_amount) > 0 && Number(line.credit_amount) > 0),
+  )
+
+  if (hasInvalidLine) {
+    toast.error('Each line needs an account and either a debit or a credit.')
+    return false
+  }
+
+  if (mode === 'posted' && !inBalance.value) {
+    toast.error('Journal entry is out of balance.')
+    return false
+  }
+
+  return true
+}
+
+async function submit(status: 'draft' | 'posted') {
+  if (!validateClient(status)) return
+
+  submitMode.value = status
   loading.value = true
   errors.value = {}
+
   try {
-    const payload = {
+    await journalEntriesApi.store({
       ...form.value,
-      lines: validLines.map(l => ({
-        chart_of_account_id: l.chart_of_account_id,
-        description: l.description,
-        debit_amount: Number(l.debit_amount) || 0,
-        credit_amount: Number(l.credit_amount) || 0
-      }))
-    }
-    await journalEntriesApi.store(payload)
-    toast.success('Journal Entry posted successfully.')
+      status,
+      lines: populatedLines().map(line => ({
+        chart_of_account_id: line.chart_of_account_id,
+        description: line.description,
+        cost_centre: line.cost_centre,
+        debit_amount: Number(line.debit_amount) || 0,
+        credit_amount: Number(line.credit_amount) || 0,
+      })),
+    })
+
+    toast.success(status === 'posted' ? 'Journal entry posted successfully.' : 'Journal draft saved successfully.')
     emit('saved')
     emit('update:open', false)
   } catch (error: any) {
     if (error.response?.data?.errors) {
       errors.value = error.response.data.errors
-    } else {
-      toast.error(error.response?.data?.message || 'Failed to post journal entry.')
     }
+    toast.error(error.response?.data?.message || 'Failed to save journal entry.')
   } finally {
     loading.value = false
   }
+}
+
+function fmt(amount: number) {
+  return formatMoneyValue(amount)
 }
 </script>
 
@@ -154,178 +203,144 @@ async function handleSubmit() {
   <Drawer
     :open="open"
     @update:open="emit('update:open', $event)"
-    title="Create Manual Journal Entry"
-    width="w-full max-w-5xl"
-    showFooter
-    @submit="handleSubmit"
+    title="New journal entry"
+    width="w-full md:max-w-[calc(100vw-16rem)] xl:max-w-6xl"
+    :showFooter="true"
   >
     <template #body>
-      <div class="flex flex-col gap-6">
-        <!-- Header Info -->
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <div class="flex flex-col gap-1.5">
-            <label class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Entry Date <span class="text-red-500">*</span></label>
-            <input
-              v-model="form.entry_date"
-              type="date"
-              class="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
-            />
-            <span v-if="errors.entry_date" class="text-xs text-red-500">{{ errors.entry_date[0] }}</span>
+      <div class="flex w-full min-w-0 flex-col gap-7">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between min-w-0">
+          <div class="flex items-center gap-4 min-w-0">
+            <h2 class="truncate text-2xl font-bold text-neutral-950 dark:text-white">New journal entry</h2>
+            <span class="rounded-full bg-amber-50 px-4 py-1 text-sm font-bold tracking-wide text-amber-800">DRAFT</span>
           </div>
-
-          <div class="flex flex-col gap-1.5">
-            <label class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Reference Number</label>
-            <input
-              v-model="form.reference"
-              type="text"
-              class="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
-              placeholder="e.g. INV-2023-01"
-            />
-            <span v-if="errors.reference" class="text-xs text-red-500">{{ errors.reference[0] }}</span>
-          </div>
-          
-          <div class="flex flex-col gap-1.5 lg:col-span-3">
-            <label class="text-sm font-medium text-neutral-700 dark:text-neutral-300">Description / Memo <span class="text-red-500">*</span></label>
-            <input
-              v-model="form.description"
-              type="text"
-              class="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
-              placeholder="Enter a description for this journal entry..."
-            />
-            <span v-if="errors.description" class="text-xs text-red-500">{{ errors.description[0] }}</span>
-          </div>
+          <span class="truncate font-mono text-lg font-semibold text-neutral-500">{{ entryNoPreview }}</span>
         </div>
 
-        <hr class="border-neutral-100 dark:border-neutral-800" />
+        <div class="grid w-full grid-cols-1 gap-4 md:grid-cols-4 min-w-0">
+          <label class="flex flex-col gap-1.5">
+            <span class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Entry date</span>
+            <input v-model="form.entry_date" type="date" class="h-11 rounded-lg border border-neutral-200 bg-white px-3 text-sm outline-none focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-900 dark:text-white" />
+            <span v-if="errors.entry_date" class="text-xs text-red-500">{{ errors.entry_date[0] }}</span>
+          </label>
 
-        <!-- Lines Grid -->
-        <div class="flex flex-col gap-4">
-          <div class="flex items-center justify-between">
-            <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">Journal Lines</h3>
-            <button
-              type="button"
-              @click="addLine"
-              class="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50 transition-colors"
-            >
-              <Plus class="h-3.5 w-3.5" />
-              Add Row
-            </button>
+          <label class="flex flex-col gap-1.5">
+            <span class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Period</span>
+            <select v-model="form.period" class="h-11 rounded-lg border border-neutral-200 bg-white px-3 text-sm outline-none focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-900 dark:text-white">
+              <option v-for="period in periodOptions" :key="period.value" :value="period.value">{{ period.label }}</option>
+            </select>
+          </label>
+
+          <label class="flex flex-col gap-1.5">
+            <span class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Entry type</span>
+            <select v-model="form.entry_type" class="h-11 rounded-lg border border-neutral-200 bg-white px-3 text-sm outline-none focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-900 dark:text-white">
+              <option v-for="type in entryTypes" :key="type.value" :value="type.value">{{ type.label }}</option>
+            </select>
+          </label>
+
+          <label class="flex flex-col gap-1.5">
+            <span class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Currency</span>
+            <select v-model="form.currency" class="h-11 rounded-lg border border-neutral-200 bg-white px-3 text-sm outline-none focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-900 dark:text-white">
+              <option v-for="currency in currencies" :key="currency.value" :value="currency.value">{{ currency.label }}</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="flex flex-col gap-1.5">
+          <span class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Description / memo</span>
+          <textarea v-model="form.description" rows="3" placeholder="Describe the purpose of this entry..." class="rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm outline-none focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-900 dark:text-white" />
+          <span v-if="errors.description" class="text-xs text-red-500">{{ errors.description[0] }}</span>
+        </label>
+
+        <div class="flex w-full min-w-0 flex-col gap-3">
+          <div class="flex items-center gap-2">
+            <List class="h-4 w-4 text-neutral-500" />
+            <h3 class="text-sm font-bold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">Entry Lines</h3>
           </div>
 
-          <div class="overflow-x-auto rounded-xl border border-neutral-200 shadow-sm dark:border-neutral-800">
-            <table class="w-full min-w-[800px] text-sm">
-              <thead class="bg-neutral-50 dark:bg-neutral-800/40">
+          <div class="w-full overflow-x-auto rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">
+            <table class="w-full min-w-[980px] text-sm">
+              <thead class="bg-neutral-50 dark:bg-neutral-800/50">
                 <tr>
-                  <th class="px-4 py-2.5 text-left font-medium text-neutral-500 w-8">#</th>
-                  <th class="px-4 py-2.5 text-left font-medium text-neutral-500 w-1/3">Account</th>
-                  <th class="px-4 py-2.5 text-left font-medium text-neutral-500">Description</th>
-                  <th class="px-4 py-2.5 text-right font-medium text-neutral-500 w-32">Debit (DR)</th>
-                  <th class="px-4 py-2.5 text-right font-medium text-neutral-500 w-32">Credit (CR)</th>
-                  <th class="px-4 py-2.5 text-center font-medium text-neutral-500 w-12"></th>
+                  <th class="w-[30%] min-w-[250px] px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-neutral-600">Account</th>
+                  <th class="w-[25%] min-w-[200px] px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-neutral-600">Description</th>
+                  <th class="w-[15%] min-w-[150px] px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-neutral-600">Cost Centre</th>
+                  <th class="w-[12%] min-w-[120px] px-4 py-3 text-right text-xs font-bold uppercase tracking-wide text-neutral-600">Debit</th>
+                  <th class="w-[12%] min-w-[120px] px-4 py-3 text-right text-xs font-bold uppercase tracking-wide text-neutral-600">Credit</th>
+                  <th class="w-[6%] min-w-[60px] px-4 py-3"></th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800 bg-white dark:bg-neutral-900">
-                <tr v-for="(line, index) in lines" :key="line.id" class="group">
-                  <td class="px-4 py-2 text-center text-xs text-neutral-400">{{ index + 1 }}</td>
-                  <td class="px-4 py-2">
-                    <SearchableSelect
-                      v-model="line.chart_of_account_id"
-                      :options="accounts"
-                      placeholder="Select Account"
-                      state="coa_select"
-                      @update:modelValue="handleAmountChange(index, 'debit')"
-                    />
-                    <span v-if="errors[`lines.${index}.chart_of_account_id`]" class="block text-[10px] text-red-500 mt-1">Required</span>
+              <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+                <tr v-for="(line, index) in lines" :key="line.id">
+                  <td class="px-4 py-3">
+                    <SearchableSelect v-model="line.chart_of_account_id" url="global/chart-of-accounts" placeholder="Select account" />
                   </td>
-                  <td class="px-4 py-2">
-                    <input
-                      v-model="line.description"
-                      type="text"
-                      placeholder="Optional memo..."
-                      class="w-full rounded-md border-transparent bg-transparent px-2 py-1.5 text-sm hover:border-neutral-200 focus:border-nfuko-primary focus:bg-white focus:ring-0"
-                    />
+                  <td class="px-4 py-3">
+                    <input v-model="line.description" type="text" placeholder="Line memo" class="h-10 w-full rounded-lg border border-neutral-200 bg-white px-3 text-sm outline-none focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-950 dark:text-white" />
                   </td>
-                  <td class="px-4 py-2">
-                    <input
-                      v-model="line.debit_amount"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      class="w-full rounded-md border-transparent bg-transparent px-2 py-1.5 text-right text-sm font-mono hover:border-neutral-200 focus:border-nfuko-primary focus:bg-white focus:ring-0"
-                      placeholder="0.00"
-                      @input="handleAmountChange(index, 'debit')"
-                    />
-                    <span v-if="errors[`lines.${index}.debit_amount`]" class="block text-right text-[10px] text-red-500 mt-1">Invalid</span>
+                  <td class="px-4 py-3">
+                    <select v-model="line.cost_centre" class="h-10 w-full rounded-lg border border-neutral-200 bg-white px-3 text-sm outline-none focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-950 dark:text-white">
+                      <option v-for="centre in costCentres" :key="centre" :value="centre">{{ centre }}</option>
+                    </select>
                   </td>
-                  <td class="px-4 py-2">
-                    <input
-                      v-model="line.credit_amount"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      class="w-full rounded-md border-transparent bg-transparent px-2 py-1.5 text-right text-sm font-mono hover:border-neutral-200 focus:border-nfuko-primary focus:bg-white focus:ring-0"
-                      placeholder="0.00"
-                      @input="handleAmountChange(index, 'credit')"
-                    />
-                    <span v-if="errors[`lines.${index}.credit_amount`]" class="block text-right text-[10px] text-red-500 mt-1">Invalid</span>
+                  <td class="px-4 py-3">
+                    <input v-model="line.debit_amount" type="number" min="0" step="0.01" placeholder="0.00" @input="handleAmountChange(index, 'debit')" class="h-10 w-full rounded-lg border border-neutral-200 bg-white px-3 text-right font-mono text-sm outline-none focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-950 dark:text-white" />
                   </td>
-                  <td class="px-4 py-2 text-center text-red-500">
-                    <button
-                      type="button"
-                      @click="removeLine(index)"
-                      class="rounded p-1 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
+                  <td class="px-4 py-3">
+                    <input v-model="line.credit_amount" type="number" min="0" step="0.01" placeholder="0.00" @input="handleAmountChange(index, 'credit')" class="h-10 w-full rounded-lg border border-neutral-200 bg-white px-3 text-right font-mono text-sm outline-none focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-950 dark:text-white" />
+                  </td>
+                  <td class="px-4 py-3 text-right">
+                    <button type="button" @click="removeLine(index)" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-neutral-200 text-neutral-500 hover:bg-red-50 hover:text-red-600 dark:border-neutral-700">
                       <Trash2 class="h-4 w-4" />
                     </button>
                   </td>
                 </tr>
               </tbody>
-              <tfoot class="bg-neutral-50 dark:bg-neutral-800/40 font-semibold border-t-2 border-neutral-200">
-                <tr>
-                  <td colspan="3" class="px-4 py-3 text-right text-neutral-600">Totals:</td>
-                  <td class="px-4 py-3 text-right font-mono text-neutral-900">{{ formatMoney(totalDebit) }}</td>
-                  <td class="px-4 py-3 text-right font-mono text-neutral-900">{{ formatMoney(totalCredit) }}</td>
-                  <td></td>
-                </tr>
-              </tfoot>
             </table>
-          </div>
 
-          <!-- Balance Status -->
-          <div class="flex items-center justify-end gap-3 mt-2">
-            <span class="text-sm font-medium text-neutral-500 dark:text-neutral-400">Status:</span>
-            <div
-              class="rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider"
-              :class="inBalance ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
-            >
-              {{ inBalance ? 'IN BALANCE' : 'OUT OF BALANCE' }}
+            <button type="button" @click="addLine" class="flex w-full items-center gap-2 border-t border-neutral-200 px-5 py-4 text-left text-sm font-semibold text-neutral-800 hover:bg-neutral-50 dark:border-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-800/50">
+              <Plus class="h-4 w-4" />
+              Add line
+            </button>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-4 rounded-xl border border-neutral-200 bg-neutral-50 px-5 py-4 dark:border-neutral-800 dark:bg-neutral-900 md:flex-row md:items-center md:justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-sm font-bold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">Balance Check</span>
+            <span class="rounded-full px-3 py-1 text-xs font-bold" :class="inBalance ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
+              {{ inBalance ? 'Balanced' : 'Out of balance' }}
+            </span>
+          </div>
+          <div class="grid grid-cols-2 gap-6 text-right">
+            <div>
+              <p class="text-xs font-semibold text-neutral-500">Total debits</p>
+              <p class="font-mono text-xl font-bold text-neutral-950 dark:text-white">{{ fmt(totalDebit) }}</p>
             </div>
-            <div v-if="!inBalance && (totalDebit > 0 || totalCredit > 0)" class="text-xs font-mono font-medium text-red-500 ml-2">
-              Diff: {{ formatMoney(Math.abs(totalDebit - totalCredit)) }}
+            <div>
+              <p class="text-xs font-semibold text-neutral-500">Total credits</p>
+              <p class="font-mono text-xl font-bold text-neutral-950 dark:text-white">{{ fmt(totalCredit) }}</p>
             </div>
           </div>
+        </div>
 
+        <div class="flex items-center gap-3 rounded-xl border border-dashed border-neutral-300 px-5 py-5 text-sm font-semibold text-neutral-500 dark:border-neutral-700">
+          <Paperclip class="h-5 w-5" />
+          Attach supporting documents (invoices, receipts, approvals)
         </div>
       </div>
     </template>
-    
+
     <template #actions>
-      <div class="flex w-full items-center justify-between gap-3">
-        <button
-          type="button"
-          @click="emit('update:open', false)"
-          class="flex-1 rounded-lg border border-neutral-200 bg-white px-4 py-2.5 text-sm font-bold text-neutral-700 transition hover:bg-neutral-50"
-        >
-          Cancel
+      <div class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <button type="button" @click="emit('update:open', false)" class="rounded-lg border border-neutral-200 bg-white px-5 py-2.5 text-sm font-bold text-neutral-800 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+          Discard
         </button>
-        <button
-          type="button"
-          @click="handleSubmit"
-          :disabled="!inBalance || loading"
-          class="flex-1 rounded-lg px-4 py-2.5 text-sm font-bold text-white transition-opacity disabled:opacity-50"
-          :class="inBalance ? 'bg-green-600 hover:bg-green-700' : 'bg-neutral-400'"
-        >
-          {{ loading ? 'Posting...' : 'Post Journal Entry' }}
+        <button type="button" @click="submit('draft')" :disabled="loading" class="rounded-lg border border-neutral-200 bg-white px-5 py-2.5 text-sm font-bold text-neutral-800 hover:bg-neutral-50 disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+          {{ loading && submitMode === 'draft' ? 'Saving...' : 'Save draft' }}
+        </button>
+        <button type="button" @click="submit('posted')" :disabled="loading || !inBalance" class="rounded-lg bg-nfuko-primary px-5 py-2.5 text-sm font-bold text-white hover:bg-nfuko-primary/90 disabled:opacity-50">
+          {{ loading && submitMode === 'posted' ? 'Posting...' : 'Post entry' }}
         </button>
       </div>
     </template>

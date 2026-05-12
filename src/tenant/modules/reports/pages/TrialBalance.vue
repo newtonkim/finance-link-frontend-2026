@@ -94,6 +94,15 @@ const {
         class="rounded-full bg-nfuko-primary px-6 py-2 text-sm font-semibold text-white transition hover:bg-nfuko-primary/90 shadow-sm">
         Generate
       </button>
+
+      <!-- Hide zero-balance toggle -->
+      <label class="ml-auto flex items-center gap-2 cursor-pointer select-none">
+        <div @click="hideZero = !hideZero"
+          :class="['relative w-9 h-5 rounded-full transition-colors', hideZero ? 'bg-nfuko-primary' : 'bg-neutral-300 dark:bg-neutral-600']">
+          <span :class="['absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform', hideZero ? 'translate-x-4' : '']" />
+        </div>
+        <span class="text-xs text-neutral-500 font-medium">Hide zero balances</span>
+      </label>
     </div>
 
     <!-- Loading -->

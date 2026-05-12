@@ -1,7 +1,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { formatMoneyValue } from '@/Global'
 import { trialBalanceApi } from '@/tenant/apis/reports/trialBalanceApi'
-import * as XLSX from 'xlsx-js-style'
+import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { saccoBrandingState } from '@/tenant/apis/saccobranding/saccoBrandingApi'
@@ -155,6 +155,7 @@ export function useTrialBalance() {
       ? `${periodFrom.value}-to-${periodTo.value}`
       : asOfDate.value
   }
+
 
   // ── Export helpers ──────────────────────────────────────────────────────────
   function buildExportRows(): { isPeriod: boolean; dataRows: (string | number)[][]; totalsRow: (string | number)[] | null } {
@@ -356,6 +357,7 @@ export function useTrialBalance() {
       exporting.value = false
     }
   }
+
 
   // ── Auto-load ────────────────────────────────────────────────────────────────
   onMounted(() => generate())

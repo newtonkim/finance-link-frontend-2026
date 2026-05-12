@@ -47,6 +47,8 @@ const periods = [
   { label: 'December', value: '-12' },
 ]
 
+
+
 const currentPeriodCode = computed(() => {
   return period.value ? `${fiscalYear.value}${period.value}` : null
 })
@@ -168,7 +170,7 @@ const saveAllBudgets = async () => {
 onMounted(async () => {
   loading.value = true
   const res = await expenseApi.getExpenseCategories() as Record<string, unknown>
-  
+
   if (res?.payload && typeof res.payload === 'object' && 'data' in (res.payload as object)) {
     const payload = res.payload as Record<string, unknown>
     if (Array.isArray(payload.data)) {
@@ -177,7 +179,7 @@ onMounted(async () => {
   } else if (res?.data && Array.isArray(res.data)) {
     categories.value = res.data as Category[]
   }
-  
+
   await fetchBudgets()
   loading.value = false
 })
@@ -224,7 +226,7 @@ onMounted(async () => {
           </select>
         </div>
       </div>
-      
+
       <div class="flex items-center gap-3 self-end">
         <button @click="saveAllBudgets" :disabled="saving" class="flex items-center gap-2 rounded-xl bg-nfuko-primary px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#002e35] disabled:opacity-50 dark:bg-nfuko-yellow dark:text-[#0A2318]">
           <RefreshCw v-if="saving" class="h-4 w-4 animate-spin" />
@@ -243,19 +245,19 @@ onMounted(async () => {
         <p class="text-[10px] font-bold text-neutral-400 uppercase mb-1">Total Spent</p>
         <p class="text-xl font-black text-neutral-900 dark:text-white">UGX {{ budgets.reduce((acc, b) => acc + b.spent_amount, 0).toLocaleString() }}</p>
       </div>
-      <div :class="['p-5 rounded-2xl border shadow-sm', 
-        (budgets.reduce((acc, b) => acc + b.allocated_amount, 0) - budgets.reduce((acc, b) => acc + b.spent_amount, 0)) < 0 
-        ? 'bg-rose-50 border-rose-100 dark:bg-rose-900/10 dark:border-rose-900/30' 
+      <div :class="['p-5 rounded-2xl border shadow-sm',
+        (budgets.reduce((acc, b) => acc + b.allocated_amount, 0) - budgets.reduce((acc, b) => acc + b.spent_amount, 0)) < 0
+        ? 'bg-rose-50 border-rose-100 dark:bg-rose-900/10 dark:border-rose-900/30'
         : 'bg-emerald-50 border-emerald-100 dark:bg-emerald-900/10 dark:border-emerald-900/30']">
         <p class="text-[10px] font-bold text-neutral-400 uppercase mb-1">Overall Remaining</p>
-        <p :class="['text-xl font-black', 
-          (budgets.reduce((acc, b) => acc + b.allocated_amount, 0) - budgets.reduce((acc, b) => acc + b.spent_amount, 0)) < 0 
+        <p :class="['text-xl font-black',
+          (budgets.reduce((acc, b) => acc + b.allocated_amount, 0) - budgets.reduce((acc, b) => acc + b.spent_amount, 0)) < 0
           ? 'text-rose-600' : 'text-emerald-600']">
           UGX {{ (budgets.reduce((acc, b) => acc + b.allocated_amount, 0) - budgets.reduce((acc, b) => acc + b.spent_amount, 0)).toLocaleString() }}
         </p>
       </div>
     </div>
-    
+
     <div v-if="loading" class="flex flex-col items-center justify-center py-20">
       <RefreshCw class="h-10 w-10 text-nfuko-primary animate-spin mb-4" />
       <p class="text-sm text-neutral-500 font-bold uppercase tracking-widest">Loading Budget Data...</p>

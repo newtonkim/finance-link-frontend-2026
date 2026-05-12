@@ -293,6 +293,14 @@ export const tenantRoutes: MenuRoutes[] = [
     group: 'FINANCIALS',
   },
   {
+    path: 'journal-entries',
+    label: 'Journal Entries',
+    icon: FileText,
+    showSideBar: true,
+    component: () => import('@/tenant/modules/accounting/pages/JournalEntries.vue'),
+    group: 'FINANCIALS',
+  },
+  {
     path: 'expenses',
     label: 'Manage Expenses',
     icon: Receipt,
@@ -331,7 +339,7 @@ export const tenantRoutes: MenuRoutes[] = [
             path: 'reports/trial-balance',
             label: 'Trial Balance',
             showSideBar: true,
-            component: () => import('@/tenant/components/globals/ComingSoon.vue'),
+            component: () => import('@/tenant/modules/reports/pages/TrialBalance.vue'),
           },
           {
             path: 'reports/income-statement',
