@@ -72,6 +72,7 @@ const columns = [
     { key: 'salutation_name', label: 'Member', },
     { key: 'reference', label: 'reference', width: '14em', copy: true },
     { key: 'amount', label: 'amount', type: "money" },
+    { key: '', label: 'shares bought',  },
     { key: 'charge_amount', label: 'charges', type: "money" },
     { key: 'account_type', label: 'method', tooltip: true, width: '7.6em', },
     { key: 'payment_mode', label: 'type', },

@@ -105,8 +105,9 @@ function downloadSheet() {
 
 const columns = [
   { key: "member_code", label: "Member Code", sticky: "left", width: "14em", copy: true },
-  { key: "member_name", label: "Member Name", sticky: "left", width: "14em" },
+  { key: "member_name", label: "Member Name", sticky: "left",   },
   { key: "member_status", label: "Status", type: "status" },
+  { key: "total_amount_deposited", label: "member Deposited", type: "money" },
   { key: "total_loan_balance", label: "loan balance", type: "money" },
   { key: "created_at", label: "created_at", width: "14em" },
   { key: "actions", label: "Actions" },
