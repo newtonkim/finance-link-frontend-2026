@@ -8,6 +8,7 @@ import { chartOfAccountsApi } from '@/tenant/apis/chartOfAccounts/chartOfAccount
 const props = defineProps<{
   open: boolean
   lockedAccountType?: 'ASSET' | 'LIABILITY' | 'EQUITY' | 'INCOME' | 'EXPENSE'
+  defaultParentGlCode?: string
 }>()
 
 const emit = defineEmits(['update:open', 'saved'])
@@ -97,8 +98,18 @@ watch(
           : Array.isArray(res.data)
             ? res.data
             : []
+
+        if (props.defaultParentGlCode) {
+          const match = parentAccounts.value.find(
+            (acc) => acc.gl_code === props.defaultParentGlCode && acc.is_control,
+          )
+          if (match) {
+            form.value.parent_id = match.id
+          }
+        }
+
         if (!form.value.gl_code) {
-          form.value.gl_code = generateGlCode(form.value.account_type)
+          form.value.gl_code = generateGlCode(form.value.account_type, findParent(form.value.parent_id))
         }
       } catch (e) {
         console.error('Failed to load parent accounts')
