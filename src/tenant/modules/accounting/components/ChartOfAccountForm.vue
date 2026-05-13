@@ -9,6 +9,7 @@ const props = defineProps<{
   open: boolean
   lockedAccountType?: 'ASSET' | 'LIABILITY' | 'EQUITY' | 'INCOME' | 'EXPENSE'
   defaultParentGlCode?: string
+  prefillName?: string
 }>()
 
 const emit = defineEmits(['update:open', 'saved'])
@@ -78,7 +79,7 @@ watch(
     if (isOpen) {
       form.value = {
         gl_code: '',
-        name: '',
+        name: props.prefillName ?? '',
         account_type: props.lockedAccountType ?? 'ASSET',
         normal_balance: (NORMAL_BALANCE_BY_TYPE[props.lockedAccountType ?? 'ASSET'] || 'DR') as 'DR' | 'CR',
         parent_id: '',
