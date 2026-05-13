@@ -7,6 +7,7 @@ import { chartOfAccountsApi } from '@/tenant/apis/chartOfAccounts/chartOfAccount
 
 const props = defineProps<{
   open: boolean
+  lockedAccountType?: 'ASSET' | 'LIABILITY' | 'EQUITY' | 'INCOME' | 'EXPENSE'
 }>()
 
 const emit = defineEmits(['update:open', 'saved'])
@@ -57,6 +58,17 @@ const normalBalanceLabel = computed(() =>
   form.value.normal_balance === 'DR' ? 'Debit (DR)' : 'Credit (CR)',
 )
 
+const ACCOUNT_TYPE_LABEL: Record<string, string> = {
+  ASSET: 'Asset',
+  LIABILITY: 'Liability',
+  EQUITY: 'Equity',
+  INCOME: 'Income',
+  EXPENSE: 'Expense',
+}
+const accountTypeLabel = computed(
+  () => ACCOUNT_TYPE_LABEL[form.value.account_type] || form.value.account_type,
+)
+
 const subtypeOptions = computed(() => SUBTYPE_OPTIONS_BY_TYPE[form.value.account_type] ?? null)
 
 watch(
@@ -66,8 +78,8 @@ watch(
       form.value = {
         gl_code: '',
         name: '',
-        account_type: 'ASSET',
-        normal_balance: 'DR',
+        account_type: props.lockedAccountType ?? 'ASSET',
+        normal_balance: (NORMAL_BALANCE_BY_TYPE[props.lockedAccountType ?? 'ASSET'] || 'DR') as 'DR' | 'CR',
         parent_id: '',
         is_control: false,
         is_postable: true,
@@ -227,7 +239,14 @@ async function handleSubmit() {
             <label class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
               >Account Type <span class="text-red-500">*</span></label
             >
+            <div
+              v-if="lockedAccountType"
+              class="rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700 dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-neutral-300"
+            >
+              {{ accountTypeLabel }}
+            </div>
             <select
+              v-else
               v-model="form.account_type"
               class="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
             >
