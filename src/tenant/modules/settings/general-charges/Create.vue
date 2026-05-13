@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, markRaw, onMounted, ref } from 'vue'
+import { computed, markRaw, onMounted, reactive, ref } from 'vue'
 import { Form } from '@/Global'
 import { savingsProductsApi } from '@/tenant/apis/savingsProducts/api'
 import {
@@ -49,14 +49,26 @@ const creatingAccount = ref<{ open: boolean; prefillName: string }>({
 // hasPermission(...) check once the chart-of-accounts permission set is seeded.
 const canCreateCoa = computed(() => true)
 
-const incomeAccountComponentProps = computed(() => ({
-  canCreate: canCreateCoa.value,
-  refreshTrigger: refreshIncomeAccounts.value,
-  autoSelectId: autoSelectId.value,
-  onRequestCreate: (payload: { prefillName: string }) => {
+// IMPORTANT: DynamicForm renders `<component v-bind="field.componentProps ?? {}" />`,
+// which spreads the object as props. If we use `computed(() => ({...}))` here the
+// nested IncomeAccountSelect ends up receiving the ref object itself (no auto-unwrap
+// because it's an array-item field, not a top-level template binding), so canCreate
+// stays false and the inline-create footer never renders. Use a reactive object with
+// getters so every property read is reactive AND already unwrapped.
+const incomeAccountComponentProps = reactive({
+  get canCreate() {
+    return canCreateCoa.value
+  },
+  get refreshTrigger() {
+    return refreshIncomeAccounts.value
+  },
+  get autoSelectId() {
+    return autoSelectId.value
+  },
+  onRequestCreate(payload: { prefillName: string }) {
     creatingAccount.value = { open: true, prefillName: payload.prefillName }
   },
-}))
+})
 
 const fields = ref<any[]>([
   {
