@@ -9,9 +9,10 @@
         <template #header-action>
             <PainPageHeader title="General charges list" dec="Manage SACCO general chargeses" />
         </template>
-        <template #Revenue="{ item }">
-            <ToggleSwitch 
-            :value="item.Reversible" @toggle="() => { toggleReversibleChange(item) }" />
+        <template #is_active="{ item }">
+            <ToggleSwitch
+                :value="item.is_active"
+                @toggle="() => { handleActiveToggle(item) }" />
         </template>
         <template #charge_amount="{ item }">
             <div class="flex flex-col gap-1"><span class="font-mono font-semibold text-neutral-600 dark:text-white">
@@ -36,7 +37,7 @@ import { Create, Details } from '.'
 import { TableDrawer, PainPageHeader, formatMoneyValue } from '@/Global'
 import ToggleSwitch from '@/Global/ToggleSwitch.vue'
 import { useGeneralCharges } from '../composables/useGeneralCharges'
-const { toggleReversible } = useGeneralCharges()
+const { toggleActive } = useGeneralCharges()
 const formData = ref<Record<string, any>>({}), 
     drawerTitle = ref('Create Tenant'),
     tableUrl = computed(() => `settings/general-charges/list?status`),
@@ -48,16 +49,18 @@ const formData = ref<Record<string, any>>({}),
 function saveUser(type: string, data: any) {
     if (title?.[type]) drawerTitle.value = title?.[type]
 }
-function toggleReversibleChange(item: any) {
-    item.Reversible = item.id
-    toggleReversible(item) 
+function handleActiveToggle(item: any) {
+    // Optimistic UI flip so the toggle feels responsive — the backend PATCH
+    // /general-charges/{id}/toggle flips is_active to match this value.
+    item.is_active = !item.is_active
+    toggleActive(item)
 }
 const columns = [
     { key: 'products', label: 'product', sticky: 'left', width: '14em', },
     { key: 'charge_name', label: 'charge', sticky: 'left', },
     { key: 'charge_amount', label: 'amount', },
     { key: 'charge_applys', label: 'applys', sticky: 'left', },
-    { key: 'Revenue', label: 'Revenue', sticky: 'left', },
+    { key: 'is_active', label: 'Active', sticky: 'left', },
     { key: 'created_at', label: 'created at', width: '14em ', type: 'date' },
     { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 
