@@ -27,6 +27,12 @@ function mountSelect(extraProps: Record<string, unknown> = {}) {
       canCreate: false,
       ...extraProps,
     },
+    // Render <Teleport> content inline so wrapper.find / wrapper.text can see it.
+    global: {
+      stubs: {
+        teleport: true,
+      },
+    },
   })
 }
 
