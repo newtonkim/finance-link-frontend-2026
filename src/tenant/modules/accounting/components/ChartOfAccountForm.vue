@@ -124,7 +124,7 @@ watch(
           form.value.gl_code = generateGlCode(form.value.account_type, findParent(form.value.parent_id))
         }
       } catch (e) {
-        console.error('Failed to load parent accounts')
+        console.error('Failed to load parent accounts', e)
       }
     }
   },

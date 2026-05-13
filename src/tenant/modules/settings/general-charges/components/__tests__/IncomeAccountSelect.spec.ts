@@ -124,8 +124,9 @@ describe('IncomeAccountSelect reactive refresh + auto-select', () => {
     await flushPromises()
     await wrapper.setProps({ autoSelectId: 1 })
     await nextTick()
-    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
-    const last = wrapper.emitted('update:modelValue')!.at(-1)
+    const emitted = wrapper.emitted('update:modelValue')
+    expect(emitted).toBeTruthy()
+    const last = emitted![emitted!.length - 1]
     expect(last).toEqual([1])
   })
 })
