@@ -116,6 +116,20 @@ function onCreateClick() {
 
 <template>
   <div class="relative w-full">
+    <!-- Inline "Create new" action — sits on the right of the field's label row.
+         Absolute-positioned with a negative top so it aligns next to the
+         "Credit Account" label that DynamicForm renders above this component. -->
+    <button
+      v-if="canCreate"
+      data-test="create-footer"
+      type="button"
+      class="absolute right-0 -top-7 flex items-center gap-1 text-xs font-semibold text-nfuko-primary hover:underline"
+      @click="onCreateClick"
+    >
+      <Plus class="size-3.5" />
+      <span>{{ createFooterLabel }}</span>
+    </button>
+
     <button
       data-test="trigger"
       type="button"
@@ -175,17 +189,6 @@ function onCreateClick() {
         </button>
       </div>
 
-      <div v-if="canCreate" class="border-t border-neutral-100 p-1 dark:border-neutral-800">
-        <button
-          data-test="create-footer"
-          type="button"
-          class="w-full flex items-center gap-2 px-3 py-2 rounded text-sm text-nfuko-primary hover:bg-neutral-50 dark:hover:bg-white/5"
-          @click="onCreateClick"
-        >
-          <Plus class="size-4" />
-          <span>{{ createFooterLabel }}</span>
-        </button>
-      </div>
     </div>
   </div>
 </template>
