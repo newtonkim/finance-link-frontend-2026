@@ -10,9 +10,20 @@ const props = defineProps<{
   lockedAccountType?: 'ASSET' | 'LIABILITY' | 'EQUITY' | 'INCOME' | 'EXPENSE'
   defaultParentGlCode?: string
   prefillName?: string
+  requireParent?: boolean
 }>()
 
-const emit = defineEmits(['update:open', 'saved'])
+interface SavedAccount {
+  id: number
+  gl_code: string
+  name: string
+  account_type: string
+  parent_id: number | null
+}
+const emit = defineEmits<{
+  (e: 'update:open', open: boolean): void
+  (e: 'saved', account: SavedAccount): void
+}>()
 
 // Normal balance is determined by accounting convention, not user choice:
 // assets/expenses are debit-normal; liabilities/equity/income are credit-normal.
@@ -215,12 +226,26 @@ const parentOptions = computed(() => {
 async function handleSubmit() {
   loading.value = true
   errors.value = {}
+
+  if (props.requireParent && !form.value.parent_id) {
+    errors.value.parent_id = ['Parent account is required.']
+    loading.value = false
+    return
+  }
+
   try {
     const payload = { ...form.value }
     if (payload.parent_id === '') payload.parent_id = null
-    await chartOfAccountsApi.store(payload)
+    const res = await chartOfAccountsApi.store(payload)
+    const created = res.data?.data ?? res.data
     toast.success('Chart of Account created successfully')
-    emit('saved')
+    emit('saved', {
+      id: created.id,
+      gl_code: created.gl_code,
+      name: created.name,
+      account_type: created.account_type,
+      parent_id: created.parent_id ?? null,
+    })
     emit('update:open', false)
   } catch (error: any) {
     if (error.response?.data?.errors) {
