@@ -44,13 +44,10 @@ const creatingAccount = ref<{ open: boolean; prefillName: string }>({
   prefillName: '',
 })
 
-// Gates the "+ Create new income account" footer in the income selector.
-// Uses the existing module-view permission as a proxy: users who can see the
-// COA page can also create accounts inline. The backend doesn't currently
-// enforce a separate create-permission for chart_of_accounts.
-const canCreateCoa = computed(() =>
-  profileStore.hasPermission('chart-of-accounts-module-link-view'),
-)
+// Permission gating is temporarily off so the inline-create footer shows for
+// every authenticated user. Re-enable by switching back to a profileStore
+// hasPermission(...) check once the chart-of-accounts permission set is seeded.
+const canCreateCoa = computed(() => true)
 
 const incomeAccountComponentProps = computed(() => ({
   canCreate: canCreateCoa.value,
