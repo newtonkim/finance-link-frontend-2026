@@ -9,8 +9,8 @@ export function levenshtein(a: string, b: string): number {
   if (s.length === 0) return t.length
   if (t.length === 0) return s.length
 
-  const prev = new Array<number>(t.length + 1)
-  const curr = new Array<number>(t.length + 1)
+  const prev: number[] = Array.from({ length: t.length + 1 }, () => 0)
+  const curr: number[] = Array.from({ length: t.length + 1 }, () => 0)
 
   for (let j = 0; j <= t.length; j++) prev[j] = j
 
