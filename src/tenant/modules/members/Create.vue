@@ -6,6 +6,8 @@ const emits = defineEmits(['update:form']);
 import { memberAccountApi } from '@/tenant/apis'
 import debounce from 'lodash/debounce'
 import { pomPinia } from 'septor-store'
+import { memmberSettingApi } from '@/tenant/apis/members/settings.ts'
+const { onBoardingProductGeneralCharges } = memmberSettingApi()
 
 const Store = pomPinia()
 
@@ -54,6 +56,25 @@ const fields = ref<any[]>([
     url: "global/savings-products",
     dataOnMount: true,
     selectOnOneItem: true,
+    change: async (val: any) => {
+      watchChangeInProductOrCharges(fields,)
+
+      // const res = await onBoardingProductGeneralCharges({ id: val });
+      // const product_id = fields.value.find((f: any) => f.name === 'product_id')
+      // const chargeField = fields.value.find((f: any) => f.name === 'charges')
+      // setTimeout(() => {
+      //   const generalChargesSum =res?.reduce((acc: number, c: any) => acc + c?.charge_amount, 0)
+      //   const listCgChares = res?.map((c: any) => `{{${c?.name}: ${c?.charge_amount}}}`).join(', ')
+      //   const totalCharges=Number(generalChargesSum)+Number(chargeField.value);
+      //   chargeField.helper = `<span class="font-bold text-red-500 text-xs ">General charges for this product: ${generalChargesSum} (total: ${totalCharges})</span>`
+      //   product_id.helper = `<span class="font-bold text-red-500 text-xs ">General charges for this product: ${listCgChares} (total: ${totalCharges})</span>`
+
+      // }, 1000);
+
+
+
+    },
+
 
     dependsOn: {
       conditions: [
@@ -104,14 +125,14 @@ const fields = ref<any[]>([
       ],
     },
     change: async (val: any) => {
-      const amount = val?.target ? val.target.value : val
-      // alert()
-      watchChangeInProductOrCharges(fields, amount)
+      // const amount = val?.target ? val.target.value : val
+
+      watchChangeInProductOrCharges(fields,)
     },
   },
 
   {
-    label: 'charges',
+    label: 'Transactional charges',
     name: 'charges',
     type: 'text',
     required: true,
@@ -121,14 +142,14 @@ const fields = ref<any[]>([
       conditions: [
         {
           field: 'member_type',
-          condition: (val: any) => val == 'new_member' && !settingList?.value['system-used-by-money-lender'] && !settingList?.value['hide-initial-deposit-field']
+          condition: (val: any) => val == 'new_member' && !settingList?.value['system-used-by-money-lender'] && settingList?.value['hide-initial-deposit-field']
         },
 
       ],
     }
   },
 
-    {
+  {
     label: 'payment mode (Debit Account)',
     name: 'payment_mode_id',
     type: 'select',
@@ -144,7 +165,7 @@ const fields = ref<any[]>([
       conditions: [
         {
           field: 'inital_deposit',
-          condition: (val: any) =>  val&&  !settingList?.value['system-used-by-money-lender'] && settingList?.value['hide-initial-deposit-field']
+          condition: (val: any) => val && !settingList?.value['system-used-by-money-lender'] && settingList?.value['hide-initial-deposit-field']
         },
 
       ],
@@ -370,22 +391,48 @@ const sharesError = computed(() => {
 })
 
 
-const watchChangeInProductOrCharges = debounce(async (fields: any, amount: any) => {
+const watchChangeInProductOrCharges = debounce(async (fields: any,) => {
   const finedProduct = fields.value.find((f: any) => f.name === 'product_id')
+  const res = await onBoardingProductGeneralCharges({ id: finedProduct.value });
   const chargeField = fields.value.find((f: any) => f.name === 'charges')
+  let generalChargesSum = res?.reduce((acc: number, c: any) => acc + c?.charge_amount, 0)
+  const cleanChargeValue = chargeField.value?.replace(/[^0-9|\.]/g, '');
+  setTimeout(() => {
+    if (generalChargesSum) {
+      const listCgChares = res?.map((c: any) => `${c?.name}: ${c?.charge_amount}`).join(', ')
+      // const totalCharges = Number(generalChargesSum) + Number(cleanChargeValue ?? 0);
+      finedProduct.helper = `<span class="font-bold text-red-500 text-xs  relative  ">General charges for this product: <span class='text-neutral-900'>${listCgChares}</span></span>`
+    } else {
+      finedProduct.helper = ''
+    }
+
+
+  }, 500);
+
+  const amount = fields.value.find((f: any) => f.name === 'inital_deposit').value
 
   if (!finedProduct || !finedProduct.value) return
   tryCatch(async () => {
-    const res: any = await getProductCharges({
-      product_id: finedProduct.value,
-      amount: amount,
-      type: 'deposit',
-    })
+    if (amount) {
 
-    if (chargeField) {
-      chargeField.value = `${res?.cost ?? 0} (charges)`
-      chargeField.hidden = false
-      chargeField.label = 'charges'
+      const res: any = await getProductCharges({
+        product_id: finedProduct.value,
+        amount: amount,
+        type: 'deposit',
+      })
+      chargeField.value = ''
+      chargeField.hidden = true
+      chargeField.helper = ''
+
+      if (chargeField) {
+        const totalCharges = Number(generalChargesSum) + Number(res?.cost ?? 0);
+        chargeField.value = `${totalCharges ?? 0} (charges)`
+
+        chargeField.hidden = false
+        chargeField.helper = res?.cost && `<span class="font-bold text-red-500 text-xs  relative  ">Transaction charges: <span class='text-neutral-900'>${res?.cost ? ', initial deposit charge: ' + res.cost + '(' + totalCharges + ')' : ''}</span></span>`
+        chargeField.label = 'charges'
+
+      }
     }
   })
 }, 900)
@@ -395,7 +442,7 @@ onMounted(() => {
 })
 </script>
 <template>
-  
+
   <card class="card shadow-md px-4 py-3 bg-white dark:bg-neutral-800 rounded-md h -[86vh] over flow-y-auto border-0">
     <span v-if='loadingMount'></span>
     <Form :action="data?.action" v-else parentStyle="grid  grid-cols-2 gap-3" v-model:form="fields" />

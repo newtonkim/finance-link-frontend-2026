@@ -749,6 +749,7 @@ export function feedback(res: any, success?: string, fail?: string) {
       msg.msg = res?.error.response.data.payload.message
     }
   }
+console.log(res);
 
   if (res?.error?.message?.includes('403') || res?.error?.message?.includes('401')) {
     msg = {
@@ -761,11 +762,13 @@ export function feedback(res: any, success?: string, fail?: string) {
     msg.msg = 'Something is wrong on there server side /please contact help desk to fix this issue'
   }
 
-  if (res?.code == 200) {
+
+  if (res?.code == 200 || Array.isArray(res.data) ) {
+   
     // if (!res || res.code == 200) {
     successStatus = true
     msg = {
-      msg: fail,
+      msg: success || res?.message || 'Action performed successfully',
       type: 'Success',
       success: successStatus,
     }

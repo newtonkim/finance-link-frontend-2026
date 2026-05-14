@@ -11,7 +11,19 @@ export function memmberSettingApi() {
       })
  
     }
+   async function onBoardingProductGeneralCharges(data?: object) {
+    const res =await fetchTableData({
+        data: data,
+        props: { url: '/global/general-product-charges?type=onboarding', state: 'general-product-charges'+data?.id },
+        Store,
+        saveData: false,
+      })
+      return res?.payload?.data??[]
+ 
+    }
     return {
-        settingsList
+        settingsList,
+        onBoardingProductGeneralCharges
     };
-}
+    };
+

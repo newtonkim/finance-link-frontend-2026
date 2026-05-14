@@ -74,15 +74,21 @@
             
               <div v-if="col.key === 'actions'" class="flex justify-center gap-2 capitalize-table-action text-[14px]">
                 <template v-for="action in col?.show ?? []" :key="action">
-                  <Imploading v-if="action == 'share'"
+                  <!-- {{ !col.condition?.[action]?.(item) }} -->
+                  <Imploading v-if="action == 'share' && (!col.condition?.[action]?.(item))" 
                     class="p-2 cursor-pointer hover:bg-nfuko-default hover:text-gray-400  hover:border hover:border-accent bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-800 hover:border-ugYellow rounded-sm transition-all"
                     :items='sharedropdown' @select="(v: any)=>handleAction({...(item as Record<string, any>),action:v?.value}, 'share')" icon="LucideSend" />
 
-                  <button v-else type="button" @click="() => handleAction(item, action)" v-auth="permissions?.[action]"
+                  <template  v-else>
+                  <button v-if="(col.condition?.[action]?.(item)|| col.condition?.[action]?.(item)==null)" type="button" @click="() => handleAction(item, action)" v-auth="permissions?.[action]"
                     :class="action_config?.[action]?.class" class=" ">
+
                     <component :is="action_config?.[action]?.icon" class="h-2 w-2" />
                     <span v-if="action !== 'delete'">{{ action }}</span>
+
                   </button>
+
+                  </template>
                 </template>
                 <div v-if="$slots.actions" class="text-right">
                   <slot name="actions" :item="item" />

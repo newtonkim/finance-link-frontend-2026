@@ -5,12 +5,11 @@ import {
   feedback,
   printElement,
   downloadFile,
-  printElementId,
+  printElementId,Confirm
 } from '@/Global'
 import { pomPinia } from 'septor-store'
 import { ACTION_CONFIG, dataTabelFilter, fetchTableData } from './index'
 import { formawtacher } from '@/Global/Forminputs/formWatcher'
-import { set } from 'lodash'
 
 export default function useTableHelpers(props?: any, emit?: any) {
   const formStore = formawtacher()
@@ -220,7 +219,7 @@ export default function useTableHelpers(props?: any, emit?: any) {
       const AnyErrorsFoundInTheFOrm = formStore.AnyErrorsFoundInTheFOrm
       const formdata = formStore.currentFormValues
 
-      console.log(formdata, '====2');
+      console.log(formdata, '====2')
       if (AnyErrorsFoundInTheFOrm) {
       } else {
         if (props.automaticCreate) {
@@ -271,9 +270,32 @@ export default function useTableHelpers(props?: any, emit?: any) {
         },
         Store,
       })
+    } else if (['unarchive', 'archive'].includes(action)) {
+      const act = props?.outerlinks?.[action] ?? action
+
+      Confirm({
+        title: action == 'archive' ? 'Archive record' : 'Unarchive record',
+        des: `Are you sure `,
+        type: 'warning',
+        confirm: async () => {
+          const res = await fetchTableData({
+            data: item,
+            props: {
+              ...props,
+              url: createUrl(props?.url, act),
+              state: props?.state,
+            },
+            Store,
+          })
+          feedback(res, 'Record unarchived successfully', '')
+          
+          // return true
+        },
+        cancel: () => {},
+      })
     } else if (['edit', 'view'].includes(action)) {
       DrawerMounted.value = false
-        // alert()
+      // alert()
       if (fn) fn(item)
       toggleDrawer() // open the drawer on this action clicked
       if (props?.state && props?.url && ['edit', 'view'].includes(action)) {

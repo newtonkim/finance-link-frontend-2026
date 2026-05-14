@@ -63,8 +63,8 @@ const remoteUrl = debounce(async (url: string) => {
         const data = { ...props.data }
         if (searchQuery.value?.length >= 3) data.search_keyword = searchQuery.value
         const generateAstate = await props?.state ?? `${url}`.replace(/[^a-zA-Z0-9]/g, "-");
-       
-        
+
+
         const res = await fetchTableData({
             data: Object.keys(data).length > 0 ? data : null,
             saveData: props?.saveData ?? true,
@@ -82,7 +82,7 @@ const remoteUrl = debounce(async (url: string) => {
 
 
         }
-        collection.value =  checker
+        collection.value = checker
 
         if (props?.selectOnOneItem) {
             if (filteredOptions.value?.length < 1) {
@@ -110,7 +110,7 @@ const selectedOption = computed(() => {
 
 const filteredOptions = computed(() => {
 
-    let options = props?.url ? collection.value : [...(props?.options??[]), ...(props.appendOptions ?? [])]
+    let options = props?.url ? collection.value : [...(props?.options ?? []), ...(props.appendOptions ?? [])]
 
     if (!Array.isArray(options)) return [];
 
@@ -131,17 +131,19 @@ const selectOption = (option: Option) => {
 };
 
 const toggleDropdown = async () => {
+
     if (props.disabled) return;
     isOpen.value = !isOpen.value;
     if (isOpen.value) {
         searchQuery.value = '';
     }
     fetchData()
+    
 };
 
 function fetchData() {
     const generateAstate = props?.state ?? `${props?.url}`.replace(/[^a-zA-Z0-9]/g, "-");
-    let DataAlreadyCollected = Store[generateAstate]?.payload?.data ?? Store[generateAstate]?.payload
+    let DataAlreadyCollected = Store[generateAstate]?.payload?.data ?? Store[generateAstate]?.payload??props?.options ?? []
 
     if (props.url && !DataAlreadyCollected?.length) {
         remoteUrl(props.url)
@@ -153,6 +155,8 @@ function fetchData() {
 
         collection.value = DataAlreadyCollected
     }
+    console.log(DataAlreadyCollected);
+    
 }
 
 const closeDropdown = (e: MouseEvent) => {
@@ -166,15 +170,27 @@ const closeDropdown = (e: MouseEvent) => {
     }
 };
 
+function MountForAttrOptions(){
+        collection.value = props.options
+        console.log(collection.value);
+        
+
+}
+
 onMounted(() => {
+    // console.log(props.options);
+    
     // window.addEventListener('click', closeDropdown);
-      window.addEventListener(
+    window.addEventListener(
         'mousedown',
         closeDropdown
     );
     if (props.reClean) {
         const generateAstate = props?.state ?? `${props?.url}`.replace(/[^a-zA-Z0-9]/g, "-");
         Store[generateAstate] = []
+    }
+    if(props.options?.length){
+        MountForAttrOptions()
     }
 });
 
@@ -263,15 +279,14 @@ const inputClass =
                         <Search class="absolute left-3.5 h-4 w-4 text-neutral-400" />
                         <input v-model="searchQuery" type="text" :placeholder="'Search...' + placeholder"
                             class="w-full rounded-lg bg-neutral-50 dark:bg-neutral-950 px-10 py-2 text-sm outline-none focus:ring-0 placeholder:text-neutral-400"
-                            @keydown.enter.prevent
-                            @click.stop />
+                            @keydown.enter.prevent @click.stop />
                         <button type="button" v-if="searchQuery" @click.stop="searchQuery = ''"
                             class="absolute right-3.5 p-0.5 hover:bg-neutral-200 dark:hover:bg-neutral-800 rounded-full transition-colors">
                             <X class="h-3 w-3 text-neutral-400" />
                         </button>
                     </div>
                 </div>
-                <!-- {{ filteredOptions }} -->
+                 
 
                 <ul class="max-h-60 overflow-auto py-1 scrollbar-hide">
                     <li v-for="option in filteredOptions" :key="option.id" @click.stop="selectOption(option)"
@@ -286,8 +301,7 @@ const inputClass =
                             </slot>
 
                         </span>
-                        <Check v-if="option.id == modelValue"
-                            class="h-4 w-4  text-nfuko-primary dark:text-[#8ba8a2]" />
+                        <Check v-if="option.id == modelValue" class="h-4 w-4  text-nfuko-primary dark:text-[#8ba8a2]" />
                     </li>
                     <li v-if="(filteredOptions as any)?.length === 0"
                         class="px-4 py-8 text-center text-sm text-neutral-400">
