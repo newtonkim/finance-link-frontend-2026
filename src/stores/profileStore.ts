@@ -18,6 +18,10 @@ export const useProfileStore = defineStore('profile', () => {
   const isUploadingAvatar = ref(false)
   const branchName = ref<string | null>(null)
 
+  function hasPermission(name: string): boolean {
+    return permissions.value.includes(name)
+  }
+
   const combinedProfile = computed(() => {
     const authUser = authStore.user
     const tenantUser = tenantUserStore.user
@@ -146,6 +150,7 @@ export const useProfileStore = defineStore('profile', () => {
   return {
     staffDetails,
     permissions,
+    hasPermission,
     isLoading,
     isUpdating,
     isUploadingAvatar,

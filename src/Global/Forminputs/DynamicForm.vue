@@ -419,6 +419,17 @@ function shouldShowField(field: any) {
                                         field.error }}</div>
                                 </template>
 
+                                <!-- Custom Component -->
+                                <template v-else-if="field.type === 'component' && field.component">
+                                  <component
+                                    :is="field.component"
+                                    :modelValue="field.value"
+                                    @update:modelValue="(val) => { field.value = val }"
+                                    v-bind="field.componentProps ?? {}"
+                                  />
+                                  <div v-if="field.error" class="mt-2 px-1 text-xs text-red-500 font-medium">{{ field.error }}</div>
+                                </template>
+
                                 <!-- Default -->
                                 <template v-else>
                                     <input type="text" v-model="field.value" :class="[field?.class, inputClass]"
