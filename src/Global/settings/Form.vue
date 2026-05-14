@@ -44,29 +44,32 @@
             <div v-for="(childField, ci) in field.settings_action['children-fields']" :key="ci" class="space-y-2">
               <div v-if="childField?.type === 'multiselect'" class="flex flex-col gap-2">
 
-                <MultiSearchableSelect :options="childField.options" class="w-full" @update:item-selected="
-                  (v) => multiselectedOptions(v, indx, ci, field.id)
-                " />
+                <!-- :defaultValues="`${childField.action}`.replace(/(?!^){{/g, ',{{').map(v => ({id: v, name: v}))" -->
+
+                <!-- {{ childField.action.replace(/(?!^){{/g, ',{{') }}=== -->
+                <MultiSearchableSelect :defaultValues="mutipleCleanerDefaultVal(childField?.action)"
+                  :options="childField.options" class="w-full" @update:item-selected="
+                    (v) => multiselectedOptions(v, indx, ci, field.id)
+                  " />
 
                 <p class="px-4 py-2   bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 text-xs font-medium border-top border-neutral-200 dark:border-neutral-700"
                   v-if="(childrenValues?.[field?.id]?.['settings_action']?.['children-fields'] || field.settings_action['children-fields']?.[ci]?.action)">
                   Code Display Template: <br />
 
-                  <input type="text"
-                    @change="(v) => { 
-                      childrenValues[field.id]['settings_action']['children-fields'][ci].action = v.target.value  }"
-                    class="w-full rounded border px-2 py-1 text-sm" :value="((childrenValues[field.id]?.['settings_action']?.['children-fields']?.[ci]?.action ?? field.settings_action['children-fields']?.[ci]?.action)?.split(',')).map(v => {
-                      const re = (v)
-                      return `${re} `;
-                    }).join('-')" />
+                  <input type="text" @change="(v) => {
+                    childrenValues[field.id]['settings_action']['children-fields'][ci].action = v.target.value
+                  }" class="w-full rounded border px-2 py-1 text-sm" :value="((childrenValues[field.id]?.['settings_action']?.['children-fields']?.[ci]?.action ?? field.settings_action['children-fields']?.[ci]?.action)?.split(',')).map(v => {
+                    const re = (v)
+                    return `${re} `;
+                  }).join('-')" />
 
 
                 </p>
                 <div class="w-full flex justify-end bg-neutral-100 dark:bg-neutral-800">
-                  {{ childrenValues?.[field?.id]?.['settings_action']?.['children-fields']?.[ci]?.action }}
+                  <!-- {{ childrenValues?.[field?.id]?.['settings_action']?.['children-fields']?.[ci]?.action }} -->
                   <Button
                     class="prounded-full w-[90px] p-2 rounded-md m-2   bg-nfuko-accent text-neutral-700 dark:text-neutral-200 text-xs font-medium border border-neutral-200 dark:border-neutral-700"
-                    @click="() => storeLocalChanages(field.id, childrenValues?.[field?.id], { ...(childrenValues?.[field?.id]??field), id: field.id },)">
+                    @click="() => storeLocalChanages(field.id, childrenValues?.[field?.id], { ...(childrenValues?.[field?.id] ?? field), id: field.id },)">
                     save {{ childrenValues?.[field?.id]?.action }}
                   </Button>
                 </div>
@@ -171,12 +174,13 @@ const emit = defineEmits(["update:modelValue"]);
 const internalValue = ref(props.modelValue);
 const showDelete = ref({ show: false, warning: "" });
 const collectedData = ref<any>({});
+const defa = ref<any>({});
 
 watch(internalValue, (val) => {
   emit("update:modelValue", val);
 });
 function storeLocalChanages(id: string, value: string, action: string) {
- 
+
   collectedData.value = action
   showDelete.value = {
     warning: (action as any)?.actiondescription,
@@ -267,6 +271,17 @@ function toggleSwitchForChildren(field: any) {
   // console.log(field.settings_action.action);
   if (field.settings_action.action == false) {
     storeLocalChanages(field.id, childrenValues?.[field?.id], field,)
+  }
+
+}
+
+function mutipleCleanerDefaultVal(text: string) {
+  const maker = text.replace(/}}\s*.*?\s*{{/g, '}},{{')
+  if (text.includes('{{') && text.includes('}}'))
+    return maker.split(',').map(v => ({ id: v, name: v.replace(/[^a-zA-Z0-9]/g, '') }))
+  else {
+    return maker.split(',').map(v => ({ id: v, name: v }))
+
   }
 
 }
