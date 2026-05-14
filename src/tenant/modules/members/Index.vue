@@ -19,14 +19,14 @@
             </span>
         </template>
         <template #searchSideAction>
-            <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
+            <StatusButtonsHorizontal :max-length="7" v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
         <template #drawer="{ action, data }">
             <Create v-if="['add'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
             <Edit v-if="['edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
             <Details v-if="['view'].includes(action)" :data="data" />
             <component
-                :defaults="['dob', 'name', 'account_number','salutation', 'gender', 'phone', 'dob', 'address', 'joined_date', 'nationality']"
+                :defaults="['dob', 'name', 'account_number', 'salutation', 'gender', 'phone', 'dob', 'address', 'joined_date', 'nationality']"
                 v-else-if="migrationComponent" :is="migrationComponent.component" :data="{ ...data, action }"
                 :url="migrationComponent?.url" />
         </template>
@@ -35,13 +35,13 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { Create, Details, Edit } from '.'
-import { TableDrawer, StatusButtonsHorizontal, setLocalValues, uploadTemplateColumData } from '@/Global'
+import {   setLocalValues, uploadTemplateColumData } from '@/Global'
 import { useRouter } from 'vue-router';
 import { MemberTemplate } from './imgration/index';
 const router = useRouter(),
     automaticCreate = ref<any>({})
 const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
-    drawerTitle = ref('Create Tenant'), filters = ['all', 'active', 'suspended', 'pending', 'trial'],
+    drawerTitle = ref('Create Tenant'), filters = ['all', 'active', 'suspended', 'pending', 'archived'],
     tableUrl = computed(() => `/members/list?status=${statusFilter.value}`),
     title: Record<string, string> = {
         "view": "View Member Details",
@@ -63,7 +63,13 @@ const columns = [
     { key: 'joined_date', label: 'Joined Date', width: '12em ', },
     { key: 'sex', label: 'Gender', type: 'status' },
     // { key: 'marital_status', label: 'Status', type: 'status' },
-    { key: 'actions', label: 'Actions', show: ['edit', 'delete'] }
+    {
+        key: 'actions', label: 'Actions', show: ['edit', 'delete', 'unarchive'], condition: {
+            "edit": (item: any) => item?.archived_at == null,
+            "delete": (item: any) => item?.archived_at == null,
+            "unarchive": (item: any) => item?.archived_at != null,
+        }
+    }
     // { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
 ]
 function navigateToProfile(item: any) {

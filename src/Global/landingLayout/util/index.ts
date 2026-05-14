@@ -1,6 +1,6 @@
 import { statusMap, getSubdomainName, formatCurrency } from '@/Global'
 import { dateTime, date, getLocalValues, keysToUse, addNumberCommas } from '../../Helpers'
-import { Eye, Edit, Trash, X, Send } from 'lucide-vue-next'
+import { Eye, Edit, Trash, X, Send, ArchiveRestore,ArchiveX,Archive } from 'lucide-vue-next'
 import { tenantClient } from '@/tenant/apis/tenantClient'
 import { apiClient } from '@/central/api/client'
 
@@ -47,7 +47,7 @@ export const dataFomater = (data: any, type: string) => {
         statusMapAny?.[`${data}`?.toLowerCase()] ??
         statusMapAny?.[`${data}`?.toUpperCase()] ??
         data
-        verifyTheStatus=!verifyTheStatus?.label?{label:"-"}:verifyTheStatus
+      verifyTheStatus = !verifyTheStatus?.label ? { label: '-' } : verifyTheStatus
       return `<span class="${verifyTheStatus?.className}">${verifyTheStatus?.label}</span>`
     },
     number: () => {
@@ -83,10 +83,26 @@ export const ACTION_CONFIG = {
     class:
       'flex h-7 w-7 items-center justify-center rounded-full bg-red-50 text-red-600 transition-colors hover:bg-red-100 dark:bg-red-900/40 dark:text-red-400 dark:hover:bg-red-900/60',
   },
+  archive: {
+    icon: Archive,
+    class:
+      'flex h-7 w-7 items-center justify-center rounded-full bg-red-50 text-red-600 transition-colors hover:bg-red-100 dark:bg-red-900/40 dark:text-red-400 dark:hover:bg-red-900/60',
+       action: () => {
+      return 'unarchive'
+    },
+  },
   view: {
     icon: Eye,
     action: () => {
       return 'view'
+    },
+    class:
+      'flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py- text-xs font-bold text-indigo-600 transition-colors hover:bg-indigo-100 dark:bg-indigo-900/40 dark:text-indigo-300 dark:hover:bg-indigo-900/60',
+  },
+  unarchive: {
+    icon: ArchiveX,
+    action: () => {
+      return 'unarchive'
     },
     class:
       'flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py- text-xs font-bold text-indigo-600 transition-colors hover:bg-indigo-100 dark:bg-indigo-900/40 dark:text-indigo-300 dark:hover:bg-indigo-900/60',
@@ -105,25 +121,25 @@ export const ACTION_CONFIG = {
   },
 }
 
-export const dataTabelFilter =  (collection: any, searchQuery: any,deepSearch: boolean) => {
+export const dataTabelFilter = (collection: any, searchQuery: any, deepSearch: boolean) => {
   // console.log(deepSearch);
-  
-  const sliptTheString = searchQuery?.split(' ').map((stng: any) => `${stng}`.toLowerCase())
-  if(Array.isArray(collection)){
 
-    const list= (collection ?? []).filter((item: any) => {
-      if(deepSearch){ // lets not filete into the data existing data let pick dirent
-       
-  return true
+  const sliptTheString = searchQuery?.split(' ').map((stng: any) => `${stng}`.toLowerCase())
+  if (Array.isArray(collection)) {
+    const list = (collection ?? []).filter((item: any) => {
+      if (deepSearch) {
+        // lets not filete into the data existing data let pick dirent
+
+        return true
       }
       const stng = JSON.stringify(item)
       return sliptTheString.some((query: any) => stng.toLowerCase().includes(query))
-    });
+    })
     // if(deepSearch) return list
     // console.log(list,searchQuery,collection);
     return list
   }
-  return [];
+  return []
 }
 export async function fetchTableData({
   data,
@@ -145,8 +161,6 @@ export async function fetchTableData({
   const branchQuery =
     branch_id && branch_id !== 'undefined' && branch_id !== 'null' ? `branch_id=${branch_id}` : ''
 
-
-    
   const collection = {
     reload: !!props.reload ? 0 : 1, // dont think am stupid i know that
     // reload: !!props.reload ? 0 : 1, // dont think am stupid i know that
@@ -167,19 +181,19 @@ export async function fetchTableData({
   return await Store.stateGenaratorApi(collection)
 }
 
-function buildUrlWithQuery(url: string,) {
-const parsedUrl = new URL(url);
+function buildUrlWithQuery(url: string) {
+  const parsedUrl = new URL(url)
 
-const params = new URLSearchParams(parsedUrl.search);
+  const params = new URLSearchParams(parsedUrl.search)
 
-const uniqueParams = new URLSearchParams();
+  const uniqueParams = new URLSearchParams()
 
-for (const [key, value] of params.entries()) {
-  if (!uniqueParams.has(key)) {
-    uniqueParams.append(key, value);
+  for (const [key, value] of params.entries()) {
+    if (!uniqueParams.has(key)) {
+      uniqueParams.append(key, value)
+    }
   }
-}
-parsedUrl.search = uniqueParams.toString();
+  parsedUrl.search = uniqueParams.toString()
 
-console.log(parsedUrl.toString());
+  console.log(parsedUrl.toString())
 }

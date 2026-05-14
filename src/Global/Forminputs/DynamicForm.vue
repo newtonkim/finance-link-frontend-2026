@@ -439,7 +439,7 @@ function shouldShowField(field: any) {
                                 </template>
 
                                 <span v-if="field?.helper">
-                                    <span class="text-[12px] " v-html="field?.helper"></span>
+                                    <span class="text-[10x] " v-html="field?.helper"></span>
                                 </span>
                             </span>
 
