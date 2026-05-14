@@ -55,9 +55,7 @@
                 <p class="px-4 py-2   bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 text-xs font-medium border-top border-neutral-200 dark:border-neutral-700"
                   v-if="(childrenValues?.[field?.id]?.['settings_action']?.['children-fields'] || field.settings_action['children-fields']?.[ci]?.action)">
                   Code Display Template: <br />
-                  <input type="text" @change="(v) => {
-                    childrenValues[field.id]['settings_action']['children-fields'][ci].action = v.target.value
-                  }" class="w-full rounded border px-2 py-1 text-sm" 
+                  <input type="text" @change="(v) => changeInMultipleValue(v, ci, field)" class="w-full rounded border px-2 py-1 text-sm" 
                   :value="((childrenValues[field.id]?.['settings_action']?.['children-fields']?.[ci]?.action ?? 
                   field.settings_action['children-fields']?.[ci]?.action))" />
 
@@ -179,6 +177,9 @@ watch(internalValue, (val) => {
 });
 function storeLocalChanages(id: string, value: string, action: string) {
 
+  // console.log(action);
+  // return
+
   collectedData.value = action
   showDelete.value = {
     warning: (action as any)?.actiondescription,
@@ -282,6 +283,22 @@ function mutipleCleanerDefaultVal(text: string) {
 
   }
 
+}
+
+function changeInMultipleValue(v, ci, field) {
+  const value = v?.target?.value ?? '';
+  childrenValues.value[field.id]= {['settings_action']:{}};
+  childrenValues.value[field.id].settings_action['children-fields'] ??= [];
+  childrenValues.value[field.id].settings_action['children-fields'][ci] ??= {};
+
+  childrenValues.value[field.id]={
+    "settings_action":{
+      ...field.settings_action,
+      
+    }
+  }
+   childrenValues.value[field.id].settings_action['children-fields'][ci].action = value
+    
 }
 
 </script>
