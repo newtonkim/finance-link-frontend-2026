@@ -46,7 +46,7 @@
       <WithdrawalTemplate v-else-if="automaticCreate?.actionSlot == 'download-withdrawal-template'"
         :data="{ action, ...(automaticCreate ?? {}) }" />
       <Deposit v-else-if="automaticCreate?.actionSlot == 'deposit'" :data="{ action, ...(automaticCreate ?? {}) }"
-        v-model:form="formData" />
+        v-model:form="formData" /> 
       <ExportTemplate v-else-if="automaticCreate?.actionSlot == 'download-memeber-accounts-template'"
         :data="{ action, ...(automaticCreate ?? {}) }" />
       <Withdrawal v-else-if="automaticCreate?.actionSlot == 'withdrawal'" :data="{ action, ...(automaticCreate ?? {}) }"
