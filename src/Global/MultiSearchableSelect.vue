@@ -135,7 +135,7 @@ onMounted(() => {
 function defaultValues(){
     if(Array.isArray(props.defaultValues)) {
     props.defaultValues.forEach((element: any) => {
-        toggleSelectOption(element)
+       selectedOptions.value.push(element)
     })
 }
 
