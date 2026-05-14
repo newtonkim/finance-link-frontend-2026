@@ -411,6 +411,20 @@ export function formDataFormatV2(fields: any[]) {
     const value = field.value
     if (value === undefined) return
 
+    if (Array.isArray(value)) {
+      value.forEach((v, index) => {
+        const arrayKey = `${key}[${index}]`
+        if (v instanceof File) {
+          fd.append(arrayKey, v)
+        } else if (v && typeof v === 'object' && 'id' in v) {
+          fd.append(arrayKey, v.id)
+        } else if (v !== null && v !== undefined) {
+          fd.append(arrayKey, v)
+        }
+      })
+      return
+    }
+
     if (value instanceof File) {
       fd.append(key, value)
       return
@@ -425,7 +439,7 @@ export function formDataFormatV2(fields: any[]) {
       return
     }
 
-    if (value !== null) {
+    if (value !== null && value !== undefined) {
       fd.append(key, value)
     }
   })
