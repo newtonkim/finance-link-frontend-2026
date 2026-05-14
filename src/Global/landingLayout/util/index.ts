@@ -122,7 +122,7 @@ export const ACTION_CONFIG = {
 }
 
 export const dataTabelFilter = (collection: any, searchQuery: any, deepSearch: boolean) => {
-  // console.log(deepSearch);
+  // console.log(deepSearch,collection);
 
   const sliptTheString = searchQuery?.split(' ').map((stng: any) => `${stng}`.toLowerCase())
   if (Array.isArray(collection)) {

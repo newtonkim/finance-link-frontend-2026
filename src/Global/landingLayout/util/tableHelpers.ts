@@ -29,6 +29,7 @@ export default function useTableHelpers(props?: any, emit?: any) {
   const drawerTitle = ref(props?.drawerTitle)
   const drawerShooter2 = ref<boolean | null>(true)
   const drawerWidth = ref(props?.drawerWidth)
+  const filteredData = ref([])
   const currentPage = ref(1)
   const dropdownDownload = [
     { label: 'PDF', value: 'PDF', route: 'export-pdf' },
@@ -352,27 +353,37 @@ export default function useTableHelpers(props?: any, emit?: any) {
   }
   const callNewPage = changeThePage
   const onSearch = (type: string, data: unknown) => {
-    deepSearch.value = true
     save(data, type)
-    setTimeout(() => {
-      deepSearch.value = false
-    }, 2000)
+    dataFilter.value=Store[props.state].payload
+  
   }
-  const dataFilter = computed(() => {
-    // alert(props?.state)
-    const collection = (props?.state
-      ? (Store[props.state as keyof typeof Store] as any)?.payload
-      : null) ??
-      props.data ?? { data: [] }
-    // console.log(deepSearch.value,searchQuery.value);
-    const filteredData = dataTabelFilter(
+
+  const dataFilter = computed({
+  get() {
+    const collection =
+      (props?.state
+        ? (Store[props.state as keyof typeof Store] as any)?.payload
+        : null) ??
+      props.data ??
+      { data: [] }
+   console.log(deepSearch.value);
+   
+
+    return dataTabelFilter(
       collection?.data ?? collection,
       searchQuery.value,
-      deepSearch.value,
+      deepSearch.value
     )
+  },
 
-    return filteredData
-  })
+  set(newValue) {
+    // update local/state value here
+   deepSearch.value=true
+  },
+})
+ 
+
+
   const dataPageLinks = computed(() => {
     return (
       (props?.state ? (Store[props.state as keyof typeof Store] as any)?.payload : null) ??
@@ -380,8 +391,9 @@ export default function useTableHelpers(props?: any, emit?: any) {
     )
   })
   function filterDataByString(value: string) {
-    // deepSearch.value = true
+    deepSearch.value = false
     searchQuery.value = value
+    
   }
 
   onBeforeMount(() => {

@@ -172,7 +172,7 @@ const closeDropdown = (e: MouseEvent) => {
 
 function MountForAttrOptions(){
         collection.value = props.options
-        console.log(collection.value);
+        // console.log(collection.value);
         
 
 }
