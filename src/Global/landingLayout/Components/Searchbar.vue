@@ -76,7 +76,7 @@
 
                                         <td class="py-2 px-2 text-neutral-500">
                                             {{ value.onSearch.type === 'date-range' ? formatRange(value.value) :
-                                            value.value }}
+                                                value.value }}
                                         </td>
 
                                         <td class="py-2 px-2 text-right">
@@ -217,9 +217,11 @@ function triggerSearch() {
             collection[item.key] = { value: item.value, type: item.onSearch.type }
         }
     })
-    if (Object.keys(collection).length)
+
+    if (Object.keys(collection).length){
         keySearch.search_filter = collection
     save({ ...keySearch, }, 'search')
+}
     // alert()
 
 }
