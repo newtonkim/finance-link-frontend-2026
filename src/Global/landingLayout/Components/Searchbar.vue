@@ -10,7 +10,7 @@
                 leave-from-class="opacity-100 translate-y-0 scale-100"
                 leave-to-class="opacity-0 translate-y-4 scale-95">
                 <div v-if="Object.keys(searchBy)?.length || Object.keys(activeFilter)?.length"
-                    :style="filterPositionDisplay" class="fixed z-[100]  w-[30vw]">
+                    :style="filterPositionDisplay" class="fixed z-[40]  w-[30vw]">
 
                     <!-- FLOATING PANEL (TABLE VERSION) -->
                     <div
@@ -98,7 +98,7 @@
 
 
 
-    <div class="relative   w-[90%]  group z-[999999999] " ref="searchRef">
+    <div class="relative   w-[90%]  group z-[41] " ref="searchRef">
         <div class="flex items-center gap-2 mb-2 w-full">
             <div class="relative w-full">
                 <Search class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size="15" />
