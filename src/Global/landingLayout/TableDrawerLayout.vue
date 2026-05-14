@@ -118,7 +118,9 @@ import Searchbar from './Components/Searchbar.vue';
 import { Imploading, UploadTemplateColumn, uploadTemplateColumData, sizePapers, } from '@/Global';
 import Table from './Components/Table.vue';
 import useTableHelpers from './util/tableHelpers.ts';
+import { ref } from 'vue';
 
+const deepSearch=ref(false);
 
 const props = defineProps({
     templateDisplayLabels: { type: Array, default: null, required: false },
