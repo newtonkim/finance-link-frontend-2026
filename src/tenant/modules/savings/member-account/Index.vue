@@ -10,7 +10,7 @@
         </div>
         <CopyData :show="item.account_code" />
         <div class="text-[11px] uppercase tracking-wide">
-          {{ item.type }}
+          {{ item.product }}
         </div>
       </div>
     </template>
@@ -151,30 +151,30 @@ const formData = ref<Record<string, any>>({}),
   filters = ["all", "active", "suspended", "expired", "trial"],
   tableUrl = computed(() => `/members-account/list?status=${statusFilter.value}`);
 const title: Record<string, any> = {
-    view: { title: "View member saving's Account Details", width: "w-2/3" },
-    edit: { title: "Edit member saving's Account", width: "w-2/3" },
-    add: { title: "Create a member saving's Account", width: "w-2/4" },
-    deposit: {
-      width: "w-2/4",
-      title: "deposit Saving's Account",
-      fun: async () => {
-        drawerRemount.value = await memberAccountDepositAmount(
-          formData.value,
-          automaticCreate.value
-        );
-      },
-    }, // this will be the deposite
-    withdrawal: {
-      width: "w-2/4",
-      title: "withdrawal Saving's Account",
-      fun: async () => {
-        drawerRemount.value = await memberAccountWithdrawalAmount(
-          formData.value,
-          automaticCreate.value
-        );
-      },
-    }, // this will be the withdrawal
-  };
+  view: { title: "View member saving's Account Details", width: "w-2/3" },
+  edit: { title: "Edit member saving's Account", width: "w-2/3" },
+  add: { title: "Create a member saving's Account", width: "w-2/4" },
+  deposit: {
+    width: "w-2/4",
+    title: "deposit Saving's Account",
+    fun: async () => {
+      drawerRemount.value = await memberAccountDepositAmount(
+        formData.value,
+        automaticCreate.value
+      );
+    },
+  }, // this will be the deposite
+  withdrawal: {
+    width: "w-2/4",
+    title: "withdrawal Saving's Account",
+    fun: async () => {
+      drawerRemount.value = await memberAccountWithdrawalAmount(
+        formData.value,
+        automaticCreate.value
+      );
+    },
+  }, // this will be the withdrawal
+};
 // automaticCreate.actionSlot// this will help switch off the default drawer actions  and use out side action
 function saveUser(type: string, data: any) {
   if (title?.[automaticCreate.value.actionSlot]) {

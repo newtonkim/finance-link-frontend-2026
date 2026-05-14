@@ -138,12 +138,12 @@ const toggleDropdown = async () => {
         searchQuery.value = '';
     }
     fetchData()
-    
+
 };
 
 function fetchData() {
     const generateAstate = props?.state ?? `${props?.url}`.replace(/[^a-zA-Z0-9]/g, "-");
-    let DataAlreadyCollected = Store[generateAstate]?.payload?.data ?? Store[generateAstate]?.payload??props?.options ?? []
+    let DataAlreadyCollected = Store[generateAstate]?.payload?.data ?? Store[generateAstate]?.payload ?? props?.options ?? []
 
     if (props.url && !DataAlreadyCollected?.length) {
         remoteUrl(props.url)
@@ -155,8 +155,8 @@ function fetchData() {
 
         collection.value = DataAlreadyCollected
     }
-    console.log(DataAlreadyCollected);
-    
+    // console.log(DataAlreadyCollected);
+
 }
 
 const closeDropdown = (e: MouseEvent) => {
@@ -170,16 +170,16 @@ const closeDropdown = (e: MouseEvent) => {
     }
 };
 
-function MountForAttrOptions(){
-        collection.value = props.options
-        console.log(collection.value);
-        
+function MountForAttrOptions() {
+    collection.value = props.options
+    // console.log(collection.value);
+
 
 }
 
 onMounted(() => {
     // console.log(props.options);
-    
+
     // window.addEventListener('click', closeDropdown);
     window.addEventListener(
         'mousedown',
@@ -189,7 +189,7 @@ onMounted(() => {
         const generateAstate = props?.state ?? `${props?.url}`.replace(/[^a-zA-Z0-9]/g, "-");
         Store[generateAstate] = []
     }
-    if(props.options?.length){
+    if (props.options?.length) {
         MountForAttrOptions()
     }
 });
@@ -286,7 +286,7 @@ const inputClass =
                         </button>
                     </div>
                 </div>
-                 
+
 
                 <ul class="max-h-60 overflow-auto py-1 scrollbar-hide">
                     <li v-for="option in filteredOptions" :key="option.id" @click.stop="selectOption(option)"
