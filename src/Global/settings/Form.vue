@@ -66,7 +66,7 @@
                   {{ childrenValues?.[field?.id]?.['settings_action']?.['children-fields']?.[ci]?.action }}
                   <Button
                     class="prounded-full w-[90px] p-2 rounded-md m-2   bg-nfuko-accent text-neutral-700 dark:text-neutral-200 text-xs font-medium border border-neutral-200 dark:border-neutral-700"
-                    @click="() => storeLocalChanages(field.id, childrenValues?.[field?.id], { ...childrenValues?.[field?.id], id: field.id },)">
+                    @click="() => storeLocalChanages(field.id, childrenValues?.[field?.id], { ...(childrenValues?.[field?.id]??field), id: field.id },)">
                     save {{ childrenValues?.[field?.id]?.action }}
                   </Button>
                 </div>
@@ -176,6 +176,7 @@ watch(internalValue, (val) => {
   emit("update:modelValue", val);
 });
 function storeLocalChanages(id: string, value: string, action: string) {
+ 
   collectedData.value = action
   showDelete.value = {
     warning: (action as any)?.actiondescription,
@@ -188,6 +189,8 @@ async function confirmAndSaveChanges(data?: any) {
   const customeUrl = props?.outerlinks?.['create'] ?? "save-changed-settings";
   const { id, settings_action } = collectedData.value
   console.log(collectedData.value);
+  // return
+
 
   const url = createUrl(props?.url, customeUrl)
   const generateAstate = props?.state ?? `${url}`.replace(/[^a-zA-Z0-9]/g, "-");
