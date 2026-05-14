@@ -8,11 +8,8 @@ import debounce from 'lodash/debounce'
 import { pomPinia } from 'septor-store'
 import { memmberSettingApi } from '@/tenant/apis/members/settings.ts'
 const { onBoardingProductGeneralCharges } = memmberSettingApi()
-
 const Store = pomPinia()
-
 const { getProductCharges } = memberAccountApi()
-
 const OptionList = reactive({
   memberTypeOptions: [{ id: 'new_member', name: 'New Member' }, { id: 'existing_member', name: 'Existing Member' }],
   salutationOptions: [{ id: 'Mr', name: 'Mr' }, { id: 'Mrs', name: 'Mrs' }, { id: 'Ms', name: 'Ms' }, { id: 'Dr', name: 'Dr' }, { id: 'Prof', name: 'Prof' }],
@@ -46,7 +43,7 @@ const fields = ref<any[]>([
 
     options: OptionList.memberTypeOptions
   },
-   {
+  {
     label: 'Full Name',
     name: 'full_name',
     type: 'text',
@@ -65,24 +62,7 @@ const fields = ref<any[]>([
     selectOnOneItem: true,
     change: async (val: any) => {
       watchChangeInProductOrCharges(fields,)
-
-      // const res = await onBoardingProductGeneralCharges({ id: val });
-      // const product_id = fields.value.find((f: any) => f.name === 'product_id')
-      // const chargeField = fields.value.find((f: any) => f.name === 'charges')
-      // setTimeout(() => {
-      //   const generalChargesSum =res?.reduce((acc: number, c: any) => acc + c?.charge_amount, 0)
-      //   const listCgChares = res?.map((c: any) => `{{${c?.name}: ${c?.charge_amount}}}`).join(', ')
-      //   const totalCharges=Number(generalChargesSum)+Number(chargeField.value);
-      //   chargeField.helper = `<span class="font-bold text-red-500 text-xs ">General charges for this product: ${generalChargesSum} (total: ${totalCharges})</span>`
-      //   product_id.helper = `<span class="font-bold text-red-500 text-xs ">General charges for this product: ${listCgChares} (total: ${totalCharges})</span>`
-
-      // }, 1000);
-
-
-
     },
-
-
     dependsOn: {
       conditions: [
         {
@@ -132,8 +112,6 @@ const fields = ref<any[]>([
       ],
     },
     change: async (val: any) => {
-      // const amount = val?.target ? val.target.value : val
-
       watchChangeInProductOrCharges(fields,)
     },
   },
@@ -177,7 +155,6 @@ const fields = ref<any[]>([
 
       ],
     }
-    // condition: (val: string) => ['on_registration', 'on_loan_application'].includes(val)
   },
   {
     label: 'opening balance',
@@ -194,7 +171,7 @@ const fields = ref<any[]>([
       ],
     },
   },
- 
+
   {
     label: 'Member Code',
     name: 'code',
@@ -381,8 +358,6 @@ function checkForSettings() {
     "sacco-members-free-input-code": (checkForVaailableSetting?.['sacco-members-free-input-code'] ?? 0),
     "sacco-share-price-value": parseFloat(checkForVaailableSetting?.['sacco-share-price-value'] ?? 0),
     "sacco-share-on-member-creation-create-share-minimum-value": parseFloat(checkForVaailableSetting?.['sacco-share-on-member-creation-create-share-minimum-value'] ?? 0)
-
-
   }
 }
 const sharesError = computed(() => {
@@ -390,7 +365,6 @@ const sharesError = computed(() => {
   if (additionalForm.value.shares_quantity < min) return `Minimum is ${min}`
   return ''
 })
-
 
 const watchChangeInProductOrCharges = debounce(async (fields: any,) => {
   const finedProduct = fields.value.find((f: any) => f.name === 'product_id')
@@ -406,16 +380,12 @@ const watchChangeInProductOrCharges = debounce(async (fields: any,) => {
     } else {
       finedProduct.helper = ''
     }
-
-
   }, 500);
 
   const amount = fields.value.find((f: any) => f.name === 'inital_deposit').value
-
   if (!finedProduct || !finedProduct.value) return
   tryCatch(async () => {
     if (amount) {
-
       const res: any = await getProductCharges({
         product_id: finedProduct.value,
         amount: amount,
@@ -424,11 +394,9 @@ const watchChangeInProductOrCharges = debounce(async (fields: any,) => {
       chargeField.value = ''
       chargeField.hidden = true
       chargeField.helper = ''
-
       if (chargeField) {
         const totalCharges = Number(generalChargesSum) + Number(res?.cost ?? 0);
         chargeField.value = `${totalCharges ?? 0} (charges)`
-
         chargeField.hidden = false
         chargeField.helper = res?.cost && `<span class="font-bold text-red-500 text-xs  relative  ">Transaction charges: <span class='text-neutral-900'>${res?.cost ? ', initial deposit charge: ' + res.cost + '(' + totalCharges + ')' : ''}</span></span>`
         chargeField.label = 'charges'
@@ -443,7 +411,6 @@ onMounted(() => {
 })
 </script>
 <template>
-
   <card class="card shadow-md px-4 py-3 bg-white dark:bg-neutral-800 rounded-md h -[86vh] over flow-y-auto border-0">
     <span v-if='loadingMount'></span>
     <Form :action="data?.action" v-else parentStyle="grid  grid-cols-2 gap-3" v-model:form="fields" />
