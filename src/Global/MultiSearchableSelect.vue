@@ -17,6 +17,7 @@ const props = defineProps<{
     modelValue: (string | number | null)[];
     options: Option[];
     placeholder?: string;
+    defaultValues?: any;
     label?: string;
     error?: string;
     disabled?: boolean;
@@ -127,8 +128,18 @@ onMounted(() => {
     window.addEventListener('click', closeDropdown);
     if (props.dataOnMount && props.url && !hasFetched.value) {
         remoteUrl(props.url);
-    }
+    }else
+    defaultValues()
 });
+
+function defaultValues(){
+    if(Array.isArray(props.defaultValues)) {
+    props.defaultValues.forEach((element: any) => {
+        toggleSelectOption(element)
+    })
+}
+
+}
 
 onUnmounted(() => {
     window.removeEventListener('click', closeDropdown);
