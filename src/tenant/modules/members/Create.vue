@@ -46,6 +46,13 @@ const fields = ref<any[]>([
 
     options: OptionList.memberTypeOptions
   },
+   {
+    label: 'Full Name',
+    name: 'full_name',
+    type: 'text',
+    required: true,
+    placeholder: 'Enter Full Name',
+  },
   {
     label: 'saving products',
     name: 'product_id',
@@ -187,13 +194,7 @@ const fields = ref<any[]>([
       ],
     },
   },
-  {
-    label: 'Full Name',
-    name: 'full_name',
-    type: 'text',
-    required: true,
-    placeholder: 'Enter Full Name',
-  },
+ 
   {
     label: 'Member Code',
     name: 'code',
