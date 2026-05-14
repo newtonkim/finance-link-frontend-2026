@@ -366,7 +366,7 @@ export default function useTableHelpers(props?: any, emit?: any) {
         : null) ??
       props.data ??
       { data: [] }
-   console.log(deepSearch.value);
+  //  console.log(deepSearch.value);
    
 
     return dataTabelFilter(

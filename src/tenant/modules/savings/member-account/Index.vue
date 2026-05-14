@@ -9,8 +9,8 @@
           {{ item.member_name }}
         </div>
         <CopyData :show="item.account_code" />
-        <div class="text-[11px] uppercase tracking-wide">
-          {{ item.type }}
+        <div class="text-[8px] uppercase tracking-wide">
+          {{ item.product }}
         </div>
       </div>
     </template>
