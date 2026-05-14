@@ -70,6 +70,14 @@ export const IS_REVENUE_OPTIONS = [
   { id: 'no', name: 'No' },
 ]
 
+// Savings event-types a general charge can be wired to fire on. Backend stores
+// these in savings_product_charges.type and reads them in ChargeCalculatorService.
+export const TRIGGER_TYPE_OPTIONS = [
+  { id: 'deposit', name: 'Deposit' },
+  { id: 'withdraw', name: 'Withdrawal' },
+  { id: 'transfer', name: 'Transfer' },
+]
+
 export const INPUT_CLS =
   'w-full rounded-xl border border-neutral-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-nfuko-primary focus:ring-1 focus:ring-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white'
 

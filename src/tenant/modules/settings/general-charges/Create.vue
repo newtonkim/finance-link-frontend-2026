@@ -22,6 +22,8 @@ import {
   INTERVAL_TYPE_OPTIONS,
   IS_FINE_OPTIONS,
   IS_REVENUE_OPTIONS,
+  TRIGGER_TYPE_OPTIONS,
+  WHERE_TO_APPLY_OPTIONS,
 } from '../constants'
 import IncomeAccountSelect from './components/IncomeAccountSelect.vue'
 import ChartOfAccountForm from '@/tenant/modules/accounting/components/ChartOfAccountForm.vue'
@@ -94,16 +96,49 @@ const fields = ref<any[]>([
     options: APPLICATION_OPTIONS,
     placeholder: 'Select application',
   },
+  // Where-to-apply drives the savings-event lane below. Only visible when
+  // application=other; otherwise the application value itself dictates routing.
+  {
+    label: 'Where to Apply',
+    name: 'where_to_apply',
+    type: 'select',
+    options: WHERE_TO_APPLY_OPTIONS,
+    placeholder: 'Select where to apply',
+    dependsOn: {
+      field: 'application',
+      value: 'other',
+    },
+  },
+  // Savings-event lane: visible only when application=other AND
+  // where_to_apply=savings. Both this and trigger_types are required server-side
+  // for that combination — backend rejects the request otherwise.
   {
     label: 'Saving Products',
     name: 'saving_product_ids',
     type: 'multi-select',
     dependsOn: {
-      field: 'application',
-      value: 'on_registration',
+      conditions: [
+        { field: 'application', value: 'other' },
+        { field: 'where_to_apply', value: 'savings' },
+      ],
+      operator: 'and',
     },
     options: [],
     placeholder: 'Choose saving products',
+  },
+  {
+    label: 'Apply on',
+    name: 'trigger_types',
+    type: 'multi-select',
+    dependsOn: {
+      conditions: [
+        { field: 'application', value: 'other' },
+        { field: 'where_to_apply', value: 'savings' },
+      ],
+      operator: 'and',
+    },
+    options: TRIGGER_TYPE_OPTIONS,
+    placeholder: 'Deposit / Withdrawal / Transfer',
   },
   {
     label: 'Loan Products',
