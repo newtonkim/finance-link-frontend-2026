@@ -7,7 +7,36 @@
     }" drawerWidth=" w-2/4" :url="tableUrl" state="general-chargesList" :drawerTitle="drawerTitle"  :columns="
         columns" @save="saveUser">
         <template #header-action>
-            <PainPageHeader title="General charges list" dec="Manage SACCO general chargeses" />
+            <PainPageHeader title="General charges list" dec="Manage SACCO general charges" />
+        </template>
+        <template #products="{ item }">
+            <div class="flex flex-wrap gap-1">
+                <span v-for="p in resolveAllProducts(item)" :key="p" class="inline-flex items-center rounded-md bg-neutral-50 px-2 py-0.5 text-xs font-medium text-neutral-600 ring-1 ring-inset ring-neutral-500/10 dark:bg-neutral-800 dark:text-neutral-300">
+                    {{ p }}
+                </span>
+                <span v-if="!resolveAllProducts(item).length" class="text-neutral-400 text-xs">—</span>
+            </div>
+        </template>
+        <template #charge_applys="{ item }">
+            <div class="flex flex-wrap gap-1">
+                <template v-if="item.charge_applys">
+                    <span v-if="Array.isArray(item.charge_applys)" v-for="(a, i) in item.charge_applys" :key="i" class="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-900/30 dark:text-blue-300">
+                        {{ a }}
+                    </span>
+                    <span v-else class="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-900/30 dark:text-blue-300">
+                        {{ item.charge_applys }}
+                    </span>
+                </template>
+                <template v-else-if="item.application">
+                    <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-900/30 dark:text-blue-300">
+                        {{ applicationLabel(item.application) }}
+                    </span>
+                    <span v-if="item.where_to_apply" class="inline-flex items-center rounded-md bg-sky-50 px-2 py-0.5 text-xs font-medium text-sky-700 ring-1 ring-inset ring-sky-700/10 dark:bg-sky-900/30 dark:text-sky-300">
+                        {{ item.where_to_apply }}
+                    </span>
+                </template>
+                <span v-else class="text-neutral-400 text-xs">—</span>
+            </div>
         </template>
         <template #is_active="{ item }">
             <ToggleSwitch
@@ -32,12 +61,12 @@
     </TableDrawer>
 </template>
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Create, Details } from '.'
 import { TableDrawer, PainPageHeader, formatMoneyValue } from '@/Global'
 import ToggleSwitch from '@/Global/ToggleSwitch.vue'
 import { useGeneralCharges } from '../composables/useGeneralCharges'
-const { toggleActive } = useGeneralCharges()
+const { toggleActive, applicationLabel, savingProductOptions, loanProductOptions, fetchOptions } = useGeneralCharges()
 const formData = ref<Record<string, any>>({}), 
     drawerTitle = ref('Create Tenant'),
     tableUrl = computed(() => `settings/general-charges/list?status`),
@@ -46,6 +75,46 @@ const formData = ref<Record<string, any>>({}),
         "edit": "Edit general-charges",
         "add": "Create a sacco general-charges",
     }
+onMounted(() => {
+    fetchOptions()
+})
+function resolveAllProducts(item: any) {
+    const products: string[] = []
+    
+    // 1. Try to find direct names or objects returned by the API
+    const keys = ['products', 'saving_products', 'loan_products', 'applicable_products']
+    keys.forEach(k => {
+        const val = item[k]
+        if (Array.isArray(val)) {
+            val.forEach(v => {
+                const name = typeof v === 'object' ? (v.name || v.label || v.product_name) : v
+                if (name) products.push(String(name))
+            })
+        } else if (val) {
+            const name = typeof val === 'object' ? (val.name || val.label) : val
+            if (name) products.push(String(name))
+        }
+    })
+    
+    if (products.length) return [...new Set(products)]
+
+    // 2. Fallback: Resolve names from IDs if no names were found above
+    const idKeys = ['saving_product_ids', 'loan_product_ids', 'saving_product_id', 'loan_product_id']
+    idKeys.forEach(k => {
+        const val = item[k]
+        const ids = Array.isArray(val) ? val : (val ? String(val).split(',') : [])
+        ids.forEach(id => {
+            const cleanId = String(id).trim()
+            if (!cleanId) return
+            const option = savingProductOptions.value.find(o => String(o.id) === cleanId) || 
+                           loanProductOptions.value.find(o => String(o.id) === cleanId)
+            if (option) products.push(option.name)
+            else products.push(`ID: ${cleanId}`)
+        })
+    })
+    
+    return [...new Set(products)]
+}
 function saveUser(type: string, data: any) {
     if (title?.[type]) drawerTitle.value = title?.[type]
 }
