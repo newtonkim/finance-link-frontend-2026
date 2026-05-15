@@ -100,8 +100,11 @@ const hasExactMatch = computed(() => {
 const nearMatches = computed(() => {
   const q = search.value.trim()
   if (q.length <= 2 || hasExactMatch.value) return []
+  // Exclude rows the main list already shows — otherwise typing a substring
+  // like "Reg" surfaces "Registration Charge" in both sections.
+  const filteredIds = new Set(filtered.value.map((a) => a.id))
   return accounts.value
-    .filter((a) => isNearMatch(q, a.name))
+    .filter((a) => !filteredIds.has(a.id) && isNearMatch(q, a.name))
     .sort((a, b) => levenshtein(q, a.name) - levenshtein(q, b.name))
     .slice(0, 2)
 })
