@@ -384,9 +384,16 @@ const watchChangeInProductOrCharges = debounce(async (fields: any) => {
   if (!finedProduct || !finedProduct.value) return
 
   // 1) Registration (on_registration) charges → populate the new General Charge field.
-  const regRes = await onBoardingProductGeneralCharges({ id: finedProduct.value })
-  const regCharges: any[] = Array.isArray(regRes) ? regRes : (regRes?.data ?? [])
-  const regSum = regCharges.reduce((acc: number, c: any) => acc + Number(c?.charge_amount ?? 0), 0)
+  let regCharges: any[] = []
+  let regSum = 0
+  try {
+    const regRes = await onBoardingProductGeneralCharges({ id: finedProduct.value })
+    regCharges = Array.isArray(regRes) ? regRes : (regRes?.data ?? [])
+    regSum = regCharges.reduce((acc: number, c: any) => acc + Number(c?.charge_amount ?? 0), 0)
+  } catch {
+    regCharges = []
+    regSum = 0
+  }
 
   if (generalChargeField) {
     if (regCharges.length > 0) {
