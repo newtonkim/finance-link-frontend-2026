@@ -10,7 +10,7 @@ import {
 import { chartOfAccountsApi } from '../../../apis/chartOfAccounts/chartOfAccountsApi'
 import { loanChargesApi, type LoanCharge } from '../../../apis/loanCharges/api'
 
-type LoanProductGlField =
+export type LoanProductGlField =
   | 'loan_portfolio_account_id'
   | 'interest_income_account_id'
   | 'interest_receivable_account_id'
@@ -40,7 +40,7 @@ export const GL_FIELD_META: readonly GlFieldMeta[] = [
   { field: 'penalty_receivable_account_id', type: 'ASSET', parent_gl_code: '11600', label: 'Penalty Receivable Account', placeholder: 'Select penalty receivable account' },
   { field: 'charges_income_account_id', type: 'INCOME', parent_gl_code: '42000', label: 'Charges Income Account', placeholder: 'Select charges income account' },
   { field: 'charges_receivable_account_id', type: 'ASSET', parent_gl_code: '11700', label: 'Charges Receivable Account', placeholder: 'Select charges receivable account' },
-] as const
+]
 
 function createDefaultForm(): LoanProduct {
   return {
