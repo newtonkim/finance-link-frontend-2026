@@ -138,6 +138,7 @@ const fields = ref<any[]>([
     label: 'General Charge',
     name: 'general_registration_charges',
     type: 'text',
+    disabled: true,
     placeholder: 'Auto-populated when a product is selected',
     hidden: true,
     helper: '',
