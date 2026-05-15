@@ -118,8 +118,13 @@ const fields = ref<any[]>([
     type: 'multi-select',
     dependsOn: {
       conditions: [
-        { field: 'application', value: 'other' },
-        { field: 'where_to_apply', value: 'savings' },
+        {
+          field: 'application',
+          condition: (val: string) => {
+            const whereField = fields.value.find((f: any) => f.name === 'where_to_apply')
+            return val === 'on_registration' || (val === 'other' && whereField?.value === 'savings')
+          },
+        },
       ],
       operator: 'and',
     },
