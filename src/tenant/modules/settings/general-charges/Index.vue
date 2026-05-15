@@ -7,7 +7,15 @@
     }" drawerWidth=" w-2/4" :url="tableUrl" state="general-chargesList" :drawerTitle="drawerTitle"  :columns="
         columns" @save="saveUser">
         <template #header-action>
-            <PainPageHeader title="General charges list" dec="Manage SACCO general charges" />
+            <div class="flex flex-col gap-3">
+                <PainPageHeader title="General charges list" dec="Manage SACCO general charges" />
+                <router-link
+                    :to="{ name: 'tenant-settings-loan-charges' }"
+                    class="inline-flex items-center gap-2 self-start rounded-md bg-blue-50 px-3 py-2 text-sm text-blue-700 ring-1 ring-inset ring-blue-700/10 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
+                >
+                    <span>Managing loan charges? Go to the Loan Charges page →</span>
+                </router-link>
+            </div>
         </template>
         <template #products="{ item }">
             <div class="flex flex-wrap gap-1">
@@ -66,7 +74,7 @@ import { Create, Details } from '.'
 import { TableDrawer, PainPageHeader, formatMoneyValue } from '@/Global'
 import ToggleSwitch from '@/Global/ToggleSwitch.vue'
 import { useGeneralCharges } from '../composables/useGeneralCharges'
-const { toggleActive, applicationLabel, savingProductOptions, loanProductOptions, fetchOptions } = useGeneralCharges()
+const { toggleActive, applicationLabel, savingProductOptions, fetchOptions } = useGeneralCharges()
 const formData = ref<Record<string, any>>({}), 
     drawerTitle = ref('Create Tenant'),
     tableUrl = computed(() => `settings/general-charges/list?status`),
@@ -79,41 +87,39 @@ onMounted(() => {
     fetchOptions()
 })
 function resolveAllProducts(item: any) {
-    const products: string[] = []
-    
-    // 1. Try to find direct names or objects returned by the API
-    const keys = ['products', 'saving_products', 'loan_products', 'applicable_products']
-    keys.forEach(k => {
-        const val = item[k]
-        if (Array.isArray(val)) {
-            val.forEach(v => {
-                const name = typeof v === 'object' ? (v.name || v.label || v.product_name) : v
-                if (name) products.push(String(name))
-            })
-        } else if (val) {
-            const name = typeof val === 'object' ? (val.name || val.label) : val
-            if (name) products.push(String(name))
-        }
-    })
-    
-    if (products.length) return [...new Set(products)]
+  const products: string[] = []
 
-    // 2. Fallback: Resolve names from IDs if no names were found above
-    const idKeys = ['saving_product_ids', 'loan_product_ids', 'saving_product_id', 'loan_product_id']
-    idKeys.forEach(k => {
-        const val = item[k]
-        const ids = Array.isArray(val) ? val : (val ? String(val).split(',') : [])
-        ids.forEach(id => {
-            const cleanId = String(id).trim()
-            if (!cleanId) return
-            const option = savingProductOptions.value.find(o => String(o.id) === cleanId) || 
-                           loanProductOptions.value.find(o => String(o.id) === cleanId)
-            if (option) products.push(option.name)
-            else products.push(`ID: ${cleanId}`)
-        })
+  // 1. Try direct names returned by the API.
+  const keys = ['products', 'saving_products', 'applicable_products']
+  keys.forEach((k) => {
+    const val = item[k]
+    if (Array.isArray(val)) {
+      val.forEach((v) => {
+        const name = typeof v === 'object' ? v.name || v.label || v.product_name : v
+        if (name) products.push(String(name))
+      })
+    } else if (val) {
+      const name = typeof val === 'object' ? val.name || val.label : val
+      if (name) products.push(String(name))
+    }
+  })
+
+  if (products.length) return [...new Set(products)]
+
+  // 2. Fallback: resolve names from savings product IDs only.
+  const idKeys = ['saving_product_ids', 'saving_product_id']
+  idKeys.forEach((k) => {
+    const val = item[k]
+    const ids = Array.isArray(val) ? val : val ? String(val).split(',') : []
+    ids.forEach((id) => {
+      const cleanId = String(id).trim()
+      if (!cleanId) return
+      const option = savingProductOptions.value.find((o) => String(o.id) === cleanId)
+      products.push(option ? option.name : `ID: ${cleanId}`)
     })
-    
-    return [...new Set(products)]
+  })
+
+  return [...new Set(products)]
 }
 function saveUser(type: string, data: any) {
     if (title?.[type]) drawerTitle.value = title?.[type]
