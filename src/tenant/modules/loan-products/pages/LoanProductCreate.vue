@@ -15,6 +15,10 @@ import {
 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { useLoanProductForm } from '../composables/useLoanProductCreate'
+import { GL_FIELD_META, type GlFieldMeta } from '../composables/useLoanProductCreate'
+import AccountInlineCreate from '../components/AccountInlineCreate.vue'
+import ChartOfAccountForm from '@/tenant/modules/accounting/components/ChartOfAccountForm.vue'
+import { toast } from 'vue-sonner'
 import SearchableSelect from '@/Global/SearchableSelect.vue'
 import MultiSearchableSelect from '@/Global/MultiSearchableSelect.vue'
 import {
@@ -48,10 +52,53 @@ const {
   removeRequiredDocument,
   fieldError,
   save,
+  fetchAccounts,
 } = useLoanProductForm()
 
 const showAccountingMapping = ref(true)
 const showFeesAndPenalties = ref(true)
+
+// Reactive state for the shared "+ Create new GL account" modal.
+// Only one modal is rendered (DRY) — eight triggers feed into the same instance.
+const creatingAccount = ref<{
+  open: boolean
+  lockedAccountType: 'ASSET' | 'INCOME'
+  defaultParentGlCode: string
+  prefillName: string
+  targetField: GlFieldMeta['field']
+} | null>(null)
+
+function onRequestCreate(meta: GlFieldMeta) {
+  creatingAccount.value = {
+    open: true,
+    lockedAccountType: meta.type,
+    defaultParentGlCode: meta.parent_gl_code,
+    prefillName: '',
+    targetField: meta.field,
+  }
+}
+
+async function onAccountSaved(account: {
+  id: number
+  gl_code: string
+  name: string
+  account_type: string
+  parent_id: number | null
+}) {
+  const targetField = creatingAccount.value?.targetField
+  try {
+    await fetchAccounts()
+  } catch {
+    toast.error('Account created but failed to refresh list — refresh the page to see it.')
+    creatingAccount.value = null
+    return
+  }
+  if (targetField) {
+    ;(form.value as any)[targetField] = account.id
+  }
+  creatingAccount.value = null
+  toast.success(`Created ${account.gl_code} - ${account.name}`)
+}
 
 function yesNoClass(enabled: boolean) {
   return enabled
@@ -800,128 +847,43 @@ const previewMoneyLocal = (f: any, r: any) => previewMoney(f, r, formatMoneyValu
               are pre-filled from your chart of accounts — change them if needed.
             </p>
             <div class="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-                  >Loan Portfolio Account</label
-                >
+              <div v-for="meta in GL_FIELD_META" :key="meta.field">
+                <div class="mb-1 flex items-center justify-between">
+                  <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                    {{ meta.label }}
+                  </label>
+                  <AccountInlineCreate
+                    :account-type="meta.type"
+                    :parent-gl-code="meta.parent_gl_code"
+                    @click="onRequestCreate(meta)"
+                  />
+                </div>
                 <SearchableSelect
-                  v-model="form.loan_portfolio_account_id"
+                  v-model="(form as any)[meta.field]"
                   :options="accounts"
-                  placeholder="Select loan portfolio account"
-                  :error="fieldError('loan_portfolio_account_id') ?? undefined"
-                  :disabled="loading"
-                />
-              </div>
-              <div>
-                <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-                  >Interest Income Account</label
-                >
-                <SearchableSelect
-                  v-model="form.interest_income_account_id"
-                  :options="accounts"
-                  placeholder="Select interest income account"
-                  :error="fieldError('interest_income_account_id') ?? undefined"
-                  :disabled="loading"
-                />
-              </div>
-              <div>
-                <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-                  >Interest Receivable Account</label
-                >
-                <SearchableSelect
-                  v-model="form.interest_receivable_account_id"
-                  :options="accounts"
-                  placeholder="Select interest receivable account"
-                  :error="fieldError('interest_receivable_account_id') ?? undefined"
-                  :disabled="loading"
-                />
-              </div>
-              <div>
-                <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-                  >Disbursement Account</label
-                >
-                <SearchableSelect
-                  v-model="form.disbursement_account_id"
-                  :options="accounts"
-                  placeholder="Select disbursement account"
-                  :error="fieldError('disbursement_account_id') ?? undefined"
-                  :disabled="loading"
-                />
-              </div>
-              <div>
-                <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-                  >Penalty Income Account</label
-                >
-                <SearchableSelect
-                  v-model="form.penalty_income_account_id"
-                  :options="accounts"
-                  placeholder="Select penalty income account"
-                  :error="fieldError('penalty_income_account_id') ?? undefined"
+                  :placeholder="meta.placeholder"
+                  :error="fieldError(meta.field) ?? undefined"
                   :disabled="loading"
                 />
                 <p
-                  v-if="glAccountWarnings.penalty_income_account_id"
+                  v-if="glAccountWarnings[meta.field]"
                   class="mt-1 text-xs text-amber-600 dark:text-amber-400"
                 >
-                  {{ glAccountWarnings.penalty_income_account_id }}
-                </p>
-              </div>
-              <div>
-                <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-                  >Penalty Receivable Account</label
-                >
-                <SearchableSelect
-                  v-model="form.penalty_receivable_account_id"
-                  :options="accounts"
-                  placeholder="Select penalty receivable account"
-                  :error="fieldError('penalty_receivable_account_id') ?? undefined"
-                  :disabled="loading"
-                />
-                <p
-                  v-if="glAccountWarnings.penalty_receivable_account_id"
-                  class="mt-1 text-xs text-amber-600 dark:text-amber-400"
-                >
-                  {{ glAccountWarnings.penalty_receivable_account_id }}
-                </p>
-              </div>
-              <div>
-                <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-                  >Charges Income Account</label
-                >
-                <SearchableSelect
-                  v-model="form.charges_income_account_id"
-                  :options="accounts"
-                  placeholder="Select charges income account"
-                  :error="fieldError('charges_income_account_id') ?? undefined"
-                  :disabled="loading"
-                />
-                <p
-                  v-if="glAccountWarnings.charges_income_account_id"
-                  class="mt-1 text-xs text-amber-600 dark:text-amber-400"
-                >
-                  {{ glAccountWarnings.charges_income_account_id }}
-                </p>
-              </div>
-              <div>
-                <label class="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-                  >Charges Receivable Account</label
-                >
-                <SearchableSelect
-                  v-model="form.charges_receivable_account_id"
-                  :options="accounts"
-                  placeholder="Select charges receivable account"
-                  :error="fieldError('charges_receivable_account_id') ?? undefined"
-                  :disabled="loading"
-                />
-                <p
-                  v-if="glAccountWarnings.charges_receivable_account_id"
-                  class="mt-1 text-xs text-amber-600 dark:text-amber-400"
-                >
-                  {{ glAccountWarnings.charges_receivable_account_id }}
+                  {{ glAccountWarnings[meta.field] }}
                 </p>
               </div>
             </div>
           </template>
+          <ChartOfAccountForm
+            v-if="creatingAccount"
+            :open="creatingAccount.open"
+            @update:open="(val) => { if (!val) creatingAccount = null }"
+            :locked-account-type="creatingAccount.lockedAccountType"
+            :default-parent-gl-code="creatingAccount.defaultParentGlCode"
+            :prefill-name="creatingAccount.prefillName"
+            require-parent
+            @saved="onAccountSaved"
+          />
         </div>
 
         <!-- ── Committee Voting ── -->
