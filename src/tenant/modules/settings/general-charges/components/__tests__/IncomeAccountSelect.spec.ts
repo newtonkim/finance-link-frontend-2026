@@ -113,6 +113,17 @@ describe('IncomeAccountSelect fuzzy duplicate hint', () => {
     await wrapper.find('[data-test="search"]').setValue('Loan Processing Fees')
     expect(wrapper.text()).not.toContain('Did you mean')
   })
+
+  it('does not duplicate a row that the main list already shows for a substring search', async () => {
+    const wrapper = mountSelect({ canCreate: true })
+    await flushPromises()
+    await wrapper.find('[data-test="trigger"]').trigger('click')
+    // "Loan" substring-matches "Loan Processing Fees" → it shows in the main
+    // list. The fuzzy hint must NOT also surface the same row.
+    await wrapper.find('[data-test="search"]').setValue('Loan')
+    const occurrences = wrapper.text().match(/Loan Processing Fees/g) || []
+    expect(occurrences.length).toBe(1)
+  })
 })
 
 describe('IncomeAccountSelect reactive refresh + auto-select', () => {
