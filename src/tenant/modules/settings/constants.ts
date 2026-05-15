@@ -38,7 +38,6 @@ export const DEFAULT_CURRENCIES: CurrencyOption[] = [
 export const APPLICATION_OPTIONS = [
   { id: 'on_shares', name: 'On Shares' },
   { id: 'on_registration', name: 'On Registration' },
-  { id: 'on_loan_application', name: 'On Loan Application' },
   { id: 'other', name: 'Other' },
 ]
 
@@ -48,7 +47,6 @@ export const CHARGE_TYPE_OPTIONS = [
 ]
 
 export const WHERE_TO_APPLY_OPTIONS = [
-  { id: 'loans', name: 'Loans' },
   { id: 'savings', name: 'Saving products' },
   { id: 'shares', name: 'Shares' },
 ]
