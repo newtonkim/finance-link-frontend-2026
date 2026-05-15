@@ -442,6 +442,8 @@ onMounted(() => {
   promtValueOnUpdate()
   checkForSettings()
 })
+
+defineExpose({ fields, watchChangeInProductOrCharges })
 </script>
 <template>
   <card class="card shadow-md px-4 py-3 bg-white dark:bg-neutral-800 rounded-md h -[86vh] over flow-y-auto border-0">
