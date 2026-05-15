@@ -56,7 +56,7 @@ It returns 0..N matching active charges as plain arrays containing at minimum `g
 | `applyRegistrationCharges` | Same file | Filter the universal query to `whereDoesntHave('savingsProductCharges', fn($q) => $q->where('type', 'registration'))` so a charge is never both universal and product-scoped. |
 | Member dropdown endpoint | `app/Tenant/Services/MemberService.php::GeneralProductChargesDropDownList` | Rewrite to query the canonical pivot (`savings_product_charges` joined to `general_charges` on `type='registration'`). Replaces the dead `whereJsonContains('saving_product_ids', $req->id)` query that broke when Gap 4 dropped the JSON column. |
 | Settings Create form | `src/tenant/modules/settings/general-charges/Create.vue` | Extend the "Saving Products" multi-select's `dependsOn` — currently fires for `application=other AND where_to_apply=savings`; add a second condition group for `application=on_registration` (OR semantics). |
-| Member Create form | `src/tenant/modules/members/Create.vue` | (1) Split the current `Transactional charges` helper so that field shows ONLY the deposit-event fee. (2) Add a new readonly `general_registration_charges` field rendering the product's registration charges as a bulleted list with total. (3) Add an inline sufficiency hint under `initial_deposit` when deposit < total. Watcher logic mirrors the existing `watchChangeInProductOrCharges` shape. |
+| Member Create form | `src/tenant/modules/members/Create.vue` | (1) Split the current `Transactional charges` helper so that field shows ONLY the deposit-event fee. (2) Add a new `general_registration_charges` field **immediately below `Transactional charges`**, **using the same field shape** (the existing schema-driven text input — label, programmatically-set value, red helper text). Label: `General Charge`. Value: the summed registration-charge total formatted as `"<total> (charges)"`. Helper text: itemized breakdown of each contributing charge (`"<name>: <amount>"`, comma-separated), styled identically to the existing Transactional charges helper. Hidden when the watcher returns no registration charges. (3) Add an inline sufficiency hint under `initial_deposit` when deposit < total. Watcher logic extends the existing `watchChangeInProductOrCharges` — same debounce, same API call, populates this second field alongside the first instead of overloading one field with both totals. |
 
 ### Out of scope (deliberately untouched)
 
@@ -106,8 +106,8 @@ POST /api/v1/tenant/members  (initial_deposit=20000, savings_product_id=3)
 2. Picks Saving Products = Standard Savings, enters Initial Deposit = 20000.
 3. Debounced watcher (`watchChangeInProductOrCharges`, 900ms) fires:
    - Calls `general-product-charges?type=onboarding&id=3` → returns `[{name: "Account Opening Fee", charge_amount: 5000}]`.
-   - Renders the new "General charges" section: bulleted list + total UGX 5,000 + helper "Will be deducted from your initial deposit on save."
-   - Also calls existing `getProductCharges({product_id, amount, type: 'deposit'})` for the deposit-event fee → populates the (now isolated) Transactional charges field.
+   - Populates the new **`General Charge`** field (text input, same shape as `Transactional charges`): `value = "5,000 (charges)"`, helper text `"Registration charges for this product: Account Opening Fee: 5000"`. Field stays hidden when the response is empty.
+   - Calls existing `getProductCharges({product_id, amount, type: 'deposit'})` for the deposit-event fee → populates the **`Transactional charges`** field with only that value (no longer summed with registration charges).
 4. If `initial_deposit < total general charges`, a red helper appears under the Initial Deposit field: "Initial deposit must be at least UGX X."
 
 ## Error Handling
@@ -165,15 +165,16 @@ The entire member registration — member creation, savings account creation, ea
 
 ### Frontend Vitest tests
 
-13. `members/Create.vue` renders the General charges section when a product with registration charges is selected (mock the API).
-14. `members/Create.vue` hides the General charges section when the product has no registration charges (empty response).
-15. `members/Create.vue` shows the insufficient-deposit hint when `initial_deposit < total`.
-16. Transactional charges field shows only the deposit-event fee — regression test for the split.
+13. `members/Create.vue` renders the General Charge text input (populated value + helper) when a product with registration charges is selected (mock the API).
+14. `members/Create.vue` keeps the General Charge field hidden when the product has no registration charges (empty response).
+15. `members/Create.vue` shows the insufficient-deposit hint under Initial Deposit when `initial_deposit < total registration charges`.
+16. Transactional charges field shows only the deposit-event fee, no registration charges mixed in — regression test for the split.
+17. General Charge field's helper text lists each charge as `"<name>: <amount>"` and reflects the API response order.
 
 ### Manual smoke test (Task 12 of the plan)
 
 1. Settings → General Charges → Add charge: `application=on_registration`, amount 5000, linked to "Standard Savings" product. Save.
-2. Open Create A Sacco Member, pick Standard Savings + initial_deposit 20000 → confirm new "General charges" section lists the charge; Transactional charges field shows only deposit-event fee.
+2. Open Create A Sacco Member, pick Standard Savings + initial_deposit 20000 → confirm a new `General Charge` text input appears directly below `Transactional charges`, populated with the total and a helper line listing the charge by name + amount; confirm `Transactional charges` shows only the deposit-event fee.
 3. Try initial_deposit 3000 → confirm red helper; Save → confirm 422 response.
 4. Set initial_deposit 20000 → Save → confirm member created, savings balance 15000, configured income GL credited 5000.
 5. Create another on_registration charge with NO product (universal mode) → register another member → confirm `MemberCharge` receivable row exists (current behavior preserved).
