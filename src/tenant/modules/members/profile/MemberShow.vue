@@ -42,7 +42,7 @@ async function initialize() {
     pageLoading.value = true;
     const details = await getMemberProfileDetail({})
     const data: Record<string, unknown> = {};
-    const { member_details, member_accounts } = details
+    const { member_details, member_accounts } = details??{}
     // const accounts = details.member_accounts
     for (const key in member_details) {
         const element = member_details[key];

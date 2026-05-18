@@ -146,6 +146,7 @@ async function handleTableAction(item: any = {}, action: string, drawer = true) 
         },
         Store,
     });
+    
     collection.value = res?.payload?.data ?? res?.payload ?? res
 
 

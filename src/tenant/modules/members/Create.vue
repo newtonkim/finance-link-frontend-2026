@@ -28,7 +28,7 @@ const props = defineProps({
 })
 const today = new Date();
 const minAgeDate = new Date(
-  today.getFullYear() - 18,
+  today.getFullYear() - 1,
   today.getMonth(),
   today.getDate()
 );

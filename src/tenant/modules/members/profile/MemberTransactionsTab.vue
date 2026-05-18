@@ -139,7 +139,8 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
             <table class="w-full text-left min-w-[900px]">
                 <thead>
                     <tr class="border-b border-gray-100 bg-transparent text-[#64748b]">
-                        <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">S/N</th>
+                        <!-- <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">S/N</th> -->
+                        <th   class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Date Added &#x21C5;</th>
                         <th v-if="mode === 'all'" class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Trans Type</th>
                         <th v-if="showAccountColumn" class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Account &#x21C5;</th>
                         <!-- <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Account Before Transaction &#x21C5;</th> -->
@@ -151,7 +152,6 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
                         <th v-if="mode !== 'all'" class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Paid by &#x21C5;</th>
                         <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">{{ mode === 'all' ? 'Date' : 'Transaction Date &#x21C5;' }}</th>
                         <th class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">{{ mode === 'all' ? 'Receipt' : 'Reference &#x21C5;' }}</th>
-                        <th v-if="mode !== 'all'" class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Date Added &#x21C5;</th>
                         <th v-if="mode === 'all'" class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider">Added by</th>
                         <th v-if="!showTable" class="py-4 px-6 text-[11px] font-bold uppercase tracking-wider text-center">Action</th>
                     </tr>
@@ -163,7 +163,10 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
                     <tr v-for="(txn, index) in paginated" :key="txn.id"
                         :class="['border-b border-transparent transition-colors',
                             txn.is_reversed ? 'opacity-50' : txn.type === 'reversal' ? 'bg-amber-50/50' : 'hover:bg-accent/30']">
-                        <td class="py-3.5 px-5 text-[13px] text-muted-foreground">{{ (currentPage - 1) * perPage + index + 1 }}.</td>
+                        <!-- <td class="py-3.5 px-5 text-[13px] text-muted-foreground">{{ (currentPage - 1) * perPage + index + 1 }}.</td> -->
+                          <td  class="py-3.5 px-5 text-[13px] text-foreground">
+                            {{ formatDateTime(txn.created_at) }}
+                        </td>
 
                         <!-- Trans type badge (all tab only) -->
                         <td v-if="mode === 'all'" class="py-3.5 px-5">
@@ -209,9 +212,9 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
                             </span>
                         </td>
                          <td class="py-3.5 px-5">
-                            <span class="text-[14px] font-mono font-bold"
+                            <span v-if="!`${txn?.type}`.includes('charge')" class="text-[14px] font-mono font-bold"
                                 :class="txn.type != 'withdrawal' ? 'text-emerald-600' : 'text-red-600'">
-                                {{ txn.amount_formatted || formatCurrency(txn.amount) }}
+                                {{  formatCurrency(txn.amount_after_charge) }}
                             </span>
                         </td>
 
@@ -256,9 +259,7 @@ const clearDates = () => { startDate.value = ''; endDate.value = ''; };
                                 </button>
                             </div>
                         </td>
-                        <td v-if="mode !== 'all'" class="py-3.5 px-5 text-[13px] text-foreground">
-                            {{ formatDateTime(txn.created_at) }}
-                        </td>
+                      
 
                         <!-- Added by (all tab) -->
                         <td v-if="mode === 'all'" class="py-3.5 px-5 text-[13px] text-foreground">{{ txn.deposited_by || '—' }}</td>

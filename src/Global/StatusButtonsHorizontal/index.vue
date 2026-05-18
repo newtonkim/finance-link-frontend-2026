@@ -14,14 +14,14 @@
         </div>
       </template>
 
-      <template v-else>
+      <div v-else class='overflow-auto'>
         <button v-for="filter in filters" :key="filter.id ?? filter"
           class="rounded-md px-3.5 py-1 text-xs font-medium capitalize transition-all px-6 text-sm duration-200 rounded-lg"
           :class="filter === modelValue ? activeFilterClass : inactiveFilterClass"
           @click="() => updateStatusFilter(filter?.id ?? filter)">
           {{ filter.name ?? filter }}
         </button>
-      </template>
+      </div>
     </template>
   </div>
 </template>

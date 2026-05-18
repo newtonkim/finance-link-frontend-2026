@@ -8,6 +8,7 @@ import { pomPinia } from 'septor-store'
 import SheetFooter from '../ui/sheet/SheetFooter.vue'
 import { createUrl, formDataFormat } from '../Helpers'
 import { failedUploads } from '.'
+import { notify } from '../Toasters'
 
 const Store = pomPinia() as any
 
@@ -41,6 +42,7 @@ const excelColumns = ref<any[]>([])
 const excelData = ref<any[]>([])
 const excelChunks = ref<any[]>([])
 const failedChunks = ref<any[]>([])
+const totalPass = ref<Record<string, number>>({})
 const duplicates = ref<any[]>([])
 const showDuplicateList = ref(false)
 const usedFile = ref<File | null>(null)
@@ -191,8 +193,8 @@ async function submitImportData() {
                     payload[`${key}[${index}]`] = cleanRow[key]
                 }
             });
-           
-            
+
+
             collection = formDataFormat({
                 file: usedFile.value,
                 ...payload
@@ -233,6 +235,27 @@ async function submitImportData() {
                 ...failedChunks.value,
                 ...res.payload.failed
             ]
+        }
+        // console.log(res. payload);
+        if (res?.payload?.passed) {
+            notify({
+                label: 'Success',
+                pos: "tr",
+                msg: `Successfully imported ${res.payload.passed} rows out of ${res.payload.total}`,
+                type: 'success'
+            })
+
+        }
+        if (res?.payload?.failed?.length) {
+            if (res.payload.failed.length)
+                notify({
+                    label: 'Failed',
+                    pos: "br",
+                    msg: `Failed to import ${res.payload.failed.length} rows`,
+                    type: 'error'
+                })
+
+
         }
     }
 }
@@ -275,8 +298,8 @@ async function submitImportData() {
 
                 <!-- Content -->
                 <div v-if="showDuplicateList" class="bg-white dark:bg-gray-900 p-3 max-h-60 overflow-auto">
-                    <Table :data="duplicates" :dataFilter="duplicates" :columns="excelColumns" :handleAction="handleAction"
-                        :action_config="ACTION_CONFIG" />
+                    <Table :data="duplicates" :dataFilter="duplicates" :columns="excelColumns"
+                        :handleAction="handleAction" :action_config="ACTION_CONFIG" />
                 </div>
             </div>
 
@@ -284,8 +307,8 @@ async function submitImportData() {
                 <failedUploads :data="failedChunks" v-if="failedChunks.length" />
 
                 <Table :rowClass="(row: any) => row.isDuplicate ? 'bg-red-100 dark:bg-red-900/40' : ''"
-                    :dataFilter="paginatedData" :data="paginatedData" :columns="excelColumns" :handleAction="handleAction"
-                    :action_config="ACTION_CONFIG" />
+                    :dataFilter="paginatedData" :data="paginatedData" :columns="excelColumns"
+                    :handleAction="handleAction" :action_config="ACTION_CONFIG" />
 
 
             </div>

@@ -66,7 +66,10 @@ const handleDelete = () => {
                 <ShieldX :size="13" />
                 Reject
             </button>
-            <button @click="emit('approve')" :disabled="approving"
+            <button @click="()=>{
+                emit('approve')
+                
+                }" :disabled="approving"
                 class="flex items-center gap-1.5 px-4 py-2 rounded-full text-[12px] font-bold bg-green-600 text-white hover:bg-green-700 transition-colors shadow-sm disabled:opacity-50">
                 <ShieldCheck :size="13" />
                 {{ approving ? 'Approving…' : 'Approve Member' }}

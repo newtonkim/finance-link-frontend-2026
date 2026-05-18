@@ -40,7 +40,7 @@ function initialize() {
             required: true,
             placeholder: 'select a ',
         },
-         {
+        {
             label: 'payment mode (Debit Account)',
             name: 'payment_mode_id',
             type: 'select',
@@ -49,8 +49,8 @@ function initialize() {
             dataOnMount: true,
             options: [],
             selectDefaultIndex: 0,
-            value:props?.data?.payment_mod,
-    required: true,
+            value: props?.data?.payment_mod,
+            required: true,
 
             placeholder: 'Select income account',
         },
@@ -72,7 +72,7 @@ function initialize() {
             url: 'global/member-dropdown-list',
             placeholder: 'Enter member name',
         },
-       
+
         {
             label: 'Deposited by',
             name: 'deposited_by',
@@ -80,7 +80,7 @@ function initialize() {
             // required: true, 
             placeholder: 'Enter name of person making the deposit',
         },
-      
+
         {
             label: 'Transaction Reference',
             name: 'transaction_reference',

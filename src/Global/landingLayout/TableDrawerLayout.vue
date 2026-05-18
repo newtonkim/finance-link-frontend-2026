@@ -1,6 +1,6 @@
 <template>
     <div class="flex h-full fle x-1 flex-col  px-1 py-3 " v-auth="permission">
-     
+
         <div class="flex items-center justify-between">
             <div v-if="$slots['header-action']" class='my-2'>
                 <slot name="header-action" />
@@ -34,15 +34,13 @@
             <div v-if="showSearchbar || showTableAction"
                 class="flex  items-center  my-2 px-1 justify-between rounded-xl border border-neutral-100 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
                 <div class=" items-center gap-2 board-r-1 pt-2" v-if="showSearchbar">
-                    <Searchbar class="m-0 p-0 " @search="onSearch" :removeInSearch="removeInSearch" :columns="columns"
+                    <Searchbar @search="onSearch" :removeInSearch="removeInSearch" :columns="[...columns,...appendSearchColumns]"
                         @filter="(v) => filterDataByString(v)" />
                 </div>
                 <div class="flex">
                     <div class="flex items-center gap-2 board-r-1 mx-2" v-if="showTableAction">
                         <!-- {{ downloadItems }} -->
-                        <Imploading
-
-                        tooltip="download the list as excel,pdf, csv, etc file"
+                        <Imploading tooltip="download the list as excel,pdf, csv, etc file"
                             v-if="showTableAction == true || (Array.isArray(showTableAction) && showTableAction.includes('download'))"
                             icon="Download" :items="downloadItems" @select="handleDownload" />
                         <Imploading tooltip="Migrate/import  data from other source"
@@ -82,7 +80,7 @@
                 <div id="print-container-drawer">
 
                     <div>
-                        <button v-if="printTable" @click="printDataInDrawer"  type="button"
+                        <button v-if="printTable" @click="printDataInDrawer" type="button"
                             class="  gap-1 px-5 absolute  rounded-md top-4 right-12 no-print bg-nfuko-primary-600  text-white text-sm font-medium  ">
                             <!-- <Printer class="h-10 " /> -->
                             <span>Print</span>
@@ -90,8 +88,8 @@
                     </div>
 
                     <div v-if="buttonTypeClicked == 'download-template'">
-                        <UploadTemplateColumn :defaults="importDefaults" :title="title" :templateDisplayLabels="templateDisplayLabels"
-                            :data="provideDataTotheParent" />
+                        <UploadTemplateColumn :defaults="importDefaults" :title="title"
+                            :templateDisplayLabels="templateDisplayLabels" :data="provideDataTotheParent" />
                     </div>
                     <div v-else-if="buttonTypeClicked == 'import-data'">
                         <uploadTemplateColumData :title="title" :url="url" />
@@ -120,7 +118,7 @@ import Table from './Components/Table.vue';
 import useTableHelpers from './util/tableHelpers.ts';
 import { ref } from 'vue';
 
-const deepSearch=ref(false);
+const deepSearch = ref(false);
 
 const props = defineProps({
     templateDisplayLabels: { type: Array, default: null, required: false },
@@ -137,6 +135,10 @@ const props = defineProps({
 
     },
     printItems: {
+        type: Array,
+        default: () => []
+    },
+    appendSearchColumns: {
         type: Array,
         default: () => []
     },

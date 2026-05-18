@@ -242,8 +242,8 @@ async function intializetheData() {
       url: props?.url
     }, Store
   });
-  if (res.payload) {
-    console.log(res.payload);
+  console.log(res);
+  if (res?.payload) {
 
     storeSettings(Object.values(res.payload))
   }
