@@ -23,9 +23,11 @@
       </div>
     </template>
     <template #drawer="{ action, data }">
-      <Deposit v-if="currentAction === 'deposit'" :data="{ action, ...automaticCreate }" v-model:form="formData"
+      
+      <Deposit v-if="currentAction === 'deposit'" :data="{...data, action, ...automaticCreate }" v-model:form="formData"
         @success="emit('reload')" />
-      <Withdrawal v-else-if="currentAction === 'withdrawal'" :data="{ action, ...automaticCreate }"
+      
+      <Withdrawal v-else-if="currentAction === 'withdrawal'" :data="{ ...data,action, ...automaticCreate }"
         v-model:form="formData" @success="emit('reload')" />
       <Details v-else-if="action === 'view'" :data="data" />
       <Create v-else :disableMemberFields="true" :data="{ ...props.member, member_id: props?.member?.id }"
@@ -115,7 +117,7 @@ const drawerConfigs: Record<string, any> = {
 
   },
   create: {
-    width: "w-2/4",
+    width: "w-2/4", 
     title: "Create Savings Account",
     action: () => { },
     automaticCreate: true

@@ -51,14 +51,14 @@ function initialize() {
             label: 'transaction date ',
             name: 'transaction_date',
             type: 'datec',
-      maxDate: new Date(),
+            maxDate: new Date(),
 
             required: false,
             placeholder: 'Amount to withdraw',
             value: new Date().toISOString().split('T')[0],
 
         },
-         {
+        {
             label: 'withdrawal member',
             name: 'member_id',
             type: 'select',
@@ -66,7 +66,7 @@ function initialize() {
             url: 'global/member-dropdown-list',
             placeholder: 'Enter member name',
         },
-          {
+        {
             label: 'withdrawal by',
             name: 'deposited_by',
             type: 'text',
@@ -74,12 +74,18 @@ function initialize() {
             placeholder: 'Enter name of person making the deposit',
         },
         {
-            label: 'payment mode',
-            name: 'payment_method',
+            label: 'payment mode (Debit Account)',
+            name: 'payment_mode_id',
             type: 'select',
-            required: false,
-            options: paymentModeOptions,
-            placeholder: 'method of payment',
+            url: "global/chart-of-accounts",
+            data: { account_type: 'ASSET' },
+            dataOnMount: true,
+            options: [],
+            required: true,
+
+            // selectDefaultIndex: 0,
+            placeholder: 'Select income account',
+
         },
         {
             label: 'Transaction Reference',

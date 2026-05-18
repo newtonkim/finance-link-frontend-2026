@@ -33,7 +33,7 @@ interface Option {
  * method - for request method
  * **/
 const props = defineProps<{
-    modelValue: string | number | null;
+    modelValue: any;
     options?: Option[];
     placeholder?: string;
     label?: string;
@@ -170,10 +170,10 @@ const closeDropdown = (e: MouseEvent) => {
     }
 };
 
-function MountForAttrOptions(){
-        collection.value = props.options
-        // console.log(collection.value);
-        
+function MountForAttrOptions() {
+    collection.value = props.options
+    // console.log(collection.value);
+
 
 }
 

@@ -32,7 +32,7 @@ const columns = [
     column: [
       { key: 'reference', label: 'code', sticky: 'left', copy: '1' },
       { key: 'from', label: 'from', },
-      { key: 'to', label: 'to', },
+      { key: 'transfer_to', label: 'transfered to', },
       { key: 'transfer_amount', label: 'transfer', type: 'money' },
       { key: 'status', label: 'status', type: 'status' },
       { key: 'created_at', label: 'created at', type: 'dateTime', sticky: 'right' },
@@ -59,7 +59,7 @@ const columns = [
 ]
 async function prepareTheFeaturesData() {
   loading.value = true
-  if (props.data.transactionList)
+  if (props.data?.transactionList)
     props.data.transactionList.forEach((element) => {
       columns[2].list.push({
         created_at: element.created_at,
@@ -72,13 +72,15 @@ async function prepareTheFeaturesData() {
         branch_details: element.branch_details,
       })
     })
-  if (props.data.transfer) { //
+  if (props.data?.transfer) { //
     props.data.transfer.forEach((element) => {
       columns[1].list.push({
         created_at: element.created_at,
         reference: element.code,
         from: element.from_member_name + ' (' + element?.transfer_from_product + ')',
-        to: 'Myself (' + element?.transfer_to_product + ')',
+        transfer_to: element?.to_member_name,
+        to_account_code: element?.to_account_code,
+        from_account_code: element?.from_account_code,
         transaction_date: element.created_at,
         transfer_amount: element.transfer_amount,
         created_at: element.created_at,
@@ -96,11 +98,28 @@ onMounted(async () => {
   <div class="h-[83vh] overflow-y-scroll">
     <div v-if="loading">Loading...</div>
     <DetailsTable v-else :data="data" :columns="columns">
-      <template #actions="{ item }">
-        <TabelActionButtons v-if="item?.status === 'pending'" title="Transfer" color="custom" @action="(v) => {
-          completeMyTransfer(item); emits('actionTaken')
-        }" />
-        <TabelActionButtons v-else title="Completed" color="success" icon="Check" />
+      <template #actions="{ item, sectionIndex }">
+        <div v-if="sectionIndex === 1">
+
+          <TabelActionButtons v-if="item?.status === 'pending'" title="Transfer" color="custom" @action="(v) => {
+            completeMyTransfer(item); emits('actionTaken')
+          }" />
+          <TabelActionButtons v-else title="Completed" color="success" icon="Check" />
+        </div>
+      </template>
+
+      <template #transfer_to="{ item, sectionIndex }">
+        <div v-if="sectionIndex === 1">
+          <div> {{ item?.transfer_to }}</div>
+          <div> {{ item?.to_account_code }}</div>
+        </div>
+
+      </template>
+      <template #from="{ item, sectionIndex }">
+        <div v-if="sectionIndex === 1">
+          <div> {{ item?.from }}</div>
+          <div> {{ item?.from_account_code }}</div>
+        </div>
 
       </template>
     </DetailsTable>

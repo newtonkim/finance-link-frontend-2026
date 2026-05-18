@@ -1,5 +1,5 @@
 <template>
-
+    <!-- {{ appendSearchColumns }} -->
     <!-- WRAPPER -->
     <div class="relative w-full">
 
@@ -37,6 +37,7 @@
                             <tbody>
 
                                 <!-- SEARCH ROWS -->
+                             
                                 <template v-if="Object.keys(searchBy)?.length">
                                     <tr v-for="(value, index) in Object.keys(searchBy)" :key="'search-' + index"
                                         class="hover:bg-blue-50 dark:hover:bg-blue-950/30 transition"
@@ -65,7 +66,7 @@
                                 <template v-if="Object.keys(activeFilter)?.length">
                                     <tr v-for="(value, index) in Object.values(activeFilter)" :key="'filter-' + index"
                                         class="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition"
-                                        @click.stop="removeColumn(value)">
+                                        @click.stop="removeColumn(value.key)">
                                         <td class="py-2 px-2 text-neutral-600 dark:text-neutral-300 font-medium">
                                             Filter
                                         </td>
@@ -75,8 +76,8 @@
                                         </td>
 
                                         <td class="py-2 px-2 text-neutral-500">
-                                            {{ value.onSearch.type === 'date-range' ? formatRange(value.value) :
-                                                value.value }}
+                                            {{ value.onSearch.type === 'date-range' ? formatRange(value.value)
+                                                : value.value }}
                                         </td>
 
                                         <td class="py-2 px-2 text-right">
@@ -117,8 +118,9 @@
          group-focus-within:opacity-100 group-focus-within:visible transition-all duration-200">
             <div v-for="col in removeActionInSupperseach" :key="col.key"
                 class="px-3 py-2 text-sm cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-800"
-                @click="selectColumn(col)">
+               >
                 <div class="flex items-center justify-between" v-if="col?.onSearch">
+                    <!-- {{ col.onSearch }} -->
                     <div class="text-neutral-700 dark:text-neutral-200">
                         {{ col.label }}
                     </div>
@@ -127,24 +129,15 @@
                         filter
                     </div>
                 </div>
-                <div v-else class="text-neutral-700 dark:text-neutral-200">
+                <div v-else class="text-neutral-700 dark:text-neutral-200"  @click.stop="selectColumn(col)">
                     {{ col.label }}
                 </div>
             </div>
         </div>
-        <!-- <div v-if="Object.keys(searchBy)?.length"
-            class="flex flex-wrap gap-1 my-1 h-[3vh] overflow-auto scrollbar-hide flex flex-wrap gap-1 my-1 max-h-[6vh] overflow-auto  ">
-            <div v-for="(value, index) in Object.keys(searchBy)" :key="index"
-                class="flex items-center gap-2 px-2 py-1    text-xs font-medium    bg-white    text-neutral-600   dark: bg-nfuko-primary hover: bg-nfuko-primary/90 dark:text-white   rounded-full capitalize   transition-all duration-200">
-                <span>{{ value }}</span>
-                <button @click.stop="removeColumn(value)"
-                    class="ml-1 text-red-500 hover:text-white hover:dark:text-red-500 hover:rounded-full hover:bg-red-300  px-1  hover:dark:bg-red-900 text-xs ">✕
-                </button>
-            </div>
-        </div> -->
     </div>
+
     <Teleport to="body" v-if="activeFilter[currentFilteClicked]">
-        <!-- {{ filterPosition }} -->
+
 
 
         <!-- PANEL -->
@@ -153,11 +146,12 @@
       border border-neutral-200 dark:border-neutral-700
       shadow-2xl rounded-2xl p-4 z-[9999]
       transition-all duration-200">
+            <!-- {{ activeFilter[currentFilteClicked] }} -->
             <div>
                 <SearchableSelect v-if="activeFilter[currentFilteClicked]?.onSearch?.type === 'select'"
-                    v-model="filterValues[activeFilter]" :options="activeFilter[currentFilteClicked].options" />
+                    v-model="activeFilter[currentFilteClicked].value"
+                    :options="activeFilter[currentFilteClicked]?.onSearch?.options" />
 
-                <!-- DATE RANGE -->
                 <DatePicker v-else-if="activeFilter[currentFilteClicked]?.onSearch?.type === 'date-range'"
                     v-model="activeFilter[currentFilteClicked].value" range multi-calendars class="w-full" />
             </div>
@@ -184,12 +178,12 @@ const emit = defineEmits(['search', 'filter']);
 const props = defineProps({
     columns: { type: Array, required: true },
     removeInSearch: { type: Array, default: ["action"] },
+    appendSearchColumns: { type: Array, default: [] },
     searchClass: ' rounded-2xl      transition-all placeholder:text-neutral-400   dark:text-white'
 });
-const removeActionInSupperseach = props.columns.filter(col => ![...props.removeInSearch, 'actions'].includes(col.key))
+const removeActionInSupperseach = [...props.columns, ...props.appendSearchColumns].filter(col => ![...props.removeInSearch, 'actions'].includes(col.key))
 const selectColumn = (col) => {
     nextTick(() => updatePosition())
-
     searchBy.value[col.label] = col.key
 
 
@@ -204,6 +198,9 @@ const inputValue = (data, type = "filter") => {
 };
 const removeColumn = (index) => {
     delete searchBy.value[index]
+    delete activeFilter.value[index]
+    console.log(index,activeFilter.value);
+    
     save({ search_by: searchBy.value, search_key: searchQuery.value }, 'search')
 }
 function triggerSearch() {
@@ -212,16 +209,22 @@ function triggerSearch() {
     if (v.length) keySearch.search_by = Object.values(searchBy.value).join(',');
 
     const obj = Object.values(activeFilter.value)
+    // console.log(obj);
+
+
+
     obj.forEach(item => {
+
         if (item?.key && item?.value) {
+
             collection[item.key] = { value: item.value, type: item.onSearch.type }
         }
     })
 
-    if (Object.keys(collection).length){
+    if (Object.keys(collection).length) {
         keySearch.search_filter = collection
-    save({ ...keySearch, }, 'search')
-}
+        save({ ...keySearch, }, 'search')
+    }
     // alert()
 
 }
@@ -240,6 +243,7 @@ const handleClickOutside = (event) => {
 
 const toggleFilter = (col, event) => {
 
+   
     activeFilter.value[col.key] = col
     currentFilteClicked.value = col.key
 
@@ -257,6 +261,7 @@ const toggleFilter = (col, event) => {
 
 onMounted(() => {
     document.addEventListener('click', handleClickOutside)
+    props.appendSearchColumns
 })
 
 onBeforeUnmount(() => {
@@ -268,7 +273,7 @@ const updatePosition = () => {
     filterPositionDisplay.value = {
         position: 'fixed',
         left: (rect.left + rect.width / 2) + 100 + 'px',
-        top: rect.bottom+130 + 'px',
+        top: rect.bottom + 130 + 'px',
         transform: 'translate(-50%, -100%)'
     }
 }

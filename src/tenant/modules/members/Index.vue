@@ -1,8 +1,7 @@
 <template>
-
-    <TableDrawer :drawer-show-footer="!automaticCreate.key" :printTable="true" ref="drawer" :exportItems="exportItems"
-        drawerWidth=" w-2/3" :url="tableUrl" state="memberList" :drawerTitle="drawerTitle" :columns="columns"
-        @save="saveUser" :showTableAction="true">
+    <TableDrawer :appendSearchColumns="appendSearchColumns" :drawer-show-footer="!automaticCreate.key"
+        :printTable="true" ref="drawer" :exportItems="exportItems" drawerWidth=" w-2/3" :url="tableUrl"
+        state="memberList" :drawerTitle="drawerTitle" :columns="columns" @save="saveUser" :showTableAction="true">
         <template #header-action>
             <div>
                 <h1 class="text-4xl font-black text-[#0A2318] dark:text-white tracking-tight">
@@ -19,7 +18,8 @@
             </span>
         </template>
         <template #searchSideAction>
-            <StatusButtonsHorizontal :max-length="7" v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
+            <StatusButtonsHorizontal :max-length="7" v-memo="[statusFilter]" :filters="filters"
+                v-model="statusFilter" />
         </template>
         <template #drawer="{ action, data }">
             <Create v-if="['add'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
@@ -35,13 +35,21 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { Create, Details, Edit } from '.'
-import {   setLocalValues, uploadTemplateColumData } from '@/Global'
+import { setLocalValues, uploadTemplateColumData } from '@/Global'
 import { useRouter } from 'vue-router';
 import { MemberTemplate } from './imgration/index';
 const router = useRouter(),
+    appendSearchColumns = [
+        {
+            key: 'member_type', label: 'Member Type', onSearch: {
+                type: 'select',
+                options: [{ name: 'none member', id: 'new' }, { name: 'existing member', id: 'existing' }]
+            }
+        },
+    ],
     automaticCreate = ref<any>({})
 const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
-    drawerTitle = ref('Create Tenant'), filters = ['all', 'active', 'suspended', 'pending', 'archived'],
+    drawerTitle = ref('Create Tenant'), filters = ['all', 'active', 'suspended', 'pending', 'dormant'],
     tableUrl = computed(() => `/members/list?status=${statusFilter.value}`),
     title: Record<string, string> = {
         "view": "View Member Details",
@@ -64,10 +72,10 @@ const columns = [
     { key: 'sex', label: 'Gender', type: 'status' },
     // { key: 'marital_status', label: 'Status', type: 'status' },
     {
-        key: 'actions', label: 'Actions', show: ['edit', 'delete', 'unarchive'], condition: {
-            "edit": (item: any) => item?.archived_at == null,
-            "delete": (item: any) => item?.archived_at == null,
-            "unarchive": (item: any) => item?.archived_at != null,
+        key: 'actions', label: 'Actions', show: ['edit', 'dormant', 'activate'], condition: {
+            "edit": (item: any) => item?.dormant_date == null,
+            "activate": (item: any) => item?.dormant_date != null,
+            "dormant": (item: any) => !item?.dormant_date,
         }
     }
     // { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
@@ -108,6 +116,7 @@ function openDrawer(key: string) {
     }, 100)
 
 }
+
 watch(() => drawer.value?.drawerOpen, (val) => {
     if (!val) {
         automaticCreate.value = {}

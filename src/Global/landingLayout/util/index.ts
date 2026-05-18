@@ -91,6 +91,23 @@ export const ACTION_CONFIG = {
       return 'unarchive'
     },
   },
+ 
+ dormant: {
+  icon: ArchiveX,
+  action: () => {
+    return 'dormant'
+  },
+  class:
+    'flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-0.5 text-xs font-semibold text-red-600 shadow-sm transition-all duration-200 hover:bg-red-100 hover:border-red-300 hover:shadow dark:border-red-800 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50',
+},
+activate: {
+  icon: ArchiveRestore,
+  action: () => {
+    return 'activate'
+  },
+  class:
+    'flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-0.5 text-xs font-semibold text-emerald-600 shadow-sm transition-all duration-200 hover:bg-emerald-100 hover:border-emerald-300 hover:shadow dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50',
+},
   view: {
     icon: Eye,
     action: () => {
@@ -163,7 +180,6 @@ export async function fetchTableData({
 
   const collection = {
     reload: !!props.reload ? 0 : 1, // dont think am stupid i know that
-    // reload: !!props.reload ? 0 : 1, // dont think am stupid i know that
     StateStore: createTheState,
     time: props?.time ?? 0,
     reqs: {
@@ -176,9 +192,9 @@ export async function fetchTableData({
     axiosInstance: interceptor,
     mStore: { mUse: saveData ?? true },
   }
-  // console.log({collection});
-
-  return await Store.stateGenaratorApi(collection)
+  
+  const res= await Store.stateGenaratorApi(collection)
+ return res
 }
 
 function buildUrlWithQuery(url: string) {

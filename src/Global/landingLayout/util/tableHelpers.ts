@@ -271,11 +271,12 @@ export default function useTableHelpers(props?: any, emit?: any) {
         },
         Store,
       })
-    } else if (['unarchive', 'archive'].includes(action)) {
+    } else if (['unarchive', 'archive','dormant', 'activate'].includes(action)) {
       const act = props?.outerlinks?.[action] ?? action
 
       Confirm({
-        title: action == 'archive' ? 'Archive record' : 'Unarchive record',
+        title: action == 'archive' ? 'Archive record' : (action == 'dormant' ? 'change to Dormant ' : (action == 'activate' ? 'change to Active ' : 'Unarchive record')),
+        // title: action == 'archive' ? 'Archive record' : 'Unarchive record',
         des: `Are you sure `,
         type: 'warning',
         confirm: async () => {

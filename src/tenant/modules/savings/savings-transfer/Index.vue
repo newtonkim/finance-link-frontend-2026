@@ -24,7 +24,17 @@
             </div>
         </template>
         <template #header-action>
-            <PainPageHeader title="Transfer Savings Account" dec="Manage all transfers savings accounts ." />
+  
+        </template>
+        <template #transfer_to_product="{item}">
+           
+          <div>{{item?.transfer_to_account }}</div>
+          <div>{{item?.transfer_to_product }}</div>
+        </template>
+    
+        <template #transfer_from_product="{item}">
+          <div>{{item?.transfer_from_account }}</div>
+          <div>{{item?.transfer_from_product }}</div>
         </template>
         <template #searchSideAction>
            

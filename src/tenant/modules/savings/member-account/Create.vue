@@ -6,8 +6,8 @@
     <br>
     <br>
     <br>
-    <br>
-    <br>
+  
+   
   </div>
 
 </template>
@@ -94,15 +94,7 @@ const emits = defineEmits(['update:form']),
       value: 1,
       // disabled: true,
       placeholder: 'Enter is New Account',
-    },
-    {
-      label: 'consider Minimun Balance',
-      name: 'cm_balance',
-      type: 'select',
-      required: true,
-      options: yesNoOptions,
-      placeholder: 'Enter consider Minimun Balance',
-    },
+    }, 
     {
       label: 'inital deposit',
       name: 'in_deposit',
@@ -224,25 +216,5 @@ const watchChangeInProductOrCharges = debounce(async (fields: any, amount: any) 
 onMounted(() => {
   promtValueOnUpdate()
   checkForSettings()
-})
-// watch(()=>fields.value, (val) => {
-//       const codeIndex = val.findIndex(f => f.name === 'code');
-//     const memberIndex = val.findIndex(f => f.name === 'member');
-//  if (settingList.value?.['free-code']) {
-//       if (codeIndex === -1 && memberIndex !== -1) {
-//         fields.value.splice(memberIndex + 1, 0, {
-//           label: 'free input code',
-//           name: 'code',
-//           type: 'text',
-//           required: true,
-//           placeholder: 'Enter code',
-//         })
-//       }
-
-//     } else {
-//       if (codeIndex !== -1) {
-//         fields.value.splice(codeIndex, 1)
-//       }
-//     }
-// },{deep:true})
+}) 
 </script>

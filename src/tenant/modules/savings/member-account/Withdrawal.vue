@@ -9,6 +9,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { DetailsTable, Form } from '@/Global'
+import { values } from 'lodash';
 const emits = defineEmits(['update:form']),
     props = defineProps({
         data: {
@@ -24,7 +25,7 @@ const emits = defineEmits(['update:form']),
             { key: 'member_name', label: 'memeber name', },
             { key: 'account_code', label: 'account code', copy: true },
             { key: 'product', label: 'product', },
-            { key: 'blc', label: 'balance',type: "money" },
+            { key: 'blc', label: 'balance', type: "money" },
             { key: 'type', label: 'type', copy: true },
             { key: 'created_at', label: 'created', tyope: "dateTime" },
         ]
@@ -49,25 +50,33 @@ function initialize() {
             placeholder: 'Amount to withdraw',
             // disabled: true,
         },
+           {
+    label: 'payment mode (Debit Account)',
+    name: 'payment_mode_id',
+    type: 'select',
+    value:props?.data?.payment_mod,
+    url: "global/chart-of-accounts",
+    data: { account_type: 'ASSET' },
+    dataOnMount: true,
+    options: [],
+    required: true,
+
+    // selectDefaultIndex: 0,
+    placeholder: 'Select income account',
+    
+  },
         {
             label: 'transaction date ',
             name: 'transaction_date',
             type: 'datec',
-      maxDate: new Date(),
+            maxDate: new Date(),
 
             required: false,
             placeholder: 'Amount to withdraw',
             value: new Date().toISOString().split('T')[0],
 
         },
-        {
-            label: 'payment mode',
-            name: 'payment_method',
-            type: 'select',
-            required: false,
-            options: paymentModeOptions,
-            placeholder: 'method of payment',
-        },
+    
         {
             label: 'Transaction Reference',
             name: 'transaction_reference',

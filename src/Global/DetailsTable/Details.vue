@@ -1,29 +1,19 @@
 <template>
   <div class="space-y-4 flex flex-col overflow-hidden p-2">
-
     <div
       v-for="(section, sIndex) in columns"
       :key="sIndex"
-      class="flex flex-col rounded-2xl 
-             bg-white dark:bg-neutral-900 
-             border border-neutral-200 dark:border-neutral-800
-             shadow-sm hover:shadow-md 
-             transition-all duration-300 overflow-hidden"
+      class="flex flex-col rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden"
     >
-
-      <!-- Header -->
       <header
         v-if="section.header"
-        class="flex items-center justify-between px-4 py-3 
-               bg-neutral-50/80 dark:bg-neutral-800/60 
-               backdrop-blur border-b border-neutral-200 dark:border-neutral-700"
+        class="flex items-center justify-between px-4 py-3 bg-neutral-50/80 dark:bg-neutral-800/60 backdrop-blur border-b border-neutral-200 dark:border-neutral-700"
       >
         <h3 class="text-sm font-semibold tracking-wide text-neutral-700 dark:text-white">
           {{ t(section.header) }}
         </h3>
       </header>
 
-      <!-- TABLE -->
       <div
         v-if="section.type.toLowerCase() === 'table'"
         class="flex-1 overflow-auto py-2 px-2"
@@ -37,42 +27,38 @@
           class="rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800"
         >
           <template v-for="(_, name) in $slots" #[name]="slotProps">
-            <slot :name="name" v-bind="slotProps || {}" />
+            <slot :name="name" v-bind="slotProps || {}"    :sectionIndex="sIndex" />
           </template>
         </Table>
       </div>
 
-      <!-- DESCRIPTIONS -->
-      <div v-else-if="section.type.toLowerCase() === 'descriptions'" class="p-3 overflow-auto">
+      <div
+        v-else-if="section.type.toLowerCase() === 'descriptions'"
+        class="p-3 overflow-auto"
+      >
         <div class="grid gap-3" :style="gridStyle(section.column)">
-
           <div
             v-for="item in section.list"
             :key="item.key"
-            class="rounded-xl border border-neutral-200 dark:border-neutral-800 
-                   bg-neutral-50/10 dark:bg-neutral-900 
-                   p-3 hover:bg-nfuko-action/5 dark:hover:bg-neutral-800  hover:shadow-md hover:-translate-y-1  
-                   transition-all duration-200"
+            class="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/10 dark:bg-neutral-900 p-3 hover:bg-nfuko-action/5 dark:hover:bg-neutral-800 hover:shadow-md hover:-translate-y-1 transition-all duration-200"
           >
-
-            <!-- Label -->
-            <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
+            <span
+              class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400"
+            >
               {{ t(item.label) }}
             </span>
 
-          <div v-if="item.slot" > 
-            <span v-html="item.slot(data)"></span>
-          </div>
-            <!-- Value -->
-            <div v-else
+            <div v-if="item.slot">
+              <span v-html="item.slot(data)"></span>
+            </div>
+            <div
+              v-else
               class="mt-1 text-sm text-neutral-700 dark:text-neutral-200 break-words"
               :class="{
                 'text-right': item.align === 'right',
-                'text-center': item.align === 'center'
+                'text-center': item.align === 'center',
               }"
             >
-
-              <!-- SLOT -->
               <component
                 v-if="getSlot(item)"
                 :is="getSlot(item)"
@@ -80,7 +66,6 @@
                 :row="data"
               />
 
-              <!-- JSON -->
               <template v-else-if="isObjectJSON(data[item.key])">
                 <div class="space-y-1 text-xs">
                   <template v-if="!Array.isArray(parseJSON(data[item.key]))">
@@ -90,7 +75,7 @@
                       class="flex justify-between gap-2"
                     >
                       <span class="text-neutral-400">
-                        {{ key.replaceAll('_', ' ') }}
+                        {{ key.replaceAll("_", " ") }}
                       </span>
                       <span class="font-medium">
                         {{ val }}
@@ -111,106 +96,91 @@
                 </div>
               </template>
 
-              <!-- NORMAL -->
               <template v-else>
                 <div class="relative group">
+                  <CopyData v-if="item.copy" :copy="stringToshow(item, data)" />
 
-                  <!-- Copy -->
-                  <CopyData
-                    v-if="item.copy"
-                    :copy="stringToshow(item, data)"
-                  />
-
-                  <!-- Text -->
                   <span
                     v-else
                     class="line-clamp-2 cursor-pointer hover:text-primary-600 transition"
                     v-html="stringToshow(item, data)"
                   />
 
-                  <!-- Tooltip -->
                   <div
                     v-if="data?.[item.key]?.length > 20"
-                    class="absolute left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block
-                           bg-neutral-900 text-white text-xs rounded-lg px-3 py-2 
-                           max-w-xs w-max whitespace-normal break-words z-50 shadow-xl"
+                    class="absolute left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block bg-neutral-900 text-white text-xs rounded-lg px-3 py-2 max-w-xs w-max whitespace-normal break-words z-50 shadow-xl"
                   >
                     {{ stringToshow(item, data) }}
                   </div>
-
                 </div>
               </template>
-
             </div>
           </div>
-
         </div>
       </div>
-
     </div>
   </div>
 </template>
 <script setup>
-import { isJSON } from "../Helpers"
-import { CopyData } from "@/Global"
-import Table from "../landingLayout/Components/Table.vue"
-import { ACTION_CONFIG, dataFomater } from "../landingLayout/util"
-
+import { isJSON } from "../Helpers";
+import { CopyData } from "@/Global";
+import Table from "../landingLayout/Components/Table.vue";
+import { ACTION_CONFIG, dataFomater } from "../landingLayout/util";
 
 const props = defineProps({
   data: { type: Object, default: () => ({}) },
   columns: { type: Array, default: () => [] },
-  slots: { type: Object, default: () => ({}) }
-})
+  slots: { type: Object, default: () => ({}) },
+});
 
 function t(key) {
-  return key
+  return key;
 }
 
 function gridStyle(column = 2) {
   return {
-    gridTemplateColumns: `repeat(${column}, minmax(0, 1fr))`
-  }
+    gridTemplateColumns: `repeat(${column}, minmax(0, 1fr))`,
+  };
 }
 
 function formatValue(val) {
-  if (val === null || val === undefined || val === "") return "—"
-  return val
+  if (val === null || val === undefined || val === "") return "—";
+  return val;
 }
 
 function parseJSON(val) {
-  return isJSON(val)
+  return isJSON(val);
 }
 
 function isObjectJSON(val) {
-  const parsed = parseJSON(val)
-  return parsed !== null && typeof parsed === "object"
+  const parsed = parseJSON(val);
+  return parsed !== null && typeof parsed === "object";
 }
 
 function renderValue(item) {
-  const value = props.data[item.key]
+  const value = props.data[item.key];
   if (item.format) {
-    return item.format(value)
+    return item.format(value);
   }
 
-  return formatValue(value)
+  return formatValue(value);
 }
 
 function getSlot(item) {
   if (item?.slots?.default) {
-    return props.slots[item.slots.default]
+    return props.slots[item.slots.default];
   }
-  return null
+  return null;
 }
 
 const handleAction = async (item, action) => {
-
   //  console.log("Action:", action)
   //  console.log("Item:", item)
-
-}
+};
 function stringToshow(item, data) {
-  const collection = item.type ? dataFomater(data[item.key], item.type) : renderValue(item)
-  return collection
+  const collection = item.type
+    ? dataFomater(data[item.key], item.type)
+    : renderValue(item);
+  return collection;
 }
 </script>
