@@ -85,7 +85,6 @@ export function useGeneralCharges() {
     const map: Record<string, string> = {
       on_registration: 'On Registration',
       on_shares: 'On Shares',
-      on_loan_application: 'On Loan Application',
       other: 'Other',
     }
     return map[app] ?? app
@@ -93,17 +92,15 @@ export function useGeneralCharges() {
 
   // ─── Options ──────────────────────────────────────────────────────────────
   const savingProductOptions = ref<{ id: string | number; name: string }[]>([])
-  const loanProductOptions = ref<{ id: string | number; name: string }[]>([])
   const creditAccountOptions = ref<{ id: string | number; name: string }[]>([])
 
   async function fetchOptions() {
     try {
-      const [savRes, coaRes, loanRes] = await Promise.allSettled([
+      const [savRes, coaRes] = await Promise.allSettled([
         savingsProductsApi.list(),
         tenantClient.get('/chart-of-accounts', {
           params: { list: true, account_type: 'INCOME', is_postable: true },
         }),
-        tenantClient.post('/global/loan-products'),
       ])
 
       if (savRes.status === 'fulfilled') {
@@ -121,18 +118,11 @@ export function useGeneralCharges() {
               name: a.gl_code ? `${a.gl_code} - ${a.name}` : (a.name ?? 'Account ' + a.id),
             }))
           : []
-        
+
         // Auto-select the first available income account if nothing is selected
         if (!form.value.credit_account_id && creditAccountOptions.value.length > 0) {
           form.value.credit_account_id = creditAccountOptions.value[0]?.id as any
         }
-      }
-
-      if (loanRes.status === 'fulfilled') {
-        const lp = loanRes.value.data?.payload?.data ?? loanRes.value.data?.data ?? loanRes.value.data ?? []
-        loanProductOptions.value = Array.isArray(lp)
-          ? lp.map((p: any) => ({ id: p.id, name: p.name ?? 'Loan ' + p.id }))
-          : []
       }
     } catch (err) {
       console.error('Error fetching charge options:', err)
@@ -213,7 +203,7 @@ export function useGeneralCharges() {
   return {
     charges, loading, toggling, reversibleToggling, deleting,
     fetch, toggleActive, toggleReversible, remove, applicationLabel,
-    savingProductOptions, loanProductOptions, creditAccountOptions, fetchOptions,
+    savingProductOptions, creditAccountOptions, fetchOptions,
     showDrawer, editingCharge, form, processing, errors,
     openAddDrawer, openEditDrawer, closeDrawer, submit,
   }

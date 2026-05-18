@@ -10,6 +10,38 @@ import {
 import { chartOfAccountsApi } from '../../../apis/chartOfAccounts/chartOfAccountsApi'
 import { loanChargesApi, type LoanCharge } from '../../../apis/loanCharges/api'
 
+export type LoanProductGlField =
+  | 'loan_portfolio_account_id'
+  | 'interest_income_account_id'
+  | 'interest_receivable_account_id'
+  | 'disbursement_account_id'
+  | 'penalty_income_account_id'
+  | 'penalty_receivable_account_id'
+  | 'charges_income_account_id'
+  | 'charges_receivable_account_id'
+
+// Single source of truth for the Accounting Mapping section's GL fields.
+// Consumed by autoFillAccounts (replacing the previous inline `slots` array)
+// AND by the page template (v-for) so the field list stays DRY.
+export interface GlFieldMeta {
+  field: LoanProductGlField
+  type: 'ASSET' | 'INCOME'
+  parent_gl_code: string
+  label: string
+  placeholder: string
+}
+
+export const GL_FIELD_META: readonly GlFieldMeta[] = [
+  { field: 'loan_portfolio_account_id', type: 'ASSET', parent_gl_code: '11300', label: 'Loan Portfolio Account', placeholder: 'Select loan portfolio account' },
+  { field: 'interest_income_account_id', type: 'INCOME', parent_gl_code: '41100', label: 'Interest Income Account', placeholder: 'Select interest income account' },
+  { field: 'interest_receivable_account_id', type: 'ASSET', parent_gl_code: '11500', label: 'Interest Receivable Account', placeholder: 'Select interest receivable account' },
+  { field: 'disbursement_account_id', type: 'ASSET', parent_gl_code: '11100', label: 'Disbursement Account', placeholder: 'Select disbursement account' },
+  { field: 'penalty_income_account_id', type: 'INCOME', parent_gl_code: '41400', label: 'Penalty Income Account', placeholder: 'Select penalty income account' },
+  { field: 'penalty_receivable_account_id', type: 'ASSET', parent_gl_code: '11600', label: 'Penalty Receivable Account', placeholder: 'Select penalty receivable account' },
+  { field: 'charges_income_account_id', type: 'INCOME', parent_gl_code: '42000', label: 'Charges Income Account', placeholder: 'Select charges income account' },
+  { field: 'charges_receivable_account_id', type: 'ASSET', parent_gl_code: '11700', label: 'Charges Receivable Account', placeholder: 'Select charges receivable account' },
+]
+
 function createDefaultForm(): LoanProduct {
   return {
     code: '',
@@ -251,33 +283,23 @@ export function useLoanProductForm() {
       return found ? found.id : null
     }
 
-    const slots: Array<{ field: keyof LoanProduct; type: string; keywords: string[][] }> = [
-      { field: 'loan_portfolio_account_id', type: 'ASSET', keywords: [['loan', 'portfolio']] },
-      { field: 'interest_income_account_id', type: 'INCOME', keywords: [['interest']] },
-      {
-        field: 'interest_receivable_account_id',
-        type: 'ASSET',
-        keywords: [['interest'], ['receivable']],
-      },
-      { field: 'disbursement_account_id', type: 'ASSET', keywords: [['bank', 'cash']] },
-      { field: 'penalty_income_account_id', type: 'INCOME', keywords: [['penalty', 'fine']] },
-      {
-        field: 'penalty_receivable_account_id',
-        type: 'ASSET',
-        keywords: [['penalty'], ['receivable']],
-      },
-      { field: 'charges_income_account_id', type: 'INCOME', keywords: [['charge', 'fee']] },
-      {
-        field: 'charges_receivable_account_id',
-        type: 'ASSET',
-        keywords: [['charge'], ['receivable']],
-      },
-    ]
+    // Keywords stay local — auto-fill heuristics, not part of the canonical
+    // GL_FIELD_META contract that the page template reads from.
+    const keywordsByField: Record<string, string[][]> = {
+      loan_portfolio_account_id: [['loan', 'portfolio']],
+      interest_income_account_id: [['interest']],
+      interest_receivable_account_id: [['interest'], ['receivable']],
+      disbursement_account_id: [['bank', 'cash']],
+      penalty_income_account_id: [['penalty', 'fine']],
+      penalty_receivable_account_id: [['penalty'], ['receivable']],
+      charges_income_account_id: [['charge', 'fee']],
+      charges_receivable_account_id: [['charge'], ['receivable']],
+    }
 
-    for (const slot of slots) {
-      if (form.value[slot.field] != null) continue // already set — never overwrite
-      const id = match(slot.type, ...slot.keywords)
-      if (id !== null) (form.value as any)[slot.field] = id
+    for (const meta of GL_FIELD_META) {
+      if (form.value[meta.field] != null) continue // already set — never overwrite
+      const id = match(meta.type, ...(keywordsByField[meta.field] ?? []))
+      if (id !== null) (form.value as any)[meta.field] = id
     }
   }
 
@@ -567,5 +589,6 @@ export function useLoanProductForm() {
     removeRequiredDocument,
     fieldError,
     save,
+    fetchAccounts,
   }
 }

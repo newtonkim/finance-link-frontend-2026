@@ -135,6 +135,16 @@ const fields = ref<any[]>([
   },
 
   {
+    label: 'General Charge',
+    name: 'general_registration_charges',
+    type: 'text',
+    disabled: true,
+    placeholder: 'Auto-populated when a product is selected',
+    hidden: true,
+    helper: '',
+  },
+
+  {
     label: 'payment mode (Debit Account)',
     name: 'payment_mode_id',
     type: 'select',
@@ -366,49 +376,75 @@ const sharesError = computed(() => {
   return ''
 })
 
-const watchChangeInProductOrCharges = debounce(async (fields: any,) => {
+const watchChangeInProductOrCharges = debounce(async (fields: any) => {
   const finedProduct = fields.value.find((f: any) => f.name === 'product_id')
-  const res = await onBoardingProductGeneralCharges({ id: finedProduct.value });
   const chargeField = fields.value.find((f: any) => f.name === 'charges')
-  let generalChargesSum = res?.reduce((acc: number, c: any) => acc + c?.charge_amount, 0)
-  const cleanChargeValue = chargeField.value?.replace(/[^0-9|\.]/g, '');
-  setTimeout(() => {
-    if (generalChargesSum) {
-      const listCgChares = res?.map((c: any) => `${c?.name}: ${c?.charge_amount}`).join(', ')
-      // const totalCharges = Number(generalChargesSum) + Number(cleanChargeValue ?? 0);
-      finedProduct.helper = `<span class="font-bold text-red-500 text-xs  relative  ">General charges for this product: <span class='text-neutral-900'>${listCgChares}</span></span>`
-    } else {
-      finedProduct.helper = ''
-    }
-  }, 500);
+  const generalChargeField = fields.value.find((f: any) => f.name === 'general_registration_charges')
+  const amountField = fields.value.find((f: any) => f.name === 'inital_deposit')
 
-  const amount = fields.value.find((f: any) => f.name === 'inital_deposit').value
   if (!finedProduct || !finedProduct.value) return
-  tryCatch(async () => {
-    if (amount) {
-      const res: any = await getProductCharges({
+
+  // 1) Registration (on_registration) charges → populate the new General Charge field.
+  let regCharges: any[] = []
+  let regSum = 0
+  try {
+    const regRes = await onBoardingProductGeneralCharges({ id: finedProduct.value })
+    regCharges = Array.isArray(regRes) ? regRes : (regRes?.data ?? [])
+    regSum = regCharges.reduce((acc: number, c: any) => acc + Number(c?.charge_amount ?? 0), 0)
+  } catch {
+    regCharges = []
+    regSum = 0
+  }
+
+  if (generalChargeField) {
+    if (regCharges.length > 0) {
+      const breakdown = regCharges.map((c: any) => `${c?.name}: ${c?.charge_amount}`).join(', ')
+      generalChargeField.value = `${regSum} (charges)`
+      generalChargeField.hidden = false
+      generalChargeField.helper = `<span class="font-bold text-red-500 text-xs">Registration charges for this product: <span class='text-neutral-900'>${breakdown}</span></span>`
+    } else {
+      generalChargeField.value = ''
+      generalChargeField.hidden = true
+      generalChargeField.helper = ''
+    }
+  }
+
+  // 2) Deposit-event (transactional) fee → populate the existing Transactional charges field.
+  //    NO LONGER summed with registration charges.
+  if (chargeField && amountField?.value) {
+    tryCatch(async () => {
+      const depositRes: any = await getProductCharges({
         product_id: finedProduct.value,
-        amount: amount,
+        amount: amountField.value,
         type: 'deposit',
       })
-      chargeField.value = ''
-      chargeField.hidden = true
-      chargeField.helper = ''
-      if (chargeField) {
-        const totalCharges = Number(generalChargesSum) + Number(res?.cost ?? 0);
-        chargeField.value = `${totalCharges ?? 0} (charges)`
-        chargeField.hidden = false
-        chargeField.helper = res?.cost && `<span class="font-bold text-red-500 text-xs  relative  ">Transaction charges: <span class='text-neutral-900'>${res?.cost ? ', initial deposit charge: ' + res.cost + '(' + totalCharges + ')' : ''}</span></span>`
-        chargeField.label = 'charges'
+      const depositFee = Number(depositRes?.cost ?? 0)
+      chargeField.value = depositFee > 0 ? `${depositFee} (charges)` : ''
+      chargeField.hidden = depositFee <= 0
+      chargeField.helper = depositFee > 0
+        ? `<span class="font-bold text-red-500 text-xs">Transaction charge: <span class='text-neutral-900'>${depositFee}</span></span>`
+        : ''
+    })
+  }
 
-      }
+  // 3) Initial-deposit sufficiency hint — surface a red helper under the
+  //    Initial Deposit field when deposit < regSum. Backend rejects too;
+  //    this is a UX assist.
+  if (amountField) {
+    const deposit = Number(amountField.value ?? 0)
+    if (regSum > 0 && deposit > 0 && deposit < regSum) {
+      amountField.helper = `<span class="font-bold text-red-500 text-xs">Initial deposit must be at least UGX ${regSum} to cover registration charges.</span>`
+    } else {
+      amountField.helper = ''
     }
-  })
+  }
 }, 900)
 onMounted(() => {
   promtValueOnUpdate()
   checkForSettings()
 })
+
+defineExpose({ fields, watchChangeInProductOrCharges })
 </script>
 <template>
   <card class="card shadow-md px-4 py-3 bg-white dark:bg-neutral-800 rounded-md h -[86vh] over flow-y-auto border-0">

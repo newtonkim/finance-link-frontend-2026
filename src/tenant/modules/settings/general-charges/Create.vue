@@ -118,8 +118,13 @@ const fields = ref<any[]>([
     type: 'multi-select',
     dependsOn: {
       conditions: [
-        { field: 'application', value: 'other' },
-        { field: 'where_to_apply', value: 'savings' },
+        {
+          field: 'application',
+          condition: (val: string) => {
+            const whereField = fields.value.find((f: any) => f.name === 'where_to_apply')
+            return val === 'on_registration' || (val === 'other' && whereField?.value === 'savings')
+          },
+        },
       ],
       operator: 'and',
     },
@@ -139,21 +144,6 @@ const fields = ref<any[]>([
     },
     options: TRIGGER_TYPE_OPTIONS,
     placeholder: 'Deposit / Withdrawal / Transfer',
-  },
-  {
-    label: 'Loan Products',
-    name: 'loan_product_ids',
-    type: 'multi-select',
-    dependsOn: {
-      conditions: [
-        { field: 'application', value: 'on_loan_application' },
-        { field: 'where_to_apply', value: 'loans' },
-      ],
-      operator: 'or',
-    },
-    url: 'global/loan-products',
-    dataOnMount: true,
-    placeholder: 'Choose loan products',
   },
   {
     label: 'Charge Type',
