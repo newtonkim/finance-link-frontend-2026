@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { Printer } from 'lucide-vue-next';
 import { formatCurrency, printElementId } from '@/Global';
 import { useAccountStatement } from './composables/useAccountStatement';
 
 const props = defineProps<{
   data?: { savings_accounts?: Array<{ id: number; account_no: string | null; account_type: string }> };
-  profileDetails?: any;
 }>();
 
 const accounts = computed(() => props.data?.savings_accounts ?? []);
 const accountId = ref<number | null>(accounts.value[0]?.id ?? null);
+
+watch(accounts, (list) => {
+  if (accountId.value === null && list.length > 0) accountId.value = list[0].id;
+});
 
 const today = new Date().toISOString().slice(0, 10);
 const ninetyDaysAgo = new Date(Date.now() - 90 * 86_400_000).toISOString().slice(0, 10);
@@ -140,24 +143,9 @@ function fmtDate(d?: string) {
   </div>
 </template>
 
-<style>
+<style scoped>
 @media print {
-  body * { visibility: hidden; }
-  #statement-print-area,
-  #statement-print-area * { visibility: visible; }
-  #statement-print-area {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    border: none;
-    padding: 0;
-  }
-  .no-print { display: none !important; }
-  #statement-print-area table,
-  #statement-print-area tr,
-  #statement-print-area td,
-  #statement-print-area th { break-inside: avoid; }
+  table, tr, td, th { break-inside: avoid; }
   * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 }
 </style>
