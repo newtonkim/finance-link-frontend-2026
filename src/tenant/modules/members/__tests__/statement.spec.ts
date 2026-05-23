@@ -1,7 +1,8 @@
 /* @vitest-environment jsdom */
 import { describe, it, expect, vi } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
-import { nextTick } from 'vue';
+import { tenantClient } from '@/tenant/apis/tenantClient';
+import type { Mock } from 'vitest';
 import Statement from '../profile/statement.vue';
 
 const fixture = {
@@ -37,12 +38,12 @@ describe('statement.vue', () => {
       props: { data: { savings_accounts: [{ id: 1, account_no: 'SA-001', account_type: 'Voluntary' }] } },
     });
     await flushPromises();
-    await nextTick();
     expect(wrapper.text()).toContain('SA-001');
     expect(wrapper.text()).toContain('Maya Nyamu');
     expect(wrapper.text()).toContain('Main branch');
     expect(wrapper.text()).toContain('550.00');         // closing
     expect(wrapper.text()).toContain('End of Transactions');
+    expect((tenantClient.get as Mock).mock.calls[0]?.[0]).toContain('savings-account-statement/1');
   });
 
   it('renders empty Credit cell for debit rows and vice versa', async () => {
@@ -50,10 +51,12 @@ describe('statement.vue', () => {
       props: { data: { savings_accounts: [{ id: 1, account_no: 'SA-001', account_type: 'Voluntary' }] } },
     });
     await flushPromises();
-    await nextTick();
     const rows = wrapper.findAll('tbody tr');
     // first transaction row: credit=500, debit empty
     expect(rows[0].html()).toContain('500.00');
     expect(rows[0].findAll('td')[3].text()).toBe(''); // debit empty
+    // second row is credit=0, debit=50: credit cell (col index 2) should be empty
+    expect(rows[1].html()).toContain('50.00');
+    expect(rows[1].findAll('td')[2].text()).toBe('');
   });
 });
