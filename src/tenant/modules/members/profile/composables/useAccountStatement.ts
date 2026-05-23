@@ -1,4 +1,5 @@
-import { ref, watch, Ref } from 'vue';
+import { ref, watch } from 'vue';
+import type { Ref } from 'vue';
 import { tenantClient } from '@/tenant/apis/tenantClient';
 
 export interface StatementTransaction {

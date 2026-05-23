@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ref, nextTick } from 'vue';
+import { ref } from 'vue';
+import { tenantClient } from '@/tenant/apis/tenantClient';
 import { useAccountStatement } from '../profile/composables/useAccountStatement';
 
 vi.mock('@/tenant/apis/tenantClient', () => ({
@@ -28,5 +29,9 @@ describe('useAccountStatement', () => {
     expect(loading.value).toBe(false);
     expect(error.value).toBeNull();
     expect(statement.value?.balances.closing).toBe(100);
+    expect(tenantClient.get).toHaveBeenCalledWith(
+      '/reports/savings-account-statement/1',
+      { params: { date_from: '2026-02-01', date_to: '2026-02-28' } },
+    );
   });
 });
