@@ -140,12 +140,24 @@ function fmtDate(d?: string) {
   </div>
 </template>
 
-<style scoped>
+<style>
 @media print {
-  :global(body) > :not(#statement-print-area-container),
+  body * { visibility: hidden; }
+  #statement-print-area,
+  #statement-print-area * { visibility: visible; }
+  #statement-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none;
+    padding: 0;
+  }
   .no-print { display: none !important; }
-  #statement-print-area { border: none; padding: 0; }
-  table, tr, td, th { break-inside: avoid; }
+  #statement-print-area table,
+  #statement-print-area tr,
+  #statement-print-area td,
+  #statement-print-area th { break-inside: avoid; }
   * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 }
 </style>
