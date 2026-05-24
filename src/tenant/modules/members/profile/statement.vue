@@ -1,201 +1,150 @@
+<script setup lang="ts">
+import { ref, computed, watch } from 'vue';
+import { Printer } from 'lucide-vue-next';
+import { formatCurrency, formatDateUs, printElementId } from '@/Global';
+import { useAccountStatement } from './composables/useAccountStatement';
+
+const props = defineProps<{
+  data?: { savings_accounts?: Array<{ id: number; account_no: string | null; account_type: string }> };
+}>();
+
+const accounts = computed(() => props.data?.savings_accounts ?? []);
+const accountId = ref<number | null>(accounts.value[0]?.id ?? null);
+
+watch(accounts, (list) => {
+  if (accountId.value === null && list.length > 0) accountId.value = list[0].id;
+});
+
+// Default to a wide window so a fresh statement shows the account's full history
+// out of the box. The user can narrow via the date pickers.
+const DAY_MS = 86_400_000;
+const today = new Date().toISOString().slice(0, 10);
+const fiveYearsAgo = new Date(Date.now() - 5 * 365 * DAY_MS).toISOString().slice(0, 10);
+const dateFrom = ref(fiveYearsAgo);
+const dateTo   = ref(today);
+
+const { statement, loading, error, refresh } = useAccountStatement(accountId, dateFrom, dateTo);
+
+function onPrint() { printElementId('statement-print-area'); }
+</script>
+
 <template>
   <div>
-    <div class="flex justify-start items-center gap-3 my-4 no-print  ">
-   <div class="w-1/5">
-       <MultiSearchableSelect v-model="selectedType" :options="types.map((type) => ({ id: type, name: formatType(type) }))" class=" ">
-       
-      </MultiSearchableSelect>
-   </div>
-
-      <button @click="printTransactions"
-        class="flex items-center gap-2 bg-n-600 text-black px-4 py-2 rounded-lg text-sm font-medium shadow hover:bg-n-700 transition">
-
-
-        Print
+    <!-- Controls (hidden on print) -->
+    <div class="no-print flex items-end gap-3 my-4">
+      <label class="text-xs font-bold uppercase tracking-wider">
+        Account
+        <select v-model="accountId" class="block mt-1 border rounded px-3 py-2 text-sm">
+          <option v-for="a in accounts" :key="a.id" :value="a.id">
+            {{ a.account_no ?? `Account #${a.id}` }} ({{ a.account_type }})
+          </option>
+        </select>
+      </label>
+      <label class="text-xs font-bold uppercase tracking-wider">
+        From
+        <input type="date" v-model="dateFrom" class="block mt-1 border rounded px-3 py-2 text-sm" />
+      </label>
+      <label class="text-xs font-bold uppercase tracking-wider">
+        To
+        <input type="date" v-model="dateTo" class="block mt-1 border rounded px-3 py-2 text-sm" />
+      </label>
+      <button @click="onPrint" :disabled="!statement"
+              class="ml-auto inline-flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded text-sm font-semibold disabled:opacity-40">
+        <Printer :size="14" /> Print
       </button>
     </div>
-    <MemberTransactionsTab :showTable="true" :formatDateTime="formatDateTime" :formatDate="formatDate"
-      :formatCurrency="formatCurrency" :transactions="filteredCollection" mode="all" action-color="bg-[#16a34a]" />
 
-    <div id="print-area" v-if="showTransactionTable" class=" text-gray-800 p-2 border border-gray-100">
-      <div class="text-center border-b pb-5 mb-6">
-        <h1 class="text-3xl font-semibold tracking-tight text-gray-900">
-          Member Statement
-        </h1>
-     
-        <p class="text-sm text-gray-500 mt-2">
-          {{ !Array.isArray(selectedType) || !selectedType.length ? 'All Transactions' : formatType(selectedType.join(', ')) }}
-        </p>
-      </div>
+    <!-- Error -->
+    <div v-if="error" class="no-print mb-3 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded">
+      {{ error }}
+      <button @click="refresh" class="ml-3 underline font-semibold">Retry</button>
+    </div>
 
-      <div class="flex justify-between items-center text-sm mb-6">
-        <div class="space-y-1">
-          <p>
-            <span class="text-gray-500">Generated:</span>
-            <span class="font-medium text-gray-700">
-              {{ new Date().toLocaleDateString() }}
-            </span>
-          </p>
+    <!-- Statement print area -->
+    <div id="statement-print-area" class="bg-white p-8 border border-gray-200 text-gray-900">
+      <!-- Page indicator on its own row so it never overlaps the balances column -->
+      <div class="flex justify-end text-sm text-gray-600 mb-4">Page 1 of 1</div>
+
+      <!-- Header grid -->
+      <div class="grid grid-cols-2 gap-12 mb-8">
+        <!-- Left -->
+        <div class="space-y-1 text-sm">
+          <div class="grid grid-cols-[140px_1fr] gap-2">
+            <div class="text-gray-700">Account Number:</div>
+            <div>{{ statement?.account.account_no ?? '—' }}</div>
+            <div class="text-gray-700">Statement Date:</div>
+            <div>{{ formatDateUs(statement?.period.statement_date) }}</div>
+            <div class="text-gray-700">Period Covered:</div>
+            <div>{{ formatDateUs(statement?.period.date_from) }} to {{ formatDateUs(statement?.period.date_to) }}</div>
+          </div>
+          <div class="pt-2 text-base font-semibold">{{ statement?.member.name }}</div>
+          <div>{{ statement?.member.address }}</div>
+          <div v-if="statement?.member.address_city">{{ statement.member.address_city }}</div>
         </div>
-
-        <div class="text-right space-y-1">
-          <p>
-            <span class="text-gray-900 text-lg font-semibold">Account Balance : </span>
-            <span class="ftext-sm  text-nfuko-action-600">
-              {{ formatCurrency(profileDetails.details.total_balance) }}
-            </span>
-          </p>
+        <!-- Right -->
+        <div class="text-sm">
+          <div class="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1 font-mono">
+            <div class="text-gray-700 font-sans">Opening Balance:</div>
+            <div class="text-right">{{ formatCurrency(statement?.balances.opening ?? 0) }}</div>
+            <div class="text-gray-700 font-sans">Total Credit Amount:</div>
+            <div class="text-right">{{ formatCurrency(statement?.balances.total_credit ?? 0) }}</div>
+            <div class="text-gray-700 font-sans">Total Debit Amount:</div>
+            <div class="text-right">{{ formatCurrency(statement?.balances.total_debit ?? 0) }}</div>
+            <div class="text-gray-700 font-sans">Closing Balance:</div>
+            <div class="text-right font-semibold">{{ formatCurrency(statement?.balances.closing ?? 0) }}</div>
+            <div class="text-gray-700 font-sans">Account Type:</div>
+            <div class="text-right">{{ statement?.account.account_type ?? '—' }}</div>
+            <div class="text-gray-700 font-sans">Number of Transactions:</div>
+            <div class="text-right">{{ statement?.balances.count ?? 0 }}</div>
+          </div>
         </div>
       </div>
 
-      <div class="">
-        <table class="w-full text-sm table auto ">
-          <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide border-b border-gray-100">
-            <tr>
-              <th class="px-1 py-1 text-left">Date</th>
-              <th class="px-1 py-1 text-left">Type</th>
-              <th class="px-1 py-1 text-right">deposit</th>
-              <th class="px-1 py-1 text-right">After Charge</th>
-              <!-- <th class="px-1 py-1 text-right">Before Transaction balance</th> -->
-              <th class="px-1 py-1 text-right">Charge</th>
-              <th class="px-1 py-1 text-right">running blc</th>
-              <th class="px-1 py-1 text-left">Narration</th>
+      <div class="text-sm mb-4">&lt;{{ statement?.branch.name ?? 'Main branch' }}&gt;</div>
+
+      <!-- Transactions table -->
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 border-y border-gray-200 text-xs uppercase tracking-wide text-gray-600">
+          <tr>
+            <th class="px-3 py-2 text-left w-32">Date</th>
+            <th class="px-3 py-2 text-left">Description</th>
+            <th class="px-3 py-2 text-right w-32">Credit</th>
+            <th class="px-3 py-2 text-right w-32">Debit</th>
+            <th class="px-3 py-2 text-right w-32">Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template v-if="loading">
+            <tr v-for="i in 5" :key="i" class="border-b border-gray-100">
+              <td colspan="5" class="px-3 py-3"><div class="h-3 bg-gray-100 rounded animate-pulse" /></td>
             </tr>
-          </thead>
-
-          <tbody class="divide-y divide-gray-100">
-            <tr v-for="item in filteredCollection" :key="item.id" class="hover:bg-gray-50 transition">
-              <td class="px-1 py-1 text-gray-700">
-                {{ formatDateSafe(item.transaction_date) }}
-              </td>
-
-              <td class="px-1 py-1 font-medium text-gray-800">
-                {{ formatType(item.type) }}
-              </td>
-
-              <td class="px-1 py-1 text-right font-semibold text-gray-900">
-                {{ formatCurrency(item.amount_before_charge) }}
-              </td>
-              <td class="px-1 py-1 text-right font-semibold text-gray-900">
-                {{ formatCurrency(item.amount) }}
-              </td>
-              <!-- <td class="px-1 py-1 text-right font-semibold text-gray-900">
-                {{ formatCurrency(item?.running_balance) }}
-              </td> -->
-
-              <td class="px-1 py-1 text-right font-medium text-red-500">
-                {{ formatCurrency(item.charge_amount) }}
-              </td>
-              <td class="px-1 py-1 text-right font-medium text-green-500">
-               <div v-if="!item?.type.includes('charge')" >{{formatCurrency( Number(item.amount??0)+Number(item.running_balance??0) )}}</div> 
-                            <div v-else >-</div> 
-              </td>
-
-              <td class="px-1 py-1 text-gray-500 max-w-[200px]  ">
-                {{ item.narration }}
-              </td>
+          </template>
+          <template v-else-if="statement && statement.transactions.length > 0">
+            <tr v-for="t in statement.transactions" :key="t.id" class="even:bg-gray-50">
+              <td class="px-3 py-2">{{ formatDateUs(t.date) }}</td>
+              <td class="px-3 py-2">{{ t.is_reversal ? '(Reversal) ' : '' }}{{ t.description }}</td>
+              <td class="px-3 py-2 text-right font-mono">{{ t.credit ? formatCurrency(t.credit) : '' }}</td>
+              <td class="px-3 py-2 text-right font-mono">{{ t.debit ? formatCurrency(t.debit) : '' }}</td>
+              <td class="px-3 py-2 text-right font-mono">{{ formatCurrency(t.running_balance) }}</td>
             </tr>
-          </tbody>
-
-          <tfoot class="bg-gray-50 border-t">
-            <tr>
-              <td colspan="2" class="px-1 py-1 font-semibold text-gray-700">
-                Total
-              </td>
-
-              <td class="px-1 py-1 text-right font-bold text-gray-900">
-                {{ formatCurrency(totalAmount) }}
-              </td>
-
-              <td class="px-1 py-1 text-right font-bold text-red-600">
-                {{ formatCurrency(totalCharges) }}
-              </td>
-
-              <td></td>
+            <tr class="bg-gray-50">
+              <td colspan="5" class="px-3 py-2 text-center text-gray-500 text-xs">--- End of Transactions ---</td>
             </tr>
-          </tfoot>
-        </table>
-      </div>
-
-      <div class="mt-6 text-xs text-gray-400 text-center">
-        <p>This is a system-generated statement.</p>
-      </div>
+          </template>
+          <tr v-else>
+            <td colspan="5" class="px-3 py-8 text-center text-gray-500">
+              No transactions in this period. Try widening the date range above.
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, ref } from 'vue'
-import MemberTransactionsTab from './MemberTransactionsTab.vue'
-import { formatCurrency, printElementId } from '@/Global'
-import MultiSearchableSelect from '@/Global/MultiSearchableSelect.vue'
-
-interface Transaction {
-  id: number
-  type: string
-  amount: string
-  charge_amount?: string
-  narration?: string
-  transaction_date?: string
-  running_balance?: string
+<style scoped>
+@media print {
+  table, tr, td, th { break-inside: avoid; }
+  * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 }
-
-interface DataType {
-  transactions?: Transaction[]
-}
-
-const props = defineProps<{
-  data?: DataType,
-  profileDetails: any
-  formatDate?: (date: string) => string
-  formatDateTime?: (date: string) => string
-  // formatCurrency?: (amount: number) => string
-}>()
-
-const selectedType = ref<(string | number | null)[]>([])
-const showTransactionTable = ref(false)
-
-const collection = computed(() => props.data?.transactions ?? [])
-
-const types = computed(() => {
-  const unique = new Set(collection.value.map(t => t.type))
-  return Array.from(unique)
-})
-
-const filteredCollection = computed(() => {
-  if (!selectedType.value.length) return collection.value
-  return collection.value.filter(t => selectedType.value.includes(t.type))
-})
-
-const totalAmount = computed(() => {
-  return filteredCollection.value.reduce((sum, t) => {
-    return sum + Number(t.amount || 0)
-  }, 0)
-})
-
-const totalCharges = computed(() => {
-  return filteredCollection.value.reduce((sum, t) => {
-    return sum + Number(t.charge_amount || 0)
-  }, 0)
-})
-
-const formatType = (type: string) => {
-  return type.replace(/-/g, ' ')
-}
-
-
-const formatDateSafe = (date?: string) => {
-  return props.formatDate ? props.formatDate(date || '') : date
-}
-
-const printTransactions = () => {
-  showTransactionTable.value = true
-  setTimeout(() => {
-    printElementId('print-area')
-    showTransactionTable.value = false
-  })
-}
-
-
-
-</script>
+</style>
