@@ -284,7 +284,7 @@ const PALETTE = [
   '#39B588', // nfuko-action        — Members
   '#739387', // nfuko-primary-400   — Savings Accounts
   '#A8C2B8', // nfuko-chart-sub     — Savings Products
-  '#0A2318', // nfuko-primary       — Deposits
+  '#1d4780', // nfuko-primary       — Deposits
   '#D3E0DB', // nfuko-chart-pie-4   — Withdrawals
   '#4B6B5F', // nfuko-primary-500   — Charges
 ]
@@ -372,22 +372,22 @@ const portfolioTotal = computed(() => {
         <!-- Gender Ratio card -->
         <div class="group relative overflow-hidden rounded-2xl border border-neutral-100 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all hover:shadow-md dark:border-neutral-800 dark:bg-neutral-900">
           <div class="flex h-9 w-9 items-center justify-center rounded-xl" style="background-color: rgba(10,35,24,0.08)">
-            <Users class="h-4 w-4" style="color: #0A2318" />
+            <Users class="h-4 w-4" style="color: #1d4780" />
           </div>
           <div class="mt-3">
             <p class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Gender Ratio</p>
             <div class="mt-1 flex items-end gap-1.5">
-              <span class="text-xl font-bold tracking-tight" style="color: #0A2318">{{ genderRatio.malePct }}%</span>
+              <span class="text-xl font-bold tracking-tight" style="color: #1d4780">{{ genderRatio.malePct }}%</span>
               <span class="mb-0.5 text-[11px] text-neutral-400">:</span>
               <span class="text-xl font-bold tracking-tight" style="color: #39B588">{{ genderRatio.femalePct }}%</span>
             </div>
             <div class="mt-2.5 flex h-1.5 w-full overflow-hidden rounded-full">
-              <div class="h-full transition-all duration-500" style="background-color: #0A2318" :style="{ width: genderRatio.malePct + '%' }" />
+              <div class="h-full transition-all duration-500" style="background-color: #1d4780" :style="{ width: genderRatio.malePct + '%' }" />
               <div class="h-full transition-all duration-500" style="background-color: #39B588" :style="{ width: genderRatio.femalePct + '%' }" />
             </div>
             <div class="mt-1.5 flex items-center justify-between text-[11px] text-neutral-400">
               <span class="flex items-center gap-1">
-                <span class="inline-block h-1.5 w-1.5 rounded-full" style="background-color: #0A2318"></span>
+                <span class="inline-block h-1.5 w-1.5 rounded-full" style="background-color: #1d4780"></span>
                 Male · {{ genderRatio.male }}
               </span>
               <span class="flex items-center gap-1">
@@ -496,7 +496,7 @@ const portfolioTotal = computed(() => {
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2.5">
                     <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white"
-                      :style="{ backgroundColor: idx === 0 ? '#0A2318' : idx === 1 ? '#739387' : '#A8C2B8' }">
+                      :style="{ backgroundColor: idx === 0 ? '#1d4780' : idx === 1 ? '#739387' : '#A8C2B8' }">
                       {{ idx + 1 }}
                     </span>
                     <div>
@@ -525,14 +525,14 @@ const portfolioTotal = computed(() => {
             <div v-else class="space-y-3">
               <div v-for="(member, idx) in metrics!.leaderboards.savers_by_frequency" :key="member.id" class="flex items-center gap-2.5">
                 <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white"
-                  :style="{ backgroundColor: idx === 0 ? '#0A2318' : idx === 1 ? '#739387' : '#A8C2B8' }">
+                  :style="{ backgroundColor: idx === 0 ? '#1d4780' : idx === 1 ? '#739387' : '#A8C2B8' }">
                   {{ idx + 1 }}
                 </span>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center justify-between">
                     <p class="truncate text-[13px] font-semibold text-neutral-900 dark:text-white">{{ member.name }}</p>
                     <span class="ml-2 shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold text-white"
-                      style="background-color: #0A2318">
+                      style="background-color: #1d4780">
                       {{ member.deposit_count }}x
                     </span>
                   </div>
@@ -546,10 +546,10 @@ const portfolioTotal = computed(() => {
 
           <!-- Overall Best Saver -->
           <div v-if="topSaver" class="mt-5 rounded-xl p-3" style="background-color: rgba(10,35,24,0.05)">
-            <p class="mb-2 text-[10px] font-bold uppercase tracking-wider" style="color: #0A2318">Overall Best Saver</p>
+            <p class="mb-2 text-[10px] font-bold uppercase tracking-wider" style="color: #1d4780">Overall Best Saver</p>
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <span class="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white" style="background-color: #0A2318">1</span>
+                <span class="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white" style="background-color: #1d4780">1</span>
                 <div>
                   <p class="text-[13px] font-bold text-neutral-900 dark:text-white">{{ topSaver?.name }}</p>
                   <p class="text-[11px] text-neutral-400">{{ topSaver?.member_number }}</p>
@@ -564,7 +564,7 @@ const portfolioTotal = computed(() => {
               <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
                 <div class="h-full rounded-full" style="background-color: #39B588; width: 100%" />
               </div>
-              <span class="text-[11px] font-bold" style="color: #0A2318">{{ topSaver?.score }}%</span>
+              <span class="text-[11px] font-bold" style="color: #1d4780">{{ topSaver?.score }}%</span>
             </div>
           </div>
         </div>
@@ -595,7 +595,7 @@ const portfolioTotal = computed(() => {
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2.5">
                     <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white"
-                      :style="{ backgroundColor: idx === 0 ? '#0A2318' : idx === 1 ? '#739387' : '#A8C2B8' }">
+                      :style="{ backgroundColor: idx === 0 ? '#1d4780' : idx === 1 ? '#739387' : '#A8C2B8' }">
                       {{ idx + 1 }}
                     </span>
                     <div>
@@ -623,14 +623,14 @@ const portfolioTotal = computed(() => {
             <div v-else class="space-y-3">
               <div v-for="(member, idx) in metrics!.leaderboards.borrowers_by_frequency" :key="member.id" class="flex items-center gap-2.5">
                 <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white"
-                  :style="{ backgroundColor: idx === 0 ? '#0A2318' : idx === 1 ? '#739387' : '#A8C2B8' }">
+                  :style="{ backgroundColor: idx === 0 ? '#1d4780' : idx === 1 ? '#739387' : '#A8C2B8' }">
                   {{ idx + 1 }}
                 </span>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center justify-between">
                     <p class="truncate text-[13px] font-semibold text-neutral-900 dark:text-white">{{ member.name }}</p>
                     <span class="ml-2 shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold text-white"
-                      style="background-color: #0A2318">
+                      style="background-color: #1d4780">
                       {{ member.loan_count }}x
                     </span>
                   </div>
@@ -644,10 +644,10 @@ const portfolioTotal = computed(() => {
 
           <!-- Overall Best Borrower -->
           <div v-if="topBorrower" class="mt-5 rounded-xl p-3" style="background-color: rgba(10,35,24,0.05)">
-            <p class="mb-2 text-[10px] font-bold uppercase tracking-wider" style="color: #0A2318">Overall Best Borrower</p>
+            <p class="mb-2 text-[10px] font-bold uppercase tracking-wider" style="color: #1d4780">Overall Best Borrower</p>
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <span class="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white" style="background-color: #0A2318">1</span>
+                <span class="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white" style="background-color: #1d4780">1</span>
                 <div>
                   <p class="text-[13px] font-bold text-neutral-900 dark:text-white">{{ topBorrower?.name }}</p>
                   <p class="text-[11px] text-neutral-400">{{ topBorrower?.member_number }}</p>
@@ -662,7 +662,7 @@ const portfolioTotal = computed(() => {
               <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
                 <div class="h-full rounded-full" style="background-color: #39B588; width: 100%" />
               </div>
-              <span class="text-[11px] font-bold" style="color: #0A2318">{{ topBorrower?.score }}%</span>
+              <span class="text-[11px] font-bold" style="color: #1d4780">{{ topBorrower?.score }}%</span>
             </div>
           </div>
         </div>

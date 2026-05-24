@@ -111,7 +111,7 @@ async function submit() {
     <!-- SACCO badge -->
     <div class="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl  bg-nfuko-primary/5 border  border-nfuko-primary/10">
       <div class="size-8 rounded-lg bg-white flex items-center justify-center shrink-0 overflow-hidden">
-        <img src="/images/mfuko_plus_logo.webp" alt="Logo" class="size-full object-contain p-1" />
+        <img src="/images/finance-link-logo.png" alt="Logo" class="size-full object-contain p-1" />
       </div>
       <div>
         <p class="text-xs text-neutral-500 font-medium">Tenant Portal</p>
@@ -165,7 +165,7 @@ async function submit() {
 
     <!-- Right panel: branded panel matching the central login style -->
     <template #right-panel>
-      <div class="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-[#001418]">
+      <div class="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-[#1d4780]">
         <!-- Glow blobs -->
         <div class="absolute top-1/4 left-1/4 size-64 rounded-full bg-[#2dd4bf]/10 blur-3xl"></div>
         <div class="absolute bottom-1/4 right-1/4 size-48 rounded-full bg-white/5 blur-3xl"></div>
@@ -179,7 +179,7 @@ async function submit() {
             </div>
             <div
               class="relative size-36 bg-white rounded-[2.5rem] flex items-center justify-center shadow-2xl overflow-hidden p-6">
-              <img src="/images/mfuko_plus_logo.webp" alt="Mfuko Pro" class="size-full object-contain" />
+              <img src="/images/finance-link-logo.png" alt="Mfuko Pro" class="size-full object-contain" />
             </div>
           </div>
 
@@ -197,7 +197,7 @@ async function submit() {
         </div>
 
         <!-- Gradient overlay -->
-        <div class="absolute inset-0 bg-gradient-to-b from-[#001418] via-transparent to-[#001418] pointer-events-none">
+        <div class="absolute inset-0 bg-gradient-to-b from-[#1d4780] via-transparent to-[#1d4780] pointer-events-none">
         </div>
       </div>
     </template>

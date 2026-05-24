@@ -30,19 +30,23 @@
 
 @theme {
   /* Custom colors */
---color-nfuko-bg: #f2f6f5;      /* Deep Forest Green (Sidebar background) */
---color-nfuko-primary: #0A2318;      /* Deep Forest Green (Sidebar background) */
-  --color-nfuko-accent: #FCDC04;       /* Primary Yellow (Active icon/Logo) */
-  --color-nfuko-action: #39B588;       /* Mint Green (Buttons & Progress bars) */
-  --color-nfuko-nav-text: #9BB5A5;       /* Mint Green (Buttons & Progress bars) */
+  --color-nfuko-bg: #F4F8FA;      /* Light Blue/Grey (Sidebar background) */
+  --color-nfuko-primary: #1d4780;      /* Dark Blue (Sidebar background) */
+  --color-nfuko-accent: #53B3DA;       /* Light Blue (Active icon/Logo) */
+  --color-nfuko-action: #3288C9;       /* Medium Blue (Buttons & Progress bars) */
+  --color-nfuko-nav-text: #A6C8E6;       /* Soft Blue (Nav text) */
+
+  --color-nfuko-blue-light: #55a9d1;
+  --color-nfuko-blue-medium: #2369ab;
+  --color-nfuko-blue-dark: #1d4585;
   
   /* Chart & Data Visualization */
-  --color-nfuko-chart-main: #06211C;   /* Dark Teal/Black (Primary bar in chart) */
-  --color-nfuko-chart-sub: #A8C2B8;    /* Muted Sage (Secondary bar in chart) */
-  --color-nfuko-chart-pie-1: #0A2318;  /* Personal Loans (68%) */
-  --color-nfuko-chart-pie-2: #739387;  /* Business Loans (20%) */
-  --color-nfuko-chart-pie-3: #A8C2B8;  /* Emergency Loans (8%) */
-  --color-nfuko-chart-pie-4: #D3E0DB;  /* Others (4%) */
+  --color-nfuko-chart-main: #16487A;   /* Dark Blue (Primary bar in chart) */
+  --color-nfuko-chart-sub: #53B3DA;    /* Light Blue (Secondary bar in chart) */
+  --color-nfuko-chart-pie-1: #1d4780;  /* Personal Loans (68%) */
+  --color-nfuko-chart-pie-2: #3288C9;  /* Business Loans (20%) */
+  --color-nfuko-chart-pie-3: #53B3DA;  /* Emergency Loans (8%) */
+  --color-nfuko-chart-pie-4: #BDE0EE;  /* Others (4%) */
 
   /* Semantic UI Colors */
   --color-nfuko-success: #10B981;      /* Positive growth (+12.5%) */
@@ -59,22 +63,22 @@
   --color-nfuko-green: #00A86B;
   --color-nfuko-gray: #6B7280;
   /* Monochromatic Scale (Lighter to Darker) */
-  --color-nfuko-primary-50:  #F2F6F4; /* Ultra-light background for cards/inputs */
-  --color-nfuko-primary-100: #E2EBE7; /* Subtle borders */
-  --color-nfuko-primary-200: #C5D7CF; /* Disabled states or secondary icons */
-  --color-nfuko-primary-300: #9DBBB0; /* Muted text/placeholders */
-  --color-nfuko-primary-400: #739387; /* Secondary chart elements */
-  --color-nfuko-primary-500: #4B6B5F; /* Medium-tone UI elements */
-  --color-nfuko-primary-600: #355046; /* Hover state for deep greens */
-  --color-nfuko-primary-700: #243B33; /* Darker accents */
-  --color-nfuko-primary-800: #162E25; /* Very deep green */
-  --color-nfuko-primary-900: #0A2318; /* YOUR ORIGINAL PRIMARY (Sidebar/Headers) */
-  --color-nfuko-primary-950: #05120C; /* Near-black for extreme contrast text */
+  --color-nfuko-primary-50:  #F4F8FA; /* Ultra-light background for cards/inputs */
+  --color-nfuko-primary-100: #E6F0F7; /* Subtle borders */
+  --color-nfuko-primary-200: #C2DCEB; /* Disabled states or secondary icons */
+  --color-nfuko-primary-300: #9EC7DF; /* Muted text/placeholders */
+  --color-nfuko-primary-400: #7AB3D4; /* Secondary chart elements */
+  --color-nfuko-primary-500: #559EC8; /* Medium-tone UI elements */
+  --color-nfuko-primary-600: #3288C9; /* Hover state */
+  --color-nfuko-primary-700: #266B9E; /* Darker accents */
+  --color-nfuko-primary-800: #1d4780; /* Very deep blue */
+  --color-nfuko-primary-900: #133D66; /* YOUR ORIGINAL PRIMARY (Sidebar/Headers) */
+  --color-nfuko-primary-950: #0B243D; /* Near-black for extreme contrast text */
 
   /* Sidebar Active State */
-  --color-nfuko-nav-active: rgba(57, 181, 136, 0.15); /* Active sidebar link background */
+  --color-nfuko-nav-active: rgba(83, 179, 218, 0.15); /* Active sidebar link background */
 
   /* Functional Alpha Variants (Great for "Active" Sidebar links) */
-  --color-nfuko-primary-10: rgba(10, 35, 24, 0.1); /* Soft highlight */
-  --color-nfuko-primary-20: rgba(10, 35, 24, 0.2); /* Subtle overlay */
+  --color-nfuko-primary-10: rgba(26, 84, 140, 0.1); /* Soft highlight */
+  --color-nfuko-primary-20: rgba(26, 84, 140, 0.2); /* Subtle overlay */
 }

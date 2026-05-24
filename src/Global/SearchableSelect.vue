@@ -53,6 +53,7 @@ const props = defineProps<{
     appendOptions?: Option[]
     data?: any;
     method?: string;
+    filterOptionsFn?: (options: any[]) => any[];
 }>();
 
 const emit = defineEmits(['update:modelValue', 'update:itemSelected']);
@@ -103,19 +104,21 @@ const searchQuery = ref('');
 const collection = shallowRef<any[]>([]);
 const containerRef = ref<HTMLElement | null>(null);
 const selectedOption = computed(() => {
-    const options = props?.url ? collection.value : props.options
-    if (!Array.isArray(options) || options?.length === 0) return null
+    let options = props?.url ? collection.value : props.options;
+    if (!Array.isArray(options) || options?.length === 0) return null;
+    if (props.filterOptionsFn) {
+        options = props.filterOptionsFn(options);
+    }
     return options?.find(opt => opt.id == props.modelValue);
 });
 
 const filteredOptions = computed(() => {
-
-    let options = props?.url ? collection.value : [...(props?.options ?? []), ...(props.appendOptions ?? [])]
-
+    let options = props?.url ? collection.value : [...(props?.options ?? []), ...(props.appendOptions ?? [])];
     if (!Array.isArray(options)) return [];
-
+    if (props.filterOptionsFn) {
+        options = props.filterOptionsFn(options);
+    }
     if (!searchQuery.value) return options;
-
     const query = searchQuery.value.toLowerCase();
     return options?.filter(opt =>
         opt.name.toLowerCase().includes(query)

@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive, computed, watch } from 'vue';
+import { ref, onMounted, reactive, computed, watch, markRaw } from 'vue';
 import { Form, getSystemSetting, tryCatch } from '@/Global';
 import { AlertCircle, TrendingUp } from 'lucide-vue-next';
 const emits = defineEmits(['update:form']);
 import { memberAccountApi } from '@/tenant/apis'
+import { tenantClient } from '@/tenant/apis/tenantClient'
 import debounce from 'lodash/debounce'
 import { pomPinia } from 'septor-store'
 import { memmberSettingApi } from '@/tenant/apis/members/settings.ts'
+import AssetAccountSelect from './components/AssetAccountSelect.vue'
+import ChartOfAccountForm from '@/tenant/modules/accounting/components/ChartOfAccountForm.vue'
+import { toast } from 'vue-sonner'
 const { onBoardingProductGeneralCharges } = memmberSettingApi()
 const Store = pomPinia()
 const { getProductCharges } = memberAccountApi()
@@ -32,6 +36,31 @@ const minAgeDate = new Date(
   today.getMonth(),
   today.getDate()
 );
+
+const refreshAssetAccounts = ref(0)
+const autoSelectId = ref<number | null>(null)
+const creatingAccount = ref<{ open: boolean; prefillName: string }>({
+  open: false,
+  prefillName: '',
+})
+
+const canCreateCoa = computed(() => true)
+
+const assetAccountComponentProps = reactive({
+  get canCreate() {
+    return canCreateCoa.value
+  },
+  get refreshTrigger() {
+    return refreshAssetAccounts.value
+  },
+  get autoSelectId() {
+    return autoSelectId.value
+  },
+  onRequestCreate(payload: { prefillName: string }) {
+    creatingAccount.value = { open: true, prefillName: payload.prefillName }
+  },
+})
+
 const fields = ref<any[]>([
   {
     label: 'Member type',
@@ -147,11 +176,9 @@ const fields = ref<any[]>([
   {
     label: 'payment mode (Debit Account)',
     name: 'payment_mode_id',
-    type: 'select',
-    url: "global/chart-of-accounts",
-    data: { account_type: 'ASSET' },
-    dataOnMount: true,
-    options: [],
+    type: 'component',
+    component: markRaw(AssetAccountSelect),
+    componentProps: assetAccountComponentProps,
     required: true,
 
     // selectDefaultIndex: 0,
@@ -439,6 +466,19 @@ const watchChangeInProductOrCharges = debounce(async (fields: any) => {
     }
   }
 }, 900)
+function onAccountSaved(account: {
+  id: number
+  gl_code: string
+  name: string
+  account_type: string
+  parent_id: number | null
+}) {
+  creatingAccount.value.open = false
+  refreshAssetAccounts.value += 1
+  autoSelectId.value = account.id
+  toast.success(`Created asset account ${account.gl_code} - ${account.name}`)
+}
+
 onMounted(() => {
   promtValueOnUpdate()
   checkForSettings()
@@ -450,6 +490,14 @@ defineExpose({ fields, watchChangeInProductOrCharges })
   <card class="card shadow-md px-4 py-3 bg-white dark:bg-neutral-800 rounded-md h -[86vh] over flow-y-auto border-0">
     <span v-if='loadingMount'></span>
     <Form :action="data?.action" v-else parentStyle="grid  grid-cols-2 gap-3" v-model:form="fields" />
+    <ChartOfAccountForm
+      v-model:open="creatingAccount.open"
+      locked-account-type="ASSET"
+      default-parent-gl-code="12000"
+      :prefill-name="creatingAccount.prefillName"
+      require-parent
+      @saved="onAccountSaved"
+    />
     <div v-setting='"sacco-share-on-member-creation-create-share-account-at-the-same-time"'
       class="mt-0 rounded-2xl border border-nfuko-primary-200 bg-nfuko-primary-50/60 overflow-hidden">
       <!-- Section header -->

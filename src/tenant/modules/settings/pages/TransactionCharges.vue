@@ -28,7 +28,7 @@ const charges = [
                 </div>
             </div>
             <button
-                class="flex items-center gap-2 rounded-xl  bg-nfuko-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#002e35] active:scale-[0.98] dark:bg-nfuko-yellow dark:text-[#0A2318] dark:hover:bg-[#b8973f]">
+                class="flex items-center gap-2 rounded-xl  bg-nfuko-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#002e35] active:scale-[0.98] dark:bg-nfuko-yellow dark:text-[#1d4780] dark:hover:bg-[#b8973f]">
                 <Plus class="h-4 w-4" />
                 Add Charge
             </button>

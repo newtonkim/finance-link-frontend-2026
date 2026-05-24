@@ -444,7 +444,7 @@ const selectCls =
       <button
         @click="saveAll"
         :disabled="isSaving"
-        class="flex items-center gap-2 rounded-xl bg-nfuko-primary px-8 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-[#002e35] hover:shadow-lg active:scale-[0.98] disabled:opacity-50 dark:bg-nfuko-yellow dark:text-[#0A2318] dark:hover:bg-[#b8973f]"
+        class="flex items-center gap-2 rounded-xl bg-nfuko-primary px-8 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-[#002e35] hover:shadow-lg active:scale-[0.98] disabled:opacity-50 dark:bg-nfuko-yellow dark:text-[#1d4780] dark:hover:bg-[#b8973f]"
       >
         <Loader2 v-if="isSaving" class="h-4 w-4 animate-spin" />
         {{ isSaving ? 'Saving...' : 'Save Holiday Settings' }}

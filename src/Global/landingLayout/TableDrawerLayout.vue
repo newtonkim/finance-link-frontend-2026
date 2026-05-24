@@ -7,7 +7,7 @@
             </div>
             <div v-else>
                 <div v-if='title'
-                    class="text-4xl font-black text-[#0A2318] dark:text-white tracking-tight font-bold text-neutral-900 dark:text-white capitalize"
+                    class="text-4xl font-black text-[#1d4780] dark:text-white tracking-tight font-bold text-neutral-900 dark:text-white capitalize"
                     v-once>
                     <h3 v-html="title"></h3>
                 </div>
@@ -74,7 +74,7 @@
     <slot name="footer" />
     <div v-if="DrawerMounted">
         <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShooter2" v-model:open="drawerOpen"
-            :title="drawerTitle" @save="saveDrawerData">
+            :title="drawerTitle" @save="saveDrawerData" :saveButtonClass="props.saveButtonClass">
             <template #body>
                 <!-- {{ drawerShowFooter }} -->
                 <div id="print-container-drawer">
@@ -160,6 +160,7 @@ const props = defineProps({
     drawerShowFooter: { type: Boolean, default: true },
     drawerTitle: { type: String, default: 'Drawer Title' },
     drawerWidth: { type: String, default: '30rem' },
+    saveButtonClass: { type: String, default: null, required: false },
     importDefaults: { type: Array, default: [], required: false },
     title: { type: String, required: false },
     /**

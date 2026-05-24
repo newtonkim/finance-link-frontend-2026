@@ -3,6 +3,6 @@
 
 <template>
   <div class="flex items-center">
-    <img src="/images/mfuko_plus_logo.webp" alt="Mfuko Pro" class="h-8 w-auto" />
+    <img src="/images/finance-link-logo.png" alt="Mfuko Pro" class="h-8 w-auto" />
   </div>
 </template>

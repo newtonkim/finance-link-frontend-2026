@@ -28,32 +28,45 @@ type BrandingCache = {
 }
 
 /**
- * Derives the Laravel public-storage origin from VITE_BACKEND_URL so the URL
- * is always built relative to the current environment — never hardcoded.
+ * Derives the Laravel public-storage base URL.
+ * Uses the backend origin (not just the path prefix) so that
+ * /storage images are fetched from the API server, not the Vite dev server.
  *
- * /api/v1          → /storage          (same origin, proxied in dev)
- * https://x.com/api/v1 → https://x.com/storage
+ * VITE_BACKEND_URL=/api/v1        → http://127.0.0.1:8000/storage  (dev fallback)
+ * VITE_BACKEND_URL=https://x.com/api/v1 → https://x.com/storage
  */
 function getStorageBase(): string {
-    const backendUrl = import.meta.env.VITE_BACKEND_URL ?? '/api/v1'
-    if (backendUrl.startsWith('/')) return '/storage'
+    const backendUrl = import.meta.env.VITE_BACKEND_URL ?? 'http://127.0.0.1:8000/api/v1'
+    // If it's a relative path (e.g. /api/v1), derive the origin from tenantClient baseURL
+    if (backendUrl.startsWith('/')) {
+        // tenantClient base is e.g. http://127.0.0.1:8000/api/v1/tenant
+        // We need http://127.0.0.1:8000/storage
+        const fallback = 'http://127.0.0.1:8000'
+        return fallback + '/storage'
+    }
     try {
         return new URL(backendUrl).origin + '/storage'
     } catch {
-        return '/storage'
+        return 'http://127.0.0.1:8000/storage'
     }
 }
 
 function buildLogoUrl(logoPath: string | null | undefined): string | null {
     if (!logoPath) return null
-    return `${getStorageBase()}/${logoPath}`
+    // If it's already a full URL, use it as-is
+    if (logoPath.startsWith('http://') || logoPath.startsWith('https://') || logoPath.startsWith('//')) {
+        return logoPath
+    }
+    // Strip any leading slash or 'storage/' prefix to avoid doubling
+    const clean = logoPath.replace(/^\/+/, '').replace(/^storage\//, '')
+    return `${getStorageBase()}/${clean}`
 }
 
-function signNewData(res: BrandingCache) {
+function signNewData(res: BrandingCache & { logo_url?: string | null }) {
     saccoBrandingState.sacco_name = res.sacco_name ?? res.name ?? null
     saccoBrandingState.tagline    = res.tagline    ?? res.tag  ?? null
-    // Derive URL from relative path — never trust a cached absolute URL
-    saccoBrandingState.logo_url   = buildLogoUrl(res.logo_path ?? res.logo)
+    // Prefer a full logo_url from the server; fall back to building from path
+    saccoBrandingState.logo_url   = res.logo_url ?? buildLogoUrl(res.logo_path ?? res.logo)
     saccoBrandingState.loaded     = true
 }
 
@@ -63,9 +76,8 @@ export const saccoBrandingApi = {
         const cached = getetSystemBranding()
         if (cached) {
             signNewData(cached)
-            return 
         }
-        // Then fetch fresh data from the server to pick up any changes
+        // Always fetch fresh data from the server to pick up any changes (e.g. newly saved logo)
         try {
             const res = await tenantClient.get('/sacco-branding')
             const data = res.data?.data ?? res.data ?? null

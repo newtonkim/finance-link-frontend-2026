@@ -1,6 +1,6 @@
 <template>
   <div  >
-    <h1 class="text-3xl font-black text-[#0A2318] dark:text-white tracking-tight">
+    <h1 class="text-3xl font-black text-[#1d4780] dark:text-white tracking-tight">
       {{ title }}
     </h1>
 

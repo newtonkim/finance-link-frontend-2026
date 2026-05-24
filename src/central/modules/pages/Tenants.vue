@@ -224,7 +224,7 @@ function formatDate(dateStr?: string): string {
                                     <div class="flex items-center gap-3">
                                         <div
                                             class="size-10 rounded-xl bg-neutral-100 dark:bg-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                                            <img src="/images/mfuko_plus_logo.webp" alt="Tenant"
+                                            <img src="/images/finance-link-logo.png" alt="Tenant"
                                                 class="size-full object-contain p-1.5" />
                                         </div>
                                         <div>

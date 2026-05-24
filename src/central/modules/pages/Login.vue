@@ -189,7 +189,7 @@ const submit = async () => {
 
         <Button
           type="submit"
-          style="background-color: #212427;" class="h-12 w-full hover:opacity-90 text-white font-semibold rounded-xl transition-all shadow-lg"
+          style="background-color: #55a9d1;" class="h-12 w-full hover:opacity-90 text-white font-semibold rounded-xl transition-all shadow-lg"
           :tabindex="4"
           :disabled="processing"
           data-test="login-button"
@@ -212,7 +212,7 @@ const submit = async () => {
 
     <template #right-panel>
       <div
-        class="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-[#001418]"
+        class="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-[#1d4780]"
       >
         <!-- 3D Interactive Scene -->
         <div
@@ -237,7 +237,7 @@ const submit = async () => {
               class="relative w-48 h-48 bg-white backdrop-blur-2xl border border-white/20 rounded-[3rem] flex flex-col items-center justify-center shadow-2xl transition-all duration-500 group-hover:scale-105 overflow-hidden"
             >
               <img
-                src="/images/mfuko_plus_logo.webp"
+                src="/images/finance-link-logo.png"
                 alt="Mfuko Plus Logo"
                 class="w-full h-full object-contain p-6"
               />
@@ -283,21 +283,21 @@ const submit = async () => {
 
         <!-- Text Content -->
         <div
-          class="mt-8 text-center space-y-4 max-w-sm relative z-30 px-6 transform transition-all duration-1000"
+          class="mt-8 text-center space-y-4 w-full max-w-2xl relative z-30 px-6 transform transition-all duration-1000"
         >
           <h2 class="text-6xl font-black tracking-tight text-white leading-tight">
-            Mfuko Pro
+            Finance Link
             <span
-              class="block text-xl mt-4 text-[#2dd4bf] tracking-[0.3em] uppercase font-black drop-shadow-[0_0_10px_rgba(45,212,191,0.3)]"
+              class="block text-xl mt-4 text-white tracking-[0.3em] uppercase font-black drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]"
             >
-              THE LEDGER OF YOUR GROWTH
+              SEAMLESS FINANCIAL INCLUSION powered by AI
             </span>
           </h2>
         </div>
 
         <!-- Decorative Background Elements -->
         <div
-          class="absolute inset-0 bg-gradient-to-b from-[#001418] via-transparent to-[#001418] pointer-events-none"
+          class="absolute inset-0 bg-gradient-to-b from-[#1d4780] via-transparent to-[#1d4780] pointer-events-none"
         ></div>
       </div>
     </template>

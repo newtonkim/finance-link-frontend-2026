@@ -163,7 +163,7 @@ async function onAvatarSelected(event: Event) {
             </h2>
             <Badge
               variant="outline"
-              class="mt-1.5 bg-nfuko-yellow/10 text-[#0A2318] dark:text-nfuko-yellow border-nfuko-yellow/20 font-bold"
+              class="mt-1.5 bg-nfuko-yellow/10 text-[#1d4780] dark:text-nfuko-yellow border-nfuko-yellow/20 font-bold"
             >
               {{ profile.role }}
             </Badge>

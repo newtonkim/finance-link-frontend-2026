@@ -109,7 +109,7 @@ async function handleSave() {
                             class="flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl border-2 border-dashed border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 overflow-hidden">
                             <img v-if="currentLogoSrc()" :src="currentLogoSrc()!" alt="Logo preview"
                                 class="h-full w-full object-contain p-2" />
-                            <img v-else src="/images/mfuko_plus_logo.webp" alt="Current logo"
+                            <img v-else src="/images/finance-link-logo.png" alt="Current logo"
                                 class="h-14 w-auto object-contain" />
                         </div>
 
@@ -205,7 +205,7 @@ async function handleSave() {
                             class="flex shrink-0 items-center justify-center rounded-xl bg-nfuko-yellow/20 h-12 w-12 overflow-hidden">
                             <img v-if="currentLogoSrc()" :src="currentLogoSrc()!" alt="Logo"
                                 class="h-8 w-auto object-contain" />
-                            <img v-else src="/images/mfuko_plus_logo.webp" alt="Logo" class="h-8 w-auto" />
+                            <img v-else src="/images/finance-link-logo.png" alt="Logo" class="h-8 w-auto" />
                         </div>
                         <div class="flex flex-col min-w-0">
                             <span class="text-base font-bold leading-tight text-white italic truncate">
@@ -222,7 +222,7 @@ async function handleSave() {
             <!-- Save Button -->
             <div class="flex justify-end">
                 <button @click="handleSave" :disabled="isSaving"
-                    class="flex items-center gap-2 rounded-xl bg-nfuko-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#002e35] active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none dark:bg-nfuko-yellow dark:text-[#0A2318] dark:hover:bg-[#b8973f]">
+                    class="flex items-center gap-2 rounded-xl bg-nfuko-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#002e35] active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none dark:bg-nfuko-yellow dark:text-[#1d4780] dark:hover:bg-[#b8973f]">
                     <Loader2 v-if="isSaving" class="h-4 w-4 animate-spin" />
                     {{ isSaving ? 'Saving…' : 'Save Changes' }}
                 </button>

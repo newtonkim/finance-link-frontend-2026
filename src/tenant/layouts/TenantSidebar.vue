@@ -35,7 +35,7 @@ import {
 import { useTenantContextStore } from '@/stores/tenantContext'
 import { tenantRoutes } from "@/tenant/layouts/routes.ts";
 import { OutClickNav } from '@/Global/OutClicknavigation';
-import { saccoBrandingState } from '@/tenant/apis/saccobranding/saccoBrandingApi'
+import { saccoBrandingState, saccoBrandingApi } from '@/tenant/apis/saccobranding/saccoBrandingApi'
 import { pomPinia } from 'septor-store'
 import type { MenuRoutes } from '@/Global/types/helpers'
 
@@ -58,8 +58,9 @@ const isSettingsActive = computed(() => route.path.startsWith('/tenant/settings'
 const tenant = tenantStore.currentTenant as any
 // const fullRemount = computed(() => Store.fullRemount)
 const tenantRoutesReactive = computed(() => tenantRoutes)
-onMounted(() => {
-  // Any necessary onMounted logic
+onMounted(async () => {
+  // Load sacco branding so the logo & name appear on first render
+  await saccoBrandingApi.get()
 })
 
 // Group routes by their `group` field for section rendering
@@ -94,15 +95,15 @@ const groupedRoutes = computed(() => {
 </script>
 
 <template>
-  <Sidebar collapsible="icon" variant="inset" class="bg-[#0A2318] text-white border-r-0">
+  <Sidebar collapsible="icon" variant="inset" class="bg-[#1d4780] text-white border-r-0">
     <SidebarHeader class="px-4 py-4">
       <!-- Logo + Sacco Name -->
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <div class="flex shrink-0 items-center justify-center rounded-2xl transition-all duration-500 overflow-hidden"
+          <div class="flex shrink-0 items-center justify-center rounded-2xl transition-all duration-500 overflow-hidden bg-white shadow-md p-1.5"
             :class="[
-              state === 'expanded' ? 'h-14 w-14' : 'h-8 w-8',
-              saccoBrandingState.logo_url ? '' : 'bg-nfuko-yellow text-[#0A2318] shadow-xl'
+              state === 'expanded' ? 'h-16 w-16' : 'h-10 w-10',
+              saccoBrandingState.logo_url ? '' : 'text-[#1d4780]'
             ]">
             <img v-if="saccoBrandingState.logo_url" :src="saccoBrandingState.logo_url" alt="Sacco logo"
               class="h-full w-full object-contain" />

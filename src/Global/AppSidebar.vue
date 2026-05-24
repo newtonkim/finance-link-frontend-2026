@@ -22,7 +22,7 @@ onMounted(() => {
 });
 
 const branding = computed(() => (Store as any).central_branding?.payload);
-const sidebarName = computed(() => branding.value?.platform_name || 'Boss Portal');
+const sidebarName = computed(() => branding.value?.platform_name || 'Finance Link');
 const sidebarTagline = computed(() => branding.value?.tagline || '');
 const sidebarLogo = computed(() => branding.value?.logo_url || null);
 
@@ -38,19 +38,11 @@ function toggleDarkMode() {
     <Sidebar collapsible="icon" variant="inset"
         class=" bg-nfuko-primary text-white border-r-0 flex-grow px-4 space-y-2 overflow-y-a uto custom-scrollbar">
         <SidebarHeader class="px">
-            <div class="flex items-center gap-2 truncate">
-                <div class="flex shrink-0 items-center justify-center h-14 w-14">
-                    <img :src="sidebarLogo || '/images/mfuko_plus_logo.webp'" alt="Logo"
-                        class="h-12 w-12 transition-all object-contain"
-                        :class="state === 'collapsed' ? 'scale-125' : ''" />
-                </div>
-                <div v-if="state !== 'collapsed'" class="flex flex-col min-w-0">
-                    <span class="text-lg font-bold leading-tight tracking-tight text-white italic truncate">
-                        {{ sidebarName }}
-                    </span>
-                    <span v-if="sidebarTagline" class="text-[11px] text-white/50 truncate">
-                        {{ sidebarTagline }}
-                    </span>
+            <div class="flex items-center justify-center w-full">
+                <div class="flex shrink-0 items-center justify-center bg-white rounded-xl shadow-md p-2 h-16 w-24">
+                    <img :src="sidebarLogo || '/images/finance-link-logo.png'" alt="Logo"
+                        class="h-full w-full transition-all object-contain"
+                        :class="state === 'collapsed' ? 'scale-110' : ''" />
                 </div>
             </div>
         </SidebarHeader>

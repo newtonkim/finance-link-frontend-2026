@@ -61,7 +61,7 @@ const logout = async () => {
           >
             <!-- Avatar -->
             <div
-              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-nfuko-yellow text-[#0A2318] text-[11px] font-black shadow"
+              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-nfuko-yellow text-[#1d4780] text-[11px] font-black shadow"
             >
               {{ initials }}
             </div>
@@ -93,7 +93,7 @@ const logout = async () => {
           <!-- User info header -->
           <DropdownMenuLabel class="flex items-center gap-3 px-3 py-3">
             <div
-              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-nfuko-yellow text-[#0A2318] text-[12px] font-black"
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-nfuko-yellow text-[#1d4780] text-[12px] font-black"
             >
               {{ initials }}
             </div>

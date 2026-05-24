@@ -120,16 +120,16 @@ function statusClass(s: any) {
       <div class="space-y-2">
         <!-- Breadcrumbs -->
         <nav class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-neutral-400">
-          <RouterLink to="/tenant/dashboard" class="hover:text-[#0A2318] transition-colors">Dashboard</RouterLink>
+          <RouterLink to="/tenant/dashboard" class="hover:text-[#1d4780] transition-colors">Dashboard</RouterLink>
           <ChevronRight class="h-3 w-3" />
-          <span class="text-[#0A2318]">Group Savings -</span>
+          <span class="text-[#1d4780]">Group Savings -</span>
         </nav>
-        <h1 class="text-4xl font-black text-[#0A2318] dark:text-white tracking-tight">Group Savings</h1>
+        <h1 class="text-4xl font-black text-[#1d4780] dark:text-white tracking-tight">Group Savings</h1>
         <p class="text-sm text-neutral-500 max-w-lg">Manage and monitor institutional savings groups, their membership tiers, and overall performance.</p>
       </div>
 
       <button
-        class="inline-flex items-center gap-2.5 rounded-2xl bg-nfuko-primary px-8 py-4 text-sm font-bold text-white hover:bg-[#124b30] transition-all shadow-xl shadow-[#0A2318]/10 active:scale-95 group"
+        class="inline-flex items-center gap-2.5 rounded-2xl bg-nfuko-primary px-8 py-4 text-sm font-bold text-white hover:bg-[#124b30] transition-all shadow-xl shadow-[#1d4780]/10 active:scale-95 group"
         @click="openCreate"
       >
         <Plus class="h-5 w-5 transition-transform group-hover:rotate-90" />
@@ -141,7 +141,7 @@ function statusClass(s: any) {
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
       <div v-for="(val, label) in { 'Total Groups': groups.length, 'Active Portfolios': 0, 'Growth Rate': '0%' }" :key="label" class="bg-white dark:bg-neutral-900 p-6 rounded-[24px] border border-neutral-100 dark:border-neutral-800 shadow-sm">
         <p class="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-1">{{ label }}</p>
-        <p class="text-2xl font-black text-[#0A2318] dark:text-white">{{ val }}</p>
+        <p class="text-2xl font-black text-[#1d4780] dark:text-white">{{ val }}</p>
       </div>
     </div>
 
@@ -153,7 +153,7 @@ function statusClass(s: any) {
           v-model="search"
           type="text"
           placeholder="Search groups by name, location or contact protocol..."
-          class="w-full rounded-2xl border-none bg-neutral-50 dark:bg-neutral-800 py-3.5 pl-12 pr-4 text-sm outline-none transition-all placeholder:text-neutral-400 focus:bg-neutral-100 focus:ring-2 focus:ring-[#0A2318]/5 dark:text-white"
+          class="w-full rounded-2xl border-none bg-neutral-50 dark:bg-neutral-800 py-3.5 pl-12 pr-4 text-sm outline-none transition-all placeholder:text-neutral-400 focus:bg-neutral-100 focus:ring-2 focus:ring-[#1d4780]/5 dark:text-white"
         />
       </div>
       <button class="h-12 px-6 rounded-2xl border border-neutral-100 dark:border-neutral-800 flex items-center gap-2 text-sm font-bold text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 transition-all">
@@ -168,12 +168,12 @@ function statusClass(s: any) {
         <table class="w-full text-sm border-collapse">
           <thead>
             <tr class="bg-neutral-50/50 dark:bg-neutral-800/50">
-              <th class="px-8 py-6 text-left font-bold text-[#0A2318]/40 uppercase tracking-[0.15em] text-[10px]">Institutional Identity</th>
-              <th class="px-6 py-6 text-left font-bold text-[#0A2318]/40 uppercase tracking-[0.15em] text-[10px]">Primary Contact</th>
-              <th class="px-6 py-6 text-left font-bold text-[#0A2318]/40 uppercase tracking-[0.15em] text-[10px]">Location Node</th>
-              <th class="px-6 py-6 text-left font-bold text-[#0A2318]/40 uppercase tracking-[0.15em] text-[10px]">Status</th>
-              <th class="px-6 py-6 text-left font-bold text-[#0A2318]/40 uppercase tracking-[0.15em] text-[10px]">Launch Date</th>
-              <th class="px-8 py-6 text-right font-bold text-[#0A2318]/40 uppercase tracking-[0.15em] text-[10px]">Management</th>
+              <th class="px-8 py-6 text-left font-bold text-[#1d4780]/40 uppercase tracking-[0.15em] text-[10px]">Institutional Identity</th>
+              <th class="px-6 py-6 text-left font-bold text-[#1d4780]/40 uppercase tracking-[0.15em] text-[10px]">Primary Contact</th>
+              <th class="px-6 py-6 text-left font-bold text-[#1d4780]/40 uppercase tracking-[0.15em] text-[10px]">Location Node</th>
+              <th class="px-6 py-6 text-left font-bold text-[#1d4780]/40 uppercase tracking-[0.15em] text-[10px]">Status</th>
+              <th class="px-6 py-6 text-left font-bold text-[#1d4780]/40 uppercase tracking-[0.15em] text-[10px]">Launch Date</th>
+              <th class="px-8 py-6 text-right font-bold text-[#1d4780]/40 uppercase tracking-[0.15em] text-[10px]">Management</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-neutral-50 dark:divide-neutral-800">
@@ -211,12 +211,12 @@ function statusClass(s: any) {
                 <div class="flex items-center gap-4">
                   <div class="h-12 w-12 shrink-0 overflow-hidden rounded-[18px] border-2 border-white dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-800 shadow-sm flex items-center justify-center transition-transform group-hover:scale-105">
                     <img v-if="group.logo" :src="group.logo" class="h-full w-full object-cover" />
-                    <div v-else class="text-[#0A2318] dark:text-white font-black text-sm">
+                    <div v-else class="text-[#1d4780] dark:text-white font-black text-sm">
                       {{ (group.name || 'SG').substring(0, 2).toUpperCase() }}
                     </div>
                   </div>
                   <div class="flex flex-col">
-                    <span class="font-bold text-[#0A2318] dark:text-white text-base">{{ group.name || 'Unnamed Group' }}</span>
+                    <span class="font-bold text-[#1d4780] dark:text-white text-base">{{ group.name || 'Unnamed Group' }}</span>
                     <span class="text-[10px] text-neutral-400 font-bold uppercase tracking-wider">ID: #{{ (group.id || 0).toString().slice(-4) }}</span>
                   </div>
                 </div>
@@ -254,7 +254,7 @@ function statusClass(s: any) {
                 <div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
                   <button
                     @click="openView(group)"
-                    class="h-10 px-5 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-100 dark:border-neutral-700 text-xs font-bold text-[#0A2318] dark:text-white hover:bg-neutral-50 transition-all shadow-sm"
+                    class="h-10 px-5 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-100 dark:border-neutral-700 text-xs font-bold text-[#1d4780] dark:text-white hover:bg-neutral-50 transition-all shadow-sm"
                   >
                     Details
                   </button>

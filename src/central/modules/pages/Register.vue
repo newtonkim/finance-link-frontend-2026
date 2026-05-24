@@ -138,11 +138,11 @@ const submit = async () => {
   }
 };
 
-const loginPath = '/login';
+const loginPath = '/central/login';
 </script>
 
 <template>
-  <AuthBase title="Create an account" description="Join Mfuko Pro today and elevate your financial management">
+  <AuthBase title="Create an account" description="Join Finance Link and elevate your financial inclusion though AI">
     <div
       v-if="errors.form"
       class="mb-6 rounded-lg bg-red-50 p-4 text-center text-sm font-medium text-red-600 border border-red-100"
@@ -213,7 +213,7 @@ const loginPath = '/login';
     </form>
 
     <template #right-panel>
-      <div class="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-[#001418] p-8">
+      <div class="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-[#1d4780] p-8">
         <div class="relative w-full aspect-square max-w-sm mb-12">
           <transition-group name="fade-slide" tag="div" class="relative w-full h-full">
             <div v-for="(feature, index) in features" :key="feature.title" v-show="activeIndex === index"
@@ -241,7 +241,7 @@ const loginPath = '/login';
         </div>
 
         <!-- Gradient background decoration to match Login.vue -->
-        <div class="absolute inset-0 bg-gradient-to-b from-[#001418] via-transparent to-[#001418] pointer-events-none">
+        <div class="absolute inset-0 bg-gradient-to-b from-[#1d4780] via-transparent to-[#1d4780] pointer-events-none">
         </div>
       </div>
     </template>

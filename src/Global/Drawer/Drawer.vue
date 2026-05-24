@@ -51,7 +51,8 @@
                 <Button
                   type="submit"
                   :disabled="formStore.loading"
-                  class="flex-1 h-11  mr-5 w-full font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors flex items-center justify-center gap-2"
+                  class="flex-1 h-11 mr-5 w-full font-bold text-white transition-colors flex items-center justify-center gap-2"
+                  :class="props.saveButtonClass || 'bg-emerald-600 hover:bg-emerald-700 shadow-sm'"
                 >
                   <Spinner v-if="formStore.loading" class="w-4 h-4" />
                   <span v-else>Save</span>
@@ -78,6 +79,7 @@ const props = withDefaults(
     title: string;
     width?: string;
     showFooter?: boolean;
+    saveButtonClass?: string;
   }>(),
   {
     width: "w-2/3 sm:full",

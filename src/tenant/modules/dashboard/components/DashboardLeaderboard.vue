@@ -115,7 +115,7 @@ const color = computed(() => props.barColor || '#39B588')
               <span
                 class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white"
                 :style="{
-                  backgroundColor: idx === 0 ? '#0A2318' : idx === 1 ? '#739387' : '#A8C2B8',
+                  backgroundColor: idx === 0 ? '#1d4780' : idx === 1 ? '#739387' : '#A8C2B8',
                 }"
               >
                 {{ idx + 1 }}
@@ -161,7 +161,7 @@ const color = computed(() => props.barColor || '#39B588')
         >
           <span
             class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white"
-            :style="{ backgroundColor: idx === 0 ? '#0A2318' : idx === 1 ? '#739387' : '#A8C2B8' }"
+            :style="{ backgroundColor: idx === 0 ? '#1d4780' : idx === 1 ? '#739387' : '#A8C2B8' }"
           >
             {{ idx + 1 }}
           </span>
@@ -172,7 +172,7 @@ const color = computed(() => props.barColor || '#39B588')
               </p>
               <span
                 class="ml-2 shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold text-white"
-                style="background-color: #0a2318"
+                style="background-color: #1d4780"
               >
                 {{ member[freqKey] }}x
               </span>
@@ -190,14 +190,14 @@ const color = computed(() => props.barColor || '#39B588')
       class="mt-5 rounded-xl p-3"
       style="background-color: rgba(10, 35, 24, 0.05)"
     >
-      <p class="mb-2 text-[10px] font-bold uppercase tracking-wider" style="color: #0a2318">
+      <p class="mb-2 text-[10px] font-bold uppercase tracking-wider" style="color: #1d4780">
         Overall Best
       </p>
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
           <span
             class="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white"
-            style="background-color: #0a2318"
+            style="background-color: #1d4780"
             >1</span
           >
           <div>
@@ -218,7 +218,7 @@ const color = computed(() => props.barColor || '#39B588')
         <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
           <div class="h-full rounded-full" :style="{ backgroundColor: color, width: '100%' }" />
         </div>
-        <span class="text-[11px] font-bold" style="color: #0a2318">{{ topMember.score }}%</span>
+        <span class="text-[11px] font-bold" style="color: #1d4780">{{ topMember.score }}%</span>
       </div>
     </div>
   </div>

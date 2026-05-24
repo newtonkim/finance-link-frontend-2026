@@ -1,10 +1,11 @@
 <template>
     <TableDrawer :appendSearchColumns="appendSearchColumns" :drawer-show-footer="!automaticCreate.key"
         :printTable="true" ref="drawer" :exportItems="exportItems" drawerWidth=" w-2/3" :url="tableUrl"
-        state="memberList" :drawerTitle="drawerTitle" :columns="columns" @save="saveUser" :showTableAction="true">
+        state="memberList" :drawerTitle="drawerTitle" :columns="columns" @save="saveUser" :showTableAction="true"
+        saveButtonClass="bg-nfuko-primary hover:bg-nfuko-primary/90 shadow-sm">
         <template #header-action>
             <div>
-                <h1 class="text-4xl font-black text-[#0A2318] dark:text-white tracking-tight">
+                <h1 class="text-4xl font-black text-[#1d4780] dark:text-white tracking-tight">
                     Members list</h1>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 ">Manage all members.</p>
             </div>
