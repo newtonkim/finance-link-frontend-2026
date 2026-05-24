@@ -15,9 +15,12 @@ watch(accounts, (list) => {
   if (accountId.value === null && list.length > 0) accountId.value = list[0].id;
 });
 
+// Default to a wide window so a fresh statement shows the account's full history
+// out of the box. The user can narrow via the date pickers.
+const DAY_MS = 86_400_000;
 const today = new Date().toISOString().slice(0, 10);
-const ninetyDaysAgo = new Date(Date.now() - 90 * 86_400_000).toISOString().slice(0, 10);
-const dateFrom = ref(ninetyDaysAgo);
+const fiveYearsAgo = new Date(Date.now() - 5 * 365 * DAY_MS).toISOString().slice(0, 10);
+const dateFrom = ref(fiveYearsAgo);
 const dateTo   = ref(today);
 
 const { statement, loading, error, refresh } = useAccountStatement(accountId, dateFrom, dateTo);
@@ -135,7 +138,9 @@ function fmtDate(d?: string) {
             </tr>
           </template>
           <tr v-else>
-            <td colspan="5" class="px-3 py-8 text-center text-gray-500">No transactions in this period.</td>
+            <td colspan="5" class="px-3 py-8 text-center text-gray-500">
+              No transactions in this period. Try widening the date range above.
+            </td>
           </tr>
         </tbody>
       </table>
