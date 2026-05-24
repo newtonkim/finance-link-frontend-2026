@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { Printer } from 'lucide-vue-next';
-import { formatCurrency, printElementId } from '@/Global';
+import { formatCurrency, formatDateUs, printElementId } from '@/Global';
 import { useAccountStatement } from './composables/useAccountStatement';
 
 const props = defineProps<{
@@ -26,12 +26,6 @@ const dateTo   = ref(today);
 const { statement, loading, error, refresh } = useAccountStatement(accountId, dateFrom, dateTo);
 
 function onPrint() { printElementId('statement-print-area'); }
-
-function fmtDate(d?: string) {
-  if (!d) return '';
-  const [y, m, day] = d.split('-');
-  return `${m}/${day}/${y}`;
-}
 </script>
 
 <template>
@@ -67,9 +61,9 @@ function fmtDate(d?: string) {
     </div>
 
     <!-- Statement print area -->
-    <div id="statement-print-area" class="relative bg-white p-8 border border-gray-200 text-gray-900">
-      <!-- Page indicator -->
-      <div class="absolute right-8 top-6 text-sm">Page 1 of 1</div>
+    <div id="statement-print-area" class="bg-white p-8 border border-gray-200 text-gray-900">
+      <!-- Page indicator on its own row so it never overlaps the balances column -->
+      <div class="flex justify-end text-sm text-gray-600 mb-4">Page 1 of 1</div>
 
       <!-- Header grid -->
       <div class="grid grid-cols-2 gap-12 mb-8">
@@ -79,9 +73,9 @@ function fmtDate(d?: string) {
             <div class="text-gray-700">Account Number:</div>
             <div>{{ statement?.account.account_no ?? '—' }}</div>
             <div class="text-gray-700">Statement Date:</div>
-            <div>{{ fmtDate(statement?.period.statement_date) }}</div>
+            <div>{{ formatDateUs(statement?.period.statement_date) }}</div>
             <div class="text-gray-700">Period Covered:</div>
-            <div>{{ fmtDate(statement?.period.date_from) }} to {{ fmtDate(statement?.period.date_to) }}</div>
+            <div>{{ formatDateUs(statement?.period.date_from) }} to {{ formatDateUs(statement?.period.date_to) }}</div>
           </div>
           <div class="pt-2 text-base font-semibold">{{ statement?.member.name }}</div>
           <div>{{ statement?.member.address }}</div>
@@ -127,7 +121,7 @@ function fmtDate(d?: string) {
           </template>
           <template v-else-if="statement && statement.transactions.length > 0">
             <tr v-for="t in statement.transactions" :key="t.id" class="even:bg-gray-50">
-              <td class="px-3 py-2">{{ fmtDate(t.date) }}</td>
+              <td class="px-3 py-2">{{ formatDateUs(t.date) }}</td>
               <td class="px-3 py-2">{{ t.is_reversal ? '(Reversal) ' : '' }}{{ t.description }}</td>
               <td class="px-3 py-2 text-right font-mono">{{ t.credit ? formatCurrency(t.credit) : '' }}</td>
               <td class="px-3 py-2 text-right font-mono">{{ t.debit ? formatCurrency(t.debit) : '' }}</td>

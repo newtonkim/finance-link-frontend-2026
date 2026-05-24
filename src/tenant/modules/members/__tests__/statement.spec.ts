@@ -24,6 +24,7 @@ vi.mock('@/tenant/apis/tenantClient', () => ({
 
 vi.mock('@/Global', () => ({
   formatCurrency: (n: number) => n.toFixed(2),
+  formatDateUs: (d: string) => d,
   printElementId: vi.fn(),
 }));
 
