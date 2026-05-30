@@ -201,7 +201,7 @@ const handleAvatarChange = (field: any, index: number, event: Event) => {
         avatarPreviews.value[index] = '';
     }
     emits('field-changed', { field, index });
-    DatawhistleBlower(field);
+    DatawhistleBlower(prfields.value);
 };
 const nationalityOptions = [
     { id: 'Ugandan', name: 'Uganda' }, { id: 'Kenyan', name: 'Kenya' },

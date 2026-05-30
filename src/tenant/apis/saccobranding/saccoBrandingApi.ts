@@ -27,39 +27,16 @@ type BrandingCache = {
     logo?: string | null       // legacy: login endpoint aliases logo_path → logo
 }
 
-/**
- * Derives the Laravel public-storage base URL.
- * Uses the backend origin (not just the path prefix) so that
- * /storage images are fetched from the API server, not the Vite dev server.
- *
- * VITE_BACKEND_URL=/api/v1        → http://127.0.0.1:8000/storage  (dev fallback)
- * VITE_BACKEND_URL=https://x.com/api/v1 → https://x.com/storage
- */
-function getStorageBase(): string {
-    const backendUrl = import.meta.env.VITE_BACKEND_URL ?? 'http://127.0.0.1:8000/api/v1'
-    // If it's a relative path (e.g. /api/v1), derive the origin from tenantClient baseURL
-    if (backendUrl.startsWith('/')) {
-        // tenantClient base is e.g. http://127.0.0.1:8000/api/v1/tenant
-        // We need http://127.0.0.1:8000/storage
-        const fallback = 'http://127.0.0.1:8000'
-        return fallback + '/storage'
-    }
-    try {
-        return new URL(backendUrl).origin + '/storage'
-    } catch {
-        return 'http://127.0.0.1:8000/storage'
-    }
-}
-
 function buildLogoUrl(logoPath: string | null | undefined): string | null {
     if (!logoPath) return null
-    // If it's already a full URL, use it as-is
-    if (logoPath.startsWith('http://') || logoPath.startsWith('https://') || logoPath.startsWith('//')) {
-        return logoPath
-    }
-    // Strip any leading slash or 'storage/' prefix to avoid doubling
+
+    const storageIndex = logoPath.indexOf('/storage/')
+    if (storageIndex >= 0) return logoPath.slice(storageIndex)
+
+    if (logoPath.startsWith('data:')) return logoPath
+
     const clean = logoPath.replace(/^\/+/, '').replace(/^storage\//, '')
-    return `${getStorageBase()}/${clean}`
+    return `/storage/${clean}`
 }
 
 function signNewData(res: BrandingCache & { logo_url?: string | null }) {

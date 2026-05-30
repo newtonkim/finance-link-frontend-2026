@@ -108,13 +108,13 @@ async function handleSave() {
         <SettingCard :settingsCards="settingsCards">
             <template #staff-payroll>
                 <div class="mt-4 flex flex-wrap gap-3 border-t border-neutral-100 pt-4 dark:border-neutral-800">
-                    <RouterLink :to="{ name: 'tenant-staff-salaries' }" class="inline-flex w-fit items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white">
+                    <RouterLink :to="{ name: 'tenant-staff-salaries' }" class="inline-flex w-fit items-center justify-center rounded-xl bg-[#052659] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#052659]/90 dark:bg-[#052659] dark:text-white dark:hover:bg-[#052659]/90">
                         Staff Salaries →
                     </RouterLink>
-                    <RouterLink :to="{ name: 'tenant-staff-allowances' }" class="inline-flex w-fit items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white">
+                    <RouterLink :to="{ name: 'tenant-staff-allowances' }" class="inline-flex w-fit items-center justify-center rounded-xl bg-[#052659] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#052659]/90 dark:bg-[#052659] dark:text-white dark:hover:bg-[#052659]/90">
                         Staff Allowances →
                     </RouterLink>
-                    <RouterLink :to="{ name: 'tenant-staff-advances' }" class="inline-flex w-fit items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white">
+                    <RouterLink :to="{ name: 'tenant-staff-advances' }" class="inline-flex w-fit items-center justify-center rounded-xl bg-[#052659] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#052659]/90 dark:bg-[#052659] dark:text-white dark:hover:bg-[#052659]/90">
                         Staff Advances →
                     </RouterLink>
                 </div>
@@ -129,7 +129,7 @@ async function handleSave() {
                 </p>
                 <div class="flex flex-col gap-2 items-start">
                     <button
-                        class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Setup
+                        class="inline-flex items-center justify-center rounded-xl bg-[#052659] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#052659]/90 dark:bg-[#052659] dark:text-white dark:hover:bg-[#052659]/90">Setup
                         KYC →</button>
                     <kycMembersModel />
                 </div>
