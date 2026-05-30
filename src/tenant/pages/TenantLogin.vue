@@ -107,9 +107,9 @@ async function submit() {
 </script>
 
 <template>
-  <AuthBase :title="`Sign in to ${saccoName}`" description="Enter your admin credentials to access the portal">
+  <AuthBase :title="`Sign in to ${saccoName}`" description="Enter your admin credentials to access the portal" titleClass="text-[#052659]">
     <!-- SACCO badge -->
-    <div class="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl  bg-nfuko-primary/5 border  border-nfuko-primary/10">
+    <div class="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl bg-[#F0F5FF] border border-[#D0E2FF]">
       <div class="size-8 rounded-lg bg-white flex items-center justify-center shrink-0 overflow-hidden">
         <img src="/images/finance-link-logo.png" alt="Logo" class="size-full object-contain p-1" />
       </div>
@@ -129,22 +129,22 @@ async function submit() {
       <div class="grid gap-6">
         <!-- Email -->
         <div class="grid gap-2">
-          <Label for="email" class="text-sm font-semibold  text-nfuko-primary">Email address</Label>
+          <Label for="email" class="text-sm font-semibold text-[#052659]">Email address</Label>
           <Input id="email" type="email" v-model="email" required autofocus :tabindex="1" autocomplete="email"
             placeholder="Enter your email"
-            class="h-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-bg-nfuko-primary/10" />
+            class="h-12 border-nfuko-primary focus:border-nfuko-primary focus:ring-bg-nfuko-primary/10" />
           <InputError :message="errors.email" />
         </div>
 
         <!-- Password -->
         <div class="grid gap-2">
-          <Label for="password" class="text-sm font-semibold  text-nfuko-primary">Password</Label>
+          <Label for="password" class="text-sm font-semibold text-[#052659]">Password</Label>
           <div class="relative">
             <Input id="password" :type="showPassword ? 'text' : 'password'" v-model="password" required :tabindex="2"
               autocomplete="current-password" placeholder="Enter your password"
-              class="h-12 w-full pr-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-bg-nfuko-primary/10" />
+              class="h-12 w-full pr-12 border-nfuko-primary focus:border-nfuko-primary focus:ring-bg-nfuko-primary/10" />
             <button type="button" @click="showPassword = !showPassword"
-              class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-neutral-400 hover: text-nfuko-primary transition-colors"
+              class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-nfuko-primary hover:opacity-80 transition-opacity"
               tabindex="-1">
               <component :is="showPassword ? EyeOff : Eye" :size="20" />
             </button>
@@ -154,8 +154,7 @@ async function submit() {
 
         <!-- Submit -->
         <Button type="submit"
-          style="background-color: var(--color-nfuko-primary);"
-          class="h-12 w-full hover:opacity-90 text-nfuko-accent font-semibold rounded-xl transition-all shadow-lg"
+          class="h-12 w-full bg-[#052659] hover:bg-[#052659]/90 text-white font-semibold rounded-xl transition-all shadow-lg"
           :tabindex="3" :disabled="processing">
           <Spinner v-if="processing" class="mr-2" />
           Sign in
@@ -165,7 +164,7 @@ async function submit() {
 
     <!-- Right panel: branded panel matching the central login style -->
     <template #right-panel>
-      <div class="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-[#1d4780]">
+      <div class="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-[#052659]">
         <!-- Glow blobs -->
         <div class="absolute top-1/4 left-1/4 size-64 rounded-full bg-[#2dd4bf]/10 blur-3xl"></div>
         <div class="absolute bottom-1/4 right-1/4 size-48 rounded-full bg-white/5 blur-3xl"></div>
@@ -196,9 +195,7 @@ async function submit() {
           </div>
         </div>
 
-        <!-- Gradient overlay -->
-        <div class="absolute inset-0 bg-gradient-to-b from-[#1d4780] via-transparent to-[#1d4780] pointer-events-none">
-        </div>
+        <!-- Gradient overlay removed for gradient clarity -->
       </div>
     </template>
   </AuthBase>

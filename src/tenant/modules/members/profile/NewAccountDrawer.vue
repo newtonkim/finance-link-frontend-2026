@@ -177,7 +177,7 @@ defineExpose({ openDrawer });
                 <button
                     @click="handleSubmit"
                     :disabled="submitting || !form.product_id"
-                    class="w-full py-4 bg-nfuko-primary text-white rounded-xl font-black text-sm shadow-lg shadow-nfuko-primary/20 hover:bg-[#002e35] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    class="w-full py-4 bg-[#052659] text-white rounded-xl font-black text-sm shadow-lg shadow-nfuko-primary/20 hover:bg-[#052659]/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                     <Loader2 v-if="submitting" class="w-4 h-4 animate-spin" />
                     <Plus v-else class="w-4 h-4" />

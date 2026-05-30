@@ -43,7 +43,7 @@
                 <div>
                     <!-- @click="handleSave" -->
                     <Button type="button" @click="submitImportData"
-                        class="flex-1 h-11  w-full font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors">
+                        class="flex-1 h-11  w-full font-bold bg-emerald-600 hover:bg-[#052659]/90 text-white shadow-sm transition-colors">
                         <span type="button"> Save</span>
 
                     </Button>

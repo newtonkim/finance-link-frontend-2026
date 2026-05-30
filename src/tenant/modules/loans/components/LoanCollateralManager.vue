@@ -136,7 +136,7 @@ onMounted(load)
                 </span>
                 <button
                     v-if="editable"
-                    class="flex items-center gap-1 rounded-lg border border-neutral-200 px-2.5 py-1 text-xs font-medium text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                    class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 flex items-center gap-1 rounded-lg border border-neutral-200 px-2.5 py-1 text-xs font-medium text-neutral-600 hover: dark:border-neutral-700 dark:text-neutral-300 dark:hover:"
                     @click="showForm = !showForm"
                 >
                     <PlusCircle class="h-3.5 w-3.5" />
@@ -197,7 +197,7 @@ onMounted(load)
                 >Cancel</button>
                 <button
                     :disabled="adding"
-                    class="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-60"
+                    class="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-[#052659]/90 disabled:opacity-60"
                     @click="submit"
                 >
                     <Loader2 v-if="adding" class="h-3 w-3 animate-spin" />

@@ -109,7 +109,7 @@ const submit = async () => {
 </script>
 
 <template>
-  <AuthBase title="Welcome back" description="Sign in to your account to continue">
+  <AuthBase title="Welcome back" description="Sign in to your account to continue" titleClass="text-[#021024]">
     <div
       v-if="status"
       class="mb-6 rounded-lg bg-green-50 p-4 text-center text-sm font-medium text-green-600 border border-green-100"
@@ -126,7 +126,7 @@ const submit = async () => {
     <form @submit.prevent="submit" class="flex flex-col gap-8">
       <div class="grid gap-6">
         <div class="grid gap-2">
-          <Label for="email" class="text-sm font-semibold  text-nfuko-primary">Email address</Label>
+          <Label for="email" class="text-sm font-semibold text-[#021024]">Email address</Label>
           <Input
             id="email"
             type="email"
@@ -137,14 +137,14 @@ const submit = async () => {
             :tabindex="1"
             autocomplete="email"
             placeholder="Enter your email"
-            class="h-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-bg-nfuko-primary/10"
+            class="h-12 border-[#d1dfdb] focus:border-[#021024] focus:ring-[#021024]/10"
           />
           <InputError :message="errors.email" />
         </div>
 
         <div class="grid gap-2">
           <div class="flex items-center justify-between">
-            <Label for="password" class="text-sm font-semibold  text-nfuko-primary">Password</Label>
+            <Label for="password" class="text-sm font-semibold text-[#021024]">Password</Label>
           </div>
           <div class="relative">
             <Input
@@ -156,12 +156,12 @@ const submit = async () => {
               :tabindex="2"
               autocomplete="current-password"
               placeholder="Enter your password"
-              class="h-12 w-full pr-12 border-[#d1dfdb] focus: border-nfuko-primary focus:ring-bg-nfuko-primary/10"
+              class="h-12 w-full pr-12 border-[#d1dfdb] focus:border-[#021024] focus:ring-[#021024]/10"
             />
             <button
               type="button"
               @click="showPassword = !showPassword"
-              class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-neutral-400 hover: text-nfuko-primary transition-colors"
+              class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-neutral-400 hover:text-[#021024] transition-colors"
               tabindex="-1"
             >
               <component :is="showPassword ? EyeOff : Eye" :size="20" />
@@ -180,7 +180,7 @@ const submit = async () => {
           <TextLink
             v-if="canResetPassword"
             to="/central/forgot-password"
-            class="text-sm font-medium  text-nfuko-primary hover:underline"
+            class="text-sm font-medium text-[#021024] hover:underline"
             :tabindex="5"
           >
             Forgot password?
@@ -189,7 +189,7 @@ const submit = async () => {
 
         <Button
           type="submit"
-          style="background-color: #55a9d1;" class="h-12 w-full hover:opacity-90 text-white font-semibold rounded-xl transition-all shadow-lg"
+          class="h-12 w-full bg-[#021024] hover:bg-[#021024]/90 text-white font-semibold rounded-xl transition-all shadow-lg"
           :tabindex="4"
           :disabled="processing"
           data-test="login-button"
@@ -203,7 +203,7 @@ const submit = async () => {
         Don't have an account?
         <TextLink
           to="/central/register"
-          class="font-semibold  text-nfuko-primary hover:underline"
+          class="font-semibold text-[#021024] hover:underline"
           :tabindex="5"
           >Register
         </TextLink>
@@ -212,7 +212,7 @@ const submit = async () => {
 
     <template #right-panel>
       <div
-        class="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-[#1d4780]"
+        class="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-[#021024]"
       >
         <!-- 3D Interactive Scene -->
         <div
@@ -295,10 +295,7 @@ const submit = async () => {
           </h2>
         </div>
 
-        <!-- Decorative Background Elements -->
-        <div
-          class="absolute inset-0 bg-gradient-to-b from-[#1d4780] via-transparent to-[#1d4780] pointer-events-none"
-        ></div>
+        <!-- Decorative Background Elements Removed for gradient clarity -->
       </div>
     </template>
   </AuthBase>

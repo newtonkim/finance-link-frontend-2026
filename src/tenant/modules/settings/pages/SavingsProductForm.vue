@@ -374,7 +374,7 @@ const { monthlyFeeSummary } = useMonthlyFeeSummary(form, currency)
                             <h2 class="text-lg font-semibold text-neutral-900 dark:text-white">Attached Charges</h2>
                             <p class="text-xs text-neutral-500 dark:text-neutral-400">Define charge ranges per transaction type.</p>
                         </div>
-                        <button @click="addCharge" type="button" class="flex items-center justify-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 shadow-sm transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800">
+                        <button @click="addCharge" type="button" class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 flex items-center justify-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 shadow-sm transition hover: dark:border-neutral-700 dark:text-neutral-300 dark:hover:">
                             <Plus class="h-3.5 w-3.5" />
                             Add Charge
                         </button>
@@ -515,7 +515,7 @@ const { monthlyFeeSummary } = useMonthlyFeeSummary(form, currency)
 
                 <!-- Submit Button -->
                 <div class="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                    <button @click="saveProduct" :disabled="saving" class="flex w-full items-center justify-center gap-2 rounded-xl  bg-nfuko-primary dark:bg-nfuko-yellow px-4 py-3 text-sm font-medium text-white dark: text-nfuko-primary hover: bg-nfuko-primary/90 dark:hover:bg-nfuko-yellow/90 shadow-lg disabled:opacity-50 transition-colors">
+                    <button @click="saveProduct" :disabled="saving" class="flex w-full items-center justify-center gap-2 rounded-xl  bg-[#052659] dark:bg-nfuko-yellow px-4 py-3 text-sm font-medium text-white dark: text-nfuko-primary hover: bg-[#052659]/90 dark:hover:bg-[#052659]/90 shadow-lg disabled:opacity-50 transition-colors">
                         <Save v-if="!saving" class="h-4 w-4" />
                         <span>{{ saving ? 'Saving Product...' : (isEditing ? 'Update Savings Product' : 'Create Savings Product') }}</span>
                     </button>

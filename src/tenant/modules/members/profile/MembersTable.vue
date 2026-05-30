@@ -86,7 +86,7 @@ function formatDate(d: string | null) {
                   <Eye class="h-3.5 w-3.5" /> View
                 </button>
                 <button @click="emit('edit', member)"
-                  class="inline-flex items-center gap-1.5 rounded-lg border border-[#c7d7f5] bg-[#eef3fd] px-3 py-1.5 text-xs font-semibold text-[#4f6cad] hover:bg-[#dce8fb] transition-colors">
+                  class="inline-flex items-center gap-1.5 rounded-lg border border-[#c7d7f5] bg-[#eef3fd] px-3 py-1.5 text-xs font-semibold text-[#4f6cad] hover:bg-[#052659]/90 transition-colors">
                   <Pencil class="h-3.5 w-3.5" /> Edit
                 </button>
                 <button @click="emit('delete', member)"

@@ -539,7 +539,7 @@ const previewMoneyLocal = (f: any, r: any) => previewMoney(f, r, formatMoneyValu
               </div>
               <button
                 type="button"
-                class="flex items-center gap-1.5 rounded-xl border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 flex items-center gap-1.5 rounded-xl border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-600 hover: dark:border-neutral-700 dark:text-neutral-400 dark:hover:"
                 @click="addRequiredDocument"
               >
                 <Plus class="h-3.5 w-3.5" />
@@ -980,7 +980,7 @@ const previewMoneyLocal = (f: any, r: any) => previewMoney(f, r, formatMoneyValu
           </button>
           <button
             type="submit"
-            class="inline-flex items-center gap-2 rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-medium text-white hover:bg-nfuko-primary/90 disabled:opacity-50 dark:bg-bg-nfuko-yellow dark:text-black"
+            class="inline-flex items-center gap-2 rounded-xl bg-[#052659] px-4 py-2 text-sm font-medium text-white hover:bg-[#052659]/90 disabled:opacity-50 dark:bg-bg-nfuko-yellow dark:text-black"
             :disabled="saving"
           >
             <Save class="h-4 w-4" />

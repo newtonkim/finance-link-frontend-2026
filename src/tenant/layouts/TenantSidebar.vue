@@ -95,7 +95,7 @@ const groupedRoutes = computed(() => {
 </script>
 
 <template>
-  <Sidebar collapsible="icon" variant="inset" class="bg-[#1d4780] text-white border-r-0">
+  <Sidebar collapsible="icon" variant="inset" class="bg-[#021024] text-white border-r-0">
     <SidebarHeader class="px-4 py-4">
       <!-- Logo + Sacco Name -->
       <div class="flex items-center justify-between">
@@ -103,7 +103,7 @@ const groupedRoutes = computed(() => {
           <div class="flex shrink-0 items-center justify-center rounded-2xl transition-all duration-500 overflow-hidden bg-white shadow-md p-1.5"
             :class="[
               state === 'expanded' ? 'h-16 w-16' : 'h-10 w-10',
-              saccoBrandingState.logo_url ? '' : 'text-[#1d4780]'
+              saccoBrandingState.logo_url ? '' : 'text-[#0050D8]'
             ]">
             <img v-if="saccoBrandingState.logo_url" :src="saccoBrandingState.logo_url" alt="Sacco logo"
               class="h-full w-full object-contain" />

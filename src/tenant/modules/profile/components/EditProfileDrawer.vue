@@ -93,7 +93,7 @@ async function save() {
           Cancel
         </Button>
         <Button
-          class="rounded-xl bg-nfuko-primary hover:bg-nfuko-primary/90 text-white font-bold"
+          class="rounded-xl bg-[#052659] hover:bg-[#052659]/90 text-white font-bold"
           :disabled="profileStore.isUpdating || !form.name.trim()"
           @click="save"
         >

@@ -332,7 +332,7 @@ const handleAvatarChange = (event: Event) => {
                 <button
                     type="submit"
                     :disabled="form.processing"
-                    class="rounded-lg bg-nfuko-primary px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1d4780]/90 flex items-center gap-2"
+                    class="rounded-lg bg-[#052659] px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-[#052659]/90 flex items-center gap-2"
                 >
                     <span v-if="form.processing" class="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white"></span>
                     Submit

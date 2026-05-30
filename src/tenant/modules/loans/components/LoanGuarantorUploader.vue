@@ -146,7 +146,7 @@ function SetGuarantorContribution(item: any) {
         <br />
 
         <Button type="button" @click="saveLoanGuarantors"
-          class="px-3 py-1 text-xs font-medium bg-nfuko-primary-600 text-white rounded-md hover:bg-nfuko-primary-700 active:scale-95 transition">
+          class="px-3 py-1 text-xs font-medium bg-[#052659]-600 text-white rounded-md hover:bg-[#052659]/90 active:scale-95 transition">
           Save
         </Button>
       </div>

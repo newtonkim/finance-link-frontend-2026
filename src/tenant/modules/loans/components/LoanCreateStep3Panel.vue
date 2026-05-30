@@ -56,7 +56,7 @@ const { formatAmount } = useLoanApplicationHelpers()
                         <dd class="max-w-xs text-right font-medium text-neutral-900 dark:text-white">{{ form.purpose }}</dd>
                     </div>
                 </dl>
-                <button type="button" class="mt-3 text-xs text-nfuko-primary hover:underline dark:text-bg-nfuko-yellow" @click="emit('goToStep', 1)">Edit details</button>
+                <button type="button" class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 mt-3 text-xs text-nfuko-primary hover:underline dark:text-bg-nfuko-yellow" @click="emit('goToStep', 1)">Edit details</button>
             </div>
 
             <!-- Collateral summary -->
@@ -67,7 +67,7 @@ const { formatAmount } = useLoanApplicationHelpers()
                         <h3 class="text-sm font-semibold text-neutral-900 dark:text-white">Collateral & Securities</h3>
                         <span class="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-500 dark:bg-neutral-800">{{ collateralItems.length }} item{{ collateralItems.length !== 1 ? 's' : '' }}</span>
                     </div>
-                    <button type="button" class="text-xs text-nfuko-primary hover:underline dark:text-bg-nfuko-yellow" @click="emit('goToStep', 2)">Edit</button>
+                    <button type="button" class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 text-xs text-nfuko-primary hover:underline dark:text-bg-nfuko-yellow" @click="emit('goToStep', 2)">Edit</button>
                 </div>
                 <div class="space-y-2">
                     <div v-for="(item, idx) in collateralItems" :key="idx" class="flex items-start gap-3 rounded-xl bg-neutral-50 px-4 py-3 dark:bg-neutral-800/50">
@@ -87,10 +87,10 @@ const { formatAmount } = useLoanApplicationHelpers()
                     <ArrowLeft class="h-4 w-4" /> Back
                 </button>
                 <div class="flex items-center gap-3">
-                    <button type="submit" :disabled="saving || submitting" class="flex items-center gap-2 rounded-xl border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-colors disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
+                    <button type="submit" :disabled="saving || submitting" class="flex items-center gap-2 rounded-xl border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-[#052659]/90 transition-colors disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
                         <Save class="h-4 w-4" />{{ saving ? 'Saving…' : 'Save Draft' }}
                     </button>
-                    <button type="button" :disabled="submitting || saving || !canSubmit" class="flex items-center gap-2 rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-medium text-white hover:bg-nfuko-primary/90 transition-colors disabled:opacity-50 dark:bg-bg-nfuko-yellow dark:text-black" @click="emit('saveAndSubmit')">
+                    <button type="button" :disabled="submitting || saving || !canSubmit" class="flex items-center gap-2 rounded-xl bg-[#052659] px-4 py-2 text-sm font-medium text-white hover:bg-[#052659]/90 transition-colors disabled:opacity-50 dark:bg-bg-nfuko-yellow dark:text-black" @click="emit('saveAndSubmit')">
                         <Send class="h-4 w-4" />{{ submitting ? 'Submitting…' : 'Save & Submit' }}
                     </button>
                 </div>

@@ -41,7 +41,7 @@ const emit = defineEmits<{
         <div v-if="application" class="flex items-center gap-2">
             <button
                 v-if="editableStatuses.includes(application.status ?? '')"
-                class="flex items-center gap-2 rounded-xl border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                class="flex items-center gap-2 rounded-xl border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-[#052659]/90 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-[#052659]/90
                 @click="emit('edit')">
                 <Pencil class="h-4 w-4" />
                 Edit

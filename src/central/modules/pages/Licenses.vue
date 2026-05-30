@@ -62,7 +62,7 @@ function statusClasses(status: string) {
                 Tenant Licenses
             </h1>
             <Button @click="router.push('/central/licenses/create')"
-                class=" bg-nfuko-primary hover:bg-[#002e35] dark:bg-white dark: text-nfuko-primary dark:hover:bg-neutral-200 text-white font-semibold rounded-xl px-5 py-2.5 shadow-sm transition-all duration-200 flex items-center gap-2">
+                class=" bg-[#052659] hover:bg-[#052659]/90 dark:bg-white dark: text-nfuko-primary dark:hover:bg-[#052659]/90 text-white font-semibold rounded-xl px-5 py-2.5 shadow-sm transition-all duration-200 flex items-center gap-2">
                 <Plus class="size-4" />
                 Create License
             </Button>
@@ -130,7 +130,7 @@ function statusClasses(status: string) {
                                                 <Eye class="size-3.5" /> View
                                             </button>
                                             <button
-                                                class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors">
+                                                class="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-neutral-600 dark:text-neutral-300 hover:bg-[#052659]/90 dark:hover:bg-[#052659]/90 transition-colors">
                                                 <Pencil class="size-3.5" /> Edit
                                             </button>
                                             <button

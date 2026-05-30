@@ -64,7 +64,7 @@
                 <div class="w-full flex justify-end bg-neutral-100 dark:bg-neutral-800">
                   <!-- {{ childrenValues?.[field?.id]?.['settings_action']?.['children-fields']?.[ci]?.action }} -->
                   <Button
-                    class="prounded-full w-[90px] p-2 rounded-md m-2   bg-nfuko-accent text-neutral-700 dark:text-neutral-200 text-xs font-medium border border-neutral-200 dark:border-neutral-700"
+                    class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 prounded-full w-[90px] p-2 rounded-md m-2   bg-nfuko-accent text-neutral-700 dark:text-neutral-200 text-xs font-medium border border-neutral-200 dark:border-neutral-700"
                     @click="() => storeLocalChanages(field.id, childrenValues?.[field?.id], { ...(childrenValues?.[field?.id] ?? field), id: field.id },)">
                     save {{ childrenValues?.[field?.id]?.action }}
                   </Button>

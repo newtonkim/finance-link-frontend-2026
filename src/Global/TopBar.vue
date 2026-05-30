@@ -200,7 +200,7 @@ function onBranchChange(val: number) {
             class="flex items-center gap-3 px-2 py-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-white/5 transition-all cursor-pointer border border-neutral-200/50 dark:border-white/10 shadow-sm group"
           >
             <div
-              class="size-8 rounded-full bg-nfuko-yellow text-[#1d4780] flex items-center justify-center font-bold text-xs shadow-inner overflow-hidden"
+              class="size-8 rounded-full bg-nfuko-yellow text-[#0050D8] flex items-center justify-center font-bold text-xs shadow-inner overflow-hidden"
             >
               <img
                 v-if="(user as any)?.avatar"

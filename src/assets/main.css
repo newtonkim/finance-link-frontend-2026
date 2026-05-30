@@ -30,8 +30,10 @@
 
 @theme {
   /* Custom colors */
-  --color-nfuko-bg: #F4F8FA;      /* Light Blue/Grey (Sidebar background) */
-  --color-nfuko-primary: #1d4780;      /* Dark Blue (Sidebar background) */
+  --color-nfuko-bg: #E8F5FF;      /* Light Blue/Grey (Arctic Light) */
+  --color-nfuko-primary: #0050D8;      /* Dark Blue (Arctic Dark) */
+  --background-image-arctic-down: linear-gradient(to bottom, #001020, #A8E6FF);
+  --background-image-arctic-up: linear-gradient(to bottom, #A8E6FF, #001020);
   --color-nfuko-accent: #53B3DA;       /* Light Blue (Active icon/Logo) */
   --color-nfuko-action: #3288C9;       /* Medium Blue (Buttons & Progress bars) */
   --color-nfuko-nav-text: #A6C8E6;       /* Soft Blue (Nav text) */
@@ -43,7 +45,7 @@
   /* Chart & Data Visualization */
   --color-nfuko-chart-main: #16487A;   /* Dark Blue (Primary bar in chart) */
   --color-nfuko-chart-sub: #53B3DA;    /* Light Blue (Secondary bar in chart) */
-  --color-nfuko-chart-pie-1: #1d4780;  /* Personal Loans (68%) */
+  --color-nfuko-chart-pie-1: #0050D8;  /* Personal Loans (68%) */
   --color-nfuko-chart-pie-2: #3288C9;  /* Business Loans (20%) */
   --color-nfuko-chart-pie-3: #53B3DA;  /* Emergency Loans (8%) */
   --color-nfuko-chart-pie-4: #BDE0EE;  /* Others (4%) */
@@ -63,17 +65,17 @@
   --color-nfuko-green: #00A86B;
   --color-nfuko-gray: #6B7280;
   /* Monochromatic Scale (Lighter to Darker) */
-  --color-nfuko-primary-50:  #F4F8FA; /* Ultra-light background for cards/inputs */
-  --color-nfuko-primary-100: #E6F0F7; /* Subtle borders */
-  --color-nfuko-primary-200: #C2DCEB; /* Disabled states or secondary icons */
-  --color-nfuko-primary-300: #9EC7DF; /* Muted text/placeholders */
-  --color-nfuko-primary-400: #7AB3D4; /* Secondary chart elements */
-  --color-nfuko-primary-500: #559EC8; /* Medium-tone UI elements */
-  --color-nfuko-primary-600: #3288C9; /* Hover state */
-  --color-nfuko-primary-700: #266B9E; /* Darker accents */
-  --color-nfuko-primary-800: #1d4780; /* Very deep blue */
-  --color-nfuko-primary-900: #133D66; /* YOUR ORIGINAL PRIMARY (Sidebar/Headers) */
-  --color-nfuko-primary-950: #0B243D; /* Near-black for extreme contrast text */
+  --color-nfuko-primary-50:  #E8F5FF; /* Arctic Light */
+  --color-nfuko-primary-100: #CCE5FF; 
+  --color-nfuko-primary-200: #99CBFF; 
+  --color-nfuko-primary-300: #66B2FF; 
+  --color-nfuko-primary-400: #3398FF; 
+  --color-nfuko-primary-500: #007FFF; 
+  --color-nfuko-primary-600: #0066CC; 
+  --color-nfuko-primary-700: #0050D8; /* Arctic Dark */
+  --color-nfuko-primary-800: #003D99; 
+  --color-nfuko-primary-900: #002966; 
+  --color-nfuko-primary-950: #001433;
 
   /* Sidebar Active State */
   --color-nfuko-nav-active: rgba(83, 179, 218, 0.15); /* Active sidebar link background */

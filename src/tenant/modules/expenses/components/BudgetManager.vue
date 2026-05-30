@@ -228,7 +228,7 @@ onMounted(async () => {
       </div>
 
       <div class="flex items-center gap-3 self-end">
-        <button @click="saveAllBudgets" :disabled="saving" class="flex items-center gap-2 rounded-xl bg-nfuko-primary px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#002e35] disabled:opacity-50 dark:bg-nfuko-yellow dark:text-[#1d4780]">
+        <button @click="saveAllBudgets" :disabled="saving" class="flex items-center gap-2 rounded-xl bg-[#052659] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#052659]/90 disabled:opacity-50 dark:bg-nfuko-yellow dark:text-[#0050D8]">
           <RefreshCw v-if="saving" class="h-4 w-4 animate-spin" />
           <Save v-else class="h-4 w-4" />
           Save All Budgets

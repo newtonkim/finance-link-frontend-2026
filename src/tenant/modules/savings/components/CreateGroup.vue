@@ -154,7 +154,7 @@ async function handleSubmit() {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-const inputCls = 'w-full rounded-2xl border border-neutral-200 bg-[#f4f7f6] px-4 py-3 text-sm text-neutral-800 outline-none transition-all placeholder:text-neutral-400 focus:bg-white focus:border-[#1d4780] focus:ring-4 focus:ring-[#1d4780]/5'
+const inputCls = 'w-full rounded-2xl border border-neutral-200 bg-[#f4f7f6] px-4 py-3 text-sm text-neutral-800 outline-none transition-all placeholder:text-neutral-400 focus:bg-white focus:border-[#0050D8] focus:ring-4 focus:ring-[#0050D8]/5'
 </script>
 
 <template>
@@ -178,7 +178,7 @@ const inputCls = 'w-full rounded-2xl border border-neutral-200 bg-[#f4f7f6] px-4
         <!-- Integrated Layout Title -->
         <div class="flex items-center justify-between mb-2 max-w-6xl mr-auto ml-6">
           <div class="flex flex-col gap-2">
-            <h1 class="text-[26.5px] font-black text-[#1d4780] tracking-tight italic leading-tight">Register Group</h1>
+            <h1 class="text-[26.5px] font-black text-[#0050D8] tracking-tight italic leading-tight">Register Group</h1>
             <p class="text-[10px] text-[#124b30] font-bold uppercase tracking-[0.2em] opacity-40 leading-relaxed -mt-1">Savings Institutional Onboarding Protocol</p>
           </div>
         </div>
@@ -376,7 +376,7 @@ const inputCls = 'w-full rounded-2xl border border-neutral-200 bg-[#f4f7f6] px-4
               <button 
                 @click="handleSubmit"
                 :disabled="processing"
-                class="flex items-center gap-3 px-10 py-3.5 text-sm font-bold text-white bg-nfuko-primary rounded-2xl hover:bg-[#1d4780]/90 transition-all shadow-xl shadow-[#1d4780]/10 active:scale-95 disabled:opacity-70"
+                class="flex items-center gap-3 px-10 py-3.5 text-sm font-bold text-white bg-nfuko-primary rounded-2xl hover:bg-[#0050D8]/90 transition-all shadow-xl shadow-[#0050D8]/10 active:scale-95 disabled:opacity-70"
               >
                 <Spinner v-if="processing" class="h-4 w-4" />
                 <span v-else>Register Group</span>

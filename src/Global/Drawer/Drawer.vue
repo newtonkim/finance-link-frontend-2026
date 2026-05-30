@@ -52,7 +52,7 @@
                   type="submit"
                   :disabled="formStore.loading"
                   class="flex-1 h-11 mr-5 w-full font-bold text-white transition-colors flex items-center justify-center gap-2"
-                  :class="props.saveButtonClass || 'bg-emerald-600 hover:bg-emerald-700 shadow-sm'"
+                  :class="props.saveButtonClass || 'bg-emerald-600 hover:bg-[#052659]/90 shadow-sm'"
                 >
                   <Spinner v-if="formStore.loading" class="w-4 h-4" />
                   <span v-else>Save</span>

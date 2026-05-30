@@ -122,7 +122,7 @@ function categoryColor(cat: string): string {
         </div>
         <button
           @click="openAddDrawer"
-          class="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition-colors"
+          class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white transition-colors"
           style="background-color: var(--color-nfuko-primary)"
         >
           <Plus class="h-4 w-4" />
@@ -536,7 +536,7 @@ function categoryColor(cat: string): string {
                   type="button"
                   @click="submit"
                   :disabled="processing"
-                  class="inline-flex items-center gap-2 rounded-lg bg-nfuko-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#002d32] transition-colors disabled:opacity-60 shadow-sm dark:bg-bg-nfuko-yellow dark:text-nfuko-primary"
+                  class="inline-flex items-center gap-2 rounded-lg bg-[#052659] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#052659]/90 transition-colors disabled:opacity-60 shadow-sm dark:bg-bg-nfuko-yellow dark:text-nfuko-primary"
                 >
                   <Spinner v-if="processing" class="h-4 w-4" />
                   {{ processing ? 'Saving...' : editingCharge ? 'Save Changes' : 'Create Charge' }}

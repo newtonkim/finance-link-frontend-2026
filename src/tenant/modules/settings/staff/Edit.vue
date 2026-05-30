@@ -135,7 +135,7 @@
                 <div>
                     <!-- @click="handleSave" -->
                     <Button :disabled="saving" @click="save" type="submit"
-                        class="flex-1 h-11  w-full font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors">
+                        class="flex-1 h-11  w-full font-bold bg-emerald-600 hover:bg-[#052659]/90 text-white shadow-sm transition-colors">
                         Save
 
                     </Button>

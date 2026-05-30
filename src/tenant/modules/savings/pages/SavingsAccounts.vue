@@ -147,7 +147,7 @@ async function runPostInterest() {
           {{ posting ? 'Posting...' : 'Post Monthly Interest' }}
         </button>
         <button
-          class="inline-flex items-center gap-2 rounded-full bg-nfuko-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-nfuko-primary/90 transition-colors shadow-sm"
+          class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 inline-flex items-center gap-2 rounded-full  px-5 py-2.5 text-sm font-semibold text-white hover:/90 transition-colors shadow-sm
           @click="createDrawer?.openDrawer()"
         >
           <Plus class="h-4 w-4" />

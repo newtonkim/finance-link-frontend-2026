@@ -334,7 +334,7 @@ const inputCls = 'w-full rounded-xl border border-neutral-200 bg-white px-4 py-3
             Cancel
           </button>
           <button type="submit" :disabled="processing"
-            class="inline-flex items-center gap-2 rounded-full  bg-nfuko-primary px-8 py-2.5 text-sm font-semibold text-white shadow-sm hover: bg-nfuko-primary/90 transition-colors disabled:opacity-60">
+            class="inline-flex items-center gap-2 rounded-full  bg-[#052659] px-8 py-2.5 text-sm font-semibold text-white shadow-sm hover: bg-[#052659]/90 transition-colors disabled:opacity-60">
             <Spinner v-if="processing" class="h-4 w-4" />
             Save Changes
           </button>

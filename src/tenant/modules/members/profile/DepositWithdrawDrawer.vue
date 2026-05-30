@@ -367,7 +367,7 @@ defineExpose({ open });
                         <button @click="submit"
                             :disabled="processing || !form.savings_account_id || !form.amount || Number(form.amount) <= 0 || !!withdrawalAmountError"
                             :class="['px-7 py-2.5 rounded-lg text-[13px] font-bold transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2',
-                                drawerOpen === 'deposit' ? 'bg-[#5cb88a] text-white hover:bg-[#4a9f75]' : 'bg-orange-600 text-white hover:bg-orange-700']">
+                                drawerOpen === 'deposit' ? 'bg-[#5cb88a] text-white hover:bg-[#052659]/90 : 'bg-orange-600 text-white hover:bg-[#052659]/90
                             <div v-if="processing"
                                 class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
                             Submit

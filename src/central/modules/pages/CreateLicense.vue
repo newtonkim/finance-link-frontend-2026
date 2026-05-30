@@ -261,7 +261,7 @@ function submitForm() {
                     Cancel
                 </Button>
                 <Button @click="submitForm"
-                    class=" bg-nfuko-primary hover:bg-[#002e35] dark:bg-white dark: text-nfuko-primary dark:hover:bg-neutral-200 text-white font-semibold rounded-xl px-6 py-2.5 shadow-sm transition-all duration-200">
+                    class=" bg-[#052659] hover:bg-[#052659]/90 dark:bg-white dark: text-nfuko-primary dark:hover:bg-[#052659]/90 text-white font-semibold rounded-xl px-6 py-2.5 shadow-sm transition-all duration-200">
                     Create License
                 </Button>
             </div>

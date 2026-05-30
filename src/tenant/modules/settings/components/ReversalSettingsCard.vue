@@ -160,7 +160,7 @@ onMounted(load)
           type="button"
           @click="save"
           :disabled="saving"
-          class="inline-flex items-center gap-2 rounded-xl bg-nfuko-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#002d32] transition-colors disabled:opacity-60 shadow-sm dark:bg-bg-nfuko-yellow dark:text-nfuko-primary"
+          class="inline-flex items-center gap-2 rounded-xl bg-[#052659] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#052659]/90 transition-colors disabled:opacity-60 shadow-sm dark:bg-bg-nfuko-yellow dark:text-nfuko-primary"
         >
           <Spinner v-if="saving" class="h-4 w-4" />
           <Save v-else class="h-4 w-4" />

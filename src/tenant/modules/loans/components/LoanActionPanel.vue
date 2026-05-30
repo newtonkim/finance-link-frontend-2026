@@ -54,7 +54,7 @@ const { displayAmount } = useLoanApplicationHelpers()
     <button
     :title="takingForReview || submitDisabled ? 'Please add required guarantors/files before submitting for review' : 'Submit for review'"
       :disabled="(takingForReview || submitDisabled)&& Array.isArray(application?.loan_guarantors) && application?.loan_guarantors.length==0"
-      class="flex items-center gap-2 rounded-xl bg-nfuko-action px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-nfuko-primary-700 disabled:opacity-50"
+      class="flex items-center gap-2 rounded-xl bg-nfuko-action px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#052659]/90 disabled:opacity-50"
       @click="emit('takeForReview')"
     >
       <ClipboardCheck class="h-4 w-4" />

@@ -269,7 +269,7 @@ const showChargeDropdown = ref(false);
                         Close
                     </Button>
                     <Button @click="submit" :disabled="processing"
-                        class="flex-1 h-11 font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all shadow-emerald-500/20">
+                        class="flex-1 h-11 font-bold rounded-xl bg-emerald-600 hover:bg-[#052659]/90 text-white shadow-sm transition-all shadow-emerald-500/20">
                         {{ account ? (processing ? 'Updating...' : 'Update changes') : (processing ? 'Saving...' : 'Save changes') }}
                     </Button>
                 </div>

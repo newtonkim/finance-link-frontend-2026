@@ -36,7 +36,7 @@ function toggleDarkMode() {
 
 <template>
     <Sidebar collapsible="icon" variant="inset"
-        class=" bg-nfuko-primary text-white border-r-0 flex-grow px-4 space-y-2 overflow-y-a uto custom-scrollbar">
+        class="bg-gradient-to-b from-[#001020] to-[#A8E6FF] text-white border-r-0 flex-grow px-4 space-y-2 overflow-y-auto custom-scrollbar">
         <SidebarHeader class="px">
             <div class="flex items-center justify-center w-full">
                 <div class="flex shrink-0 items-center justify-center bg-white rounded-xl shadow-md p-2 h-16 w-24">

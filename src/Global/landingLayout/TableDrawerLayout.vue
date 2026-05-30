@@ -7,7 +7,7 @@
             </div>
             <div v-else>
                 <div v-if='title'
-                    class="text-4xl font-black text-[#1d4780] dark:text-white tracking-tight font-bold text-neutral-900 dark:text-white capitalize"
+                    class="text-4xl font-black text-[#0050D8] dark:text-white tracking-tight font-bold text-neutral-900 dark:text-white capitalize"
                     v-once>
                     <h3 v-html="title"></h3>
                 </div>
@@ -19,7 +19,7 @@
                 </span>
                 <span v-auth="haspermission('create')" v-else>
                     <button v-if="showAddButton" @click="createNewRecord"
-                        class="justify-center  bg-nfuko-primary hover: bg-nfuko-primary/90 whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive  h-9 has-[>svg]:px-3 flex items-center gap-2 rounded-xl  px-4 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90 shadow-sm ">
+                        class="justify-center bg-[#052659] hover:bg-[#052659]/90 whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-9 has-[>svg]:px-3 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90 shadow-sm ">
                         <component :is="addButtonText.icon" :size="16" />
                         {{ addButtonText.text }}
                     </button>

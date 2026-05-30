@@ -301,7 +301,7 @@ function accountLabel(a: Account) {
                         <button @click="submit" :disabled="!canSubmit || processing" :class="[
                             'w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-[14px] font-bold transition-all',
                             canSubmit && !processing
-                                ? ' bg-nfuko-primary hover:bg-[#003030] text-white shadow-sm'
+                                ? ' bg-[#052659] hover:bg-[#052659]/90 text-white shadow-sm'
                                 : 'bg-neutral-200 text-neutral-400 cursor-not-allowed'
                         ]">
                             <Loader2 v-if="processing" class="h-4 w-4 animate-spin" />

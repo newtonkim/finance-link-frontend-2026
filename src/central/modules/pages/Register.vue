@@ -199,7 +199,7 @@ const loginPath = '/central/login';
         </div>
 
         <Button type="submit"
-          class="h-12 w-full  bg-nfuko-primary hover: bg-nfuko-primary/90 text-white font-semibold rounded-xl transition-all shadow-lg shadow-bg-nfuko-primary/10 mt-2"
+          class="h-12 w-full  bg-[#052659] hover: bg-[#052659]/90 text-white font-semibold rounded-xl transition-all shadow-lg shadow-bg-[#052659]/10 mt-2"
           tabindex="5" :disabled="processing" data-test="register-user-button">
           <Spinner v-if="processing" class="mr-2" />
           Create account
@@ -213,7 +213,7 @@ const loginPath = '/central/login';
     </form>
 
     <template #right-panel>
-      <div class="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-[#1d4780] p-8">
+      <div class="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-[#001020] to-[#A8E6FF] p-8">
         <div class="relative w-full aspect-square max-w-sm mb-12">
           <transition-group name="fade-slide" tag="div" class="relative w-full h-full">
             <div v-for="(feature, index) in features" :key="feature.title" v-show="activeIndex === index"
@@ -240,9 +240,7 @@ const loginPath = '/central/login';
             :class="activeIndex === index ? 'w-8 bg-white' : 'w-1.5 bg-white/20'"></button>
         </div>
 
-        <!-- Gradient background decoration to match Login.vue -->
-        <div class="absolute inset-0 bg-gradient-to-b from-[#1d4780] via-transparent to-[#1d4780] pointer-events-none">
-        </div>
+        <!-- Decorative Background Elements Removed for gradient clarity -->
       </div>
     </template>
   </AuthBase>

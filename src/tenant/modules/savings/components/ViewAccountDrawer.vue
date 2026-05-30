@@ -230,7 +230,7 @@ defineExpose({ openDrawer })
                 Close
               </button>
               <button v-if="account" type="button" @click="() => { const toEdit = account; close(); if (toEdit) emit('editAccount', toEdit) }"
-                class="inline-flex items-center gap-2 rounded-full bg-nfuko-primary px-5 py-2 text-sm font-semibold text-white hover:bg-nfuko-primary/90 transition-colors">
+                class="inline-flex items-center gap-2 rounded-full bg-[#052659] px-5 py-2 text-sm font-semibold text-white hover:bg-[#052659]/90 transition-colors">
                 <Pencil class="h-3.5 w-3.5" />
                 Edit Account
               </button>

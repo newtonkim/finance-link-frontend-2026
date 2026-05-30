@@ -163,7 +163,7 @@ function confirmRemoveItem() {
                     Count: {{ items.length }} / {{ selectedProduct.max_securities }}
                 </span>
             </div>
-            <button type="button" class="flex items-center gap-1.5 rounded-lg bg-nfuko-primary/10 px-3 py-1.5 text-xs font-bold text-nfuko-primary hover:bg-nfuko-primary/20 transition-colors" @click="openModal">
+            <button type="button" class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 flex items-center gap-1.5 rounded-lg /10 px-3 py-1.5 text-xs font-bold text-nfuko-primary hover:/20 transition-colors" @click="openModal">
                 <Plus class="h-3.5 w-3.5" /> Add Security
             </button>
         </div>
@@ -271,7 +271,7 @@ function confirmRemoveItem() {
                 <div class="mt-8 flex gap-3">
                     <button type="button" class="flex-1 rounded-2xl border border-neutral-200 px-4 py-3 text-sm font-bold text-neutral-600 hover:bg-neutral-50 transition-colors" @click="modalOpen = false">Cancel</button>
                     <button type="button" :disabled="!newItem.asset_type || !newItem.estimated_value"
-                        class="flex-1 rounded-2xl bg-nfuko-primary px-4 py-3 text-sm font-bold text-white hover:bg-nfuko-primary/90 transition-colors disabled:opacity-50"
+                        class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 flex-1 rounded-2xl  px-4 py-3 text-sm font-bold text-white hover:/90 transition-colors disabled:opacity-50"
                         @click="addItem">Add Security</button>
                 </div>
             </div>

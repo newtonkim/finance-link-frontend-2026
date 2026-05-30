@@ -175,7 +175,7 @@ function removeCollateralItem(i: number) { collateralItems.value.splice(i, 1) }
                                     <h2 class="text-base font-semibold text-neutral-900 dark:text-white">Collateral & Securities</h2>
                                     <span class="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-500 dark:bg-neutral-800">Optional</span>
                                 </div>
-                                <button type="button" class="flex items-center gap-1.5 rounded-xl border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-600 hover:bg-neutral-50 transition-colors dark:border-neutral-700 dark:text-neutral-300" @click="addCollateralItem">
+                                <button type="button" class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 flex items-center gap-1.5 rounded-xl border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-600 hover: transition-colors dark:border-neutral-700 dark:text-neutral-300" @click="addCollateralItem">
                                     <Plus class="h-3.5 w-3.5" /> Add Item
                                 </button>
                             </div>
@@ -213,7 +213,7 @@ function removeCollateralItem(i: number) { collateralItems.value.splice(i, 1) }
                             <button type="button" class="flex items-center gap-2 rounded-xl border border-neutral-200 px-4 py-2.5 text-sm font-medium text-neutral-600 hover:bg-neutral-50 transition-colors dark:border-neutral-700 dark:text-neutral-300" @click="prevStep">
                                 <ArrowLeft class="h-4 w-4" /> Back
                             </button>
-                            <button type="button" :disabled="!step2Valid" class="flex items-center gap-2 rounded-xl bg-nfuko-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-nfuko-primary/90 transition-colors disabled:opacity-40" @click="nextStep">
+                            <button type="button" :disabled="!step2Valid" class="flex items-center gap-2 rounded-xl bg-[#052659] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#052659]/90 transition-colors disabled:opacity-40" @click="nextStep">
                                 Next: Docs & Submit <ChevronRight class="h-4 w-4" />
                             </button>
                         </div>
@@ -233,11 +233,11 @@ function removeCollateralItem(i: number) { collateralItems.value.splice(i, 1) }
                         </button>
                         <div class="flex items-center gap-3">
                             <button type="button" class="rounded-xl border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-50 transition-colors dark:border-neutral-700 dark:text-neutral-300" @click="router.back()">Cancel</button>
-                            <button type="submit" :disabled="saving" class="flex items-center gap-2 rounded-xl border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
+                            <button type="submit" :disabled="saving" class="flex items-center gap-2 rounded-xl border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-[#052659]/90 disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
                                 <Save class="h-4 w-4" />{{ saving ? 'Saving…' : 'Save Draft' }}
                             </button>
                             <button v-if="form.status === 'draft'" type="button" :disabled="submitting || !canSubmit"
-                                class="flex items-center gap-2 rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-medium text-white hover:bg-nfuko-primary/90 disabled:opacity-50 dark:bg-bg-nfuko-yellow dark:text-black"
+                                class="flex items-center gap-2 rounded-xl bg-[#052659] px-4 py-2 text-sm font-medium text-white hover:bg-[#052659]/90 disabled:opacity-50 dark:bg-bg-nfuko-yellow dark:text-black"
                                 @click="submit">
                                 <Send class="h-4 w-4" />{{ submitting ? 'Submitting…' : 'Submit Application' }}
                             </button>

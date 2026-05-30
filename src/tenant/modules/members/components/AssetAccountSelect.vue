@@ -153,7 +153,7 @@ function onCreateClick() {
       v-if="canCreate"
       data-test="create-footer"
       type="button"
-      class="absolute right-0 -top-7 flex items-center gap-1 text-xs font-semibold text-nfuko-primary hover:underline"
+      class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 absolute right-0 -top-7 flex items-center gap-1 text-xs font-semibold text-nfuko-primary hover:underline"
       @click="onCreateClick"
     >
       <Plus class="size-3.5" />

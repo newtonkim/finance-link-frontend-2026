@@ -65,7 +65,7 @@ const {
                 <CreditCard class="h-8 w-8 text-neutral-300 dark:text-neutral-600" />
                 <p class="text-sm text-neutral-500 dark:text-neutral-400">No loan products found.</p>
                 <button
-                    class="mt-2 text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline"
+                    class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 mt-2 text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline"
                     @click="openCreate"
                 >
                     Create your first loan product

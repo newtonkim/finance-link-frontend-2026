@@ -298,7 +298,7 @@ function fmt(amount: number) {
               </tbody>
             </table>
 
-            <button type="button" @click="addLine" class="flex w-full items-center gap-2 border-t border-neutral-200 px-5 py-4 text-left text-sm font-semibold text-neutral-800 hover:bg-neutral-50 dark:border-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-800/50">
+            <button type="button" @click="addLine" class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 flex w-full items-center gap-2 border-t border-neutral-200 px-5 py-4 text-left text-sm font-semibold text-neutral-800 hover: dark:border-neutral-800 dark:text-neutral-200 dark:hover:/50">
               <Plus class="h-4 w-4" />
               Add line
             </button>
@@ -336,10 +336,10 @@ function fmt(amount: number) {
         <button type="button" @click="emit('update:open', false)" class="rounded-lg border border-neutral-200 bg-white px-5 py-2.5 text-sm font-bold text-neutral-800 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
           Discard
         </button>
-        <button type="button" @click="submit('draft')" :disabled="loading" class="rounded-lg border border-neutral-200 bg-white px-5 py-2.5 text-sm font-bold text-neutral-800 hover:bg-neutral-50 disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+        <button type="button" @click="submit('draft')" :disabled="loading" class="rounded-lg border border-neutral-200 bg-white px-5 py-2.5 text-sm font-bold text-neutral-800 hover:bg-[#052659]/90 disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
           {{ loading && submitMode === 'draft' ? 'Saving...' : 'Save draft' }}
         </button>
-        <button type="button" @click="submit('posted')" :disabled="loading || !inBalance" class="rounded-lg bg-nfuko-primary px-5 py-2.5 text-sm font-bold text-white hover:bg-nfuko-primary/90 disabled:opacity-50">
+        <button type="button" @click="submit('posted')" :disabled="loading || !inBalance" class="rounded-lg bg-[#052659] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#052659]/90 disabled:opacity-50">
           {{ loading && submitMode === 'posted' ? 'Posting...' : 'Post entry' }}
         </button>
       </div>

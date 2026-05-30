@@ -106,7 +106,7 @@ const saveDates = async () => {
             <div v-if="!isEditingDates">
               <button
                 type="button"
-                class="flex items-center gap-1 text-[11px] font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
+                class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 flex items-center gap-1 text-[11px] font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
                 @click="startEditing"
               >
                 <Edit2 class="h-3 w-3" />
@@ -125,7 +125,7 @@ const saveDates = async () => {
               <button
                 type="button"
                 :disabled="saving"
-                class="flex items-center gap-1 text-[11px] font-bold text-emerald-600 hover:text-emerald-700 disabled:opacity-50"
+                class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 flex items-center gap-1 text-[11px] font-bold text-emerald-600 hover:text-emerald-700 disabled:opacity-50"
                 @click="saveDates"
               >
                 <component :is="saving ? Loader2 : Check" class="h-3 w-3" :class="{ 'animate-spin': saving }" />

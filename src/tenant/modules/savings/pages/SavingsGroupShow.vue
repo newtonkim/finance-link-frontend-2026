@@ -209,14 +209,14 @@ onMounted(fetchGroup)
           <div class="rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4">
             <div class="flex items-center justify-between mb-3">
               <p class="text-xs font-semibold uppercase tracking-widest text-neutral-400">Signatories</p>
-              <button class="flex items-center gap-1 text-xs font-semibold hover:underline" style="color: var(--color-nfuko-primary);">
+              <button class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 flex items-center gap-1 text-xs font-semibold hover:underline" style="color: var(--color-nfuko-primary);">
                 <Plus class="h-3 w-3" /> Add
               </button>
             </div>
             <div class="flex flex-col items-center gap-2 py-4 text-center">
               <Shield class="h-8 w-8 text-neutral-200 dark:text-neutral-700" />
               <p class="text-xs text-neutral-400">No signatories registered yet</p>
-              <button class="text-xs font-semibold hover:underline flex items-center gap-1" style="color: var(--color-nfuko-primary);">
+              <button class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 text-xs font-semibold hover:underline flex items-center gap-1" style="color: var(--color-nfuko-primary);">
                 <UserPlus class="h-3 w-3" /> Add first signatory
               </button>
             </div>
@@ -271,7 +271,7 @@ onMounted(fetchGroup)
                 <p class="text-xs font-semibold uppercase tracking-widest dark:text-neutral-400 flex items-center gap-2" style="color: var(--color-nfuko-primary-500);">
                   <Info class="h-3.5 w-3.5" /> Group Information
                 </p>
-                <button class="rounded-lg border dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4 py-1.5 text-xs font-semibold text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 transition-colors" style="border-color: var(--color-nfuko-primary-200);">
+                <button class="rounded-lg border dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4 py-1.5 text-xs font-semibold text-neutral-700 dark:text-neutral-300 hover:bg-[#052659]/90 transition-colors" style="border-color: var(--color-nfuko-primary-200);">
                   Edit Info
                 </button>
               </div>

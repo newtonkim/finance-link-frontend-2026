@@ -65,7 +65,7 @@ onMounted(() => {
                   <Search class="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                   <input v-model="search" type="text" placeholder="Search for financial year" class="w-full rounded-xl border border-neutral-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-nfuko-primary focus:ring-1 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
                 </div>
-                <button @click="openAddForm" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl bg-nfuko-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#002d32] transition-colors shadow-sm dark:bg-bg-nfuko-yellow dark:text-nfuko-primary">
+                <button @click="openAddForm" class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 inline-flex items-center gap-2 whitespace-nowrap rounded-xl  px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#052659]/90 transition-colors shadow-sm dark:bg-bg-nfuko-yellow dark:text-nfuko-primary">
                   <Plus class="h-4 w-4" />
                   Add financial year
                 </button>
@@ -102,7 +102,7 @@ onMounted(() => {
                     <td class="px-6 py-4 text-neutral-600 dark:text-neutral-300">{{ formatDate(fy.end_date) }}</td>
                     <td class="px-6 py-4">
                       <div class="flex items-center gap-2">
-                        <button @click="openEditForm(fy)" class="inline-flex items-center gap-1.5 rounded-lg bg-nfuko-primary px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#002d32] transition-colors shadow-sm dark:bg-bg-nfuko-yellow dark:text-nfuko-primary">
+                        <button @click="openEditForm(fy)" class="inline-flex items-center gap-1.5 rounded-lg bg-[#052659] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#052659]/90 transition-colors shadow-sm dark:bg-bg-nfuko-yellow dark:text-nfuko-primary">
                           <Pencil class="h-3 w-3" />Edit
                         </button>
                         <button @click="openDeleteDialog(fy)" class="inline-flex items-center gap-1.5 rounded-lg bg-red-500 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-red-600 transition-colors shadow-sm">
@@ -169,7 +169,7 @@ onMounted(() => {
             </form>
             <div class="flex items-center justify-end gap-3 border-t border-neutral-200 px-6 py-4 dark:border-neutral-700">
               <button type="button" @click="closeForm" class="rounded-lg bg-neutral-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-neutral-600 transition-colors">Close</button>
-              <button type="button" @click="submitForm" :disabled="processing" class="inline-flex items-center gap-2 rounded-lg bg-nfuko-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#002d32] transition-colors disabled:opacity-60 shadow-sm dark:bg-bg-nfuko-yellow dark:text-nfuko-primary">
+              <button type="button" @click="submitForm" :disabled="processing" class="inline-flex items-center gap-2 rounded-lg bg-[#052659] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#052659]/90 transition-colors disabled:opacity-60 shadow-sm dark:bg-bg-nfuko-yellow dark:text-nfuko-primary">
                 <Spinner v-if="processing" class="h-4 w-4" />
                 {{ formMode === 'edit' ? 'Update financial year' : 'Save financial year' }}
               </button>

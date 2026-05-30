@@ -385,7 +385,7 @@ defineExpose({ openDrawer })
                   type="submit"
                     :disabled="saving"
                 @click="handleSave"
-                  class="flex-1 h-11  mr-5 w-full font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors"
+                  class="flex-1 h-11  mr-5 w-full font-bold bg-emerald-600 hover:bg-[#052659]/90 text-white shadow-sm transition-colors"
                 >
                 <Spinner v-if="saving" class="h-4 w-4" />
 

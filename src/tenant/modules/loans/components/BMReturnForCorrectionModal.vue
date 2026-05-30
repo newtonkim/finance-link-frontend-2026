@@ -63,7 +63,7 @@ function handleSubmit() {
                         <button class="rounded-xl border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
                             @click="emit('close')">Cancel</button>
                         <button :disabled="submitting"
-                            class="flex items-center gap-2 rounded-xl bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600 disabled:opacity-50"
+                            class="flex items-center gap-2 rounded-xl bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-[#052659]/90 disabled:opacity-50"
                             @click="handleSubmit">
                             <Undo2 class="h-4 w-4" />
                             {{ submitting ? 'Returning…' : 'Return for Correction' }}

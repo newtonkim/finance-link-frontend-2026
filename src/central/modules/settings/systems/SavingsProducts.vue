@@ -24,7 +24,7 @@ const products = [
                 </div>
             </div>
             <button
-                class="flex items-center gap-2 rounded-xl  bg-nfuko-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#002e35] active:scale-[0.98] dark:bg-nfuko-yellow dark:text-[#1d4780] dark:hover:bg-[#b8973f]">
+                class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 flex items-center gap-2 rounded-xl   px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#052659]/90 active:scale-[0.98] dark:bg-nfuko-yellow dark:text-[#0050D8] dark:hover:bg-[#052659]/90
                 <Plus class="h-4 w-4" />
                 Add Product
             </button>
@@ -69,7 +69,7 @@ const products = [
                             </td>
                             <td class="px-6 py-4 text-right">
                                 <button
-                                    class="text-xs font-medium text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
+                                    class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 text-xs font-medium text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
                                     Edit
                                 </button>
                             </td>

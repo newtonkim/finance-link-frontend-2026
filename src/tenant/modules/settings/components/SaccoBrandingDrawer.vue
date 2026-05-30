@@ -129,7 +129,7 @@ defineExpose({ openDrawer })
               <button type="button" @click="closeDrawer" class="rounded-lg bg-neutral-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-neutral-600 transition-colors">
                 Cancel
               </button>
-              <button type="button" @click="save" :disabled="saving || loading" class="inline-flex items-center gap-2 rounded-lg bg-nfuko-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#002d32] transition-colors disabled:opacity-60 shadow-sm dark:bg-bg-nfuko-yellow dark:text-nfuko-primary">
+              <button type="button" @click="save" :disabled="saving || loading" class="inline-flex items-center gap-2 rounded-lg bg-[#052659] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#052659]/90 transition-colors disabled:opacity-60 shadow-sm dark:bg-bg-nfuko-yellow dark:text-nfuko-primary">
                 <Loader2 v-if="saving" class="h-4 w-4 animate-spin" />
                 {{ saving ? 'Saving…' : 'Save Branding' }}
               </button>

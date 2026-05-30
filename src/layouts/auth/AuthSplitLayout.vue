@@ -4,6 +4,7 @@ import { Toaster } from 'vue-sonner';
 defineProps<{
     title: string;
     description: string;
+    titleClass?: string;
 }>();
 </script>
 
@@ -15,7 +16,7 @@ defineProps<{
             <div class="mx-auto w-full max-w-md">
                 <div>
                     <img class="h-16 w-auto object-contain" src="/images/finance-link-logo.png" alt="Mfuko Plus Logo" />
-                    <h2 class="mt-6 text-3xl font-extrabold text-[#55a9d1]">{{ title }}</h2>
+                    <h2 class="mt-6 text-3xl font-extrabold" :class="titleClass || 'text-[#55a9d1]'">{{ title }}</h2>
                     <p class="mt-2 text-sm text-neutral-600">{{ description }}</p>
                 </div>
 

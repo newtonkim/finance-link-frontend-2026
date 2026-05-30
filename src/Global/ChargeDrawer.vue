@@ -221,7 +221,7 @@ const formattedChargeAmount = computed({
                         Close
                     </Button>
                     <Button
-                        class="flex-1 h-11 font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors"
+                        class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 flex-1 h-11 font-bold  hover: text-white shadow-sm transition-colors"
                         @click="handleSave">
                         Add {{ titleMap[type] }} charge
                     </Button>

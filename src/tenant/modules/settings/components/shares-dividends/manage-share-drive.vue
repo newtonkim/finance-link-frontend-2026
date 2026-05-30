@@ -205,7 +205,7 @@
                             'flex items-center gap-2 px-6 py-2.5 rounded-xl text-[13px] font-bold transition-all shadow-sm',
                             sharesDrawerSaving
                                 ? 'bg-neutral-300 dark:bg-neutral-700 text-neutral-500 cursor-not-allowed'
-                                : ' bg-nfuko-primary hover:bg-[#003030] text-white dark:bg-nfuko-yellow dark:hover:bg-[#b8973e] dark: text-nfuko-primary'
+                                : ' bg-[#052659] hover:bg-[#052659]/90 text-white dark:bg-nfuko-yellow dark:hover:bg-[#052659]/90 dark: text-nfuko-primary'
                         ]">
                             <Loader2 v-if="sharesDrawerSaving" class="h-3.5 w-3.5 animate-spin" />
                             {{ sharesDrawerSaving ? 'Saving...' : 'Save Settings' }}

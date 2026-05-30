@@ -163,7 +163,7 @@ async function onAvatarSelected(event: Event) {
             </h2>
             <Badge
               variant="outline"
-              class="mt-1.5 bg-nfuko-yellow/10 text-[#1d4780] dark:text-nfuko-yellow border-nfuko-yellow/20 font-bold"
+              class="mt-1.5 bg-nfuko-yellow/10 text-[#0050D8] dark:text-nfuko-yellow border-nfuko-yellow/20 font-bold"
             >
               {{ profile.role }}
             </Badge>
@@ -198,7 +198,7 @@ async function onAvatarSelected(event: Event) {
 
       <Button
         variant="outline"
-        class="w-full rounded-xl font-bold mt-1"
+        class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 w-full rounded-xl font-bold mt-1"
         @click="emit('edit-click')"
       >
         Edit Profile

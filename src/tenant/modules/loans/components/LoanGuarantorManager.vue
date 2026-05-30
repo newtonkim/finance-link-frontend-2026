@@ -290,7 +290,7 @@ watch(() => props.applicationId, load, { immediate: true })
                     />
                     <button
                         :disabled="adding || alreadyAdded"
-                        class="flex items-center gap-1.5 rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-nfuko-primary/90 disabled:opacity-50 dark:bg-bg-nfuko-yellow dark:text-black"
+                        class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 flex items-center gap-1.5 rounded-xl  px-4 py-2 text-sm font-medium text-white transition hover:/90 disabled:opacity-50 dark:bg-bg-nfuko-yellow dark:text-black"
                         @click="addGuarantor"
                     >
                         <Loader2 v-if="adding" class="h-4 w-4 animate-spin" />

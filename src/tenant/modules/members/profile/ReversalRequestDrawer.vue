@@ -123,7 +123,7 @@ function formatDate(d?: string) {
               type="button"
               @click="emit('submit')"
               :disabled="requesting || !narration.trim() || narration.trim().length < 5"
-              class="inline-flex items-center gap-2 rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 transition-colors disabled:opacity-60 shadow-sm"
+              class="inline-flex items-center gap-2 rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#052659]/90 transition-colors disabled:opacity-60 shadow-sm"
             >
               <Spinner v-if="requesting" class="h-4 w-4" />
               <Clock v-else class="h-4 w-4" />

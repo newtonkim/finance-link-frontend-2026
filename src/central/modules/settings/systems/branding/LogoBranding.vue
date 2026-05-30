@@ -222,7 +222,7 @@ async function handleSave() {
             <!-- Save Button -->
             <div class="flex justify-end">
                 <button @click="handleSave" :disabled="isSaving"
-                    class="flex items-center gap-2 rounded-xl bg-nfuko-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#002e35] active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none dark:bg-nfuko-yellow dark:text-[#1d4780] dark:hover:bg-[#b8973f]">
+                    class="flex items-center gap-2 rounded-xl bg-[#052659] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#052659]/90 active:scale-[0.98] disabled:opacity-60 disabled:pointer-events-none dark:bg-nfuko-yellow dark:text-[#0050D8] dark:hover:bg-[#052659]/90
                     <Loader2 v-if="isSaving" class="h-4 w-4 animate-spin" />
                     {{ isSaving ? 'Saving…' : 'Save Changes' }}
                 </button>

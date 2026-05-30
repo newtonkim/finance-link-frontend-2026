@@ -79,7 +79,7 @@ function yesNoClass(enabled: boolean) {
         </div>
         <button
           type="button"
-          class="flex items-center gap-1.5 rounded-xl border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+          class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 flex items-center gap-1.5 rounded-xl border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-600 hover: dark:border-neutral-700 dark:text-neutral-400 dark:hover:"
           @click="addRequiredDocument"
         >
           <Plus class="h-3.5 w-3.5" />

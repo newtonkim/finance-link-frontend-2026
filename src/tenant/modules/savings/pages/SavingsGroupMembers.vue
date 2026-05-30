@@ -282,7 +282,7 @@ onMounted(fetchData)
           <button
             @click="addMember"
             :disabled="addingMember"
-            class="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-bold transition-opacity hover:opacity-90 disabled:opacity-60 text-white"
+            class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-bold transition-opacity hover:opacity-90 disabled:opacity-60 text-white"
             style="background-color: var(--color-nfuko-primary);"
           >
             <Loader2 v-if="addingMember" class="h-4 w-4 animate-spin" />

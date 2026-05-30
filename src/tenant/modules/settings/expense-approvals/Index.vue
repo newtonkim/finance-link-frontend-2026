@@ -147,12 +147,12 @@ onMounted(() => {
         </div>
 
         <div class="flex items-center justify-between mt-4">
-          <button @click="addLevel" class="bg-nfuko-primary text-white dark:bg-nfuko-yellow dark:text-[#1d4780] px-5 py-2.5 rounded-xl font-semibold shadow-sm hover:bg-[#002e35] dark:hover:bg-[#b8973f] flex items-center gap-2 transition-all text-sm">
+          <button @click="addLevel" class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0  text-white dark:bg-nfuko-yellow dark:text-[#0050D8] px-5 py-2.5 rounded-xl font-semibold shadow-sm hover:bg-[#052659]/90 dark:hover:bg-[#052659]/90 flex items-center gap-2 transition-all text-sm">
             <Plus class="w-4 h-4" />
             Add Approval Level
           </button>
           
-          <button @click="saveThresholds" :disabled="saving" class="bg-nfuko-primary text-white dark:bg-nfuko-yellow dark:text-[#1d4780] px-6 py-2.5 rounded-xl font-semibold shadow-sm hover:bg-[#002e35] dark:hover:bg-[#b8973f] disabled:opacity-70 flex items-center gap-2 transition-all">
+          <button @click="saveThresholds" :disabled="saving" class="bg-[#052659] text-white dark:bg-nfuko-yellow dark:text-[#0050D8] px-6 py-2.5 rounded-xl font-semibold shadow-sm hover:bg-[#052659]/90 dark:hover:bg-[#052659]/90 disabled:opacity-70 flex items-center gap-2 transition-all">
             <RefreshCw v-if="saving" class="w-4 h-4 animate-spin" />
             Save Configuration
           </button>

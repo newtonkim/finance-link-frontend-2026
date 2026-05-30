@@ -5,7 +5,7 @@
         saveButtonClass="bg-nfuko-primary hover:bg-nfuko-primary/90 shadow-sm">
         <template #header-action>
             <div>
-                <h1 class="text-4xl font-black text-[#1d4780] dark:text-white tracking-tight">
+                <h1 class="text-4xl font-black text-[#0050D8] dark:text-white tracking-tight">
                     Members list</h1>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 ">Manage all members.</p>
             </div>

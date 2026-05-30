@@ -227,7 +227,7 @@ const emit = defineEmits(['update:show', 'update:sharesCompulsory', 'update:minS
                             'flex items-center gap-2 rounded-xl px-6 py-2.5 text-[13px] font-bold shadow-sm transition-all',
                             saving
                                 ? 'bg-neutral-300 text-neutral-500 cursor-not-allowed dark:bg-neutral-700'
-                                : ' bg-nfuko-primary text-white hover:bg-[#003030] dark:bg-bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-[#b8973e]'
+                                : ' bg-[#052659] text-white hover:bg-[#052659]/90 dark:bg-bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-[#052659]/90
                         ]">
                             <Loader2 v-if="saving" class="h-3.5 w-3.5 animate-spin" />
                             {{ saving ? 'Saving...' : 'Save Settings' }}
