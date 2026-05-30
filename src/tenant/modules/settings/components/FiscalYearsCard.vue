@@ -28,7 +28,7 @@ onMounted(() => {
       <button
         @click="openListDrawer"
         :disabled="loading"
-        class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-nfuko-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-nfuko-action disabled:opacity-60 dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
+        class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#052659] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#052659]/90 disabled:opacity-60 dark:bg-[#052659] dark:text-white dark:hover:bg-[#052659]/90"
       >
         <Spinner v-if="loading" class="h-3.5 w-3.5" />
         {{ loading ? 'Loading…' : 'Set Fiscal Year →' }}

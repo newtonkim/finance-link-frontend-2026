@@ -24,9 +24,12 @@ const settingsCards = [
         action: "Manage Branches →"
     },
     {
-        title: "General Settings",
-        description: "Configure basic organisation information and settings.",
-
+        title: "Sacco Branding",
+        description: "Configure your organisation name, tagline, logo, and identity.",
+    },
+    {
+        title: "Currency Configuration",
+        description: "Set the default currency used across organisation transactions.",
     },
 ]
 </script>
@@ -48,14 +51,18 @@ const settingsCards = [
         </div>
         <!-- ─── Quick-action cards grid ─────────────────────────────────────── -->
         <SettingCard :settingsCards="settingsCards">
-            <template #general-settings>
+            <template #sacco-branding>
                 <div class="mt-2 flex flex-wrap gap-3">
                     <button @click="brandingDrawer?.openDrawer()"
-                        class="inline-flex items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white">
+                        class="inline-flex items-center justify-center rounded-xl bg-[#052659] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#052659]/90 dark:bg-[#052659] dark:text-white dark:hover:bg-[#052659]/90">
                         Sacco Branding Config →
                     </button>
+                </div>
+            </template>
+            <template #currency-configuration>
+                <div class="mt-2 flex flex-wrap gap-3">
                     <button @click="currencyDrawer?.openDrawer()"
-                        class="inline-flex items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white">
+                        class="inline-flex items-center justify-center rounded-xl bg-[#052659] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#052659]/90 dark:bg-[#052659] dark:text-white dark:hover:bg-[#052659]/90">
                         Currency configuration →
                     </button>
                 </div>

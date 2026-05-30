@@ -2,10 +2,11 @@
     <TableDrawer :appendSearchColumns="appendSearchColumns" :drawer-show-footer="!automaticCreate.key"
         :printTable="true" ref="drawer" :exportItems="exportItems" drawerWidth=" w-2/3" :url="tableUrl"
         state="memberList" :drawerTitle="drawerTitle" :columns="columns" @save="saveUser" :showTableAction="true"
-        saveButtonClass="bg-nfuko-primary hover:bg-nfuko-primary/90 shadow-sm">
+        saveButtonClass="bg-[#052659] hover:bg-[#052659]/90 shadow-sm"
+        printButtonClass="bg-[#052659] hover:bg-[#052659]/90">
         <template #header-action>
             <div>
-                <h1 class="text-4xl font-black text-[#0050D8] dark:text-white tracking-tight">
+                <h1 class="text-4xl font-black text-[#052659] dark:text-white tracking-tight">
                     Members list</h1>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 ">Manage all members.</p>
             </div>
@@ -17,6 +18,24 @@
                     <span>{{ item?.salutation_name }}</span>
                 </Button>
             </span>
+        </template>
+        <template #profile="{ item }">
+            <div class="flex items-center justify-center">
+                <div class="h-10 w-10 overflow-hidden rounded-full bg-[#052659]/10 ring-1 ring-[#052659]/10">
+                    <img
+                        v-if="profileImageUrl(item)"
+                        :src="profileImageUrl(item)"
+                        :alt="`${item?.salutation_name ?? item?.full_name ?? 'Member'} profile image`"
+                        class="h-full w-full object-cover"
+                    />
+                    <div
+                        v-else
+                        class="flex h-full w-full items-center justify-center text-xs font-bold uppercase text-[#052659]"
+                    >
+                        {{ memberInitials(item) }}
+                    </div>
+                </div>
+            </div>
         </template>
         <template #searchSideAction>
             <StatusButtonsHorizontal :max-length="7" v-memo="[statusFilter]" :filters="filters"
@@ -62,6 +81,7 @@ function saveUser(type: string, data: any) {
     if (title?.[type]) drawerTitle.value = title?.[type]
 }
 const columns = [
+    { key: 'profile', label: 'Profile', width: '6em', type: 'image', class: 'text-center' },
     { key: 'memeber_code', label: 'code', sticky: 'left', width: '14em', copy: true },
     { key: 'salutation_name', label: 'Member', sticky: 'left', width: '14em ', },
     // { key: 'member_type', label: 'Member Type' },
@@ -84,6 +104,32 @@ const columns = [
 function navigateToProfile(item: any) {
     router.push(`/tenant/member/profile`)
     setLocalValues('memberProfile', item)
+}
+
+function profileImageUrl(item: any) {
+    const raw = item?.profile ?? item?.profile_picture ?? item?.avatar_url ?? item?.avatar
+    if (!raw || typeof raw !== 'string') return ''
+    if (raw.startsWith('data:')) return raw
+
+    const storageIndex = raw.indexOf('/storage/')
+    if (storageIndex >= 0) return raw.slice(storageIndex)
+
+    if (raw.startsWith('http') || raw.startsWith('//')) return raw
+
+    return raw
+        .replace('/public/', '/storage/')
+        .replace(/^public\//, '/storage/')
+        .replace(/^storage\//, '/storage/')
+}
+
+function memberInitials(item: any) {
+    const name = item?.salutation_name ?? item?.full_name ?? item?.name ?? ''
+    return String(name)
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0])
+        .join('') || 'M'
 }
 const exportItems = ref([
     {

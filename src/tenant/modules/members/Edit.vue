@@ -91,7 +91,7 @@ watch(() => additionalForm.value, (val) => {
       label: 'shares_quantity',
       name: 'shares_quantity',
       value: val.shares_quantity,
-      required: true,
+      required: false,
       type: 'text',
       hidden: true
     })

@@ -81,7 +81,8 @@
 
                     <div>
                         <button v-if="printTable" @click="printDataInDrawer" type="button"
-                            class="  gap-1 px-5 absolute  rounded-md top-4 right-12 no-print bg-nfuko-primary-600  text-white text-sm font-medium  ">
+                            :class="props.printButtonClass || 'bg-nfuko-primary-600'"
+                            class="gap-1 px-5 absolute rounded-md top-4 right-12 no-print text-white text-sm font-medium">
                             <!-- <Printer class="h-10 " /> -->
                             <span>Print</span>
                         </button>
@@ -161,6 +162,7 @@ const props = defineProps({
     drawerTitle: { type: String, default: 'Drawer Title' },
     drawerWidth: { type: String, default: '30rem' },
     saveButtonClass: { type: String, default: null, required: false },
+    printButtonClass: { type: String, default: null, required: false },
     importDefaults: { type: Array, default: [], required: false },
     title: { type: String, required: false },
     /**
