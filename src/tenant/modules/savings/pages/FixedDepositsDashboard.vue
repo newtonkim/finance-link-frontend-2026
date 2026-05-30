@@ -138,7 +138,7 @@ onUnmounted(() => { if (searchTimer) clearTimeout(searchTimer) })
       </div>
       <div class="flex items-center gap-2">
         <button
-          class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 inline-flex items-center gap-2 rounded-lg bg-[#3ab88a] px-4 py-2 text-sm font-semibold text-white hover:bg-[#052659]/90 transition shadow-sm
+          class="inline-flex items-center gap-2 rounded-lg border-0 bg-[#052659] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#052659]/90"
           @click="createDrawer?.openDrawer()"
         >
           <Plus class="h-4 w-4" />
