@@ -1,5 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router'
-import { CreditCard, LayoutGrid, SettingsIcon, Store, Users } from 'lucide-vue-next'
+import { BookOpen, CreditCard, LayoutGrid, SettingsIcon, Store, Users } from 'lucide-vue-next'
 import { routebuilder } from '@/Global'
 export const centarRoutes: any = [
   {
@@ -29,6 +29,13 @@ export const centarRoutes: any = [
     label: 'Payment Plan',
     showSideBar: false,
     component: () => import('./licenses/Renew.vue'),
+  },
+  {
+    path: 'Plan',
+    label: 'Plans',
+    icon: BookOpen,
+    showSideBar: true,
+    component: () => import('./settings/General/plans/Index.vue'),
   },
   {
     path: 'platform-users',
