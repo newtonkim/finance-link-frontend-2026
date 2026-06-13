@@ -88,9 +88,9 @@ const formatCleanDate = (date: any) => {
             <div class="flex justify-center -mt-12 relative z-10 px-4">
                 <div @click="emit('avatarClick')"
                     class="w-[96px] h-[96px] rounded-full border-[3px] border-[#cda434] bg-white flex items-center justify-center overflow-hidden cursor-pointer shadow-sm relative">
-                    <img v-if="member.profile" :src="member.profile.replace('/public/', '/storage/')" alt="Avatar"
+                    <img v-if="member.profile || member.avatar_url" :src="member.profile || member.avatar_url" alt="Avatar"
                         class="w-full h-full object-cover" />
-                    <span v-else class="text-2xl font-bold text-[#cda434]">{{ NameInitials(member.name) }}</span>
+                    <span v-else class="text-2xl font-bold text-[#cda434]">{{ NameInitials(member.full_name || member.name) }}</span>
                     <div v-if="uploadProcessing" class="absolute inset-0 bg-black/60 flex items-center justify-center">
                         <div class="h-6 w-6 animate-spin rounded-full border-2 border-white/20 border-t-white"></div>
                     </div>

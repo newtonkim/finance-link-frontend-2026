@@ -143,11 +143,10 @@ export function useMember() {
         const formData = new FormData();
         formData.append('avatar', target.files[0]);
         try {
-            await tenantClient.post(`/members/${member.id}/avatar`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
+            await tenantClient.post(`/members/${member.id}/avatar`, formData);
             toast.success('Avatar updated successfully.');
             if (avatarInput.value) avatarInput.value.value = '';
+            window.location.reload();
         } catch {
             toast.error('Failed to upload avatar.');
         } finally {

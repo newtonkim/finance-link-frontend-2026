@@ -11,9 +11,7 @@ export const membersApi = {
   importMembers(file: File) {
     const formData = new FormData()
     formData.append('file', file)
-    return tenantClient.post('/members/import', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
+    return tenantClient.post('/members/import', formData)
   },
   importJson(rows: Record<string, string>[]) {
     return tenantClient.post('/members/import-json', { rows })
@@ -22,9 +20,7 @@ export const membersApi = {
     return tenantClient.post('/members', data)
   },
   storeFormData(data: FormData) {
-    return tenantClient.post('/members', data, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
+    return tenantClient.post('/members', data)
   },
   show(id: number) {
     return tenantClient.get(`/members/${id}`)
@@ -33,9 +29,7 @@ export const membersApi = {
     return tenantClient.put(`/members/${id}`, data)
   },
   updateFormData(id: number, data: FormData) {
-    return tenantClient.post(`/members/${id}`, data, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
+    return tenantClient.post(`/members/${id}`, data)
   },
   destroy(id: number) {
     return tenantClient.delete(`/members/${id}`)
