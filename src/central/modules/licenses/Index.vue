@@ -135,7 +135,9 @@
               </th>
               <th class="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">Tenant</th>
               <th class="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">Plan</th>
-              <th class="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider min-w-60">License Runway</th>
+              <th class="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">Start Date</th>
+              <th class="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">Expiry Date</th>
+              <th class="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">Days Left</th>
               <th class="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">Status</th>
               <th class="px-4 py-3.5 text-right text-[11px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">Actions</th>
             </tr>
@@ -155,7 +157,9 @@
                   </div>
                 </td>
                 <td class="px-4 py-4"><div class="h-5 w-20 bg-neutral-100 dark:bg-neutral-800 rounded-full animate-pulse" /></td>
-                <td class="px-4 py-4"><div class="h-4 w-48 bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse" /></td>
+                <td class="px-4 py-4"><div class="h-4 w-24 bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse" /></td>
+                <td class="px-4 py-4"><div class="h-4 w-24 bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse" /></td>
+                <td class="px-4 py-4"><div class="h-4 w-16 bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse" /></td>
                 <td class="px-4 py-4"><div class="h-5 w-16 bg-neutral-100 dark:bg-neutral-800 rounded-full animate-pulse" /></td>
                 <td class="px-4 py-4"><div class="h-4 w-20 bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse ml-auto" /></td>
               </tr>
@@ -163,7 +167,7 @@
 
             <!-- empty -->
             <tr v-else-if="!filteredLicenses.length">
-              <td colspan="6" class="py-16 text-center text-sm text-neutral-400 dark:text-neutral-500">
+              <td colspan="8" class="py-16 text-center text-sm text-neutral-400 dark:text-neutral-500">
                 No licenses found.
               </td>
             </tr>
@@ -202,10 +206,17 @@
                   </span>
                 </td>
 
-                <!-- runway -->
+                <!-- license dates -->
+                <td class="px-4 py-4 text-sm text-neutral-600 dark:text-neutral-300 font-mono">
+                  {{ formatDate(license.starts) }}
+                </td>
+                <td class="px-4 py-4 text-sm text-neutral-600 dark:text-neutral-300 font-mono">
+                  {{ formatDate(license.expires) }}
+                </td>
                 <td class="px-4 py-4">
-                  <LicenseRunway :starts="license.starts" :expires="license.expires"
-                    :grace_ends="license.grace_ends" :status="license.status" />
+                  <span :class="['text-sm font-medium', daysLeftStyle(license)]">
+                    {{ daysLeftText(license) }}
+                  </span>
                 </td>
 
                 <!-- status -->
@@ -320,7 +331,6 @@ import {
 } from 'lucide-vue-next'
 import { Drawer } from '@/Global'
 import { fetchTableData } from '@/Global/landingLayout/util'
-import LicenseRunway from './components/LicenseRunway.vue'
 import LicenseForm from './Create.vue'
 import LicenseShow from './Show.vue'
 import { notify } from '@/Global/Toasters/ToastMsg'
@@ -365,14 +375,24 @@ function planStyle(plan: string) {
   return { badge: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400', dot: 'bg-neutral-400' }
 }
 
-function isExpiringSoon(license: any) {
-  if (license.status !== 'active' || !license.expires) return false
-  const days = Math.ceil((new Date(license.expires).getTime() - Date.now()) / 86400000)
-  return days >= 0 && days <= 30
+function formatDate(date: string) {
+  if (!date) return '—'
+  return date.slice(0, 10)
+}
+
+function daysLeftText(license: any) {
+  return license.days_left_text ?? '—'
+}
+
+function daysLeftStyle(license: any) {
+  const state = license.status_state ?? license.status
+  if (state === 'expired') return 'text-red-500'
+  if (state === 'expiring_soon') return 'text-orange-500'
+  return license.days_left_text ? 'text-neutral-600 dark:text-neutral-300' : 'text-neutral-400 dark:text-neutral-500'
 }
 
 function statusLabel(license: any) {
-  if (isExpiringSoon(license)) return 'Expiring soon'
+  if (license.status_label) return license.status_label
   const map: Record<string, string> = {
     active: 'Active', expired: 'Expired', trial: 'Trial',
     suspended: 'Suspended', grace: 'In grace',
@@ -381,15 +401,16 @@ function statusLabel(license: any) {
 }
 
 function statusStyle(license: any) {
-  if (isExpiringSoon(license)) return { badge: 'bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300', dot: 'bg-orange-500' }
+  const state = license.status_state ?? license.status
   const map: Record<string, { badge: string; dot: string }> = {
     active:    { badge: 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300', dot: 'bg-green-500' },
     expired:   { badge: 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300', dot: 'bg-red-500' },
+    expiring_soon: { badge: 'bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300', dot: 'bg-orange-500' },
     trial:     { badge: 'bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300', dot: 'bg-violet-500' },
     suspended: { badge: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400', dot: 'bg-neutral-400' },
     grace:     { badge: 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300', dot: 'bg-amber-500' },
   }
-  return map[license.status] ?? { badge: 'bg-neutral-100 text-neutral-600', dot: 'bg-neutral-400' }
+  return map[state] ?? { badge: 'bg-neutral-100 text-neutral-600', dot: 'bg-neutral-400' }
 }
 
 // ── data ────────────────────────────────────────────────────────

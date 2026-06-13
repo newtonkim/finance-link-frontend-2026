@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import { tenantClient } from '@/tenant/apis/tenantClient'
 import { savingsProductsApi } from '@/tenant/apis/savingsProducts/api'
+import { loanProductsApi } from '@/tenant/apis/loanProducts/loanProductsApi'
 import type { GeneralCharge } from '../types'
 
 const emptyForm = () => ({
@@ -92,12 +93,14 @@ export function useGeneralCharges() {
 
   // ─── Options ──────────────────────────────────────────────────────────────
   const savingProductOptions = ref<{ id: string | number; name: string }[]>([])
+  const loanProductOptions = ref<{ id: string | number; name: string }[]>([])
   const creditAccountOptions = ref<{ id: string | number; name: string }[]>([])
 
   async function fetchOptions() {
     try {
-      const [savRes, coaRes] = await Promise.allSettled([
+      const [savRes, loanRes, coaRes] = await Promise.allSettled([
         savingsProductsApi.list(),
+        loanProductsApi.list({ is_active: '1', per_page: 200 }),
         tenantClient.get('/chart-of-accounts', {
           params: { list: true, account_type: 'INCOME', is_postable: true },
         }),
@@ -107,6 +110,13 @@ export function useGeneralCharges() {
         const sp = savRes.value.data?.data ?? savRes.value.data ?? []
         savingProductOptions.value = Array.isArray(sp)
           ? sp.map((p: any) => ({ id: p.id, name: p.name ?? 'Product ' + p.id }))
+          : []
+      }
+
+      if (loanRes.status === 'fulfilled') {
+        const lp = loanRes.value.data?.data ?? loanRes.value.data ?? []
+        loanProductOptions.value = Array.isArray(lp)
+          ? lp.map((p: any) => ({ id: p.id, name: p.name ?? 'Product ' + p.id }))
           : []
       }
 
@@ -203,7 +213,7 @@ export function useGeneralCharges() {
   return {
     charges, loading, toggling, reversibleToggling, deleting,
     fetch, toggleActive, toggleReversible, remove, applicationLabel,
-    savingProductOptions, creditAccountOptions, fetchOptions,
+    savingProductOptions, loanProductOptions, creditAccountOptions, fetchOptions,
     showDrawer, editingCharge, form, processing, errors,
     openAddDrawer, openEditDrawer, closeDrawer, submit,
   }
