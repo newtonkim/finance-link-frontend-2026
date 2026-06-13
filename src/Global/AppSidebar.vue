@@ -51,12 +51,9 @@ const seatsPercent = computed(() =>
         <!-- Header: logo + name -->
         <SidebarHeader class="px-4 pt-5 pb-4 border-b border-white/5 shrink-0">
             <div class="flex items-center gap-3 min-w-0">
-                <div class="shrink-0 size-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg">
-                    <img v-if="sidebarLogo" :src="sidebarLogo" alt="Logo" class="size-6 object-contain rounded" />
-                    <svg v-else class="size-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
+                <div class="shrink-0 size-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg overflow-hidden">
+                    <img :src="sidebarLogo || '/images/finance-link-logo.png'" alt="Finance Link"
+                        class="size-8 object-contain" />
                 </div>
                 <div v-if="state === 'expanded'" class="min-w-0 overflow-hidden">
                     <p class="text-[15px] font-bold text-white leading-tight truncate">{{ sidebarName }}</p>
@@ -73,15 +70,15 @@ const seatsPercent = computed(() =>
         <!-- Footer: seats + dark mode -->
         <SidebarFooter class="px-4 py-4 border-t border-white/5 mt-auto shrink-0 space-y-3">
             <div v-if="state === 'expanded'" class="rounded-xl bg-white/5 px-3 py-3 space-y-2">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-medium text-white/50">Platform seats</span>
-                    <span class="text-xs font-semibold text-white/60">{{ usedSeats }} / {{ totalSeats }}</span>
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-sm font-semibold text-white">Platform seats</span>
+                    <span class="text-sm font-bold text-white">{{ usedSeats }} / {{ totalSeats }}</span>
                 </div>
                 <div class="h-1.5 bg-white/10 rounded-full overflow-hidden">
                     <div class="h-full bg-blue-500 rounded-full transition-all duration-500"
                         :style="{ width: `${seatsPercent}%` }" />
                 </div>
-                <p class="text-[11px] text-white/35">{{ availableSeats }} seats available across all tenants</p>
+                <p class="text-xs text-white/45">{{ availableSeats }} seats available across all tenants</p>
             </div>
             <div class="flex items-center justify-between px-1">
                 <span v-if="state === 'expanded'" class="text-sm font-medium text-white/50">Dark mode</span>
