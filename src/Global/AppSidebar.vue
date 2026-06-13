@@ -50,13 +50,13 @@ const seatsPercent = computed(() =>
     <Sidebar collapsible="icon" variant="inset" class="border-r-0 overflow-hidden text-white">
         <!-- Header: logo + name -->
         <SidebarHeader class="px-4 pt-5 pb-4 border-b border-white/5 shrink-0">
-            <div class="flex items-center gap-3 min-w-0">
-                <div class="shrink-0 size-14 rounded-2xl overflow-hidden shadow-lg">
+            <div class="flex items-center justify-between w-full gap-2">
+                <div class="shrink-0 size-16 rounded-2xl overflow-hidden shadow-lg">
                     <img :src="sidebarLogo || '/images/finance-link-logo.png'" alt="Finance Link"
-                        class="w-full h-full object-cover" />
+                        class="w-full h-full object-contain" />
                 </div>
-                <div v-if="state === 'expanded'" class="min-w-0 overflow-hidden">
-                    <p class="text-sm font-bold text-white leading-tight truncate">{{ sidebarName }}</p>
+                <div v-if="state === 'expanded'" class="text-right">
+                    <p class="text-sm font-bold text-white leading-tight">{{ sidebarName }}</p>
                     <p class="text-[10px] font-semibold text-white/35 uppercase tracking-[0.15em] mt-0.5">CENTRAL</p>
                 </div>
             </div>
