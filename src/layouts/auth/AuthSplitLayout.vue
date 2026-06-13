@@ -15,7 +15,7 @@ defineProps<{
         <div class="flex md:w-1/2 w-full flex-col justify-center px-8 py-12 lg:px-20 xl:px-28">
             <div class="mx-auto w-full max-w-md">
                 <div>
-                    <img class="h-16 w-auto object-contain" src="/images/finance-link-logo.png" alt="Mfuko Plus Logo" />
+                    <img class="h-16 w-auto object-contain" src="/images/finance_link_logo_updated.png" alt="Mfuko Plus Logo" />
                     <h2 class="mt-6 text-3xl font-extrabold" :class="titleClass || 'text-[#55a9d1]'">{{ title }}</h2>
                     <p class="mt-2 text-sm text-neutral-600">{{ description }}</p>
                 </div>
