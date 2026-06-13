@@ -12,63 +12,77 @@ import { centarRoutes } from '@/central/modules/routes';
 import { OutClickNav } from './OutClicknavigation';
 import { brandingApi } from '@/central/modules/apis';
 import { pomPinia } from 'septor-store';
+import { fetchTableData } from '@/Global/landingLayout/util';
 
 const { state } = useSidebar();
-const Store = pomPinia();
+const Store = pomPinia() as any;
 const { getBranding } = brandingApi();
 
 onMounted(() => {
-    if (!(Store as any).central_branding) getBranding();
+    if (!Store.central_branding) getBranding();
+    if (!Store.licenseStats) {
+        fetchTableData({ data: {}, props: { state: 'licenseStats', url: 'central/licenses/stats', reload: false, time: 0 }, Store });
+    }
+    if (!Store.tenantList) {
+        fetchTableData({ data: { page: 1 }, props: { state: 'tenantList', url: 'central/tenants/list', reload: false, time: 0 }, Store });
+    }
 });
 
-const branding = computed(() => (Store as any).central_branding?.payload);
+const branding = computed(() => Store.central_branding?.payload);
 const sidebarName = computed(() => branding.value?.platform_name || 'Finance Link');
-const sidebarTagline = computed(() => branding.value?.tagline || '');
 const sidebarLogo = computed(() => branding.value?.logo_url || null);
 
-// Dark mode toggle
 const isDark = ref(document.documentElement.classList.contains('dark'));
 function toggleDarkMode() {
     isDark.value = !isDark.value;
     document.documentElement.classList.toggle('dark', isDark.value);
 }
+
 </script>
 
 <template>
-    <Sidebar collapsible="icon" variant="inset"
-        class="bg-gradient-to-b from-[#001020] to-[#A8E6FF] text-white border-r-0 flex-grow px-4 space-y-2 overflow-y-auto custom-scrollbar">
-        <SidebarHeader class="px">
-            <div class="flex items-center justify-center w-full">
-                <div class="flex shrink-0 items-center justify-center bg-white rounded-xl shadow-md p-2 h-16 w-24">
-                    <img :src="sidebarLogo || '/images/finance-link-logo.png'" alt="Logo"
-                        class="h-full w-full transition-all object-contain"
-                        :class="state === 'collapsed' ? 'scale-110' : ''" />
+    <Sidebar collapsible="icon" variant="inset" class="border-r-0 overflow-hidden text-white">
+        <!-- Header: logo + name -->
+        <SidebarHeader class="px-4 pt-5 pb-4 border-b border-white/5 shrink-0">
+            <div class="flex flex-col items-center gap-2 w-full">
+                <div class="size-32 rounded-2xl overflow-hidden shadow-lg">
+                    <img :src="sidebarLogo || '/images/finance-link-logo.webp'" alt="Finance Link"
+                        class="w-full h-full object-contain" />
+                </div>
+                <div v-if="state === 'expanded'" class="text-center">
+                    <p class="text-sm font-bold text-white leading-tight">{{ sidebarName }}</p>
+                    <p class="text-[10px] font-semibold text-white/35 uppercase tracking-[0.15em] mt-0.5">CENTRAL</p>
                 </div>
             </div>
         </SidebarHeader>
 
-        <SidebarContent class="px-3 flex flex-col flex-1">
+        <!-- Nav -->
+        <SidebarContent class="px-3 py-3 flex flex-col flex-1 overflow-y-auto">
             <OutClickNav class="flex-1 h-full" :links="centarRoutes" prefix="central" />
         </SidebarContent>
 
-        <SidebarFooter class="p-4 mt-auto">
-            <div v-if="state === 'expanded'" class="mb-4 flex items-center justify-between px-3 py-2">
-                <span class="text-sm font-medium text-nfuko-nav-text/60">Dark Mode</span>
+        <!-- Footer: dark mode -->
+        <SidebarFooter class="px-4 py-4 border-t border-white/5 mt-auto shrink-0 space-y-3">
+            <div class="flex items-center justify-between px-1">
+                <span v-if="state === 'expanded'" class="text-sm font-medium text-white/50">Dark mode</span>
                 <button @click="toggleDarkMode"
-                    class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200"
-                    :class="isDark ? 'bg-white/20' : 'bg-white/5'">
-                    <span
-                        class="inline-block h-4 w-4 transform rounded-full bg-white transition-all duration-200 shadow-sm"
+                    class="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200"
+                    :class="isDark ? 'bg-blue-600' : 'bg-white/15'">
+                    <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-all duration-200 shadow"
                         :class="isDark ? 'translate-x-6' : 'translate-x-1'" />
                 </button>
             </div>
         </SidebarFooter>
+
         <SidebarRail />
     </Sidebar>
 </template>
 
 <style scoped>
+:deep([data-sidebar="sidebar"]) {
+    background-color: #0c1427 !important;
+}
 :deep(.bg-sidebar) {
-    background-color: bg-nfuko-primary;
+    background-color: #0c1427 !important;
 }
 </style>

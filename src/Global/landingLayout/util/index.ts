@@ -1,6 +1,6 @@
 import { statusMap, getSubdomainName, formatCurrency } from '@/Global'
 import { dateTime, date, getLocalValues, keysToUse, addNumberCommas } from '../../Helpers'
-import { Eye, Edit, Trash, X, Send, ArchiveRestore,ArchiveX,Archive } from 'lucide-vue-next'
+import { Eye, Edit, Trash, X, Send, ArchiveRestore,ArchiveX,Archive, RefreshCw } from 'lucide-vue-next'
 import { tenantClient } from '@/tenant/apis/tenantClient'
 import { apiClient } from '@/central/api/client'
 
@@ -115,6 +115,14 @@ activate: {
     },
     class:
       'flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py- text-xs font-bold text-indigo-600 transition-colors hover:bg-indigo-100 dark:bg-indigo-900/40 dark:text-indigo-300 dark:hover:bg-indigo-900/60',
+  },
+  renew: {
+    icon: RefreshCw,
+    action: () => {
+      return 'renew'
+    },
+    class:
+      'flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-0.5 text-xs font-bold text-emerald-700 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/40 dark:text-emerald-300 dark:hover:bg-emerald-900/60',
   },
   unarchive: {
     icon: ArchiveX,

@@ -12,11 +12,13 @@
 </template>
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import StaffForm from './Create.vue'
 import { TableDrawer, StatusButtonsHorizontal } from '@/Global'
 import { lisenseApi } from '../apis'
 import Show from './Show.vue'
 const formData = ref<Record<string, any>>({})
+const router = useRouter()
 const statusFilter = ref('all')
 const drawerTitle = ref('Create Tenant')
 const filters = ['all', 'active', 'suspended', 'expired', 'trial']
@@ -25,6 +27,9 @@ const tableUrl = computed(() => `/central/licenses/list?status=${statusFilter.va
 
 const triggerAction: Record<string, Function> = {
     delete: Erase,
+    renew(data: any) {
+        router.push(`/central/licenses/${data.id}/renew`)
+    },
     async create() {
         await create(formData.value)
         formData.value = {}
@@ -47,6 +52,6 @@ const columns = [
     { key: 'grace_ends', label: 'grace ends' },
     { key: 'plan', label: 'Plan', sticky: 'left', },
     { key: 'status', label: 'Status', type: 'status' },
-    { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
+    { key: 'actions', label: 'Actions', show: ['view', 'edit', 'renew', 'delete'] }
 ]
 </script>

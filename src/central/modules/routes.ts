@@ -24,6 +24,10 @@ export const centarRoutes: any = [
     component: () => import('./licenses/Index.vue'),
   },
   {
+    path: 'licenses/:id/renew',
+    component: () => import('./licenses/Renew.vue'),
+  },
+  {
     path: 'platform-users',
     label: 'platform-users',
     permissions: 'staff-module-link-view',
