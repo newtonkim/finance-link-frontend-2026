@@ -1,82 +1,75 @@
 <template>
-    <!-- If item is an array -->
+    <!-- Array of sub-items (submenu children) -->
     <template v-if="Array.isArray(item)">
         <template v-for="subItem in item" :key="subItem.path">
-
-            <div v-if="subItem?.path" v-auth="subItem.permissions" @click="() => handleClick(subItem)">
-                <RouterLink 
-                    v-if="(subItem?.showSideBar==false)?false:true" 
-                    :to="getRoutePath(subItem)" 
+            <div v-if="subItem?.path" v-auth="subItem.permissions">
+                <RouterLink
+                    v-if="subItem?.showSideBar !== false"
+                    :to="getRoutePath(subItem)"
                     custom
-                    v-slot="{ isActive, navigate }" 
-                    v-auth="subItem?.permissions"
-                >
-                    <div 
-                        @click="navigate"
-                        :class="[
-                        'flex capitalize p-2 capitalize flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200 transition-all duration-200 text-black/70 hover:text-neutral-800 hover:font-bold rounded-md hover:font-semibold hover:text-neutral-500 hover:border-b-0 cursor-pointer',
-                        isActive ? 'bg-nfuko-primary/5 text-nfuko-primary' : 'dark:text-neutral-400 dark:hover:text-white'
+                    v-slot="{ isActive, navigate }"
+                    v-auth="subItem?.permissions">
+                    <div @click="navigate" :class="[
+                        'flex items-center gap-2 capitalize px-2 py-1.5 text-[13px] font-medium tracking-wide rounded-lg cursor-pointer transition-colors duration-150',
+                        isActive
+                            ? 'bg-nfuko-primary/8 text-nfuko-primary font-semibold'
+                            : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-50 dark:hover:bg-neutral-800/50'
                     ]">
-                        <component v-if="subItem?.icon" :is="subItem.icon" :size="20" class="size-5" />
+                        <component v-if="subItem?.icon" :is="subItem.icon" :size="16" class="shrink-0" />
                         {{ subItem.label }}
                     </div>
                 </RouterLink>
             </div>
         </template>
-
     </template>
-    <!-- If item is a single object -->
-    <RouterLink 
+
+    <!-- Single nav item -->
+    <RouterLink
         v-else-if="item?.path"
-        :to="'/' + (props.prifix ?? 'tenant') + '/' + item?.path" 
+        :to="'/' + (props.prifix ?? 'tenant') + '/' + item?.path"
         custom
         v-slot="{ isActive, navigate }"
-        v-auth="item?.permissions"
-    >
-        <div 
-            @click="navigate"
-            :class="[
-            ' px-1 peer/menu-button flex w-full items-center gap-2 overflow-hidden text-left outline-hidden ring-sidebar-ring focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 h-9 text-sm rounded-xl transition-all duration-200 text-nfuko-nav-text/60 hover:bg-white/5 hover:text-white capitalize font-medium tracking-wide text-nfuko-nav-text group-hover:text-white flex cursor-pointer',
-            isActive ? 'bg-nfuko-nav-active text-white' : ''
+        v-auth="item?.permissions">
+        <div @click="navigate" :class="[
+            'flex items-center gap-3 w-full px-3 py-3 rounded-xl cursor-pointer transition-all duration-200 text-[13px] font-medium',
+            isActive
+                ? 'bg-nfuko-nav-active text-white'
+                : 'text-white/55 hover:text-white hover:bg-white/8'
         ]">
-            <component v-if="item?.icon" :is="item.icon" :size="20" class="shrink-0" />
-            <span v-if="state === 'expanded'" class="flex-1 font-medium text-[13px] tracking-wide transition-colors duration-200 text-nfuko-nav-text group-hover:text-white">
-                {{ item?.label }}
+            <component v-if="item?.icon" :is="item.icon" :size="18" class="shrink-0" />
+            <span v-if="state === 'expanded'" class="flex-1 capitalize truncate">{{ item?.label }}</span>
+            <!-- badge -->
+            <span v-if="state === 'expanded' && badge"
+                class="ml-auto shrink-0 min-w-5 h-5 px-1.5 rounded-full text-[11px] font-bold flex items-center justify-center leading-none"
+                :class="isActive ? 'bg-white/20 text-white' : 'bg-white/10 text-white/60'">
+                {{ badge }}
             </span>
         </div>
     </RouterLink>
 </template>
 
-<script setup>
-import { onMounted, ref } from 'vue';
+<script setup lang="ts">
 import { useSidebar } from '@/Global/ui/sidebar/utils';
 
 const { state } = useSidebar();
-const currentRoute = ref(null);
-const props = defineProps({
-    item: {
-        type: [Array, Object],
-        required: true
-    },
-    title: String,
-    prifix: String,
-    onClick: Function
-})
 
-const handleClick = (item) => {
-    currentRoute.value = null
-    if (props.onClick) props.onClick()
-    currentRoute.value = item?.path
+const props = defineProps<{
+    item: any
+    prifix?: string
+    title?: string
+    badge?: number | null
+}>()
+
+function getRoutePath(route: any) {
+    return `/${props.prifix}/${route.path}`
 }
-const isCurrentUrl = (path, route) => {
-
-    return route?.path === path;
-
-};
-function getRoutePath(route) {
-
-    return `/${props.prifix}/${route.path}`;
-}
- 
-// trigger
 </script>
+
+<style scoped>
+.hover\:bg-white\/8:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+.bg-nfuko-primary\/8 {
+    background-color: rgba(0, 80, 216, 0.08);
+}
+</style>

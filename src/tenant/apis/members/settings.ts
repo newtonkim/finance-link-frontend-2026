@@ -1,8 +1,11 @@
 import { fetchTableData, formDataFormat, scopeValues } from '@/Global';
 import { pomPinia } from 'septor-store';
+
+type SettingsRequestData = Record<string, unknown> & { id?: string | number };
+
 export function memmberSettingApi() {
     const Store = pomPinia();
-    function settingsList(data?: object) {
+    function settingsList(data?: SettingsRequestData) {
     fetchTableData({
         data: data,
         props: { url: '/settings/member/onboarding/settings-list', state: 'member-onboarding-settings-list' },
@@ -11,7 +14,7 @@ export function memmberSettingApi() {
       })
  
     }
-   async function onBoardingProductGeneralCharges(data?: object) {
+   async function onBoardingProductGeneralCharges(data?: SettingsRequestData) {
     const res =await fetchTableData({
         data: data,
         props: { url: '/global/general-product-charges?type=onboarding', state: 'general-product-charges'+data?.id },
@@ -26,4 +29,3 @@ export function memmberSettingApi() {
         onBoardingProductGeneralCharges
     };
     };
-

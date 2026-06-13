@@ -160,7 +160,7 @@ function handleSubmit() {
                             @click="emit('close')">Cancel</button>
                         <button :disabled="submitting"
                             class="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-                            :class="decision === 'approve' ? 'bg-green-600 hover:bg-[#052659]/90 : 'bg-red-500 hover:bg-[#052659]/90
+                            :class="decision === 'approve' ? 'bg-green-600 hover:bg-[#052659]/90' : 'bg-red-500 hover:bg-[#052659]/90'"
                             @click="handleSubmit">
                             <ThumbsUp v-if="decision === 'approve'" class="h-4 w-4" />
                             <ThumbsDown v-else class="h-4 w-4" />

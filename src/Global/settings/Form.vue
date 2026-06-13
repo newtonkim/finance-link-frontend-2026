@@ -47,7 +47,8 @@
                 <!-- :defaultValues="`${childField.action}`.replace(/(?!^){{/g, ',{{').map(v => ({id: v, name: v}))" -->
 
                 <!-- {{ childField.action.replace(/(?!^){{/g, ',{{') }}=== -->
-                <MultiSearchableSelect   :defaultValues="mutipleCleanerDefaultVal(childField.action)"
+                <MultiSearchableSelect   :modelValue="multipleCleanerSelectedIds(childField.action)"
+                  :defaultValues="mutipleCleanerDefaultVal(childField.action)"
                   :options="childField.options" class="w-full" @update:item-selected="
                     (v) => multiselectedOptions(v, indx, ci, field.id)
                   " />
@@ -286,6 +287,10 @@ function mutipleCleanerDefaultVal(text: string) {
 
   }
 
+}
+
+function multipleCleanerSelectedIds(text: string) {
+  return mutipleCleanerDefaultVal(text)?.map((value: any) => value.id) ?? []
 }
 
 function changeInMultipleSelectValue(v, ci, field) {

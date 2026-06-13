@@ -53,7 +53,7 @@ function processingFeeLabel() {
       </div>
       <button
         v-if="product"
-        class="flex items-center gap-2 rounded-xl border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-[#052659]/90 transition-colors dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-[#052659]/90
+        class="flex items-center gap-2 rounded-xl border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-[#052659]/90 transition-colors dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-[#052659]/90"
         @click="
           router.push({ name: 'tenant-settings-loan-products-edit', params: { id: product.id } })
         "
