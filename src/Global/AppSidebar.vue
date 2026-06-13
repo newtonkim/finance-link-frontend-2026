@@ -51,12 +51,12 @@ const seatsPercent = computed(() =>
         <!-- Header: logo + name -->
         <SidebarHeader class="px-4 pt-5 pb-4 border-b border-white/5 shrink-0">
             <div class="flex items-center gap-3 min-w-0">
-                <div class="shrink-0 size-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg overflow-hidden">
+                <div class="shrink-0 size-12 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg overflow-hidden">
                     <img :src="sidebarLogo || '/images/finance-link-logo.png'" alt="Finance Link"
-                        class="size-8 object-contain" />
+                        class="size-11 object-contain" />
                 </div>
                 <div v-if="state === 'expanded'" class="min-w-0 overflow-hidden">
-                    <p class="text-[15px] font-bold text-white leading-tight truncate">{{ sidebarName }}</p>
+                    <p class="text-sm font-bold text-white leading-tight truncate">{{ sidebarName }}</p>
                     <p class="text-[10px] font-semibold text-white/35 uppercase tracking-[0.15em] mt-0.5">CENTRAL</p>
                 </div>
             </div>
