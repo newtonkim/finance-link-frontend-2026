@@ -26,6 +26,8 @@ export const centarRoutes: any = [
   },
   {
     path: 'licenses/:id/renew',
+    label: 'Payment Plan',
+    showSideBar: false,
     component: () => import('./licenses/Renew.vue'),
   },
   {

@@ -7,14 +7,13 @@
           <div class="mb-3 flex items-center gap-2 text-sm font-medium text-neutral-400">
             <button class="text-blue-600 hover:underline font-semibold" @click="router.push('/central/licenses')">Admin</button>
             <span>/</span>
-            <span>Payment Plan</span>
+            <span class="text-neutral-600 dark:text-neutral-300 font-semibold">Payment Plan</span>
           </div>
           <h1 class="text-3xl font-black tracking-tight">Renew License Subscription</h1>
           <p class="mt-1.5 text-sm text-neutral-500">
             Choose a payment method to renew this tenant subscription and keep access active.
           </p>
         </div>
-
         <div class="flex gap-3">
           <button
             class="inline-flex items-center gap-2 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-5 py-2.5 text-sm font-bold text-neutral-700 dark:text-neutral-200 shadow-sm hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors"
@@ -56,7 +55,6 @@
               <p class="mt-1 truncate text-lg font-black">{{ preview.plan_name || '-' }}</p>
             </div>
           </div>
-
           <div class="flex items-center gap-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 shadow-sm">
             <div class="flex size-14 shrink-0 items-center justify-center rounded-full bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-300">
               <CalendarDays class="size-6" />
@@ -66,7 +64,6 @@
               <p class="mt-1 truncate text-lg font-black">{{ renewalPeriod }}</p>
             </div>
           </div>
-
           <div class="flex items-center gap-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 shadow-sm">
             <div class="flex size-14 shrink-0 items-center justify-center rounded-full bg-orange-50 dark:bg-orange-950/40 text-orange-500 dark:text-orange-300">
               <Clock3 class="size-6" />
@@ -76,7 +73,6 @@
               <p class="mt-1 truncate text-lg font-black">{{ formatDate(preview.next_billing_date) }}</p>
             </div>
           </div>
-
           <div class="flex items-center gap-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 shadow-sm">
             <div class="flex size-14 shrink-0 items-center justify-center rounded-full bg-red-50 dark:bg-red-950/40 text-red-500 dark:text-red-300">
               <WalletCards class="size-6" />
@@ -106,36 +102,58 @@
                     ? 'bg-blue-600 text-white shadow-sm shadow-blue-600/30'
                     : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700',
                 ]"
-                @click="form.payment_method = method.value"
+                @click="selectPaymentMethod(method.value)"
               >
                 <component :is="method.icon" class="size-4" />
                 {{ method.label }}
               </button>
             </div>
 
+            <!-- Provider pills -->
+            <div class="mt-5">
+              <p class="text-xs font-bold uppercase tracking-wide text-neutral-400 mb-2.5">Provider</p>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-for="p in currentProviders"
+                  :key="p.value"
+                  type="button"
+                  :class="[
+                    'inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold border-2 transition-all duration-150',
+                    form.provider === p.value
+                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300'
+                      : 'border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:border-neutral-300',
+                  ]"
+                  @click="form.provider = p.value"
+                >
+                  <span :class="['text-[10px] font-black px-1.5 py-0.5 rounded-md leading-none', p.badgeClass]">
+                    {{ p.badge }}
+                  </span>
+                  {{ p.label }}
+                </button>
+              </div>
+            </div>
+
             <!-- Form fields -->
-            <div class="mt-6 grid gap-4 md:grid-cols-2">
+            <div class="mt-5 grid gap-4 md:grid-cols-2">
+              <!-- Amount (read-only, from plan) -->
               <label class="flex flex-col gap-1.5">
-                <span class="text-xs font-bold uppercase tracking-wide text-neutral-400">Provider</span>
-                <div class="relative">
-                  <div class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
-                    <span :class="['text-[10px] font-black px-1.5 py-0.5 rounded-md', providerBadgeClass]">
-                      {{ providerBadgeText }}
-                    </span>
-                  </div>
-                  <select v-model="form.provider" class="field pl-16">
-                    <option value="mtn">MTN Mobile Money</option>
-                    <option value="airtel">Airtel Money</option>
-                    <option value="visa">Visa Card</option>
-                    <option value="mastercard">Mastercard</option>
-                    <option value="bank">Bank Transfer</option>
-                  </select>
+                <span class="text-xs font-bold uppercase tracking-wide text-neutral-400">Amount to Pay</span>
+                <div class="field bg-neutral-50 dark:bg-neutral-800/50 flex items-center justify-between cursor-default">
+                  <span class="font-black text-blue-600">{{ formatMoney(preview.total) }}</span>
+                  <span class="text-xs font-semibold text-neutral-400 ml-2">{{ preview.currency || 'UGX' }}</span>
                 </div>
               </label>
 
               <label class="flex flex-col gap-1.5">
-                <span class="text-xs font-bold uppercase tracking-wide text-neutral-400">Phone Number</span>
-                <input v-model="form.phone_number" class="field" type="tel" placeholder="e.g. 0772 123 456" />
+                <span class="text-xs font-bold uppercase tracking-wide text-neutral-400">
+                  {{ form.payment_method === 'bank' ? 'Account Number' : 'Phone Number' }}
+                </span>
+                <input
+                  v-model="form.phone_number"
+                  class="field"
+                  :type="form.payment_method === 'bank' ? 'text' : 'tel'"
+                  :placeholder="form.payment_method === 'bank' ? 'e.g. 0001234567890' : 'e.g. 0772 123 456'"
+                />
               </label>
 
               <label class="flex flex-col gap-1.5 md:col-span-2">
@@ -196,14 +214,27 @@
               </span>
             </div>
 
+            <!-- Plan highlight box -->
+            <div class="mt-4 rounded-xl border border-blue-100 dark:border-blue-900/50 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 p-4 flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-300">
+                  <Crown class="size-5" />
+                </div>
+                <div>
+                  <p class="text-xs font-semibold text-blue-600/70 dark:text-blue-400/70 uppercase tracking-wide">License Plan</p>
+                  <p class="text-base font-black text-blue-900 dark:text-blue-100">{{ preview.plan_name || '-' }}</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-xs font-semibold text-neutral-400 uppercase tracking-wide">Per {{ billingCycleLabel }}</p>
+                <p class="text-base font-black text-blue-700 dark:text-blue-300">{{ formatMoney(preview.subtotal) }}</p>
+              </div>
+            </div>
+
             <dl class="mt-5 space-y-3.5">
               <div class="flex items-center justify-between gap-4 text-sm">
                 <dt class="text-neutral-500 font-medium">Tenant</dt>
                 <dd class="font-bold text-right truncate max-w-[55%]">{{ preview.tenant || '-' }}</dd>
-              </div>
-              <div class="flex items-center justify-between gap-4 text-sm">
-                <dt class="text-neutral-500 font-medium">License Type</dt>
-                <dd class="font-bold text-right">{{ preview.plan_name || '-' }}</dd>
               </div>
               <div class="flex items-center justify-between gap-4 text-sm">
                 <dt class="text-neutral-500 font-medium">Billing Cycle</dt>
@@ -273,7 +304,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { pomPinia } from 'septor-store'
 import {
@@ -308,20 +339,33 @@ const paymentMethods = [
   { label: 'Bank', value: 'bank', icon: Banknote },
 ]
 
-const providerBadgeText = computed(() => {
-  const map: Record<string, string> = { mtn: 'MTN', airtel: 'AIR', visa: 'VISA', mastercard: 'MC', bank: 'BNK' }
-  return map[form.provider] ?? form.provider.toUpperCase().slice(0, 4)
-})
+const allProviders: Record<string, Array<{ value: string; label: string; badge: string; badgeClass: string }>> = {
+  mobile_money: [
+    { value: 'mtn', label: 'MTN Mobile Money', badge: 'MTN', badgeClass: 'bg-yellow-400 text-yellow-900' },
+    { value: 'airtel', label: 'Airtel Money', badge: 'AIR', badgeClass: 'bg-red-500 text-white' },
+  ],
+  card: [
+    { value: 'visa', label: 'Visa Card', badge: 'VISA', badgeClass: 'bg-blue-700 text-white' },
+    { value: 'mastercard', label: 'Mastercard', badge: 'MC', badgeClass: 'bg-orange-500 text-white' },
+  ],
+  bank: [
+    { value: 'bank', label: 'Bank Transfer', badge: 'BNK', badgeClass: 'bg-neutral-700 text-white' },
+  ],
+}
 
-const providerBadgeClass = computed(() => {
-  const map: Record<string, string> = {
-    mtn: 'bg-yellow-400 text-yellow-900',
-    airtel: 'bg-red-500 text-white',
-    visa: 'bg-blue-700 text-white',
-    mastercard: 'bg-orange-500 text-white',
-    bank: 'bg-neutral-700 text-white',
+const currentProviders = computed(() => allProviders[form.payment_method] ?? [])
+
+function selectPaymentMethod(method: string) {
+  form.payment_method = method
+  // default to first provider of the new method
+  form.provider = allProviders[method]?.[0]?.value ?? ''
+}
+
+// keep provider in sync if user somehow ends up with wrong provider
+watch(currentProviders, (providers) => {
+  if (!providers.find((p) => p.value === form.provider)) {
+    form.provider = providers[0]?.value ?? ''
   }
-  return map[form.provider] ?? 'bg-neutral-200 text-neutral-700'
 })
 
 const statusBadgeClass = computed(() => {
@@ -373,8 +417,8 @@ async function toggleInvoices() {
 }
 
 async function confirmRenewal() {
-  if (!form.payment_method) {
-    notify({ msg: 'Please select a payment method.', type: 'error' })
+  if (!form.provider) {
+    notify({ msg: 'Please select a provider.', type: 'error' })
     return
   }
   submitting.value = true
@@ -427,7 +471,6 @@ onMounted(loadPreview)
   font-weight: 600;
   color: inherit;
   outline: none;
-  appearance: none;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
@@ -442,12 +485,5 @@ onMounted(loadPreview)
 
 .dark .field:focus {
   border-color: rgb(96 165 250);
-}
-
-select.field {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.875rem center;
-  padding-right: 2.5rem;
 }
 </style>
