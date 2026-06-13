@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Search, Bell, Plus, ChevronDown } from 'lucide-vue-next'
+import { Search, Bell, Plus, ChevronDown, PanelLeft } from 'lucide-vue-next'
 
 import {
   Button,
@@ -11,6 +11,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
 } from '@/Global'
+import { useSidebar } from '@/Global/ui/sidebar/utils'
 import UserMenuContent from '@/Global/UserMenuContent.vue'
 import { computed, onMounted, ref } from 'vue'
 import {
@@ -88,6 +89,7 @@ function watchBranchchanges(branch: any) {
   syncBranchContext(branch)
 }
 
+const { toggleSidebar, state: sidebarState } = useSidebar()
 const tenantUserStore = useTenantUserStore()
 const profileStore = useProfileStore()
 
@@ -113,7 +115,13 @@ function onBranchChange(val: number) {
   <header
     class="flex h-16 shrink-0 items-center gap-2 px-6 border-b border-neutral-100 dark:border-white/10 bg-white/50 dark:bg-[#111111]/80 backdrop-blur-sm sticky top-0 z-10 justify-between"
   >
-    <div></div>
+    <button
+      @click="toggleSidebar"
+      class="flex items-center justify-center size-9 rounded-lg hover:bg-neutral-100 dark:hover:bg-white/10 text-neutral-500 dark:text-neutral-400 transition-colors"
+      :title="sidebarState === 'expanded' ? 'Collapse sidebar' : 'Open sidebar'"
+    >
+      <PanelLeft class="size-5" />
+    </button>
 
     <div class="flex items-center gap-4 flex-1 max-w-sm mx-12">
       <div class="relative w-full">
