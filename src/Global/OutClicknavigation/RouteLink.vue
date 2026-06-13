@@ -31,7 +31,7 @@
         v-slot="{ isActive, navigate }"
         v-auth="item?.permissions">
         <div @click="navigate" :class="[
-            'flex items-center gap-3 w-full px-3 py-2 rounded-xl cursor-pointer transition-all duration-200 text-[13px] font-medium',
+            'flex items-center gap-3 w-full px-3 py-3 rounded-xl cursor-pointer transition-all duration-200 text-[13px] font-medium',
             isActive
                 ? 'bg-nfuko-nav-active text-white'
                 : 'text-white/55 hover:text-white hover:bg-white/8'

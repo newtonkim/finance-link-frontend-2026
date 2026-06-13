@@ -1,6 +1,6 @@
 <template>
     <div v-bind="$attrs" class="flex flex-col h-full py-1">
-        <div class="flex flex-col gap-0.5 flex-1">
+        <div class="flex flex-col gap-1.5 flex-1">
             <template v-for="item in mainLinks" :key="item.path ?? item.label">
 
                 <!-- Section label -->
@@ -18,7 +18,7 @@
                 <!-- Expandable nav item (has children / submenu) -->
                 <div v-else-if="item?.showSideBar === true" class="relative">
                     <div v-auth="item?.permissions" @click="toggleSubmenu(item.label ?? null)"
-                        class="flex items-center gap-3 w-full px-3 py-2 rounded-xl cursor-pointer transition-all duration-200 text-white/55 hover:text-white hover:bg-white/8 group">
+                        class="flex items-center gap-3 w-full px-3 py-3 rounded-xl cursor-pointer transition-all duration-200 text-white/55 hover:text-white hover:bg-white/8 group">
                         <component :is="item.icon" :size="18" class="shrink-0" />
                         <span v-if="state === 'expanded'" class="flex-1 text-[13px] font-medium capitalize">{{ item.label }}</span>
                         <span v-if="state === 'expanded'" class="text-white/30 text-xs">
