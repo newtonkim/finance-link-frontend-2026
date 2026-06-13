@@ -38,24 +38,18 @@ function toggleDarkMode() {
     document.documentElement.classList.toggle('dark', isDark.value);
 }
 
-const usedSeats = computed(() => Store.platformStats?.payload?.used_seats ?? 187);
-const totalSeats = computed(() => Store.platformStats?.payload?.total_seats ?? 240);
-const availableSeats = computed(() => totalSeats.value - usedSeats.value);
-const seatsPercent = computed(() =>
-    totalSeats.value ? Math.min(100, Math.round((usedSeats.value / totalSeats.value) * 100)) : 0
-);
 </script>
 
 <template>
     <Sidebar collapsible="icon" variant="inset" class="border-r-0 overflow-hidden text-white">
         <!-- Header: logo + name -->
         <SidebarHeader class="px-4 pt-5 pb-4 border-b border-white/5 shrink-0">
-            <div class="flex items-center justify-between w-full gap-2">
-                <div class="shrink-0 size-16 rounded-2xl overflow-hidden shadow-lg">
+            <div class="flex flex-col items-center gap-2 w-full">
+                <div class="size-20 rounded-2xl overflow-hidden shadow-lg">
                     <img :src="sidebarLogo || '/images/finance-link-logo.png'" alt="Finance Link"
                         class="w-full h-full object-contain" />
                 </div>
-                <div v-if="state === 'expanded'" class="text-right">
+                <div v-if="state === 'expanded'" class="text-center">
                     <p class="text-sm font-bold text-white leading-tight">{{ sidebarName }}</p>
                     <p class="text-[10px] font-semibold text-white/35 uppercase tracking-[0.15em] mt-0.5">CENTRAL</p>
                 </div>
@@ -67,19 +61,8 @@ const seatsPercent = computed(() =>
             <OutClickNav class="flex-1 h-full" :links="centarRoutes" prefix="central" />
         </SidebarContent>
 
-        <!-- Footer: seats + dark mode -->
+        <!-- Footer: dark mode -->
         <SidebarFooter class="px-4 py-4 border-t border-white/5 mt-auto shrink-0 space-y-3">
-            <div v-if="state === 'expanded'" class="rounded-xl bg-white/5 px-3 py-3 space-y-2">
-                <div class="flex items-center justify-between gap-2">
-                    <span class="text-sm font-semibold text-white">Platform seats</span>
-                    <span class="text-sm font-bold text-white">{{ usedSeats }} / {{ totalSeats }}</span>
-                </div>
-                <div class="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                    <div class="h-full bg-blue-500 rounded-full transition-all duration-500"
-                        :style="{ width: `${seatsPercent}%` }" />
-                </div>
-                <p class="text-xs text-white/45">{{ availableSeats }} seats available across all tenants</p>
-            </div>
             <div class="flex items-center justify-between px-1">
                 <span v-if="state === 'expanded'" class="text-sm font-medium text-white/50">Dark mode</span>
                 <button @click="toggleDarkMode"
