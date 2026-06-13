@@ -229,22 +229,29 @@
 
                 <!-- actions -->
                 <td class="px-4 py-4">
-                  <div class="flex items-center justify-end gap-0.5">
+                  <div class="flex items-center justify-end gap-2">
+                    <!-- View -->
                     <button @click="openDrawer('view', license)"
-                      class="p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
-                      <Eye class="size-4" />
+                      class="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-3.5 py-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors">
+                      <Eye class="size-3.5" />
+                      View
                     </button>
+                    <!-- Edit -->
                     <button @click="openDrawer('edit', license)"
-                      class="p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
-                      <Pencil class="size-4" />
+                      class="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-3.5 py-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors">
+                      <Pencil class="size-3.5" />
+                      Edit
                     </button>
+                    <!-- Renew -->
                     <button @click="renewLicense(license)"
-                      class="p-1.5 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-500 hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors">
-                      <RefreshCw class="size-4" />
+                      class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-3.5 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-colors">
+                      <RotateCcw class="size-3.5" />
+                      Renew
                     </button>
+                    <!-- Delete -->
                     <button
-                      class="p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
-                      <MoreVertical class="size-4" />
+                      class="flex size-7 items-center justify-center rounded-full bg-red-50 dark:bg-red-950/40 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/60 transition-colors">
+                      <Trash2 class="size-3.5" />
                     </button>
                   </div>
                 </td>
@@ -332,7 +339,7 @@ import { pomPinia } from 'septor-store'
 import {
   Download, Plus, CheckCircle, Clock, AlertTriangle, XCircle, TrendingUp,
   Search, SlidersHorizontal, Eye, Pencil, MoreVertical,
-  ChevronLeft, ChevronRight, RefreshCw, PauseCircle, X
+  ChevronLeft, ChevronRight, RefreshCw, PauseCircle, X, Trash2, RotateCcw
 } from 'lucide-vue-next'
 import { Drawer } from '@/Global'
 import { fetchTableData } from '@/Global/landingLayout/util'
