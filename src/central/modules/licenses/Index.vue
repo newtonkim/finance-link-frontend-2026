@@ -1,11 +1,11 @@
 <template>
-  <div class="px-4 py-4 flex flex-col gap-5">
+  <div class="px-6 py-5 flex flex-col gap-6">
 
     <!-- ── Header ────────────────────────────────────────────────── -->
     <div class="flex items-start justify-between">
       <div>
-        <h1 class="text-2xl font-black text-neutral-900 dark:text-white">Licenses</h1>
-        <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
+        <h1 class="text-2xl font-bold text-neutral-900 dark:text-white tracking-tight">Licenses</h1>
+        <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
           Monitor and manage tenant subscriptions across the platform.
         </p>
       </div>
@@ -16,7 +16,7 @@
           Export
         </button>
         <button @click="() => openDrawer('add', null)"
-          class="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm">
+          class="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm">
           <Plus class="size-4" />
           Issue license
         </button>
@@ -25,18 +25,18 @@
 
     <!-- ── Stats cards ───────────────────────────────────────────── -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <div
-        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-100 dark:border-neutral-800 p-4 shadow-sm">
-        <div class="flex items-start gap-3">
-          <div class="size-9 rounded-lg bg-green-50 dark:bg-green-900/30 flex items-center justify-center shrink-0">
+
+      <!-- Active licenses -->
+      <div class="relative bg-white dark:bg-neutral-900 rounded-xl border border-neutral-100 dark:border-neutral-800 p-5 shadow-sm overflow-hidden">
+        <div class="absolute left-0 top-0 bottom-0 w-1 bg-green-500 rounded-l-xl" />
+        <div class="flex items-start gap-3 pl-2">
+          <div class="size-10 rounded-lg bg-green-50 dark:bg-green-900/30 flex items-center justify-center shrink-0">
             <CheckCircle class="size-5 text-green-500" />
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-xs text-neutral-500 dark:text-neutral-400">Active licenses</p>
-            <p class="text-3xl font-bold text-neutral-900 dark:text-white mt-0.5 leading-none">
-              {{ stats.active ?? '—' }}
-            </p>
-            <p class="text-xs text-green-500 mt-1.5 flex items-center gap-1">
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 font-medium">Active licenses</p>
+            <p class="text-4xl font-bold text-neutral-900 dark:text-white mt-1 leading-none">{{ stats.active ?? '—' }}</p>
+            <p class="text-xs text-green-500 mt-2 flex items-center gap-1 font-medium">
               <TrendingUp class="size-3" />
               {{ stats.issued_this_month ?? 0 }} issued this month
             </p>
@@ -44,54 +44,47 @@
         </div>
       </div>
 
-      <div
-        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-100 dark:border-neutral-800 p-4 shadow-sm">
-        <div class="flex items-start gap-3">
-          <div class="size-9 rounded-lg bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center shrink-0">
+      <!-- Expiring ≤ 30 days -->
+      <div class="relative bg-white dark:bg-neutral-900 rounded-xl border border-neutral-100 dark:border-neutral-800 p-5 shadow-sm overflow-hidden">
+        <div class="absolute left-0 top-0 bottom-0 w-1 bg-orange-500 rounded-l-xl" />
+        <div class="flex items-start gap-3 pl-2">
+          <div class="size-10 rounded-lg bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center shrink-0">
             <Clock class="size-5 text-orange-500" />
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-xs text-neutral-500 dark:text-neutral-400">Expiring ≤ 30 days</p>
-            <p class="text-3xl font-bold text-neutral-900 dark:text-white mt-0.5 leading-none">
-              {{ stats.expiring_soon ?? '—' }}
-            </p>
-            <button class="text-xs text-orange-500 mt-1.5 hover:underline">
-              Send renewal reminders
-            </button>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 font-medium">Expiring ≤ 30 days</p>
+            <p class="text-4xl font-bold text-neutral-900 dark:text-white mt-1 leading-none">{{ stats.expiring_soon ?? '—' }}</p>
+            <button class="text-xs text-orange-500 mt-2 hover:underline font-medium text-left">Send renewal reminders</button>
           </div>
         </div>
       </div>
 
-      <div
-        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-100 dark:border-neutral-800 p-4 shadow-sm">
-        <div class="flex items-start gap-3">
-          <div class="size-9 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
-            <AlertTriangle class="size-5 text-amber-500" />
+      <!-- In grace period -->
+      <div class="relative bg-white dark:bg-neutral-900 rounded-xl border border-neutral-100 dark:border-neutral-800 p-5 shadow-sm overflow-hidden">
+        <div class="absolute left-0 top-0 bottom-0 w-1 bg-violet-500 rounded-l-xl" />
+        <div class="flex items-start gap-3 pl-2">
+          <div class="size-10 rounded-lg bg-violet-50 dark:bg-violet-900/30 flex items-center justify-center shrink-0">
+            <AlertTriangle class="size-5 text-violet-500" />
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-xs text-neutral-500 dark:text-neutral-400">In grace period</p>
-            <p class="text-3xl font-bold text-neutral-900 dark:text-white mt-0.5 leading-none">
-              {{ stats.grace ?? '—' }}
-            </p>
-            <button class="text-xs text-amber-500 mt-1.5 hover:underline">
-              Action needed
-            </button>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 font-medium">In grace period</p>
+            <p class="text-4xl font-bold text-neutral-900 dark:text-white mt-1 leading-none">{{ stats.grace ?? '—' }}</p>
+            <button class="text-xs text-violet-500 mt-2 hover:underline font-medium text-left">Action needed</button>
           </div>
         </div>
       </div>
 
-      <div
-        class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-100 dark:border-neutral-800 p-4 shadow-sm">
-        <div class="flex items-start gap-3">
-          <div class="size-9 rounded-lg bg-red-50 dark:bg-red-900/30 flex items-center justify-center shrink-0">
+      <!-- Expired -->
+      <div class="relative bg-white dark:bg-neutral-900 rounded-xl border border-neutral-100 dark:border-neutral-800 p-5 shadow-sm overflow-hidden">
+        <div class="absolute left-0 top-0 bottom-0 w-1 bg-red-500 rounded-l-xl" />
+        <div class="flex items-start gap-3 pl-2">
+          <div class="size-10 rounded-lg bg-red-50 dark:bg-red-900/30 flex items-center justify-center shrink-0">
             <XCircle class="size-5 text-red-500" />
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-xs text-neutral-500 dark:text-neutral-400">Expired</p>
-            <p class="text-3xl font-bold text-neutral-900 dark:text-white mt-0.5 leading-none">
-              {{ stats.expired ?? '—' }}
-            </p>
-            <p class="text-xs text-red-400 mt-1.5">Awaiting renewal</p>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 font-medium">Expired</p>
+            <p class="text-4xl font-bold text-neutral-900 dark:text-white mt-1 leading-none">{{ stats.expired ?? '—' }}</p>
+            <p class="text-xs text-red-400 mt-2 font-medium">Awaiting renewal</p>
           </div>
         </div>
       </div>
@@ -101,20 +94,19 @@
     <div class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-100 dark:border-neutral-800 shadow-sm">
 
       <!-- filter tabs + search -->
-      <div
-        class="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-b border-neutral-100 dark:border-neutral-800">
-        <div class="flex items-center gap-1 flex-wrap">
+      <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 border-b border-neutral-100 dark:border-neutral-800">
+        <div class="flex items-center gap-0.5 flex-wrap">
           <button v-for="tab in filterTabs" :key="tab.value" @click="setFilter(tab.value)" :class="[
             'flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors',
             statusFilter === tab.value
               ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white'
-              : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300'
+              : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800/50'
           ]">
             {{ tab.label }}
             <span :class="[
-              'min-w-4.5 h-4 px-1 rounded text-[10px] font-bold flex items-center justify-center',
+              'px-1.5 rounded text-[10px] font-bold leading-5 inline-flex items-center',
               statusFilter === tab.value
-                ? 'bg-neutral-800 dark:bg-white text-white dark:text-neutral-900'
+                ? 'bg-neutral-900 dark:bg-white text-white dark:text-neutral-900'
                 : 'bg-neutral-100 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400'
             ]">{{ tab.count }}</span>
           </button>
@@ -123,7 +115,7 @@
           <div class="relative">
             <Search class="size-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
             <input v-model="searchQuery" type="text" placeholder="Filter by tenant or ID..."
-              class="pl-8 pr-3 py-1.5 text-xs border border-neutral-200 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 w-52" />
+              class="pl-8 pr-3 py-1.5 text-xs border border-neutral-200 dark:border-neutral-700 rounded-lg bg-transparent text-neutral-700 dark:text-neutral-300 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 w-52" />
           </div>
           <button
             class="p-1.5 border border-neutral-200 dark:border-neutral-700 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
@@ -137,45 +129,35 @@
         <table class="w-full text-sm">
           <thead>
             <tr class="border-b border-neutral-100 dark:border-neutral-800">
-              <th class="w-10 px-4 py-3">
+              <th class="w-10 px-5 py-3.5">
                 <input type="checkbox" @change="toggleAll" :checked="allSelected"
                   class="rounded border-neutral-300 cursor-pointer" />
               </th>
-              <th
-                class="px-4 py-3 text-left text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">
-                Tenant</th>
-              <th
-                class="px-4 py-3 text-left text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">
-                Plan</th>
-              <th
-                class="px-4 py-3 text-left text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider min-w-60">
-                License Runway</th>
-              <th
-                class="px-4 py-3 text-left text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">
-                Status</th>
-              <th
-                class="px-4 py-3 text-right text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">
-                Actions</th>
+              <th class="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">Tenant</th>
+              <th class="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">Plan</th>
+              <th class="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider min-w-60">License Runway</th>
+              <th class="px-4 py-3.5 text-left text-[11px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">Status</th>
+              <th class="px-4 py-3.5 text-right text-[11px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody>
             <!-- loading skeleton -->
             <template v-if="loading">
-              <tr v-for="i in 5" :key="i" class="border-b border-neutral-50 dark:border-neutral-800">
-                <td class="px-4 py-3"><div class="h-4 w-4 bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse" /></td>
-                <td class="px-4 py-3">
+              <tr v-for="i in 5" :key="i" class="border-b border-neutral-50 dark:border-neutral-800/50">
+                <td class="px-5 py-4"><div class="h-4 w-4 bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse" /></td>
+                <td class="px-4 py-4">
                   <div class="flex items-center gap-3">
-                    <div class="size-8 rounded-lg bg-neutral-100 dark:bg-neutral-800 animate-pulse" />
+                    <div class="size-9 rounded-lg bg-neutral-100 dark:bg-neutral-800 animate-pulse" />
                     <div class="space-y-1.5">
                       <div class="h-3 w-32 bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse" />
                       <div class="h-2.5 w-16 bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse" />
                     </div>
                   </div>
                 </td>
-                <td class="px-4 py-3"><div class="h-5 w-20 bg-neutral-100 dark:bg-neutral-800 rounded-full animate-pulse" /></td>
-                <td class="px-4 py-3"><div class="h-4 w-48 bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse" /></td>
-                <td class="px-4 py-3"><div class="h-5 w-16 bg-neutral-100 dark:bg-neutral-800 rounded-full animate-pulse" /></td>
-                <td class="px-4 py-3"><div class="h-4 w-20 bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse ml-auto" /></td>
+                <td class="px-4 py-4"><div class="h-5 w-20 bg-neutral-100 dark:bg-neutral-800 rounded-full animate-pulse" /></td>
+                <td class="px-4 py-4"><div class="h-4 w-48 bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse" /></td>
+                <td class="px-4 py-4"><div class="h-5 w-16 bg-neutral-100 dark:bg-neutral-800 rounded-full animate-pulse" /></td>
+                <td class="px-4 py-4"><div class="h-4 w-20 bg-neutral-100 dark:bg-neutral-800 rounded animate-pulse ml-auto" /></td>
               </tr>
             </template>
 
@@ -189,53 +171,53 @@
             <!-- rows -->
             <template v-else>
               <tr v-for="license in filteredLicenses" :key="license.id" :class="[
-                'hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors',
-                'border-b border-neutral-50 dark:border-neutral-800 last:border-0',
-                selectedIds.includes(license.id) ? 'bg-blue-50/40 dark:bg-blue-900/10' : ''
+                'hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors',
+                'border-b border-neutral-50 dark:border-neutral-800/60 last:border-0',
+                selectedIds.includes(license.id) ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''
               ]">
-                <td class="px-4 py-3">
+                <td class="px-5 py-4">
                   <input type="checkbox" :checked="selectedIds.includes(license.id)"
                     @change="toggleSelect(license.id)"
                     class="rounded border-neutral-300 cursor-pointer accent-blue-600" />
                 </td>
 
                 <!-- tenant -->
-                <td class="px-4 py-3">
+                <td class="px-4 py-4">
                   <div class="flex items-center gap-3">
-                    <div :class="['size-8 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0', tenantColor(license.tenant_name)]">
+                    <div :class="['size-9 rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0', tenantColor(license.tenant_name)]">
                       {{ tenantInitials(license.tenant_name) }}
                     </div>
                     <div>
-                      <p class="font-semibold text-neutral-900 dark:text-white text-sm leading-tight">{{ license.tenant_name }}</p>
-                      <p class="text-xs text-neutral-400 dark:text-neutral-500 uppercase font-mono">{{ license.tenant_code ?? '' }}</p>
+                      <p class="font-semibold text-neutral-900 dark:text-white text-sm leading-snug">{{ license.tenant_name }}</p>
+                      <p class="text-[11px] text-neutral-400 dark:text-neutral-500 uppercase font-mono tracking-wide mt-0.5">{{ license.tenant_code ?? '' }}</p>
                     </div>
                   </div>
                 </td>
 
                 <!-- plan -->
-                <td class="px-4 py-3">
+                <td class="px-4 py-4">
                   <span :class="['inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium', planStyle(license.plan).badge]">
-                    <span :class="['size-1.5 rounded-full', planStyle(license.plan).dot]" />
+                    <span :class="['size-1.5 rounded-full shrink-0', planStyle(license.plan).dot]" />
                     {{ license.plan ?? '—' }}
                   </span>
                 </td>
 
                 <!-- runway -->
-                <td class="px-4 py-3">
+                <td class="px-4 py-4">
                   <LicenseRunway :starts="license.starts" :expires="license.expires"
                     :grace_ends="license.grace_ends" :status="license.status" />
                 </td>
 
                 <!-- status -->
-                <td class="px-4 py-3">
+                <td class="px-4 py-4">
                   <span :class="['inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium', statusStyle(license).badge]">
-                    <span :class="['size-1.5 rounded-full', statusStyle(license).dot]" />
+                    <span :class="['size-1.5 rounded-full shrink-0', statusStyle(license).dot]" />
                     {{ statusLabel(license) }}
                   </span>
                 </td>
 
                 <!-- actions -->
-                <td class="px-4 py-3">
+                <td class="px-4 py-4">
                   <div class="flex items-center justify-end gap-0.5">
                     <button @click="openDrawer('view', license)"
                       class="p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
@@ -259,13 +241,13 @@
 
       <!-- pagination -->
       <div v-if="pagination.total"
-        class="flex items-center justify-between px-4 py-3 border-t border-neutral-100 dark:border-neutral-800">
+        class="flex items-center justify-between px-5 py-3.5 border-t border-neutral-100 dark:border-neutral-800">
         <p class="text-xs text-neutral-500 dark:text-neutral-400">
           Showing {{ licenses.length }} of {{ pagination.total }} licenses
         </p>
         <div class="flex items-center gap-1">
           <button @click="goToPage(pagination.current_page - 1)" :disabled="pagination.current_page <= 1" :class="[
-            'p-1.5 rounded-lg border border-neutral-200 dark:border-neutral-700 transition-colors',
+            'size-8 flex items-center justify-center rounded-lg border border-neutral-200 dark:border-neutral-700 transition-colors',
             pagination.current_page <= 1
               ? 'opacity-40 cursor-not-allowed'
               : 'hover:bg-neutral-50 dark:hover:bg-neutral-800'
@@ -273,14 +255,14 @@
             <ChevronLeft class="size-4 text-neutral-500" />
           </button>
           <button v-for="p in pageNumbers" :key="p" @click="goToPage(p)" :class="[
-            'min-w-8 h-8 px-2 rounded-lg text-xs font-medium transition-colors',
+            'size-8 rounded-lg text-xs font-medium transition-colors',
             p === pagination.current_page
               ? 'bg-blue-600 text-white'
               : 'border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400'
           ]">{{ p }}</button>
           <button @click="goToPage(pagination.current_page + 1)"
             :disabled="pagination.current_page >= pagination.last_page" :class="[
-              'p-1.5 rounded-lg border border-neutral-200 dark:border-neutral-700 transition-colors',
+              'size-8 flex items-center justify-center rounded-lg border border-neutral-200 dark:border-neutral-700 transition-colors',
               pagination.current_page >= pagination.last_page
                 ? 'opacity-40 cursor-not-allowed'
                 : 'hover:bg-neutral-50 dark:hover:bg-neutral-800'
@@ -295,23 +277,23 @@
   <!-- ── Bulk action bar ───────────────────────────────────────── -->
   <Transition name="slide-up">
     <div v-if="selectedIds.length > 0"
-      class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-neutral-900 dark:bg-neutral-800 text-white rounded-2xl px-4 py-2.5 flex items-center gap-3 shadow-2xl z-50 border border-neutral-700">
-      <span class="text-sm font-medium text-neutral-300">{{ selectedIds.length }} selected</span>
-      <div class="w-px h-5 bg-neutral-700" />
+      class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-neutral-900 dark:bg-neutral-800 text-white rounded-2xl px-5 py-3 flex items-center gap-2 shadow-2xl z-50 border border-neutral-700/50">
+      <span class="text-sm font-semibold text-white pr-1">{{ selectedIds.length }} selected</span>
+      <div class="w-px h-5 bg-neutral-600 mx-1" />
       <button
-        class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-neutral-800 dark:bg-neutral-700 hover:bg-neutral-700 dark:hover:bg-neutral-600 rounded-lg transition-colors">
+        class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-neutral-200 hover:text-white hover:bg-neutral-700 rounded-lg transition-colors">
         <RefreshCw class="size-3.5" /> Renew
       </button>
       <button
-        class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-neutral-800 dark:bg-neutral-700 hover:bg-neutral-700 dark:hover:bg-neutral-600 rounded-lg transition-colors">
+        class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-neutral-200 hover:text-white hover:bg-neutral-700 rounded-lg transition-colors">
         <PauseCircle class="size-3.5" /> Suspend
       </button>
       <button
-        class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-neutral-800 dark:bg-neutral-700 hover:bg-neutral-700 dark:hover:bg-neutral-600 rounded-lg transition-colors">
+        class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-neutral-200 hover:text-white hover:bg-neutral-700 rounded-lg transition-colors">
         <Download class="size-3.5" /> Export
       </button>
       <button @click="clearSelection"
-        class="p-1.5 rounded-lg bg-neutral-800 dark:bg-neutral-700 hover:bg-neutral-700 dark:hover:bg-neutral-600 transition-colors">
+        class="ml-1 p-1.5 rounded-lg hover:bg-neutral-700 transition-colors text-neutral-400 hover:text-white">
         <X class="size-3.5" />
       </button>
     </div>
@@ -345,7 +327,7 @@ import { notify } from '@/Global/Toasters/ToastMsg'
 import { lisenseApi } from '../apis'
 
 const Store = pomPinia() as any
-const { create, Erase } = lisenseApi()
+const { create } = lisenseApi()
 
 // ── state ──────────────────────────────────────────────────────
 const statusFilter = ref('all')
@@ -378,7 +360,8 @@ function tenantInitials(name: string) {
 function planStyle(plan: string) {
   const p = (plan ?? '').toLowerCase()
   if (p.includes('premium')) return { badge: 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300', dot: 'bg-blue-500' }
-  if (p.includes('growth')) return { badge: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300', dot: 'bg-emerald-500' }
+  if (p.includes('growth'))  return { badge: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300', dot: 'bg-emerald-500' }
+  if (p.includes('starter')) return { badge: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-700/60 dark:text-neutral-300', dot: 'bg-neutral-400' }
   return { badge: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400', dot: 'bg-neutral-400' }
 }
 
@@ -512,7 +495,7 @@ async function openDrawer(action: 'add' | 'edit' | 'view', license: any) {
   drawerMounted.value = false
   drawerAction.value = action
   if (action === 'edit' && license) {
-    const res = await fetchTableData({
+    fetchTableData({
       data: { id: license.id },
       props: { state: 'licenseEditDetails', url: 'central/licenses/edit-details', reload: false, time: 0 },
       Store,
@@ -533,7 +516,7 @@ async function saveDrawer() {
     await fetchList(currentPage.value)
     await fetchStats()
   } catch {
-    notify({ msg: 'Failed to save license', type: 'Error' })
+    notify({ msg: 'Failed to save license', type: 'error' })
   }
 }
 </script>

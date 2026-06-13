@@ -10,22 +10,23 @@ export const centarRoutes: any = [
   },
   {
     path: 'dashboard',
-    label: 'dashboard',
+    label: 'Dashboard',
     icon: LayoutGrid,
     component: () => import('./dashboard/index.vue'),
     showSideBar: true,
   },
   {
     path: 'licenses',
-    label: 'licenses',
+    label: 'Licenses',
     permissions: 'licenses-module-link-view',
     icon: CreditCard,
     showSideBar: true,
+    badgeKey: 'licenseStats.payload.total',
     component: () => import('./licenses/Index.vue'),
   },
   {
     path: 'platform-users',
-    label: 'platform-users',
+    label: 'Platform Users',
     permissions: 'staff-module-link-view',
     icon: Users,
     showSideBar: true,
@@ -36,12 +37,12 @@ export const centarRoutes: any = [
     icon: Store,
     showSideBar: true,
     permissions: 'tenants-module-link-view',
+    badgeKey: 'tenantList.payload.total',
     component: () => import('./tenants/Index.vue'),
-    label: 'tenants',
+    label: 'Tenants',
   },
   {
     path: 'tenants/:id',
-
     component: () => import('./pages/TenantDetail.vue'),
   },
 
