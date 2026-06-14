@@ -85,6 +85,11 @@ export const centarRoutes: any = [
             label: 'Plan',
             component: () => import('./settings/General/plans/Index.vue'),
           },
+          {
+            path: 'features',
+            label: 'Features',
+            component: () => import('./settings/General/features/Index.vue'),
+          },
         ],
       },
       {

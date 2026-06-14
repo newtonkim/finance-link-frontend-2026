@@ -1,23 +1,14 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
 import { Form, Card, Table } from '@/Global'
-import { ACTION_CONFIG } from '@/Global/landingLayout/util';
-const emits = defineEmits(['update:form']);
-const featuresSelected = ref<any[]>([]);
+import { ACTION_CONFIG } from '@/Global/landingLayout/util'
+import { featuresApi } from '@/central/modules/apis/Settings'
+
+const emits = defineEmits(['update:form'])
+const featuresSelected = ref<any[]>([])
 const loading = ref(true)
 
-const FEATURE_OPTIONS = [
-    { name: 'Monthly statements', id: 'reports' },
-    { name: 'Loans & SACCO module', id: 'loans' },
-    { name: 'Core ledger & savings', id: 'savings' },
-    { name: 'Shares module', id: 'shares' },
-    { name: 'NFC offline payments', id: 'nfc' },
-    { name: 'REST API access', id: 'api' },
-    { name: 'SSO & audit logs', id: 'sso' },
-    { name: 'White-label & SSO', id: 'whitelabel' },
-    { name: 'Email support', id: 'email_support' },
-    { name: 'Priority support', id: 'priority_support' },
-]
+const featureOptions = ref<{ name: string; id: string }[]>([])
 
 const form: any = ref([
     {
@@ -68,7 +59,7 @@ const form: any = ref([
         label: 'Features',
         name: 'features',
         type: 'select',
-        options: FEATURE_OPTIONS,
+        options: [],
         required: false,
         placeholder: 'Select a feature to add',
     },
@@ -83,12 +74,12 @@ const props = defineProps({
 
 watch(() => form.value, (value) => {
     if (value) {
-        const featuresField = value.find((f: any) => f.name === 'features');
+        const featuresField = value.find((f: any) => f.name === 'features')
         if (featuresField?.selected?.id) {
             const already = featuresSelected.value.find((p: any) => p.id === featuresField.selected.id)
             if (!already) featuresSelected.value.push(featuresField.selected)
         }
-        emits('update:form', { ...value, selectedfeatures: featuresSelected.value });
+        emits('update:form', { ...value, selectedfeatures: featuresSelected.value })
     }
 }, { deep: true })
 
@@ -119,8 +110,16 @@ function parseFeaturesFromData(raw: any): Record<string, boolean> {
 async function promtValueOnUpdate() {
     loading.value = true
     try {
+        // Load features from API
+        const res = await featuresApi().list()
+        const items: any[] = res?.data?.payload ?? res?.data?.data ?? []
+        featureOptions.value = items.map((f: any) => ({ name: f.name, id: f.key }))
+
+        // Populate features select options
+        const featuresField = form.value.find((f: any) => f.name === 'features')
+        if (featuresField) featuresField.options = featureOptions.value
+
         if (props.data?.action === 'edit') {
-            // Map API field names → form field names
             const fieldMap: Record<string, string> = {
                 plan_name: 'name',
                 cost: 'cost',
@@ -136,16 +135,14 @@ async function promtValueOnUpdate() {
                 if (field) field.value = val
             })
 
-            // Parse features (may be JSON string or object)
             const featObj = parseFeaturesFromData((props.data as any).features)
             featuresSelected.value = Object.entries(featObj)
                 .filter(([, enabled]) => enabled)
                 .map(([key]) => {
-                    const opt = FEATURE_OPTIONS.find((o) => o.id === key)
+                    const opt = featureOptions.value.find((o) => o.id === key)
                     return opt ?? { name: key, id: key }
                 })
 
-            // Hidden id field for update
             if ((props.data as any).id) {
                 const existing = form.value.find((f: any) => f.name === 'id')
                 if (!existing) {
@@ -170,13 +167,13 @@ onMounted(() => {
 })
 </script>
 <template>
-        <div v-if="loading"> </div>
-        <Card v-else class="border-neutral-100 dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-2xl ">
-            <Form v-model:form="form" parentStyle="grid grid-cols-1 gap-3 px-4 py-0" />
-            <div class="h-[40vh] overflow-auto">
-                <Table :action_config="ACTION_CONFIG" :handleAction="handleAction" :dataFilter="featuresSelected"
-                    :data="featuresSelected" :columns="columns">
-                </Table>
-            </div>
-        </Card>
+    <div v-if="loading"> </div>
+    <Card v-else class="border-neutral-100 dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-2xl">
+        <Form v-model:form="form" parentStyle="grid grid-cols-1 gap-3 px-4 py-0" />
+        <div class="h-[40vh] overflow-auto">
+            <Table :action_config="ACTION_CONFIG" :handleAction="handleAction" :dataFilter="featuresSelected"
+                :data="featuresSelected" :columns="columns">
+            </Table>
+        </div>
+    </Card>
 </template>

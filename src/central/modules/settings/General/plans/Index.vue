@@ -302,7 +302,7 @@ import { pomPinia } from 'septor-store'
 import { fetchTableData } from '@/Global/landingLayout/util'
 import { Drawer } from '@/Global'
 import { formawtacher } from '@/Global/Forminputs/formWatcher'
-import { plansApi } from '@/central/modules/apis'
+import { plansApi, featuresApi } from '@/central/modules/apis'
 import { toast } from 'vue-sonner'
 import CreatePlan from './Create.vue'
 import ShowPlan from './Show.vue'
@@ -321,6 +321,7 @@ const plans = ref<any[]>([])
 const statsData = ref<any>({})
 const selectedPlanId = ref<any>(null)
 const drawerKey = ref(0)
+const featureLabels = ref<Record<string, string>>({})
 
 const { create } = plansApi()
 
@@ -355,28 +356,17 @@ function formatNum(val: any) {
   return Number(val ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
-const FEATURE_LABELS: Record<string, string> = {
-  reports: 'Monthly statements',
-  loans: 'Loans & SACCO module',
-  savings: 'Core ledger & savings',
-  shares: 'Shares module',
-  nfc: 'NFC offline payments',
-  api: 'REST API access',
-  sso: 'SSO & audit logs',
-  whitelabel: 'White-label & SSO',
-  email_support: 'Email support',
-  priority_support: 'Priority support',
-}
-
 function parsedFeatures(plan: any) {
   let features: Record<string, any> = {}
   try {
     features = typeof plan.features === 'string' ? JSON.parse(plan.features) : (plan.features ?? {})
   } catch { features = {} }
 
-  const allKeys = Object.keys(FEATURE_LABELS)
+  const allKeys = Object.keys(featureLabels.value).length
+    ? Object.keys(featureLabels.value)
+    : Object.keys(features)
   return allKeys.map((k) => ({
-    label: FEATURE_LABELS[k],
+    label: featureLabels.value[k] ?? k,
     enabled: !!features[k],
   }))
 }
@@ -505,8 +495,17 @@ async function saveDrawer() {
   }
 }
 
+async function loadFeatureLabels() {
+  try {
+    const res = await featuresApi().list()
+    const items: any[] = res?.data?.payload ?? res?.data?.data ?? []
+    items.forEach((f: any) => { featureLabels.value[f.key] = f.name })
+  } catch { /* non-fatal */ }
+}
+
 onMounted(() => {
   loadPlans()
   loadStats()
+  loadFeatureLabels()
 })
 </script>

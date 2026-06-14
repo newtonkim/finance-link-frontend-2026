@@ -1,24 +1,22 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import {
   Users, UserCog, Building2, TrendingUp,
   CheckCircle2, XCircle, CalendarDays, Hash, Tag, Clock,
 } from 'lucide-vue-next'
+import { featuresApi } from '@/central/modules/apis/Settings'
 
 const props = defineProps<{ data: Record<string, any> }>()
 
-const FEATURE_LABELS: Record<string, string> = {
-  reports:          'Monthly statements',
-  loans:            'Loans & SACCO module',
-  savings:          'Core ledger & savings',
-  shares:           'Shares module',
-  nfc:              'NFC offline payments',
-  api:              'REST API access',
-  sso:              'SSO & audit logs',
-  whitelabel:       'White-label & SSO',
-  email_support:    'Email support',
-  priority_support: 'Priority support',
-}
+const featureLabels = ref<Record<string, string>>({})
+
+onMounted(async () => {
+  try {
+    const res = await featuresApi().list()
+    const items: any[] = res?.data?.payload ?? res?.data?.data ?? []
+    items.forEach((f: any) => { featureLabels.value[f.key] = f.name })
+  } catch { /* fallback: keys shown as-is */ }
+})
 
 const BILLING_LABELS: Record<string, string> = {
   monthly: 'Monthly', yearly: 'Annually', annual: 'Annually',
@@ -35,8 +33,13 @@ function parsedFeatures() {
 
 const features = computed(() => {
   const obj = parsedFeatures()
-  return Object.entries(FEATURE_LABELS).map(([key, label]) => ({
-    key, label, enabled: !!obj[key],
+  const allKeys = Object.keys(featureLabels.value).length
+    ? Object.keys(featureLabels.value)
+    : Object.keys(obj)
+  return allKeys.map((key) => ({
+    key,
+    label: featureLabels.value[key] ?? key,
+    enabled: !!obj[key],
   }))
 })
 
