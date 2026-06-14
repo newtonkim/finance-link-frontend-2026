@@ -86,6 +86,7 @@
               type="text"
               placeholder="e.g. mobile_app"
               class="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4 py-2.5 text-sm font-mono font-medium text-neutral-700 dark:text-neutral-200 placeholder-neutral-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
+              @input="onKeyInput"
             />
           </div>
         </div>
@@ -128,28 +129,36 @@
 import { ref, onMounted } from 'vue'
 import { Plus, Puzzle, Trash2 } from 'lucide-vue-next'
 import { Drawer } from '@/Global'
+import { formawtacher } from '@/Global/Forminputs/formWatcher'
 import { featuresApi } from '@/central/modules/apis/Settings'
 import { toast } from 'vue-sonner'
 
 const { list, create, remove } = featuresApi()
+const formStore = formawtacher()
 
 const loading = ref(true)
-const saving = ref(false)
 const deleting = ref(false)
 const drawerOpen = ref(false)
 const deleteTarget = ref<any>(null)
 const features = ref<any[]>([])
 const form = ref({ name: '', key: '' })
+const keyManuallyEdited = ref(false)
 
 function autoKey() {
+  if (keyManuallyEdited.value) return
   form.value.key = form.value.name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_+|_+$/g, '')
 }
 
+function onKeyInput() {
+  keyManuallyEdited.value = form.value.key !== ''
+}
+
 function openCreate() {
   form.value = { name: '', key: '' }
+  keyManuallyEdited.value = false
   drawerOpen.value = true
 }
 
@@ -172,7 +181,7 @@ async function saveFeature() {
     toast.error('Name and key are required.')
     return
   }
-  saving.value = true
+  formStore.setLoading(true)
   try {
     await create({ name: form.value.name.trim(), key: form.value.key.trim() })
     toast.success('Feature created.')
@@ -182,7 +191,7 @@ async function saveFeature() {
     const msg = err?.response?.data?.message ?? 'Failed to create feature.'
     toast.error(msg)
   } finally {
-    saving.value = false
+    formStore.setLoading(false)
   }
 }
 

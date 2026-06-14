@@ -1,25 +1,23 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import {
   ExternalLink, Globe, Database, CalendarDays, Hash,
   CheckCircle2, XCircle, CreditCard, Users, UserCog,
   Tag, Clock,
 } from 'lucide-vue-next'
+import { featuresApi } from '@/central/modules/apis/Settings'
 
 const props = defineProps<{ data: Record<string, any> }>()
 
-const FEATURE_LABELS: Record<string, string> = {
-  reports:          'Monthly statements',
-  loans:            'Loans & SACCO module',
-  savings:          'Core ledger & savings',
-  shares:           'Shares module',
-  nfc:              'NFC offline payments',
-  api:              'REST API access',
-  sso:              'SSO & audit logs',
-  whitelabel:       'White-label & SSO',
-  email_support:    'Email support',
-  priority_support: 'Priority support',
-}
+const featureLabels = ref<Record<string, string>>({})
+
+onMounted(async () => {
+  try {
+    const res = await featuresApi().list()
+    const items: any[] = res?.data?.payload ?? res?.data?.data ?? []
+    items.forEach((f: any) => { featureLabels.value[f.key] = f.name })
+  } catch { /* fallback: keys shown as-is */ }
+})
 
 function initials(name: string) {
   if (!name) return '?'
@@ -44,11 +42,16 @@ const parsedFeatures = computed(() => {
   return {}
 })
 
-const featureList = computed(() =>
-  Object.entries(FEATURE_LABELS).map(([key, label]) => ({
-    key, label, enabled: !!parsedFeatures.value[key],
+const featureList = computed(() => {
+  const allKeys = Object.keys(featureLabels.value).length
+    ? Object.keys(featureLabels.value)
+    : Object.keys(parsedFeatures.value)
+  return allKeys.map((key) => ({
+    key,
+    label: featureLabels.value[key] ?? key,
+    enabled: !!parsedFeatures.value[key],
   }))
-)
+})
 
 const enabledCount = computed(() => featureList.value.filter(f => f.enabled).length)
 const hasFeatures  = computed(() => Object.keys(parsedFeatures.value).length > 0)

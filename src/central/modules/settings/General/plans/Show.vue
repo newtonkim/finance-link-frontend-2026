@@ -9,13 +9,16 @@ import { featuresApi } from '@/central/modules/apis/Settings'
 const props = defineProps<{ data: Record<string, any> }>()
 
 const featureLabels = ref<Record<string, string>>({})
+const featuresLoadError = ref(false)
 
 onMounted(async () => {
   try {
     const res = await featuresApi().list()
     const items: any[] = res?.data?.payload ?? res?.data?.data ?? []
     items.forEach((f: any) => { featureLabels.value[f.key] = f.name })
-  } catch { /* fallback: keys shown as-is */ }
+  } catch {
+    featuresLoadError.value = true
+  }
 })
 
 const BILLING_LABELS: Record<string, string> = {
@@ -130,6 +133,9 @@ function dotColor() {
 
     <!-- ── Features ───────────────────────────────────────── -->
     <div class="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 overflow-hidden">
+      <div v-if="featuresLoadError" class="px-5 py-3 bg-amber-50 dark:bg-amber-950/30 border-b border-amber-200 dark:border-amber-800 flex items-center gap-2 text-xs font-semibold text-amber-700 dark:text-amber-300">
+        Could not load feature labels — showing stored keys only.
+      </div>
       <div class="flex items-center justify-between px-5 py-4 border-b border-neutral-100 dark:border-neutral-800">
         <div>
           <h3 class="text-sm font-black text-neutral-800 dark:text-neutral-100">Features</h3>
