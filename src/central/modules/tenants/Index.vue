@@ -9,7 +9,7 @@
       </div>
       <button
         @click="openDrawer('add', null)"
-        class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-blue-700 transition-colors shrink-0"
+        class="inline-flex items-center gap-2 rounded-xl bg-[#052659] px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#052659]/90 transition-colors shrink-0"
       >
         <Plus class="size-4" />
         Add New
@@ -48,7 +48,7 @@
             :class="[
               'px-4 py-1.5 rounded-lg text-xs font-bold transition-colors capitalize',
               statusFilter === f.value
-                ? 'bg-blue-600 text-white shadow-sm'
+                ? 'bg-[#052659] text-white shadow-sm'
                 : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
             ]"
           >

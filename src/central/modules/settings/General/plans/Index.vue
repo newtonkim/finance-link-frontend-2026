@@ -9,7 +9,7 @@
       </div>
       <button
         @click="openDrawer('add', null)"
-        class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-blue-700 transition-colors shrink-0"
+        class="inline-flex items-center gap-2 rounded-xl bg-[#052659] px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#052659]/90 transition-colors shrink-0"
       >
         <Plus class="size-4" />
         New plan
@@ -42,13 +42,13 @@
           <div class="flex rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden bg-white dark:bg-neutral-900 p-1 gap-1">
             <button @click="viewMode = 'cards'"
               :class="['inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-colors',
-                viewMode === 'cards' ? 'bg-blue-600 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300']">
+                viewMode === 'cards' ? 'bg-[#052659] text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300']">
               <LayoutGrid class="size-3.5" />
               Cards
             </button>
             <button @click="viewMode = 'table'"
               :class="['inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-colors',
-                viewMode === 'table' ? 'bg-blue-600 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300']">
+                viewMode === 'table' ? 'bg-[#052659] text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300']">
               <AlignJustify class="size-3.5" />
               Table
             </button>
@@ -58,12 +58,12 @@
           <div class="flex items-center gap-1 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-1">
             <button @click="billingView = 'monthly'"
               :class="['px-4 py-1.5 rounded-lg text-xs font-bold transition-colors',
-                billingView === 'monthly' ? 'bg-blue-600 text-white' : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300']">
+                billingView === 'monthly' ? 'bg-[#052659] text-white' : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300']">
               Monthly
             </button>
             <button @click="billingView = 'annual'"
               :class="['inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-bold transition-colors',
-                billingView === 'annual' ? 'bg-blue-600 text-white' : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300']">
+                billingView === 'annual' ? 'bg-[#052659] text-white' : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300']">
               Annual
               <span class="text-[10px] font-black bg-green-500 text-white px-1.5 py-0.5 rounded-full leading-none">-20%</span>
             </button>
@@ -105,13 +105,13 @@
         >
           <!-- Most popular badge -->
           <div v-if="idx === 1 && selectedPlanId !== plan.id" class="absolute -top-3.5 left-1/2 -translate-x-1/2">
-            <span class="bg-blue-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-sm">
+            <span class="bg-[#052659] text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-sm">
               Most Popular
             </span>
           </div>
           <!-- Selected badge -->
           <div v-if="selectedPlanId === plan.id" class="absolute -top-3.5 left-1/2 -translate-x-1/2">
-            <span class="bg-blue-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-sm flex items-center gap-1">
+            <span class="bg-[#052659] text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-sm flex items-center gap-1">
               <span class="size-1.5 rounded-full bg-white/80 inline-block" />
               Selected
             </span>
@@ -147,7 +147,7 @@
                 <Users class="size-3.5" />
                 Members
               </div>
-              <p class="text-xl font-black" :class="isUnlimited(plan.mx_mbrs) ? 'text-blue-600' : ''">
+              <p class="text-xl font-black" :class="isUnlimited(plan.mx_mbrs) ? 'text-[#052659]' : ''">
                 <span v-if="isUnlimited(plan.mx_mbrs)">∞ Unlimited</span>
                 <span v-else>{{ plan.mx_mbrs }}</span>
               </p>
@@ -157,7 +157,7 @@
                 <UserCog class="size-3.5" />
                 Users
               </div>
-              <p class="text-xl font-black" :class="isUnlimited(plan.mxusrs) ? 'text-blue-600' : ''">
+              <p class="text-xl font-black" :class="isUnlimited(plan.mxusrs) ? 'text-[#052659]' : ''">
                 <span v-if="isUnlimited(plan.mxusrs)">∞ Unlimited</span>
                 <span v-else>{{ plan.mxusrs }}</span>
               </p>
@@ -198,7 +198,7 @@
               :class="[
                 'flex-1 rounded-xl px-4 py-2.5 text-sm font-bold transition-colors',
                 idx === 1
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
+                  ? 'bg-[#052659] text-white hover:bg-[#052659]/90'
                   : 'border-2 border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:border-neutral-300 dark:hover:border-neutral-600'
               ]"
             >
