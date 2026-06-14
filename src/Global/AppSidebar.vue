@@ -46,7 +46,7 @@ function toggleDarkMode() {
 </script>
 
 <template>
-    <Sidebar collapsible="icon" variant="inset" class="border-r-0 overflow-hidden text-white">
+    <Sidebar collapsible="icon" variant="inset" class="border-r-0 overflow-visible text-white">
         <!-- Header: logo + name -->
         <SidebarHeader class="px-4 pt-5 pb-4 border-b border-white/5 shrink-0">
             <div class="flex flex-col items-center gap-2 w-full">
