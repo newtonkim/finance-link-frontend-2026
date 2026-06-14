@@ -119,7 +119,7 @@ function parseFeaturesFromData(raw: any): Record<string, boolean> {
 async function promtValueOnUpdate() {
     loading.value = true
     try {
-        if (props.data && Object.keys(props.data).length > 0) {
+        if (props.data?.action === 'edit') {
             // Map API field names → form field names
             const fieldMap: Record<string, string> = {
                 plan_name: 'name',

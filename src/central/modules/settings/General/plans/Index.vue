@@ -280,6 +280,7 @@
       <template #body>
         <CreatePlan
           v-if="['add', 'edit'].includes(drawerAction)"
+          :key="drawerKey"
           :data="{ ...drawerData, action: drawerAction }"
           v-model:form="formData"
         />
@@ -300,11 +301,14 @@ import {
 import { pomPinia } from 'septor-store'
 import { fetchTableData } from '@/Global/landingLayout/util'
 import { Drawer } from '@/Global'
+import { formawtacher } from '@/Global/Forminputs/formWatcher'
 import { plansApi } from '@/central/modules/apis'
+import { toast } from 'vue-sonner'
 import CreatePlan from './Create.vue'
 import ShowPlan from './Show.vue'
 
 const Store = pomPinia() as any
+const formStore = formawtacher()
 const loading = ref(true)
 const viewMode = ref<'cards' | 'table'>('cards')
 const billingView = ref<'monthly' | 'annual'>('monthly')
@@ -316,6 +320,7 @@ const formData = ref<Record<string, any>>({})
 const plans = ref<any[]>([])
 const statsData = ref<any>({})
 const selectedPlanId = ref<any>(null)
+const drawerKey = ref(0)
 
 const { create } = plansApi()
 
@@ -458,22 +463,46 @@ function openDrawer(action: 'add' | 'edit' | 'view', plan: any) {
   drawerAction.value = action
   drawerData.value = plan ?? {}
   formData.value = {}
+  drawerKey.value++
   drawerOpen.value = true
 }
 
 async function saveDrawer() {
-  const featuresSelected = formData.value.selectedfeatures
-  const data = Object.values(formData.value).map((item: any) => {
-    if (item?.name === 'features') {
-      item.value = (featuresSelected ?? []).map((f: any) => f.id)
+  // Build a plain payload from the emitted form array
+  const fields = Object.values(formData.value).filter((item: any) => item?.name)
+  const payload: Record<string, any> = {}
+  fields.forEach((f: any) => { payload[f.name] = f.value })
+
+  // Frontend guard: required fields
+  const required = ['name', 'cost', 'billing_type', 'mx_mbrs', 'mxusrs']
+  const missing = required.filter((k) => payload[k] === undefined || payload[k] === null || payload[k] === '')
+  if (missing.length) {
+    toast.error(`Please fill in all required fields: ${missing.join(', ')}`)
+    return
+  }
+
+  // Pack selected features as an array of IDs
+  const selectedFeatures = (formData.value as any).selectedfeatures ?? []
+  payload.features = selectedFeatures.map((f: any) => f.id)
+
+  formStore.setLoading(true)
+  try {
+    await create(payload)
+    toast.success(drawerAction.value === 'edit' ? 'Plan updated successfully.' : 'Plan created successfully.')
+    formData.value = {}
+    drawerOpen.value = false
+    await loadPlans()
+    await loadStats()
+  } catch (err: any) {
+    const errors = err?.response?.data?.errors
+    if (errors) {
+      Object.values(errors).forEach((messages: any) => toast.error(messages[0]))
+    } else {
+      toast.error(err?.response?.data?.message ?? 'Failed to save plan.')
     }
-    return item
-  })
-  create(data)
-  formData.value = {}
-  drawerOpen.value = false
-  await loadPlans()
-  await loadStats()
+  } finally {
+    formStore.setLoading(false)
+  }
 }
 
 onMounted(() => {
