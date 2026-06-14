@@ -4,7 +4,7 @@
       side="right"
       :class="[
         props.width,
-        'sm:max-w-none bg-gray-50 dark:bg-neutral-900',
+        'bg-gray-50 dark:bg-neutral-900',
         'transition-all duration-300 ease-in-out',
         props.open ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0',
       ]"
@@ -82,7 +82,7 @@ const props = withDefaults(
     saveButtonClass?: string;
   }>(),
   {
-    width: "w-2/3 sm:full",
+    width: "w-full sm:max-w-[520px]",
   }
 );
 
@@ -102,4 +102,3 @@ const handleCancel = () => {
   emit("update:open", false);
 };
 </script>
-

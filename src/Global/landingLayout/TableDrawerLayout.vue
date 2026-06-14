@@ -160,7 +160,7 @@ const props = defineProps({
     showAddButton: { type: Boolean, default: true },
     drawerShowFooter: { type: Boolean, default: true },
     drawerTitle: { type: String, default: 'Drawer Title' },
-    drawerWidth: { type: String, default: '30rem' },
+    drawerWidth: { type: String, default: 'w-full sm:max-w-[520px]' },
     saveButtonClass: { type: String, default: null, required: false },
     printButtonClass: { type: String, default: null, required: false },
     importDefaults: { type: Array, default: [], required: false },

@@ -120,7 +120,7 @@ const selectCls = 'w-full rounded-lg border border-neutral-200 bg-neutral-50 px-
 
     <!-- Save -->
     <div class="flex justify-end">
-      <button class="rounded-xl  bg-[#052659] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#052659]/90 active:scale-[0.98] dark:bg-nfuko-yellow dark:text-[#0050D8] dark:hover:bg-[#052659]/90
+      <button class="rounded-xl bg-[#052659] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#052659]/90 active:scale-[0.98] dark:bg-nfuko-yellow dark:text-[#0050D8] dark:hover:bg-[#052659]/90">
         Save Changes
       </button>
     </div>

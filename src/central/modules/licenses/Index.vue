@@ -229,18 +229,31 @@
 
                 <!-- actions -->
                 <td class="px-4 py-4">
-                  <div class="flex items-center justify-end gap-0.5">
+                  <div class="flex items-center justify-end gap-2">
+                    <!-- View -->
                     <button @click="openDrawer('view', license)"
-                      class="p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
-                      <Eye class="size-4" />
+                      class="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-3.5 py-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors">
+                      <Eye class="size-3.5" />
+                      View
                     </button>
+                    <!-- Edit -->
                     <button @click="openDrawer('edit', license)"
-                      class="p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
-                      <Pencil class="size-4" />
+                      class="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-3.5 py-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors">
+                      <Pencil class="size-3.5" />
+                      Edit
                     </button>
+                    <!-- Renew (only when the license needs it) -->
+                    <button v-if="needsRenewal(license)" @click="renewLicense(license)"
+                      class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 px-3.5 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-colors">
+                      <RotateCcw class="size-3.5" />
+                      Renew
+                    </button>
+                    <!-- Delete -->
                     <button
-                      class="p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
-                      <MoreVertical class="size-4" />
+                      @click="requestDelete(license)"
+                      title="Delete license"
+                      class="flex size-7 items-center justify-center rounded-full bg-red-50 dark:bg-red-950/40 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/60 disabled:opacity-50 transition-colors">
+                      <Trash2 class="size-3.5" />
                     </button>
                   </div>
                 </td>
@@ -311,24 +324,90 @@
   </Transition>
 
   <!-- ── Drawer (create / edit / view) ────────────────────────── -->
-  <Drawer v-if="drawerMounted" v-model:open="drawerOpen" :width="'sm:w-full md:w-1/2 lg:w-1/2'"
-    :title="drawerTitle" :showFooter="drawerAction !== 'view'" @save="saveDrawer">
+  <Drawer v-if="drawerMounted" v-model:open="drawerOpen" :title="drawerTitle" :showFooter="drawerAction !== 'view'"
+    @save="saveDrawer">
     <template #body>
       <LicenseForm v-if="['add', 'edit'].includes(drawerAction)" :data="{ ...drawerData, action: drawerAction }"
         v-model:form="formData" />
       <LicenseShow v-if="drawerAction === 'view'" :data="drawerData" />
     </template>
   </Drawer>
+
+  <!-- Delete confirmation -->
+  <DialogRoot :open="!!deleteTarget" @update:open="(v) => { if (!v) closeDelete() }">
+    <DialogPortal>
+      <DialogOverlay
+        class="fixed inset-0 z-[9999] bg-neutral-900/50 backdrop-blur-sm
+               data-[state=open]:animate-in data-[state=open]:fade-in-0
+               data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
+      <DialogContent
+        class="fixed left-1/2 top-1/2 z-[10000] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2
+               overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-neutral-900 dark:border dark:border-neutral-800
+               data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95
+               data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95
+               duration-200">
+        <!-- Accent bar -->
+        <div class="h-1.5 w-full bg-red-500" />
+
+        <div class="p-6">
+          <div class="flex items-start gap-4">
+            <div class="flex size-12 shrink-0 items-center justify-center rounded-full bg-red-50 ring-8 ring-red-50/60 dark:bg-red-950/40 dark:ring-red-950/20">
+              <Trash2 class="size-5 text-red-600 dark:text-red-400" />
+            </div>
+            <div class="min-w-0 flex-1 pt-0.5">
+              <h3 class="text-lg font-black text-neutral-900 dark:text-white">Delete license</h3>
+              <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+                This permanently removes the license and its renewal records. This action cannot be undone.
+              </p>
+            </div>
+          </div>
+
+          <!-- License being deleted -->
+          <div v-if="deleteTarget"
+            class="mt-4 flex items-center gap-3 rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-800/40">
+            <div :class="['flex size-9 shrink-0 items-center justify-center rounded-lg text-xs font-black text-white', tenantColor(deleteTarget.tenant_name)]">
+              {{ tenantInitials(deleteTarget.tenant_name) }}
+            </div>
+            <div class="min-w-0">
+              <p class="truncate text-sm font-bold text-neutral-800 dark:text-neutral-100">{{ deleteTarget.tenant_name ?? '—' }}</p>
+              <p class="truncate text-xs text-neutral-400">
+                {{ deleteTarget.plan ?? '—' }} · expires {{ formatDate(deleteTarget.expires) }}
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-6 flex justify-end gap-2.5">
+            <button
+              @click="closeDelete"
+              :disabled="!!deletingId"
+              class="rounded-xl border border-neutral-200 px-4 py-2.5 text-sm font-bold text-neutral-600 transition-colors hover:bg-neutral-50 disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800">
+              Cancel
+            </button>
+            <button
+              @click="confirmDeleteLicense"
+              :disabled="!!deletingId"
+              class="inline-flex items-center gap-2 rounded-xl bg-red-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-red-700 disabled:opacity-60">
+              <span v-if="deletingId" class="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+              <Trash2 v-else class="size-4" />
+              {{ deletingId ? 'Deleting…' : 'Delete license' }}
+            </button>
+          </div>
+        </div>
+      </DialogContent>
+    </DialogPortal>
+  </DialogRoot>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { pomPinia } from 'septor-store'
 import {
   Download, Plus, CheckCircle, Clock, AlertTriangle, XCircle, TrendingUp,
   Search, SlidersHorizontal, Eye, Pencil, MoreVertical,
-  ChevronLeft, ChevronRight, RefreshCw, PauseCircle, X
+  ChevronLeft, ChevronRight, RefreshCw, PauseCircle, X, Trash2, RotateCcw
 } from 'lucide-vue-next'
+import { DialogRoot, DialogPortal, DialogOverlay, DialogContent } from 'reka-ui'
 import { Drawer } from '@/Global'
 import { fetchTableData } from '@/Global/landingLayout/util'
 import LicenseForm from './Create.vue'
@@ -337,6 +416,7 @@ import { notify } from '@/Global/Toasters/ToastMsg'
 import { lisenseApi } from '../apis'
 
 const Store = pomPinia() as any
+const router = useRouter()
 const { create } = lisenseApi()
 
 // ── state ──────────────────────────────────────────────────────
@@ -398,6 +478,12 @@ function statusLabel(license: any) {
     suspended: 'Suspended', grace: 'In grace',
   }
   return map[license.status] ?? license.status
+}
+
+// Renew only shows when the license actually needs it — hidden once active.
+function needsRenewal(license: any) {
+  const state = license.status_state ?? license.status
+  return ['expired', 'expiring_soon', 'grace', 'suspended'].includes(state)
 }
 
 function statusStyle(license: any) {
@@ -468,6 +554,47 @@ function toggleSelect(id: string) {
     : [...selectedIds.value, id]
 }
 function clearSelection() { selectedIds.value = [] }
+
+function renewLicense(license: any) {
+  router.push(`/central/licenses/${license.id}/renew`)
+}
+
+const deletingId = ref<string | null>(null)
+const deleteTarget = ref<any | null>(null)
+
+function requestDelete(license: any) {
+  deleteTarget.value = license
+}
+
+function closeDelete() {
+  if (deletingId.value) return
+  deleteTarget.value = null
+}
+
+async function confirmDeleteLicense() {
+  const license = deleteTarget.value
+  if (!license) return
+
+  deletingId.value = license.id
+  try {
+    const res = await fetchTableData({
+      data: { id: license.id },
+      props: { state: 'licenseDelete', url: 'central/licenses/delete', reload: false, time: 0 },
+      Store,
+    })
+    if (res?.error || res?.payload?.error) {
+      notify({ msg: res?.payload?.message ?? 'Failed to delete license.', type: 'error' })
+      return
+    }
+    notify({ msg: 'License deleted successfully.', type: 'success' })
+    deleteTarget.value = null
+    await Promise.all([fetchList(currentPage.value), fetchStats()])
+  } catch (err: any) {
+    notify({ msg: err?.response?.data?.message ?? 'Failed to delete license.', type: 'error' })
+  } finally {
+    deletingId.value = null
+  }
+}
 
 // ── fetch ────────────────────────────────────────────────────────
 async function fetchList(page = 1) {

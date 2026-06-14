@@ -1,126 +1,179 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
 import { Form, Card, Table } from '@/Global'
-import { ACTION_CONFIG } from '@/Global/landingLayout/util';
-const emits = defineEmits(['update:form']);
-const featuresSelected = ref([]);
-const loading = ref(true), counter = {
-    type: 'select',
-    options: Array.from({ length: 10 }, (_, index) => ({ name: (index + 1).toString(), id: index + 1 })),
-}
+import { ACTION_CONFIG } from '@/Global/landingLayout/util'
+import { featuresApi } from '@/central/modules/apis/Settings'
+
+const emits = defineEmits(['update:form'])
+const featuresSelected = ref<any[]>([])
+const loading = ref(true)
+
+const featureOptions = ref<{ name: string; id: string }[]>([])
+
 const form: any = ref([
     {
-        label: 'plan name',
+        label: 'Plan Name',
         name: 'name',
         type: 'text',
         required: true,
+        placeholder: 'e.g. Basic Plan',
     },
     {
-        label: 'cost',
+        label: 'Cost (USD)',
         name: 'cost',
         type: 'number',
-        "min": 100,
-        url: "/central/settings/roles/featuress-drop-down",
-        required: true, placeholder: 'Enter Description'
+        min: 0,
+        required: true,
+        placeholder: 'e.g. 29.99',
     },
     {
-        label: 'billing cycle',
+        label: 'Billing Cycle',
         name: 'billing_type',
-        type: "select",
-        options: [{ name: 'daily', id: 'daily' }, { name: 'weekly', id: 'weekly' }, { name: 'monthly', id: 'monthly' }, { name: 'yearly', id: 'yearly' },],
-        required: true, placeholder: 'Enter billing cycle'
+        type: 'select',
+        options: [
+            { name: 'Daily', id: 'daily' },
+            { name: 'Weekly', id: 'weekly' },
+            { name: 'Monthly', id: 'monthly' },
+            { name: 'Yearly', id: 'yearly' },
+        ],
+        required: true,
+        placeholder: 'Select billing cycle',
     },
     {
-        label: 'max members',
+        label: 'Max Members (0 = unlimited)',
         name: 'mx_mbrs',
-        ...counter,
-
-        required: true, placeholder: 'Enter Description'
+        type: 'number',
+        min: 0,
+        required: true,
+        placeholder: 'e.g. 100',
     },
     {
-        label: 'max users',
+        label: 'Max Users (0 = unlimited)',
         name: 'mxusrs',
-        ...counter,
-        required: true, placeholder: 'Enter Description'
+        type: 'number',
+        min: 0,
+        required: true,
+        placeholder: 'e.g. 5',
     },
     {
-        label: 'features',
+        label: 'Features',
         name: 'features',
         type: 'select',
-        options: [{ name: 'reports', id: 'reports' }, { name: 'loans', id: 'loans' }, { name: 'savings', id: 'savings' }, { name: 'shares', id: 'shares' },],
-        required: true, placeholder: 'Enter Description'
-    }
+        options: [],
+        required: false,
+        placeholder: 'Select a feature to add',
+    },
 ])
+
 const props = defineProps({
     data: {
         type: Object,
-        default: {},
-    }
+        default: () => ({}),
+    },
 })
+
 watch(() => form.value, (value) => {
     if (value) {
-        const features = value.find((f: any) => f.name === 'features');
-        if (features?.value) {
-            featuresSelected.value = [...new Set([features.selected, ...featuresSelected.value.filter(p => p.id !== features.selected.id),])];
+        const featuresField = value.find((f: any) => f.name === 'features')
+        if (featuresField?.selected?.id) {
+            const already = featuresSelected.value.find((p: any) => p.id === featuresField.selected.id)
+            if (!already) featuresSelected.value.push(featuresField.selected)
         }
-        emits('update:form', { ...value, selectedfeatures: featuresSelected.value });
+        emits('update:form', { ...value, selectedfeatures: featuresSelected.value })
     }
-}, { deep: true, })
+}, { deep: true })
 
-function removefeatures(features: any) {
-    featuresSelected.value = featuresSelected.value.filter(p => p.id !== features.id)
+function removefeatures(feature: any) {
+    featuresSelected.value = featuresSelected.value.filter((p: any) => p.id !== feature.id)
 }
+
 const columns = [
-    { key: 'name', label: 'Name' },
-    { key: 'actions', label: 'Actions', show: ['close'] },
+    { key: 'name', label: 'Feature' },
+    { key: 'actions', label: '', show: ['close'] },
 ]
 const actions: any = {
-    close: (item: any) => removefeatures(item)
+    close: (item: any) => removefeatures(item),
 }
 function handleAction(item: any, action: string) {
     actions?.[action]?.(item)
 }
+
+function parseFeaturesFromData(raw: any): Record<string, boolean> {
+    if (!raw) return {}
+    if (typeof raw === 'object' && !Array.isArray(raw)) return raw
+    if (typeof raw === 'string') {
+        try { return JSON.parse(raw) } catch { return {} }
+    }
+    return {}
+}
+
 async function promtValueOnUpdate() {
     loading.value = true
-    if (!props.data) {
-    } // id is undefined let wast no time below
-    else {
-        const data = { ...props.data, name: props.data.slug }
-        await Object.entries(data).forEach(([key, value]) => {
-            if (key === 'features') {
-                Object.entries(value || {}).forEach(([fKey, fValue]) => {
-                    if (fValue)
-                        featuresSelected.value.push({ name: fKey, id: fKey })
-                })
-                return
+    try {
+        // Load features from API
+        const res = await featuresApi().list()
+        const items: any[] = res?.data?.payload ?? res?.data?.data ?? []
+        featureOptions.value = items.map((f: any) => ({ name: f.name, id: f.key }))
+
+        // Populate features select options
+        const featuresField = form.value.find((f: any) => f.name === 'features')
+        if (featuresField) featuresField.options = featureOptions.value
+
+        if (props.data?.action === 'edit') {
+            const fieldMap: Record<string, string> = {
+                plan_name: 'name',
+                cost: 'cost',
+                billing_type: 'billing_type',
+                mx_mbrs: 'mx_mbrs',
+                mxusrs: 'mxusrs',
             }
-            const field = form.value.find((f: any) => f.name === key)
-            if (field)
-                field.value = value
-        })
-        if (props?.data?.id) {
-            form.value = [...form.value, {
-                name: 'id',
-                type: 'hidden',
-                value: props.data.id,
-                required: true,
-            }]
+
+            Object.entries(fieldMap).forEach(([apiKey, formKey]) => {
+                const val = (props.data as any)[apiKey]
+                if (val === undefined || val === null) return
+                const field = form.value.find((f: any) => f.name === formKey)
+                if (field) field.value = val
+            })
+
+            const featObj = parseFeaturesFromData((props.data as any).features)
+            featuresSelected.value = Object.entries(featObj)
+                .filter(([, enabled]) => enabled)
+                .map(([key]) => {
+                    const opt = featureOptions.value.find((o) => o.id === key)
+                    return opt ?? { name: key, id: key }
+                })
+
+            if ((props.data as any).id) {
+                const existing = form.value.find((f: any) => f.name === 'id')
+                if (!existing) {
+                    form.value = [...form.value, {
+                        name: 'id',
+                        type: 'hidden',
+                        value: (props.data as any).id,
+                        required: true,
+                    }]
+                } else {
+                    existing.value = (props.data as any).id
+                }
+            }
         }
+    } finally {
+        loading.value = false
     }
-    loading.value = false
 }
+
 onMounted(() => {
     promtValueOnUpdate()
 })
 </script>
 <template>
-        <div v-if="loading"> </div>
-        <Card v-else class="border-neutral-100 dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-2xl ">
-            <Form v-model:form="form" parentStyle="grid grid-cols-2 sm:grid-cols-1  md:gap-6 px-4 py-0" />
-            <div class="h-[40vh] overflow-auto">
-                <Table :action_config="ACTION_CONFIG" :handleAction="handleAction" :dataFilter="featuresSelected"
-                    :data="featuresSelected" :columns="columns">
-                </Table>
-            </div>
-        </Card>
+    <div v-if="loading"> </div>
+    <Card v-else class="border-neutral-100 dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-2xl">
+        <Form v-model:form="form" parentStyle="grid grid-cols-1 gap-3 px-4 py-0" />
+        <div class="h-[40vh] overflow-auto">
+            <Table :action_config="ACTION_CONFIG" :handleAction="handleAction" :dataFilter="featuresSelected"
+                :data="featuresSelected" :columns="columns">
+            </Table>
+        </div>
+    </Card>
 </template>
