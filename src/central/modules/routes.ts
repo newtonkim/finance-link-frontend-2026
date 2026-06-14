@@ -1,5 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router'
-import { BookOpen, CreditCard, LayoutGrid, SettingsIcon, Store, Users } from 'lucide-vue-next'
+import { ArrowLeftRight, BookOpen, Building2, CreditCard, Layers, LayoutGrid, Puzzle, SettingsIcon, ShieldCheck, Store, Terminal, UserCog, Users } from 'lucide-vue-next'
 import { routebuilder } from '@/Global'
 export const centarRoutes: any = [
   {
@@ -72,23 +72,38 @@ export const centarRoutes: any = [
           {
             path: 'Permission',
             label: 'Permission',
+            icon: ShieldCheck,
             component: () => import('@/central/modules/settings/General/Permisions/Index.vue'),
             permissions: 'settings-permission-view',
           },
           {
             path: 'roles',
             label: 'roles',
+            icon: UserCog,
             component: () => import('./settings/General/roles/Index.vue'),
           },
           {
             path: 'Plan',
             label: 'Plan',
+            icon: Layers,
             component: () => import('./settings/General/plans/Index.vue'),
           },
           {
             path: 'features',
             label: 'Features',
+            icon: Puzzle,
             component: () => import('./settings/General/features/Index.vue'),
+          },
+        ],
+      },
+      {
+        title: 'Tools',
+        items: [
+          {
+            path: 'currency',
+            label: 'Currency',
+            icon: ArrowLeftRight,
+            component: () => import('./settings/General/currency/Index.vue'),
           },
         ],
       },
@@ -98,11 +113,13 @@ export const centarRoutes: any = [
           {
             path: 'system',
             label: 'system',
+            icon: Terminal,
             component: () => import('./settings/systems/developmentSettings/index.vue'),
           },
           {
             path: 'tenantssettings',
             label: 'tenantssettings',
+            icon: Building2,
             component: () => import('./settings/systems/tenatsSettings/index.vue'),
           },
         ],

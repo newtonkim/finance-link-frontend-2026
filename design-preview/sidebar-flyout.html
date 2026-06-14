@@ -1,0 +1,598 @@
+<!-- @dsCard group="Navigation" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sidebar Flyout — Design Review</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
+
+  /* ── Current flyout (unchanged) ── */
+  .current-flyout {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    overflow: hidden;
+    width: 288px;
+  }
+  .current-section { width: 100%; display: flex; flex-direction: column; padding: 12px; }
+  .current-section-title-a {
+    margin: 0 12px 8px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: #052659;
+    color: white;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+  .current-section-title-b {
+    margin: 0 12px 8px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: rgba(0,16,32,0.08);
+    color: #001020;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+  .current-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 14px; border-radius: 8px; cursor: pointer;
+    font-size: 13px; font-weight: 500; color: #374151;
+    transition: background 0.12s;
+  }
+  .current-item:hover { background: #f3f4f6; }
+  .current-item svg { color: #9ca3af; flex-shrink: 0; }
+
+  /* ── Redesigned flyout ── */
+  .new-flyout {
+    background: white;
+    border: 1px solid rgba(0,0,0,0.07);
+    border-radius: 20px;
+    box-shadow:
+      0 0 0 1px rgba(0,0,0,0.03),
+      0 4px 6px rgba(0,0,0,0.04),
+      0 12px 30px rgba(0,0,0,0.10),
+      0 32px 64px rgba(0,0,0,0.08);
+    overflow: hidden;
+    width: 288px;
+    animation: flyout-in 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+    position: relative;
+  }
+  @keyframes flyout-in {
+    from { opacity: 0; transform: translateX(-10px) scale(0.97); }
+    to   { opacity: 1; transform: translateX(0)    scale(1);     }
+  }
+
+  /* Arrow connector back to sidebar */
+  .new-flyout::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 20px;
+    width: 10px;
+    height: 10px;
+    background: white;
+    border-left: 1px solid rgba(0,0,0,0.07);
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+    transform: rotate(45deg);
+    border-radius: 2px 0 0 0;
+  }
+
+  /* Thin top accent bar */
+  .new-flyout-topbar {
+    height: 3px;
+    background: linear-gradient(90deg, #0050D8, #6366f1, #0050D8);
+    background-size: 200% 100%;
+    animation: shimmer 3s ease infinite;
+  }
+  @keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  .new-section { padding: 10px 8px; }
+  .new-section + .new-section { border-top: 1px solid #f3f4f6; padding-top: 10px; }
+
+  .new-section-label {
+    display: flex; align-items: center; gap: 6px;
+    padding: 4px 10px 6px;
+    font-size: 10px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    color: #9ca3af;
+  }
+  .new-section-label-dot {
+    width: 4px; height: 4px; border-radius: 50%;
+    background: #0050D8;
+    flex-shrink: 0;
+  }
+
+  .new-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: 10px; cursor: pointer;
+    font-size: 13px; font-weight: 500; color: #374151;
+    transition: all 0.12s ease;
+    position: relative;
+  }
+  .new-item:hover {
+    background: #f0f4ff;
+    color: #0050D8;
+  }
+  .new-item:hover svg { color: #0050D8; }
+  .new-item svg { color: #9ca3af; flex-shrink: 0; transition: color 0.12s; }
+  .new-item-icon {
+    width: 30px; height: 30px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    background: #f3f4f6; flex-shrink: 0; transition: all 0.12s;
+  }
+  .new-item:hover .new-item-icon {
+    background: rgba(0,80,216,0.1);
+  }
+
+  /* Active item */
+  .new-item.active {
+    background: rgba(0,80,216,0.07);
+    color: #0050D8;
+    font-weight: 600;
+  }
+  .new-item.active .new-item-icon { background: rgba(0,80,216,0.12); }
+  .new-item.active svg { color: #0050D8; }
+  .new-item.active::after {
+    content: '';
+    position: absolute;
+    right: 10px; top: 50%; transform: translateY(-50%);
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #0050D8;
+  }
+
+  /* Badge */
+  .new-badge {
+    margin-left: auto;
+    font-size: 10px; font-weight: 800;
+    padding: 2px 7px; border-radius: 999px;
+    background: #fee2e2; color: #dc2626;
+    letter-spacing: 0.02em;
+  }
+
+  /* Footer hint */
+  .new-flyout-footer {
+    padding: 8px 16px;
+    border-top: 1px solid #f3f4f6;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .kbd {
+    font-size: 10px; font-weight: 700;
+    padding: 1px 5px; border-radius: 4px;
+    border: 1px solid #e5e7eb; background: #f9fafb;
+    color: #6b7280; letter-spacing: 0.01em;
+    font-family: 'Inter', monospace;
+  }
+
+  /* Sidebar mock */
+  .sidebar-mock {
+    width: 68px; height: 480px;
+    background: #0c1427; border-radius: 16px;
+    display: flex; flex-direction: column;
+    align-items: center; padding: 16px 8px; gap: 6px;
+  }
+  .sidebar-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.15s; color: rgba(255,255,255,0.4);
+  }
+  .sidebar-icon:hover, .sidebar-icon.active {
+    background: rgba(255,255,255,0.08);
+    color: white;
+  }
+  .sidebar-icon.settings-active {
+    background: rgba(0,80,216,0.3);
+    color: #60a5fa;
+    box-shadow: 0 0 0 1px rgba(0,80,216,0.5);
+  }
+
+  /* Connector line from sidebar to flyout */
+  .connector {
+    width: 16px; height: 2px;
+    background: linear-gradient(90deg, rgba(0,80,216,0.4), transparent);
+    align-self: center; margin-top: -200px;
+  }
+
+  /* Section tabs: score card */
+  .score-row { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+  .score-label { font-size: 12px; color: #6b7280; width: 140px; }
+  .score-bar-track { flex: 1; height: 4px; border-radius: 2px; background: #f3f4f6; overflow: hidden; }
+  .score-bar-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+  .score-val { font-size: 11px; font-weight: 700; width: 36px; text-align: right; }
+
+  /* Tab navigation for before/after */
+  .tabs { display: flex; gap: 0; background: #f3f4f6; border-radius: 10px; padding: 3px; }
+  .tab {
+    padding: 6px 18px; border-radius: 8px; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; color: #6b7280; user-select: none;
+  }
+  .tab.active { background: white; color: #111827; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+  .panel { display: none; }
+  .panel.active { display: flex; }
+</style>
+</head>
+<body style="background:#f8fafc; padding: 0; margin: 0; min-height: 100vh;">
+
+<div style="max-width: 1100px; margin: 0 auto; padding: 40px 32px;">
+
+  <!-- Header -->
+  <div style="margin-bottom: 32px;">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+      <div style="width:8px;height:8px;border-radius:50%;background:#0050D8;"></div>
+      <span style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#9ca3af;">UI/UX Design Review</span>
+    </div>
+    <h1 style="font-size:28px;font-weight:900;color:#0f172a;margin:0 0 6px;">Sidebar Flyout — Before & After</h1>
+    <p style="font-size:14px;color:#6b7280;margin:0;">Senior design critique + redesign for the Settings submenu flyout panel.</p>
+  </div>
+
+  <!-- Tab switcher -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+    <div class="tabs" id="tabs">
+      <div class="tab active" onclick="showPanel('compare')">Side-by-side</div>
+      <div class="tab" onclick="showPanel('audit')">Audit findings</div>
+      <div class="tab" onclick="showPanel('tokens')">Design tokens</div>
+    </div>
+  </div>
+
+  <!-- ═══ PANEL: Side-by-side ════════════════════════════════ -->
+  <div id="panel-compare" class="panel active" style="gap:40px; align-items:flex-start; flex-wrap:wrap;">
+
+    <!-- BEFORE -->
+    <div style="flex:1; min-width:300px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+        <span style="padding:3px 10px;border-radius:6px;background:#fee2e2;font-size:11px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:0.08em;">Before</span>
+        <span style="font-size:13px;font-weight:600;color:#374151;">Current implementation</span>
+      </div>
+
+      <div style="display:flex;gap:0;align-items:flex-start;">
+        <!-- Sidebar mock -->
+        <div class="sidebar-mock">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.06);margin-bottom:8px;"></div>
+          <div class="sidebar-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+          <div class="sidebar-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg></div>
+          <div class="sidebar-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+          <div class="sidebar-icon active" style="background:rgba(255,255,255,0.08);color:white;">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>
+          </div>
+        </div>
+
+        <!-- Gap -->
+        <div style="width:12px;height:100%;"></div>
+
+        <!-- Current flyout -->
+        <div class="current-flyout">
+          <div class="current-section">
+            <div class="current-section-title-a">General</div>
+            <div class="current-item"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg> Branding</div>
+            <div class="current-item"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="6" height="18" rx="1"/><path d="M8 9h8M8 15h8M16 3h2a2 2 0 012 2v14a2 2 0 01-2 2h-2"/></svg> Plans</div>
+            <div class="current-item"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Features</div>
+          </div>
+          <div class="current-section" style="border-top:1px solid #f3f4f6;">
+            <div class="current-section-title-b">Access Control</div>
+            <div class="current-item"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg> Roles</div>
+            <div class="current-item"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Permissions</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Issues list -->
+      <div style="margin-top:20px;padding:16px;border-radius:12px;background:#fff7f7;border:1px solid #fecaca;">
+        <p style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#dc2626;margin:0 0 10px;">6 Design Issues</p>
+        <ul style="margin:0;padding:0 0 0 14px;display:flex;flex-direction:column;gap:5px;">
+          <li style="font-size:12px;color:#7f1d1d;">Heavy filled pills for section titles compete with content</li>
+          <li style="font-size:12px;color:#7f1d1d;">No entrance animation — abrupt pop-in feels unpolished</li>
+          <li style="font-size:12px;color:#7f1d1d;">No visual connection between sidebar trigger and flyout</li>
+          <li style="font-size:12px;color:#7f1d1d;">Items have no icon containers — icons feel naked and misaligned</li>
+          <li style="font-size:12px;color:#7f1d1d;">No active route indicator inside the flyout</li>
+          <li style="font-size:12px;color:#7f1d1d;">Flat single shadow — lacks depth and spatial hierarchy</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- AFTER -->
+    <div style="flex:1; min-width:300px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+        <span style="padding:3px 10px;border-radius:6px;background:#dcfce7;font-size:11px;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:0.08em;">After</span>
+        <span style="font-size:13px;font-weight:600;color:#374151;">Redesigned</span>
+      </div>
+
+      <div style="display:flex;gap:0;align-items:flex-start;">
+        <!-- Sidebar mock -->
+        <div class="sidebar-mock">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.06);margin-bottom:8px;"></div>
+          <div class="sidebar-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+          <div class="sidebar-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg></div>
+          <div class="sidebar-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+          <div class="sidebar-icon settings-active">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>
+          </div>
+        </div>
+
+        <!-- Gap -->
+        <div style="width:4px;height:100%;"></div>
+
+        <!-- Redesigned flyout -->
+        <div class="new-flyout">
+          <div class="new-flyout-topbar"></div>
+
+          <div class="new-section">
+            <div class="new-section-label">
+              <span class="new-section-label-dot"></span>
+              General
+            </div>
+            <div class="new-item">
+              <div class="new-item-icon"><svg width="14" height="14" fill="none" stroke="#6b7280" stroke-width="2" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></div>
+              <span>Branding</span>
+            </div>
+            <div class="new-item">
+              <div class="new-item-icon"><svg width="14" height="14" fill="none" stroke="#6b7280" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="6" height="18" rx="1"/><path d="M8 9h8M8 15h8M16 3h2a2 2 0 012 2v14a2 2 0 01-2 2h-2"/></svg></div>
+              <span>Plans</span>
+            </div>
+            <div class="new-item active">
+              <div class="new-item-icon"><svg width="14" height="14" fill="none" stroke="#0050D8" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+              <span>Features</span>
+            </div>
+          </div>
+
+          <div class="new-section">
+            <div class="new-section-label">
+              <span class="new-section-label-dot" style="background:#6366f1;"></span>
+              Access Control
+            </div>
+            <div class="new-item">
+              <div class="new-item-icon"><svg width="14" height="14" fill="none" stroke="#6b7280" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+              <span>Roles</span>
+              <span class="new-badge">3</span>
+            </div>
+            <div class="new-item">
+              <div class="new-item-icon"><svg width="14" height="14" fill="none" stroke="#6b7280" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+              <span>Permissions</span>
+            </div>
+          </div>
+
+          <div class="new-flyout-footer">
+            <span class="kbd">Esc</span>
+            <span style="font-size:11px;color:#9ca3af;">to close</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wins list -->
+      <div style="margin-top:20px;padding:16px;border-radius:12px;background:#f0fdf4;border:1px solid #bbf7d0;">
+        <p style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#16a34a;margin:0 0 10px;">6 Improvements</p>
+        <ul style="margin:0;padding:0 0 0 14px;display:flex;flex-direction:column;gap:5px;">
+          <li style="font-size:12px;color:#14532d;">Dot + small-caps section labels — cleaner visual hierarchy</li>
+          <li style="font-size:12px;color:#14532d;">Animated shimmer accent bar at top ties to brand blue</li>
+          <li style="font-size:12px;color:#14532d;">Arrow notch visually anchors flyout to its sidebar trigger</li>
+          <li style="font-size:12px;color:#14532d;">Icon containers give items consistent weight and alignment</li>
+          <li style="font-size:12px;color:#14532d;">Active item highlighted with fill + trailing dot</li>
+          <li style="font-size:12px;color:#14532d;">Layered shadow creates depth; Esc hint improves discoverability</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PANEL: Audit ════════════════════════════════════════ -->
+  <div id="panel-audit" class="panel" style="flex-direction:column;gap:16px;">
+    <div style="padding:20px;border-radius:14px;border:1px solid #e5e7eb;background:white;">
+      <h3 style="font-size:14px;font-weight:800;color:#0f172a;margin:0 0 16px;">UX Quality Scorecard</h3>
+      <div class="score-row">
+        <span class="score-label">Visual hierarchy</span>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:35%;background:#ef4444;"></div></div>
+        <span class="score-val" style="color:#ef4444;">35%</span>
+      </div>
+      <div class="score-row">
+        <span class="score-label">Motion / animation</span>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:0%;background:#ef4444;"></div></div>
+        <span class="score-val" style="color:#ef4444;">0%</span>
+      </div>
+      <div class="score-row">
+        <span class="score-label">Spatial context (connection)</span>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:20%;background:#ef4444;"></div></div>
+        <span class="score-val" style="color:#ef4444;">20%</span>
+      </div>
+      <div class="score-row">
+        <span class="score-label">Active state feedback</span>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:0%;background:#ef4444;"></div></div>
+        <span class="score-val" style="color:#ef4444;">0%</span>
+      </div>
+      <div class="score-row">
+        <span class="score-label">Icon consistency</span>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:55%;background:#f59e0b;"></div></div>
+        <span class="score-val" style="color:#f59e0b;">55%</span>
+      </div>
+      <div class="score-row">
+        <span class="score-label">Shadow / depth</span>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:50%;background:#f59e0b;"></div></div>
+        <span class="score-val" style="color:#f59e0b;">50%</span>
+      </div>
+      <div style="border-top:1px solid #f3f4f6;margin-top:12px;padding-top:12px;">
+        <div class="score-row">
+          <span class="score-label" style="font-weight:700;color:#0f172a;">Overall</span>
+          <div class="score-bar-track"><div class="score-bar-fill" style="width:27%;background:linear-gradient(90deg,#ef4444,#f59e0b);"></div></div>
+          <span class="score-val" style="color:#374151;font-weight:700;">27%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Finding cards -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+
+      <div style="padding:16px;border-radius:12px;border:1px solid #fecaca;background:#fff7f7;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+          <span style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#dc2626;">High</span>
+          <span style="font-size:12px;font-weight:700;color:#0f172a;">No entrance animation</span>
+        </div>
+        <p style="font-size:12px;color:#7f1d1d;margin:0 0 8px;">The flyout pops in with no transition. This makes the UI feel janky and unresponsive — the user can't track the element appearing.</p>
+        <code style="font-size:11px;color:#dc2626;background:#fee2e2;padding:2px 6px;border-radius:4px;">Add: scale + translateX + opacity transition</code>
+      </div>
+
+      <div style="padding:16px;border-radius:12px;border:1px solid #fecaca;background:#fff7f7;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+          <span style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#dc2626;">High</span>
+          <span style="font-size:12px;font-weight:700;color:#0f172a;">No active state</span>
+        </div>
+        <p style="font-size:12px;color:#7f1d1d;margin:0 0 8px;">When a user is on Features, nothing in the flyout confirms that. The active page is invisible — users can't orient themselves.</p>
+        <code style="font-size:11px;color:#dc2626;background:#fee2e2;padding:2px 6px;border-radius:4px;">Compare route.path to item.path in template</code>
+      </div>
+
+      <div style="padding:16px;border-radius:12px;border:1px solid #fed7aa;background:#fff7ed;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+          <span style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#ea580c;">Med</span>
+          <span style="font-size:12px;font-weight:700;color:#0f172a;">Heavy section pills</span>
+        </div>
+        <p style="font-size:12px;color:#7c2d12;margin:0 0 8px;">The filled pill (especially the dark <code>#052659</code> one) dominates the visual field and competes with the navigation items themselves.</p>
+        <code style="font-size:11px;color:#ea580c;background:#ffedd5;padding:2px 6px;border-radius:4px;">Replace with dot + small-caps label</code>
+      </div>
+
+      <div style="padding:16px;border-radius:12px;border:1px solid #fed7aa;background:#fff7ed;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+          <span style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#ea580c;">Med</span>
+          <span style="font-size:12px;font-weight:700;color:#0f172a;">No spatial anchor</span>
+        </div>
+        <p style="font-size:12px;color:#7c2d12;margin:0 0 8px;">The flyout floats free from its trigger. There's no visual connector (arrow/notch) showing which sidebar icon opened it — especially problematic in collapsed sidebar mode.</p>
+        <code style="font-size:11px;color:#ea580c;background:#ffedd5;padding:2px 6px;border-radius:4px;">Add CSS ::before arrow pointing left</code>
+      </div>
+
+      <div style="padding:16px;border-radius:12px;border:1px solid #d1fae5;background:#f0fdf4;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+          <span style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#16a34a;">Low</span>
+          <span style="font-size:12px;font-weight:700;color:#0f172a;">Flat icon presentation</span>
+        </div>
+        <p style="font-size:12px;color:#14532d;margin:0 0 8px;">Icons sit bare with no container. Adding a small rounded square background gives consistent optical weight and makes each item scannable at a glance.</p>
+        <code style="font-size:11px;color:#16a34a;background:#dcfce7;padding:2px 6px;border-radius:4px;">30×30 rounded-lg container per icon</code>
+      </div>
+
+      <div style="padding:16px;border-radius:12px;border:1px solid #d1fae5;background:#f0fdf4;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+          <span style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#16a34a;">Low</span>
+          <span style="font-size:12px;font-weight:700;color:#0f172a;">No keyboard hint</span>
+        </div>
+        <p style="font-size:12px;color:#14532d;margin:0 0 8px;">Power users expect <kbd>Esc</kbd> to close flyouts. Adding a small Esc badge in the footer is a subtle professional touch and improves a11y discoverability.</p>
+        <code style="font-size:11px;color:#16a34a;background:#dcfce7;padding:2px 6px;border-radius:4px;">Footer: kbd[Esc] + "to close" hint</code>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ PANEL: Design Tokens ════════════════════════════════ -->
+  <div id="panel-tokens" class="panel" style="flex-direction:column;gap:16px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+
+      <!-- Colors -->
+      <div style="padding:20px;border-radius:14px;border:1px solid #e5e7eb;background:white;">
+        <h3 style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#9ca3af;margin:0 0 14px;">Colors</h3>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:28px;height:28px;border-radius:7px;background:#0c1427;flex-shrink:0;"></div>
+            <div><p style="font-size:11px;font-weight:700;color:#374151;margin:0;">Sidebar BG</p><p style="font-size:10px;color:#9ca3af;margin:0;font-family:monospace;">#0c1427</p></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:28px;height:28px;border-radius:7px;background:#0050D8;flex-shrink:0;"></div>
+            <div><p style="font-size:11px;font-weight:700;color:#374151;margin:0;">Brand primary</p><p style="font-size:10px;color:#9ca3af;margin:0;font-family:monospace;">#0050D8</p></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:28px;height:28px;border-radius:7px;background:#6366f1;flex-shrink:0;"></div>
+            <div><p style="font-size:11px;font-weight:700;color:#374151;margin:0;">Accent (access)</p><p style="font-size:10px;color:#9ca3af;margin:0;font-family:monospace;">#6366f1</p></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:28px;height:28px;border-radius:7px;background:#f0f4ff;border:1px solid #e5e7eb;flex-shrink:0;"></div>
+            <div><p style="font-size:11px;font-weight:700;color:#374151;margin:0;">Item hover fill</p><p style="font-size:10px;color:#9ca3af;margin:0;font-family:monospace;">#f0f4ff</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Typography -->
+      <div style="padding:20px;border-radius:14px;border:1px solid #e5e7eb;background:white;">
+        <h3 style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#9ca3af;margin:0 0 14px;">Typography</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div>
+            <p style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.14em;color:#9ca3af;margin:0 0 2px;">Section label</p>
+            <p style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.14em;color:#6b7280;margin:0;">Inter 10 / 800 / +0.14em</p>
+          </div>
+          <div>
+            <p style="font-size:13px;font-weight:500;color:#374151;margin:0 0 2px;">Nav item</p>
+            <p style="font-size:10px;color:#9ca3af;margin:0;">Inter 13 / 500 / neutral-700</p>
+          </div>
+          <div>
+            <p style="font-size:13px;font-weight:600;color:#0050D8;margin:0 0 2px;">Active item</p>
+            <p style="font-size:10px;color:#9ca3af;margin:0;">Inter 13 / 600 / brand-primary</p>
+          </div>
+          <div>
+            <p style="font-size:11px;color:#9ca3af;margin:0 0 2px;">Footer hint</p>
+            <p style="font-size:10px;color:#9ca3af;margin:0;">Inter 11 / 400 / neutral-400</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spacing & Radius -->
+      <div style="padding:20px;border-radius:14px;border:1px solid #e5e7eb;background:white;">
+        <h3 style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#9ca3af;margin:0 0 14px;">Spacing & Radius</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:20px;height:20px;border-radius:20px;border:2px solid #0050D8;flex-shrink:0;"></div>
+            <div><p style="font-size:11px;font-weight:700;color:#374151;margin:0;">Flyout panel</p><p style="font-size:10px;color:#9ca3af;margin:0;">radius: 20px</p></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:20px;height:20px;border-radius:10px;border:2px solid #6366f1;flex-shrink:0;"></div>
+            <div><p style="font-size:11px;font-weight:700;color:#374151;margin:0;">Nav item</p><p style="font-size:10px;color:#9ca3af;margin:0;">radius: 10px, pad: 8px 10px</p></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:20px;height:20px;border-radius:8px;border:2px solid #16a34a;flex-shrink:0;"></div>
+            <div><p style="font-size:11px;font-weight:700;color:#374151;margin:0;">Icon container</p><p style="font-size:10px;color:#9ca3af;margin:0;">30×30px, radius: 8px</p></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:4px;height:4px;border-radius:50%;background:#0050D8;flex-shrink:0;margin-left:8px;"></div>
+            <div><p style="font-size:11px;font-weight:700;color:#374151;margin:0;">Section dot</p><p style="font-size:10px;color:#9ca3af;margin:0;">4×4px circle</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Motion -->
+    <div style="padding:20px;border-radius:14px;border:1px solid #e5e7eb;background:white;">
+      <h3 style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#9ca3af;margin:0 0 14px;">Motion Spec</h3>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+        <div>
+          <p style="font-size:11px;font-weight:700;color:#374151;margin:0 0 4px;">Flyout enter</p>
+          <p style="font-size:11px;color:#6b7280;margin:0;font-family:monospace;">180ms cubic-bezier(0.16,1,0.3,1)</p>
+          <p style="font-size:11px;color:#9ca3af;margin:4px 0 0;">translateX(-10px) + scale(0.97) + opacity(0) → natural</p>
+        </div>
+        <div>
+          <p style="font-size:11px;font-weight:700;color:#374151;margin:0 0 4px;">Item hover</p>
+          <p style="font-size:11px;color:#6b7280;margin:0;font-family:monospace;">120ms ease</p>
+          <p style="font-size:11px;color:#9ca3af;margin:4px 0 0;">background + color + icon color all transition together</p>
+        </div>
+        <div>
+          <p style="font-size:11px;font-weight:700;color:#374151;margin:0 0 4px;">Top accent shimmer</p>
+          <p style="font-size:11px;color:#6b7280;margin:0;font-family:monospace;">3s infinite ease</p>
+          <p style="font-size:11px;color:#9ca3af;margin:4px 0 0;">Subtle blue gradient sweep on the 3px top bar</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

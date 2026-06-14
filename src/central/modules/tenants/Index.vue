@@ -185,6 +185,14 @@
               <td class="px-5 py-3.5">
                 <div class="flex items-center justify-end gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
                   <button
+                    v-if="isExpired(tenant)"
+                    @click="renewTenant(tenant)"
+                    class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 dark:bg-amber-950/40 px-3 py-1.5 text-xs font-bold text-amber-600 dark:text-amber-300 hover:bg-amber-100 transition-colors"
+                    title="Renew expired license"
+                  >
+                    <RefreshCw class="size-3.5" /> Renew
+                  </button>
+                  <button
                     @click="openDrawer('view', tenant)"
                     class="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-300 hover:bg-indigo-100 transition-colors"
                   >
@@ -249,9 +257,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   Plus, Building2, Search, Clock, Eye, Pencil, Trash2,
-  Database, ExternalLink, UserCheck, UserX,
+  Database, ExternalLink, UserCheck, UserX, RefreshCw,
 } from 'lucide-vue-next'
 import { pomPinia } from 'septor-store'
 import { fetchTableData } from '@/Global/landingLayout/util'
@@ -263,6 +272,7 @@ import TenantShow from './Show.vue'
 import { toast } from 'vue-sonner'
 
 const Store = pomPinia() as any
+const router = useRouter()
 const formStore = formawtacher()
 const { create, Erase } = tenantsApi()
 
@@ -389,6 +399,22 @@ function daysLeftClass(dateStr: string) {
 function fmtDate(v: any) {
   if (!v) return '—'
   return new Date(v).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+}
+
+// A license is renewable once it has lapsed: no license on file, a past expiry,
+// or an expired/suspended status.
+function isExpired(tenant: any) {
+  if (tenant.status === 'expired' || tenant.status === 'suspended') return true
+  if (!tenant.license_expires_at) return true
+  return new Date(tenant.license_expires_at) <= new Date()
+}
+
+function renewTenant(tenant: any) {
+  if (!tenant.license_id) {
+    toast.error('This tenant has no license to renew yet.')
+    return
+  }
+  router.push(`/central/licenses/${tenant.license_id}/renew`)
 }
 
 async function loadTenants() {

@@ -48,20 +48,30 @@
               <p class="text-xs font-mono text-neutral-400 truncate">{{ feat.key }}</p>
             </div>
           </div>
-          <button
-            @click="confirmDelete(feat)"
-            class="shrink-0 flex size-8 items-center justify-center rounded-xl text-neutral-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-          >
-            <Trash2 class="size-4" />
-          </button>
+          <div class="shrink-0 flex items-center gap-1">
+            <button
+              @click="openEdit(feat)"
+              class="flex size-8 items-center justify-center rounded-xl text-neutral-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors"
+              title="Edit feature"
+            >
+              <Pencil class="size-4" />
+            </button>
+            <button
+              @click="confirmDelete(feat)"
+              class="flex size-8 items-center justify-center rounded-xl text-neutral-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+              title="Delete feature"
+            >
+              <Trash2 class="size-4" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Create drawer -->
+    <!-- Create/Edit drawer -->
     <Drawer
       :open="drawerOpen"
-      title="New Feature"
+      :title="editingFeature ? 'Edit Feature' : 'New Feature'"
       :showFooter="true"
       @update:open="drawerOpen = $event"
       @save="saveFeature"
@@ -127,19 +137,20 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { Plus, Puzzle, Trash2 } from 'lucide-vue-next'
+import { Pencil, Plus, Puzzle, Trash2 } from 'lucide-vue-next'
 import { Drawer } from '@/Global'
 import { formawtacher } from '@/Global/Forminputs/formWatcher'
 import { featuresApi } from '@/central/modules/apis/Settings'
 import { toast } from 'vue-sonner'
 
-const { list, create, remove } = featuresApi()
+const { list, create, update, remove } = featuresApi()
 const formStore = formawtacher()
 
 const loading = ref(true)
 const deleting = ref(false)
 const drawerOpen = ref(false)
 const deleteTarget = ref<any>(null)
+const editingFeature = ref<any>(null)
 const features = ref<any[]>([])
 const form = ref({ name: '', key: '' })
 const keyManuallyEdited = ref(false)
@@ -158,7 +169,15 @@ function onKeyInput() {
 
 function openCreate() {
   form.value = { name: '', key: '' }
+  editingFeature.value = null
   keyManuallyEdited.value = false
+  drawerOpen.value = true
+}
+
+function openEdit(feat: any) {
+  editingFeature.value = feat
+  form.value = { name: feat.name ?? '', key: feat.key ?? '' }
+  keyManuallyEdited.value = true
   drawerOpen.value = true
 }
 
@@ -183,12 +202,22 @@ async function saveFeature() {
   }
   formStore.setLoading(true)
   try {
-    await create({ name: form.value.name.trim(), key: form.value.key.trim() })
-    toast.success('Feature created.')
+    if (editingFeature.value) {
+      await update({
+        id: editingFeature.value.id,
+        name: form.value.name.trim(),
+        key: form.value.key.trim(),
+      })
+      toast.success('Feature updated.')
+    } else {
+      await create({ name: form.value.name.trim(), key: form.value.key.trim() })
+      toast.success('Feature created.')
+    }
     drawerOpen.value = false
+    editingFeature.value = null
     await loadFeatures()
   } catch (err: any) {
-    const msg = err?.response?.data?.message ?? 'Failed to create feature.'
+    const msg = err?.response?.data?.message ?? 'Failed to save feature.'
     toast.error(msg)
   } finally {
     formStore.setLoading(false)

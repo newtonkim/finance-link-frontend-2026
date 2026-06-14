@@ -10,13 +10,33 @@
                     v-slot="{ isActive, navigate }"
                     v-auth="subItem?.permissions">
                     <div @click="navigate" :class="[
-                        'flex items-center gap-2 capitalize px-2 py-1.5 text-[13px] font-medium tracking-wide rounded-lg cursor-pointer transition-colors duration-150',
+                        'group flex items-center gap-2.5 capitalize px-2 py-2 text-[13px] font-medium rounded-xl cursor-pointer transition-all duration-150',
                         isActive
-                            ? 'bg-nfuko-primary/8 text-nfuko-primary font-semibold'
-                            : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-50 dark:hover:bg-neutral-800/50'
+                            ? 'bg-[rgba(0,80,216,0.07)] text-nfuko-primary font-semibold'
+                            : 'text-neutral-600 dark:text-neutral-400 hover:text-nfuko-primary hover:bg-[#f0f4ff] dark:hover:bg-neutral-800/50'
                     ]">
-                        <component v-if="subItem?.icon" :is="subItem.icon" :size="16" class="shrink-0" />
-                        {{ subItem.label }}
+                        <!-- Icon container -->
+                        <div :class="[
+                            'flex w-8 h-8 shrink-0 items-center justify-center rounded-lg transition-all duration-150',
+                            isActive
+                                ? 'bg-[rgba(0,80,216,0.12)]'
+                                : 'bg-neutral-100 dark:bg-neutral-800 group-hover:bg-[rgba(0,80,216,0.08)]'
+                        ]">
+                            <component
+                                v-if="subItem?.icon"
+                                :is="subItem.icon"
+                                :size="14"
+                                :class="isActive ? 'text-nfuko-primary' : 'text-neutral-400 group-hover:text-nfuko-primary'" />
+                            <!-- Fallback: initial letter when no icon is set -->
+                            <span v-else
+                                class="text-[11px] font-black transition-colors duration-150"
+                                :class="isActive ? 'text-nfuko-primary' : 'text-neutral-400 group-hover:text-nfuko-primary'">
+                                {{ (subItem.label ?? '?')[0].toUpperCase() }}
+                            </span>
+                        </div>
+                        <span class="flex-1 capitalize">{{ subItem.label }}</span>
+                        <!-- Active dot indicator -->
+                        <span v-if="isActive" class="size-[6px] rounded-full bg-nfuko-primary shrink-0 mr-1"></span>
                     </div>
                 </RouterLink>
             </div>
@@ -68,8 +88,5 @@ function getRoutePath(route: any) {
 <style scoped>
 .hover\:bg-white\/8:hover {
     background-color: rgba(255, 255, 255, 0.08);
-}
-.bg-nfuko-primary\/8 {
-    background-color: rgba(0, 80, 216, 0.08);
 }
 </style>

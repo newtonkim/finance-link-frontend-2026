@@ -107,7 +107,7 @@ export default function useTableHelpers(props?: any, emit?: any) {
 
   async function handleTableAction(item: any, action: string, drawer = true) {
     // alert()
-    drawerWidth.value = 'w-2/4'
+    drawerWidth.value = 'w-full sm:max-w-[520px]'
     if (action == 'import-data') {
       finalSubmitAction.value = 'import-data'
       drawerTitle.value = 'import data'

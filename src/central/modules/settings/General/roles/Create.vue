@@ -77,7 +77,7 @@ function handleAction(item: any, action: string) {
     <div class="">
         <Card
             class="border-neutral-100 h-[79vh] dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-2xl overflow-hidden">
-                <Form v-model:form="form" parentStyle="grid grid-cols-2 sm:grid-cols-1 gap-3 px-4 py-0" />
+                <Form v-model:form="form" parentStyle="grid grid-cols-1 gap-3 px-4 py-0" />
                 <div class="h-[40vh] overflow-auto">
                     <Table :action_config="ACTION_CONFIG" :handleAction="handleAction" :dataFilter="permissionSelected"
                         :data="permissionSelected" :columns="columns">

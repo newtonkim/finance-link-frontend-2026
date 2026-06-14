@@ -1,5 +1,5 @@
 <template>
-    <TableDrawer ref="drawer" drawerWidth="w-1/2" url="/central/settings/roles/list" state="roles_list"
+    <TableDrawer ref="drawer" url="/central/settings/roles/list" state="roles_list"
         drawerTitle="Add roles to staff" title="roles list" :columns="columns" @save="saveUser">
         <template #drawer="{ action, submit, data }">
 

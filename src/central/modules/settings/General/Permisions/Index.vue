@@ -1,5 +1,5 @@
 <template>
-    <TableDrawer ref="drawer" drawerWidth="w-1/2" :showAddButton="false" url="/central/settings/permisions/list"
+    <TableDrawer ref="drawer" :showAddButton="false" url="/central/settings/permisions/list"
         state="Permisions_list" drawerTitle="Add permisions to staff" title="Permisions list" :columns="columns"
         @save="saveUser">
         <template #name="{ item }: { item?: any }">
