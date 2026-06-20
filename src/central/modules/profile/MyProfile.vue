@@ -2,8 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import {
-  Mail, ShieldCheck, CalendarDays, Hash, Pencil, Trash2, Camera, Loader2,
-  BadgeCheck, KeyRound, AlertTriangle, UserCircle2,
+  Mail, Pencil, Trash2, Camera, Loader2, KeyRound, Copy, Check,
 } from 'lucide-vue-next'
 import { Button, Input, Label, Drawer } from '@/Global'
 import { centralProfileApi, type CentralProfile } from '@/central/modules/apis'
@@ -19,6 +18,7 @@ const profile = ref<CentralProfile | null>(null)
 const loading = ref(true)
 const saving = ref(false)
 const deleting = ref(false)
+const copied = ref(false)
 
 const drawerOpen = ref(false)
 const showDeleteConfirm = ref(false)
@@ -53,6 +53,8 @@ function profileFromAuth(): CentralProfile | null {
 }
 
 const displayName = computed(() => profile.value?.staff_fall_name || 'Administrator')
+const firstName = computed(() => displayName.value.trim().split(/\s+/)[0] ?? '')
+const lastName = computed(() => displayName.value.trim().split(/\s+/).slice(1).join(' '))
 const initials = computed(() => {
   const words = displayName.value.trim().split(/\s+/).filter(Boolean)
   if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase()
@@ -74,6 +76,15 @@ const isVerified = computed(() => !!profile.value?.email_verified_time)
 function fmtDate(v: any) {
   if (!v) return '—'
   return new Date(v).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+}
+
+function copyId() {
+  const id = String(profile.value?.id ?? '')
+  if (!id) return
+  navigator.clipboard?.writeText(id).then(() => {
+    copied.value = true
+    setTimeout(() => (copied.value = false), 1500)
+  })
 }
 
 async function load() {
@@ -155,144 +166,133 @@ onMounted(load)
 
 <template>
   <div class="min-h-full bg-nfuko-surface dark:bg-neutral-950">
-    <div class="w-full px-4 py-8 sm:px-6 lg:px-8">
-      <!-- Heading -->
-      <div class="mb-6 flex items-center gap-2">
-        <UserCircle2 class="size-6 text-nfuko-primary" />
-        <div>
-          <h1 class="text-2xl font-black text-neutral-900 dark:text-white leading-none">My Profile</h1>
-          <p class="text-sm text-neutral-500 mt-1">Manage your central administrator account.</p>
-        </div>
-      </div>
-
+    <div class="w-full px-4 py-8 sm:px-6 lg:px-10">
       <!-- Loading skeleton -->
-      <div v-if="loading && !profile" class="space-y-4">
-        <div class="h-48 rounded-3xl bg-neutral-200/60 dark:bg-neutral-800/60 animate-pulse"></div>
-        <div class="grid gap-4 sm:grid-cols-3">
-          <div v-for="i in 3" :key="i" class="h-24 rounded-2xl bg-neutral-200/60 dark:bg-neutral-800/60 animate-pulse"></div>
+      <div v-if="loading && !profile" class="grid gap-8 lg:grid-cols-[300px_1fr]">
+        <div class="h-72 rounded-2xl bg-neutral-200/60 dark:bg-neutral-800/60 animate-pulse"></div>
+        <div class="space-y-6">
+          <div class="h-64 rounded-2xl bg-neutral-200/60 dark:bg-neutral-800/60 animate-pulse"></div>
+          <div class="h-48 rounded-2xl bg-neutral-200/60 dark:bg-neutral-800/60 animate-pulse"></div>
         </div>
       </div>
 
-      <template v-else-if="profile">
-        <!-- Header card (no banner) -->
-        <div class="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-sm">
-          <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div class="flex items-center gap-4">
-              <div class="size-20 rounded-2xl overflow-hidden ring-1 ring-neutral-200 dark:ring-neutral-700 shadow-sm shrink-0">
-                <img v-if="profile.avatar_url" :src="profile.avatar_url" alt="Avatar" class="size-full object-cover" />
-                <div v-else class="size-full flex items-center justify-center text-2xl font-black text-white bg-nfuko-primary-950">
-                  {{ initials }}
-                </div>
-              </div>
-              <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                  <h2 class="text-2xl font-black text-neutral-900 dark:text-white leading-tight truncate">{{ displayName }}</h2>
-                  <BadgeCheck v-if="isVerified" class="size-5 text-nfuko-primary shrink-0" />
-                </div>
-                <div class="flex items-center gap-1.5 mt-0.5 text-sm font-medium text-neutral-500">
-                  <Mail class="size-3.5 shrink-0" />
-                  <span class="truncate">{{ profile.staff_email ?? '—' }}</span>
-                </div>
+      <div v-else-if="profile" class="grid gap-8 lg:grid-cols-[300px_1fr]">
+        <!-- ── Left identity rail ───────────────────────── -->
+        <aside class="lg:sticky lg:top-6 self-start">
+          <div class="flex flex-col items-start">
+            <div class="size-24 rounded-full overflow-hidden ring-1 ring-neutral-200 dark:ring-neutral-700 shadow-sm">
+              <img v-if="profile.avatar_url" :src="profile.avatar_url" alt="Avatar" class="size-full object-cover" />
+              <div v-else class="size-full flex items-center justify-center text-2xl font-black text-white bg-nfuko-primary-950">
+                {{ initials }}
               </div>
             </div>
 
-            <div class="flex items-center gap-2">
-              <span :class="['inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-black border', statusStyles.badge]">
-                <span :class="['size-2 rounded-full', statusStyles.dot]" />
-                {{ statusStyles.label }}
-              </span>
-              <Button class="h-10 gap-2 bg-nfuko-primary hover:bg-nfuko-primary/90 text-white font-bold rounded-xl" @click="openEdit">
-                <Pencil class="size-4" /> Edit Profile
-              </Button>
-            </div>
-          </div>
-        </div>
+            <h1 class="mt-4 text-lg font-black text-neutral-900 dark:text-white break-all leading-tight">
+              {{ profile.staff_email ?? displayName }}
+            </h1>
+            <p class="text-sm text-neutral-400 mt-0.5">Member since {{ fmtDate(profile.created_at) }}</p>
 
-        <!-- Quick stats (full width) -->
-        <div class="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <div class="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
-            <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-neutral-400 mb-1.5">
-              <ShieldCheck class="size-3.5" /> System Role
+            <!-- Account ID + copy -->
+            <div class="mt-4 flex items-center gap-2">
+              <div class="inline-flex items-center rounded-lg bg-neutral-100 dark:bg-neutral-800 px-3 py-1.5 text-xs font-medium text-neutral-500">
+                <span class="text-neutral-400 mr-1">Account ID :</span>#{{ profile.id }}
+              </div>
+              <button
+                class="inline-flex items-center gap-1 rounded-lg border border-neutral-200 dark:border-neutral-700 px-2.5 py-1.5 text-xs font-semibold text-neutral-600 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+                @click="copyId"
+              >
+                <component :is="copied ? Check : Copy" class="size-3.5" :class="copied ? 'text-green-600' : ''" />
+                {{ copied ? 'Copied' : 'Copy' }}
+              </button>
             </div>
-            <p class="text-sm font-black text-neutral-800 dark:text-neutral-100 capitalize truncate">{{ profile.system_role ?? '—' }}</p>
-          </div>
-          <div class="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
-            <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-neutral-400 mb-1.5">
-              <CalendarDays class="size-3.5" /> Member Since
-            </div>
-            <p class="text-sm font-black text-neutral-800 dark:text-neutral-100 truncate">{{ fmtDate(profile.created_at) }}</p>
-          </div>
-          <div class="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
-            <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-neutral-400 mb-1.5">
-              <Hash class="size-3.5" /> Account ID
-            </div>
-            <p class="text-sm font-black text-neutral-800 dark:text-neutral-100 truncate">#{{ profile.id }}</p>
-          </div>
-          <div class="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
-            <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-neutral-400 mb-1.5">
-              <BadgeCheck class="size-3.5" /> Email Status
-            </div>
-            <p class="text-sm font-black capitalize truncate" :class="isVerified ? 'text-green-600' : 'text-amber-600'">{{ isVerified ? 'Verified' : 'Unverified' }}</p>
-          </div>
-        </div>
 
-        <!-- Lower grid -->
-        <div class="mt-4 grid gap-4 lg:grid-cols-3">
-          <!-- Account details -->
-          <div class="lg:col-span-2 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 overflow-hidden">
-            <div class="px-5 py-4 border-b border-neutral-100 dark:border-neutral-800">
-              <h3 class="text-sm font-black text-neutral-800 dark:text-neutral-100">Account Details</h3>
-            </div>
-            <dl class="divide-y divide-neutral-100 dark:divide-neutral-800">
-              <div class="flex items-center justify-between gap-4 px-5 py-3.5">
-                <dt class="text-sm font-medium text-neutral-500">Full name</dt>
-                <dd class="text-sm font-bold text-neutral-800 dark:text-neutral-100 truncate">{{ profile.staff_fall_name ?? '—' }}</dd>
-              </div>
-              <div class="flex items-center justify-between gap-4 px-5 py-3.5">
-                <dt class="text-sm font-medium text-neutral-500">Email address</dt>
-                <dd class="flex items-center gap-1.5 text-sm font-bold text-neutral-800 dark:text-neutral-100 truncate">
-                  {{ profile.staff_email ?? '—' }}
-                  <span v-if="isVerified" class="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700">Verified</span>
-                  <span v-else class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">Unverified</span>
-                </dd>
-              </div>
-              <div class="flex items-center justify-between gap-4 px-5 py-3.5">
-                <dt class="text-sm font-medium text-neutral-500">System role</dt>
-                <dd class="text-sm font-bold text-neutral-800 dark:text-neutral-100 capitalize truncate">{{ profile.system_role ?? '—' }}</dd>
-              </div>
-              <div class="flex items-center justify-between gap-4 px-5 py-3.5">
-                <dt class="text-sm font-medium text-neutral-500">Account status</dt>
-                <dd class="text-sm font-bold capitalize truncate">{{ statusStyles.label }}</dd>
-              </div>
-            </dl>
+            <!-- Action links -->
+            <nav class="mt-8 w-full space-y-1">
+              <button class="flex w-full items-center gap-2.5 rounded-lg px-2 py-2.5 text-sm font-semibold text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors" @click="openEdit">
+                <Pencil class="size-4 text-neutral-500" /> Edit Profile
+              </button>
+              <button class="flex w-full items-center gap-2.5 rounded-lg px-2 py-2.5 text-sm font-semibold text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors" @click="openEdit">
+                <KeyRound class="size-4 text-neutral-500" /> Change Password
+              </button>
+              <button class="flex w-full items-center gap-2.5 rounded-lg px-2 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors" @click="showDeleteConfirm = true">
+                <Trash2 class="size-4" /> Delete Account
+              </button>
+            </nav>
           </div>
+        </aside>
 
-          <!-- Security + danger -->
-          <div class="space-y-4">
-            <div class="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5">
-              <div class="flex items-center gap-2 mb-1">
-                <KeyRound class="size-4 text-nfuko-primary" />
-                <h3 class="text-sm font-black text-neutral-800 dark:text-neutral-100">Security</h3>
-              </div>
-              <p class="text-xs text-neutral-500 mb-4">Update your password to keep your account secure.</p>
-              <Button variant="outline" class="h-10 w-full gap-2 font-bold rounded-xl" @click="openEdit">
-                <KeyRound class="size-4" /> Change password
+        <!-- ── Right detail cards ───────────────────────── -->
+        <div class="space-y-6">
+          <!-- Personal Information -->
+          <section class="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 sm:p-8">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-xl font-black text-neutral-900 dark:text-white">Personal Information</h2>
+              <Button variant="outline" class="h-9 gap-2 font-bold rounded-lg" @click="openEdit">
+                <Pencil class="size-3.5" /> Edit
               </Button>
             </div>
 
-            <div class="rounded-2xl border border-red-200/70 dark:border-red-900/40 bg-red-50/40 dark:bg-red-950/20 p-5">
-              <div class="flex items-center gap-2 mb-1">
-                <AlertTriangle class="size-4 text-red-600" />
-                <h3 class="text-sm font-black text-red-700 dark:text-red-400">Danger Zone</h3>
+            <div class="grid gap-5 sm:grid-cols-2">
+              <div>
+                <label class="block text-sm text-neutral-500 mb-1.5">First Name</label>
+                <div class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50/70 dark:bg-neutral-800/40 px-4 py-3 text-sm font-semibold text-neutral-800 dark:text-neutral-100">
+                  {{ firstName || '—' }}
+                </div>
               </div>
-              <p class="text-xs text-red-600/80 mb-4">Permanently deactivate your account. This cannot be undone.</p>
-              <Button variant="outline" class="h-10 w-full gap-2 border-red-300 text-red-600 hover:bg-red-100 font-bold rounded-xl" @click="showDeleteConfirm = true">
-                <Trash2 class="size-4" /> Delete account
-              </Button>
+              <div>
+                <label class="block text-sm text-neutral-500 mb-1.5">Last Name</label>
+                <div class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50/70 dark:bg-neutral-800/40 px-4 py-3 text-sm font-semibold text-neutral-800 dark:text-neutral-100">
+                  {{ lastName || '—' }}
+                </div>
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-sm text-neutral-500 mb-1.5">Email Address</label>
+                <div class="flex items-center justify-between gap-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50/70 dark:bg-neutral-800/40 px-4 py-3">
+                  <span class="text-sm font-semibold text-neutral-800 dark:text-neutral-100 truncate flex items-center gap-2">
+                    <Mail class="size-4 text-neutral-400 shrink-0" /> {{ profile.staff_email ?? '—' }}
+                  </span>
+                  <span v-if="isVerified" class="shrink-0 inline-flex items-center rounded-full border border-green-200 bg-green-50 px-2.5 py-0.5 text-xs font-bold text-green-600">Verified</span>
+                  <span v-else class="shrink-0 inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-bold text-amber-600">Unverified</span>
+                </div>
+              </div>
             </div>
-          </div>
+          </section>
+
+          <!-- Account & Security -->
+          <section class="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 sm:p-8">
+            <h2 class="text-xl font-black text-neutral-900 dark:text-white mb-6">Account &amp; Security</h2>
+
+            <div class="grid gap-5 sm:grid-cols-2">
+              <div>
+                <label class="block text-sm text-neutral-500 mb-1.5">System Role</label>
+                <div class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50/70 dark:bg-neutral-800/40 px-4 py-3 text-sm font-semibold capitalize text-neutral-800 dark:text-neutral-100">
+                  {{ profile.system_role ?? '—' }}
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm text-neutral-500 mb-1.5">Account Status</label>
+                <div class="flex items-center gap-2 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50/70 dark:bg-neutral-800/40 px-4 py-3">
+                  <span :class="['size-2 rounded-full', statusStyles.dot]" />
+                  <span class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">{{ statusStyles.label }}</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm text-neutral-500 mb-1.5">Password</label>
+                <button class="flex w-full items-center justify-between rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50/70 dark:bg-neutral-800/40 px-4 py-3 text-left hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors" @click="openEdit">
+                  <span class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">••••••••</span>
+                  <span class="inline-flex items-center gap-1 text-xs font-bold text-nfuko-primary"><KeyRound class="size-3.5" /> Change</span>
+                </button>
+              </div>
+              <div>
+                <label class="block text-sm text-neutral-500 mb-1.5">Member Since</label>
+                <div class="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50/70 dark:bg-neutral-800/40 px-4 py-3 text-sm font-semibold text-neutral-800 dark:text-neutral-100">
+                  {{ fmtDate(profile.created_at) }}
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
-      </template>
+      </div>
     </div>
 
     <!-- Edit drawer -->
@@ -301,7 +301,7 @@ onMounted(load)
         <div class="flex flex-col gap-5 py-4">
           <!-- Avatar -->
           <div class="flex items-center gap-4">
-            <div class="size-20 rounded-2xl overflow-hidden ring-1 ring-neutral-200 shadow-sm shrink-0">
+            <div class="size-20 rounded-full overflow-hidden ring-1 ring-neutral-200 shadow-sm shrink-0">
               <img v-if="avatarPreview" :src="avatarPreview" alt="Avatar preview" class="size-full object-cover" />
               <div v-else class="size-full flex items-center justify-center text-xl font-black text-white bg-nfuko-primary-950">
                 {{ initials }}
