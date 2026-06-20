@@ -48,11 +48,11 @@
     <template #actions="{ item }: any">
       <div class="flex items-center gap-2">
         <button @click="OpenThedrawer(item, 'withdrawal')"
-          class="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-bold rounded-lg border border-gray-200 text-gray-600 bg-white hover:bg-gray-50 hover:border-gray-300 transition-colors">
+          class="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-bold rounded-lg text-white bg-[#031024] hover:bg-[#031024]/90 shadow-sm transition-colors">
           <CircleMinus :size="14" /> Withdraw
         </button>
         <button @click="OpenThedrawer(item, 'deposit')"
-          class="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-bold rounded-lg text-white bg-[#052659] hover:bg-[#052659]/90 shadow-sm transition-colors">
+          class="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-bold rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-colors">
           <CircleDollarSign :size="14" /> Deposit
         </button>
       </div>
