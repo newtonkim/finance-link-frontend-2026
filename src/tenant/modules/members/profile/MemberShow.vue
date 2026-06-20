@@ -3,7 +3,8 @@ import { ref, computed, onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
 import { toast } from 'vue-sonner';
 import { storeToRefs } from 'pinia';
-import { UserCircle2, FileText, TrendingUp, MinusCircle, Wallet, BarChart3, RotateCcw, Printer } from 'lucide-vue-next';
+import { UserCircle2, FileText, TrendingUp, MinusCircle, Wallet, BarChart3, RotateCcw, Printer,
+    User, Phone, Users, Mail, MapPin, Calendar, Copy, Check, Hash, Heart, ShieldCheck, CreditCard, Smartphone } from 'lucide-vue-next';
 import { formatMoneyValue } from '@/Global';
 import { tenantClient } from '@/tenant/apis/tenantClient';
 import { useCurrencyStore } from '@/stores/currency';
@@ -17,7 +18,6 @@ import DepositWithdrawDrawer from './DepositWithdrawDrawer.vue';
 import NewAccountDrawer from './NewAccountDrawer.vue';
 import CustomFeeDrawer from './CustomFeeDrawer.vue';
 import { memberProfileApi } from '@/tenant/apis/savings/member-profileApi';
-import Details from '@/Global/DetailsTable/Details.vue';
 import Statement from './statement.vue';
 const { getMemberProfileDetail } = memberProfileApi();
 
@@ -149,36 +149,81 @@ const formatCurrency = (amount?: string | number) =>
 
 // ── Handle member delete ─────────────────────────────────────────────────────
 const handleDelete = () => deleteMember(() => router.push('/tenant/members'));
-const columns = [
+
+// ── Profile details, grouped into professional sections ──────────────────────
+const details = computed<Record<string, unknown>>(() => profileDetails.value?.details ?? {});
+
+function fieldValue(key: string): string | null {
+    const v = details.value[key];
+    if (v === null || v === undefined || v === '' || v === '—') return null;
+    return String(v);
+}
+
+const copiedKey = ref<string | null>(null);
+function copyField(key: string) {
+    const v = fieldValue(key);
+    if (!v) return;
+    navigator.clipboard?.writeText(v).then(() => {
+        copiedKey.value = key;
+        setTimeout(() => (copiedKey.value = null), 1500);
+    });
+}
+
+function badgeClass(value: string): string {
+    const s = value.toLowerCase();
+    if (['active', 'married', 'approved', 'verified'].includes(s)) return 'bg-emerald-50 text-emerald-700 ring-emerald-600/20';
+    if (['single', 'standard'].includes(s)) return 'bg-teal-50 text-teal-700 ring-teal-600/20';
+    if (['inactive', 'suspended', 'dormant', 'rejected', 'closed'].includes(s)) return 'bg-rose-50 text-rose-700 ring-rose-600/20';
+    if (['pending', 'trial'].includes(s)) return 'bg-amber-50 text-amber-700 ring-amber-600/20';
+    return 'bg-gray-100 text-gray-600 ring-gray-500/20';
+}
+
+interface ProfileField { key: string; label: string; icon: any; type?: 'date' | 'currency' | 'badge' | 'copy' }
+interface ProfileSection { title: string; icon: any; fields: ProfileField[] }
+
+const profileSections = computed<ProfileSection[]>(() => [
     {
-        header: '',
-        type: 'Descriptions',
-        column: 3,
-        list: [
-            { key: 'memeber_code', label: 'Member Code', copy: true },
-            { key: 'full_name', label: 'Full Name' },
-            { key: 'email', label: 'Email' },
-            { key: 'from', label: 'From' },
-            { key: 'marital_status', label: 'Marital Status', type: 'status' },
-            { key: 'primary_contact', label: 'Primary Contact' },
-            { key: 'NIN', label: 'NIN' },
-            { key: 'other_contacts', label: 'Other Contacts' },
-            { key: 'o_contact', label: 'Other Contact' },
-            { key: 'MM_number', label: 'Mobile Money Number' },
-            { key: 'dob', label: 'Date of Birth' },
-            { key: 'address', label: 'Address' },
-            { key: 'nokin', label: 'Next of Kin' },
-            { key: 'next_contact', label: 'Next Contact' },
-            { key: 'status', label: 'Status', type: 'status' },
-            { key: 'initial_deposit', label: 'Initial Deposit' },
-            { key: 'opb', label: 'opening balance' },
-            { key: 'referred_by', label: 'Referred By' },
-            { key: 'created_by', label: 'Created By' },
-            { key: 'joined_date', label: 'Joined Date', type: 'date' },
-            { key: 'created_at', label: 'Created At' },
-        ]
+        title: 'Personal Information', icon: User, fields: [
+            { key: 'full_name', label: 'Full Name', icon: User },
+            { key: 'memeber_code', label: 'Member Code', icon: Hash, type: 'copy' },
+            { key: 'email', label: 'Email Address', icon: Mail },
+            { key: 'dob', label: 'Date of Birth', icon: Calendar, type: 'date' },
+            { key: 'marital_status', label: 'Marital Status', icon: Heart, type: 'badge' },
+            { key: 'from', label: 'Nationality', icon: MapPin },
+            { key: 'address', label: 'Address', icon: MapPin },
+        ],
     },
-]
+    {
+        title: 'Contact Information', icon: Phone, fields: [
+            { key: 'primary_contact', label: 'Primary Contact', icon: Phone },
+            { key: 'o_contact', label: 'Other Contact', icon: Phone },
+            { key: 'other_contacts', label: 'Other Contacts', icon: Phone },
+            { key: 'MM_number', label: 'Mobile Money', icon: Smartphone },
+            { key: 'NIN', label: 'National ID (NIN)', icon: CreditCard },
+        ],
+    },
+    {
+        title: 'Next of Kin', icon: Users, fields: [
+            { key: 'nokin', label: 'Next of Kin', icon: User },
+            { key: 'next_contact', label: 'Next Contact', icon: Phone },
+        ],
+    },
+    {
+        title: 'Membership', icon: ShieldCheck, fields: [
+            { key: 'status', label: 'Status', icon: ShieldCheck, type: 'badge' },
+            { key: 'referred_by', label: 'Referred By', icon: User },
+            { key: 'created_by', label: 'Registered By', icon: User },
+            { key: 'joined_date', label: 'Joined Date', icon: Calendar, type: 'date' },
+            { key: 'created_at', label: 'Created At', icon: Calendar, type: 'date' },
+        ],
+    },
+    {
+        title: 'Financial', icon: Wallet, fields: [
+            { key: 'initial_deposit', label: 'Initial Deposit', icon: Wallet, type: 'currency' },
+            { key: 'opb', label: 'Opening Balance', icon: Wallet, type: 'currency' },
+        ],
+    },
+]);
 </script>
 
 <template>
@@ -241,12 +286,69 @@ const columns = [
                             </button>
                         </div>
 
-                        <!-- Profile tab -->
-                        <div v-show="activeTab === 'profile'" class="p-1">
-                            <span v-if="Object.keys(profileDetails?.details ?? {}).length"
-                                class="border border-gray-100 rounded-2xl overflow-hidden bg-white">
-                                <Details :data="profileDetails.details" :columns="columns" />
-                            </span>
+                        <!-- Profile tab — compact masonry, no scrolling -->
+                        <div v-show="activeTab === 'profile'" class="p-4 bg-gray-50/40">
+                            <div class="columns-1 md:columns-2 xl:columns-3 gap-4">
+                                <section v-for="section in profileSections" :key="section.title"
+                                    class="break-inside-avoid mb-4 rounded-xl border border-gray-100 bg-white overflow-hidden shadow-sm">
+                                    <!-- Section header -->
+                                    <div class="flex items-center gap-2 px-3.5 py-2.5 border-b border-gray-100 bg-gray-50/50">
+                                        <div class="size-6 rounded-md bg-[#cda434]/10 flex items-center justify-center shrink-0">
+                                            <component :is="section.icon" :size="13" class="text-[#cda434]" />
+                                        </div>
+                                        <h3 class="text-[11px] font-bold text-gray-800 uppercase tracking-wide">{{ section.title }}</h3>
+                                    </div>
+
+                                    <!-- Fields — inline label/value rows -->
+                                    <div class="divide-y divide-gray-50">
+                                        <div v-for="f in section.fields" :key="f.key"
+                                            class="flex items-start justify-between gap-3 px-3.5 py-2">
+                                            <span class="flex items-center gap-1.5 text-[11px] font-medium text-gray-400 shrink-0 pt-px">
+                                                <component :is="f.icon" :size="12" class="shrink-0" />
+                                                {{ f.label }}
+                                            </span>
+
+                                            <div class="min-w-0 text-right">
+                                                <!-- Badge -->
+                                                <template v-if="f.type === 'badge'">
+                                                    <span v-if="fieldValue(f.key)"
+                                                        :class="['inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold capitalize ring-1 ring-inset', badgeClass(fieldValue(f.key)!)]">
+                                                        {{ fieldValue(f.key) }}
+                                                    </span>
+                                                    <span v-else class="text-[13px] text-gray-300">—</span>
+                                                </template>
+
+                                                <!-- Copy -->
+                                                <div v-else-if="f.type === 'copy'" class="flex items-center justify-end gap-1.5">
+                                                    <span class="text-[12px] font-bold text-gray-900 font-mono truncate">{{ fieldValue(f.key) ?? '—' }}</span>
+                                                    <button v-if="fieldValue(f.key)" @click="copyField(f.key)"
+                                                        class="shrink-0 text-gray-400 hover:text-[#cda434] transition-colors" title="Copy">
+                                                        <component :is="copiedKey === f.key ? Check : Copy" :size="13"
+                                                            :class="copiedKey === f.key ? 'text-emerald-500' : ''" />
+                                                    </button>
+                                                </div>
+
+                                                <!-- Currency -->
+                                                <span v-else-if="f.type === 'currency'" class="text-[13px] font-bold text-gray-900">
+                                                    <template v-if="fieldValue(f.key) !== null">{{ currencyCode }} {{ formatCurrency(fieldValue(f.key)!) }}</template>
+                                                    <span v-else class="text-gray-300">—</span>
+                                                </span>
+
+                                                <!-- Date -->
+                                                <span v-else-if="f.type === 'date'" class="text-[13px] font-bold text-gray-900">
+                                                    {{ fieldValue(f.key) ? formatDate(fieldValue(f.key)!) : '—' }}
+                                                </span>
+
+                                                <!-- Text -->
+                                                <span v-else class="text-[13px] font-bold text-gray-900 break-words">
+                                                    <template v-if="fieldValue(f.key)">{{ fieldValue(f.key) }}</template>
+                                                    <span v-else class="text-gray-300">—</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
                         </div>
 
                         <!-- Transactions tab -->
