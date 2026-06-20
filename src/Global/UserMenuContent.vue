@@ -26,12 +26,14 @@ const props = defineProps<{
 }>()
 
 const menuItems = computed(() => {
-  const userId = tenantUserStore.user?.id || props.user?.id || ''
+  // Route to the profile that matches the current context: a tenant subdomain
+  // gets the tenant profile, the central admin gets the central profile.
+  const isTenant = !!getTenantSubdomain()
   return [
     {
       label: 'Profile',
       icon: User,
-      path: '/tenant/my-profile',
+      path: isTenant ? '/tenant/my-profile' : '/central/my-profile',
     },
   ]
 })
