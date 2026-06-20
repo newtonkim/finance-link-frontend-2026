@@ -6,8 +6,12 @@
     <!-- Member — avatar + name + copyable account code -->
     <template #member_name="{ item }">
       <div class="flex items-center gap-3 py-1">
-        <div class="size-9 rounded-xl bg-nfuko-primary/10 flex items-center justify-center shrink-0 text-[11px] font-black text-nfuko-primary">
-          {{ memberInitials(item.member_name) }}
+        <div class="size-9 rounded-xl overflow-hidden shrink-0 ring-1 ring-black/5">
+          <img v-if="item.member_image" :src="item.member_image" :alt="item.member_name"
+            class="size-full object-cover" />
+          <div v-else class="size-full bg-nfuko-primary/10 flex items-center justify-center text-[11px] font-black text-nfuko-primary">
+            {{ memberInitials(item.member_name) }}
+          </div>
         </div>
         <div class="min-w-0">
           <div class="font-bold text-[13px] text-gray-900 dark:text-white truncate">{{ item.member_name }}</div>
