@@ -159,6 +159,20 @@ async function onAvatarChange(e: Event) {
   avatarPreview.value = URL.createObjectURL(processed)
 }
 
+/** Push the updated profile into the auth session so the top-bar avatar/name
+ *  (which read from authStore.user via the profile store) refresh immediately. */
+function syncSessionUser(updated: CentralProfile) {
+  const next = {
+    ...(authStore.user ?? {}),
+    id: updated.id,
+    name: updated.staff_fall_name ?? authStore.user?.name,
+    email: updated.staff_email ?? authStore.user?.email,
+    avatar: updated.avatar_url ?? (authStore.user as any)?.avatar ?? null,
+  } as any
+  authStore.user = next
+  localStorage.setItem('auth_user', JSON.stringify(next))
+}
+
 async function saveEdit() {
   formError.value = null
   if (form.value.password && form.value.password !== form.value.password_confirmation) {
@@ -174,8 +188,10 @@ async function saveEdit() {
       password: form.value.password || undefined,
       avatar: avatarFile.value,
     })
-    if (updated) profile.value = updated
-    profileStore.fetchFullProfile(true)
+    if (updated) {
+      profile.value = updated
+      syncSessionUser(updated)
+    }
     drawerOpen.value = false
   } catch (e: any) {
     const errors = e?.response?.data?.errors as Record<string, string[]> | undefined
