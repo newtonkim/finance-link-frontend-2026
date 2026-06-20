@@ -2,12 +2,12 @@
   <div class="flex flex-col h-full px-1">
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center py-16">
-      <span class="size-8 animate-spin rounded-full border-[3px] border-[#cda434]/20 border-t-[#cda434]"></span>
+      <span class="size-8 animate-spin rounded-full border-[3px] border-[#052659]/20 border-t-[#052659]"></span>
     </div>
 
     <template v-else>
       <!-- Member / new account header -->
-      <div class="rounded-2xl bg-gradient-to-br from-[#cda434] to-[#9c7d24] p-5 text-white shadow-sm mb-6 relative overflow-hidden">
+      <div class="rounded-2xl bg-gradient-to-br from-[#052659] to-[#0a3a7a] p-5 text-white shadow-sm mb-6 relative overflow-hidden">
         <div class="absolute -top-8 -right-8 size-32 rounded-full bg-white/10 blur-2xl"></div>
         <div class="relative flex items-center gap-4">
           <div class="size-12 rounded-2xl bg-white/15 ring-1 ring-white/20 flex items-center justify-center shrink-0 font-black text-lg">
@@ -47,8 +47,8 @@
             <span class="text-[13px] font-bold text-gray-800 tabular-nums">{{ currencyCode }} {{ formatMoneyValue(enteredCharge) }}</span>
           </div>
           <div class="flex items-center justify-between px-4 py-3 bg-white rounded-b-xl">
-            <span class="flex items-center gap-1.5 text-[13px] font-bold text-gray-700"><ReceiptText :size="14" class="text-[#cda434]" /> Total to collect</span>
-            <span class="text-base font-black text-[#cda434] tabular-nums">{{ currencyCode }} {{ formatMoneyValue(totalToCollect) }}</span>
+            <span class="flex items-center gap-1.5 text-[13px] font-bold text-gray-700"><ReceiptText :size="14" class="text-[#052659]" /> Total to collect</span>
+            <span class="text-base font-black text-[#052659] tabular-nums">{{ currencyCode }} {{ formatMoneyValue(totalToCollect) }}</span>
           </div>
         </div>
       </div>
