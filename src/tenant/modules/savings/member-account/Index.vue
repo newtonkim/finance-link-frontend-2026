@@ -3,23 +3,58 @@
     :automaticCreate="!(automaticCreate as any).actionSlot" ref="drawer" :showTableAction="true"
     :drawerWidth="drawerTitle?.width" :url="tableUrl" state="memberAccountList" :drawerTitle="drawerTitle?.title"
     :columns="columns" @save="saveUser">
+    <!-- Member — avatar + name + copyable account code -->
     <template #member_name="{ item }">
-      <div class="-1">
-        <div class="font-semibold text-nfuko-action text-sm dark:text-white">
-          {{ item.member_name }}
+      <div class="flex items-center gap-3 py-1">
+        <div class="size-9 rounded-xl bg-nfuko-primary/10 flex items-center justify-center shrink-0 text-[11px] font-black text-nfuko-primary">
+          {{ memberInitials(item.member_name) }}
         </div>
-        <CopyData :show="item.account_code" />
-        <div class="text-[8px] uppercase tracking-wide">
-          {{ item.product }}
+        <div class="min-w-0">
+          <div class="font-bold text-[13px] text-gray-900 dark:text-white truncate">{{ item.member_name }}</div>
+          <div class="flex items-center gap-1 mt-0.5">
+            <span class="font-mono text-[11px] text-gray-500 truncate">{{ item.account_code }}</span>
+            <CopyData :show="item.account_code" />
+          </div>
         </div>
       </div>
     </template>
+
+    <!-- Product chip -->
+    <template #product="{ item }">
+      <span class="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 border border-gray-100 px-2.5 py-1 text-[12px] font-semibold text-gray-700 capitalize">
+        <Wallet :size="13" class="text-gray-400 shrink-0" />
+        {{ item.product || '—' }}
+      </span>
+    </template>
+
+    <!-- Status pill -->
+    <template #status="{ item }">
+      <span :class="['inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-bold capitalize ring-1 ring-inset', statusPill(item.status)]">
+        <span class="size-1.5 rounded-full" :class="statusDot(item.status)" />
+        {{ item.status || '—' }}
+      </span>
+    </template>
+
+    <!-- Balance — prominent -->
+    <template #blc="{ item }">
+      <span class="text-[14px] font-black text-gray-900 dark:text-white tabular-nums">{{ currencyCode }} {{ formatMoneyValue(item.blc ?? 0) }}</span>
+    </template>
+
+    <!-- Created at -->
+    <template #created_at="{ item }">
+      <span class="text-[13px] font-medium text-gray-500">{{ fmtDate(item.created_at) }}</span>
+    </template>
+
     <template #actions="{ item }: any">
       <div class="flex items-center gap-2">
-        <TabelActionButtons @action="() => OpenThedrawer(item, 'withdrawal')" title="withdrawal" color="secondary"
-          icon="CircleMinus" />
-        <TabelActionButtons @action="() => OpenThedrawer(item, 'deposit')" title="deposit" color="custom"
-          icon="CircleDollarSign" />
+        <button @click="OpenThedrawer(item, 'withdrawal')"
+          class="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-bold rounded-lg border border-gray-200 text-gray-600 bg-white hover:bg-gray-50 hover:border-gray-300 transition-colors">
+          <CircleMinus :size="14" /> Withdraw
+        </button>
+        <button @click="OpenThedrawer(item, 'deposit')"
+          class="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-bold rounded-lg text-white bg-[#052659] hover:bg-[#052659]/90 shadow-sm transition-colors">
+          <CircleDollarSign :size="14" /> Deposit
+        </button>
       </div>
     </template>
     <template #header-action>
@@ -76,10 +111,39 @@ import {
   StatusButtonsHorizontal,
   PainPageHeader,
   CopyData,
-  TabelActionButtons,
   uploadTemplateColumData,
+  formatMoneyValue,
 } from "@/Global";
+import { storeToRefs } from "pinia";
+import { Wallet, CircleMinus, CircleDollarSign } from "lucide-vue-next";
+import { useCurrencyStore } from "@/stores/currency";
 import { memberAccountApi } from "@/tenant/apis";
+
+const { currencyCode } = storeToRefs(useCurrencyStore());
+
+function memberInitials(name?: string): string {
+  const words = String(name ?? "").trim().split(/\s+/).filter(Boolean);
+  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
+  return String(name ?? "—").slice(0, 2).toUpperCase();
+}
+function statusPill(s?: string): string {
+  const v = String(s ?? "").toLowerCase();
+  if (["active"].includes(v)) return "bg-emerald-50 text-emerald-700 ring-emerald-600/20";
+  if (["suspended", "expired", "closed"].includes(v)) return "bg-rose-50 text-rose-700 ring-rose-600/20";
+  if (["trial", "dormant", "pending"].includes(v)) return "bg-amber-50 text-amber-700 ring-amber-600/20";
+  return "bg-gray-100 text-gray-500 ring-gray-500/20";
+}
+function statusDot(s?: string): string {
+  const v = String(s ?? "").toLowerCase();
+  if (["active"].includes(v)) return "bg-emerald-500";
+  if (["suspended", "expired", "closed"].includes(v)) return "bg-rose-500";
+  if (["trial", "dormant", "pending"].includes(v)) return "bg-amber-500";
+  return "bg-gray-400";
+}
+function fmtDate(v?: string): string {
+  if (!v) return "—";
+  return new Date(v).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+}
 const drawer = ref<any>(null),
   drawerRemount = ref(true),
   automaticCreate = ref<any>({ drawerActions: true, actionSlot: null }),
