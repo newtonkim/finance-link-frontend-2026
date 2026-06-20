@@ -142,7 +142,7 @@ const loginPath = '/central/login';
 </script>
 
 <template>
-  <AuthBase title="Create an account" description="Join Finance Link and elevate your financial inclusion though AI">
+  <AuthBase title="Create an account" titleClass="text-[#031024]" description="Join Finance Link and elevate your financial inclusion though AI">
     <div
       v-if="errors.form"
       class="mb-6 rounded-lg bg-red-50 p-4 text-center text-sm font-medium text-red-600 border border-red-100"
@@ -213,7 +213,7 @@ const loginPath = '/central/login';
     </form>
 
     <template #right-panel>
-      <div class="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-[#001020] to-[#A8E6FF] p-8">
+      <div class="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-[#001020] to-[#031024] p-8">
         <div class="relative w-full aspect-square max-w-sm mb-12">
           <transition-group name="fade-slide" tag="div" class="relative w-full h-full">
             <div v-for="(feature, index) in features" :key="feature.title" v-show="activeIndex === index"

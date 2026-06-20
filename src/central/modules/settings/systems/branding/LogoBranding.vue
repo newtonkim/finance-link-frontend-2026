@@ -109,7 +109,7 @@ async function handleSave() {
                             class="flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl border-2 border-dashed border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 overflow-hidden">
                             <img v-if="currentLogoSrc()" :src="currentLogoSrc()!" alt="Logo preview"
                                 class="h-full w-full object-contain p-2" />
-                            <img v-else src="/images/finance_link_logo_updated.png" alt="Current logo"
+                            <img v-else src="/images/finance-link-logo.png" alt="Current logo"
                                 class="h-14 w-auto object-contain" />
                         </div>
 
@@ -205,7 +205,7 @@ async function handleSave() {
                             class="flex shrink-0 items-center justify-center rounded-xl bg-nfuko-yellow/20 h-12 w-12 overflow-hidden">
                             <img v-if="currentLogoSrc()" :src="currentLogoSrc()!" alt="Logo"
                                 class="h-8 w-auto object-contain" />
-                            <img v-else src="/images/finance_link_logo_updated.png" alt="Logo" class="h-8 w-auto" />
+                            <img v-else src="/images/finance-link-logo.png" alt="Logo" class="h-8 w-auto" />
                         </div>
                         <div class="flex flex-col min-w-0">
                             <span class="text-base font-bold leading-tight text-white italic truncate">

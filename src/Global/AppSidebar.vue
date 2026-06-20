@@ -51,7 +51,7 @@ function toggleDarkMode() {
         <SidebarHeader class="px-4 pt-5 pb-4 border-b border-white/5 shrink-0">
             <div class="flex flex-col items-center gap-2 w-full">
                 <div class="size-32 rounded-2xl overflow-hidden shadow-lg">
-                    <img :src="sidebarLogo || '/images/finance-link-logo.webp'" alt="Finance Link"
+                    <img :src="sidebarLogo || '/images/finance-link-icon.png'" alt="Finance Link"
                         class="w-full h-full object-contain" />
                 </div>
                 <div v-if="state === 'expanded'" class="text-center">

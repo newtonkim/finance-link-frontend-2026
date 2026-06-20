@@ -118,7 +118,7 @@ function daysLeft(expiresAt?: string): number | null {
                 <div class="flex items-center gap-4">
                     <div
                         class="size-14 rounded-2xl bg-white dark:bg-white/10 flex items-center justify-center shrink-0 overflow-hidden p-2">
-                        <img src="/images/finance_link_logo_updated.png" alt="Tenant" class="size-full object-contain" />
+                        <img src="/images/finance-link-logo.png" alt="Tenant" class="size-full object-contain" />
                     </div>
                     <div>
                         <h1 class="text-2xl font-bold text-neutral-900 dark:text-white tracking-tight">
