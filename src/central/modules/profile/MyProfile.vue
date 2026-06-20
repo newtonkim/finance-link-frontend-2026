@@ -154,11 +154,11 @@ onMounted(load)
 </script>
 
 <template>
-  <div class="min-h-full bg-[#f8faf9] dark:bg-neutral-950">
+  <div class="min-h-full bg-nfuko-surface dark:bg-neutral-950">
     <div class="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
       <!-- Heading -->
       <div class="mb-6 flex items-center gap-2">
-        <UserCircle2 class="size-6 text-[#0050D8]" />
+        <UserCircle2 class="size-6 text-nfuko-primary" />
         <div>
           <h1 class="text-2xl font-black text-neutral-900 dark:text-white leading-none">My Profile</h1>
           <p class="text-sm text-neutral-500 mt-1">Manage your central administrator account.</p>
@@ -176,7 +176,7 @@ onMounted(load)
       <template v-else-if="profile">
         <!-- Hero card -->
         <div class="rounded-3xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 overflow-hidden shadow-sm">
-          <div class="h-28 relative" style="background: linear-gradient(120deg, #0c1427 0%, #0050D8 100%)">
+          <div class="h-28 relative" style="background: linear-gradient(120deg, var(--color-nfuko-primary-950) 0%, var(--color-nfuko-primary) 100%)">
             <div class="absolute inset-0 opacity-30" style="background-image: radial-gradient(circle at 80% -10%, rgba(255,255,255,0.25), transparent 45%)"></div>
           </div>
 
@@ -185,14 +185,14 @@ onMounted(load)
               <div class="flex items-end gap-4">
                 <div class="size-24 rounded-3xl overflow-hidden ring-4 ring-white dark:ring-neutral-900 shadow-xl shrink-0">
                   <img v-if="profile.avatar_url" :src="profile.avatar_url" alt="Avatar" class="size-full object-cover" />
-                  <div v-else class="size-full flex items-center justify-center text-3xl font-black text-white" style="background: linear-gradient(135deg, #0c1427, #0050D8)">
+                  <div v-else class="size-full flex items-center justify-center text-3xl font-black text-white" style="background: linear-gradient(135deg, var(--color-nfuko-primary-950), var(--color-nfuko-primary))">
                     {{ initials }}
                   </div>
                 </div>
                 <div class="min-w-0 pb-1">
                   <div class="flex items-center gap-2">
                     <h2 class="text-2xl font-black text-neutral-900 dark:text-white leading-tight truncate">{{ displayName }}</h2>
-                    <BadgeCheck v-if="isVerified" class="size-5 text-[#0050D8] shrink-0" />
+                    <BadgeCheck v-if="isVerified" class="size-5 text-nfuko-primary shrink-0" />
                   </div>
                   <div class="flex items-center gap-1.5 mt-0.5 text-sm font-medium text-neutral-500">
                     <Mail class="size-3.5 shrink-0" />
@@ -206,7 +206,7 @@ onMounted(load)
                   <span :class="['size-2 rounded-full', statusStyles.dot]" />
                   {{ statusStyles.label }}
                 </span>
-                <Button class="h-10 gap-2 bg-[#0050D8] hover:bg-[#0050D8]/90 text-white font-bold rounded-xl" @click="openEdit">
+                <Button class="h-10 gap-2 bg-nfuko-primary hover:bg-nfuko-primary/90 text-white font-bold rounded-xl" @click="openEdit">
                   <Pencil class="size-4" /> Edit Profile
                 </Button>
               </div>
@@ -271,7 +271,7 @@ onMounted(load)
           <div class="space-y-4">
             <div class="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5">
               <div class="flex items-center gap-2 mb-1">
-                <KeyRound class="size-4 text-[#0050D8]" />
+                <KeyRound class="size-4 text-nfuko-primary" />
                 <h3 class="text-sm font-black text-neutral-800 dark:text-neutral-100">Security</h3>
               </div>
               <p class="text-xs text-neutral-500 mb-4">Update your password to keep your account secure.</p>
@@ -303,7 +303,7 @@ onMounted(load)
           <div class="flex items-center gap-4">
             <div class="size-20 rounded-2xl overflow-hidden ring-1 ring-neutral-200 shadow-sm shrink-0">
               <img v-if="avatarPreview" :src="avatarPreview" alt="Avatar preview" class="size-full object-cover" />
-              <div v-else class="size-full flex items-center justify-center text-xl font-black text-white" style="background: linear-gradient(135deg, #0c1427, #0050D8)">
+              <div v-else class="size-full flex items-center justify-center text-xl font-black text-white" style="background: linear-gradient(135deg, var(--color-nfuko-primary-950), var(--color-nfuko-primary))">
                 {{ initials }}
               </div>
             </div>
@@ -347,7 +347,7 @@ onMounted(load)
 
           <div class="flex gap-2 pt-2">
             <Button type="button" variant="outline" class="h-11 flex-1 font-bold" @click="drawerOpen = false">Cancel</Button>
-            <Button type="button" class="h-11 flex-1 gap-2 bg-[#0050D8] hover:bg-[#0050D8]/90 text-white font-bold" :disabled="saving" @click="saveEdit">
+            <Button type="button" class="h-11 flex-1 gap-2 bg-nfuko-primary hover:bg-nfuko-primary/90 text-white font-bold" :disabled="saving" @click="saveEdit">
               <Loader2 v-if="saving" class="size-4 animate-spin" />
               {{ saving ? 'Saving…' : 'Save changes' }}
             </Button>
