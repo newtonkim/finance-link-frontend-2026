@@ -2,7 +2,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
-  LayoutGrid,
   Settings,
   Moon,
   Sun,
@@ -38,6 +37,7 @@ import { OutClickNav } from '@/Global/OutClicknavigation';
 import { saccoBrandingState, saccoBrandingApi } from '@/tenant/apis/saccobranding/saccoBrandingApi'
 import { pomPinia } from 'septor-store'
 import type { MenuRoutes } from '@/Global/types/helpers'
+import TenantBrandMark from '@/tenant/components/globals/TenantBrandMark.vue'
 
 const Store = pomPinia() as any
 const route = useRoute()
@@ -56,6 +56,16 @@ const isSettingsActive = computed(() => route.path.startsWith('/tenant/settings'
 
 
 const tenant = tenantStore.currentTenant as any
+
+// Initials for the monogram fallback when no logo has been uploaded.
+const saccoDisplayName = computed(
+  () => saccoBrandingState.sacco_name || tenant?.name || 'SACCO Portal',
+)
+const saccoInitials = computed(() => {
+  const words = saccoDisplayName.value.trim().split(/\s+/).filter(Boolean)
+  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase()
+  return saccoDisplayName.value.slice(0, 2).toUpperCase()
+})
 // const fullRemount = computed(() => Store.fullRemount)
 const tenantRoutesReactive = computed(() => tenantRoutes)
 onMounted(async () => {
@@ -100,14 +110,15 @@ const groupedRoutes = computed(() => {
       <!-- Logo + Sacco Name -->
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <div class="flex shrink-0 items-center justify-center rounded-2xl transition-all duration-500 overflow-hidden bg-white shadow-md p-1.5"
+          <div class="flex shrink-0 items-center justify-center rounded-2xl transition-all duration-500 overflow-hidden shadow-md"
             :class="[
               state === 'expanded' ? 'h-16 w-16' : 'h-10 w-10',
-              saccoBrandingState.logo_url ? '' : 'text-[#0050D8]'
+              saccoBrandingState.logo_url ? 'bg-white p-1.5' : ''
             ]">
             <img v-if="saccoBrandingState.logo_url" :src="saccoBrandingState.logo_url" alt="Sacco logo"
               class="h-full w-full object-contain" />
-            <LayoutGrid v-else :class="state === 'expanded' ? 'h-7 w-7' : 'h-5 w-5'" />
+            <TenantBrandMark v-else :initials="saccoInitials" accent="#0050D8"
+              :text-class="state === 'expanded' ? 'text-xl' : 'text-sm'" />
           </div>
 
           <div v-if="state === 'expanded'" class="flex flex-col min-w-0">
