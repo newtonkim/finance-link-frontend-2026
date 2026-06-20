@@ -286,65 +286,69 @@ const profileSections = computed<ProfileSection[]>(() => [
                             </button>
                         </div>
 
-                        <!-- Profile tab -->
-                        <div v-show="activeTab === 'profile'" class="p-4 sm:p-6 space-y-5 bg-gray-50/40">
-                            <section v-for="section in profileSections" :key="section.title"
-                                class="rounded-2xl border border-gray-100 bg-white overflow-hidden shadow-sm">
-                                <!-- Section header -->
-                                <div class="flex items-center gap-2.5 px-5 py-3.5 border-b border-gray-100">
-                                    <div class="size-8 rounded-lg bg-[#cda434]/10 flex items-center justify-center shrink-0">
-                                        <component :is="section.icon" :size="16" class="text-[#cda434]" />
-                                    </div>
-                                    <h3 class="text-[13px] font-bold text-gray-900 uppercase tracking-wide">{{ section.title }}</h3>
-                                </div>
-
-                                <!-- Fields grid -->
-                                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-100">
-                                    <div v-for="f in section.fields" :key="f.key"
-                                        class="bg-white px-5 py-4 transition-colors hover:bg-gray-50/60">
-                                        <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">
-                                            <component :is="f.icon" :size="12" class="shrink-0" />
-                                            {{ f.label }}
+                        <!-- Profile tab — compact masonry, no scrolling -->
+                        <div v-show="activeTab === 'profile'" class="p-4 bg-gray-50/40">
+                            <div class="columns-1 md:columns-2 xl:columns-3 gap-4">
+                                <section v-for="section in profileSections" :key="section.title"
+                                    class="break-inside-avoid mb-4 rounded-xl border border-gray-100 bg-white overflow-hidden shadow-sm">
+                                    <!-- Section header -->
+                                    <div class="flex items-center gap-2 px-3.5 py-2.5 border-b border-gray-100 bg-gray-50/50">
+                                        <div class="size-6 rounded-md bg-[#cda434]/10 flex items-center justify-center shrink-0">
+                                            <component :is="section.icon" :size="13" class="text-[#cda434]" />
                                         </div>
+                                        <h3 class="text-[11px] font-bold text-gray-800 uppercase tracking-wide">{{ section.title }}</h3>
+                                    </div>
 
-                                        <!-- Badge -->
-                                        <template v-if="f.type === 'badge'">
-                                            <span v-if="fieldValue(f.key)"
-                                                :class="['inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold capitalize ring-1 ring-inset', badgeClass(fieldValue(f.key)!)]">
-                                                {{ fieldValue(f.key) }}
+                                    <!-- Fields — inline label/value rows -->
+                                    <div class="divide-y divide-gray-50">
+                                        <div v-for="f in section.fields" :key="f.key"
+                                            class="flex items-start justify-between gap-3 px-3.5 py-2">
+                                            <span class="flex items-center gap-1.5 text-[11px] font-medium text-gray-400 shrink-0 pt-px">
+                                                <component :is="f.icon" :size="12" class="shrink-0" />
+                                                {{ f.label }}
                                             </span>
-                                            <span v-else class="text-sm text-gray-300">—</span>
-                                        </template>
 
-                                        <!-- Copy -->
-                                        <div v-else-if="f.type === 'copy'" class="flex items-center gap-2">
-                                            <span class="text-sm font-bold text-gray-900 font-mono truncate">{{ fieldValue(f.key) ?? '—' }}</span>
-                                            <button v-if="fieldValue(f.key)" @click="copyField(f.key)"
-                                                class="shrink-0 text-gray-400 hover:text-[#cda434] transition-colors" title="Copy">
-                                                <component :is="copiedKey === f.key ? Check : Copy" :size="14"
-                                                    :class="copiedKey === f.key ? 'text-emerald-500' : ''" />
-                                            </button>
+                                            <div class="min-w-0 text-right">
+                                                <!-- Badge -->
+                                                <template v-if="f.type === 'badge'">
+                                                    <span v-if="fieldValue(f.key)"
+                                                        :class="['inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold capitalize ring-1 ring-inset', badgeClass(fieldValue(f.key)!)]">
+                                                        {{ fieldValue(f.key) }}
+                                                    </span>
+                                                    <span v-else class="text-[13px] text-gray-300">—</span>
+                                                </template>
+
+                                                <!-- Copy -->
+                                                <div v-else-if="f.type === 'copy'" class="flex items-center justify-end gap-1.5">
+                                                    <span class="text-[12px] font-bold text-gray-900 font-mono truncate">{{ fieldValue(f.key) ?? '—' }}</span>
+                                                    <button v-if="fieldValue(f.key)" @click="copyField(f.key)"
+                                                        class="shrink-0 text-gray-400 hover:text-[#cda434] transition-colors" title="Copy">
+                                                        <component :is="copiedKey === f.key ? Check : Copy" :size="13"
+                                                            :class="copiedKey === f.key ? 'text-emerald-500' : ''" />
+                                                    </button>
+                                                </div>
+
+                                                <!-- Currency -->
+                                                <span v-else-if="f.type === 'currency'" class="text-[13px] font-bold text-gray-900">
+                                                    <template v-if="fieldValue(f.key) !== null">{{ currencyCode }} {{ formatCurrency(fieldValue(f.key)!) }}</template>
+                                                    <span v-else class="text-gray-300">—</span>
+                                                </span>
+
+                                                <!-- Date -->
+                                                <span v-else-if="f.type === 'date'" class="text-[13px] font-bold text-gray-900">
+                                                    {{ fieldValue(f.key) ? formatDate(fieldValue(f.key)!) : '—' }}
+                                                </span>
+
+                                                <!-- Text -->
+                                                <span v-else class="text-[13px] font-bold text-gray-900 break-words">
+                                                    <template v-if="fieldValue(f.key)">{{ fieldValue(f.key) }}</template>
+                                                    <span v-else class="text-gray-300">—</span>
+                                                </span>
+                                            </div>
                                         </div>
-
-                                        <!-- Currency -->
-                                        <span v-else-if="f.type === 'currency'" class="text-sm font-bold text-gray-900">
-                                            <template v-if="fieldValue(f.key) !== null">{{ currencyCode }} {{ formatCurrency(fieldValue(f.key)!) }}</template>
-                                            <span v-else class="text-gray-300">—</span>
-                                        </span>
-
-                                        <!-- Date -->
-                                        <span v-else-if="f.type === 'date'" class="text-sm font-bold text-gray-900">
-                                            {{ fieldValue(f.key) ? formatDate(fieldValue(f.key)!) : '—' }}
-                                        </span>
-
-                                        <!-- Text -->
-                                        <span v-else class="text-sm font-bold text-gray-900 break-words">
-                                            <template v-if="fieldValue(f.key)">{{ fieldValue(f.key) }}</template>
-                                            <span v-else class="text-gray-300">—</span>
-                                        </span>
                                     </div>
-                                </div>
-                            </section>
+                                </section>
+                            </div>
                         </div>
 
                         <!-- Transactions tab -->
