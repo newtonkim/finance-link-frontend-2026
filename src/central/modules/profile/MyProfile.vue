@@ -116,11 +116,47 @@ function openEdit() {
   drawerOpen.value = true
 }
 
-function onAvatarChange(e: Event) {
+/** Downscale + compress the chosen image so any photo uploads cleanly (well
+ *  under the server limit) and loads fast. Falls back to the raw file if the
+ *  browser can't process it. */
+function downscaleImage(file: File, max = 512): Promise<File> {
+  return new Promise((resolve) => {
+    const img = new Image()
+    const url = URL.createObjectURL(file)
+    img.onload = () => {
+      let { width, height } = img
+      if (width > max || height > max) {
+        const scale = max / Math.max(width, height)
+        width = Math.round(width * scale)
+        height = Math.round(height * scale)
+      }
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      const ctx = canvas.getContext('2d')
+      if (!ctx) { URL.revokeObjectURL(url); return resolve(file) }
+      ctx.drawImage(img, 0, 0, width, height)
+      canvas.toBlob(
+        (blob) => {
+          URL.revokeObjectURL(url)
+          resolve(blob ? new File([blob], 'avatar.jpg', { type: 'image/jpeg' }) : file)
+        },
+        'image/jpeg',
+        0.9,
+      )
+    }
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file) }
+    img.src = url
+  })
+}
+
+async function onAvatarChange(e: Event) {
   const file = (e.target as HTMLInputElement).files?.[0]
   if (!file) return
-  avatarFile.value = file
-  avatarPreview.value = URL.createObjectURL(file)
+  formError.value = null
+  const processed = await downscaleImage(file)
+  avatarFile.value = processed
+  avatarPreview.value = URL.createObjectURL(processed)
 }
 
 async function saveEdit() {
@@ -141,8 +177,11 @@ async function saveEdit() {
     if (updated) profile.value = updated
     profileStore.fetchFullProfile(true)
     drawerOpen.value = false
-  } catch {
-    formError.value = 'Could not save changes. Please try again.'
+  } catch (e: any) {
+    const errors = e?.response?.data?.errors as Record<string, string[]> | undefined
+    formError.value = (errors ? Object.values(errors)[0]?.[0] : undefined)
+      ?? e?.response?.data?.message
+      ?? 'Could not save changes. Please try again.'
   } finally {
     saving.value = false
   }

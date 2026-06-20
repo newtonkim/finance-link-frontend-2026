@@ -44,7 +44,10 @@ export function centralProfileApi() {
       notify({ msg: res.data?.msg ?? 'Profile updated successfully', type: 'success' })
       return res.data?.payload ?? null
     } catch (e: any) {
-      notify({ msg: e?.response?.data?.message ?? 'Failed to update profile', type: 'error' })
+      // Surface the first field-level validation error (422) so the cause is clear.
+      const errors = e?.response?.data?.errors as Record<string, string[]> | undefined
+      const firstError = errors ? Object.values(errors)[0]?.[0] : undefined
+      notify({ msg: firstError ?? e?.response?.data?.message ?? 'Failed to update profile', type: 'error' })
       throw e
     }
   }
