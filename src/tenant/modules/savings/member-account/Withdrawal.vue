@@ -30,19 +30,42 @@
         </div>
 
         <!-- Withdrawal form -->
-        <div>
-            <p class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">
+        <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+            <p class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-4">
                 <MinusCircle :size="13" /> Withdrawal Details
             </p>
             <Form :action="data.action" parentStyle="grid grid-cols-2 gap-4 md:gap-5" v-model:form="fields" />
+
+            <!-- Live balance-after preview -->
+            <div v-if="enteredAmount > 0"
+                class="mt-5 flex items-center justify-between rounded-xl border px-4 py-3"
+                :class="balanceAfter < 0 ? 'border-rose-200 bg-rose-50/60' : 'border-gray-100 bg-gray-50/70'">
+                <div class="flex items-center gap-2 text-sm font-medium text-gray-500">
+                    <TrendingDown :size="15" class="text-gray-400" /> Balance after withdrawal
+                </div>
+                <span class="text-base font-black tabular-nums" :class="balanceAfter < 0 ? 'text-rose-600' : 'text-gray-900'">
+                    {{ currencyCode }} {{ formatMoneyValue(balanceAfter) }}
+                </span>
+            </div>
+            <p v-if="enteredAmount > 0 && balanceAfter < 0" class="mt-2 flex items-center gap-1.5 text-xs font-semibold text-rose-600">
+                <AlertTriangle :size="13" /> Amount exceeds the available balance.
+            </p>
+        </div>
+
+        <!-- Note -->
+        <div class="mt-5 flex items-start gap-2.5 rounded-xl bg-amber-50/60 border border-amber-100 px-4 py-3">
+            <Info :size="15" class="text-amber-500 shrink-0 mt-0.5" />
+            <p class="text-[12px] text-amber-700 leading-relaxed">
+                This withdrawal is recorded immediately in the member's account and the general ledger. Reversing it requires a separate transaction.
+            </p>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { Copy, Check, Wallet, MinusCircle } from 'lucide-vue-next'
+import { Copy, Check, Wallet, MinusCircle, TrendingDown, AlertTriangle, Info } from 'lucide-vue-next'
 import { Form, formatMoneyValue } from '@/Global'
 import { useCurrencyStore } from '@/stores/currency'
 
@@ -67,6 +90,14 @@ function copyCode() {
 }
 
 const fields = ref<any>([])
+
+// Live "balance after withdrawal" preview from the entered amount.
+const enteredAmount = computed(() => {
+    const f = fields.value.find((x: any) => x.name === 'amount')
+    const n = Number(f?.value)
+    return isNaN(n) ? 0 : n
+})
+const balanceAfter = computed(() => Number(props.data?.blc ?? 0) - enteredAmount.value)
 
 function initialize() {
     fields.value = [

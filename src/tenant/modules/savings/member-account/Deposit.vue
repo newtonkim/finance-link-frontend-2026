@@ -30,19 +30,38 @@
         </div>
 
         <!-- Deposit form -->
-        <div>
-            <p class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">
+        <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+            <p class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-4">
                 <CircleDollarSign :size="13" /> Deposit Details
             </p>
             <Form :action="data.action" parentStyle="grid grid-cols-2 gap-4 md:gap-5" v-model:form="fields" />
+
+            <!-- Live balance-after preview -->
+            <div v-if="enteredAmount > 0"
+                class="mt-5 flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50/60 px-4 py-3">
+                <div class="flex items-center gap-2 text-sm font-medium text-gray-500">
+                    <TrendingUp :size="15" class="text-emerald-500" /> Balance after deposit
+                </div>
+                <span class="text-base font-black tabular-nums text-emerald-700">
+                    {{ currencyCode }} {{ formatMoneyValue(balanceAfter) }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Note -->
+        <div class="mt-5 flex items-start gap-2.5 rounded-xl bg-emerald-50/60 border border-emerald-100 px-4 py-3">
+            <Info :size="15" class="text-emerald-500 shrink-0 mt-0.5" />
+            <p class="text-[12px] text-emerald-700 leading-relaxed">
+                This deposit is posted immediately to the member's account and the general ledger. Make sure the amount and payment mode are correct before saving.
+            </p>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { Copy, Check, Wallet, CircleDollarSign } from 'lucide-vue-next'
+import { Copy, Check, Wallet, CircleDollarSign, TrendingUp, Info } from 'lucide-vue-next'
 import { Form, formatMoneyValue } from '@/Global'
 import { useCurrencyStore } from '@/stores/currency'
 
@@ -67,6 +86,14 @@ function copyCode() {
 }
 
 const fields = ref<any>([])
+
+// Live "balance after deposit" preview from the entered amount.
+const enteredAmount = computed(() => {
+    const f = fields.value.find((x: any) => x.name === 'deposit')
+    const n = Number(f?.value)
+    return isNaN(n) ? 0 : n
+})
+const balanceAfter = computed(() => Number(props.data?.blc ?? 0) + enteredAmount.value)
 
 function initialize() {
     fields.value = [
