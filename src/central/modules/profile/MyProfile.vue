@@ -155,7 +155,7 @@ onMounted(load)
 
 <template>
   <div class="min-h-full bg-nfuko-surface dark:bg-neutral-950">
-    <div class="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
+    <div class="w-full px-4 py-8 sm:px-6 lg:px-8">
       <!-- Heading -->
       <div class="mb-6 flex items-center gap-2">
         <UserCircle2 class="size-6 text-nfuko-primary" />
@@ -174,65 +174,65 @@ onMounted(load)
       </div>
 
       <template v-else-if="profile">
-        <!-- Hero card -->
-        <div class="rounded-3xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 overflow-hidden shadow-sm">
-          <div class="h-28 relative" style="background: linear-gradient(120deg, var(--color-nfuko-primary-950) 0%, var(--color-nfuko-primary) 100%)">
-            <div class="absolute inset-0 opacity-30" style="background-image: radial-gradient(circle at 80% -10%, rgba(255,255,255,0.25), transparent 45%)"></div>
+        <!-- Header card (no banner) -->
+        <div class="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-6 shadow-sm">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center gap-4">
+              <div class="size-20 rounded-2xl overflow-hidden ring-1 ring-neutral-200 dark:ring-neutral-700 shadow-sm shrink-0">
+                <img v-if="profile.avatar_url" :src="profile.avatar_url" alt="Avatar" class="size-full object-cover" />
+                <div v-else class="size-full flex items-center justify-center text-2xl font-black text-white bg-nfuko-primary-950">
+                  {{ initials }}
+                </div>
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <h2 class="text-2xl font-black text-neutral-900 dark:text-white leading-tight truncate">{{ displayName }}</h2>
+                  <BadgeCheck v-if="isVerified" class="size-5 text-nfuko-primary shrink-0" />
+                </div>
+                <div class="flex items-center gap-1.5 mt-0.5 text-sm font-medium text-neutral-500">
+                  <Mail class="size-3.5 shrink-0" />
+                  <span class="truncate">{{ profile.staff_email ?? '—' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span :class="['inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-black border', statusStyles.badge]">
+                <span :class="['size-2 rounded-full', statusStyles.dot]" />
+                {{ statusStyles.label }}
+              </span>
+              <Button class="h-10 gap-2 bg-nfuko-primary hover:bg-nfuko-primary/90 text-white font-bold rounded-xl" @click="openEdit">
+                <Pencil class="size-4" /> Edit Profile
+              </Button>
+            </div>
           </div>
+        </div>
 
-          <div class="px-6 pb-6">
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between -mt-12">
-              <div class="flex items-end gap-4">
-                <div class="size-24 rounded-3xl overflow-hidden ring-4 ring-white dark:ring-neutral-900 shadow-xl shrink-0">
-                  <img v-if="profile.avatar_url" :src="profile.avatar_url" alt="Avatar" class="size-full object-cover" />
-                  <div v-else class="size-full flex items-center justify-center text-3xl font-black text-white" style="background: linear-gradient(135deg, var(--color-nfuko-primary-950), var(--color-nfuko-primary))">
-                    {{ initials }}
-                  </div>
-                </div>
-                <div class="min-w-0 pb-1">
-                  <div class="flex items-center gap-2">
-                    <h2 class="text-2xl font-black text-neutral-900 dark:text-white leading-tight truncate">{{ displayName }}</h2>
-                    <BadgeCheck v-if="isVerified" class="size-5 text-nfuko-primary shrink-0" />
-                  </div>
-                  <div class="flex items-center gap-1.5 mt-0.5 text-sm font-medium text-neutral-500">
-                    <Mail class="size-3.5 shrink-0" />
-                    <span class="truncate">{{ profile.staff_email ?? '—' }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="flex items-center gap-2">
-                <span :class="['inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-black border', statusStyles.badge]">
-                  <span :class="['size-2 rounded-full', statusStyles.dot]" />
-                  {{ statusStyles.label }}
-                </span>
-                <Button class="h-10 gap-2 bg-nfuko-primary hover:bg-nfuko-primary/90 text-white font-bold rounded-xl" @click="openEdit">
-                  <Pencil class="size-4" /> Edit Profile
-                </Button>
-              </div>
+        <!-- Quick stats (full width) -->
+        <div class="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div class="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
+            <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-neutral-400 mb-1.5">
+              <ShieldCheck class="size-3.5" /> System Role
             </div>
-
-            <!-- Quick stats -->
-            <div class="mt-6 grid gap-3 sm:grid-cols-3">
-              <div class="rounded-2xl border border-neutral-100 dark:border-neutral-800 bg-neutral-50/60 dark:bg-neutral-800/40 p-4">
-                <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-neutral-400 mb-1.5">
-                  <ShieldCheck class="size-3.5" /> System Role
-                </div>
-                <p class="text-sm font-black text-neutral-800 dark:text-neutral-100 capitalize truncate">{{ profile.system_role ?? '—' }}</p>
-              </div>
-              <div class="rounded-2xl border border-neutral-100 dark:border-neutral-800 bg-neutral-50/60 dark:bg-neutral-800/40 p-4">
-                <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-neutral-400 mb-1.5">
-                  <CalendarDays class="size-3.5" /> Member Since
-                </div>
-                <p class="text-sm font-black text-neutral-800 dark:text-neutral-100 truncate">{{ fmtDate(profile.created_at) }}</p>
-              </div>
-              <div class="rounded-2xl border border-neutral-100 dark:border-neutral-800 bg-neutral-50/60 dark:bg-neutral-800/40 p-4">
-                <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-neutral-400 mb-1.5">
-                  <Hash class="size-3.5" /> Account ID
-                </div>
-                <p class="text-sm font-black text-neutral-800 dark:text-neutral-100 truncate">#{{ profile.id }}</p>
-              </div>
+            <p class="text-sm font-black text-neutral-800 dark:text-neutral-100 capitalize truncate">{{ profile.system_role ?? '—' }}</p>
+          </div>
+          <div class="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
+            <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-neutral-400 mb-1.5">
+              <CalendarDays class="size-3.5" /> Member Since
             </div>
+            <p class="text-sm font-black text-neutral-800 dark:text-neutral-100 truncate">{{ fmtDate(profile.created_at) }}</p>
+          </div>
+          <div class="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
+            <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-neutral-400 mb-1.5">
+              <Hash class="size-3.5" /> Account ID
+            </div>
+            <p class="text-sm font-black text-neutral-800 dark:text-neutral-100 truncate">#{{ profile.id }}</p>
+          </div>
+          <div class="rounded-2xl border border-neutral-200/80 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
+            <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-neutral-400 mb-1.5">
+              <BadgeCheck class="size-3.5" /> Email Status
+            </div>
+            <p class="text-sm font-black capitalize truncate" :class="isVerified ? 'text-green-600' : 'text-amber-600'">{{ isVerified ? 'Verified' : 'Unverified' }}</p>
           </div>
         </div>
 
@@ -303,7 +303,7 @@ onMounted(load)
           <div class="flex items-center gap-4">
             <div class="size-20 rounded-2xl overflow-hidden ring-1 ring-neutral-200 shadow-sm shrink-0">
               <img v-if="avatarPreview" :src="avatarPreview" alt="Avatar preview" class="size-full object-cover" />
-              <div v-else class="size-full flex items-center justify-center text-xl font-black text-white" style="background: linear-gradient(135deg, var(--color-nfuko-primary-950), var(--color-nfuko-primary))">
+              <div v-else class="size-full flex items-center justify-center text-xl font-black text-white bg-nfuko-primary-950">
                 {{ initials }}
               </div>
             </div>
