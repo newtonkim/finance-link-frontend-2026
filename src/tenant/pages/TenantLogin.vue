@@ -111,7 +111,7 @@ async function submit() {
     <!-- SACCO badge -->
     <div class="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl bg-[#F0F5FF] border border-[#D0E2FF]">
       <div class="size-8 rounded-lg bg-white flex items-center justify-center shrink-0 overflow-hidden">
-        <img src="/images/finance_link_logo_updated.png" alt="Logo" class="size-full object-contain p-1" />
+        <img src="/images/finance-link-logo.png" alt="Logo" class="size-full object-contain p-1" />
       </div>
       <div>
         <p class="text-xs text-neutral-500 font-medium">Tenant Portal</p>
@@ -178,7 +178,7 @@ async function submit() {
             </div>
             <div
               class="relative size-36 bg-white rounded-[2.5rem] flex items-center justify-center shadow-2xl overflow-hidden p-6">
-              <img src="/images/finance_link_logo_updated.png" alt="Mfuko Pro" class="size-full object-contain" />
+              <img src="/images/finance-link-logo.png" alt="Mfuko Pro" class="size-full object-contain" />
             </div>
           </div>
 

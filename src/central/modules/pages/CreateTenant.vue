@@ -155,7 +155,7 @@ function onNameInput() {
                             ? 'bg-white dark:bg-white  text-nfuko-primary shadow-lg shadow-bg-nfuko-primary/20 dark:shadow-white/20'
                             : 'bg-neutral-100 dark:bg-white/5 text-neutral-400 dark:text-neutral-500'
                             ">
-                        <img v-if="index === 0" src="/images/finance_link_logo_updated.png" alt="Logo"
+                        <img v-if="index === 0" src="/images/finance-link-logo.png" alt="Logo"
                             class="size-full object-contain" />
                         <component v-else :is="step.icon" class="size-5" />
                     </div>

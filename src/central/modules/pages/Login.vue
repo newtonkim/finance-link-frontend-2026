@@ -237,7 +237,7 @@ const submit = async () => {
               class="relative w-48 h-48 bg-white backdrop-blur-2xl border border-white/20 rounded-[3rem] flex flex-col items-center justify-center shadow-2xl transition-all duration-500 group-hover:scale-105 overflow-hidden"
             >
               <img
-                src="/images/finance_link_logo_updated.png"
+                src="/images/finance-link-logo.png"
                 alt="Mfuko Plus Logo"
                 class="w-full h-full object-contain p-6"
               />
