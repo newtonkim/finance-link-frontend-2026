@@ -16,6 +16,12 @@ export const centarRoutes: any = [
     showSideBar: true,
   },
   {
+    path: 'my-profile',
+    label: 'My Profile',
+    showSideBar: false,
+    component: () => import('./profile/MyProfile.vue'),
+  },
+  {
     path: 'licenses',
     label: 'Licenses',
     permissions: 'licenses-module-link-view',
