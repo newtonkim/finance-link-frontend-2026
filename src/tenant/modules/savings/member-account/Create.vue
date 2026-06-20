@@ -1,21 +1,79 @@
 <template>
-  <div class="card shadow-md px-4 py-3 bg-white dark:bg-neutral-800 rounded-md">
-    <span v-if="loading"></span>
-    <Form :action="data?.action" v-else parentStyle="grid  grid-cols-1 gap-3" v-model:form="fields" />
-    <br>
-    <br>
-    <br>
-    <br>
-  
-   
+  <div class="flex flex-col h-full px-1">
+    <!-- Loading -->
+    <div v-if="loading" class="flex items-center justify-center py-16">
+      <span class="size-8 animate-spin rounded-full border-[3px] border-[#cda434]/20 border-t-[#cda434]"></span>
+    </div>
+
+    <template v-else>
+      <!-- Member / new account header -->
+      <div class="rounded-2xl bg-gradient-to-br from-[#cda434] to-[#9c7d24] p-5 text-white shadow-sm mb-6 relative overflow-hidden">
+        <div class="absolute -top-8 -right-8 size-32 rounded-full bg-white/10 blur-2xl"></div>
+        <div class="relative flex items-center gap-4">
+          <div class="size-12 rounded-2xl bg-white/15 ring-1 ring-white/20 flex items-center justify-center shrink-0 font-black text-lg">
+            {{ memberInitials }}
+          </div>
+          <div class="min-w-0">
+            <p class="text-[10px] uppercase tracking-wider text-white/60 font-bold">New Savings Account</p>
+            <h3 class="text-lg font-black mt-0.5 truncate">{{ memberName }}</h3>
+            <button v-if="memberCode" type="button" @click="copyCode"
+              class="flex items-center gap-1.5 mt-0.5 text-white/75 hover:text-white text-[12px] font-mono transition-colors">
+              {{ memberCode }}
+              <component :is="copied ? Check : Copy" :size="12" :class="copied ? 'text-white' : ''" />
+            </button>
+          </div>
+          <div class="ml-auto shrink-0 hidden sm:flex">
+            <PiggyBank :size="40" class="text-white/30" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Account details form -->
+      <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+        <p class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-4">
+          <Wallet :size="13" /> Account Details
+        </p>
+        <Form :action="data?.action" parentStyle="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5" v-model:form="fields" />
+
+        <!-- Live initial-deposit summary -->
+        <div v-if="enteredDeposit > 0 || enteredCharge > 0"
+          class="mt-5 rounded-xl border border-gray-100 bg-gray-50/70 divide-y divide-gray-100">
+          <div class="flex items-center justify-between px-4 py-2.5">
+            <span class="text-[13px] font-medium text-gray-500">Initial deposit</span>
+            <span class="text-[13px] font-bold text-gray-800 tabular-nums">{{ currencyCode }} {{ formatMoneyValue(enteredDeposit) }}</span>
+          </div>
+          <div class="flex items-center justify-between px-4 py-2.5">
+            <span class="text-[13px] font-medium text-gray-500">Charges</span>
+            <span class="text-[13px] font-bold text-gray-800 tabular-nums">{{ currencyCode }} {{ formatMoneyValue(enteredCharge) }}</span>
+          </div>
+          <div class="flex items-center justify-between px-4 py-3 bg-white rounded-b-xl">
+            <span class="flex items-center gap-1.5 text-[13px] font-bold text-gray-700"><ReceiptText :size="14" class="text-[#cda434]" /> Total to collect</span>
+            <span class="text-base font-black text-[#cda434] tabular-nums">{{ currencyCode }} {{ formatMoneyValue(totalToCollect) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Note -->
+      <div class="mt-5 flex items-start gap-2.5 rounded-xl bg-amber-50/60 border border-amber-100 px-4 py-3">
+        <Info :size="15" class="text-amber-500 shrink-0 mt-0.5" />
+        <p class="text-[12px] text-amber-700 leading-relaxed">
+          Opening this account posts the initial deposit and any charges immediately to the member's account and the general ledger.
+        </p>
+      </div>
+    </template>
   </div>
 
 </template>
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
-import { exptendAformField, Form, getSystemSetting, tryCatch } from '@/Global'
+import { ref, computed, onMounted, watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import { PiggyBank, Wallet, Copy, Check, Info, ReceiptText } from 'lucide-vue-next'
+import { exptendAformField, Form, formatMoneyValue, getSystemSetting, tryCatch } from '@/Global'
 import { memberAccountApi } from '@/tenant/apis'
+import { useCurrencyStore } from '@/stores/currency'
 import debounce from 'lodash/debounce'
+
+const { currencyCode } = storeToRefs(useCurrencyStore())
 const { getProductCharges } = memberAccountApi()
 
 const emits = defineEmits(['update:form']),
@@ -167,6 +225,37 @@ const emits = defineEmits(['update:form']),
       placeholder: 'Enter account Status',
     },
   ] as any[])
+// ── Header context + live initial-deposit summary ───────────────────────────
+const memberName = computed(() => props.data?.full_name || props.data?.member_name || 'New Account')
+const memberCode = computed(() => props.data?.memeber_code || props.data?.member_code || '')
+const memberInitials = computed(() => {
+  const words = String(memberName.value).trim().split(/\s+/).filter(Boolean)
+  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase()
+  return String(memberName.value).slice(0, 2).toUpperCase()
+})
+
+const enteredDeposit = computed(() => {
+  const f = fields.value.find((x: any) => x.name === 'in_deposit')
+  const n = Number(f?.value)
+  return isNaN(n) ? 0 : n
+})
+const enteredCharge = computed(() => {
+  const f = fields.value.find((x: any) => x.name === 'charges')
+  const match = String(f?.value ?? '').match(/[\d,.]+/)
+  const n = match ? Number(match[0].replace(/,/g, '')) : 0
+  return isNaN(n) ? 0 : n
+})
+const totalToCollect = computed(() => enteredDeposit.value + enteredCharge.value)
+
+const copied = ref(false)
+function copyCode() {
+  if (!memberCode.value) return
+  navigator.clipboard?.writeText(String(memberCode.value)).then(() => {
+    copied.value = true
+    setTimeout(() => (copied.value = false), 1500)
+  })
+}
+
 async function promtValueOnUpdate() {
   loading.value = true
   if (props.data) {
