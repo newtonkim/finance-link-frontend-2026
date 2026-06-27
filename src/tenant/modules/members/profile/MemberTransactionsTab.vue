@@ -427,8 +427,8 @@ function clearFilters() {
 
                 <div
                     :class="[
-                        'grid w-full grid-cols-2 gap-3 sm:grid-cols-3',
-                        hideDebitAndCharges ? 'xl:max-w-2xl xl:grid-cols-3' : 'xl:max-w-3xl xl:grid-cols-5',
+                        'grid w-full grid-cols-2 gap-3 sm:grid-cols-3 xl:ml-auto xl:shrink-0',
+                        hideChargeRows ? 'xl:max-w-2xl xl:grid-cols-3' : 'xl:max-w-3xl xl:grid-cols-5',
                     ]"
                 >
                     <div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
