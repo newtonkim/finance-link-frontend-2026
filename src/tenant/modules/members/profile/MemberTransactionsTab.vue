@@ -136,11 +136,6 @@ function debitAmount(txn: any): number {
     return 0;
 }
 
-function displayDebitAmount(txn: any): number {
-    if (isCharge(txn)) return chargeAmount(txn);
-    return debitAmount(txn);
-}
-
 function creditAmount(txn: any): number {
     if (isDeposit(txn) || isShare(txn)) return principalAmount(txn);
     if (isReversal(txn) && amountOf(txn?.amount) >= 0) return principalAmount(txn);
@@ -292,20 +287,40 @@ const filtered = computed(() => {
     return txns;
 });
 
-const runningBalances = computed(() => {
-    const balances = new Map<string, number>();
-    let running = 0;
+function accountKey(txn: any): string {
+    return String(txn?.account?.id ?? txn?.account_id ?? accountNumber(txn) ?? 'default');
+}
 
-    filtered.value.forEach((txn: any) => {
-        running += creditAmount(txn) - debitAmount(txn);
-        balances.set(transactionKey(txn), running);
+// Running balance is computed on the FULL transaction set, oldest-first, and
+// segregated per account — never on the filtered/sorted view. This makes each
+// row's balance reflect the real account position after that posting, no matter
+// how the ledger is currently sorted, paged, or filtered.
+const ledgerBalances = computed(() => {
+    const byTxn = new Map<string, number>();
+    const byAccount = new Map<string, number>();
+
+    const ordered = [...(props.transactions || [])].sort((a: any, b: any) => {
+        const da = transactionDate(a) || '';
+        const db = transactionDate(b) || '';
+        if (da !== db) return da < db ? -1 : 1;
+        return amountOf(a?.id) - amountOf(b?.id);
     });
 
-    return balances;
+    ordered.forEach((txn: any) => {
+        const acct = accountKey(txn);
+        const next = (byAccount.get(acct) ?? 0) + creditAmount(txn) - debitAmount(txn);
+        byAccount.set(acct, next);
+        byTxn.set(transactionKey(txn), next);
+    });
+
+    let current = 0;
+    byAccount.forEach((value) => (current += value));
+
+    return { byTxn, current };
 });
 
 function displayRunningBalance(txn: any): number | null {
-    return runningBalances.value.get(transactionKey(txn)) ?? null;
+    return ledgerBalances.value.byTxn.get(transactionKey(txn)) ?? null;
 }
 
 const totals = computed(() => {
@@ -318,7 +333,7 @@ const totals = computed(() => {
         credit,
         charges,
         net: credit - debit,
-        latestBalance: filtered.value.length ? credit - debit : null,
+        latestBalance: props.transactions?.length ? ledgerBalances.value.current : null,
         postedCount: filtered.value.filter((txn: any) => transactionStatus(txn) === 'posted').length,
     };
 });
@@ -567,8 +582,8 @@ function clearFilters() {
                         </td>
 
                         <td class="px-5 py-4 text-right align-top">
-                            <span v-if="displayDebitAmount(txn)" class="font-mono text-sm font-bold text-rose-700">
-                                {{ formatCurrency(displayDebitAmount(txn)) }}
+                            <span v-if="debitAmount(txn)" class="font-mono text-sm font-bold text-rose-700">
+                                {{ formatCurrency(debitAmount(txn)) }}
                             </span>
                             <span v-else class="text-slate-300">-</span>
                         </td>
@@ -678,7 +693,7 @@ function clearFilters() {
                         </td>
                         <td :colspan="totalsTrailingColspan" class="px-5 py-4 align-top">
                             <div class="max-w-md text-xs font-semibold text-slate-500">
-                                Running balance is calculated from the displayed debit and credit movements, not summed.
+                                Running balance is the per-account ledger position after each posting (full history, oldest first) — independent of the filters, sort, or page above.
                             </div>
                         </td>
                     </tr>
