@@ -80,23 +80,23 @@ function chargeAmount(txn: any): number {
     return 0;
 }
 
-function postedAmount(txn: any): number {
-    const afterCharges = amountOf(txn?.amount_after_charge);
-    if (afterCharges) return absoluteAmount(afterCharges);
+function principalAmount(txn: any): number {
+    const beforeCharges = amountOf(txn?.amount_before_charge);
+    if (beforeCharges) return absoluteAmount(beforeCharges);
     const amount = amountOf(txn?.amount);
     if (amount) return absoluteAmount(amount);
-    return absoluteAmount(txn?.amount_before_charge);
+    return absoluteAmount(txn?.amount_after_charge);
 }
 
 function debitAmount(txn: any): number {
-    if (isWithdrawal(txn) || isCharge(txn)) return isCharge(txn) ? chargeAmount(txn) : postedAmount(txn);
-    if (isReversal(txn) && amountOf(txn?.amount) < 0) return postedAmount(txn);
+    if (isWithdrawal(txn) || isCharge(txn)) return isCharge(txn) ? chargeAmount(txn) : principalAmount(txn);
+    if (isReversal(txn) && amountOf(txn?.amount) < 0) return principalAmount(txn);
     return 0;
 }
 
 function creditAmount(txn: any): number {
-    if (isDeposit(txn) || isShare(txn)) return postedAmount(txn);
-    if (isReversal(txn) && amountOf(txn?.amount) >= 0) return postedAmount(txn);
+    if (isDeposit(txn) || isShare(txn)) return principalAmount(txn);
+    if (isReversal(txn) && amountOf(txn?.amount) >= 0) return principalAmount(txn);
     return 0;
 }
 
@@ -113,20 +113,32 @@ function balanceFromNarration(txn: any): number | null {
     return match ? amountOf(match[1]) : null;
 }
 
+function balanceBefore(txn: any): number | null {
+    if (txn?.running_balance === undefined || txn?.running_balance === null || txn?.running_balance === '') return null;
+    return amountOf(txn.running_balance);
+}
+
+function groupedRootTransaction(txn: any): any | null {
+    if (!txn?.grouped_with) return null;
+    return (props.transactions || []).find((candidate: any) => candidate?.reference === txn.grouped_with) || null;
+}
+
 function runningBalance(txn: any): number | null {
     if (txn?.balance_after !== undefined && txn?.balance_after !== null) return amountOf(txn.balance_after);
 
     const narrationBalance = balanceFromNarration(txn);
     if (narrationBalance !== null) return narrationBalance;
 
-    if (txn?.running_balance !== undefined && txn?.running_balance !== null) {
-        if (!isCharge(txn) && txn?.amount !== undefined && txn?.amount !== null) {
-            return amountOf(txn.amount) + amountOf(txn.running_balance);
+    if (isCharge(txn)) {
+        const root = groupedRootTransaction(txn);
+        const rootBefore = root ? balanceBefore(root) : null;
+        if (root && rootBefore !== null) {
+            return rootBefore + creditAmount(root) - debitAmount(root) - chargeAmount(txn);
         }
-        return amountOf(txn.running_balance);
     }
 
-    return null;
+    const before = balanceBefore(txn);
+    return before === null ? null : before + creditAmount(txn) - debitAmount(txn);
 }
 
 function transactionTimestamp(txn: any): number {
