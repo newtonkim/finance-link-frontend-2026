@@ -129,6 +129,11 @@ function runningBalance(txn: any): number | null {
     return null;
 }
 
+function transactionTimestamp(txn: any): number {
+    const timestamp = new Date(transactionDate(txn)).getTime();
+    return Number.isFinite(timestamp) ? timestamp : 0;
+}
+
 function transactionDate(txn: any): string {
     return txn?.transaction_date || txn?.created_at || '';
 }
@@ -266,12 +271,19 @@ const totals = computed(() => {
     const debit = filtered.value.reduce((sum: number, txn: any) => sum + debitAmount(txn), 0);
     const credit = filtered.value.reduce((sum: number, txn: any) => sum + creditAmount(txn), 0);
     const charges = filtered.value.reduce((sum: number, txn: any) => sum + chargeAmount(txn), 0);
+    const latestBalanceTxn = filtered.value.reduce((latest: any | null, txn: any) => {
+        if (runningBalance(txn) === null) return latest;
+        if (!latest) return txn;
+        return transactionTimestamp(txn) >= transactionTimestamp(latest) ? txn : latest;
+    }, null);
 
     return {
         debit,
         credit,
         charges,
         net: credit - debit,
+        latestBalance: latestBalanceTxn ? runningBalance(latestBalanceTxn) : null,
+        latestBalanceAccount: latestBalanceTxn ? accountNumber(latestBalanceTxn) : null,
         postedCount: filtered.value.filter((txn: any) => transactionStatus(txn) === 'posted').length,
     };
 });
@@ -290,6 +302,17 @@ const tableColspan = computed(() => {
     if (props.mode === 'all') count += 1;
     return count;
 });
+
+const totalsLabelColspan = computed(() => 2 + (showLedgerAccountColumn.value ? 1 : 0));
+
+const totalsTrailingColspan = computed(() => {
+    let count = 3;
+    if (props.mode === 'all') count += 1;
+    if (!props.showTable) count += 1;
+    return count;
+});
+
+const balanceFooterLabel = computed(() => (props.mode === 'all' ? 'Latest balance' : 'Closing balance'));
 
 watch([filtered, perPage], () => {
     if (currentPage.value > totalPages.value) currentPage.value = totalPages.value;
@@ -593,6 +616,42 @@ function clearFilters() {
                         </td>
                     </tr>
                 </tbody>
+                <tfoot v-if="filtered.length" class="border-t-2 border-slate-200 bg-slate-50">
+                    <tr>
+                        <td :colspan="totalsLabelColspan" class="px-5 py-4">
+                            <div class="text-[11px] font-bold uppercase tracking-wide text-slate-500">Filtered totals</div>
+                            <div class="mt-0.5 text-xs font-semibold text-slate-500">
+                                {{ filtered.length }} ledger entr{{ filtered.length === 1 ? 'y' : 'ies' }}
+                            </div>
+                        </td>
+                        <td class="px-5 py-4 text-right align-top">
+                            <div class="text-[11px] font-bold uppercase tracking-wide text-rose-600">Total debit</div>
+                            <div class="mt-1 font-mono text-sm font-bold text-rose-800">{{ formatCurrency(totals.debit) }}</div>
+                        </td>
+                        <td class="px-5 py-4 text-right align-top">
+                            <div class="text-[11px] font-bold uppercase tracking-wide text-emerald-600">Total credit</div>
+                            <div class="mt-1 font-mono text-sm font-bold text-emerald-800">{{ formatCurrency(totals.credit) }}</div>
+                        </td>
+                        <td class="px-5 py-4 text-right align-top">
+                            <div class="text-[11px] font-bold uppercase tracking-wide text-slate-500">{{ balanceFooterLabel }}</div>
+                            <div v-if="totals.latestBalance !== null" class="mt-1 font-mono text-sm font-bold text-slate-950">
+                                {{ formatCurrency(totals.latestBalance ?? 0) }}
+                            </div>
+                            <div v-else class="mt-1 text-sm font-bold text-slate-300">-</div>
+                            <div
+                                v-if="mode === 'all' && totals.latestBalanceAccount && totals.latestBalanceAccount !== '-'"
+                                class="mt-0.5 font-mono text-[11px] font-semibold text-slate-500"
+                            >
+                                {{ totals.latestBalanceAccount }}
+                            </div>
+                        </td>
+                        <td :colspan="totalsTrailingColspan" class="px-5 py-4 align-top">
+                            <div class="max-w-md text-xs font-semibold text-slate-500">
+                                Running balance is shown as a latest/closing balance, not summed.
+                            </div>
+                        </td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
 
