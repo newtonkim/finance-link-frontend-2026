@@ -46,8 +46,8 @@ const modeTitle = computed(() => {
 });
 
 const modeSubtitle = computed(() => {
-    if (props.mode === 'deposit') return 'Posted deposit entries, fee debits, receipts, and running balances.';
-    if (props.mode === 'withdrawal') return 'Posted withdrawals, fee debits, receipts, and running balances.';
+    if (props.mode === 'deposit') return 'Posted deposit entries, charges, receipts, and running balances.';
+    if (props.mode === 'withdrawal') return 'Posted withdrawals, charges deducted from payout, receipts, and running balances.';
     if (props.mode === 'share-transaction') return 'Share activity with receipt references and account audit trail.';
     return 'Unified member ledger with debit, credit, account context, receipt, and running balance.';
 });
@@ -60,6 +60,8 @@ const isDeposit = (txn: any) => normalizedType(txn) === 'deposit';
 const isCharge = (txn: any) => normalizedType(txn).includes('charge');
 const isReversal = (txn: any) => normalizedType(txn) === 'reversal';
 const isShare = (txn: any) => normalizedType(txn) === 'share-transaction';
+const canPrintReceipt = (txn: any) => Boolean(txn?.id) && !isCharge(txn);
+const canReverseTransaction = (txn: any) => !isCharge(txn) && !txn?.is_reversed && !isReversal(txn) && txn?.is_reversible !== false;
 
 function amountOf(value: unknown): number {
     if (value === null || value === undefined || value === '') return 0;
@@ -88,10 +90,55 @@ function principalAmount(txn: any): number {
     return absoluteAmount(txn?.amount_after_charge);
 }
 
+function relatedRootTransaction(txn: any): any | null {
+    const keys = [txn?.receipt_number, txn?.umbrella_code, txn?.grouped_with]
+        .filter(Boolean)
+        .map(String);
+
+    if (!keys.length) return null;
+
+    return (props.transactions || []).find((candidate: any) => {
+        if (candidate?.id === txn?.id) return false;
+        if (!isDeposit(candidate) && !isWithdrawal(candidate)) return false;
+
+        return [candidate?.receipt_number, candidate?.umbrella_code, candidate?.reference, candidate?.grouped_with]
+            .filter(Boolean)
+            .map(String)
+            .some((value) => keys.includes(value));
+    }) || null;
+}
+
+function isWithdrawalCharge(txn: any): boolean {
+    if (!isCharge(txn)) return false;
+    const type = normalizedType(txn);
+    if (type.includes('withdraw')) return true;
+
+    const text = [
+        txn?.narration,
+        txn?.charge_name,
+        txn?.transaction_type,
+        txn?.account_type,
+    ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+
+    if (text.includes('withdraw')) return true;
+
+    const root = relatedRootTransaction(txn);
+    return root ? isWithdrawal(root) : false;
+}
+
 function debitAmount(txn: any): number {
-    if (isWithdrawal(txn) || isCharge(txn)) return isCharge(txn) ? chargeAmount(txn) : principalAmount(txn);
+    if (isCharge(txn)) return isWithdrawalCharge(txn) ? 0 : chargeAmount(txn);
+    if (isWithdrawal(txn)) return principalAmount(txn);
     if (isReversal(txn) && amountOf(txn?.amount) < 0) return principalAmount(txn);
     return 0;
+}
+
+function displayDebitAmount(txn: any): number {
+    if (isCharge(txn)) return chargeAmount(txn);
+    return debitAmount(txn);
 }
 
 function creditAmount(txn: any): number {
@@ -350,7 +397,7 @@ function clearFilters() {
                         <p class="mt-1 font-mono text-sm font-bold text-rose-800">{{ formatCurrency(totals.debit) }}</p>
                     </div>
                     <div class="rounded-lg border border-amber-100 bg-amber-50 px-3 py-2">
-                        <p class="text-[10px] font-bold uppercase tracking-wide text-amber-700">Fee debits</p>
+                        <p class="text-[10px] font-bold uppercase tracking-wide text-amber-700">Charges</p>
                         <p class="mt-1 font-mono text-sm font-bold text-amber-800">{{ formatCurrency(totals.charges) }}</p>
                     </div>
                     <div class="rounded-lg border border-slate-200 bg-white px-3 py-2">
@@ -520,8 +567,8 @@ function clearFilters() {
                         </td>
 
                         <td class="px-5 py-4 text-right align-top">
-                            <span v-if="debitAmount(txn)" class="font-mono text-sm font-bold text-rose-700">
-                                {{ formatCurrency(debitAmount(txn)) }}
+                            <span v-if="displayDebitAmount(txn)" class="font-mono text-sm font-bold text-rose-700">
+                                {{ formatCurrency(displayDebitAmount(txn)) }}
                             </span>
                             <span v-else class="text-slate-300">-</span>
                         </td>
@@ -552,13 +599,13 @@ function clearFilters() {
                         <td class="px-5 py-4 align-top">
                             <div class="flex items-start gap-2">
                                 <div>
-                                    <div class="font-mono text-sm font-bold text-slate-900">{{ txn.reference || '-' }}</div>
+                                    <div class="font-mono text-sm font-bold text-slate-900">{{ txn.receipt_number || txn.umbrella_code || txn.grouped_with || txn.reference || '-' }}</div>
                                     <div class="mt-0.5 text-[11px] font-semibold text-slate-500">
                                         {{ txn.transaction_date ? formatDate(txn.transaction_date) : 'No value date' }}
                                     </div>
                                 </div>
                                 <button
-                                    v-if="txn.reference"
+                                    v-if="canPrintReceipt(txn)"
                                     type="button"
                                     class="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-700 transition hover:border-blue-200 hover:bg-blue-100"
                                     title="Print receipt"
@@ -587,12 +634,13 @@ function clearFilters() {
 
                         <td v-if="!showTable" class="px-5 py-4 text-center align-top">
                             <button
+                                v-if="!isCharge(txn)"
                                 type="button"
-                                :disabled="txn.is_reversed || isReversal(txn) || txn.is_reversible === false"
+                                :disabled="!canReverseTransaction(txn)"
                                 :title="txn.is_reversed ? 'Already reversed' : isReversal(txn) ? 'Reversal entry' : txn.is_reversible === false ? 'Locked transaction' : 'Reverse transaction'"
                                 :class="[
                                     'mx-auto inline-flex h-8 w-8 items-center justify-center rounded-lg border transition',
-                                    txn.is_reversed || isReversal(txn) || txn.is_reversible === false
+                                    !canReverseTransaction(txn)
                                         ? 'cursor-not-allowed border-slate-200 bg-slate-50 text-slate-300'
                                         : 'border-amber-100 bg-amber-50 text-amber-700 hover:border-amber-200 hover:bg-amber-100',
                                 ]"
@@ -601,6 +649,7 @@ function clearFilters() {
                                 <RotateCcw :size="15" stroke-width="2.5" />
                                 <span class="sr-only">Reverse transaction</span>
                             </button>
+                            <span v-else class="text-slate-300">-</span>
                         </td>
                     </tr>
                 </tbody>
