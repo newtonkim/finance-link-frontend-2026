@@ -46,11 +46,13 @@ const modeTitle = computed(() => {
 });
 
 const modeSubtitle = computed(() => {
-    if (props.mode === 'deposit') return 'Posted deposit entries, charges, receipts, and resulting balances.';
-    if (props.mode === 'withdrawal') return 'Posted withdrawals, withdrawal charges, receipts, and resulting balances.';
+    if (props.mode === 'deposit') return 'Posted deposit entries, fee debits, receipts, and running balances.';
+    if (props.mode === 'withdrawal') return 'Posted withdrawals, fee debits, receipts, and running balances.';
     if (props.mode === 'share-transaction') return 'Share activity with receipt references and account audit trail.';
-    return 'Unified member ledger with debit, credit, charges, receipt, and reversal status.';
+    return 'Unified member ledger with debit, credit, account context, receipt, and running balance.';
 });
+
+const showLedgerAccountColumn = computed(() => props.showAccountColumn || props.mode === 'all');
 
 const normalizedType = (txn: any) => String(txn?.type ?? '').toLowerCase();
 const isWithdrawal = (txn: any) => ['withdrawal', 'withdraw'].includes(normalizedType(txn));
@@ -98,15 +100,32 @@ function creditAmount(txn: any): number {
     return 0;
 }
 
-function balanceAfter(txn: any): number | null {
-    if (isCharge(txn)) return null;
+function accountNumber(txn: any): string {
+    return txn?.account?.account_no || txn?.account_no || txn?.savings_account?.account_no || txn?.member_account?.account_no || '-';
+}
+
+function accountType(txn: any): string {
+    return txn?.account?.account_type || txn?.account_type || txn?.savings_account?.account_type || txn?.member_account?.account_type || 'Member account';
+}
+
+function balanceFromNarration(txn: any): number | null {
+    const match = String(txn?.narration || '').match(/\b(?:blc|balance)\s*:?\s*(-?\d[\d,]*(?:\.\d+)?)/i);
+    return match ? amountOf(match[1]) : null;
+}
+
+function runningBalance(txn: any): number | null {
     if (txn?.balance_after !== undefined && txn?.balance_after !== null) return amountOf(txn.balance_after);
+
+    const narrationBalance = balanceFromNarration(txn);
+    if (narrationBalance !== null) return narrationBalance;
+
     if (txn?.running_balance !== undefined && txn?.running_balance !== null) {
-        if (txn?.amount !== undefined && txn?.amount !== null) {
+        if (!isCharge(txn) && txn?.amount !== undefined && txn?.amount !== null) {
             return amountOf(txn.amount) + amountOf(txn.running_balance);
         }
         return amountOf(txn.running_balance);
     }
+
     return null;
 }
 
@@ -146,6 +165,33 @@ function statusBadgeClass(status: string): string {
     return 'bg-rose-50 text-rose-700 ring-rose-600/20';
 }
 
+function formatNarrationAmount(value: string): string {
+    return amountOf(value).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
+}
+
+function displayNarration(txn: any): string {
+    const fallback = isDeposit(txn) ? 'Member deposit' : isWithdrawal(txn) ? 'Member withdrawal' : typeLabel(txn);
+    const narration = String(txn?.narration || fallback).trim();
+
+    if (!isCharge(txn)) return narration;
+
+    const chargeOfMatch = narration.match(/^(.+?\bcharges?\s+of\s+)(-?\d[\d,]*(?:\.\d+)?)/i);
+    if (chargeOfMatch) {
+        return `${chargeOfMatch[1]}${formatNarrationAmount(chargeOfMatch[2])}`;
+    }
+
+    const chargeColonMatch = narration.match(/^(.+?\bcharges?\s*:?\s*)(-?\d[\d,]*(?:\.\d+)?)/i);
+    if (chargeColonMatch) {
+        return `${chargeColonMatch[1]}${formatNarrationAmount(chargeColonMatch[2])}`;
+    }
+
+    if (chargeAmount(txn)) return `${typeLabel(txn)} of ${formatNarrationAmount(String(chargeAmount(txn)))}`;
+    return narration;
+}
+
 const filtered = computed(() => {
     let txns = props.transactions || [];
 
@@ -157,8 +203,8 @@ const filtered = computed(() => {
                 txn?.narration,
                 txn?.deposited_by,
                 txn?.charge_name,
-                txn?.account?.account_no,
-                txn?.account?.account_type,
+                accountNumber(txn),
+                accountType(txn),
                 typeLabel(txn),
             ]
                 .filter(Boolean)
@@ -220,17 +266,12 @@ const totals = computed(() => {
     const debit = filtered.value.reduce((sum: number, txn: any) => sum + debitAmount(txn), 0);
     const credit = filtered.value.reduce((sum: number, txn: any) => sum + creditAmount(txn), 0);
     const charges = filtered.value.reduce((sum: number, txn: any) => sum + chargeAmount(txn), 0);
-    const balanceValues = filtered.value
-        .map(balanceAfter)
-        .filter((value: number | null): value is number => value !== null);
-    const lastBalance = balanceValues.length ? balanceValues[balanceValues.length - 1] : undefined;
 
     return {
         debit,
         credit,
         charges,
         net: credit - debit,
-        closingBalance: lastBalance ?? 0,
         postedCount: filtered.value.filter((txn: any) => transactionStatus(txn) === 'posted').length,
     };
 });
@@ -243,8 +284,9 @@ const paginated = computed(() => {
 });
 
 const tableColspan = computed(() => {
-    let count = 10;
-    if (props.showAccountColumn) count += 1;
+    let count = 8;
+    if (!props.showTable) count += 1;
+    if (showLedgerAccountColumn.value) count += 1;
     if (props.mode === 'all') count += 1;
     return count;
 });
@@ -297,7 +339,7 @@ function clearFilters() {
                         <p class="mt-1 font-mono text-sm font-bold text-rose-800">{{ formatCurrency(totals.debit) }}</p>
                     </div>
                     <div class="rounded-lg border border-amber-100 bg-amber-50 px-3 py-2">
-                        <p class="text-[10px] font-bold uppercase tracking-wide text-amber-700">Charges</p>
+                        <p class="text-[10px] font-bold uppercase tracking-wide text-amber-700">Fee debits</p>
                         <p class="mt-1 font-mono text-sm font-bold text-amber-800">{{ formatCurrency(totals.charges) }}</p>
                     </div>
                     <div class="rounded-lg border border-slate-200 bg-white px-3 py-2">
@@ -407,16 +449,15 @@ function clearFilters() {
         </div>
 
         <div class="overflow-x-auto border-b border-slate-200 bg-white">
-            <table class="w-full min-w-[1180px] border-collapse text-left">
+            <table class="w-full min-w-[1160px] border-collapse text-left">
                 <thead>
                     <tr class="border-b border-slate-200 bg-slate-50 text-[11px] font-bold uppercase tracking-wide text-slate-500">
                         <th class="px-5 py-3">Value date</th>
                         <th class="px-5 py-3">Transaction</th>
-                        <th v-if="showAccountColumn" class="px-5 py-3">Account</th>
+                        <th v-if="showLedgerAccountColumn" class="px-5 py-3">Account</th>
                         <th class="px-5 py-3 text-right">Debit</th>
                         <th class="px-5 py-3 text-right">Credit</th>
-                        <th class="px-5 py-3 text-right">Charge</th>
-                        <th class="px-5 py-3 text-right">Balance after</th>
+                        <th class="px-5 py-3 text-right">Running balance</th>
                         <th class="px-5 py-3">Narration</th>
                         <th class="px-5 py-3">Receipt</th>
                         <th v-if="mode === 'all'" class="px-5 py-3">Captured by</th>
@@ -462,9 +503,9 @@ function clearFilters() {
                             </div>
                         </td>
 
-                        <td v-if="showAccountColumn" class="px-5 py-4 align-top">
-                            <div class="font-mono text-sm font-bold text-slate-900">{{ txn.account?.account_no || '-' }}</div>
-                            <div class="mt-0.5 text-[11px] font-semibold capitalize text-slate-500">{{ txn.account?.account_type || 'Member account' }}</div>
+                        <td v-if="showLedgerAccountColumn" class="px-5 py-4 align-top">
+                            <div class="font-mono text-sm font-bold text-slate-900">{{ accountNumber(txn) }}</div>
+                            <div class="mt-0.5 text-[11px] font-semibold capitalize text-slate-500">{{ accountType(txn) }}</div>
                         </td>
 
                         <td class="px-5 py-4 text-right align-top">
@@ -482,22 +523,15 @@ function clearFilters() {
                         </td>
 
                         <td class="px-5 py-4 text-right align-top">
-                            <span v-if="chargeAmount(txn)" class="font-mono text-sm font-bold text-amber-700">
-                                {{ formatCurrency(chargeAmount(txn)) }}
+                            <span v-if="runningBalance(txn) !== null" class="font-mono text-sm font-bold text-slate-900">
+                                {{ formatCurrency(runningBalance(txn) ?? 0) }}
                             </span>
                             <span v-else class="text-slate-300">-</span>
                         </td>
 
-                        <td class="px-5 py-4 text-right align-top">
-                            <span v-if="balanceAfter(txn) !== null" class="font-mono text-sm font-bold text-slate-900">
-                                {{ formatCurrency(balanceAfter(txn) ?? 0) }}
-                            </span>
-                            <span v-else class="text-slate-300">-</span>
-                        </td>
-
-                        <td class="max-w-[280px] px-5 py-4 align-top">
+                        <td class="max-w-[340px] px-5 py-4 align-top">
                             <div class="line-clamp-2 text-sm font-semibold text-slate-800">
-                                {{ txn.narration || (isDeposit(txn) ? 'Member deposit' : isWithdrawal(txn) ? 'Member withdrawal' : typeLabel(txn)) }}
+                                {{ displayNarration(txn) }}
                             </div>
                             <div v-if="txn.grouped_with" class="mt-1 font-mono text-[11px] font-semibold text-slate-400">
                                 Group: {{ txn.grouped_with }}
