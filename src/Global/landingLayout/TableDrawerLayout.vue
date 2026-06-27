@@ -58,7 +58,14 @@
             <div class="rounded-2xl    bg-white pt-0 py-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]   dark:bg-neutral-900">
                 <div :class='tableDetaultHeight'
                     class="overflow-x-auto w-full  custom-scrollbar  border-neutral-100 bg-white dark:bg-neutral-900 shadow-sm dark:border-neutral-800 rounded-2xl">
-                    <Table :check="checkBox" :handleAction="handleAction" :action_config="ACTION_CONFIG"
+                    <!-- Opt-in: a page can render a fully bespoke table while keeping all
+                         the drawer machinery (data, actions, drawer, pagination). -->
+                    <slot v-if="$slots.table" name="table"
+                        :rows="Array.isArray(dataFilter) ? dataFilter : []"
+                        :loading="!Array.isArray(dataFilter)"
+                        :columns="columns" :onAction="handleAction"
+                        :actionConfig="ACTION_CONFIG" :permissions="permissions" />
+                    <Table v-else :check="checkBox" :handleAction="handleAction" :action_config="ACTION_CONFIG"
                         :dataFilter="dataFilter" :data="data" :columns="columns" :permissions="permissions">
                         <template v-for="(_, name) in $slots" #[name]="slotProps">
                             <slot :name="name" v-bind="slotProps || {}" />
