@@ -108,42 +108,8 @@ function accountType(txn: any): string {
     return txn?.account?.account_type || txn?.account_type || txn?.savings_account?.account_type || txn?.member_account?.account_type || 'Member account';
 }
 
-function balanceFromNarration(txn: any): number | null {
-    const match = String(txn?.narration || '').match(/\b(?:blc|balance)\s*:?\s*(-?\d[\d,]*(?:\.\d+)?)/i);
-    return match ? amountOf(match[1]) : null;
-}
-
-function balanceBefore(txn: any): number | null {
-    if (txn?.running_balance === undefined || txn?.running_balance === null || txn?.running_balance === '') return null;
-    return amountOf(txn.running_balance);
-}
-
-function groupedRootTransaction(txn: any): any | null {
-    if (!txn?.grouped_with) return null;
-    return (props.transactions || []).find((candidate: any) => candidate?.reference === txn.grouped_with) || null;
-}
-
-function runningBalance(txn: any): number | null {
-    if (txn?.balance_after !== undefined && txn?.balance_after !== null) return amountOf(txn.balance_after);
-
-    const narrationBalance = balanceFromNarration(txn);
-    if (narrationBalance !== null) return narrationBalance;
-
-    if (isCharge(txn)) {
-        const root = groupedRootTransaction(txn);
-        const rootBefore = root ? balanceBefore(root) : null;
-        if (root && rootBefore !== null) {
-            return rootBefore + creditAmount(root) - debitAmount(root) - chargeAmount(txn);
-        }
-    }
-
-    const before = balanceBefore(txn);
-    return before === null ? null : before + creditAmount(txn) - debitAmount(txn);
-}
-
-function transactionTimestamp(txn: any): number {
-    const timestamp = new Date(transactionDate(txn)).getTime();
-    return Number.isFinite(timestamp) ? timestamp : 0;
+function transactionKey(txn: any): string {
+    return String(txn?.id ?? txn?.reference ?? txn?.receipt_number ?? `${transactionDate(txn)}-${typeLabel(txn)}-${principalAmount(txn)}-${chargeAmount(txn)}`);
 }
 
 function transactionDate(txn: any): string {
@@ -279,23 +245,33 @@ const filtered = computed(() => {
     return txns;
 });
 
+const runningBalances = computed(() => {
+    const balances = new Map<string, number>();
+    let running = 0;
+
+    filtered.value.forEach((txn: any) => {
+        running += creditAmount(txn) - debitAmount(txn);
+        balances.set(transactionKey(txn), running);
+    });
+
+    return balances;
+});
+
+function displayRunningBalance(txn: any): number | null {
+    return runningBalances.value.get(transactionKey(txn)) ?? null;
+}
+
 const totals = computed(() => {
     const debit = filtered.value.reduce((sum: number, txn: any) => sum + debitAmount(txn), 0);
     const credit = filtered.value.reduce((sum: number, txn: any) => sum + creditAmount(txn), 0);
     const charges = filtered.value.reduce((sum: number, txn: any) => sum + chargeAmount(txn), 0);
-    const latestBalanceTxn = filtered.value.reduce((latest: any | null, txn: any) => {
-        if (runningBalance(txn) === null) return latest;
-        if (!latest) return txn;
-        return transactionTimestamp(txn) >= transactionTimestamp(latest) ? txn : latest;
-    }, null);
 
     return {
         debit,
         credit,
         charges,
         net: credit - debit,
-        latestBalance: latestBalanceTxn ? runningBalance(latestBalanceTxn) : null,
-        latestBalanceAccount: latestBalanceTxn ? accountNumber(latestBalanceTxn) : null,
+        latestBalance: filtered.value.length ? credit - debit : null,
         postedCount: filtered.value.filter((txn: any) => transactionStatus(txn) === 'posted').length,
     };
 });
@@ -558,8 +534,8 @@ function clearFilters() {
                         </td>
 
                         <td class="px-5 py-4 text-right align-top">
-                            <span v-if="runningBalance(txn) !== null" class="font-mono text-sm font-bold text-slate-900">
-                                {{ formatCurrency(runningBalance(txn) ?? 0) }}
+                            <span v-if="displayRunningBalance(txn) !== null" class="font-mono text-sm font-bold text-slate-900">
+                                {{ formatCurrency(displayRunningBalance(txn) ?? 0) }}
                             </span>
                             <span v-else class="text-slate-300">-</span>
                         </td>
@@ -650,16 +626,10 @@ function clearFilters() {
                                 {{ formatCurrency(totals.latestBalance ?? 0) }}
                             </div>
                             <div v-else class="mt-1 text-sm font-bold text-slate-300">-</div>
-                            <div
-                                v-if="mode === 'all' && totals.latestBalanceAccount && totals.latestBalanceAccount !== '-'"
-                                class="mt-0.5 font-mono text-[11px] font-semibold text-slate-500"
-                            >
-                                {{ totals.latestBalanceAccount }}
-                            </div>
                         </td>
                         <td :colspan="totalsTrailingColspan" class="px-5 py-4 align-top">
                             <div class="max-w-md text-xs font-semibold text-slate-500">
-                                Running balance is shown as a latest/closing balance, not summed.
+                                Running balance is calculated from the displayed debit and credit movements, not summed.
                             </div>
                         </td>
                     </tr>
