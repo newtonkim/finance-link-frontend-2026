@@ -46,13 +46,17 @@ const modeTitle = computed(() => {
 });
 
 const modeSubtitle = computed(() => {
-    if (props.mode === 'deposit') return 'Posted deposit entries, charges, receipts, and running balances.';
-    if (props.mode === 'withdrawal') return 'Posted withdrawals, charges deducted from payout, receipts, and running balances.';
+    if (props.mode === 'deposit') return 'Posted deposit entries, receipts, and running balances.';
+    if (props.mode === 'withdrawal') return 'Posted withdrawal entries, receipts, and running balances.';
     if (props.mode === 'share-transaction') return 'Share activity with receipt references and account audit trail.';
     return 'Unified member ledger with debit, credit, account context, receipt, and running balance.';
 });
 
 const showLedgerAccountColumn = computed(() => props.showAccountColumn || props.mode === 'all');
+const hideDebitAndCharges = computed(() => props.mode === 'deposit');
+const hideChargeRows = computed(() => props.mode === 'deposit' || props.mode === 'withdrawal');
+const showDebitColumn = computed(() => !hideDebitAndCharges.value);
+const showCreditColumn = computed(() => props.mode !== 'withdrawal');
 
 const normalizedType = (txn: any) => String(txn?.type ?? '').toLowerCase();
 const isWithdrawal = (txn: any) => ['withdrawal', 'withdraw'].includes(normalizedType(txn));
@@ -90,47 +94,8 @@ function principalAmount(txn: any): number {
     return absoluteAmount(txn?.amount_after_charge);
 }
 
-function relatedRootTransaction(txn: any): any | null {
-    const keys = [txn?.receipt_number, txn?.umbrella_code, txn?.grouped_with]
-        .filter(Boolean)
-        .map(String);
-
-    if (!keys.length) return null;
-
-    return (props.transactions || []).find((candidate: any) => {
-        if (candidate?.id === txn?.id) return false;
-        if (!isDeposit(candidate) && !isWithdrawal(candidate)) return false;
-
-        return [candidate?.receipt_number, candidate?.umbrella_code, candidate?.reference, candidate?.grouped_with]
-            .filter(Boolean)
-            .map(String)
-            .some((value) => keys.includes(value));
-    }) || null;
-}
-
-function isWithdrawalCharge(txn: any): boolean {
-    if (!isCharge(txn)) return false;
-    const type = normalizedType(txn);
-    if (type.includes('withdraw')) return true;
-
-    const text = [
-        txn?.narration,
-        txn?.charge_name,
-        txn?.transaction_type,
-        txn?.account_type,
-    ]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase();
-
-    if (text.includes('withdraw')) return true;
-
-    const root = relatedRootTransaction(txn);
-    return root ? isWithdrawal(root) : false;
-}
-
 function debitAmount(txn: any): number {
-    if (isCharge(txn)) return isWithdrawalCharge(txn) ? 0 : chargeAmount(txn);
+    if (isCharge(txn)) return chargeAmount(txn);
     if (isWithdrawal(txn)) return principalAmount(txn);
     if (isReversal(txn) && amountOf(txn?.amount) < 0) return principalAmount(txn);
     return 0;
@@ -154,8 +119,41 @@ function transactionKey(txn: any): string {
     return String(txn?.id ?? txn?.reference ?? txn?.receipt_number ?? `${transactionDate(txn)}-${typeLabel(txn)}-${principalAmount(txn)}-${chargeAmount(txn)}`);
 }
 
+function transactionGroupKey(txn: any): string {
+    return String(txn?.receipt_number || txn?.umbrella_code || txn?.grouped_with || txn?.reference || transactionKey(txn));
+}
+
 function transactionDate(txn: any): string {
     return txn?.transaction_date || txn?.created_at || '';
+}
+
+function postingOrder(txn: any): number {
+    if (isDeposit(txn) || isWithdrawal(txn) || isShare(txn)) return 0;
+    if (isCharge(txn)) return 1;
+    if (isReversal(txn)) return 2;
+    return 3;
+}
+
+function compareTransactionsAscending(a: any, b: any): number {
+    const da = transactionDate(a) || '';
+    const db = transactionDate(b) || '';
+    if (da !== db) return da < db ? -1 : 1;
+
+    if (transactionGroupKey(a) === transactionGroupKey(b)) {
+        const pa = postingOrder(a);
+        const pb = postingOrder(b);
+        if (pa !== pb) return pa - pb;
+    }
+
+    const ca = String(a?.created_at || '');
+    const cb = String(b?.created_at || '');
+    if (ca !== cb) return ca < cb ? -1 : 1;
+
+    return amountOf(a?.id) - amountOf(b?.id);
+}
+
+function sortTransactionsAscending(txns: any[]): any[] {
+    return [...txns].sort(compareTransactionsAscending);
 }
 
 function transactionStatus(txn: any): 'reversed' | 'reversal' | 'locked' | 'posted' {
@@ -252,17 +250,18 @@ const filtered = computed(() => {
             txns = txns.filter(isShare);
         } else {
             const rootFilter = props.mode === 'deposit' ? isDeposit : isWithdrawal;
-            const rootRefs = new Set(txns.filter(rootFilter).map((txn: any) => txn.reference).filter(Boolean));
+            const rootGroups = new Set(txns.filter(rootFilter).map(transactionGroupKey).filter(Boolean));
             const rootIds = new Set(txns.filter(rootFilter).map((txn: any) => txn.id));
 
             txns = txns.filter((txn: any) => {
                 if (rootFilter(txn)) return true;
-                if (isCharge(txn) && rootRefs.has(txn.grouped_with)) return true;
+                if (hideChargeRows.value && isCharge(txn)) return false;
+                if (isCharge(txn) && rootGroups.has(transactionGroupKey(txn))) return true;
                 if (isReversal(txn)) {
                     const original = txns.find((candidate: any) => candidate.id === txn.reversal_of);
                     if (!original) return false;
                     if (rootIds.has(original.id)) return true;
-                    return isCharge(original) && rootRefs.has(original.grouped_with);
+                    return isCharge(original) && rootGroups.has(transactionGroupKey(original));
                 }
                 return false;
             });
@@ -284,12 +283,28 @@ const filtered = computed(() => {
         txns = txns.filter((txn: any) => transactionStatus(txn) === statusFilter.value);
     }
 
-    return txns;
+    return sortTransactionsAscending(txns);
 });
 
 function accountKey(txn: any): string {
     return String(txn?.account?.id ?? txn?.account_id ?? accountNumber(txn) ?? 'default');
 }
+
+const balanceTransactions = computed(() => {
+    if (props.mode === 'share-transaction') {
+        return (props.transactions || []).filter(isShare);
+    }
+
+    if (props.mode === 'deposit') {
+        return (props.transactions || []).filter(isDeposit);
+    }
+
+    if (props.mode === 'withdrawal') {
+        return (props.transactions || []).filter(isWithdrawal);
+    }
+
+    return props.transactions || [];
+});
 
 // Running balance is computed on the FULL transaction set, oldest-first, and
 // segregated per account — never on the filtered/sorted view. This makes each
@@ -299,16 +314,14 @@ const ledgerBalances = computed(() => {
     const byTxn = new Map<string, number>();
     const byAccount = new Map<string, number>();
 
-    const ordered = [...(props.transactions || [])].sort((a: any, b: any) => {
-        const da = transactionDate(a) || '';
-        const db = transactionDate(b) || '';
-        if (da !== db) return da < db ? -1 : 1;
-        return amountOf(a?.id) - amountOf(b?.id);
-    });
+    const ordered = sortTransactionsAscending(balanceTransactions.value);
 
     ordered.forEach((txn: any) => {
         const acct = accountKey(txn);
-        const next = (byAccount.get(acct) ?? 0) + creditAmount(txn) - debitAmount(txn);
+        const movement = props.mode === 'withdrawal'
+            ? debitAmount(txn)
+            : creditAmount(txn) - debitAmount(txn);
+        const next = (byAccount.get(acct) ?? 0) + movement;
         byAccount.set(acct, next);
         byTxn.set(transactionKey(txn), next);
     });
@@ -346,7 +359,9 @@ const paginated = computed(() => {
 });
 
 const tableColspan = computed(() => {
-    let count = 8;
+    let count = 7;
+    if (showDebitColumn.value) count += 1;
+    if (showCreditColumn.value) count += 1;
     if (!props.showTable) count += 1;
     if (showLedgerAccountColumn.value) count += 1;
     if (props.mode === 'all') count += 1;
@@ -356,13 +371,25 @@ const tableColspan = computed(() => {
 const totalsLabelColspan = computed(() => 2 + (showLedgerAccountColumn.value ? 1 : 0));
 
 const totalsTrailingColspan = computed(() => {
-    let count = 3;
+    let count = 2;
+    if (showCreditColumn.value) count += 1;
     if (props.mode === 'all') count += 1;
     if (!props.showTable) count += 1;
     return count;
 });
 
 const balanceFooterLabel = computed(() => (props.mode === 'all' ? 'Latest balance' : 'Closing balance'));
+const balanceHelpText = computed(() => {
+    if (props.mode === 'deposit') {
+        return 'Running balance is the cumulative total of deposits shown in this ledger.';
+    }
+
+    if (props.mode === 'withdrawal') {
+        return 'Running balance is the cumulative total of withdrawals shown in this ledger.';
+    }
+
+    return 'Running balance is the per-account ledger position after each posting (full history, oldest first) — independent of the filters, sort, or page above.';
+});
 
 watch([filtered, perPage], () => {
     if (currentPage.value > totalPages.value) currentPage.value = totalPages.value;
@@ -398,20 +425,25 @@ function clearFilters() {
                     </div>
                 </div>
 
-                <div class="grid w-full grid-cols-2 gap-3 sm:grid-cols-3 xl:max-w-3xl xl:grid-cols-5">
+                <div
+                    :class="[
+                        'grid w-full grid-cols-2 gap-3 sm:grid-cols-3',
+                        hideDebitAndCharges ? 'xl:max-w-2xl xl:grid-cols-3' : 'xl:max-w-3xl xl:grid-cols-5',
+                    ]"
+                >
                     <div class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
                         <p class="text-[10px] font-bold uppercase tracking-wide text-slate-500">Posted</p>
                         <p class="mt-1 font-mono text-sm font-bold text-slate-950">{{ totals.postedCount }}</p>
                     </div>
-                    <div class="rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2">
+                    <div v-if="showCreditColumn" class="rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2">
                         <p class="text-[10px] font-bold uppercase tracking-wide text-emerald-700">Credit</p>
                         <p class="mt-1 font-mono text-sm font-bold text-emerald-800">{{ formatCurrency(totals.credit) }}</p>
                     </div>
-                    <div class="rounded-lg border border-rose-100 bg-rose-50 px-3 py-2">
+                    <div v-if="!hideDebitAndCharges" class="rounded-lg border border-rose-100 bg-rose-50 px-3 py-2">
                         <p class="text-[10px] font-bold uppercase tracking-wide text-rose-700">Debit</p>
                         <p class="mt-1 font-mono text-sm font-bold text-rose-800">{{ formatCurrency(totals.debit) }}</p>
                     </div>
-                    <div class="rounded-lg border border-amber-100 bg-amber-50 px-3 py-2">
+                    <div v-if="!hideChargeRows" class="rounded-lg border border-amber-100 bg-amber-50 px-3 py-2">
                         <p class="text-[10px] font-bold uppercase tracking-wide text-amber-700">Charges</p>
                         <p class="mt-1 font-mono text-sm font-bold text-amber-800">{{ formatCurrency(totals.charges) }}</p>
                     </div>
@@ -464,8 +496,8 @@ function clearFilters() {
                         >
                             <option value="all">All types</option>
                             <option value="deposit">Deposits</option>
-                            <option value="withdrawal">Withdrawals</option>
-                            <option value="charge">Charges</option>
+                            <option v-if="!hideDebitAndCharges" value="withdrawal">Withdrawals</option>
+                            <option v-if="!hideChargeRows" value="charge">Charges</option>
                             <option value="share-transaction">Shares</option>
                             <option value="reversal">Reversals</option>
                         </select>
@@ -528,8 +560,8 @@ function clearFilters() {
                         <th class="px-5 py-3">Value date</th>
                         <th class="px-5 py-3">Transaction</th>
                         <th v-if="showLedgerAccountColumn" class="px-5 py-3">Account</th>
-                        <th class="px-5 py-3 text-right">Debit</th>
-                        <th class="px-5 py-3 text-right">Credit</th>
+                        <th v-if="showDebitColumn" class="px-5 py-3 text-right">Debit</th>
+                        <th v-if="showCreditColumn" class="px-5 py-3 text-right">Credit</th>
                         <th class="px-5 py-3 text-right">Running balance</th>
                         <th class="px-5 py-3">Narration</th>
                         <th class="px-5 py-3">Receipt</th>
@@ -581,14 +613,14 @@ function clearFilters() {
                             <div class="mt-0.5 text-[11px] font-semibold capitalize text-slate-500">{{ accountType(txn) }}</div>
                         </td>
 
-                        <td class="px-5 py-4 text-right align-top">
+                        <td v-if="showDebitColumn" class="px-5 py-4 text-right align-top">
                             <span v-if="debitAmount(txn)" class="font-mono text-sm font-bold text-rose-700">
                                 {{ formatCurrency(debitAmount(txn)) }}
                             </span>
                             <span v-else class="text-slate-300">-</span>
                         </td>
 
-                        <td class="px-5 py-4 text-right align-top">
+                        <td v-if="showCreditColumn" class="px-5 py-4 text-right align-top">
                             <span v-if="creditAmount(txn)" class="font-mono text-sm font-bold text-emerald-700">
                                 {{ formatCurrency(creditAmount(txn)) }}
                             </span>
@@ -676,11 +708,11 @@ function clearFilters() {
                                 {{ filtered.length }} ledger entr{{ filtered.length === 1 ? 'y' : 'ies' }}
                             </div>
                         </td>
-                        <td class="px-5 py-4 text-right align-top">
+                        <td v-if="showDebitColumn" class="px-5 py-4 text-right align-top">
                             <div class="text-[11px] font-bold uppercase tracking-wide text-rose-600">Total debit</div>
                             <div class="mt-1 font-mono text-sm font-bold text-rose-800">{{ formatCurrency(totals.debit) }}</div>
                         </td>
-                        <td class="px-5 py-4 text-right align-top">
+                        <td v-if="showCreditColumn" class="px-5 py-4 text-right align-top">
                             <div class="text-[11px] font-bold uppercase tracking-wide text-emerald-600">Total credit</div>
                             <div class="mt-1 font-mono text-sm font-bold text-emerald-800">{{ formatCurrency(totals.credit) }}</div>
                         </td>
@@ -693,7 +725,7 @@ function clearFilters() {
                         </td>
                         <td :colspan="totalsTrailingColspan" class="px-5 py-4 align-top">
                             <div class="max-w-md text-xs font-semibold text-slate-500">
-                                Running balance is the per-account ledger position after each posting (full history, oldest first) — independent of the filters, sort, or page above.
+                                {{ balanceHelpText }}
                             </div>
                         </td>
                     </tr>
