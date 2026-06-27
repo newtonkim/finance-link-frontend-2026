@@ -3,6 +3,7 @@ import { ref, computed, onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
 import { toast } from 'vue-sonner';
 import { storeToRefs } from 'pinia';
+import { jsPDF } from 'jspdf';
 import { UserCircle2, FileText, TrendingUp, MinusCircle, Wallet, BarChart3, RotateCcw, Printer,
     User, Phone, Users, Mail, MapPin, Calendar, Copy, Check, Hash, Heart, ShieldCheck, CreditCard, Smartphone } from 'lucide-vue-next';
 import { formatMoneyValue } from '@/Global';
@@ -107,30 +108,405 @@ const executeDeleteTxn = async () => {
 };
 
 // ── Receipt printing ─────────────────────────────────────────────────────────
-const printingTxn = ref<{
-    type: string;
-    reference: string;
+type ReceiptLine = {
+    id: number;
+    line_type: 'principal' | 'charge';
+    description: string;
     amount: number;
     amount_formatted?: string;
-    charge?: number;
-    deposited_by?: string;
-} | null>(null);
+    type?: string;
+    reference?: string;
+};
 
-const printReceipt = (txn: {
-    type: string;
-    reference: string;
-    amount: number;
-    amount_formatted?: string;
-    charge?: number;
-    deposited_by?: string;
-}) => {
-    printingTxn.value = txn;
-    setTimeout(() => {
-        document.body.classList.add('receipt-print');
-        window.print();
-        printingTxn.value = null;
-        document.body.classList.remove('receipt-print');
-    }, 100);
+type ReceiptPayload = {
+    receipt_number?: string;
+    reference?: string;
+    transaction_type?: string;
+    transaction_date?: string;
+    created_at?: string;
+    payment_mode?: string;
+    received_by?: string;
+    narration?: string;
+    currency_code?: string;
+    branding?: {
+        sacco_name?: string;
+        tagline?: string;
+        logo_url?: string | null;
+    };
+    branch?: {
+        name?: string;
+        phone?: string;
+        email?: string;
+        address?: string;
+    } | null;
+    member?: {
+        name?: string;
+        member_number?: string;
+        code?: string;
+        phone?: string;
+    } | null;
+    account?: {
+        account_no?: string;
+        code?: string;
+        account_type?: string;
+        product?: string | null;
+    } | null;
+    main_transaction?: ReceiptLine;
+    charge_lines?: ReceiptLine[];
+    lines?: ReceiptLine[];
+    totals?: {
+        transaction_amount?: number;
+        transaction_amount_formatted?: string;
+        charge_total?: number;
+        charge_total_formatted?: string;
+        net_deposit_amount?: number | null;
+        net_deposit_amount_formatted?: string | null;
+        net_withdrawal_amount?: number | null;
+        net_withdrawal_amount_formatted?: string | null;
+        total_account_debit?: number | null;
+        total_account_debit_formatted?: string | null;
+    };
+};
+
+const isPrintingReceipt = ref(false);
+
+function receiptAssetUrl(path?: string | null): string | null {
+    if (!path) return null;
+    if (/^(https?:|data:)/i.test(path)) return path;
+
+    const backendUrl = import.meta.env.VITE_BACKEND_URL ?? 'http://127.0.0.1:8000/api/v1';
+    const backendOrigin = String(backendUrl).replace(/\/api\/v1.*$/i, '').replace(/\/+$/, '');
+    return `${backendOrigin}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
+async function imageToDataUrl(url?: string | null): Promise<string | null> {
+    if (!url) return null;
+    if (url.startsWith('data:')) return url;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) return null;
+        const blob = await response.blob();
+
+        return await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(String(reader.result || ''));
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+        });
+    } catch {
+        return null;
+    }
+}
+
+function cleanText(value: unknown, fallback = '—'): string {
+    const text = String(value ?? '').trim();
+    return text || fallback;
+}
+
+function moneyText(value?: string | number | null, formatted?: string | null, currency?: string): string {
+    if (formatted) return formatted;
+    return `${currency || currencyCode.value} ${formatCurrency(value ?? 0)}`;
+}
+
+function shortReceiptNo(receipt?: string): string {
+    const value = cleanText(receipt, '');
+    return value.length > 28 ? `${value.slice(0, 14)}…${value.slice(-10)}` : value;
+}
+
+function receiptDateTime(value?: string): { date: string; time: string; combined: string } {
+    const date = value ? new Date(value) : new Date();
+    if (Number.isNaN(date.getTime())) {
+        return { date: '—', time: '—', combined: '—' };
+    }
+
+    const dateText = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    const timeText = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true });
+    return { date: dateText, time: timeText, combined: `${dateText} · ${timeText}` };
+}
+
+function saveReceiptPdf(doc: jsPDF, receipt: ReceiptPayload) {
+    const fileReceipt = cleanText(receipt.receipt_number || receipt.reference, 'receipt')
+        .replace(/[^a-z0-9_-]+/gi, '-')
+        .replace(/^-+|-+$/g, '')
+        .toLowerCase();
+    const filename = `${fileReceipt || 'receipt'}.pdf`;
+    const blobUrl = doc.output('bloburl');
+    const opened = window.open(blobUrl, '_blank', 'noopener,noreferrer');
+    if (!opened) doc.save(filename);
+    // Keep a deterministic fallback for browsers that block blob windows.
+    setTimeout(() => URL.revokeObjectURL(String(blobUrl)), 60_000);
+    return filename;
+}
+
+async function generateReceiptPdf(receipt: ReceiptPayload) {
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 10;
+    const right = pageWidth - margin;
+    const currency = receipt.currency_code || currencyCode.value;
+    const saccoName = cleanText(receipt.branding?.sacco_name, 'SACCO');
+    const receiptKind = cleanText(receipt.transaction_type, 'transaction').replace(/[-_]/g, ' ');
+    const receiptType = receiptKind.toUpperCase();
+    const issued = receiptDateTime(receipt.transaction_date || receipt.created_at);
+    const memberName = cleanText(receipt.member?.name);
+    const accountNo = cleanText(receipt.account?.account_no || receipt.account?.code);
+    const chargeTotal = moneyText(receipt.totals?.charge_total, receipt.totals?.charge_total_formatted, currency);
+    const primaryAmount = moneyText(receipt.totals?.transaction_amount, receipt.totals?.transaction_amount_formatted || receipt.main_transaction?.amount_formatted, currency);
+    const finalAmount = receipt.transaction_type === 'deposit'
+        ? moneyText(receipt.totals?.net_deposit_amount, receipt.totals?.net_deposit_amount_formatted, currency)
+        : moneyText(receipt.totals?.net_withdrawal_amount, receipt.totals?.net_withdrawal_amount_formatted, currency);
+    const finalLabel = receipt.transaction_type === 'deposit' ? 'NET DEPOSIT' : 'NET PAID';
+    const finalSubLabel = receipt.transaction_type === 'deposit' ? 'Amount credited to account' : 'Cash paid to client';
+    const logo = await imageToDataUrl(receiptAssetUrl(receipt.branding?.logo_url));
+
+    const navy: [number, number, number] = [24, 37, 56];
+    const gold: [number, number, number] = [205, 164, 52];
+    const slate: [number, number, number] = [100, 116, 139];
+    const ink: [number, number, number] = [31, 41, 55];
+    const border: [number, number, number] = [226, 232, 240];
+
+    const setText = (color: [number, number, number]) => doc.setTextColor(color[0], color[1], color[2]);
+    const setFill = (color: [number, number, number]) => doc.setFillColor(color[0], color[1], color[2]);
+    const setDraw = (color: [number, number, number]) => doc.setDrawColor(color[0], color[1], color[2]);
+    const escapedCurrency = currency.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const amountOnly = (value: string) => value.replace(new RegExp(`^${escapedCurrency}\\s*`, 'i'), '').trim();
+    const drawAmount = (x: number, y: number, value: string, size = 10, color: [number, number, number] = ink) => {
+        setText(slate);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(Math.max(6.5, size - 3));
+        doc.text(currency, x - 37, y, { align: 'right' });
+        setText(color);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(size);
+        doc.text(amountOnly(value), x, y, { align: 'right' });
+    };
+    const drawRule = (y: number) => {
+        setDraw(border);
+        doc.setLineWidth(0.25);
+        doc.line(margin, y, right, y);
+    };
+
+    const logoType = logo && (logo.toLowerCase().startsWith('data:image/jpeg') || logo.toLowerCase().startsWith('data:image/jpg'))
+        ? 'JPEG'
+        : 'PNG';
+
+    // ── Page surface ───────────────────────────────────────────────────────────
+    doc.setFillColor(244, 247, 250);
+    doc.rect(0, 0, pageWidth, pageHeight, 'F');
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(4, 4, pageWidth - 8, pageHeight - 8, 2.5, 2.5, 'F');
+
+    // ── Centered brand watermark (fills the mid-page, keeps balance) ────────────
+    const GState = (doc as unknown as { GState?: new (o: { opacity: number }) => unknown }).GState;
+    const wmCx = pageWidth / 2;
+    const wmCy = pageHeight / 2 + 18;
+    if (logo && typeof GState === 'function') {
+        doc.setGState(new GState({ opacity: 0.05 }));
+        const wmSize = 95;
+        doc.addImage(logo, logoType, wmCx - wmSize / 2, wmCy - wmSize / 2, wmSize, wmSize);
+        doc.setGState(new GState({ opacity: 1 }));
+    } else {
+        setText([237, 241, 247]);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(150);
+        doc.text(saccoName.charAt(0).toUpperCase(), wmCx, wmCy + 50, { align: 'center' });
+    }
+
+    // ── Header band ─────────────────────────────────────────────────────────────
+    setFill(navy);
+    doc.roundedRect(4, 4, pageWidth - 8, 34, 2.5, 2.5, 'F');
+    doc.setFillColor(255, 255, 255);
+    doc.rect(4, 35, pageWidth - 8, 3, 'F');
+    setFill(gold);
+    doc.rect(4, 38, 92, 1.4, 'F');
+
+    doc.setDrawColor(255, 255, 255);
+    doc.setLineWidth(0.4);
+    doc.circle(margin + 9, 21, 8.4, 'S');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.text(saccoName.charAt(0).toUpperCase(), margin + 9, 24.5, { align: 'center' });
+    if (logo) {
+        doc.setFillColor(255, 255, 255);
+        doc.circle(margin + 9, 21, 7.8, 'F');
+        doc.addImage(logo, logoType, margin + 3.6, 15.6, 10.8, 10.8);
+    }
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(21);
+    doc.setTextColor(255, 255, 255);
+    doc.text(saccoName.toUpperCase(), margin + 26, 19);
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(9);
+    doc.text(cleanText(receipt.branding?.tagline, 'Savings & Credit Cooperative'), margin + 26, 26);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.text('SAVINGS & CREDIT COOPERATIVE', margin + 26, 32);
+
+    doc.setDrawColor(255, 255, 255);
+    doc.roundedRect(right - 58, 12, 52, 9.5, 1.8, 1.8, 'S');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.text(`${receiptType} RECEIPT`, right - 32, 18.2, { align: 'center' });
+
+    // ── Meta: receipt no / issued ───────────────────────────────────────────────
+    setText(slate);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.4);
+    doc.text('R E C E I P T  N O.', margin, 50);
+    doc.text('I S S U E D', right, 50, { align: 'right' });
+    setText(navy);
+    doc.setFontSize(11);
+    doc.text(shortReceiptNo(receipt.receipt_number || receipt.reference).toUpperCase(), margin, 57.5);
+    doc.text(issued.combined, right, 57.5, { align: 'right' });
+    drawRule(64);
+
+    // ── Account holder ──────────────────────────────────────────────────────────
+    doc.setFillColor(248, 250, 252);
+    doc.rect(4, 64, pageWidth - 8, 26, 'F');
+    setText(slate);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.4);
+    doc.text('A C C O U N T  H O L D E R', margin, 74);
+    doc.text('A C C O U N T  N O.', right, 74, { align: 'right' });
+    setText(ink);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(15);
+    doc.text(memberName, margin, 83.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10.5);
+    setText(navy);
+    doc.text(accountNo.replace(/(.{6})/g, '$1 ').trim(), right, 83.5, { align: 'right' });
+    drawRule(90);
+
+    // ── Transaction details ─────────────────────────────────────────────────────
+    setText(slate);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.6);
+    doc.text('T R A N S A C T I O N   D E T A I L S', margin, 103);
+
+    let y = 116;
+    const amountRows: Array<{ label: string; value: string; italic?: boolean; muted?: boolean }> = [
+        { label: `Gross ${receiptKind.toLowerCase()}`, value: primaryAmount },
+        { label: 'Transaction charge', value: chargeTotal },
+    ];
+
+    (receipt.charge_lines || []).forEach((line) => {
+        amountRows.push({
+            label: cleanText(line.description, 'Transaction charge'),
+            value: `-${amountOnly(moneyText(line.amount, line.amount_formatted, currency))}`,
+            italic: true,
+            muted: true,
+        });
+    });
+
+    amountRows.forEach((row) => {
+        setText(row.muted ? slate : ink);
+        doc.setFont('helvetica', row.italic ? 'italic' : 'normal');
+        doc.setFontSize(row.italic ? 8.2 : 10);
+        doc.text(doc.splitTextToSize(row.label, 120), margin, y);
+
+        if (row.italic) {
+            setText(slate);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9);
+            doc.text(row.value, right, y, { align: 'right' });
+        } else {
+            drawAmount(right, y, row.value, 10.5, ink);
+        }
+
+        drawRule(y + 4);
+        y += row.italic ? 8 : 11;
+    });
+
+    // ── NET total hero band ─────────────────────────────────────────────────────
+    y = Math.max(y + 6, 150);
+    setFill(navy);
+    doc.roundedRect(margin, y, pageWidth - margin * 2, 24, 2.5, 2.5, 'F');
+    setFill(gold);
+    doc.rect(margin, y, 2.8, 24, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.text(finalLabel, margin + 12, y + 11);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.text(finalSubLabel, margin + 12, y + 17);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.text(currency, right - 62, y + 15, { align: 'right' });
+    doc.setFontSize(22);
+    doc.text(amountOnly(finalAmount), right - 4, y + 16, { align: 'right' });
+
+    // ── Note strip (bridges to lower third) ─────────────────────────────────────
+    const noteY = y + 36;
+    doc.setFillColor(248, 250, 252);
+    setDraw(border);
+    doc.setLineWidth(0.25);
+    doc.roundedRect(margin, noteY, pageWidth - margin * 2, 16, 2, 2, 'FD');
+    setText(slate);
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(7.6);
+    doc.text('This is a computer-generated receipt and forms a valid record of the transaction above.', pageWidth / 2, noteY + 6.5, { align: 'center' });
+    doc.text('Please retain it for your records.', pageWidth / 2, noteY + 11.5, { align: 'center' });
+
+    // ── Served by / signature (anchored to lower section) ───────────────────────
+    const signY = pageHeight - 48;
+    setText(slate);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.text('S E R V E D  B Y', margin, signY);
+    setText(ink);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9.5);
+    doc.text(cleanText(receipt.received_by, 'SYSTEM'), margin, signY + 7);
+    setDraw(border);
+    doc.setLineWidth(0.3);
+    doc.line(right - 82, signY + 5.5, right, signY + 5.5);
+    setText(slate);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.text('Signature & stamp', right - 41, signY + 11, { align: 'center' });
+
+    // ── Footer ──────────────────────────────────────────────────────────────────
+    const footerY = pageHeight - 11;
+    setDraw(border);
+    doc.setLineDashPattern([1.5, 1.2], 0);
+    doc.line(margin, footerY - 8, right, footerY - 8);
+    doc.setLineDashPattern([], 0);
+    setText(navy);
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(7.6);
+    doc.text(`Thank you for saving with ${saccoName}.`, pageWidth / 2, footerY - 2.5, { align: 'center' });
+    setText(slate);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(6.6);
+    const contacts = [receipt.branch?.address, receipt.branch?.phone ? `Tel: ${receipt.branch.phone}` : null, receipt.branch?.email]
+        .filter(Boolean)
+        .join('  |  ');
+    if (contacts) doc.text(contacts, pageWidth / 2, footerY + 2, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.text('Mfuko Plus', pageWidth / 2 - 9, footerY + 5.6, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    doc.text(' · Microfinance Management Software', pageWidth / 2 - 8, footerY + 5.6);
+
+    saveReceiptPdf(doc, receipt);
+}
+
+const printReceipt = async (txn: { id?: number; reference?: string }) => {
+    if (!txn.id || isPrintingReceipt.value) return;
+    isPrintingReceipt.value = true;
+    try {
+        const response = await tenantClient.get<{ data: ReceiptPayload }>(`/transactions/${txn.id}/receipt`);
+        await generateReceiptPdf(response.data.data);
+    } catch (error: unknown) {
+        const err = error as { response?: { data?: { message?: string } } };
+        toast.error(err?.response?.data?.message || 'Failed to load receipt details.');
+    } finally {
+        isPrintingReceipt.value = false;
+    }
 };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -467,111 +843,7 @@ const profileSections = computed<ProfileSection[]>(() => [
         </Transition>
 
     </div>
-
-    <!-- Printable Receipt -->
-    <div v-if="printingTxn"
-        class="print-only fixed inset-0 bg-white z-[9999] p-10 font-serif leading-relaxed text-[#1a1a1a]">
-        <div class="max-w-[800px] mx-auto border border-gray-200 p-8 shadow-sm">
-            <div class="text-center mb-6">
-                <h1 class="text-xl font-bold uppercase tracking-wide mb-1">NUGSOFT MAIN TESTING SACCO</h1>
-                <p class="text-[13px] font-medium italic mb-1">Address: KAMPALA</p>
-                <p class="text-[13px] font-medium italic mb-1">TEL: +256701270153</p>
-                <p class="text-[13px] font-medium italic">Email: nugsoftemail@nugsoft.com</p>
-                <div class="mt-6 inline-block border-b-2 border-double border-gray-800 px-8 pb-1">
-                    <h2 class="text-sm font-bold uppercase tracking-wider">{{ printingTxn.type }} RECEIPT</h2>
-                </div>
-            </div>
-            <div class="space-y-4 mb-8 text-sm">
-                <div class="flex justify-between border-b border-dashed border-gray-300 pb-2">
-                    <span class="font-semibold text-gray-600">Receipt No:</span>
-                    <span class="font-bold font-mono">{{ printingTxn.reference }}</span>
-                </div>
-                <div class="flex justify-between border-b border-dashed border-gray-300 pb-2">
-                    <span class="font-semibold text-gray-600">Printing Date:</span>
-                    <span class="font-bold">{{ new Date().toLocaleDateString('en-GB', {
-                        day: '2-digit', month: 'short',
-                        year: 'numeric'
-                    }) }}</span>
-                </div>
-                <div class="flex justify-between border-b border-dashed border-gray-300 pb-2">
-                    <span class="font-semibold text-gray-600">Printing Time:</span>
-                    <span class="font-bold">{{ new Date().toLocaleTimeString('en-GB', {
-                        hour: '2-digit', minute:
-                            '2-digit',
-                        hour12: true
-                    }).toUpperCase() }}</span>
-                </div>
-            </div>
-            <div class="space-y-4 mb-8 text-sm pt-2">
-                <div class="flex justify-between border-b border-dashed border-gray-300 pb-2">
-                    <span class="font-semibold text-gray-600">Account Names:</span>
-                    <span class="font-bold uppercase">{{ member.name }}</span>
-                </div>
-                <div class="flex justify-between border-b border-dashed border-gray-300 pb-2">
-                    <span class="font-semibold text-gray-600">Total Amount:</span>
-                    <span class="font-bold">{{ printingTxn.amount_formatted || `${currencyCode}
-                        ${formatCurrency(printingTxn.amount)}` }}</span>
-                </div>
-                <div class="flex justify-between border-b border-dashed border-gray-300 pb-2">
-                    <span class="font-semibold text-gray-600">Trans Charge:</span>
-                    <span class="font-bold">{{ currencyCode }} {{ formatCurrency(printingTxn.charge || 0) }}</span>
-                </div>
-            </div>
-            <div class="text-center mt-10 space-y-4">
-                <p class="text-[13px] font-bold tracking-wider">Served By: <span class="uppercase">{{
-                    printingTxn.deposited_by || 'SYSTEM ADMIN' }}</span></p>
-                <div class="pt-8">
-                    <p class="text-[12px] italic text-gray-500 mb-2">Signature & stamp</p>
-                    <div class="w-48 mx-auto border-b border-gray-400"></div>
-                </div>
-            </div>
-            <div class="mt-12 text-center text-[12px] space-y-4 border-t-2 border-double border-gray-800 pt-6">
-                <p class="font-bold italic">Thank you for Saving with <span class="uppercase">Nugsoft Main Testing
-                        Sacco</span>.</p>
-                <p class="font-bold">For Inquiry About this loan Call: 256701270153.</p>
-                <div class="pt-4 border-t border-dashed border-gray-300">
-                    <p class="font-mono tracking-tighter text-gray-400">Mfuko Plus - Microfinance Mgt Software</p>
-                </div>
-            </div>
-        </div>
-    </div>
 </template>
-
-<style>
-@media print {
-    body.receipt-print * {
-        visibility: hidden !important;
-    }
-
-    body.receipt-print .print-only,
-    body.receipt-print .print-only * {
-        visibility: visible !important;
-    }
-
-    body.receipt-print .print-only {
-        position: absolute !important;
-        left: 0 !important;
-        top: 0 !important;
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        display: block !important;
-    }
-
-    body.receipt-print .no-print {
-        display: none !important;
-    }
-
-    @page {
-        margin: 0.5cm;
-        size: auto;
-    }
-}
-
-.print-only {
-    display: none;
-}
-</style>
 
 <style scoped>
 .fade-enter-active,
