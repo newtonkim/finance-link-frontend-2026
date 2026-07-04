@@ -564,7 +564,7 @@ function clearFilters() {
                         <th v-if="showCreditColumn" class="px-5 py-3 text-right">Credit</th>
                         <th class="px-5 py-3 text-right">Running balance</th>
                         <th class="px-5 py-3">Narration</th>
-                        <th class="px-5 py-3">Receipt</th>
+                        <th class="w-[300px] px-5 py-3">Receipt</th>
                         <th v-if="mode === 'all'" class="px-5 py-3">Captured by</th>
                         <th class="px-5 py-3">Status</th>
                         <th v-if="!showTable" class="px-5 py-3 text-center">Actions</th>
@@ -644,7 +644,7 @@ function clearFilters() {
                         </td>
 
                         <td class="px-5 py-4 align-top">
-                            <div class="flex items-start justify-between gap-3">
+                            <div class="flex w-full items-center justify-between gap-3">
                                 <div class="min-w-0">
                                     <div class="truncate font-mono text-sm font-bold text-slate-900">{{ txn.receipt_number || txn.umbrella_code || txn.grouped_with || txn.reference || '-' }}</div>
                                     <div class="mt-0.5 text-[11px] font-semibold text-slate-500">
@@ -654,7 +654,7 @@ function clearFilters() {
                                 <button
                                     v-if="canPrintReceipt(txn)"
                                     type="button"
-                                    class="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-700 transition hover:border-blue-200 hover:bg-blue-100"
+                                    class="ml-auto inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-700 transition hover:border-blue-200 hover:bg-blue-100"
                                     title="Print receipt"
                                     @click="emit('print', txn)"
                                 >
