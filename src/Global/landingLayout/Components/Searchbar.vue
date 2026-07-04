@@ -102,36 +102,41 @@
     <div class="relative   w-[90%]  group z-[41] " ref="searchRef">
         <div class="flex items-center gap-2 mb-2 w-full">
             <div class="relative w-full">
-                <Search class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size="15" />
+                <Search class="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size="16" />
                 <input v-model="searchQuery" @input="(e) => inputValue(e.target.value)" type="search" autocomplete="off"
-                    placeholder="Search by name, member number, phone, or email..." :class='[
+                    placeholder="Search records…" :class='[
                         searchClass,
-                        "w-full focus:rounded-full bg-white py-2.5 pl-11 pr-3 text-sm outline-none transition border-nfuko-primary/10 focus:border-1 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                        "w-full rounded-full border border-neutral-200 bg-white py-2.5 pl-11 pr-4 text-sm text-neutral-800 outline-none transition placeholder:text-neutral-400 focus:border-nfuko-primary focus:ring-2 focus:ring-nfuko-primary/15 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white [&::-webkit-search-cancel-button]:hidden"
                     ]' />
             </div>
-            <button type="button" v-if="searchQuery" @click="() => triggerSearch()" class="flex items-center justify-center rounded-lg  bg-nfuko-primary px-2.5 py-2.5 text-white 
-           hover:bg-[#00343d] transition-colors">
-                <Search :size="15" />
+            <button type="button" v-if="searchQuery" @click="() => triggerSearch()"
+                class="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-nfuko-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#00343d]">
+                <Search :size="15" /> <span class="hidden sm:inline">Search</span>
             </button>
         </div>
-        <div v-if="searchQuery" class="absolute top-full mt-1 w-full max-h-[200px] overflow-auto  bg-white shadow-lg rounded-lg z-50 dark:bg-neutral-900 opacity-0 invisible  group-hover:opacity-100 group-hover:visible
-         group-focus-within:opacity-100 group-focus-within:visible transition-all duration-200">
-            <div v-for="col in removeActionInSupperseach" :key="col.key"
-                class="px-3 py-2 text-sm cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-800"
-               >
-                <div class="flex items-center justify-between" v-if="col?.onSearch">
-                    <!-- {{ col.onSearch }} -->
-                    <div class="text-neutral-700 dark:text-neutral-200">
-                        {{ col.label }}
+
+        <!-- Field menu: pick a column to search, or open its filter -->
+        <div v-if="searchQuery"
+            class="absolute top-full left-0 z-50 mt-2 w-full min-w-60 overflow-hidden rounded-xl border border-neutral-200 bg-white opacity-0 invisible shadow-xl transition-all duration-200 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 dark:border-neutral-700 dark:bg-neutral-900">
+            <div class="border-b border-neutral-100 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:border-neutral-800">
+                Search in field
+            </div>
+            <div class="max-h-60 overflow-auto p-1">
+                <template v-for="col in removeActionInSupperseach" :key="col.key">
+                    <div v-if="col?.onSearch"
+                        class="flex items-center justify-between rounded-lg px-2.5 py-2 text-sm transition hover:bg-neutral-50 dark:hover:bg-neutral-800">
+                        <span class="capitalize text-neutral-700 dark:text-neutral-200">{{ col.label }}</span>
+                        <button type="button" @click.stop="(e) => toggleFilter(col, e)"
+                            class="inline-flex items-center gap-1 rounded-md bg-nfuko-primary/10 px-2 py-1 text-[11px] font-bold text-nfuko-primary transition hover:bg-nfuko-primary/20">
+                            <SlidersHorizontal :size="12" /> Filter
+                        </button>
                     </div>
-                    <div v-if="col.onSearch" @click.stop="(e) => toggleFilter(col, e)"
-                        class="text-xs text-nfuko-primary hover:underline">
-                        filter
-                    </div>
-                </div>
-                <div v-else class="text-neutral-700 dark:text-neutral-200"  @click.stop="selectColumn(col)">
-                    {{ col.label }}
-                </div>
+                    <button v-else type="button" @click.stop="selectColumn(col)"
+                        class="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-sm transition hover:bg-neutral-50 dark:hover:bg-neutral-800">
+                        <span class="capitalize text-neutral-700 dark:text-neutral-200">{{ col.label }}</span>
+                        <Plus :size="14" class="text-neutral-300" />
+                    </button>
+                </template>
             </div>
         </div>
     </div>
@@ -162,7 +167,7 @@
 </template>
 <script setup>
 import { onMounted, ref, onBeforeUnmount } from 'vue';
-import { Search, } from 'lucide-vue-next';
+import { Search, SlidersHorizontal, Plus } from 'lucide-vue-next';
 import { SearchableSelect } from '@/Global';
 import { nextTick } from 'vue';
 const searchBy = ref({});
