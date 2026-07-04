@@ -589,12 +589,12 @@ function clearFilters() {
                             isReversal(txn) ? 'bg-amber-50/30' : '',
                         ]"
                     >
-                        <td class="px-5 py-4 align-top">
+                        <td class="whitespace-nowrap px-5 py-3.5 align-middle">
                             <div class="text-sm font-bold text-slate-900">{{ formatDate(transactionDate(txn)) }}</div>
                             <div class="mt-0.5 text-[11px] font-semibold text-slate-400">{{ formatDateTime(txn.created_at) }}</div>
                         </td>
 
-                        <td class="px-5 py-4 align-top">
+                        <td class="px-5 py-3.5 align-middle">
                             <div class="flex flex-col gap-1">
                                 <span
                                     :class="[
@@ -608,7 +608,7 @@ function clearFilters() {
                             </div>
                         </td>
 
-                        <td v-if="showLedgerAccountColumn" class="px-5 py-4 align-top">
+                        <td v-if="showLedgerAccountColumn" class="whitespace-nowrap px-5 py-3.5 align-middle">
                             <div class="font-mono text-sm font-bold text-slate-900">{{ accountNumber(txn) }}</div>
                             <div class="mt-0.5 text-[11px] font-semibold capitalize text-slate-500">{{ accountType(txn) }}</div>
                         </td>
@@ -634,7 +634,7 @@ function clearFilters() {
                             <span v-else class="text-slate-300">-</span>
                         </td>
 
-                        <td class="max-w-[340px] px-5 py-4 align-top">
+                        <td class="max-w-[340px] px-5 py-3.5 align-middle">
                             <div class="line-clamp-2 text-sm font-semibold text-slate-800">
                                 {{ displayNarration(txn) }}
                             </div>
@@ -643,7 +643,7 @@ function clearFilters() {
                             </div>
                         </td>
 
-                        <td class="px-5 py-4 align-top">
+                        <td class="px-5 py-3.5 align-middle">
                             <div class="flex w-full items-center justify-between gap-3">
                                 <div class="min-w-0">
                                     <div class="truncate font-mono text-sm font-bold text-slate-900">{{ txn.receipt_number || txn.umbrella_code || txn.grouped_with || txn.reference || '-' }}</div>
@@ -664,11 +664,11 @@ function clearFilters() {
                             </div>
                         </td>
 
-                        <td v-if="mode === 'all'" class="px-5 py-4 align-top">
+                        <td v-if="mode === 'all'" class="whitespace-nowrap px-5 py-3.5 align-middle">
                             <div class="text-sm font-bold text-slate-800">{{ txn.deposited_by || '-' }}</div>
                         </td>
 
-                        <td class="px-5 py-4 align-top">
+                        <td class="px-5 py-3.5 align-middle">
                             <span
                                 :class="[
                                     'inline-flex rounded-md px-2 py-1 text-[11px] font-bold capitalize ring-1 ring-inset',
@@ -723,7 +723,7 @@ function clearFilters() {
                             </div>
                             <div v-else class="mt-1 text-sm font-bold text-slate-300">-</div>
                         </td>
-                        <td :colspan="totalsTrailingColspan" class="px-5 py-4 align-top">
+                        <td :colspan="totalsTrailingColspan" class="px-5 py-3.5 align-middle">
                             <div class="max-w-md text-xs font-semibold text-slate-500">
                                 {{ balanceHelpText }}
                             </div>
