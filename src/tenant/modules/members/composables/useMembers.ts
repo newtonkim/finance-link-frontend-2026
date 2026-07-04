@@ -41,7 +41,11 @@ export function useMembers() {
   const loading = ref(false)
   const exporting = ref(false)
   const searchQuery = ref('')
+  const searching = ref(false)
   let searchTimer: ReturnType<typeof setTimeout> | null = null
+  let lastSearch = ''
+  // Monotonic token so a slow earlier response can't overwrite a newer one.
+  let requestToken = 0
 
   const showDeleteDialog = ref(false)
   const deleteTarget = ref<Member | null>(null)
@@ -58,23 +62,41 @@ export function useMembers() {
   }
 
   async function fetchMembers(page = 1) {
+    const token = ++requestToken
     loading.value = true
     try {
-      const res = await membersApi.list({ search: searchQuery.value || undefined, page })
+      const res = await membersApi.list({ search: searchQuery.value.trim() || undefined, page })
+      // A newer request has started — discard this stale response.
+      if (token !== requestToken) return
       members.value = res.data.data ?? []
       if (res.data.meta) {
         meta.value = res.data.meta
         tenantStore.setMemberCount(res.data.meta.total)
       }
     } finally {
-      loading.value = false
+      if (token === requestToken) loading.value = false
     }
   }
 
-  watch(searchQuery, () => {
+  watch(searchQuery, (value) => {
+    const query = value.trim()
+    // Ignore no-op changes (e.g. trailing spaces) so we don't refetch needlessly.
+    if (query === lastSearch) return
+    lastSearch = query
+
     if (searchTimer) clearTimeout(searchTimer)
-    searchTimer = setTimeout(() => fetchMembers(1), 400)
+    searching.value = true
+    // Clearing the field should feel instant; typing is debounced.
+    const delay = query === '' ? 0 : 350
+    searchTimer = setTimeout(async () => {
+      await fetchMembers(1)
+      searching.value = false
+    }, delay)
   })
+
+  function clearSearch() {
+    searchQuery.value = ''
+  }
 
   onMounted(() => fetchMembers(1))
 
@@ -144,7 +166,7 @@ export function useMembers() {
   }
 
   return {
-    members, meta, pages, loading, exporting, searchQuery,
+    members, meta, pages, loading, exporting, searchQuery, searching, clearSearch,
     showDeleteDialog, deleteTarget, deleteLoading,
     isLoyal, fetchMembers, openCreate, openEdit, viewMember,
     confirmDelete, deleteMember, exportMembersExcel,
