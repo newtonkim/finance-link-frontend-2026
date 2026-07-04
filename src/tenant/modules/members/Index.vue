@@ -13,75 +13,85 @@
         </template>
         <!-- Bespoke members table (keeps drawer/search/status/pagination via TableDrawer) -->
         <template #table="{ rows, loading, onAction }">
-            <table class="w-full min-w-[920px] border-collapse text-left text-sm">
+            <table class="w-full min-w-[760px] border-collapse text-left text-sm">
                 <thead>
-                    <tr class="border-b border-neutral-200 bg-neutral-50/70 dark:border-neutral-800 dark:bg-neutral-800/40">
-                        <th class="px-5 py-3.5 text-center text-[11px] font-semibold uppercase tracking-wider text-neutral-400">Profile</th>
-                        <th class="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">Code</th>
-                        <th class="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">Member</th>
-                        <th class="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">National Id</th>
-                        <th class="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">Phone</th>
-                        <th class="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">Joined Date</th>
-                        <th class="px-5 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">Gender</th>
-                        <th class="px-5 py-3.5 text-right text-[11px] font-semibold uppercase tracking-wider text-neutral-400 hide-on-print">Actions</th>
+                    <tr class="border-b border-neutral-200 dark:border-neutral-800">
+                        <th class="px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.09em] text-neutral-400">Member</th>
+                        <th class="px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.09em] text-neutral-400">National ID</th>
+                        <th class="px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.09em] text-neutral-400">Phone</th>
+                        <th class="px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.09em] text-neutral-400">Joined</th>
+                        <th class="px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.09em] text-neutral-400">Gender</th>
+                        <th class="px-6 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.09em] text-neutral-400 hide-on-print">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
                     <template v-if="loading">
                         <tr v-for="i in 6" :key="`s${i}`" class="animate-pulse">
-                            <td class="px-5 py-3.5"><div class="mx-auto h-10 w-10 rounded-full bg-neutral-100 dark:bg-neutral-800" /></td>
-                            <td v-for="j in 7" :key="j" class="px-5 py-3.5"><div class="h-4 rounded bg-neutral-100 dark:bg-neutral-800" :class="j === 2 ? 'w-32' : 'w-20'" /></td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="h-11 w-11 shrink-0 rounded-xl bg-neutral-100 dark:bg-neutral-800" />
+                                    <div class="space-y-2"><div class="h-3.5 w-32 rounded bg-neutral-100 dark:bg-neutral-800" /><div class="h-2.5 w-20 rounded bg-neutral-100 dark:bg-neutral-800" /></div>
+                                </div>
+                            </td>
+                            <td v-for="j in 5" :key="j" class="px-6 py-4"><div class="h-3.5 w-20 rounded bg-neutral-100 dark:bg-neutral-800" /></td>
                         </tr>
                     </template>
                     <tr v-else-if="!rows.length">
-                        <td colspan="8" class="px-5 py-16 text-center text-sm text-neutral-400">No members found.</td>
+                        <td colspan="6" class="px-6 py-20 text-center">
+                            <p class="text-sm font-semibold text-neutral-700 dark:text-neutral-200">No members yet</p>
+                            <p class="mt-1 text-xs text-neutral-400">Members you add will appear here.</p>
+                        </td>
                     </tr>
                     <tr v-else v-for="item in rows" :key="item.id"
-                        class="transition-colors hover:bg-nfuko-primary-50/30 dark:hover:bg-neutral-800/40">
-                        <!-- profile -->
-                        <td class="px-5 py-3.5">
-                            <div class="mx-auto h-10 w-10 overflow-hidden rounded-full bg-[#052659]/10 ring-1 ring-[#052659]/10">
-                                <img v-if="profileImageUrl(item)" :src="profileImageUrl(item)"
-                                    :alt="`${item?.salutation_name ?? 'Member'} profile`" class="h-full w-full object-cover" />
-                                <div v-else class="flex h-full w-full items-center justify-center text-xs font-bold uppercase text-[#052659] dark:text-nfuko-primary-300">
-                                    {{ memberInitials(item) }}
+                        class="group transition-colors hover:bg-nfuko-primary-50/40 dark:hover:bg-neutral-800/40">
+                        <!-- identity: avatar · name · code -->
+                        <td class="px-6 py-3.5">
+                            <div class="flex items-center gap-3">
+                                <div class="h-11 w-11 shrink-0 overflow-hidden rounded-xl bg-[#052659]/10 ring-1 ring-[#052659]/10 dark:ring-white/10">
+                                    <img v-if="profileImageUrl(item)" :src="profileImageUrl(item)"
+                                        :alt="item?.salutation_name ?? 'Member'" class="h-full w-full object-cover" />
+                                    <div v-else class="flex h-full w-full items-center justify-center text-sm font-bold uppercase text-[#052659] dark:text-nfuko-primary-300">
+                                        {{ memberInitials(item) }}
+                                    </div>
+                                </div>
+                                <div class="min-w-0">
+                                    <button type="button" @click="navigateToProfile(item)"
+                                        class="block max-w-[16rem] truncate text-left text-sm font-semibold text-neutral-900 transition-colors hover:text-nfuko-primary-700 dark:text-white">
+                                        {{ item?.salutation_name || '—' }}
+                                    </button>
+                                    <button type="button" @click="copyCode(item)" title="Copy code"
+                                        class="mt-0.5 inline-flex items-center gap-1 font-mono text-[11px] text-neutral-400 transition-colors hover:text-nfuko-primary-600">
+                                        {{ item?.memeber_code || '—' }}
+                                        <Check v-if="copiedCode === item.id" class="h-3 w-3 text-emerald-600" />
+                                        <Copy v-else class="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
+                                    </button>
                                 </div>
                             </div>
                         </td>
-                        <!-- code -->
-                        <td class="whitespace-nowrap px-5 py-3.5">
-                            <button type="button" @click="copyCode(item)" title="Copy code"
-                                class="group inline-flex items-center gap-1.5 font-mono text-xs text-neutral-600 transition-colors hover:text-nfuko-primary-700 dark:text-neutral-300">
-                                {{ item?.memeber_code || '—' }}
-                                <Check v-if="copiedCode === item.id" class="h-3.5 w-3.5 text-emerald-600" />
-                                <Copy v-else class="h-3.5 w-3.5 text-neutral-300 group-hover:text-neutral-500" />
-                            </button>
-                        </td>
-                        <!-- member -->
-                        <td class="whitespace-nowrap px-5 py-3.5">
-                            <button type="button" @click="navigateToProfile(item)"
-                                class="font-semibold text-nfuko-action transition-colors hover:underline dark:text-white">
-                                {{ item?.salutation_name }}
-                            </button>
-                        </td>
                         <!-- national id -->
-                        <td class="whitespace-nowrap px-5 py-3.5 font-mono text-xs text-neutral-600 dark:text-neutral-300">{{ item?.NIN || '—' }}</td>
+                        <td class="whitespace-nowrap px-6 py-3.5">
+                            <span v-if="item?.NIN" class="font-mono text-xs text-neutral-600 dark:text-neutral-300">{{ item.NIN }}</span>
+                            <span v-else class="text-neutral-300">—</span>
+                        </td>
                         <!-- phone -->
-                        <td class="whitespace-nowrap px-5 py-3.5 tabular-nums text-neutral-600 dark:text-neutral-300">{{ item?.primary_contact || '—' }}</td>
+                        <td class="whitespace-nowrap px-6 py-3.5 tabular-nums text-neutral-600 dark:text-neutral-300">{{ item?.primary_contact || '—' }}</td>
                         <!-- joined -->
-                        <td class="whitespace-nowrap px-5 py-3.5 text-neutral-500 dark:text-neutral-400">{{ formatJoined(item?.joined_date) }}</td>
+                        <td class="whitespace-nowrap px-6 py-3.5">
+                            <div class="text-sm text-neutral-700 dark:text-neutral-200">{{ formatJoined(item?.joined_date) }}</div>
+                            <div v-if="relativeJoined(item?.joined_date)" class="text-[11px] text-neutral-400">{{ relativeJoined(item?.joined_date) }}</div>
+                        </td>
                         <!-- gender -->
-                        <td class="px-5 py-3.5">
+                        <td class="px-6 py-3.5">
                             <span v-if="item?.sex"
                                 class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold capitalize ring-1 ring-inset"
                                 :class="genderPill(item.sex)">
                                 <span class="size-1.5 rounded-full bg-current opacity-70" />
                                 {{ item.sex }}
                             </span>
-                            <span v-else class="text-neutral-400">—</span>
+                            <span v-else class="text-neutral-300">—</span>
                         </td>
                         <!-- actions -->
-                        <td class="whitespace-nowrap px-5 py-3.5 text-right hide-on-print">
+                        <td class="whitespace-nowrap px-6 py-3.5 text-right hide-on-print">
                             <div class="inline-flex items-center justify-end gap-2">
                                 <button v-if="!item?.dormant_date" type="button" @click="onAction(item, 'edit')"
                                     class="inline-flex items-center gap-1.5 rounded-lg border border-nfuko-primary-200 bg-nfuko-primary-50 px-3 py-1.5 text-xs font-semibold text-nfuko-primary-700 transition-colors hover:bg-nfuko-primary-100 dark:border-nfuko-primary-500/20 dark:bg-nfuko-primary-500/10 dark:text-nfuko-primary-300">
@@ -198,11 +208,31 @@ function profileImageUrl(item: any) {
         .replace(/^storage\//, '/storage/')
 }
 
+// Safari/strict parsers reject "YYYY-MM-DD HH:mm:ss"; normalise the space to 'T'.
+function parseDate(d: any): Date | null {
+    if (!d) return null
+    const date = new Date(String(d).trim().replace(' ', 'T'))
+    return isNaN(date.getTime()) ? null : date
+}
+
 function formatJoined(d: any) {
-    if (!d) return '—'
-    const date = new Date(d)
-    if (isNaN(date.getTime())) return String(d)
+    const date = parseDate(d)
+    if (!date) return '—'
     return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+}
+
+function relativeJoined(d: any) {
+    const date = parseDate(d)
+    if (!date) return ''
+    const days = Math.floor((Date.now() - date.getTime()) / 86400000)
+    if (days < 0) return ''
+    if (days === 0) return 'today'
+    if (days === 1) return 'yesterday'
+    if (days < 30) return `${days} days ago`
+    const months = Math.floor(days / 30)
+    if (months < 12) return `${months} month${months > 1 ? 's' : ''} ago`
+    const years = Math.floor(days / 365)
+    return `${years} year${years > 1 ? 's' : ''} ago`
 }
 
 function genderPill(sex: any) {
