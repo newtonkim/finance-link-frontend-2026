@@ -15,7 +15,25 @@
       </div>
     </template>
     <template #sub-header>
-      <AnalysisTile :data="stats" grid-class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3" />
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div v-for="s in stats" :key="s.title"
+          class="group relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-md dark:border-white/10 dark:bg-[#151515]">
+          <span class="absolute inset-y-0 left-0 w-1" :style="{ backgroundColor: s.accent }"></span>
+          <div class="flex items-start justify-between gap-3 pl-2">
+            <div class="min-w-0">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-neutral-400">{{ s.title }}</p>
+              <p class="mt-1.5 text-2xl font-black leading-none tracking-tight text-neutral-900 dark:text-white">
+                {{ s.value }}<span v-if="s.suffix" class="ml-0.5 text-base font-bold text-neutral-400">{{ s.suffix }}</span>
+              </p>
+              <p v-if="s.trend" class="mt-1.5 text-[11px] font-semibold" :class="s.trendColor">{{ s.trend }}</p>
+              <p v-else class="mt-1.5 text-[11px] font-medium text-neutral-400">{{ s.hint }}</p>
+            </div>
+            <div class="flex size-10 shrink-0 items-center justify-center rounded-xl" :class="s.tint">
+              <component :is="s.icon" class="size-5" :class="s.iconColor" />
+            </div>
+          </div>
+        </div>
+      </div>
     </template>
     <template #group_code="{ item }">
       <CopyData :show="item?.group_code" :copy="item?.group_code">
@@ -66,7 +84,7 @@ import { ref, computed, watch } from 'vue'
 import { pomPinia } from 'septor-store';
 import { Users, Handshake, PauseCircle, TrendingUp } from 'lucide-vue-next'
 import { Create, Details, AddGroupTab, GroupTemplate, SavingGroupMemberTemplate } from '.'
-import { TableDrawer, StatusButtonsHorizontal, AnalysisTile, PainPageHeader, TabelActionButtons, setLocalValues, CopyData, uploadTemplateColumData } from '@/Global'
+import { TableDrawer, StatusButtonsHorizontal, addNumberCommas, PainPageHeader, TabelActionButtons, setLocalValues, CopyData, uploadTemplateColumData } from '@/Global'
 import { useRouter } from 'vue-router';
 import { groupSavingsApi } from '@/tenant/apis/savings/group-savingsApi';
 const Store = pomPinia();
@@ -123,37 +141,41 @@ const stats = computed(() => {
   return [
     {
       title: 'Total groups',
-      value: total,
-      type: 'number',
+      value: addNumberCommas(total),
       icon: Users,
-      bgColor: 'bg-[#052659]/10',
-      iconColor: 'text-[#052659]',
+      accent: '#052659',
+      tint: 'bg-[#052659]/10 dark:bg-white/10',
+      iconColor: 'text-[#052659] dark:text-white',
+      hint: 'All registered groups',
     },
     {
       title: 'Active groups',
-      value: active,
-      type: 'number',
+      value: addNumberCommas(active),
       icon: Handshake,
-      bgColor: 'bg-emerald-50',
+      accent: '#059669',
+      tint: 'bg-emerald-50 dark:bg-emerald-500/15',
       iconColor: 'text-emerald-600',
       trend: `${activeRate}% of all groups`,
       trendColor: 'text-emerald-600',
     },
     {
       title: 'Inactive groups',
-      value: inactive,
-      type: 'number',
+      value: addNumberCommas(inactive),
       icon: PauseCircle,
-      bgColor: 'bg-slate-100',
+      accent: '#94a3b8',
+      tint: 'bg-slate-100 dark:bg-white/10',
       iconColor: 'text-slate-500',
+      hint: 'Suspended, expired or trial',
     },
     {
       title: 'Active rate',
       value: activeRate,
       suffix: '%',
       icon: TrendingUp,
-      bgColor: 'bg-[#cda434]/10',
+      accent: '#cda434',
+      tint: 'bg-[#cda434]/10',
       iconColor: 'text-[#cda434]',
+      hint: 'Share of groups active',
     },
   ]
 })
