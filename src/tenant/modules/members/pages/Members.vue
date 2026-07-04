@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { Search, Plus, Printer, FileText, FileSpreadsheet, ChevronDown, Upload } from 'lucide-vue-next'
+import { Search, Plus, Printer, FileText, FileSpreadsheet, ChevronDown, Upload, X, Loader2 } from 'lucide-vue-next'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Button, Spinner } from '@/Global'
 import { saccoBrandingApi, saccoBrandingState } from '@/tenant/apis/saccobranding/saccoBrandingApi'
 import { useSettingsStore } from '@/stores/settingsStore'
@@ -18,7 +18,7 @@ const tenantPhone = computed(() =>
 )
 
 const {
-  members, meta, pages, loading, exporting, searchQuery,
+  members, meta, pages, loading, exporting, searchQuery, searching, clearSearch,
   showDeleteDialog, deleteTarget, deleteLoading,
   fetchMembers, openCreate, openEdit, viewMember,
   confirmDelete, deleteMember, exportMembersExcel,
@@ -78,10 +78,34 @@ onMounted(async () => {
     </div>
 
     <!-- Search -->
-    <div class="relative max-w-lg no-print">
-      <Search class="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-      <input v-model="searchQuery" type="text" placeholder="Search by name, member number, phone, or email…"
-        class="w-full rounded-full border border-neutral-200 bg-white py-2.5 pl-11 pr-4 text-sm outline-none transition focus:border-nfuko-primary focus:ring-1 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white" />
+    <div class="no-print w-full max-w-2xl">
+      <div class="group relative">
+        <!-- Leading icon: spinner while a search is pending, magnifier otherwise -->
+        <Loader2 v-if="searching" class="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-nfuko-primary" />
+        <Search v-else class="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400 transition-colors group-focus-within:text-nfuko-primary" />
+
+        <input v-model="searchQuery" type="search" enterkeyhint="search" autocomplete="off"
+          aria-label="Search members"
+          placeholder="Search by name, member number, phone, or email"
+          @keydown.esc="clearSearch"
+          class="w-full rounded-full border border-neutral-200 bg-white py-2.5 pl-11 pr-11 text-sm text-neutral-800 outline-none transition placeholder:text-neutral-400 focus:border-nfuko-primary focus:ring-2 focus:ring-nfuko-primary/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white [&::-webkit-search-cancel-button]:hidden" />
+
+        <!-- Clear button -->
+        <button v-if="searchQuery" type="button" @click="clearSearch"
+          aria-label="Clear search"
+          class="absolute right-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-neutral-700">
+          <X class="h-4 w-4" />
+        </button>
+      </div>
+
+      <!-- Result hint -->
+      <p class="mt-2 pl-4 text-xs font-medium text-neutral-500" aria-live="polite">
+        <template v-if="searching">Searching…</template>
+        <template v-else-if="searchQuery.trim()">
+          {{ meta.total }} {{ meta.total === 1 ? 'result' : 'results' }} for “{{ searchQuery.trim() }}”
+        </template>
+        <template v-else>&nbsp;</template>
+      </p>
     </div>
 
     <!-- Print header -->
