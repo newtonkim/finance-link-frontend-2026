@@ -90,12 +90,22 @@
     :status-class="statusClass" @edit-account="onEditAccount" />
 
   <EditAccountDrawer ref="editDrawer" :savings-products="savingsProducts" @success="emit('reload')" />
+
+  <!-- Same "View member saving's Account Details" drawer opened from the account number -->
+  <Drawer v-model:open="viewOpen" width="w-2/3" title="View member saving's Account Details">
+    <template #body>
+      <div v-if="viewLoading" class="p-10 text-center text-sm font-medium text-gray-400">Loading account…</div>
+      <Details v-else :data="viewData" />
+    </template>
+  </Drawer>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import { Plus, Landmark, Wallet, Copy, Check, CircleMinus, CircleDollarSign } from "lucide-vue-next";
-import { Deposit, Withdrawal } from "@/tenant/modules/savings/member-account";
+import { Drawer, fetchTableData } from "@/Global";
+import { pomPinia } from "septor-store";
+import { Deposit, Withdrawal, Details } from "@/tenant/modules/savings/member-account";
 import { memberAccountApi, memberProfileApi } from "@/tenant/apis";
 import ViewAccountDrawer from "@/tenant/modules/savings/components/ViewAccountDrawer.vue";
 import EditAccountDrawer from "@/tenant/modules/savings/components/EditAccountDrawer.vue";
@@ -117,6 +127,7 @@ const emit = defineEmits<{
   customFee: [account: any];
 }>();
 
+const Store = pomPinia();
 const drawer = ref<any>(null);
 const viewDrawer = ref<InstanceType<typeof ViewAccountDrawer> | null>(null);
 const editDrawer = ref<InstanceType<typeof EditAccountDrawer> | null>(null);
@@ -135,10 +146,25 @@ async function onEditAccount(account: any) {
   editDrawer.value?.openDrawer({ id: account.id }, account);
 }
 
-// Open the full savings-account view (balance, product, and — for fixed
-// deposits — maturity/interest) when a member clicks the account number.
-function openAccountView(account: any) {
-  viewDrawer.value?.openDrawer({ id: account.id });
+// Open the same "View member saving's Account Details" drawer (member ledger,
+// receipts, running balances) used elsewhere, fed by the same details endpoint,
+// when a member clicks the account number.
+const viewOpen = ref(false);
+const viewLoading = ref(false);
+const viewData = ref<any>({});
+async function openAccountView(account: any) {
+  viewLoading.value = true;
+  viewOpen.value = true;
+  try {
+    const res: any = await fetchTableData({
+      data: { id: account.id, ...account },
+      Store,
+      props: { url: 'members-account/details', state: 'memberAccountView' },
+    });
+    viewData.value = res?.payload ?? res ?? {};
+  } finally {
+    viewLoading.value = false;
+  }
 }
 const drawerRemount = ref(true);
 const formData = ref<Record<string, any>>({});
