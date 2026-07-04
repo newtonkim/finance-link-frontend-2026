@@ -194,15 +194,15 @@ function openStatement() {
     @page { size: A4; margin: 14mm 12mm; }
     * { box-sizing: border-box; }
     body { font-family: "Helvetica Neue", Arial, sans-serif; color: #1a1a1a; font-size: 11px; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .accent { color: #0050D8; }
-    .head { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0050D8; padding-bottom: 12px; }
+    .accent { color: #06265a; }
+    .head { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #06265a; padding-bottom: 12px; }
     .brand { display: flex; gap: 12px; align-items: center; }
     .brand img { height: 46px; width: auto; object-fit: contain; }
-    .brand .logo-fallback { height: 46px; width: 46px; border-radius: 10px; background: #0050D8; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; }
+    .brand .logo-fallback { height: 46px; width: 46px; border-radius: 10px; background: #06265a; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; }
     .sacco-name { font-size: 17px; font-weight: 800; letter-spacing: -.2px; }
     .tagline { color: #666; font-size: 10px; margin-top: 1px; }
     .doc-title { text-align: right; }
-    .doc-title h1 { font-size: 13px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin: 0; color: #0050D8; }
+    .doc-title h1 { font-size: 13px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin: 0; color: #06265a; }
     .doc-title p { color: #666; font-size: 10px; margin: 2px 0 0; }
     .meta { display: flex; justify-content: space-between; gap: 24px; margin: 16px 0; }
     .meta .block { flex: 1; }
@@ -213,7 +213,7 @@ function openStatement() {
     .mono { font-family: "Courier New", monospace; }
     .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #e5e5e5; border: 1px solid #e5e5e5; border-radius: 6px; overflow: hidden; margin-bottom: 14px; }
     .summary .cell { background: #fafafa; padding: 9px 11px; }
-    .summary .cell.k { background: #0050D8; }
+    .summary .cell.k { background: #06265a; }
     .summary .cell .lbl { font-size: 8.5px; text-transform: uppercase; letter-spacing: .6px; color: #888; }
     .summary .cell.k .lbl { color: #cfe0ff; }
     .summary .cell .val { font-size: 14px; font-weight: 800; margin-top: 2px; }
@@ -221,7 +221,7 @@ function openStatement() {
     .summary .cell .cur { font-size: 9px; font-weight: 600; color: #aaa; }
     .summary .cell.k .cur { color: #cfe0ff; }
     table.ledger { width: 100%; border-collapse: collapse; font-size: 10px; }
-    table.ledger thead th { background: #0050D8; color: #fff; text-align: left; padding: 7px 8px; font-size: 9px; text-transform: uppercase; letter-spacing: .5px; }
+    table.ledger thead th { background: #06265a; color: #fff; text-align: left; padding: 7px 8px; font-size: 9px; text-transform: uppercase; letter-spacing: .5px; }
     table.ledger thead th.num { text-align: right; }
     table.ledger thead th.c { text-align: center; }
     table.ledger td { padding: 6px 8px; border-bottom: 1px solid #eee; vertical-align: top; }
@@ -234,13 +234,13 @@ function openStatement() {
     .desc { text-transform: capitalize; }
     .muted { color: #999; }
     .rev-tag { display: inline-block; margin-left: 5px; font-size: 8px; font-weight: 800; color: #b00; border: 1px solid #f2bcbc; border-radius: 3px; padding: 0 3px; vertical-align: middle; }
-    tr.total td { border-top: 2px solid #0050D8; font-weight: 800; padding-top: 8px; }
+    tr.total td { border-top: 2px solid #06265a; font-weight: 800; padding-top: 8px; }
     tr.closing td { background: #eef4ff; font-weight: 800; font-size: 11px; }
     .empty { text-align: center; padding: 30px; color: #999; }
     .foot { margin-top: 18px; padding-top: 10px; border-top: 1px solid #ddd; display: flex; justify-content: space-between; color: #999; font-size: 9px; }
     @media print { .noprint { display: none; } }
     .noprint { text-align: center; margin: 16px 0; }
-    .noprint button { background: #0050D8; color: #fff; border: 0; padding: 9px 22px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px; }
+    .noprint button { background: #06265a; color: #fff; border: 0; padding: 9px 22px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px; }
 </style></head>
 <body>
     <div class="head">
@@ -377,7 +377,7 @@ onMounted(async () => {
                 <span class="font-semibold text-neutral-700 dark:text-neutral-200">Account details</span>
             </nav>
             <button type="button" @click="openStatement"
-                class="inline-flex items-center gap-1.5 rounded-lg border border-nfuko-primary-200 bg-nfuko-primary-50 px-3.5 py-1.5 text-xs font-semibold text-nfuko-primary-700 shadow-sm transition-colors hover:bg-nfuko-primary-100 dark:border-nfuko-primary-500/20 dark:bg-nfuko-primary-500/10 dark:text-nfuko-primary-300">
+                class="inline-flex items-center gap-1.5 rounded-lg border border-[#06265a]/25 bg-[#06265a]/5 px-3.5 py-1.5 text-xs font-semibold text-[#06265a] shadow-sm transition-colors hover:bg-[#06265a]/15 dark:border-[#06265a]/40 dark:bg-[#06265a]/30 dark:text-[#9db4dd]">
                 <FileText :size="14" /> Statement
             </button>
         </div>
@@ -388,10 +388,10 @@ onMounted(async () => {
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <div class="flex min-w-0 items-center gap-4">
                     <div
-                        class="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-nfuko-primary-50 ring-1 ring-nfuko-primary-100 dark:bg-nfuko-primary-500/10 dark:ring-nfuko-primary-500/20">
+                        class="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#06265a]/5 ring-1 ring-[#06265a]/15 dark:bg-[#06265a]/30 dark:ring-[#06265a]/40">
                         <img v-if="data.member_image" :src="data.member_image" :alt="data.member_name"
                             class="size-full object-cover" />
-                        <span v-else class="text-base font-bold text-nfuko-primary-700 dark:text-nfuko-primary-300">
+                        <span v-else class="text-base font-bold text-[#06265a] dark:text-[#9db4dd]">
                             {{ memberInitials(data.member_name) }}
                         </span>
                     </div>
@@ -401,7 +401,7 @@ onMounted(async () => {
                         </h2>
                         <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-neutral-500">
                             <button type="button" @click="copyCode" :disabled="!data.account_code"
-                                class="group inline-flex items-center gap-1 font-mono text-nfuko-primary-700 transition-colors disabled:cursor-default dark:text-nfuko-primary-300"
+                                class="group inline-flex items-center gap-1 font-mono text-[#06265a] transition-colors disabled:cursor-default dark:text-[#9db4dd]"
                                 :title="data.account_code ? 'Copy account number' : ''">
                                 {{ data.account_code || '—' }}
                                 <Check v-if="copied" :size="11" class="text-emerald-600" />
@@ -436,7 +436,7 @@ onMounted(async () => {
         <!-- ───────────── Balance tiles ───────────── -->
         <section class="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
             <div v-for="tile in balanceTiles" :key="tile.label"
-                class="rounded-2xl border border-neutral-200/80 bg-nfuko-primary-50/40 p-4 dark:border-neutral-800 dark:bg-neutral-900">
+                class="rounded-2xl border border-neutral-200/80 bg-[#06265a]/5 p-4 dark:border-neutral-800 dark:bg-neutral-900">
                 <p class="text-xs font-medium text-neutral-500">{{ tile.label }}</p>
                 <p v-if="tile.text" class="mt-1.5 truncate text-xl font-bold capitalize text-neutral-900 dark:text-white">
                     {{ tile.value }}
@@ -535,7 +535,7 @@ onMounted(async () => {
             <header class="flex items-center justify-between border-b border-neutral-200 px-5 py-3.5 dark:border-neutral-800">
                 <h3 class="text-sm font-bold text-neutral-800 dark:text-neutral-100">Recent transactions</h3>
                 <button type="button" @click="openStatement"
-                    class="inline-flex items-center gap-1 text-xs font-semibold text-nfuko-primary-700 hover:underline dark:text-nfuko-primary-300">
+                    class="inline-flex items-center gap-1 text-xs font-semibold text-[#06265a] hover:underline dark:text-[#9db4dd]">
                     View full statement <ChevronRight :size="13" />
                 </button>
             </header>
@@ -557,7 +557,7 @@ onMounted(async () => {
             <div v-else class="overflow-x-auto">
                 <table class="w-full min-w-160 border-collapse text-sm">
                     <thead>
-                        <tr class="bg-nfuko-primary text-left align-bottom text-[11px] font-bold uppercase tracking-wider text-white">
+                        <tr class="bg-[#06265a] text-left align-bottom text-[11px] font-bold uppercase tracking-wider text-white">
                             <th class="px-4 py-2.5 text-center">#</th>
                             <th class="px-4 py-2.5">Date</th>
                             <th class="px-4 py-2.5">Reference</th>
@@ -569,7 +569,7 @@ onMounted(async () => {
                     </thead>
                     <tbody>
                         <!-- opening balance -->
-                        <tr class="bg-nfuko-primary-50/50 dark:bg-neutral-800/40">
+                        <tr class="bg-[#06265a]/5 dark:bg-neutral-800/40">
                             <td class="px-4 py-3"></td>
                             <td class="px-4 py-3 font-bold text-neutral-800 dark:text-neutral-100" colspan="3">Opening balance</td>
                             <td class="px-4 py-3"></td>
@@ -581,14 +581,14 @@ onMounted(async () => {
 
                         <!-- rows -->
                         <tr v-for="row in ledger.items" :key="row.id ?? row._no"
-                            class="group border-b border-neutral-100 transition-colors odd:bg-neutral-50/60 hover:bg-nfuko-primary-50/30 dark:border-neutral-800 dark:odd:bg-neutral-800/20"
+                            class="group border-b border-neutral-100 transition-colors odd:bg-neutral-50/60 hover:bg-[#06265a]/5 dark:border-neutral-800 dark:odd:bg-neutral-800/20"
                             :class="{ 'text-rose-600 line-through dark:text-rose-400': row._reversed }">
                             <td class="px-4 py-3 text-center text-xs text-neutral-400">{{ row._no }}</td>
                             <td class="whitespace-nowrap px-4 py-3 text-neutral-600 dark:text-neutral-300">
                                 {{ fmtDate(row.created_at || row.transaction_date) }}
                             </td>
                             <td class="whitespace-nowrap px-4 py-3">
-                                <span class="font-mono text-xs text-nfuko-primary-700 dark:text-nfuko-primary-300">{{ row.reference || '—' }}</span>
+                                <span class="font-mono text-xs text-[#06265a] dark:text-[#9db4dd]">{{ row.reference || '—' }}</span>
                             </td>
                             <td class="px-4 py-3">
                                 <span class="capitalize text-neutral-800 dark:text-neutral-100">{{ cleanNarration(row.narration) || row.type || '—' }}</span>
@@ -607,14 +607,14 @@ onMounted(async () => {
                         </tr>
 
                         <!-- totals -->
-                        <tr class="border-t-2 border-nfuko-primary font-bold text-neutral-900 dark:text-white">
+                        <tr class="border-t-2 border-[#06265a] font-bold text-neutral-900 dark:text-white">
                             <td class="px-4 py-3" colspan="4">Totals</td>
                             <td class="px-4 py-3 text-right tabular-nums">{{ formatMoneyValue(ledger.totalDebit) }}</td>
                             <td class="px-4 py-3 text-right tabular-nums">{{ formatMoneyValue(ledger.totalCredit) }}</td>
                             <td class="px-4 py-3"></td>
                         </tr>
                         <!-- closing -->
-                        <tr class="bg-nfuko-primary-50 font-bold text-neutral-900 dark:bg-nfuko-primary-500/10 dark:text-white">
+                        <tr class="bg-[#06265a]/5 font-bold text-neutral-900 dark:bg-[#06265a]/30 dark:text-white">
                             <td class="px-4 py-3" colspan="6">Closing balance</td>
                             <td class="px-4 py-3 text-right tabular-nums">{{ formatMoneyValue(ledger.closing) }}</td>
                         </tr>
