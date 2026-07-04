@@ -11,12 +11,16 @@
     <!-- Account number — icon + monospace code + copy -->
     <template #code="{ item }">
       <div class="flex items-center gap-3 py-1">
-        <div class="size-9 rounded-xl bg-[#cda434]/10 flex items-center justify-center shrink-0">
+        <button type="button" @click="openAccountView(item)" title="Open account"
+          class="size-9 rounded-xl bg-[#cda434]/10 flex items-center justify-center shrink-0 transition-colors hover:bg-[#cda434]/20">
           <Landmark :size="16" class="text-[#cda434]" />
-        </div>
+        </button>
         <div class="min-w-0">
           <div class="flex items-center gap-1.5">
-            <span class="font-mono font-bold text-[13px] text-gray-900 truncate">{{ item.code }}</span>
+            <button type="button" @click="openAccountView(item)" title="Open account for full view"
+              class="font-mono font-bold text-[13px] text-gray-900 truncate underline-offset-2 transition-colors hover:text-[#cda434] hover:underline">
+              {{ item.code }}
+            </button>
             <button @click="copyCode(item.code)" class="shrink-0 text-gray-300 hover:text-[#cda434] transition-colors" title="Copy account number">
               <component :is="copiedCode === item.code ? Check : Copy" :size="13" :class="copiedCode === item.code ? 'text-emerald-500' : ''" />
             </button>
@@ -129,6 +133,12 @@ async function loadSavingsProducts() {
 async function onEditAccount(account: any) {
   await loadSavingsProducts();
   editDrawer.value?.openDrawer({ id: account.id }, account);
+}
+
+// Open the full savings-account view (balance, product, and — for fixed
+// deposits — maturity/interest) when a member clicks the account number.
+function openAccountView(account: any) {
+  viewDrawer.value?.openDrawer({ id: account.id });
 }
 const drawerRemount = ref(true);
 const formData = ref<Record<string, any>>({});
