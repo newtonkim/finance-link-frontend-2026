@@ -644,9 +644,9 @@ function clearFilters() {
                         </td>
 
                         <td class="px-5 py-4 align-top">
-                            <div class="flex items-start gap-2">
-                                <div>
-                                    <div class="font-mono text-sm font-bold text-slate-900">{{ txn.receipt_number || txn.umbrella_code || txn.grouped_with || txn.reference || '-' }}</div>
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="min-w-0">
+                                    <div class="truncate font-mono text-sm font-bold text-slate-900">{{ txn.receipt_number || txn.umbrella_code || txn.grouped_with || txn.reference || '-' }}</div>
                                     <div class="mt-0.5 text-[11px] font-semibold text-slate-500">
                                         {{ txn.transaction_date ? formatDate(txn.transaction_date) : 'No value date' }}
                                     </div>
@@ -654,7 +654,7 @@ function clearFilters() {
                                 <button
                                     v-if="canPrintReceipt(txn)"
                                     type="button"
-                                    class="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-700 transition hover:border-blue-200 hover:bg-blue-100"
+                                    class="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-blue-100 bg-blue-50 text-blue-700 transition hover:border-blue-200 hover:bg-blue-100"
                                     title="Print receipt"
                                     @click="emit('print', txn)"
                                 >
