@@ -245,7 +245,9 @@ const enteredCharge = computed(() => {
   const n = match ? Number(match[0].replace(/,/g, '')) : 0
   return isNaN(n) ? 0 : n
 })
-const totalToCollect = computed(() => enteredDeposit.value + enteredCharge.value)
+// Convention A: the charge is deducted from the deposit, so the amount credited
+// to the account is deposit − charge (not deposit + charge).
+const totalToCollect = computed(() => Math.max(enteredDeposit.value - enteredCharge.value, 0))
 
 const copied = ref(false)
 function copyCode() {

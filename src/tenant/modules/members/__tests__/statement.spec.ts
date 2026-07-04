@@ -43,7 +43,7 @@ describe('statement.vue', () => {
     expect(wrapper.text()).toContain('Maya Nyamu');
     expect(wrapper.text()).toContain('Main branch');
     expect(wrapper.text()).toContain('550.00');         // closing
-    expect(wrapper.text()).toContain('End of Transactions');
+    expect(wrapper.text()).toContain('End of statement');
     expect((tenantClient.get as Mock).mock.calls[0]?.[0]).toContain('savings-account-statement/1');
   });
 
@@ -53,11 +53,11 @@ describe('statement.vue', () => {
     });
     await flushPromises();
     const rows = wrapper.findAll('tbody tr');
-    // first transaction row: credit=500, debit empty
+    // first transaction row: credit=500, debit shown as an em dash placeholder
     expect(rows[0].html()).toContain('500.00');
-    expect(rows[0].findAll('td')[3].text()).toBe(''); // debit empty
-    // second row is credit=0, debit=50: credit cell (col index 2) should be empty
+    expect(rows[0].findAll('td')[3].text()).toBe('—'); // debit empty
+    // second row is credit=0, debit=50: credit cell (col index 2) is the placeholder
     expect(rows[1].html()).toContain('50.00');
-    expect(rows[1].findAll('td')[2].text()).toBe('');
+    expect(rows[1].findAll('td')[2].text()).toBe('—');
   });
 });
