@@ -2,15 +2,23 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { Printer, CalendarDays, Wallet, Plus, Minus, Equal, ArrowDownLeft, ArrowUpRight } from 'lucide-vue-next';
 import { formatCurrency, formatDateUs, printElementId } from '@/Global';
+import SearchableSelect from '@/Global/SearchableSelect.vue';
 import { saccoBrandingApi, saccoBrandingState } from '@/tenant/apis/saccobranding/saccoBrandingApi';
 import { useAccountStatement } from './composables/useAccountStatement';
 
 const props = defineProps<{
-  data?: { savings_accounts?: Array<{ id: number; account_no: string | null; account_type: string }> };
+  data?: { savings_accounts?: Array<{ id: number; account_no: string | null; code?: string | null; account_type: string }> };
 }>();
 
 const accounts = computed(() => props.data?.savings_accounts ?? []);
 const accountId = ref<number | null>(accounts.value[0]?.id ?? null);
+
+const accountOptions = computed(() =>
+  accounts.value.map((a) => ({
+    id: a.id,
+    name: `${a.account_no ?? a.code ?? `Account #${a.id}`} · ${a.account_type}`,
+  })),
+);
 
 watch(accounts, (list) => {
   if (accountId.value === null && list.length > 0) accountId.value = list[0].id;
@@ -53,12 +61,7 @@ function onPrint() { printElementId('statement-print-area'); }
           <span class="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500">
             <Wallet :size="13" /> Account
           </span>
-          <select v-model="accountId"
-                  class="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-[#cda434] focus:ring-2 focus:ring-[#cda434]/20">
-            <option v-for="a in accounts" :key="a.id" :value="a.id">
-              {{ a.account_no ?? `Account #${a.id}` }} ({{ a.account_type }})
-            </option>
-          </select>
+          <SearchableSelect v-model="accountId" :options="accountOptions" placeholder="Search account number…" />
         </label>
         <label class="block">
           <span class="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500">
