@@ -1,96 +1,202 @@
 <template>
-  <TableDrawer :permissions="{
-    create: 'group-saving-create',
-    view: 'group-saving-details',
-    edit: 'group-saving-update',
-    delete: 'group-saving-delete'
-  }" :showTableAction="true" :drawerRemount="drawerRemount" :exportItems="exportItems" :drawer-show-footer="triger"
-    :automaticCreate="automaticCreate.actionSlot != 'create-none-member'" :drawerWidth="drawerTitle?.width"
-    :url="tableUrl" state="groupAccountList" :drawerTitle="drawerTitle?.title" :columns="columns" @save="saveUser"
-    ref="drawer">
-    <template #header-action>
-      <div class="space-y-3">
-        <PainPageHeader title="Group Savings"
-          dec="Create savings groups, manage their members, and track status and performance at a glance." />
-      </div>
-    </template>
-    <template #sub-header>
-      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div v-for="s in stats" :key="s.title"
-          class="group relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-md dark:border-white/10 dark:bg-[#151515]">
-          <span class="absolute inset-y-0 left-0 w-1" :style="{ backgroundColor: s.accent }"></span>
-          <div class="flex items-start justify-between gap-3 pl-2">
-            <div class="min-w-0">
-              <p class="text-[11px] font-bold uppercase tracking-wider text-neutral-400">{{ s.title }}</p>
-              <p class="mt-1.5 text-2xl font-black leading-none tracking-tight text-neutral-900 dark:text-white">
-                {{ s.value }}<span v-if="s.suffix" class="ml-0.5 text-base font-bold text-neutral-400">{{ s.suffix }}</span>
-              </p>
-              <p v-if="s.trend" class="mt-1.5 text-[11px] font-semibold" :class="s.trendColor">{{ s.trend }}</p>
-              <p v-else class="mt-1.5 text-[11px] font-medium text-neutral-400">{{ s.hint }}</p>
-            </div>
-            <div class="flex size-10 shrink-0 items-center justify-center rounded-xl" :class="s.tint">
-              <component :is="s.icon" class="size-5" :class="s.iconColor" />
+  <div class="group-savings-page">
+    <TableDrawer
+      :permissions="{
+        create: 'group-saving-create',
+        view: 'group-saving-details',
+        edit: 'group-saving-update',
+        delete: 'group-saving-delete',
+      }"
+      :check-box="false"
+      :show-add-button="false"
+      :showTableAction="false"
+      :drawerRemount="drawerRemount"
+      :exportItems="exportItems"
+      :drawer-show-footer="triger"
+      :automaticCreate="automaticCreate.actionSlot != 'create-none-member'"
+      :drawerWidth="drawerTitle?.width"
+      :url="tableUrl"
+      state="groupAccountList"
+      :drawerTitle="drawerTitle?.title"
+      :columns="columns"
+      @save="saveUser"
+      ref="drawer"
+    >
+      <template #sub-header>
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <div
+            v-for="card in summaryCards"
+            :key="card.title"
+            class="min-h-[86px] rounded-xl border border-slate-200/80 bg-white px-4 py-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
+          >
+            <div class="flex items-start justify-between gap-4">
+              <div class="min-w-0">
+                <p class="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
+                  {{ card.title }}
+                </p>
+                <div class="mt-3 flex items-center gap-2">
+                  <p class="text-2xl font-black leading-none tracking-normal text-slate-950">
+                    {{ card.value }}
+                  </p>
+                  <span
+                    v-if="card.badge"
+                    class="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-black leading-none text-emerald-600"
+                  >
+                    {{ card.badge }}
+                  </span>
+                </div>
+                <p class="mt-2 text-[11px] font-medium leading-none text-slate-500">
+                  {{ card.caption }}
+                </p>
+              </div>
+              <div
+                :class="[
+                  'flex size-7 shrink-0 items-center justify-center rounded-lg',
+                  card.iconBg,
+                ]"
+              >
+                <component :is="card.icon" :size="14" :class="card.iconClass" />
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </template>
-    <template #group_code="{ item }">
-      <CopyData :show="item?.group_code" :copy="item?.group_code">
-        <template #text>
-          <button @click="navigateToProfile(item)"
-            class="group inline-flex items-center gap-2 cursor-pointer text-left">
-            <span
-              class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[#052659]/10 text-[10px] font-black text-[#052659] dark:bg-white/10 dark:text-white">
-              {{ (item?.group_name || item?.group_code || 'G').charAt(0).toUpperCase() }}
+      </template>
+      <template #group_name="{ item }">
+        <button
+          type="button"
+          @click="navigateToProfile(item)"
+          class="flex min-w-0 items-center gap-3 text-left"
+        >
+          <span
+            :class="[
+              'flex size-8 shrink-0 items-center justify-center rounded-md text-[11px] font-black uppercase',
+              avatarClass(item),
+            ]"
+          >
+            {{ groupInitials(item) }}
+          </span>
+          <span class="min-w-0">
+            <span class="block truncate text-[13px] font-black leading-tight text-slate-950">
+              {{ item?.group_name ?? 'Unnamed group' }}
             </span>
-            <span class="min-w-0">
-              <span class="block truncate font-mono text-sm font-semibold text-nfuko-action group-hover:underline dark:text-white">{{ item?.group_code }}</span>
-              <span v-if="item?.group_name" class="block truncate text-[11px] text-neutral-400">{{ item?.group_name }}</span>
+            <span class="mt-1 block truncate text-[11px] font-medium leading-none text-slate-500">
+              {{ item?.group_code ?? 'No code' }}
+            </span>
+          </span>
+        </button>
+      </template>
+      <template #status="{ item }">
+        <span
+          :class="[
+            'inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-black leading-none',
+            statusClass(item?.status),
+          ]"
+        >
+          <span class="size-1.5 rounded-full bg-current"></span>
+          {{ formatStatus(item?.status) }}
+        </span>
+      </template>
+      <template #total_in_group="{ item }">
+        <span class="text-[13px] font-black text-slate-800">{{
+          addNumberCommas(item?.total_in_group ?? 0)
+        }}</span>
+      </template>
+      <template #actions="{ item }">
+        <div class="flex items-center justify-end gap-3 pr-1">
+          <button
+            v-for="action in rowActions"
+            :key="action.name"
+            type="button"
+            :aria-label="action.label"
+            :title="action.label"
+            :class="[
+              'inline-flex size-7 items-center justify-center rounded-md text-slate-400 transition hover:bg-slate-100 hover:text-slate-700',
+              action.name === 'delete' ? 'hover:bg-rose-50 hover:text-rose-500' : '',
+            ]"
+            @click="action.handler(item)"
+          >
+            <component :is="action.icon" :size="14" stroke-width="2" />
+          </button>
+        </div>
+      </template>
+      <template #searchSideAction>
+        <div
+          class="flex flex-wrap items-center gap-1 rounded-lg border border-slate-200/80 bg-slate-50 p-1 shadow-[0_1px_2px_rgba(15,23,42,0.05)]"
+        >
+          <button
+            v-for="filter in statusFilters"
+            :key="filter.id"
+            type="button"
+            @click="statusFilter = filter.id"
+            :class="[
+              'inline-flex h-7 items-center gap-1.5 rounded-md px-3 text-[11px] font-black capitalize leading-none transition',
+              statusFilter === filter.id
+                ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200'
+                : 'text-slate-500 hover:bg-white/70 hover:text-slate-800',
+            ]"
+          >
+            <span>{{ filter.label }}</span>
+            <span
+              class="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-black text-slate-500"
+            >
+              {{ filter.count }}
             </span>
           </button>
-        </template>
-      </CopyData>
-    </template>
-    <template #actions="{ item }">
-      <TabelActionButtons @action="() => OpenThedrawer(item)" title="add to group " color="primary" icon="CirclePile" />
-    </template>
-    <template #searchSideAction>
-      <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
-    </template>
-    <template #drawer="{ action, data }">
-      <uploadTemplateColumData upload-trick="row" v-if="
-        [
-          'import-group-account-savings',
-          'import-group-account-member',
-          'import-groups'
+        </div>
+      </template>
+      <template #drawer="{ action, data }">
+        <uploadTemplateColumData
+          upload-trick="row"
+          v-if="
+            [
+              'import-group-account-savings',
+              'import-group-account-member',
+              'import-groups',
+            ].includes((automaticCreate as any).actionSlot)
+          "
+          :title="(automaticCreate as any)?.actionSlot"
+          :url="`/group-account-savings/${(automaticCreate as any)?.actionSlot}`"
+          :submit-url="(automaticCreate as any).actionSlot"
+          submit="import"
+        />
 
-        ].includes((automaticCreate as any).actionSlot)
-      " :title="(automaticCreate as any)?.actionSlot"
-        :url="`/group-account-savings/${(automaticCreate as any)?.actionSlot}`"
-        :submit-url="(automaticCreate as any).actionSlot" submit="import" />
-
-      <GroupTemplate v-if="'download-group-savings-template' == automaticCreate.actionSlot" />
-      <SavingGroupMemberTemplate v-if="'download-group-member-template' == automaticCreate.actionSlot" />
-      <AddGroupTab v-if="automaticCreate.actionSlot == 'create-none-member'"
-        :data="{ ...automaticCreate, ...data, action }" v-model:form="formData" />
-      <Create v-else-if="['add', 'edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
-      <Details v-else-if="action === 'view'" :data="data" />
-    </template>
-  </TableDrawer>
+        <GroupTemplate v-if="'download-group-savings-template' == automaticCreate.actionSlot" />
+        <SavingGroupMemberTemplate
+          v-if="'download-group-member-template' == automaticCreate.actionSlot"
+        />
+        <AddGroupTab
+          v-if="automaticCreate.actionSlot == 'create-none-member'"
+          :data="{ ...automaticCreate, ...data, action }"
+          v-model:form="formData"
+        />
+        <Create
+          v-else-if="['add', 'edit'].includes(action)"
+          :data="{ ...data, action }"
+          v-model:form="formData"
+        />
+        <Details v-else-if="action === 'view'" :data="data" />
+      </template>
+    </TableDrawer>
+  </div>
 </template>
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { pomPinia } from 'septor-store';
-import { Users, Handshake, PauseCircle, TrendingUp } from 'lucide-vue-next'
+import { pomPinia } from 'septor-store'
 import { Create, Details, AddGroupTab, GroupTemplate, SavingGroupMemberTemplate } from '.'
-import { TableDrawer, StatusButtonsHorizontal, addNumberCommas, PainPageHeader, TabelActionButtons, setLocalValues, CopyData, uploadTemplateColumData } from '@/Global'
-import { useRouter } from 'vue-router';
-import { groupSavingsApi } from '@/tenant/apis/savings/group-savingsApi';
-const Store = pomPinia();
-const props = defineProps<{
-  data?: any
-}>(),
+import { TableDrawer, addNumberCommas, setLocalValues, uploadTemplateColumData } from '@/Global'
+import { useRouter } from 'vue-router'
+import { groupSavingsApi } from '@/tenant/apis/savings/group-savingsApi'
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Edit3,
+  Eye,
+  Trash2,
+  UserPlus,
+  Users,
+  UsersRound,
+} from 'lucide-vue-next'
+const Store = pomPinia(),
   automaticCreate = ref<any>({ drawerActions: true, actionSlot: null, item: null }),
   drawer = ref<any>(null),
   drawerRemount = ref(false),
@@ -98,181 +204,359 @@ const props = defineProps<{
 const statusFilter = ref('all')
 const drawerTitle = ref({
   title: 'Create Tenant',
-  width: 'w-2/3'
+  width: 'w-2/3',
 })
-const router = useRouter();
-const filters = ['all', 'active', 'suspended', 'expired', 'trial'], { addNoneExistingMember } = groupSavingsApi()
+const router = useRouter()
+const { addNoneExistingMember } = groupSavingsApi()
 const tableUrl = computed(() => {
   return `/group-account-savings/list?status=${statusFilter.value}`
 })
 const titleMap: Record<string, { title: string; width: string }> = {
   view: {
-    title: "view group Savings account Details",
-    width: "w-1/2"
+    title: 'view group Savings account Details',
+    width: 'w-1/2',
   },
   edit: {
-    title: "Edit Member Savings Account",
-    width: "w-1/2"
+    title: 'Edit Member Savings Account',
+    width: 'w-1/2',
   },
   add: {
-    title: "Create a Group Savings",
-    width: " md:w-2/3 sm:w-full"
-  }
+    title: 'Create a Group Savings',
+    width: ' md:w-2/3 sm:w-full',
+  },
 }
 const columns = [
-  { key: 'group_code', label: 'group code', copy: true, sticky: 'left', width: '15em' },
-  { key: 'group_name', label: 'name', sticky: 'left', width: '14em' },
-  { key: 'phone', label: 'admin phone', sticky: 'left', width: '14em' },
-  { key: 'status', label: 'Status', type: 'status' },
-  { key: 'total_in_group', label: 'total members', type: 'number', width: '10em' },
-  { key: 'dcreated', label: 'joined',onSearch: { type: 'date-range', }  },
-  { key: 'created_by', label: 'Created By', width: '10em' },
-  { key: 'created_at', label: 'Created At', type: 'date', width: '9em',onSearch: { type: 'date-range', }  },
-  { key: 'actions', label: 'Actions', show: ['view', 'edit', 'delete'] }
+  { key: 'group_name', label: 'Group', sticky: 'left', width: '28em' },
+  { key: 'phone', label: 'Admin Phone', width: '16em' },
+  { key: 'status', label: 'Status', width: '12em' },
+  { key: 'total_in_group', label: 'Members', width: '12em' },
+  { key: 'created_by', label: 'Created By', width: '15em' },
+  {
+    key: 'created_at',
+    label: 'Created',
+    type: 'date',
+    width: '14em',
+    onSearch: { type: 'date-range' },
+  },
+  { key: 'actions', label: 'Actions', show: [], width: '12em' },
 ]
 
-const stats = computed(() => {
-  const analysis = (Store as any).groupAccountList?.payload?.total_analysis ?? {}
-  const total = Number(analysis.total_groups ?? 0)
-  const active = Number(analysis.active_groups ?? 0)
-  const inactive = Math.max(total - active, 0)
-  const activeRate = total > 0 ? Math.round((active / total) * 100) : 0
+const payload = computed(() => (Store as any).groupAccountList?.payload ?? {})
+const rows = computed(() => (Array.isArray(payload.value?.data) ? payload.value.data : []))
+const totalGroups = computed(() =>
+  Number(
+    payload.value?.total_analysis?.total_groups ?? payload.value?.total ?? rows.value.length ?? 0,
+  ),
+)
+const activeGroups = computed(() =>
+  Number(payload.value?.total_analysis?.active_groups ?? countStatus('active')),
+)
+const needsAttention = computed(() => Math.max(totalGroups.value - activeGroups.value, 0))
+const totalMembers = computed(() =>
+  Number(
+    payload.value?.total_analysis?.total_members ??
+      rows.value.reduce((sum: number, row: any) => {
+        return sum + Number(row?.total_in_group ?? 0)
+      }, 0),
+  ),
+)
+const activeShare = computed(() =>
+  totalGroups.value ? Math.round((activeGroups.value / totalGroups.value) * 100) : 0,
+)
 
-  return [
-    {
-      title: 'Total groups',
-      value: addNumberCommas(total),
-      icon: Users,
-      accent: '#052659',
-      tint: 'bg-[#052659]/10 dark:bg-white/10',
-      iconColor: 'text-[#052659] dark:text-white',
-      hint: 'All registered groups',
-    },
-    {
-      title: 'Active groups',
-      value: addNumberCommas(active),
-      icon: Handshake,
-      accent: '#059669',
-      tint: 'bg-emerald-50 dark:bg-emerald-500/15',
-      iconColor: 'text-emerald-600',
-      trend: `${activeRate}% of all groups`,
-      trendColor: 'text-emerald-600',
-    },
-    {
-      title: 'Inactive groups',
-      value: addNumberCommas(inactive),
-      icon: PauseCircle,
-      accent: '#94a3b8',
-      tint: 'bg-slate-100 dark:bg-white/10',
-      iconColor: 'text-slate-500',
-      hint: 'Suspended, expired or trial',
-    },
-    {
-      title: 'Active rate',
-      value: activeRate,
-      suffix: '%',
-      icon: TrendingUp,
-      accent: '#cda434',
-      tint: 'bg-[#cda434]/10',
-      iconColor: 'text-[#cda434]',
-      hint: 'Share of groups active',
-    },
+const summaryCards = computed(() => [
+  {
+    title: 'Total Groups',
+    value: addNumberCommas(totalGroups.value),
+    caption: 'All registered groups',
+    icon: UsersRound,
+    iconBg: 'bg-indigo-50',
+    iconClass: 'text-indigo-500',
+  },
+  {
+    title: 'Active',
+    value: addNumberCommas(activeGroups.value),
+    badge: `${activeShare.value}%`,
+    caption: 'Share of all groups',
+    icon: CheckCircle2,
+    iconBg: 'bg-emerald-50',
+    iconClass: 'text-emerald-500',
+  },
+  {
+    title: 'Needs Attention',
+    value: addNumberCommas(needsAttention.value),
+    caption: 'Suspended, expired or trial',
+    icon: AlertTriangle,
+    iconBg: 'bg-orange-50',
+    iconClass: 'text-orange-500',
+  },
+  {
+    title: 'Total Members',
+    value: addNumberCommas(totalMembers.value),
+    caption: 'Across all groups',
+    icon: Users,
+    iconBg: 'bg-violet-50',
+    iconClass: 'text-violet-500',
+  },
+])
+
+const statusFilters = computed(() => [
+  { id: 'all', label: 'All', count: totalGroups.value },
+  { id: 'active', label: 'Active', count: activeGroups.value },
+  { id: 'trial', label: 'Trial', count: countStatus('trial') },
+  { id: 'suspended', label: 'Suspended', count: countStatus('suspended') },
+  { id: 'expired', label: 'Expired', count: countStatus('expired') },
+])
+
+const rowActions = [
+  {
+    name: 'view',
+    label: 'View group',
+    icon: Eye,
+    handler: (item: any) => runTableAction(item, 'view'),
+  },
+  {
+    name: 'edit',
+    label: 'Edit group',
+    icon: Edit3,
+    handler: (item: any) => runTableAction(item, 'edit'),
+  },
+  {
+    name: 'add-member',
+    label: 'Add member',
+    icon: UserPlus,
+    handler: (item: any) => OpenThedrawer(item),
+  },
+  {
+    name: 'delete',
+    label: 'Delete group',
+    icon: Trash2,
+    handler: (item: any) => runTableAction(item, 'delete'),
+  },
+]
+
+function countStatus(status: string) {
+  return rows.value.filter((row: any) => normalizeStatus(row?.status) === status).length
+}
+
+function normalizeStatus(status: unknown) {
+  return String(status ?? '')
+    .trim()
+    .toLowerCase()
+}
+
+function formatStatus(status: unknown) {
+  const value = normalizeStatus(status)
+  return value || 'unknown'
+}
+
+function statusClass(status: unknown) {
+  const value = normalizeStatus(status)
+  if (value === 'active') return 'bg-emerald-50 text-emerald-600'
+  if (value === 'trial') return 'bg-amber-50 text-amber-600'
+  if (value === 'suspended') return 'bg-rose-50 text-rose-600'
+  if (value === 'expired') return 'bg-slate-100 text-slate-500'
+  return 'bg-slate-100 text-slate-500'
+}
+
+function groupInitials(item: any) {
+  const label = String(item?.group_name ?? item?.group_code ?? 'Group')
+  const parts = label.trim().split(/\s+/).filter(Boolean)
+  return (parts.length > 1 ? `${parts[0][0]}${parts[1][0]}` : label.slice(0, 2)).toUpperCase()
+}
+
+function avatarClass(item: any) {
+  const palettes = [
+    'bg-blue-50 text-blue-700',
+    'bg-violet-50 text-violet-700',
+    'bg-emerald-50 text-emerald-700',
+    'bg-amber-50 text-amber-700',
   ]
-})
+  const seed = Number(item?.id ?? 0)
+  return palettes[Math.abs(seed) % palettes.length]
+}
+
+function runTableAction(item: any, action: string) {
+  drawer.value?.handleAction?.(item, action)
+}
 
 async function saveUser(type: string, data: any, sumited: any) {
-
   if (automaticCreate.value.actionSlot == 'create-none-member') {
     const checker = await addNoneExistingMember(formData.value, automaticCreate.value.item)
     if (checker.success == false) {
     }
     formData.value = {}
-    automaticCreate.value = { drawerActions: true, actionSlot: 'create-none-member', item: automaticCreate.value.item }
+    automaticCreate.value = {
+      drawerActions: true,
+      actionSlot: 'create-none-member',
+      item: automaticCreate.value.item,
+    }
     drawer.value.toggleDrawer()
     return
   } else if (titleMap[type]) {
-    automaticCreate.value = { drawerActions: true, actionSlot: null, item: "" }
+    automaticCreate.value = { drawerActions: true, actionSlot: null, item: '' }
     drawerTitle.value = titleMap[type]
   }
-
 }
-function OpenThedrawer(item: any, actionSlot = "create-none-member") {
+function OpenThedrawer(item: any, actionSlot = 'create-none-member') {
   automaticCreate.value = { drawerActions: true, actionSlot, item }
-  drawerTitle.value = { title: "add member to group", width: "w-2/4" }
+  drawerTitle.value = { title: 'add member to group', width: 'w-2/4' }
   drawer.value.toggleDrawer()
   drawer.value.buttonTypeClicked = automaticCreate.value.actionSlot
 }
-watch(() => drawer.value?.drawerOpen, (val) => {
-  if (!val) {
-    automaticCreate.value = { drawerActions: true, actionSlot: null, item: null }
-  }
-}, {
-  immediate: true,
-  deep: true
-})
+watch(
+  () => drawer.value?.drawerOpen,
+  (val) => {
+    if (!val) {
+      automaticCreate.value = { drawerActions: true, actionSlot: null, item: null }
+    }
+  },
+  {
+    immediate: true,
+    deep: true,
+  },
+)
 
 const triger = computed(() => {
-  return !['download-group-savings-template', 'download-group-member-template', 'import-group-account-member', 'import-group-account-savings','import-groups'].includes(automaticCreate.value.actionSlot)
+  return ![
+    'download-group-savings-template',
+    'download-group-member-template',
+    'import-group-account-member',
+    'import-group-account-savings',
+    'import-groups',
+  ].includes(automaticCreate.value.actionSlot)
 })
 function navigateToProfile(item: any) {
-
   router.push(`/tenant/group-savings/profile`)
   setLocalValues('groupProfile' as any, item)
 }
 const exportItems = ref([
   {
-    label: "Group savings Template",
+    label: 'Group savings Template',
     action: (vl) => {
       automaticCreate.value = {
-        actionSlot: "download-group-savings-template",
+        actionSlot: 'download-group-savings-template',
         item: vl,
-      };
-      OpenThedrawer(vl, "download-group-savings-template");
-      drawerTitle.value = { title: "Group savings Template", width: "w-1/2" }
+      }
+      OpenThedrawer(vl, 'download-group-savings-template')
+      drawerTitle.value = { title: 'Group savings Template', width: 'w-1/2' }
     },
   },
   {
-    label: "Group member Template",
+    label: 'Group member Template',
     action: (vl) => {
       automaticCreate.value = {
-        actionSlot: "download-group-member-template",
+        actionSlot: 'download-group-member-template',
         item: vl,
-      };
-      OpenThedrawer(vl, "download-group-member-template");
-      drawerTitle.value = { title: "Group savings Template", width: "w-1/2" }
+      }
+      OpenThedrawer(vl, 'download-group-member-template')
+      drawerTitle.value = { title: 'Group savings Template', width: 'w-1/2' }
     },
   },
   {
-    label: "import groups",
+    label: 'import groups',
     action: (vl) => {
       automaticCreate.value = {
-        actionSlot: "import-groups",
+        actionSlot: 'import-groups',
         item: vl,
-      };
-      OpenThedrawer(vl, "import-groups");
-      drawerTitle.value = { title: "import groups", width: "w-1/2" }
+      }
+      OpenThedrawer(vl, 'import-groups')
+      drawerTitle.value = { title: 'import groups', width: 'w-1/2' }
     },
   },
   {
-    label: "import group members",
+    label: 'import group members',
     action: (vl) => {
       automaticCreate.value = {
-        actionSlot: "import-group-account-member",
+        actionSlot: 'import-group-account-member',
         item: vl,
-      };
-      OpenThedrawer(vl, "import-group-account-member");
-      drawerTitle.value = { title: "import group member", width: "w-1/2" }
+      }
+      OpenThedrawer(vl, 'import-group-account-member')
+      drawerTitle.value = { title: 'import group member', width: 'w-1/2' }
     },
   },
-
 ])
 
 watch(
   () => drawer.value?.drawerOpen,
   (v) => {
     if (!v) {
-      automaticCreate.value = {};
+      automaticCreate.value = {}
     }
-  }
-);
+  },
+)
 </script>
+
+<style scoped>
+.group-savings-page {
+  background: #f8fafc;
+}
+
+.group-savings-page :deep(.flex.h-full > .flex.items-center.justify-between:first-child) {
+  display: none;
+}
+
+.group-savings-page :deep(.rounded-xl.border-0) {
+  margin-top: 14px;
+  overflow: hidden;
+  border: 1px solid rgb(226 232 240 / 0.75);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+}
+
+.group-savings-page :deep(.rounded-xl.border-0 > .flex) {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  border-bottom: 1px solid rgb(241 245 249);
+  box-shadow: none;
+}
+
+.group-savings-page :deep(input[type='search']) {
+  height: 32px;
+  max-width: 320px;
+  border-radius: 8px;
+  border-color: rgb(226 232 240);
+  padding-top: 0;
+  padding-bottom: 0;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.group-savings-page :deep(input[type='search']::placeholder) {
+  color: #64748b;
+}
+
+.group-savings-page :deep(table thead) {
+  background: #f8fafc;
+  box-shadow: none;
+}
+
+.group-savings-page :deep(table th) {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.group-savings-page :deep(table td) {
+  padding-top: 13px;
+  padding-bottom: 13px;
+  color: #475569;
+  font-size: 13px;
+  text-transform: none;
+}
+
+.group-savings-page :deep(table tr) {
+  border-color: rgb(241 245 249);
+}
+
+.group-savings-page :deep(.custom-scrollbar) {
+  border-radius: 0;
+  box-shadow: none;
+}
+</style>
