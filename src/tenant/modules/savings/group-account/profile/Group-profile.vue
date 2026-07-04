@@ -2,7 +2,7 @@
 import { ref, computed, onBeforeMount } from "vue";
 import { toast } from "vue-sonner";
 import { storeToRefs } from "pinia";
-import { FileText, Wallet, Users, Landmark, Wallet2, Check, Copy } from "lucide-vue-next";
+import { FileText, Wallet, Users, Landmark, Check, Copy } from "lucide-vue-next";
 import { formatMoneyValue, formatCurrency, getInitials } from "../../../../../Global/index";
 import { tenantClient } from "../../../../apis/tenantClient";
 import { useCurrencyStore } from "../../../../../stores/currency";
@@ -47,19 +47,19 @@ const activeAccounts = computed(
 const avgPerMember = computed(() =>
   members.value.length ? pooledSavings.value / members.value.length : 0,
 );
-const kpis = computed(() => [
-  { label: "Members", value: String(members.value.length), sub: "In this group", icon: Users },
-  { label: "Savings accounts", value: String(accounts.value.length), sub: `${activeAccounts.value} active`, icon: Landmark },
-  { label: "Average per member", value: `${currencyCode.value} ${formatMoneyValue(avgPerMember.value)}`, sub: "Pooled ÷ members", icon: Wallet2 },
-  { label: "Pooled savings", value: `${currencyCode.value} ${formatMoneyValue(pooledSavings.value)}`, sub: "Across all accounts", icon: Wallet, accent: true },
+const rail = computed(() => [
+  { label: "Members", value: String(members.value.length), sub: "In this group" },
+  { label: "Savings accounts", value: String(accounts.value.length), sub: `${activeAccounts.value} active` },
+  { label: "Average balance", value: `${currencyCode.value} ${formatMoneyValue(avgPerMember.value)}`, sub: "Per member" },
+  { label: "Active accounts", value: String(activeAccounts.value), sub: `of ${accounts.value.length}` },
 ]);
 
 function groupStatusPill(status?: string) {
   const v = String(status ?? "").toLowerCase();
-  if (v === "active") return "bg-emerald-400/15 text-emerald-200 ring-emerald-300/30";
-  if (["suspended", "expired", "closed"].includes(v)) return "bg-rose-400/15 text-rose-200 ring-rose-300/30";
-  if (["trial", "pending", "dormant"].includes(v)) return "bg-amber-400/15 text-amber-100 ring-amber-300/30";
-  return "bg-white/10 text-white/80 ring-white/20";
+  if (v === "active") return "bg-emerald-50 text-emerald-700 ring-emerald-600/20";
+  if (["suspended", "expired", "closed"].includes(v)) return "bg-rose-50 text-rose-700 ring-rose-600/20";
+  if (["trial", "pending", "dormant"].includes(v)) return "bg-amber-50 text-amber-700 ring-amber-600/20";
+  return "bg-neutral-100 text-neutral-600 ring-neutral-500/20";
 }
 
 const codeCopied = ref(false);
@@ -202,75 +202,59 @@ const formatDateTime = (dateString?: string) => {
   <!-- Main -->
   <div v-else class="min-h-screen bg-[#f6f7f9] dark:bg-neutral-950">
     <div class="mx-auto flex max-w-7xl flex-col gap-5 p-4 sm:p-6">
-      <!-- ───────────── Ledger cover ───────────── -->
-      <section
-        class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0f1b2d] via-[#182538] to-[#1e3252] p-6 shadow-lg shadow-[#0f1b2d]/20 sm:p-8">
-        <div class="pointer-events-none absolute inset-0 opacity-[0.06]" :style="{
-          backgroundImage: 'repeating-linear-gradient(0deg, #fff 0, #fff 1px, transparent 1px, transparent 36px)',
-        }" />
-        <div class="pointer-events-none absolute -right-16 -top-20 size-64 rounded-full bg-[#cda434]/15 blur-3xl" />
-
-        <div class="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+      <!-- ───────────── Passbook masthead ───────────── -->
+      <section class="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+        <!-- gold ledger spine -->
+        <div class="absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-[#cda434] to-[#a87f24]"></div>
+        <div class="flex flex-col gap-6 p-6 pl-8 sm:flex-row sm:items-center sm:justify-between sm:p-7 sm:pl-9">
           <!-- identity -->
-          <div class="flex min-w-0 items-center gap-5">
-            <div
-              class="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white/5 ring-2 ring-[#cda434]/50">
+          <div class="flex min-w-0 items-center gap-4">
+            <div class="grid size-16 shrink-0 place-items-center overflow-hidden rounded-xl border border-[#cda434]/40 bg-[#faf6ea] dark:bg-[#cda434]/10">
               <img v-if="groupImage" :src="groupImage" :alt="groupName" class="size-full object-cover" />
-              <span v-else class="text-2xl font-black text-[#cda434]">{{ getInitials(groupName) }}</span>
+              <span v-else class="text-xl font-black text-[#a87f24]">{{ getInitials(groupName) }}</span>
             </div>
             <div class="min-w-0">
               <div class="flex flex-wrap items-center gap-2">
-                <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#cda434]">Savings group</span>
-                <span
-                  class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold capitalize ring-1 ring-inset"
+                <span class="text-[10px] font-bold uppercase tracking-[0.18em] text-[#a87f24]">Savings group</span>
+                <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold capitalize ring-1 ring-inset"
                   :class="groupStatusPill(g.status)">
                   <span class="size-1.5 rounded-full bg-current opacity-70" />{{ g.status || "unknown" }}
                 </span>
               </div>
-              <h1 class="mt-1 truncate text-2xl font-black tracking-tight text-white sm:text-3xl">{{ groupName }}</h1>
-              <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/55">
+              <h1 class="mt-0.5 truncate text-2xl font-black tracking-tight text-[#1a2230] dark:text-white sm:text-[1.7rem]">{{ groupName }}</h1>
+              <div class="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-neutral-400">
                 <button type="button" @click="copyGroupCode"
-                  class="inline-flex items-center gap-1 font-mono text-[#cda434] transition-colors hover:text-[#e0c063]">
+                  class="inline-flex items-center gap-1 font-mono font-semibold text-neutral-500 transition-colors hover:text-[#a87f24] dark:text-neutral-300">
                   {{ g.group_code || "—" }}
-                  <Check v-if="codeCopied" :size="12" class="text-emerald-300" />
-                  <Copy v-else :size="12" class="opacity-60" />
+                  <Check v-if="codeCopied" :size="12" class="text-emerald-600" />
+                  <Copy v-else :size="12" class="opacity-50" />
                 </button>
-                <span class="text-white/25">·</span>
-                <span>Opened {{ formatDate(g.created_at) }}</span>
-                <template v-if="g.created_by"><span class="text-white/25">·</span><span>by {{ g.created_by }}</span></template>
-                <template v-if="g.phone"><span class="text-white/25">·</span><span class="font-mono">{{ g.phone }}</span></template>
+                <span>·</span><span>Opened {{ formatDate(g.created_at) }}</span>
+                <template v-if="g.phone"><span>·</span><span class="font-mono">{{ g.phone }}</span></template>
+                <template v-if="g.created_by"><span>·</span><span>by {{ g.created_by }}</span></template>
               </div>
             </div>
           </div>
 
-          <!-- pooled savings hero -->
-          <div class="shrink-0 rounded-2xl bg-white/[0.06] px-5 py-4 ring-1 ring-white/10 lg:text-right">
-            <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-[#cda434]/80">Pooled savings</p>
-            <p class="mt-1 text-3xl font-black tabular-nums tracking-tight text-white sm:text-[2.25rem]">
-              <span class="text-base font-bold text-white/50">{{ currencyCode }}</span>
+          <!-- pooled savings -->
+          <div class="shrink-0 border-neutral-100 sm:border-l sm:pl-7 sm:text-right dark:sm:border-neutral-800">
+            <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-neutral-400">Pooled savings</p>
+            <p class="mt-1 text-3xl font-black tabular-nums tracking-tight text-[#1a2230] dark:text-white sm:text-[2rem]">
+              <span class="text-base font-bold text-neutral-400">{{ currencyCode }}</span>
               {{ formatMoneyValue(pooledSavings) }}
             </p>
-            <div class="mt-1.5 flex gap-4 text-xs text-white/55 lg:justify-end">
-              <span><b class="text-white">{{ members.length }}</b> members</span>
-              <span><b class="text-white">{{ accounts.length }}</b> accounts</span>
-            </div>
+            <div class="mt-1.5 h-[3px] w-14 rounded-full bg-[#cda434] sm:ml-auto"></div>
           </div>
         </div>
       </section>
 
-      <!-- ───────────── KPI strip ───────────── -->
-      <section class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <div v-for="k in kpis" :key="k.label"
-          class="rounded-2xl border bg-white p-4 shadow-sm dark:bg-neutral-900"
-          :class="k.accent ? 'border-[#cda434]/40 bg-[#faf6ea] dark:bg-[#cda434]/5' : 'border-neutral-200 dark:border-neutral-800'">
-          <div class="flex items-start justify-between">
-            <span class="text-[11px] font-bold uppercase tracking-[0.1em] text-neutral-400">{{ k.label }}</span>
-            <span class="flex size-8 items-center justify-center rounded-lg"
-              :class="k.accent ? 'bg-[#cda434]/15 text-[#cda434]' : 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800'">
-              <component :is="k.icon" :size="16" />
-            </span>
-          </div>
-          <p class="mt-2.5 truncate text-xl font-black tracking-tight text-neutral-900 dark:text-white">{{ k.value }}</p>
+      <!-- ───────────── Summary rail ───────────── -->
+      <section class="grid grid-cols-2 divide-neutral-100 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm sm:grid-cols-4 sm:divide-x dark:divide-neutral-800 dark:border-neutral-800 dark:bg-neutral-900">
+        <div v-for="(k, i) in rail" :key="k.label"
+          class="px-5 py-4"
+          :class="[i < 2 ? 'border-b border-neutral-100 sm:border-b-0 dark:border-neutral-800' : '', i % 2 === 0 ? 'border-r border-neutral-100 sm:border-r-0 dark:border-neutral-800' : '']">
+          <p class="text-[11px] font-bold uppercase tracking-[0.1em] text-neutral-400">{{ k.label }}</p>
+          <p class="mt-1.5 truncate text-xl font-black tabular-nums tracking-tight text-[#1a2230] dark:text-white">{{ k.value }}</p>
           <p class="mt-0.5 text-xs font-medium text-neutral-400">{{ k.sub }}</p>
         </div>
       </section>
