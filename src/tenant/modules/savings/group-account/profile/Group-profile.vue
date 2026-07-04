@@ -2,8 +2,10 @@
 import { ref, computed, onBeforeMount } from "vue";
 import { toast } from "vue-sonner";
 import { storeToRefs } from "pinia";
-import { FileText, Wallet, Users, Landmark, Check, Copy } from "lucide-vue-next";
-import { formatMoneyValue, formatCurrency, getInitials } from "../../../../../Global/index";
+import {
+  FileText, Wallet, Users, Landmark, Phone, Hash, Calendar, MapPin, ShieldCheck, User, Check, Copy,
+} from "lucide-vue-next";
+import { formatCurrency, getInitials } from "../../../../../Global/index";
 import { tenantClient } from "../../../../apis/tenantClient";
 import { useCurrencyStore } from "../../../../../stores/currency";
 import { groupSavingsApi } from "../../../../apis/savings/group-savingsApi";
@@ -12,103 +14,103 @@ import {
   MemberAccountsTable,
   MemberTransactionsTab,
   MemberGroupList,
+  MemberSidebar,
 } from "./index";
 import DepositWithdrawDrawer from "../../../members/profile/DepositWithdrawDrawer.vue";
 import NewAccountDrawer from "../../../members/profile/NewAccountDrawer.vue";
 import CustomFeeDrawer from "./CustomFeeDrawer.vue";
-import { pomPinia } from "septor-store";
 const { getGroupProfileDetail } = groupSavingsApi();
 const { currencyCode } = storeToRefs(useCurrencyStore());
 const pageLoading = ref<any>(null);
 const profileDetails = ref<any>(null);
 const member = ref<any>({});
+const uploadProcessing = ref(false);
+const memberInitials = computed(() => getInitials(profileDetails.value?.details?.name || profileDetails.value?.details?.group_name || ""));
 
-// ── Derived group figures ─────────────────────────────────────────────────────
-const g = computed<any>(() => profileDetails.value?.details ?? {});
-const accounts = computed<any[]>(() =>
-  Array.isArray(profileDetails.value?.accounts) ? profileDetails.value.accounts : [],
-);
-const members = computed<any[]>(() =>
-  Array.isArray(profileDetails.value?.members) ? profileDetails.value.members : [],
-);
-const groupName = computed(() => g.value?.group_name || g.value?.name || "Unnamed group");
-const groupImage = computed(() => {
-  const raw = g.value?.group_image;
-  return raw ? String(raw).replace("/public/", "/storage/") : "";
-});
-const pooledSavings = computed(() => {
-  const stated = g.value?.available_balance;
-  if (stated != null && stated !== "" && !isNaN(Number(stated))) return Number(stated);
-  return accounts.value.reduce((sum, a) => sum + Number(a?.balance ?? 0), 0);
-});
-const activeAccounts = computed(
-  () => accounts.value.filter((a) => String(a?.status ?? "").toLowerCase() === "active").length,
-);
-const avgPerMember = computed(() =>
-  members.value.length ? pooledSavings.value / members.value.length : 0,
-);
-const rail = computed(() => [
-  { label: "Members", value: String(members.value.length), sub: "In this group" },
-  { label: "Savings accounts", value: String(accounts.value.length), sub: `${activeAccounts.value} active` },
-  { label: "Average balance", value: `${currencyCode.value} ${formatMoneyValue(avgPerMember.value)}`, sub: "Per member" },
-  { label: "Active accounts", value: String(activeAccounts.value), sub: `of ${accounts.value.length}` },
-]);
-
-function groupStatusPill(status?: string) {
-  const v = String(status ?? "").toLowerCase();
-  if (v === "active") return "bg-emerald-50 text-emerald-700 ring-emerald-600/20";
-  if (["suspended", "expired", "closed"].includes(v)) return "bg-rose-50 text-rose-700 ring-rose-600/20";
-  if (["trial", "pending", "dormant"].includes(v)) return "bg-amber-50 text-amber-700 ring-amber-600/20";
-  return "bg-neutral-100 text-neutral-600 ring-neutral-500/20";
-}
-
-const codeCopied = ref(false);
-function copyGroupCode() {
-  const code = g.value?.group_code;
-  if (!code) return;
-  navigator.clipboard?.writeText(String(code)).then(() => {
-    codeCopied.value = true;
-    setTimeout(() => (codeCopied.value = false), 1500);
-  });
-}
+const details = computed<Record<string, any>>(() => profileDetails.value?.details ?? {});
+const members = computed<any[]>(() => (Array.isArray(profileDetails.value?.members) ? profileDetails.value.members : []));
 
 async function initialize() {
-  const details = await getGroupProfileDetail({});
-  let data = {};
-
-  if (details) {
-    const { group_details, group_accounts, group_members } = details;
-    for (const key in group_details) {
-      const element = group_details[key];
-      data[key] = element;
-    }
-    profileDetails.value = {
-      details: data,
-      accounts: group_accounts,
-      members: group_members,
-    };
+  const res = await getGroupProfileDetail({});
+  let data: Record<string, any> = {};
+  if (res) {
+    const { group_details, group_accounts, group_members } = res;
+    for (const key in group_details) data[key] = group_details[key];
+    profileDetails.value = { details: data, accounts: group_accounts, members: group_members };
   }
   pageLoading.value = false;
 }
 
-// ── Tabs ────────────────────────────────────────────────────────────────────
-const activeTab = ref("members");
-onBeforeMount(() => {
-  // profileDetails.value = null
-  initialize();
-  // fetchMember()
-});
+// ── Tabs ─────────────────────────────────────────────────────────────────────
+const activeTab = ref("profile");
+onBeforeMount(() => initialize());
 
 const tabs = computed(() => [
-  { id: "members", label: "group members", icon: Users, count: null },
-  {
-    id: "transactions",
-    label: "group Transactions",
-    icon: FileText,
-    count: (member.value as any)?.transactions?.length || 0,
-  },
-  //   { id: "Gurrantors", label: "Gurrantors", icon: Wallet, count:null },
+  { id: "profile", label: "group Profile", icon: User, count: null },
+  { id: "members", label: "group members", icon: Users, count: members.value.length || null },
+  { id: "transactions", label: "group Transactions", icon: FileText, count: (member.value as any)?.transactions?.length || 0 },
   { id: "loans", label: "group Member With Loans", icon: Wallet, count: (member.value as any)?.loans?.length || 0 },
+]);
+
+// ── Group profile sections (mirrors the member profile) ──────────────────────
+function fieldValue(key: string): string | null {
+  const v = details.value[key];
+  if (v === null || v === undefined || v === "" || v === "—") return null;
+  return String(v);
+}
+
+const copiedKey = ref<string | null>(null);
+function copyField(key: string) {
+  const v = fieldValue(key);
+  if (!v) return;
+  navigator.clipboard?.writeText(v).then(() => {
+    copiedKey.value = key;
+    setTimeout(() => (copiedKey.value = null), 1500);
+  });
+}
+
+function badgeClass(value: string): string {
+  const s = value.toLowerCase();
+  if (["active", "approved", "verified"].includes(s)) return "bg-emerald-50 text-emerald-700 ring-emerald-600/20";
+  if (["standard"].includes(s)) return "bg-teal-50 text-teal-700 ring-teal-600/20";
+  if (["inactive", "suspended", "dormant", "rejected", "closed", "expired"].includes(s)) return "bg-rose-50 text-rose-700 ring-rose-600/20";
+  if (["pending", "trial"].includes(s)) return "bg-amber-50 text-amber-700 ring-amber-600/20";
+  return "bg-gray-100 text-gray-600 ring-gray-500/20";
+}
+
+interface ProfileField { key: string; label: string; icon: any; type?: "date" | "currency" | "badge" | "copy" }
+interface ProfileSection { title: string; icon: any; fields: ProfileField[] }
+
+const profileSections = computed<ProfileSection[]>(() => [
+  {
+    title: "Group Information", icon: Landmark, fields: [
+      { key: "group_name", label: "Group Name", icon: Landmark },
+      { key: "group_code", label: "Group Code", icon: Hash, type: "copy" },
+      { key: "location", label: "Location", icon: MapPin },
+      { key: "description", label: "Description", icon: FileText },
+      { key: "created_at", label: "Opened", icon: Calendar, type: "date" },
+    ],
+  },
+  {
+    title: "Contact", icon: Phone, fields: [
+      { key: "phone", label: "Primary Contact", icon: Phone },
+      { key: "phone2", label: "Other Contact", icon: Phone },
+    ],
+  },
+  {
+    title: "Membership", icon: ShieldCheck, fields: [
+      { key: "status", label: "Status", icon: ShieldCheck, type: "badge" },
+      { key: "created_by", label: "Registered By", icon: User },
+      { key: "created_at", label: "Created At", icon: Calendar, type: "date" },
+    ],
+  },
+  {
+    title: "Financial", icon: Wallet, fields: [
+      { key: "available_balance", label: "Pooled Savings", icon: Wallet, type: "currency" },
+      { key: "opening_balance", label: "Opening Balance", icon: Wallet, type: "currency" },
+      { key: "initial_deposit", label: "Initial Deposit", icon: Wallet, type: "currency" },
+    ],
+  },
 ]);
 
 // ── Drawer refs ──────────────────────────────────────────────────────────────
@@ -116,16 +118,10 @@ const depositDrawer = ref<InstanceType<typeof DepositWithdrawDrawer> | null>(nul
 const newAccountDrawer = ref<InstanceType<typeof NewAccountDrawer> | null>(null);
 const customFeeDrawer = ref<InstanceType<typeof CustomFeeDrawer> | null>(null);
 
-// ── Transaction reversal ────────────────────────────────────────────────────
+// ── Transaction reversal ─────────────────────────────────────────────────────
 const showTxnDeleteDialog = ref(false);
 const txnToDelete = ref<any>(null);
 const isDeletingTxn = ref(false);
-
-const confirmDeleteTxn = (txn: any) => {
-  if (txn.is_reversed || txn.type === "reversal" || txn.is_reversible === false) return;
-  txnToDelete.value = txn;
-  showTxnDeleteDialog.value = true;
-};
 
 const executeDeleteTxn = async () => {
   if (!txnToDelete.value) return;
@@ -135,8 +131,6 @@ const executeDeleteTxn = async () => {
     toast.success("Transaction reversed successfully.");
     showTxnDeleteDialog.value = false;
     txnToDelete.value = null;
-    // Refresh member data so balances and the full transaction list are up to date
-    // fetchMember(true);
   } catch (error: any) {
     toast.error(error?.response?.data?.message || "Failed to reverse transaction.");
   } finally {
@@ -146,7 +140,6 @@ const executeDeleteTxn = async () => {
 
 // ── Receipt printing ─────────────────────────────────────────────────────────
 const printingTxn = ref<any>(null);
-
 const printReceipt = (txn: any) => {
   printingTxn.value = txn;
   setTimeout(() => {
@@ -160,166 +153,146 @@ const printReceipt = (txn: any) => {
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const formatDate = (dateString?: string) => {
   if (!dateString) return "—";
-  return new Date(dateString).toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  return new Date(dateString).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 };
-
 const formatDateTime = (dateString?: string) => {
   if (!dateString) return "—";
   return new Date(dateString).toLocaleString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
+    day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true,
   });
 };
-
 </script>
 
 <template>
-  <!-- Loading state -->
   <!-- Loading -->
   <div v-if="pageLoading" class="flex items-center justify-center min-h-[60vh]">
     <div class="flex flex-col items-center gap-3">
       <div class="relative h-12 w-12">
         <div class="absolute inset-0 rounded-full border-4 border-[#cda434]/20"></div>
-        <div
-          class="absolute inset-0 rounded-full border-4 border-transparent border-t-[#cda434] border-r-[#cda434] animate-spin">
-        </div>
+        <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-[#cda434] border-r-[#cda434] animate-spin"></div>
         <div class="absolute inset-2 rounded-full bg-[#cda434]/10"></div>
       </div>
-      <div class="text-[12px] font-bold uppercase tracking-widest text-[#cda434]">
-        Loading Member Data
-      </div>
+      <div class="text-[12px] font-bold uppercase tracking-widest text-[#cda434]">Loading Group Data</div>
     </div>
   </div>
 
   <!-- Main -->
-  <div v-else class="min-h-screen bg-[#f6f7f9] dark:bg-neutral-950">
-    <div class="mx-auto flex max-w-7xl flex-col gap-5 p-4 sm:p-6">
-      <!-- ───────────── Passbook masthead ───────────── -->
-      <section class="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-        <!-- gold ledger spine -->
-        <div class="absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-[#cda434] to-[#a87f24]"></div>
-        <div class="flex flex-col gap-6 p-6 pl-8 sm:flex-row sm:items-center sm:justify-between sm:p-7 sm:pl-9">
-          <!-- identity -->
-          <div class="flex min-w-0 items-center gap-4">
-            <div class="grid size-16 shrink-0 place-items-center overflow-hidden rounded-xl border border-[#cda434]/40 bg-[#faf6ea] dark:bg-[#cda434]/10">
-              <img v-if="groupImage" :src="groupImage" :alt="groupName" class="size-full object-cover" />
-              <span v-else class="text-xl font-black text-[#a87f24]">{{ getInitials(groupName) }}</span>
-            </div>
-            <div class="min-w-0">
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="text-[10px] font-bold uppercase tracking-[0.18em] text-[#a87f24]">Savings group</span>
-                <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold capitalize ring-1 ring-inset"
-                  :class="groupStatusPill(g.status)">
-                  <span class="size-1.5 rounded-full bg-current opacity-70" />{{ g.status || "unknown" }}
+  <div v-else>
+    <div class="min-h-screen bg-background text-foreground relative overflow-x-hidden">
+      <div class="relative z-10 p-5 flex flex-col lg:flex-row gap-5 max-w-full overflow-hidden">
+        <!-- Sidebar -->
+        <MemberSidebar class="w-full lg:w-[300px] shrink-0" :data="details" :computed-age="''"
+          :format-date="formatDate" :member-initials="memberInitials" :upload-processing="uploadProcessing" />
+
+        <!-- Main content -->
+        <div class="flex-1 flex flex-col gap-5 min-w-0">
+          <!-- Accounts -->
+          <div v-if="profileDetails?.accounts" class="w-full overflow-x-auto">
+            <MemberAccountsTable @reload="initialize" :member="details"
+              :accounts="Array.isArray(profileDetails.accounts) ? profileDetails.accounts : []"
+              :currency-code="currencyCode" :format-currency="formatCurrency"
+              @new-account="newAccountDrawer?.openDrawer()"
+              @custom-fee="(account) => customFeeDrawer?.openDrawer(account)" />
+          </div>
+
+          <!-- Tabs -->
+          <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+            <div class="flex overflow-x-auto border-b border-gray-100 px-4 whitespace-nowrap">
+              <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" :class="[
+                'relative flex items-center gap-2 px-4 py-4 text-[13px] font-bold transition-colors whitespace-nowrap capitalize',
+                activeTab === tab.id ? 'text-[#cda434]' : 'text-[#788896] hover:text-gray-900',
+              ]">
+                <component :is="tab.icon" :size="16" />
+                {{ tab.label }}
+                <span v-if="tab.count !== null"
+                  class="inline-flex items-center justify-center min-w-[20px] h-[20px] px-1.5 rounded-md text-[11px] font-bold font-mono bg-gray-100 text-[#788896]">
+                  {{ tab.count }}
                 </span>
-              </div>
-              <h1 class="mt-0.5 truncate text-2xl font-black tracking-tight text-[#1a2230] dark:text-white sm:text-[1.7rem]">{{ groupName }}</h1>
-              <div class="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-neutral-400">
-                <button type="button" @click="copyGroupCode"
-                  class="inline-flex items-center gap-1 font-mono font-semibold text-neutral-500 transition-colors hover:text-[#a87f24] dark:text-neutral-300">
-                  {{ g.group_code || "—" }}
-                  <Check v-if="codeCopied" :size="12" class="text-emerald-600" />
-                  <Copy v-else :size="12" class="opacity-50" />
-                </button>
-                <span>·</span><span>Opened {{ formatDate(g.created_at) }}</span>
-                <template v-if="g.phone"><span>·</span><span class="font-mono">{{ g.phone }}</span></template>
-                <template v-if="g.created_by"><span>·</span><span>by {{ g.created_by }}</span></template>
+                <div v-if="activeTab === tab.id" class="absolute bottom-0 left-4 right-4 h-[3px] bg-[#cda434] rounded-t-full"></div>
+              </button>
+            </div>
+
+            <!-- Group profile -->
+            <div v-show="activeTab === 'profile'" class="p-4 bg-gray-50/40">
+              <div class="columns-1 md:columns-2 xl:columns-3 gap-4">
+                <section v-for="section in profileSections" :key="section.title"
+                  class="break-inside-avoid mb-4 rounded-xl border border-gray-100 bg-white overflow-hidden shadow-sm">
+                  <div class="flex items-center gap-2 px-3.5 py-2.5 border-b border-gray-100 bg-gray-50/50">
+                    <div class="size-6 rounded-md bg-[#cda434]/10 flex items-center justify-center shrink-0">
+                      <component :is="section.icon" :size="13" class="text-[#cda434]" />
+                    </div>
+                    <h3 class="text-[11px] font-bold text-gray-800 uppercase tracking-wide">{{ section.title }}</h3>
+                  </div>
+                  <div class="divide-y divide-gray-50">
+                    <div v-for="f in section.fields" :key="f.key" class="flex items-start justify-between gap-3 px-3.5 py-2">
+                      <span class="flex items-center gap-1.5 text-[11px] font-medium text-gray-400 shrink-0 pt-px">
+                        <component :is="f.icon" :size="12" class="shrink-0" />
+                        {{ f.label }}
+                      </span>
+                      <div class="min-w-0 text-right">
+                        <template v-if="f.type === 'badge'">
+                          <span v-if="fieldValue(f.key)"
+                            :class="['inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold capitalize ring-1 ring-inset', badgeClass(fieldValue(f.key)!)]">
+                            {{ fieldValue(f.key) }}
+                          </span>
+                          <span v-else class="text-[13px] text-gray-300">—</span>
+                        </template>
+                        <div v-else-if="f.type === 'copy'" class="flex items-center justify-end gap-1.5">
+                          <span class="text-[12px] font-bold text-gray-900 font-mono truncate">{{ fieldValue(f.key) ?? '—' }}</span>
+                          <button v-if="fieldValue(f.key)" @click="copyField(f.key)"
+                            class="shrink-0 text-gray-400 hover:text-[#cda434] transition-colors" title="Copy">
+                            <component :is="copiedKey === f.key ? Check : Copy" :size="13" :class="copiedKey === f.key ? 'text-emerald-500' : ''" />
+                          </button>
+                        </div>
+                        <span v-else-if="f.type === 'currency'" class="text-[13px] font-bold text-gray-900">
+                          <template v-if="fieldValue(f.key) !== null">{{ currencyCode }} {{ formatCurrency(fieldValue(f.key)!) }}</template>
+                          <span v-else class="text-gray-300">—</span>
+                        </span>
+                        <span v-else-if="f.type === 'date'" class="text-[13px] font-bold text-gray-900">
+                          {{ fieldValue(f.key) ? formatDate(fieldValue(f.key)!) : '—' }}
+                        </span>
+                        <span v-else class="text-[13px] font-bold text-gray-900 break-words">
+                          <template v-if="fieldValue(f.key)">{{ fieldValue(f.key) }}</template>
+                          <span v-else class="text-gray-300">—</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </section>
               </div>
             </div>
+
+            <!-- Members -->
+            <div v-show="activeTab === 'members'" class="w-full overflow-x-auto">
+              <MemberGroupList @reload="initialize" :member="profileDetails?.members ?? {}" :accounts="members"
+                :currency-code="currencyCode" :format-currency="formatCurrency"
+                @new-account="newAccountDrawer?.openDrawer()" />
+            </div>
+
+            <!-- Transactions -->
+            <div v-show="activeTab === 'transactions'" class="w-full overflow-x-auto">
+              <MemberTransactionsTab :transactions="member?.transactions" mode="all" action-color="bg-[#cda434]"
+                :format-date="formatDate" :format-date-time="formatDateTime" :format-currency="formatCurrency"
+                @print="printReceipt" />
+            </div>
+
+            <!-- Loans -->
+            <div v-show="activeTab === 'loans'" class="w-full overflow-x-auto">
+              <GroupMembersWithLoansTab mode="all" action-color="bg-[#cda434]" :format-date="formatDate"
+                :format-date-time="formatDateTime" :format-currency="formatCurrency" @print="printReceipt" />
+            </div>
           </div>
-
-          <!-- pooled savings -->
-          <div class="shrink-0 border-neutral-100 sm:border-l sm:pl-7 sm:text-right dark:sm:border-neutral-800">
-            <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-neutral-400">Pooled savings</p>
-            <p class="mt-1 text-3xl font-black tabular-nums tracking-tight text-[#1a2230] dark:text-white sm:text-[2rem]">
-              <span class="text-base font-bold text-neutral-400">{{ currencyCode }}</span>
-              {{ formatMoneyValue(pooledSavings) }}
-            </p>
-            <div class="mt-1.5 h-[3px] w-14 rounded-full bg-[#cda434] sm:ml-auto"></div>
-          </div>
         </div>
-      </section>
-
-      <!-- ───────────── Summary rail ───────────── -->
-      <section class="grid grid-cols-2 divide-neutral-100 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm sm:grid-cols-4 sm:divide-x dark:divide-neutral-800 dark:border-neutral-800 dark:bg-neutral-900">
-        <div v-for="(k, i) in rail" :key="k.label"
-          class="px-5 py-4"
-          :class="[i < 2 ? 'border-b border-neutral-100 sm:border-b-0 dark:border-neutral-800' : '', i % 2 === 0 ? 'border-r border-neutral-100 sm:border-r-0 dark:border-neutral-800' : '']">
-          <p class="text-[11px] font-bold uppercase tracking-[0.1em] text-neutral-400">{{ k.label }}</p>
-          <p class="mt-1.5 truncate text-xl font-black tabular-nums tracking-tight text-[#1a2230] dark:text-white">{{ k.value }}</p>
-          <p class="mt-0.5 text-xs font-medium text-neutral-400">{{ k.sub }}</p>
-        </div>
-      </section>
-
-      <!-- ───────────── Group savings accounts ───────────── -->
-      <section v-if="accounts.length" class="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-        <header class="flex items-center gap-2 border-b border-neutral-100 px-5 py-3.5 dark:border-neutral-800">
-          <Landmark :size="16" class="text-[#cda434]" />
-          <h2 class="text-sm font-bold text-neutral-800 dark:text-neutral-100">Group savings accounts</h2>
-        </header>
-        <div class="w-full overflow-x-auto">
-          <MemberAccountsTable @reload="initialize" :member="g" :accounts="accounts"
-            :currency-code="currencyCode" :format-currency="formatCurrency"
-            @new-account="newAccountDrawer?.openDrawer()"
-            @custom-fee="(account) => customFeeDrawer?.openDrawer(account)" />
-        </div>
-      </section>
-
-      <!-- ───────────── Tabs ───────────── -->
-      <section class="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-        <div class="flex gap-1 overflow-x-auto border-b border-neutral-100 px-3 dark:border-neutral-800">
-          <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" :class="[
-            'relative flex items-center gap-2 whitespace-nowrap px-4 py-3.5 text-[13px] font-bold capitalize transition-colors',
-            activeTab === tab.id ? 'text-[#182538] dark:text-white' : 'text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200',
-          ]">
-            <component :is="tab.icon" :size="16" />
-            {{ tab.label }}
-            <span v-if="tab.count !== null"
-              class="inline-flex h-5 min-w-[20px] items-center justify-center rounded-md bg-neutral-100 px-1.5 font-mono text-[11px] font-bold text-neutral-500 dark:bg-neutral-800">
-              {{ tab.count }}
-            </span>
-            <span v-if="activeTab === tab.id" class="absolute inset-x-3 bottom-0 h-[3px] rounded-t-full bg-[#cda434]" />
-          </button>
-        </div>
-
-        <div v-if="activeTab === 'members'" class="w-full overflow-x-auto">
-          <MemberGroupList @reload="initialize" :member="profileDetails?.members ?? {}" :accounts="members"
-            :currency-code="currencyCode" :format-currency="formatCurrency"
-            @new-account="newAccountDrawer?.openDrawer()" />
-        </div>
-        <div v-else-if="activeTab === 'transactions'" class="w-full overflow-x-auto">
-          <MemberTransactionsTab :transactions="member?.transactions" mode="all" action-color="bg-[#cda434]"
-            :format-date="formatDate" :format-date-time="formatDateTime" :format-currency="formatCurrency"
-            @print="printReceipt" />
-        </div>
-        <div v-else-if="activeTab === 'loans'" class="w-full overflow-x-auto">
-          <GroupMembersWithLoansTab mode="all" action-color="bg-[#cda434]" :format-date="formatDate"
-            :format-date-time="formatDateTime" :format-currency="formatCurrency" @print="printReceipt" />
-        </div>
-      </section>
+      </div>
     </div>
   </div>
 </template>
 
 <style>
 @media print {
-  body.receipt-print * {
-    visibility: hidden !important;
-  }
-
+  body.receipt-print * { visibility: hidden !important; }
   body.receipt-print .print-only,
-  body.receipt-print .print-only * {
-    visibility: visible !important;
-  }
-
+  body.receipt-print .print-only * { visibility: visible !important; }
   body.receipt-print .print-only {
     position: absolute !important;
     left: 0 !important;
@@ -329,30 +302,8 @@ const formatDateTime = (dateString?: string) => {
     padding: 0 !important;
     display: block !important;
   }
-
-  body.receipt-print .no-print {
-    display: none !important;
-  }
-
-  @page {
-    margin: 0.5cm;
-    size: auto;
-  }
+  body.receipt-print .no-print { display: none !important; }
+  @page { margin: 0.5cm; size: auto; }
 }
-
-.print-only {
-  display: none;
-}
-</style>
-
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
+.print-only { display: none; }
 </style>
