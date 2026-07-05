@@ -3,9 +3,9 @@ import { ref, computed, onBeforeMount } from "vue";
 import { toast } from "vue-sonner";
 import { storeToRefs } from "pinia";
 import {
-  FileText, Wallet, Users, Landmark, Phone, Hash, Calendar, MapPin, ShieldCheck, User, Check, Copy,
+  FileText, Wallet, Users, Landmark, Phone, Hash, Calendar, MapPin, ShieldCheck, User, Check, Copy, UserPlus,
 } from "lucide-vue-next";
-import { formatCurrency, getInitials } from "../../../../../Global/index";
+import { formatCurrency, getInitials, Drawer, getLocalValues } from "../../../../../Global/index";
 import { tenantClient } from "../../../../apis/tenantClient";
 import { useCurrencyStore } from "../../../../../stores/currency";
 import { groupSavingsApi } from "../../../../apis/savings/group-savingsApi";
@@ -16,10 +16,11 @@ import {
   MemberGroupList,
   MemberSidebar,
 } from "./index";
+import { AddGroupTab } from "../index";
 import DepositWithdrawDrawer from "../../../members/profile/DepositWithdrawDrawer.vue";
 import NewAccountDrawer from "../../../members/profile/NewAccountDrawer.vue";
 import CustomFeeDrawer from "./CustomFeeDrawer.vue";
-const { getGroupProfileDetail } = groupSavingsApi();
+const { getGroupProfileDetail, addNoneExistingMember } = groupSavingsApi();
 const { currencyCode } = storeToRefs(useCurrencyStore());
 const pageLoading = ref<any>(null);
 const profileDetails = ref<any>(null);
@@ -29,6 +30,25 @@ const memberInitials = computed(() => getInitials(profileDetails.value?.details?
 
 const details = computed<Record<string, any>>(() => profileDetails.value?.details ?? {});
 const members = computed<any[]>(() => (Array.isArray(profileDetails.value?.members) ? profileDetails.value.members : []));
+
+// ── Add member to this group ─────────────────────────────────────────────────
+const groupId = computed<any>(() => getLocalValues("groupProfile" as any)?.id ?? details.value?.id);
+const addMemberOpen = ref(false);
+const addForm = ref<any>({});
+const addSubmitting = ref(false);
+async function submitAddMember() {
+  addSubmitting.value = true;
+  try {
+    const res = await addNoneExistingMember(addForm.value, { id: groupId.value });
+    if (res?.success !== false) {
+      addMemberOpen.value = false;
+      addForm.value = {};
+      await initialize();
+    }
+  } finally {
+    addSubmitting.value = false;
+  }
+}
 
 async function initialize() {
   const res = await getGroupProfileDetail({});
@@ -186,6 +206,18 @@ const formatDateTime = (dateString?: string) => {
 
         <!-- Main content -->
         <div class="flex-1 flex flex-col gap-5 min-w-0">
+          <!-- Toolbar -->
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="min-w-0">
+              <h2 class="truncate text-lg font-black tracking-tight text-gray-900">{{ details.group_name || details.name || 'Group profile' }}</h2>
+              <p class="text-xs font-medium text-gray-400">{{ members.length }} member{{ members.length === 1 ? '' : 's' }} · savings group</p>
+            </div>
+            <button type="button" @click="addMemberOpen = true"
+              class="inline-flex items-center gap-2 rounded-xl bg-[#cda434] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#b8932e]">
+              <UserPlus :size="16" /> Add Member
+            </button>
+          </div>
+
           <!-- Accounts -->
           <div v-if="profileDetails?.accounts" class="w-full overflow-x-auto">
             <MemberAccountsTable @reload="initialize" :member="details"
@@ -285,6 +317,19 @@ const formatDateTime = (dateString?: string) => {
         </div>
       </div>
     </div>
+
+    <!-- Add member to group -->
+    <Drawer v-model:open="addMemberOpen" width="w-2/3" title="Add member to group">
+      <template #body>
+        <AddGroupTab :data="{ ...details, id: groupId }" v-model:form="addForm" />
+      </template>
+      <template #actions>
+        <button type="button" @click="submitAddMember" :disabled="addSubmitting"
+          class="inline-flex items-center gap-2 rounded-xl bg-[#cda434] px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#b8932e] disabled:opacity-60">
+          {{ addSubmitting ? 'Adding…' : 'Add member' }}
+        </button>
+      </template>
+    </Drawer>
   </div>
 </template>
 
