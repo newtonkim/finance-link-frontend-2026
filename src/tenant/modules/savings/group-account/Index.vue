@@ -396,7 +396,8 @@ async function saveUser(type: string, data: any, sumited: any) {
 function createGroup() {
   automaticCreate.value = { drawerActions: true, actionSlot: null, item: null }
   drawerTitle.value = titleMap.add
-  drawer.value?.createNewRecord?.()
+  drawer.value.toggleDrawer()
+  drawer.value.buttonTypeClicked = 'add'
 }
 function OpenThedrawer(item: any, actionSlot = 'create-none-member') {
   automaticCreate.value = { drawerActions: true, actionSlot, item }
