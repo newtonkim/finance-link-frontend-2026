@@ -69,7 +69,7 @@ function initialize() {
             name: 'member_id',
             type: 'select',
             required: true,
-            url: 'global/member-dropdown-list',
+            url: `group-account-savings/active-group-member-dropdown-list?group_id=${props.data?.group_id}`,
             placeholder: 'Enter member name',
         },
 

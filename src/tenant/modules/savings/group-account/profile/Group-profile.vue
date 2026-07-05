@@ -36,6 +36,7 @@ const groupId = computed<any>(() => getLocalValues("groupProfile" as any)?.id ??
 const addMemberOpen = ref(false);
 const addForm = ref<any>({});
 const addSubmitting = ref(false);
+const addMemberDrawerWidth = "w-full sm:max-w-[820px] xl:max-w-[960px]";
 async function submitAddMember() {
   addSubmitting.value = true;
   try {
@@ -68,7 +69,7 @@ onBeforeMount(() => initialize());
 const tabs = computed(() => [
   { id: "profile", label: "group Profile", icon: User, count: null },
   { id: "members", label: "group members", icon: Users, count: members.value.length || null },
-  { id: "transactions", label: "group Transactions", icon: FileText, count: (member.value as any)?.transactions?.length || 0 },
+  { id: "transactions", label: "group Transactions", icon: FileText, count: Number(details.value?.total_transactions ?? 0) },
   { id: "loans", label: "group Member With Loans", icon: Wallet, count: (member.value as any)?.loans?.length || 0 },
 ]);
 
@@ -319,15 +320,19 @@ const formatDateTime = (dateString?: string) => {
     </div>
 
     <!-- Add member to group -->
-    <Drawer v-model:open="addMemberOpen" width="w-2/3" title="Add member to group">
+    <Drawer
+      v-model:open="addMemberOpen"
+      :width="addMemberDrawerWidth"
+      title="Add member to group"
+      saveButtonText="Add member"
+      cancelButtonText="Cancel"
+      saveLoadingText="Adding..."
+      saveButtonClass="bg-[#06265a] hover:bg-[#041b40] shadow-sm"
+      :loading="addSubmitting"
+      @save="submitAddMember"
+    >
       <template #body>
         <AddGroupTab :data="{ ...details, id: groupId }" v-model:form="addForm" />
-      </template>
-      <template #actions>
-        <button type="button" @click="submitAddMember" :disabled="addSubmitting"
-          class="inline-flex items-center gap-2 rounded-xl bg-[#cda434] px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#b8932e] disabled:opacity-60">
-          {{ addSubmitting ? 'Adding…' : 'Add member' }}
-        </button>
       </template>
     </Drawer>
   </div>

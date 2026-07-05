@@ -79,7 +79,7 @@ async function handleSave(type: string | undefined, data: any, d: any) {
     success = success?.code == 200 ? true : false
   }
   drawerTitle.value = drawerConfigs[type === 'create' || type === 'add' ? 'create' : type];
-  if (type === 'create' && success) {
+  if (success) {
     drawer.value.toggleDrawer()
     emit('reload')
   }
@@ -93,6 +93,7 @@ function openDrawer(item: any, action: "deposit" | "withdrawal") {
     status: item.status,
     account_type: item.account_type,
     account_code: item.code,
+    group_id: props.member?.id,
   };
   showFooter.value = true;
   drawerTitle.value = drawerConfigs[action];

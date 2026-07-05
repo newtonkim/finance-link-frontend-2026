@@ -268,7 +268,7 @@ onMounted(() => {
 <template>
   <div class="h-[75vh] overflow-auto card shadow-md px-4 py-3 bg-white dark:bg-neutral-800 rounded-md">
     <span v-if='loadingMount'></span>
-    <Form :action="data?.action" v-else parentStyle="grid  grid-cols-2 gap-3" v-model:form="fields" />
+    <Form :action="data?.action" v-else parentStyle="grid grid-cols-2 gap-x-5 gap-y-4" v-model:form="fields" />
     <div v-setting='"sacco-share-on-member-creation-create-share-account-at-the-same-time"'
       class="mt-6 rounded-2xl border border-nfuko-primary-200 bg-nfuko-primary-50/60 overflow-hidden">
       <!-- Section header -->

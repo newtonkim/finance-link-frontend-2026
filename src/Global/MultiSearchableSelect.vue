@@ -128,8 +128,9 @@ onMounted(() => {
     window.addEventListener('click', closeDropdown);
     if (props.dataOnMount && props.url && !hasFetched.value) {
         remoteUrl(props.url);
-    }else
-    defaultValues()
+    } else {
+        defaultValues()
+    }
 });
 
 function defaultValues(){

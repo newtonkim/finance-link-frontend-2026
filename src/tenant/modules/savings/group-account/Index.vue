@@ -15,6 +15,9 @@
       :drawer-show-footer="triger"
       :automaticCreate="automaticCreate.actionSlot != 'create-none-member'"
       :drawerWidth="drawerTitle?.width"
+      :saveButtonClass="drawerSaveButtonClass"
+      :saveButtonText="drawerSaveButtonText"
+      cancelButtonText="Cancel"
       :url="tableUrl"
       state="groupAccountList"
       :drawerTitle="drawerTitle?.title"
@@ -74,7 +77,7 @@
         <button
           type="button"
           @click="navigateToProfile(item)"
-          class="flex min-w-0 items-center gap-3 text-left"
+          class="group flex min-w-0 items-center gap-3 text-left"
         >
           <span
             :class="[
@@ -82,14 +85,20 @@
               avatarClass(item),
             ]"
           >
-            <img v-if="item?.group_image" :src="item.group_image" :alt="item?.group_name ?? 'Group'" class="size-full object-cover" />
+            <img
+              v-if="shouldShowGroupImage(item)"
+              :src="item.group_image"
+              :alt="item?.group_name ?? 'Group'"
+              class="size-full object-cover"
+              @error="failedGroupImages[groupImageKey(item)] = true"
+            />
             <template v-else>{{ groupInitials(item) }}</template>
           </span>
           <span class="min-w-0">
-            <span class="block truncate text-[13px] font-black leading-tight text-slate-950">
+            <span class="block truncate text-[13px] font-black leading-tight text-slate-950 transition-colors group-hover:text-[#7DA0CA]">
               {{ item?.group_name ?? 'Unnamed group' }}
             </span>
-            <span class="mt-1 block truncate text-[11px] font-medium leading-none text-slate-500">
+            <span class="mt-1 block truncate text-[11px] font-medium leading-none text-slate-500 transition-colors group-hover:text-[#7DA0CA]">
               {{ item?.group_code ?? 'No code' }}
             </span>
           </span>
@@ -181,7 +190,7 @@
         />
         <AddGroupTab
           v-if="automaticCreate.actionSlot == 'create-none-member'"
-          :data="{ ...automaticCreate, ...data, action }"
+          :data="{ ...data, action, ...automaticCreate }"
           v-model:form="formData"
         />
         <Create
@@ -218,22 +227,32 @@ const Store = pomPinia(),
   drawerRemount = ref(false),
   formData = ref<Record<string, any>>({})
 const statusFilter = ref('all')
+const failedGroupImages = ref<Record<string, boolean>>({})
 const drawerTitle = ref({
   title: 'Create Tenant',
   width: 'w-2/3',
 })
+const addMemberDrawerWidth = 'w-full sm:max-w-[820px] xl:max-w-[960px]'
 const router = useRouter()
 const { addNoneExistingMember } = groupSavingsApi()
 const tableUrl = computed(() => {
   return `/group-account-savings/list?status=${statusFilter.value}`
 })
+const drawerSaveButtonText = computed(() =>
+  automaticCreate.value.actionSlot === 'create-none-member' ? 'Add member' : 'Save',
+)
+const drawerSaveButtonClass = computed(() =>
+  automaticCreate.value.actionSlot === 'create-none-member'
+    ? 'bg-[#06265a] hover:bg-[#041b40] shadow-sm'
+    : 'bg-emerald-600 hover:bg-[#052659]/90 shadow-sm',
+)
 const titleMap: Record<string, { title: string; width: string }> = {
   view: {
     title: 'view group Savings account Details',
     width: 'w-1/2',
   },
   edit: {
-    title: 'Edit Member Savings Account',
+    title: 'Update Group',
     width: 'w-1/2',
   },
   add: {
@@ -361,6 +380,15 @@ function groupInitials(item: any) {
   return (parts.length > 1 ? `${parts[0][0]}${parts[1][0]}` : label.slice(0, 2)).toUpperCase()
 }
 
+function groupImageKey(item: any) {
+  return String(item?.id ?? item?.group_code ?? item?.group_name ?? '')
+}
+
+function shouldShowGroupImage(item: any) {
+  const key = groupImageKey(item)
+  return Boolean(item?.group_image) && !failedGroupImages.value[key]
+}
+
 function avatarClass(item: any) {
   const palettes = [
     'bg-blue-50 text-blue-700',
@@ -402,7 +430,7 @@ function createGroup() {
 }
 function OpenThedrawer(item: any, actionSlot = 'create-none-member') {
   automaticCreate.value = { drawerActions: true, actionSlot, item }
-  drawerTitle.value = { title: 'add member to group', width: 'w-2/4' }
+  drawerTitle.value = { title: 'add member to group', width: addMemberDrawerWidth }
   drawer.value.toggleDrawer()
   drawer.value.buttonTypeClicked = automaticCreate.value.actionSlot
 }
