@@ -208,15 +208,11 @@ const formatDateTime = (dateString?: string) => {
         <!-- Main content -->
         <div class="flex-1 flex flex-col gap-5 min-w-0">
           <!-- Toolbar -->
-          <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-3">
             <div class="min-w-0">
               <h2 class="truncate text-lg font-black tracking-tight text-gray-900">{{ details.group_name || details.name || 'Group profile' }}</h2>
               <p class="text-xs font-medium text-gray-400">{{ members.length }} member{{ members.length === 1 ? '' : 's' }} · savings group</p>
             </div>
-            <button type="button" @click="addMemberOpen = true"
-              class="inline-flex items-center gap-2 rounded-xl bg-[#cda434] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#b8932e]">
-              <UserPlus :size="16" /> Add Member
-            </button>
           </div>
 
           <!-- Accounts -->
@@ -225,7 +221,14 @@ const formatDateTime = (dateString?: string) => {
               :accounts="Array.isArray(profileDetails.accounts) ? profileDetails.accounts : []"
               :currency-code="currencyCode" :format-currency="formatCurrency"
               @new-account="newAccountDrawer?.openDrawer()"
-              @custom-fee="(account) => customFeeDrawer?.openDrawer(account)" />
+              @custom-fee="(account) => customFeeDrawer?.openDrawer(account)">
+              <template #header-action>
+                <button type="button" @click="addMemberOpen = true"
+                  class="inline-flex items-center gap-2 rounded-xl bg-[#cda434] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#b8932e]">
+                  <UserPlus :size="16" /> Add Member
+                </button>
+              </template>
+            </MemberAccountsTable>
           </div>
 
           <!-- Tabs -->
