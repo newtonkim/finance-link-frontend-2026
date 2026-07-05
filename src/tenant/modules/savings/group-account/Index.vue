@@ -102,7 +102,7 @@
         }}</span>
       </template>
       <template #actions="{ item }">
-        <div class="flex items-center justify-end gap-3 pr-1">
+        <div class="flex flex-wrap items-center justify-end gap-1.5">
           <button
             v-for="action in rowActions"
             :key="action.name"
@@ -110,12 +110,17 @@
             :aria-label="action.label"
             :title="action.label"
             :class="[
-              'inline-flex size-7 items-center justify-center rounded-md text-slate-400 transition hover:bg-slate-100 hover:text-slate-700',
-              action.name === 'delete' ? 'hover:bg-rose-50 hover:text-rose-500' : '',
+              'inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border px-2.5 py-1.5 text-[12px] font-bold transition-colors',
+              action.name === 'delete'
+                ? 'border-rose-200 text-rose-600 hover:bg-rose-50'
+                : action.name === 'add-member'
+                  ? 'border-[#cda434]/40 bg-[#cda434]/10 text-[#a87f24] hover:bg-[#cda434]/20'
+                  : 'border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900',
             ]"
             @click="action.handler(item)"
           >
             <component :is="action.icon" :size="14" stroke-width="2" />
+            {{ action.label }}
           </button>
         </div>
       </template>
@@ -309,30 +314,10 @@ const statusFilters = computed(() => [
 ])
 
 const rowActions = [
-  {
-    name: 'view',
-    label: 'View group',
-    icon: Eye,
-    handler: (item: any) => runTableAction(item, 'view'),
-  },
-  {
-    name: 'edit',
-    label: 'Edit group',
-    icon: Edit3,
-    handler: (item: any) => runTableAction(item, 'edit'),
-  },
-  {
-    name: 'add-member',
-    label: 'Add member',
-    icon: UserPlus,
-    handler: (item: any) => OpenThedrawer(item),
-  },
-  {
-    name: 'delete',
-    label: 'Delete group',
-    icon: Trash2,
-    handler: (item: any) => runTableAction(item, 'delete'),
-  },
+  { name: 'view', label: 'View', icon: Eye, handler: (item: any) => runTableAction(item, 'view') },
+  { name: 'edit', label: 'Edit', icon: Edit3, handler: (item: any) => runTableAction(item, 'edit') },
+  { name: 'add-member', label: 'Add member', icon: UserPlus, handler: (item: any) => OpenThedrawer(item) },
+  { name: 'delete', label: 'Delete', icon: Trash2, handler: (item: any) => runTableAction(item, 'delete') },
 ]
 
 function countStatus(status: string) {
