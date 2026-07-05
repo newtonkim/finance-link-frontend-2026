@@ -102,19 +102,35 @@ const loading = ref(true),
       placeholder: 'Enter Group description/objective/purpose',
     },
   ])
+function findField(list: any[], name: string): any {
+  for (const f of list) {
+    if (f?.name === name) return f
+    if (Array.isArray(f?.fields)) {
+      const nested = findField(f.fields, name)
+      if (nested) return nested
+    }
+  }
+  return null
+}
+
 async function promtValueOnUpdate() {
   loading.value = true
-  if (props.data) {
-    const data = {
-      tenant_id: props.data.tenant_id,
-      plan: props.data.plan_id,
-      date: [props.data.starts, props.data.expires],
-      status: props.data.status,
+  const d = props.data
+  if (d && d.action === 'edit') {
+    const map: Record<string, any> = {
+      group_name: d.group_name ?? d.name,
+      dcreated: d.dcreated ?? d.date_created,
+      address: d.location ?? d.address,
+      phone1: d.phone ?? d.primary_contact_phone ?? d.phone1,
+      phone2: d.phone2 ?? d.other_contact_phone,
+      group_description: d.group_description ?? d.description ?? d.desc,
+      memberslist: Array.isArray(d.memberslist) ? d.memberslist : d.members,
     }
-    await Object.entries(data).forEach(([key, value]) => {
-      const field = fields.value.find((f: any) => f.name === key)
+    for (const [key, value] of Object.entries(map)) {
+      if (value === undefined || value === null || value === '') continue
+      const field = findField(fields.value, key)
       if (field) field.value = value
-    })
+    }
   }
   loading.value = false
 }
