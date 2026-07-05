@@ -102,7 +102,7 @@
         }}</span>
       </template>
       <template #actions="{ item }">
-        <div class="flex flex-wrap items-center justify-end gap-1.5">
+        <div class="flex flex-nowrap items-center justify-end gap-1">
           <button
             v-for="action in rowActions"
             :key="action.name"
@@ -110,7 +110,7 @@
             :aria-label="action.label"
             :title="action.label"
             :class="[
-              'inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border px-2.5 py-1.5 text-[12px] font-bold transition-colors',
+              'inline-flex items-center gap-1 whitespace-nowrap rounded-md border px-2 py-1 text-[11px] font-bold leading-none transition-colors',
               action.name === 'delete'
                 ? 'border-rose-200 text-rose-600 hover:bg-rose-50'
                 : action.name === 'add-member'
@@ -119,7 +119,7 @@
             ]"
             @click="action.handler(item)"
           >
-            <component :is="action.icon" :size="14" stroke-width="2" />
+            <component :is="action.icon" :size="12" stroke-width="2" />
             {{ action.label }}
           </button>
         </div>
@@ -243,7 +243,7 @@ const columns = [
     width: '14em',
     onSearch: { type: 'date-range' },
   },
-  { key: 'actions', label: 'Actions', show: [], width: '12em' },
+  { key: 'actions', label: 'Actions', show: [], width: '22em' },
 ]
 
 const payload = computed(() => (Store as any).groupAccountList?.payload ?? {})
