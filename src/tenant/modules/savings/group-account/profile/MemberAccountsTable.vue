@@ -4,6 +4,15 @@
    ref="drawer" :data="accounts" :columns="columns" :drawerTitle="drawerTitle?.title"
     :drawerWidth="drawerTitle?.width" :drawerShowFooter="showFooter" :drawerRemount="drawerRemount"
     :automaticCreate="false" :showTableAction="false" :showSearchbar="false" tableDetaultHeight="" @save="handleSave">
+    <template #add-action>
+      <div class="flex items-center gap-2">
+        <slot name="header-action" />
+        <button type="button" @click="drawer?.createNewRecord?.()"
+          class="inline-flex items-center gap-2 rounded-xl bg-[#182538] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#22344f]">
+          <Plus :size="16" /> Create Account
+        </button>
+      </div>
+    </template>
     <template #actions="{ item }">
       <div class="flex items-center gap-2">
 
@@ -26,6 +35,7 @@
 </template>
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
+import { Plus } from "lucide-vue-next";
 import { TableDrawer, TabelActionButtons } from "../../../../../Global/index";
 import { CreateGroups, Withdrawal, Deposit, } from './index';
 import { groupSavingsApi } from "../../../../apis/savings/group-savingsApi";

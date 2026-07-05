@@ -108,6 +108,7 @@ const columns = [
   { key: "member_name", label: "Member Name", sticky: "left",   },
   { key: "member_status", label: "Status", type: "status" },
   { key: "total_amount_deposited", label: "member Deposited", type: "money" },
+  { key: "total_amount_withdrawn", label: "member Withdrawn", type: "money" },
   { key: "total_loan_balance", label: "loan balance", type: "money" },
   { key: "created_at", label: "created_at", width: "14em" },
   { key: "actions", label: "Actions" },

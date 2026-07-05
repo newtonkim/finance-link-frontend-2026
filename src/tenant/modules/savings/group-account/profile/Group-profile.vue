@@ -3,7 +3,7 @@ import { ref, computed, onBeforeMount } from "vue";
 import { toast } from "vue-sonner";
 import { storeToRefs } from "pinia";
 import {
-  FileText, Wallet, Users, Landmark, Phone, Hash, Calendar, MapPin, ShieldCheck, User, Check, Copy, UserPlus,
+  FileText, Wallet, Users, Landmark, Phone, Hash, Calendar, MapPin, ShieldCheck, User, Check, Copy, UserPlus, ClipboardCheck,
 } from "lucide-vue-next";
 import { formatCurrency, getInitials, Drawer, getLocalValues } from "../../../../../Global/index";
 import { tenantClient } from "../../../../apis/tenantClient";
@@ -15,6 +15,7 @@ import {
   MemberTransactionsTab,
   MemberGroupList,
   MemberSidebar,
+  WithdrawalApprovalsTab,
 } from "./index";
 import { AddGroupTab } from "../index";
 import DepositWithdrawDrawer from "../../../members/profile/DepositWithdrawDrawer.vue";
@@ -71,7 +72,11 @@ const tabs = computed(() => [
   { id: "members", label: "group members", icon: Users, count: members.value.length || null },
   { id: "transactions", label: "group Transactions", icon: FileText, count: Number(details.value?.total_transactions ?? 0) },
   { id: "loans", label: "group Member With Loans", icon: Wallet, count: (member.value as any)?.loans?.length || 0 },
+  { id: "approvals", label: "Withdrawal Approvals", icon: ClipboardCheck, count: pendingApprovalsCount.value || null },
 ]);
+
+const requiredApprovals = computed<number>(() => Number(details.value?.withdrawal_required_approvals ?? 1));
+const pendingApprovalsCount = ref<number>(0);
 
 // ── Group profile sections (mirrors the member profile) ──────────────────────
 function fieldValue(key: string): string | null {
@@ -313,6 +318,12 @@ const formatDateTime = (dateString?: string) => {
             <div v-show="activeTab === 'loans'" class="w-full overflow-x-auto">
               <GroupMembersWithLoansTab mode="all" action-color="bg-[#cda434]" :format-date="formatDate"
                 :format-date-time="formatDateTime" :format-currency="formatCurrency" @print="printReceipt" />
+            </div>
+
+            <!-- Withdrawal approvals -->
+            <div v-show="activeTab === 'approvals'" class="w-full">
+              <WithdrawalApprovalsTab :members="members" :required-approvals="requiredApprovals"
+                @count="pendingApprovalsCount = $event" @reload="initialize" />
             </div>
           </div>
         </div>

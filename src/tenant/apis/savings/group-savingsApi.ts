@@ -96,10 +96,87 @@ export function groupSavingsApi() {
     return res?.success
   }
 
+  async function listGroupWithdrawalRequests(status?: string) {
+    const res = await fetchTableData({
+      data: { group_id: getLocalValues('groupProfile' as any).id, status },
+      Store,
+      props: {
+        url: 'group-account-savings/withdrawal-requests-list',
+        method: 'post',
+        time: 0,
+        state: 'groupWithdrawalRequests',
+      },
+    })
+    return res?.payload ?? []
+  }
+
+  async function actOnGroupWithdrawalRequest(
+    requestId: number,
+    approverMemberId: number,
+    decision: 'approved' | 'rejected',
+    comment?: string,
+  ) {
+    const res = await fetchTableData({
+      data: { request_id: requestId, approver_member_id: approverMemberId, decision, comment },
+      Store,
+      props: {
+        url: 'group-account-savings/withdrawal-request-act',
+        method: 'post',
+        time: 0,
+        state: 'groupWithdrawalRequests',
+      },
+    })
+    const out = await feedback(res)
+    return out?.success
+  }
+
+  async function cancelGroupWithdrawalRequest(requestId: number) {
+    const res = await fetchTableData({
+      data: { request_id: requestId },
+      Store,
+      props: {
+        url: 'group-account-savings/withdrawal-request-cancel',
+        method: 'post',
+        time: 0,
+        state: 'groupWithdrawalRequests',
+      },
+    })
+    const out = await feedback(res)
+    return out?.success
+  }
+
+  async function toggleGroupWithdrawalApprover(
+    memberId: number,
+    isApprover: boolean,
+    approverRole?: string,
+  ) {
+    const res = await fetchTableData({
+      data: {
+        group_id: getLocalValues('groupProfile' as any).id,
+        member_id: memberId,
+        is_approver: isApprover,
+        approver_role: approverRole,
+      },
+      Store,
+      props: {
+        url: 'group-account-savings/toggle-withdrawal-approver',
+        method: 'post',
+        time: 0,
+        state: 'groupWithdrawalRequests',
+      },
+    })
+    const out = await feedback(res)
+    return out?.success
+  }
+
   return {
     addNoneExistingMember,
     getGroupProfileDetail,
     createAgroupSavingAccount,
     DepositAndWithdrawAgroupSavingAccount,
+    listGroupWithdrawalRequests,
+    actOnGroupWithdrawalRequest,
+    cancelGroupWithdrawalRequest,
+    toggleGroupWithdrawalApprover,
   }
 }
