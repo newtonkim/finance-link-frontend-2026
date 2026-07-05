@@ -131,6 +131,17 @@ async function promtValueOnUpdate() {
       const field = findField(fields.value, key)
       if (field) field.value = value
     }
+    // Send the group id so the backend updates the existing group instead of
+    // creating a duplicate. Only added on edit — never on create.
+    const gid = d.id ?? d.group_id
+    if (gid != null && gid !== '') {
+      let idField = findField(fields.value, 'id')
+      if (!idField) {
+        idField = { name: 'id', type: 'number', hidden: 1 }
+        fields.value.unshift(idField)
+      }
+      idField.value = gid
+    }
   }
   loading.value = false
 }
