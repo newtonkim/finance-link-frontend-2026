@@ -243,7 +243,7 @@ const columns = [
     width: '14em',
     onSearch: { type: 'date-range' },
   },
-  { key: 'actions', label: 'Actions', show: [], width: '22em' },
+  { key: 'actions', label: 'Actions', show: [], width: '24em', class: '!overflow-visible' },
 ]
 
 const payload = computed(() => (Store as any).groupAccountList?.payload ?? {})
