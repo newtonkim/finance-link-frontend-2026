@@ -60,6 +60,15 @@
             </div>
           </div>
         </div>
+        <div class="mt-3 flex justify-end">
+          <button
+            type="button"
+            @click="createGroup"
+            class="inline-flex items-center gap-2 rounded-xl bg-[#182538] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#22344f]"
+          >
+            <Plus :size="16" /> Create Group
+          </button>
+        </div>
       </template>
       <template #group_name="{ item }">
         <button
@@ -200,6 +209,7 @@ import {
   UserPlus,
   Users,
   UsersRound,
+  Plus,
 } from 'lucide-vue-next'
 const Store = pomPinia(),
   automaticCreate = ref<any>({ drawerActions: true, actionSlot: null, item: null }),
@@ -382,6 +392,11 @@ async function saveUser(type: string, data: any, sumited: any) {
     automaticCreate.value = { drawerActions: true, actionSlot: null, item: '' }
     drawerTitle.value = titleMap[type]
   }
+}
+function createGroup() {
+  automaticCreate.value = { drawerActions: true, actionSlot: null, item: null }
+  drawerTitle.value = titleMap.add
+  drawer.value?.createNewRecord?.()
 }
 function OpenThedrawer(item: any, actionSlot = 'create-none-member') {
   automaticCreate.value = { drawerActions: true, actionSlot, item }
