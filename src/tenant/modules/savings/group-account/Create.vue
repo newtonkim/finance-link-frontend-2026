@@ -4,10 +4,10 @@
     <div class="grid grid-cols-8" v-else>
       <div class="col-span-3">
         <div class="flex flex-col font-sans">
-          <UploadLogo name="group_logo" v-model:form="fields">
+          <UploadLogo name="group_logo" :existing="existingGroupLogo" v-model:form="fields">
             <template #header>
               <h1 class="text-2xl font-black italic text-slate-900 tracking-tight">
-                Register Group
+                {{ data?.action === 'edit' ? 'Update Group' : 'Register Group' }}
               </h1>
               <p class="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase mt-2">
                 Savings Institutional Onboarding Protocol
@@ -23,7 +23,7 @@
   </card>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, } from 'vue'
+import { computed, ref, onMounted, } from 'vue'
 import { Form, UploadLogo } from '@/Global'
 const loading = ref(true),
   props = defineProps({
@@ -42,7 +42,14 @@ const loading = ref(true),
       placeholder: 'Enter Group official name',
     },
     {
-      label: 'add group member',
+      label: 'Group logo',
+      name: 'group_logo',
+      type: 'text',
+      hidden: true,
+      value: null,
+    },
+    {
+      label: 'Group members',
       name: 'memberslist',
       type: 'multi-select',
       required: true,
@@ -102,19 +109,73 @@ const loading = ref(true),
       placeholder: 'Enter Group description/objective/purpose',
     },
   ])
+const normalizeLogoUrl = (raw?: string) => {
+  if (!raw || typeof raw !== 'string') return ''
+  const imagePath = raw.trim().replace('/public/', '/storage/')
+  if (!imagePath) return ''
+  if (/^https?:\/\//i.test(imagePath)) return imagePath
+  if (imagePath.startsWith('/storage/')) return imagePath
+  if (imagePath.startsWith('storage/')) return `/${imagePath}`
+  if (imagePath.startsWith('/public/')) return imagePath.replace('/public/', '/storage/')
+  if (imagePath.startsWith('public/')) return `/storage/${imagePath.slice(7)}`
+  return `/storage/${imagePath.replace(/^\/+/, '')}`
+}
+const existingGroupLogo = computed(() => normalizeLogoUrl(props.data?.group_image || props.data?.group_log || props.data?.image_path))
+function findField(list: any[], name: string): any {
+  for (const f of list) {
+    if (f?.name === name) return f
+    if (Array.isArray(f?.fields)) {
+      const nested = findField(f.fields, name)
+      if (nested) return nested
+    }
+  }
+  return null
+}
+
 async function promtValueOnUpdate() {
   loading.value = true
-  if (props.data) {
-    const data = {
-      tenant_id: props.data.tenant_id,
-      plan: props.data.plan_id,
-      date: [props.data.starts, props.data.expires],
-      status: props.data.status,
+  const d = props.data
+  if (d && d.action === 'edit') {
+    const groupMembers = Array.isArray(d.group_members)
+      ? d.group_members
+      : Array.isArray(d.members)
+        ? d.members.map((member: any) => ({
+            id: member.id,
+            name: member.name || member.member_name || member.member_code || `Member ${member.id}`,
+          }))
+        : []
+    const map: Record<string, any> = {
+      group_name: d.group_name ?? d.name,
+      dcreated: d.dcreated ?? d.date_created,
+      address: d.location ?? d.address,
+      phone1: d.phone ?? d.primary_contact_phone ?? d.phone1,
+      phone2: d.phone2 ?? d.other_contact_phone,
+      group_description: d.group_description ?? d.description ?? d.desc,
+      memberslist: Array.isArray(d.memberslist)
+        ? d.memberslist
+        : groupMembers.map((member: any) => member.id),
     }
-    await Object.entries(data).forEach(([key, value]) => {
-      const field = fields.value.find((f: any) => f.name === key)
+    for (const [key, value] of Object.entries(map)) {
+      if (value === undefined || value === null || value === '') continue
+      const field = findField(fields.value, key)
       if (field) field.value = value
-    })
+    }
+    const membersField = findField(fields.value, 'memberslist')
+    if (membersField) {
+      membersField.defaultValues = groupMembers
+      membersField.label = 'Group members'
+    }
+    // Send the group id so the backend updates the existing group instead of
+    // creating a duplicate. Only added on edit — never on create.
+    const gid = d.id ?? d.group_id
+    if (gid != null && gid !== '') {
+      let idField = findField(fields.value, 'id')
+      if (!idField) {
+        idField = { name: 'id', type: 'number', hidden: 1 }
+        fields.value.unshift(idField)
+      }
+      idField.value = gid
+    }
   }
   loading.value = false
 }

@@ -81,7 +81,8 @@
     <slot name="footer" />
     <div v-if="DrawerMounted">
         <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShooter2" v-model:open="drawerOpen"
-            :title="drawerTitle" @save="saveDrawerData" :saveButtonClass="props.saveButtonClass">
+            :title="drawerTitle" @save="saveDrawerData" :saveButtonClass="props.saveButtonClass"
+            :saveButtonText="props.saveButtonText" :cancelButtonText="props.cancelButtonText">
             <template #body>
                 <!-- {{ drawerShowFooter }} -->
                 <div id="print-container-drawer">
@@ -169,6 +170,8 @@ const props = defineProps({
     drawerTitle: { type: String, default: 'Drawer Title' },
     drawerWidth: { type: String, default: 'w-full sm:max-w-[520px]' },
     saveButtonClass: { type: String, default: null, required: false },
+    saveButtonText: { type: String, default: 'Save', required: false },
+    cancelButtonText: { type: String, default: 'Cancel', required: false },
     printButtonClass: { type: String, default: null, required: false },
     importDefaults: { type: Array, default: [], required: false },
     title: { type: String, required: false },
