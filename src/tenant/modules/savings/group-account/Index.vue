@@ -78,11 +78,12 @@
         >
           <span
             :class="[
-              'flex size-8 shrink-0 items-center justify-center rounded-md text-[11px] font-black uppercase',
+              'flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-md text-[11px] font-black uppercase',
               avatarClass(item),
             ]"
           >
-            {{ groupInitials(item) }}
+            <img v-if="item?.group_image" :src="item.group_image" :alt="item?.group_name ?? 'Group'" class="size-full object-cover" />
+            <template v-else>{{ groupInitials(item) }}</template>
           </span>
           <span class="min-w-0">
             <span class="block truncate text-[13px] font-black leading-tight text-slate-950">
