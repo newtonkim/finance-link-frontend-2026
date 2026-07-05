@@ -19,6 +19,15 @@
       </span>
     </template>
 
+    <template #member_role="{ item }">
+      <span :class="[
+        'inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold capitalize ring-1',
+        roleClass(item?.member_role)
+      ]">
+        {{ roleLabel(item?.member_role) }}
+      </span>
+    </template>
+
     <template #actions="{ item }">
       <div class="flex items-center gap-2">
         <TabelActionButtons v-if="item?.total_loan_balance > 0" @action="() => navigateIntoLoanDetails(item)"
@@ -103,9 +112,28 @@ function downloadSheet() {
 ;
 }
 
+function roleLabel(role?: string) {
+  const r = (role || "member").toLowerCase();
+  const map: Record<string, string> = {
+    chairman: "Chairman",
+    treasurer: "Treasurer",
+    secretary: "Secretary",
+    member: "Member",
+  };
+  return map[r] || role || "Member";
+}
+function roleClass(role?: string) {
+  const r = (role || "member").toLowerCase();
+  if (r === "chairman") return "bg-indigo-50 text-indigo-700 ring-indigo-600/20";
+  if (r === "treasurer") return "bg-amber-50 text-amber-700 ring-amber-600/20";
+  if (r === "secretary") return "bg-teal-50 text-teal-700 ring-teal-600/20";
+  return "bg-gray-100 text-gray-600 ring-gray-500/20";
+}
+
 const columns = [
   { key: "member_code", label: "Member Code", sticky: "left", width: "14em", copy: true },
   { key: "member_name", label: "Member Name", sticky: "left",   },
+  { key: "member_role", label: "Role", width: "10em" },
   { key: "member_status", label: "Status", type: "status" },
   { key: "total_amount_deposited", label: "member Deposited", type: "money" },
   { key: "total_amount_withdrawn", label: "member Withdrawn", type: "money" },
