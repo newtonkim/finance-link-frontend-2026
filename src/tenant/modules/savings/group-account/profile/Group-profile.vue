@@ -3,7 +3,7 @@ import { ref, computed, onBeforeMount } from "vue";
 import { toast } from "vue-sonner";
 import { storeToRefs } from "pinia";
 import {
-  FileText, Wallet, Users, Landmark, Phone, Hash, Calendar, MapPin, ShieldCheck, User, Check, Copy, UserPlus,
+  FileText, Wallet, Users, Landmark, Phone, Hash, Calendar, MapPin, ShieldCheck, User, Check, Copy, UserPlus, ClipboardCheck,
 } from "lucide-vue-next";
 import { formatCurrency, getInitials, Drawer, getLocalValues } from "../../../../../Global/index";
 import { tenantClient } from "../../../../apis/tenantClient";
@@ -15,6 +15,7 @@ import {
   MemberTransactionsTab,
   MemberGroupList,
   MemberSidebar,
+  WithdrawalApprovalsTab,
 } from "./index";
 import { AddGroupTab } from "../index";
 import DepositWithdrawDrawer from "../../../members/profile/DepositWithdrawDrawer.vue";
@@ -71,7 +72,11 @@ const tabs = computed(() => [
   { id: "members", label: "group members", icon: Users, count: members.value.length || null },
   { id: "transactions", label: "group Transactions", icon: FileText, count: Number(details.value?.total_transactions ?? 0) },
   { id: "loans", label: "group Member With Loans", icon: Wallet, count: (member.value as any)?.loans?.length || 0 },
+  { id: "approvals", label: "Withdrawal Approvals", icon: ClipboardCheck, count: pendingApprovalsCount.value || null },
 ]);
+
+const requiredApprovals = computed<number>(() => Number(details.value?.withdrawal_required_approvals ?? 1));
+const pendingApprovalsCount = ref<number>(0);
 
 // ── Group profile sections (mirrors the member profile) ──────────────────────
 function fieldValue(key: string): string | null {
@@ -213,10 +218,6 @@ const formatDateTime = (dateString?: string) => {
               <h2 class="truncate text-lg font-black tracking-tight text-gray-900">{{ details.group_name || details.name || 'Group profile' }}</h2>
               <p class="text-xs font-medium text-gray-400">{{ members.length }} member{{ members.length === 1 ? '' : 's' }} · savings group</p>
             </div>
-            <button type="button" @click="addMemberOpen = true"
-              class="inline-flex items-center gap-2 rounded-xl bg-[#cda434] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#b8932e]">
-              <UserPlus :size="16" /> Add Member
-            </button>
           </div>
 
           <!-- Accounts -->
@@ -225,7 +226,14 @@ const formatDateTime = (dateString?: string) => {
               :accounts="Array.isArray(profileDetails.accounts) ? profileDetails.accounts : []"
               :currency-code="currencyCode" :format-currency="formatCurrency"
               @new-account="newAccountDrawer?.openDrawer()"
-              @custom-fee="(account) => customFeeDrawer?.openDrawer(account)" />
+              @custom-fee="(account) => customFeeDrawer?.openDrawer(account)">
+              <template #header-action>
+                <button type="button" @click="addMemberOpen = true"
+                  class="inline-flex items-center gap-2 rounded-xl bg-[#cda434] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#b8932e]">
+                  <UserPlus :size="16" /> Add Member
+                </button>
+              </template>
+            </MemberAccountsTable>
           </div>
 
           <!-- Tabs -->
@@ -313,6 +321,12 @@ const formatDateTime = (dateString?: string) => {
             <div v-show="activeTab === 'loans'" class="w-full overflow-x-auto">
               <GroupMembersWithLoansTab mode="all" action-color="bg-[#cda434]" :format-date="formatDate"
                 :format-date-time="formatDateTime" :format-currency="formatCurrency" @print="printReceipt" />
+            </div>
+
+            <!-- Withdrawal approvals -->
+            <div v-show="activeTab === 'approvals'" class="w-full">
+              <WithdrawalApprovalsTab :members="members" :required-approvals="requiredApprovals"
+                @count="pendingApprovalsCount = $event" @reload="initialize" />
             </div>
           </div>
         </div>

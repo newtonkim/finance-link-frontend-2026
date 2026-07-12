@@ -271,6 +271,7 @@ defineExpose({
     handleAction,
     handlePrint,
     handleDownload,
+    createNewRecord,
     refresh,
 })
 </script>

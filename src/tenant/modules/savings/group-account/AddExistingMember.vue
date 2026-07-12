@@ -27,6 +27,20 @@ const fields = ref([
 
     },
     {
+        label: 'Group role',
+        name: 'member_role',
+        type: 'select',
+        required: false,
+        options: [
+            { id: 'member', name: 'Member' },
+            { id: 'chairman', name: 'Group Chairman' },
+            { id: 'treasurer', name: 'Group Treasurer' },
+            { id: 'secretary', name: 'Group Secretary' },
+        ],
+        value: 'member',
+        placeholder: 'Select group role',
+    },
+    {
         label: 'Account Code',
         name: 'account_code',
         type: 'select',

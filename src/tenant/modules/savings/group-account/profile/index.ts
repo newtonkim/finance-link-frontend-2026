@@ -7,6 +7,7 @@ export { default as CreateGroups } from './Create-group.vue';
 export { default as MemberAccountsTable } from './MemberAccountsTable.vue';
 export { default as MemberTransactionsTab } from './MemberTransactionsTab.vue';
 export { default as GroupMembersWithLoansTab } from './GroupMembersWithLoansTab.vue';
+export { default as WithdrawalApprovalsTab } from './WithdrawalApprovalsTab.vue';
 
 
 // export {default as DepositWithdrawDrawer} from './DepositWithdrawDrawer.vue';
