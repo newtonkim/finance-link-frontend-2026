@@ -28,10 +28,13 @@ use the Tailwind classes from the table.
 
 ## Rules
 
-1. One family everywhere: Inter. Monospace only for code-like content
-   (`ui-monospace, "SF Mono", Menlo, Consolas, monospace`).
+1. One family everywhere: Inter Variable. No monospace, no serif, no per-component
+   font imports. `--font-mono` is aliased to Inter, and the `font-mono` utility is
+   redefined (in `main.css`) as Inter + `tabular-nums`, so existing `font-mono`
+   usage keeps its column alignment without a second font.
 2. Monetary amounts in tables/statements: add `tabular-nums`.
 3. Sizes above 24px (`text-3xl`, `text-4xl`) are reserved for dashboard stat figures,
    not headings.
-4. Print/PDF statement templates keep their own print-safe stacks (see
-   `member-account/Show.vue` print CSS) — they render outside the app bundle.
+4. Print/PDF templates (opened in their own window, outside the app bundle) declare
+   `"Inter Variable", Inter, …, sans-serif` — Inter renders when available on the
+   machine, otherwise the system sans fallback is used.

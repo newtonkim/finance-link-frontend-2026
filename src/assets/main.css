@@ -46,6 +46,13 @@
   }
 }
 
+/* Override core font-mono: same Inter family, but tabular figures so
+   amounts, account numbers and codes stay column-aligned */
+@utility font-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
 @layer components {
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
@@ -64,6 +71,9 @@
 @theme {
   /* Typography — Inter Variable is the single font family for the whole system */
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  /* font-mono intentionally maps to Inter too — one family everywhere;
+     tabular figures keep numeric columns aligned (see @utility font-mono) */
+  --font-mono: var(--font-sans);
 
   /* Custom colors */
   --color-nfuko-bg: #E8F5FF;      /* Light Blue/Grey (Arctic Light) */

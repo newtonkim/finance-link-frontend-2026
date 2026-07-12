@@ -37,7 +37,7 @@ function printSchedule() {
 <meta charset="utf-8"/>
 <title>Repayment Schedule Preview</title>
 <style>
-  body { font-family: Arial, sans-serif; font-size: 12px; color: #111; margin: 24px; }
+  body { font-family: "Inter Variable", Inter, Arial, sans-serif; font-size: 12px; color: #111; margin: 24px; }
   h2 { font-size: 16px; margin-bottom: 4px; }
   .summary { display: flex; gap: 32px; margin-bottom: 16px; padding: 12px; background: #f5f5f5; border-radius: 6px; }
   .summary div { text-align: center; }

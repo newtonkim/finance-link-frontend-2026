@@ -92,12 +92,12 @@ function onPrint() {
   @page { size: A4; margin: 22mm 14mm 20mm; }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
-  body { font-family: "Helvetica Neue", Arial, sans-serif; color: #1c2530; font-size: 10.5px; line-height: 1.45;
+  body { font-family: "Inter Variable", Inter, "Helvetica Neue", Arial, sans-serif; color: #1c2530; font-size: 10.5px; line-height: 1.45;
     -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .navy { color: #182538; } .gold { color: #cda434; }
   .eyebrow { font-size: 8.5px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; color: #cda434; }
-  .mono { font-family: "SFMono-Regular", "Courier New", monospace; }
-  .num { text-align: right; font-family: "SFMono-Regular", "Courier New", monospace; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .mono { font-variant-numeric: tabular-nums; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .muted { color: #9aa5b1; } .nowrap { white-space: nowrap; }
 
   /* Running header / footer repeat on every printed page */
@@ -138,8 +138,7 @@ function onPrint() {
   .ribbon .cell.k { background: #182538; border-color: #182538; }
   .ribbon .cell .lbl { font-size: 8px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #98a2af; }
   .ribbon .cell.k .lbl { color: #cda434; }
-  .ribbon .cell .val { margin-top: 2px; font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums;
-    font-family: "SFMono-Regular", "Courier New", monospace; }
+  .ribbon .cell .val { margin-top: 2px; font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; }
   .ribbon .cell.k .val { color: #fff; }
   .ribbon .cell.cr .val { color: #1a7f4b; } .ribbon .cell.dr .val { color: #b23838; }
   .ribbon .op { align-self: center; font-weight: 900; color: #b7c0cb; padding: 0 1px; }

@@ -129,7 +129,7 @@ export function useLoanPdfExport(
 <meta charset="utf-8"/>
 <title>Loan General Information – ${loan.value.loan_no}</title>
 <style>
-  body { font-family: Arial, sans-serif; font-size: 12px; color: #111; margin: 24px; }
+  body { font-family: "Inter Variable", Inter, Arial, sans-serif; font-size: 12px; color: #111; margin: 24px; }
   h2 { font-size: 16px; margin-bottom: 2px; }
   .sub { font-size: 11px; color: #666; margin-bottom: 16px; }
   table { width: 100%; border-collapse: collapse; max-width: 600px; }

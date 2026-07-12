@@ -193,7 +193,7 @@ function openStatement() {
 <style>
     @page { size: A4; margin: 14mm 12mm; }
     * { box-sizing: border-box; }
-    body { font-family: "Helvetica Neue", Arial, sans-serif; color: #1a1a1a; font-size: 11px; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { font-family: "Inter Variable", Inter, "Helvetica Neue", Arial, sans-serif; color: #1a1a1a; font-size: 11px; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .accent { color: #06265a; }
     .head { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #06265a; padding-bottom: 12px; }
     .brand { display: flex; gap: 12px; align-items: center; }
@@ -210,7 +210,7 @@ function openStatement() {
     .meta .row { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px dotted #e5e5e5; }
     .meta .row span:first-child { color: #777; }
     .meta .row span:last-child { font-weight: 600; }
-    .mono { font-family: "Courier New", monospace; }
+    .mono { font-variant-numeric: tabular-nums; }
     .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #e5e5e5; border: 1px solid #e5e5e5; border-radius: 6px; overflow: hidden; margin-bottom: 14px; }
     .summary .cell { background: #fafafa; padding: 9px 11px; }
     .summary .cell.k { background: #06265a; }

@@ -513,7 +513,7 @@ export function companyHeader() {
   const generatedDate = new Date().toLocaleString()
 
   return `
-    <table style="width:100%; border-bottom:1px solid #ddd; padding-bottom:15px; margin-bottom:20px; font-family: Arial, sans-serif;">
+    <table style="width:100%; border-bottom:1px solid #ddd; padding-bottom:15px; margin-bottom:20px; font-family: "Inter Variable", Inter, Arial, sans-serif;">
       <tr>
 
         <!-- Logo -->

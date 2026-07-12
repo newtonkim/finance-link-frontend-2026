@@ -191,7 +191,7 @@ const router = useRouter()
   50%       { opacity: 0.6; box-shadow: 0 0 0 5px rgba(252,220,4,0); }
 }
 .badge-text {
-  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-family: var(--font-sans);
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.2em;
@@ -271,7 +271,7 @@ const router = useRouter()
 
 /* ── Description ── */
 .description {
-  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-family: var(--font-sans);
   font-size: 13px;
   line-height: 1.7;
   color: #ffffff;
@@ -289,7 +289,7 @@ const router = useRouter()
 .progress-label {
   display: flex;
   justify-content: space-between;
-  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-family: var(--font-sans);
   font-size: 11px;
   color: rgba(255,255,255,0.6);
   margin-bottom: 8px;
@@ -352,7 +352,7 @@ const router = useRouter()
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.2);
   color: #ffffff;
-  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-family: var(--font-sans);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -366,7 +366,7 @@ const router = useRouter()
   transform: translateX(-2px);
 }
 .eta-badge {
-  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-family: var(--font-sans);
   font-size: 11px;
   letter-spacing: 0.1em;
   color: rgba(252,220,4,0.5);

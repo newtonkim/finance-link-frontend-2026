@@ -150,7 +150,7 @@ export function setPrintSize(options: PrintOptions, orientation?: 'portrait' | '
 //       }
 //       body {
 //         margin: 0;
-//         font-family: Arial, sans-serif;
+//         font-family: "Inter Variable", Inter, Arial, sans-serif;
 //       }
 //     `
      
@@ -183,7 +183,7 @@ export function setPrintSize(options: PrintOptions, orientation?: 'portrait' | '
           }
           body {
             margin: 0;
-            font-family: Arial, sans-serif;
+            font-family: "Inter Variable", Inter, Arial, sans-serif;
           }
         </style>
       </head>

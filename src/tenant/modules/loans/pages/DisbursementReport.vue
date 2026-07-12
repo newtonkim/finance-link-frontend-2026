@@ -102,7 +102,7 @@ async function printReport() {
 <meta charset="utf-8"/>
 <title>Loan Disbursement Report</title>
 <style>
-  body { font-family: Arial, sans-serif; font-size: 11px; color: #111; margin: 24px; }
+  body { font-family: "Inter Variable", Inter, Arial, sans-serif; font-size: 11px; color: #111; margin: 24px; }
   h1 { font-size: 18px; margin-bottom: 4px; }
   p.subtitle { color: #555; margin-top: 0; margin-bottom: 24px; font-size: 13px; }
   h2 { font-size: 14px; margin-top: 32px; margin-bottom: 12px; border-bottom: 1px solid #ccc; padding-bottom: 4px;}

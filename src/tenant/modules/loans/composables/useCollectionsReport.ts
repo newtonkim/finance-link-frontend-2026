@@ -469,7 +469,7 @@ export function useCollectionsReport() {
 <meta charset="utf-8"/>
 <title>Loan Collections Report</title>
 <style>
-  body { font-family: Arial, sans-serif; font-size: 11px; color: #111; margin: 24px; }
+  body { font-family: "Inter Variable", Inter, Arial, sans-serif; font-size: 11px; color: #111; margin: 24px; }
   h1 { font-size: 18px; margin-bottom: 4px; }
   h2 { font-size: 14px; margin-top: 24px; margin-bottom: 12px; border-bottom: 1px solid #ccc; padding-bottom: 4px;}
   h3 { font-size: 12px; margin-bottom: 8px; color: #333; }
