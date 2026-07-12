@@ -391,12 +391,6 @@ const inputCls = 'w-full rounded-2xl border border-neutral-200 bg-[#f4f7f6] px-4
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-.font-sans {
-  font-family: 'Inter', sans-serif;
-}
-
 /* Custom scrollbar for form area */
 div::-webkit-scrollbar {
   width: 5px;
