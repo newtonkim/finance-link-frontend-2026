@@ -35,11 +35,9 @@ const NORMAL_BALANCE_BY_TYPE: Record<string, 'DR' | 'CR'> = {
   INCOME: 'CR',
 }
 
-// Asset and liability accounts have a fixed taxonomy; other types stay free-text.
-const SUBTYPE_OPTIONS_BY_TYPE: Record<string, string[]> = {
-  ASSET: ['Current Assets', 'Fixed Assets'],
-  LIABILITY: ['Current Liabilities', 'Non-Current Liabilities'],
-}
+// Subtypes must match the taxonomy already used in the chart (Bank, Cash,
+// Fixed Asset, …) or reports that group by subtype fracture. Options are
+// therefore derived from existing accounts, never hardcoded.
 
 const form = ref({
   gl_code: '',
@@ -61,6 +59,7 @@ interface Account {
   name: string
   is_control?: boolean
   account_type?: string
+  account_subtype?: string | null
 }
 const parentAccounts = ref<Account[]>([])
 
@@ -82,7 +81,17 @@ const accountTypeLabel = computed(
   () => ACCOUNT_TYPE_LABEL[form.value.account_type] || form.value.account_type,
 )
 
-const subtypeOptions = computed(() => SUBTYPE_OPTIONS_BY_TYPE[form.value.account_type] ?? null)
+// Distinct subtypes already in use for the selected account type. Falls back
+// to free text (null) when the chart has no subtypes to offer yet.
+const subtypeOptions = computed(() => {
+  const seen = new Set<string>()
+  for (const acc of parentAccounts.value) {
+    if (acc.account_type === form.value.account_type && acc.account_subtype) {
+      seen.add(acc.account_subtype)
+    }
+  }
+  return seen.size > 0 ? [...seen].sort() : null
+})
 
 watch(
   () => props.open,
@@ -189,6 +198,48 @@ function findParent(parentId: string | number | null): Account | null {
   return parentAccounts.value.find((acc) => acc.id === Number(parentId)) ?? null
 }
 
+// Seeded charts carry hierarchy in gl_code blocks (parent_id is NULL), so a
+// parent's descendants are the codes inside its trailing-zero block:
+// 11100 → (11100, 11200).
+function accountsInBlock(parent: Account): Account[] {
+  const parentNum = parseInt(parent.gl_code)
+  if (isNaN(parentNum)) return []
+  let trailing = 0
+  let n = parentNum
+  while (n > 0 && n % 10 === 0) {
+    trailing++
+    n = Math.floor(n / 10)
+  }
+  if (trailing < 1) return []
+  const blockSize = Math.pow(10, trailing)
+  return parentAccounts.value.filter((acc) => {
+    const code = parseInt(acc.gl_code)
+    return !isNaN(code) && code > parentNum && code < parentNum + blockSize
+  })
+}
+
+// New accounts should carry the same subtype as the accounts they sit next to
+// (a bank under Cash & Cash Equivalents is a 'Bank', not a 'Fixed Asset').
+// Dominant sibling subtype wins; empty block falls back to the parent's own.
+function deriveSubtypeFromParent(parent: Account | null): string {
+  if (!parent) return ''
+  const counts = new Map<string, number>()
+  for (const sibling of accountsInBlock(parent)) {
+    if (sibling.account_subtype) {
+      counts.set(sibling.account_subtype, (counts.get(sibling.account_subtype) ?? 0) + 1)
+    }
+  }
+  let best = ''
+  let bestCount = 0
+  for (const [subtype, count] of counts) {
+    if (count > bestCount) {
+      best = subtype
+      bestCount = count
+    }
+  }
+  return best || parent.account_subtype || ''
+}
+
 watch(
   () => form.value.account_type,
   (newType) => {
@@ -207,7 +258,11 @@ watch(
   () => form.value.parent_id,
   (newParentId) => {
     if (!props.open || parentAccounts.value.length === 0) return
-    form.value.gl_code = generateGlCode(form.value.account_type, findParent(newParentId))
+    const parent = findParent(newParentId)
+    form.value.gl_code = generateGlCode(form.value.account_type, parent)
+    if (parent) {
+      form.value.account_subtype = deriveSubtypeFromParent(parent)
+    }
   },
 )
 
