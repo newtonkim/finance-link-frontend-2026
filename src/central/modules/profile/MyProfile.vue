@@ -163,7 +163,7 @@ async function onAvatarChange(e: Event) {
  *  (which read from authStore.user via the profile store) refresh immediately. */
 function syncSessionUser(updated: CentralProfile) {
   const next = {
-    ...(authStore.user ?? {}),
+    ...authStore.user,
     id: updated.id,
     name: updated.staff_fall_name ?? authStore.user?.name,
     email: updated.staff_email ?? authStore.user?.email,
