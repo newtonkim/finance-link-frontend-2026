@@ -319,13 +319,13 @@ onMounted(fetchGroup)
                 <!-- Total Members -->
                 <div class="flex items-center gap-6 px-6 py-4" style="border-color: var(--color-nfuko-primary-100);">
                   <span class="w-44 shrink-0 text-xs font-semibold uppercase tracking-widest dark:text-neutral-500" style="color: var(--color-nfuko-primary-500);">Total Members</span>
-                  <span class="text-3xl font-bold dark:text-white" style="color: var(--color-nfuko-primary); font-family: serif;">{{ members.length }}</span>
+                  <span class="text-3xl font-bold dark:text-white" style="color: var(--color-nfuko-primary);">{{ members.length }}</span>
                 </div>
 
                 <!-- Signatories -->
                 <div class="flex items-center gap-6 px-6 py-4" style="border-color: var(--color-nfuko-primary-100);">
                   <span class="w-44 shrink-0 text-xs font-semibold uppercase tracking-widest dark:text-neutral-500" style="color: var(--color-nfuko-primary-500);">Signatories</span>
-                  <span class="text-3xl font-bold dark:text-white" style="color: var(--color-nfuko-primary); font-family: serif;">0</span>
+                  <span class="text-3xl font-bold dark:text-white" style="color: var(--color-nfuko-primary);">0</span>
                 </div>
 
                 <!-- Location -->
@@ -345,7 +345,7 @@ onMounted(fetchGroup)
                 <!-- Date Created -->
                 <div class="flex items-center gap-6 px-6 py-4" style="border-color: var(--color-nfuko-primary-100);">
                   <span class="w-44 shrink-0 text-xs font-semibold uppercase tracking-widest dark:text-neutral-500" style="color: var(--color-nfuko-primary-500);">Date Created</span>
-                  <span class="text-2xl font-bold dark:text-white" style="color: var(--color-nfuko-primary); font-family: serif;">
+                  <span class="text-2xl font-bold dark:text-white" style="color: var(--color-nfuko-primary);">
                     {{ group.date_created ? new Date(group.date_created).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '—' }}
                   </span>
                 </div>
