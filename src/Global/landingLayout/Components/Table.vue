@@ -104,8 +104,11 @@
 
                       <template v-else>
                         <button v-if="(col.condition?.[action]?.(item) || col.condition?.[action]?.(item) == null)"
-                          type="button" @click="() => handleAction(item, action)" v-auth="permissions?.[action]"
-                          :class="action_config?.[action]?.class" class=" ">
+                          type="button" @click="() => !isBlockedAction(action) && handleAction(item, action)"
+                          :disabled="isBlockedAction(action)"
+                          :title="isBlockedAction(action) ? 'License expired — renew to make changes' : ''"
+                          v-auth="permissions?.[action]"
+                          :class="[action_config?.[action]?.class, isBlockedAction(action) ? 'opacity-40 cursor-not-allowed' : '']" class=" ">
 
                           <component :is="action_config?.[action]?.icon" class="h-2 w-2" />
                           <span v-if="action !== 'delete'">{{ action }}</span>
@@ -154,6 +157,11 @@ import { EmptySvg } from '../..'
 import tableLoader from './tableLoader.vue'
 import { ref, watch } from 'vue'
 import { SearchX } from 'lucide-vue-next'
+import { licenseState } from '@/tenant/apis/licenseState'
+
+// Row actions that mutate data — disabled when the license has expired.
+const WRITE_ACTIONS = ['edit', 'delete', 'update', 'remove', 'approve', 'reject', 'reverse', 'suspend', 'activate', 'disburse']
+const isBlockedAction = (action: string) => licenseState.readOnly && WRITE_ACTIONS.includes(String(action).toLowerCase())
 
 const props = defineProps({
   rowClass: { type: [String, Function] as PropType<string | ((row: any) => string)>, required: false },

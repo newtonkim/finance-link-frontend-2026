@@ -94,15 +94,21 @@
                         <td class="whitespace-nowrap px-6 py-3.5 text-right hide-on-print">
                             <div class="inline-flex items-center justify-end gap-2">
                                 <button v-if="!item?.dormant_date" type="button" @click="onAction(item, 'edit')"
-                                    class="inline-flex items-center gap-1.5 rounded-lg border border-nfuko-primary-200 bg-nfuko-primary-50 px-3 py-1.5 text-xs font-semibold text-nfuko-primary-700 transition-colors hover:bg-nfuko-primary-100 dark:border-nfuko-primary-500/20 dark:bg-nfuko-primary-500/10 dark:text-nfuko-primary-300">
+                                    :disabled="licenseState.readOnly"
+                                    :title="licenseState.readOnly ? 'License expired — renew to edit' : ''"
+                                    class="inline-flex items-center gap-1.5 rounded-lg border border-nfuko-primary-200 bg-nfuko-primary-50 px-3 py-1.5 text-xs font-semibold text-nfuko-primary-700 transition-colors hover:bg-nfuko-primary-100 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-nfuko-primary-50 dark:border-nfuko-primary-500/20 dark:bg-nfuko-primary-500/10 dark:text-nfuko-primary-300">
                                     <Pencil class="h-3.5 w-3.5" /> Edit
                                 </button>
                                 <button v-if="!item?.dormant_date" type="button" @click="onAction(item, 'dormant')"
-                                    class="inline-flex items-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-100 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-300">
+                                    :disabled="licenseState.readOnly"
+                                    :title="licenseState.readOnly ? 'License expired — renew to make changes' : ''"
+                                    class="inline-flex items-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-100 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-rose-50 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-300">
                                     <MoonStar class="h-3.5 w-3.5" /> Dormant
                                 </button>
                                 <button v-else type="button" @click="onAction(item, 'activate')"
-                                    class="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">
+                                    :disabled="licenseState.readOnly"
+                                    :title="licenseState.readOnly ? 'License expired — renew to make changes' : ''"
+                                    class="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-emerald-50 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">
                                     <Sun class="h-3.5 w-3.5" /> Activate
                                 </button>
                             </div>
@@ -133,6 +139,7 @@ import { setLocalValues, uploadTemplateColumData, copyToClipboard } from '@/Glob
 import { Pencil, MoonStar, Sun, Copy, Check } from 'lucide-vue-next'
 import { useRouter } from 'vue-router';
 import { MemberTemplate } from './imgration/index';
+import { licenseState } from '@/tenant/apis/licenseState';
 
 const copiedCode = ref<number | null>(null)
 let copyTimer: ReturnType<typeof setTimeout> | null = null
