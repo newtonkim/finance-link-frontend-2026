@@ -43,7 +43,7 @@ vi.mock('@/Global/MultiSearchableSelect.vue', () => ({
 vi.mock('@/tenant/modules/accounting/components/ChartOfAccountForm.vue', () => ({
   default: {
     name: 'ChartOfAccountFormStub',
-    props: ['open', 'lockedAccountType', 'defaultParentGlCode', 'prefillName', 'requireParent'],
+    props: ['open', 'lockedAccountType', 'defaultParentGlCode', 'prefillName'],
     emits: ['update:open', 'saved'],
     template: '<div data-test="coa-form-stub" />',
   },

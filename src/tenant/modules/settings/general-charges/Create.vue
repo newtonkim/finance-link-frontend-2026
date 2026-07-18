@@ -6,7 +6,6 @@
       locked-account-type="INCOME"
       default-parent-gl-code="42000"
       :prefill-name="creatingAccount.prefillName"
-      require-parent
       @saved="onAccountSaved"
     />
   </div>

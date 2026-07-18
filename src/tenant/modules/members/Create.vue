@@ -495,7 +495,6 @@ defineExpose({ fields, watchChangeInProductOrCharges })
       locked-account-type="ASSET"
       default-parent-gl-code="12000"
       :prefill-name="creatingAccount.prefillName"
-      require-parent
       @saved="onAccountSaved"
     />
     <div v-setting='"sacco-share-on-member-creation-create-share-account-at-the-same-time"'

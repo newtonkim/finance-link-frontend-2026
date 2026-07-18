@@ -107,15 +107,27 @@ describe('ChartOfAccountForm - prefillName', () => {
   })
 })
 
-describe('ChartOfAccountForm - requireParent', () => {
-  it('blocks save with an inline error when parent_id is empty', async () => {
-    const wrapper = await mountOpen({ lockedAccountType: 'INCOME', requireParent: true })
+describe('ChartOfAccountForm - optional parent', () => {
+  it('submits a null parent_id when no parent is selected', async () => {
+    storeMock.mockResolvedValue({
+      data: {
+        data: {
+          id: 99,
+          gl_code: '40001',
+          name: 'Unparented Income',
+          account_type: 'INCOME',
+          parent_id: null,
+        },
+      },
+    })
+    const wrapper = await mountOpen({ lockedAccountType: 'INCOME' })
     const vm = wrapper.vm as any
     vm.form.parent_id = ''
+    vm.form.name = 'Unparented Income'
     await wrapper.find('[data-test="submit"]').trigger('click')
     await flushPromises()
-    expect(storeMock).not.toHaveBeenCalled()
-    expect(vm.errors.parent_id?.[0]).toMatch(/parent account is required/i)
+    expect(storeMock).toHaveBeenCalledWith(expect.objectContaining({ parent_id: null }))
+    expect(vm.errors.parent_id).toBeUndefined()
   })
 })
 
