@@ -5,6 +5,7 @@ import { Spinner, Pagination, formatMoneyValue } from '@/Global'
 import { journalEntriesApi } from '@/tenant/apis/journalEntries/journalEntriesApi'
 import { downloadFile } from '@/Global/Helpers'
 import JournalEntryForm from '../components/JournalEntryForm.vue'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 const showForm = ref(false)
 const search = ref('')
@@ -15,6 +16,10 @@ const exporting = ref(false)
 const entries = ref<any[]>([])
 const links = ref<any>(null)
 const meta = ref({ current_page: 1, last_page: 1, total: 0, per_page: 10 })
+
+function openCreateForm() {
+  if (!licenseState.readOnly) showForm.value = true
+}
 
 async function fetchEntries(page = 1) {
   loading.value = true
@@ -68,7 +73,7 @@ async function exportEntries(format: 'csv' | 'pdf') {
 }
 
 async function postDraft(entry: any) {
-  if (!entry?.id) return
+  if (!entry?.id || licenseState.readOnly) return
   loading.value = true
   try {
     await journalEntriesApi.postExisting(entry.id)
@@ -117,8 +122,10 @@ function fmt(n: string | number | null) {
           Export CSV
         </button>
         <button
-          @click="showForm = true"
-          class="inline-flex items-center gap-2 rounded-lg bg-nfuko-primary px-5 py-2 text-sm font-semibold text-white hover:bg-nfuko-primary/90 transition-colors shadow-sm"
+          @click="openCreateForm"
+          :disabled="licenseState.readOnly"
+          :title="licenseState.readOnly ? 'License expired — renew to create a journal entry' : ''"
+          class="inline-flex items-center gap-2 rounded-lg bg-nfuko-primary px-5 py-2 text-sm font-semibold text-white hover:bg-nfuko-primary/90 transition-colors shadow-sm disabled:cursor-not-allowed disabled:opacity-40"
         >
           <Plus class="h-4 w-4" />
           New Entry
@@ -217,7 +224,9 @@ function fmt(n: string | number | null) {
                   v-if="entry.status === 'draft'"
                   type="button"
                   @click="postDraft(entry)"
-                  class="inline-flex items-center gap-1.5 rounded-lg bg-nfuko-primary px-3 py-1.5 text-xs font-bold text-white hover:bg-nfuko-primary/90"
+                  :disabled="licenseState.readOnly"
+                  :title="licenseState.readOnly ? 'License expired — renew to post this entry' : ''"
+                  class="inline-flex items-center gap-1.5 rounded-lg bg-nfuko-primary px-3 py-1.5 text-xs font-bold text-white hover:bg-nfuko-primary/90 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <Check class="h-3.5 w-3.5" />
                   Post

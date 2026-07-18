@@ -8,6 +8,7 @@ import { savingsAccountsApi } from '@/tenant/apis/savingsAccounts/savingsAccount
 import { useCurrencyStore } from '@/stores/currency'
 import { toast } from 'vue-sonner'
 import type { SavingsProduct } from '@/tenant/apis/savingsProducts/api'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 const props = defineProps<{
   savingsProducts: SavingsProduct[]
@@ -97,6 +98,7 @@ async function openDrawer(account: { id: number } & AccountMeta, prefetchedData?
 }
 
 async function submit() {
+  if (licenseState.readOnly) return
   processing.value = true
   errors.value = {}
   try {
@@ -274,8 +276,9 @@ defineExpose({ openDrawer })
               class="flex-1 rounded-lg border border-neutral-300 px-5 py-2.5 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800">
               Cancel
             </button>
-            <button type="button" @click="submit" :disabled="processing || loading"
-              class="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-nfuko-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-nfuko-primary/25 transition-colors hover:bg-nfuko-primary-800 disabled:opacity-60">
+            <button type="button" @click="submit" :disabled="processing || loading || licenseState.readOnly"
+              :title="licenseState.readOnly ? 'License expired — renew to save changes' : ''"
+              class="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-nfuko-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-nfuko-primary/25 transition-colors hover:bg-nfuko-primary-800 disabled:cursor-not-allowed disabled:opacity-40">
               <Spinner v-if="processing" class="h-4 w-4" />
               {{ processing ? 'Saving...' : 'Save Changes' }}
             </button>

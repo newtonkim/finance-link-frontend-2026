@@ -11,6 +11,7 @@ import {
 import { Label } from '@/Global'
 import { toast } from 'vue-sonner'
 import { loansApi } from '@/tenant/apis/loans/loansApi'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 const props = defineProps<{
   loan: any
@@ -66,6 +67,7 @@ const repaidPercent = computed(() => {
 // ── Methods ───────────────────────────────────────────────────────────────────
 
 function show() {
+  if (licenseState.readOnly) return
   open.value = true
   step.value = 1
   eligibilityResults.value = null
@@ -116,6 +118,7 @@ function goToPreview() {
 }
 
 async function finalize() {
+  if (licenseState.readOnly) return
   try {
     const res = await loansApi.executeTopup(props.loan.id, {
       fresh_cash_amount: freshCashAmount.value,
@@ -409,7 +412,9 @@ defineExpose({ show, close })
           <!-- Step 3 → Submit -->
           <button
             v-else-if="step === 3"
-            class="flex items-center gap-2 rounded-xl bg-nfuko-action px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            :disabled="licenseState.readOnly"
+            :title="licenseState.readOnly ? 'License expired — renew to finalize this top-up' : ''"
+            class="flex items-center gap-2 rounded-xl bg-nfuko-action px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             @click="finalize"
           >
             <Zap class="h-4 w-4" />

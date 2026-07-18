@@ -4,6 +4,7 @@ import { Search, Plus, ChevronRight, ChevronDown } from 'lucide-vue-next'
 import { Spinner } from '@/Global'
 import { chartOfAccountsApi } from '@/tenant/apis/chartOfAccounts/chartOfAccountsApi'
 import ChartOfAccountForm from '../components/ChartOfAccountForm.vue'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Account {
@@ -30,6 +31,10 @@ const search    = ref('')
 const typeFilter = ref<AccountTypeFilter>('ALL')
 const showForm  = ref(false)
 let   timer: ReturnType<typeof setTimeout> | null = null
+
+function openCreateForm() {
+  if (!licenseState.readOnly) showForm.value = true
+}
 
 // ─── Fetch ────────────────────────────────────────────────────────────────────
 // A chart of accounts is a bounded hierarchy — paginating it slices sections in
@@ -113,8 +118,10 @@ const typeFilters: Array<{ value: AccountTypeFilter; label: string }> = [
         </p>
       </div>
       <button
-        @click="showForm = true"
-        class="inline-flex items-center gap-2 rounded-full border-0 bg-[#052659] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#052659]/90"
+        @click="openCreateForm"
+        :disabled="licenseState.readOnly"
+        :title="licenseState.readOnly ? 'License expired — renew to add an account' : ''"
+        class="inline-flex items-center gap-2 rounded-full border-0 bg-[#052659] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#052659]/90 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#052659]"
       >
         <Plus class="h-4 w-4" />
         Add Account

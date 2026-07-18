@@ -7,6 +7,7 @@ import {
   DropdownMenuTrigger,
 } from '@/Global/ui/dropdown-menu'
 import type { LoanTransaction } from '@/tenant/apis/loans/loansApi'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 interface PaginationMeta {
   current_page: number
@@ -139,6 +140,8 @@ const emit = defineEmits<{
                     <span class="font-bold">View</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
+                    :disabled="licenseState.readOnly"
+                    :title="licenseState.readOnly ? 'License expired — renew to reverse this transaction' : ''"
                     class="cursor-pointer gap-2.5 py-2 px-3 text-nfuko-action focus:text-nfuko-action focus:bg-nfuko-action/10 rounded-lg"
                   >
                     <CircleMinus class="h-4 w-4 stroke-[2.5]" />

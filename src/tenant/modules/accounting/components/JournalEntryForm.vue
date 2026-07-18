@@ -5,6 +5,7 @@ import SearchableSelect from '@/Global/SearchableSelect.vue'
 import { List, Paperclip, Plus, Trash2 } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { journalEntriesApi } from '@/tenant/apis/journalEntries/journalEntriesApi'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 const props = defineProps<{
   open: boolean
@@ -162,6 +163,7 @@ function validateClient(mode: 'draft' | 'posted') {
 }
 
 async function submit(status: 'draft' | 'posted') {
+  if (licenseState.readOnly) return
   if (!validateClient(status)) return
 
   submitMode.value = status
@@ -336,10 +338,14 @@ function fmt(amount: number) {
         <button type="button" @click="emit('update:open', false)" class="rounded-lg border border-neutral-200 bg-white px-5 py-2.5 text-sm font-bold text-neutral-800 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
           Discard
         </button>
-        <button type="button" @click="submit('draft')" :disabled="loading" class="rounded-lg border border-neutral-200 bg-white px-5 py-2.5 text-sm font-bold text-neutral-800 hover:bg-[#052659]/90 disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+        <button type="button" @click="submit('draft')" :disabled="loading || licenseState.readOnly"
+          :title="licenseState.readOnly ? 'License expired — renew to save this draft' : ''"
+          class="rounded-lg border border-neutral-200 bg-white px-5 py-2.5 text-sm font-bold text-neutral-800 hover:bg-[#052659]/90 disabled:cursor-not-allowed disabled:opacity-40 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
           {{ loading && submitMode === 'draft' ? 'Saving...' : 'Save draft' }}
         </button>
-        <button type="button" @click="submit('posted')" :disabled="loading || !inBalance" class="rounded-lg bg-[#052659] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#052659]/90 disabled:opacity-50">
+        <button type="button" @click="submit('posted')" :disabled="loading || !inBalance || licenseState.readOnly"
+          :title="licenseState.readOnly ? 'License expired — renew to post this entry' : ''"
+          class="rounded-lg bg-[#052659] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#052659]/90 disabled:cursor-not-allowed disabled:opacity-40">
           {{ loading && submitMode === 'posted' ? 'Posting...' : 'Post entry' }}
         </button>
       </div>

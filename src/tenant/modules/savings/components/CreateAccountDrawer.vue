@@ -7,6 +7,7 @@ import { savingsProductsApi } from '@/tenant/apis/savingsProducts/api'
 import { type SavingsProduct } from '../types'
 import { toast } from 'vue-sonner'
 import { useMemberSearch } from '../composables/useMemberSearch'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 const props = defineProps<{ savingsProducts: SavingsProduct[] }>()
 const emit = defineEmits<{
@@ -120,6 +121,7 @@ function openDrawer() {
 }
 
 async function submit() {
+  if (licenseState.readOnly) return
   errors.value = {}
   if (!form.value.member_id) {
     errors.value.member_id = 'Member is required.'
@@ -364,8 +366,9 @@ defineExpose({ openDrawer })
                 class="rounded-full border border-neutral-300 px-5 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-colors">
                 Cancel
               </button>
-              <button type="button" @click="submit" :disabled="processing || memberHasAccounts"
-                class="inline-flex items-center gap-2 rounded-full bg-[#052659] px-5 py-2 text-sm font-semibold text-white hover:bg-[#052659]/90 transition-colors disabled:opacity-60">
+              <button type="button" @click="submit" :disabled="processing || memberHasAccounts || licenseState.readOnly"
+                :title="licenseState.readOnly ? 'License expired — renew to create an account' : ''"
+                class="inline-flex items-center gap-2 rounded-full bg-[#052659] px-5 py-2 text-sm font-semibold text-white hover:bg-[#052659]/90 transition-colors disabled:cursor-not-allowed disabled:opacity-40">
                 <Spinner v-if="processing" class="h-4 w-4" />
                 Create Account
               </button>

@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { X, Calendar, User, Banknote, FileText, CheckCircle2, Loader2 } from 'lucide-vue-next'
 import { formatMoneyValue, normalizeAmountInput, formatAmountInput, parseAmountInput } from '@/Global'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 const props = defineProps<{
   open: boolean
@@ -189,7 +190,7 @@ const allocationExceedsAmount = computed(() =>
 )
 
 function handleSubmit() {
-  if (allocationExceedsAmount.value) return
+  if (allocationExceedsAmount.value || licenseState.readOnly) return
   emit('submit', {
     amount: form.value.amount,
     penalty_charges: form.value.penalty_charges,
@@ -505,7 +506,8 @@ function fmt(v: number | string | null | undefined) {
               </button>
               <button
                 class="flex min-w-[180px] items-center justify-center gap-2 rounded-lg bg-emerald-600 px-6 py-3 font-bold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                :disabled="posting || !form.description.trim() || allocationExceedsAmount"
+                :disabled="posting || !form.description.trim() || allocationExceedsAmount || licenseState.readOnly"
+                :title="licenseState.readOnly ? 'License expired — renew to receive cash' : ''"
                 @click="handleSubmit"
               >
                 <Loader2 v-if="posting" class="h-5 w-5 animate-spin" />

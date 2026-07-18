@@ -7,6 +7,7 @@ import InterestPostingHistory from './InterestPostingHistory.vue'
 import FdMaturityDrawer from './FdMaturityDrawer.vue'
 
 import { type SavingsAccount } from '../types'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 const props = defineProps<{
   currency: string
@@ -37,7 +38,7 @@ function formatDate(d: string | null | undefined) {
 }
 
 function openMaturityDrawer() {
-  if (!account.value) return
+  if (!account.value || licenseState.readOnly) return
   maturityDrawerRef.value?.openDrawer({
     id: account.value.id,
     account_no: account.value.account_no,
@@ -211,7 +212,9 @@ defineExpose({ openDrawer })
                     v-if="isMatured"
                     type="button"
                     @click="openMaturityDrawer"
-                    class="mt-1 w-full rounded-lg border border-amber-400 bg-amber-100 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-200 transition dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-300 dark:hover:bg-amber-950/60"
+                    :disabled="licenseState.readOnly"
+                    :title="licenseState.readOnly ? 'License expired — renew to process maturity' : ''"
+                    class="mt-1 w-full rounded-lg border border-amber-400 bg-amber-100 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-200 transition disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-amber-100 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-300 dark:hover:bg-amber-950/60"
                   >
                     Process Maturity
                   </button>
@@ -230,7 +233,9 @@ defineExpose({ openDrawer })
                 Close
               </button>
               <button v-if="account" type="button" @click="() => { const toEdit = account; close(); if (toEdit) emit('editAccount', toEdit) }"
-                class="inline-flex items-center gap-2 rounded-full bg-[#052659] px-5 py-2 text-sm font-semibold text-white hover:bg-[#052659]/90 transition-colors">
+                :disabled="licenseState.readOnly"
+                :title="licenseState.readOnly ? 'License expired — renew to edit this account' : ''"
+                class="inline-flex items-center gap-2 rounded-full bg-[#052659] px-5 py-2 text-sm font-semibold text-white hover:bg-[#052659]/90 transition-colors disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#052659]">
                 <Pencil class="h-3.5 w-3.5" />
                 Edit Account
               </button>

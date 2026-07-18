@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { X, ArrowLeft, RotateCcw, ArrowRightLeft, Banknote } from 'lucide-vue-next'
 import { savingsAccountsApi } from '@/tenant/apis/savingsAccounts/savingsAccountsApi'
 import { toast } from 'vue-sonner'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 interface Account { id: number; account_no: string; maturity_date: string | null }
 
@@ -57,7 +58,7 @@ function close() {
 }
 
 async function submit() {
-  if (!selectedAction.value || !account.value) return
+  if (!selectedAction.value || !account.value || licenseState.readOnly) return
   processing.value = true
   try {
     await savingsAccountsApi.processMaturity(account.value.id, { action: selectedAction.value })
@@ -138,7 +139,8 @@ defineExpose({ openDrawer })
           <div class="border-t border-neutral-200 px-6 py-4 dark:border-neutral-700">
             <button
               type="button" @click="submit"
-              :disabled="!selectedAction || processing"
+              :disabled="!selectedAction || processing || licenseState.readOnly"
+              :title="licenseState.readOnly ? 'License expired — renew to process maturity' : ''"
               class="w-full rounded-lg bg-nfuko-primary px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition disabled:opacity-40 disabled:cursor-not-allowed dark:bg-nfuko-yellow dark:text-neutral-900"
             >
               {{ processing ? 'Processing...' : 'Confirm' }}

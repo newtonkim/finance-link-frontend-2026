@@ -1,11 +1,23 @@
 import '@fontsource-variable/inter'
 import './assets/main.css'
 import 'vue-sonner/style.css'
+import axios from 'axios'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import { useAuthStore } from './stores/auth'
+import { handleLicenseError } from './tenant/apis/licenseState'
+
+// Catch expired-license 403s from the shared table framework (septor-store) and
+// any code using the default axios instance, mirroring the tenantClient guard.
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    handleLicenseError(error)
+    return Promise.reject(error)
+  },
+)
 import { VueDatePicker } from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 import { TableDrawer,Table,Imploading, StatusButtonsHorizontal, CopyData,TabelActionButtons,DetailsTable,Form,PainPageHeader ,Drawer,vauth, vsetting,Button,AnalysisTile ,Card,Input} from '@/Global'

@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { Landmark, Plus, Trash2, Edit, ChevronLeft, Eye } from 'lucide-vue-next'
 import { savingsProductsApi, type SavingsProduct } from '../../../apis/savingsProducts/api'
+import { licenseState } from '@/tenant/apis/licenseState'
 import SavingsProductChargesModal from '../components/SavingsProductChargesModal.vue'
 import { toast } from 'vue-sonner'
 import { Spinner, formatMoneyValue } from '@/Global'
@@ -61,6 +62,8 @@ const openChargesModal = (product: SavingsProduct) => {
             </div>
 
             <RouterLink to="/tenant/settings/savings-products/create"
+                :class="licenseState.readOnly ? 'opacity-40 cursor-not-allowed pointer-events-none' : ''"
+                :title="licenseState.readOnly ? 'License expired — renew to create products' : ''"
                 class="flex items-center gap-2 rounded-lg  bg-nfuko-primary dark:bg-nfuko-yellow px-4 py-2 text-sm font-medium text-white dark: text-nfuko-primary hover: bg-nfuko-primary/90 dark:hover:bg-nfuko-yellow/90 transition-colors shadow-sm">
                 <Plus class="h-4 w-4" />
                 <span>Create Product</span>

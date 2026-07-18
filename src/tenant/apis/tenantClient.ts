@@ -1,6 +1,7 @@
 import { getSubdomainName } from '@/Global'
 import axios from 'axios'
 import { getBearerToken } from 'septor-store';
+import { handleLicenseError } from './licenseState'
 // import { getBearerToken } from 'septor-store';
 
 
@@ -56,4 +57,14 @@ tenantClient.interceptors.request.use((config) => {
 
   return config
 })
+
+// Flip global read-only mode whenever the backend refuses a write because the
+// license has expired, so the UI can react without every caller handling it.
+tenantClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    handleLicenseError(error)
+    return Promise.reject(error)
+  },
+)
 // return tenantClient

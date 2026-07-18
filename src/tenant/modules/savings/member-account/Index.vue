@@ -51,12 +51,14 @@
 
     <template #actions="{ item }: any">
       <div class="flex items-center gap-2">
-        <button @click="OpenThedrawer(item, 'withdrawal')"
-          class="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-bold rounded-lg text-white bg-[#052659] hover:bg-[#052659]/90 shadow-sm transition-colors">
+        <button @click="OpenThedrawer(item, 'withdrawal')" :disabled="licenseState.readOnly"
+          :title="licenseState.readOnly ? 'License expired — renew to withdraw' : ''"
+          class="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-bold rounded-lg text-white bg-[#052659] hover:bg-[#052659]/90 shadow-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#052659]">
           <CircleMinus :size="14" /> Withdraw
         </button>
-        <button @click="OpenThedrawer(item, 'deposit')"
-          class="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-bold rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-colors">
+        <button @click="OpenThedrawer(item, 'deposit')" :disabled="licenseState.readOnly"
+          :title="licenseState.readOnly ? 'License expired — renew to deposit' : ''"
+          class="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-bold rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-emerald-600">
           <CircleDollarSign :size="14" /> Deposit
         </button>
       </div>
@@ -122,6 +124,7 @@ import { storeToRefs } from "pinia";
 import { Wallet, CircleMinus, CircleDollarSign } from "lucide-vue-next";
 import { useCurrencyStore } from "@/stores/currency";
 import { memberAccountApi } from "@/tenant/apis";
+import { licenseState } from "@/tenant/apis/licenseState";
 
 const { currencyCode } = storeToRefs(useCurrencyStore());
 

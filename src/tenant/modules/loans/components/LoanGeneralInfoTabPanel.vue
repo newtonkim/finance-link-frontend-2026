@@ -5,6 +5,7 @@ import { toast } from 'vue-sonner'
 import type { LoanDetail, RescheduleHistoryEntry } from '@/tenant/apis/loans/loansApi'
 import { loansApi } from '@/tenant/apis/loans/loansApi'
 import { loanStatusLabel } from '../utils/loanStatus'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 const props = defineProps<{
   loan: LoanDetail
@@ -33,6 +34,7 @@ const tempDates = reactive({
 })
 
 const startEditing = () => {
+  if (licenseState.readOnly) return
   tempDates.disbursed_at = props.loan.disbursed_at ? props.loan.disbursed_at.split('T')[0] : ''
   tempDates.schedule_date = props.loan.schedule_date ? props.loan.schedule_date.split('T')[0] : ''
   isEditingDates.value = true
@@ -43,6 +45,7 @@ const cancelEditing = () => {
 }
 
 const saveDates = async () => {
+  if (licenseState.readOnly) return
   if (!tempDates.disbursed_at || !tempDates.schedule_date) {
     toast.error('Both dates are required.')
     return
@@ -106,7 +109,9 @@ const saveDates = async () => {
             <div v-if="!isEditingDates">
               <button
                 type="button"
-                class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 flex items-center gap-1 text-[11px] font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
+                :disabled="licenseState.readOnly"
+                :title="licenseState.readOnly ? 'License expired — renew to edit loan dates' : ''"
+                class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 flex items-center gap-1 text-[11px] font-medium text-emerald-600 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-40 dark:text-emerald-400"
                 @click="startEditing"
               >
                 <Edit2 class="h-3 w-3" />
@@ -124,7 +129,8 @@ const saveDates = async () => {
               </button>
               <button
                 type="button"
-                :disabled="saving"
+                :disabled="saving || licenseState.readOnly"
+                :title="licenseState.readOnly ? 'License expired — renew to save changes' : ''"
                 class="bg-[#052659] hover:bg-[#052659]/90 text-white border-0 flex items-center gap-1 text-[11px] font-bold text-emerald-600 hover:text-emerald-700 disabled:opacity-50"
                 @click="saveDates"
               >
