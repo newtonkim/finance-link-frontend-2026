@@ -170,9 +170,9 @@
 
               <!-- Status -->
               <td class="px-5 py-3.5">
-                <span :class="['inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold capitalize', statusClass(tenant.status)]">
-                  <span :class="['size-1.5 rounded-full', statusDot(tenant.status)]" />
-                  {{ tenant.status ?? 'unknown' }}
+                <span :class="['inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold capitalize', statusClass(tenantDisplayStatus(tenant))]">
+                  <span :class="['size-1.5 rounded-full', statusDot(tenantDisplayStatus(tenant))]" />
+                  {{ tenantDisplayStatus(tenant) }}
                 </span>
               </td>
 
@@ -270,6 +270,7 @@ import { formawtacher } from '@/Global/Forminputs/formWatcher'
 import TenantForm from './Create.vue'
 import TenantShow from './Show.vue'
 import { toast } from 'vue-sonner'
+import { tenantDisplayStatus } from './tenantStatus'
 
 const Store = pomPinia() as any
 const router = useRouter()
@@ -288,9 +289,10 @@ const showFooter    = ref(false)
 
 const filterOptions = computed(() => [
   { value: 'all',       label: 'All',       count: allTenants.value.length },
-  { value: 'active',    label: 'Active',    count: allTenants.value.filter(t => t.status === 'active').length },
-  { value: 'trial',     label: 'Trial',     count: allTenants.value.filter(t => t.status === 'trial').length },
-  { value: 'suspended', label: 'Suspended', count: allTenants.value.filter(t => t.status === 'suspended').length },
+  { value: 'active',    label: 'Active',    count: allTenants.value.filter(t => tenantDisplayStatus(t) === 'active').length },
+  { value: 'trial',     label: 'Trial',     count: allTenants.value.filter(t => tenantDisplayStatus(t) === 'trial').length },
+  { value: 'expired',   label: 'Expired',   count: allTenants.value.filter(t => tenantDisplayStatus(t) === 'expired').length },
+  { value: 'suspended', label: 'Suspended', count: allTenants.value.filter(t => tenantDisplayStatus(t) === 'suspended').length },
 ])
 
 const statsCards = computed(() => [
@@ -305,7 +307,7 @@ const statsCards = computed(() => [
   },
   {
     label: 'Active',
-    value: allTenants.value.filter(t => t.status === 'active').length,
+    value: allTenants.value.filter(t => tenantDisplayStatus(t) === 'active').length,
     sub: 'Currently active',
     icon: UserCheck,
     iconBg: 'bg-green-50 dark:bg-green-950/40',
@@ -314,7 +316,7 @@ const statsCards = computed(() => [
   },
   {
     label: 'Trial',
-    value: allTenants.value.filter(t => t.status === 'trial').length,
+    value: allTenants.value.filter(t => tenantDisplayStatus(t) === 'trial').length,
     sub: 'On trial period',
     icon: Clock,
     iconBg: 'bg-amber-50 dark:bg-amber-950/40',
@@ -323,7 +325,7 @@ const statsCards = computed(() => [
   },
   {
     label: 'Suspended',
-    value: allTenants.value.filter(t => t.status === 'suspended').length,
+    value: allTenants.value.filter(t => tenantDisplayStatus(t) === 'suspended').length,
     sub: 'Access restricted',
     icon: UserX,
     iconBg: 'bg-red-50 dark:bg-red-950/40',
@@ -335,7 +337,7 @@ const statsCards = computed(() => [
 const filteredTenants = computed(() => {
   let list = statusFilter.value === 'all'
     ? allTenants.value
-    : allTenants.value.filter(t => t.status === statusFilter.value)
+    : allTenants.value.filter(t => tenantDisplayStatus(t) === statusFilter.value)
   const q = searchQuery.value.toLowerCase()
   if (q) list = list.filter(t =>
     (t.sacco_name ?? '').toLowerCase().includes(q) ||
