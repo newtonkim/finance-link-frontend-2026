@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-18T00:00:00Z",
+  "title": "Design System: Mfuko Pro",
+  "extensions": {
+    "colorMeta": {
+      "sacco-blue": { "role": "primary", "displayName": "Sacco Blue", "canonical": "#0050D8", "tonalRamp": ["#001433", "#002966", "#003D99", "#0050D8", "#3398FF", "#66B2FF", "#99CBFF", "#CCE5FF"] },
+      "action-blue": { "role": "primary", "displayName": "Action Blue", "canonical": "#3288C9", "tonalRamp": ["#0D2233", "#1A4466", "#266699", "#3288C9", "#5BA0D6", "#84B8E2", "#ADD0EE", "#D6E8F7"] },
+      "accent-sky": { "role": "primary", "displayName": "Accent Sky", "canonical": "#53B3DA", "tonalRamp": ["#152D37", "#2A5A6E", "#3F86A4", "#53B3DA", "#75C2E1", "#98D1E9", "#BAE1F0", "#DDF0F8"] },
+      "harvest-gold": { "role": "secondary", "displayName": "Harvest Gold", "canonical": "#C9A84C", "tonalRamp": ["#322A13", "#655426", "#977E39", "#C9A84C", "#D4BA70", "#DFCB94", "#E9DDB7", "#F4EEDB"] },
+      "surface": { "role": "neutral", "displayName": "Surface", "canonical": "#F9FAFB", "tonalRamp": ["#26282B", "#4E5257", "#767B82", "#9EA4AD", "#C6CDD9", "#E2E6EC", "#F0F2F5", "#F9FAFB"] },
+      "arctic-light": { "role": "neutral", "displayName": "Arctic Light", "canonical": "#E8F5FF", "tonalRamp": ["#0F2D40", "#1E5A80", "#2E88BF", "#54A5D9", "#84BFE6", "#B4D9F2", "#D4E9F9", "#E8F5FF"] },
+      "border-gray": { "role": "neutral", "displayName": "Border Gray", "canonical": "#E5E7EB", "tonalRamp": ["#232529", "#464A52", "#696F7B", "#8C94A4", "#AFB6C2", "#CDD2DA", "#E5E7EB", "#F4F5F7"] },
+      "text-muted": { "role": "neutral", "displayName": "Text Muted", "canonical": "#6B7280", "tonalRamp": ["#15171A", "#2B2E33", "#40454D", "#565C66", "#6B7280", "#9096A1", "#B5BAC2", "#DADCE1"] },
+      "success": { "role": "semantic", "displayName": "Success Green", "canonical": "#10B981", "tonalRamp": ["#042E20", "#085C40", "#0C8B61", "#10B981", "#40C79A", "#70D5B3", "#9FE3CD", "#CFF1E6"] },
+      "danger": { "role": "semantic", "displayName": "Danger Red", "canonical": "#EF4444", "tonalRamp": ["#3C1111", "#782222", "#B43333", "#EF4444", "#F26969", "#F58E8E", "#F9B4B4", "#FCD9D9"] }
+    },
+    "typographyMeta": {
+      "headline": { "displayName": "Headline (h1)", "purpose": "Page headings. 24px/600, -0.025em." },
+      "title": { "displayName": "Title (h2)", "purpose": "Section, drawer and dialog headings. 18px/600." },
+      "subtitle": { "displayName": "Subtitle (h3)", "purpose": "Sub-sections and card headings. 16px/500." },
+      "body": { "displayName": "Body", "purpose": "Default UI text. 14px/400." },
+      "label": { "displayName": "Label", "purpose": "Field labels, table headers, captions. 12px/500." }
+    },
+    "shadows": [
+      { "name": "rest", "value": "0 1px 2px 0 rgba(0,0,0,0.05)", "purpose": "Cards, tables, panels at rest (shadow-sm)." },
+      { "name": "overlay", "value": "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)", "purpose": "Drawers, dialogs, dropdowns, toasts." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Default easing for state transitions, 150-250ms." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Sacco Blue action button — the default affordance for act-here.",
+      "html": "<button class=\"ds-btn-primary\">Post transaction</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 36px; padding: 8px 16px; background: #0050D8; color: #fff; font-family: 'Inter Variable', system-ui, sans-serif; font-size: 14px; font-weight: 500; border: none; border-radius: 6px; cursor: pointer; transition: background 0.15s cubic-bezier(0.4,0,0.2,1), box-shadow 0.15s; } .ds-btn-primary:hover { background: rgba(0,80,216,0.9); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(0,80,216,0.5); } .ds-btn-primary:disabled { opacity: 0.5; pointer-events: none; }"
+    },
+    {
+      "name": "Accent Button",
+      "kind": "button",
+      "refersTo": "button-accent",
+      "description": "Harvest Gold — one key CTA per screen (The Gold Budget Rule).",
+      "html": "<button class=\"ds-btn-accent\">Approve withdrawal</button>",
+      "css": ".ds-btn-accent { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 36px; padding: 8px 16px; background: #C9A84C; color: #fff; font-family: 'Inter Variable', system-ui, sans-serif; font-size: 14px; font-weight: 500; border: none; border-radius: 6px; cursor: pointer; transition: background 0.15s cubic-bezier(0.4,0,0.2,1); } .ds-btn-accent:hover { background: #B8973B; } .ds-btn-accent:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(201,168,76,0.5); }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Secondary action — hairline border, quiet until hovered.",
+      "html": "<button class=\"ds-btn-outline\">Cancel</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; height: 36px; padding: 8px 16px; background: #fff; color: #111827; font-family: 'Inter Variable', system-ui, sans-serif; font-size: 14px; font-weight: 500; border: 1px solid #E5E7EB; border-radius: 6px; cursor: pointer; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); transition: background 0.15s; } .ds-btn-outline:hover { background: #F9FAFB; } .ds-btn-outline:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(0,80,216,0.3); }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "Standard field — hairline border, 3px focus ring, no glow.",
+      "html": "<input class=\"ds-input\" placeholder=\"Member number\" />",
+      "css": ".ds-input { height: 36px; width: 100%; min-width: 220px; padding: 4px 12px; background: transparent; color: #111827; font-family: 'Inter Variable', system-ui, sans-serif; font-size: 14px; border: 1px solid #E5E7EB; border-radius: 6px; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); transition: border-color 0.15s, box-shadow 0.15s; } .ds-input::placeholder { color: #6B7280; } .ds-input:focus-visible { outline: none; border-color: #0050D8; box-shadow: 0 0 0 3px rgba(0,80,216,0.5); }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card-default",
+      "description": "Resting surface — white, 12px radius, soft lift.",
+      "html": "<div class=\"ds-card\"><h3 class=\"ds-card-title\">Savings summary</h3><p class=\"ds-card-body\">Balance: <span class=\"ds-num\">KES 128,450.00</span></p></div>",
+      "css": ".ds-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; padding: 24px; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); font-family: 'Inter Variable', system-ui, sans-serif; } .ds-card-title { margin: 0 0 8px; font-size: 16px; font-weight: 500; color: #111827; } .ds-card-body { margin: 0; font-size: 14px; color: #374151; } .ds-num { font-variant-numeric: tabular-nums; font-weight: 600; color: #111827; }"
+    },
+    {
+      "name": "Sidebar Nav Item",
+      "kind": "nav",
+      "refersTo": "button-primary",
+      "description": "Active state: sky tint background + Sacco Blue label.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-item ds-active\" href=\"#\">Members</a><a class=\"ds-nav-item\" href=\"#\">Savings</a><a class=\"ds-nav-item\" href=\"#\">Loans</a></nav>",
+      "css": ".ds-nav { display: flex; flex-direction: column; gap: 2px; width: 200px; font-family: 'Inter Variable', system-ui, sans-serif; } .ds-nav-item { display: block; padding: 8px 12px; font-size: 14px; font-weight: 500; color: #374151; text-decoration: none; border-radius: 8px; transition: background 0.15s; } .ds-nav-item:hover { background: #F9FAFB; } .ds-nav-item.ds-active { background: rgba(83,179,218,0.15); color: #0050D8; } .ds-nav-item:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(0,80,216,0.3); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Digital Passbook",
+    "overview": "Mfuko Pro is the modern successor to the member's trusted passbook: every number verifiable, every entry traceable, nothing decorative standing between a teller and the transaction. Modern, efficient and professional — competence expressed through speed and clarity, not gloss. Density is welcome but hierarchy always makes the primary figure and the next action obvious.",
+    "keyCharacteristics": [
+      "One typeface (Inter Variable) everywhere, tabular figures for money",
+      "Sacco Blue carries identity and primary actions; Harvest Gold is the warm counterpoint for key CTAs",
+      "Flat surfaces with soft lift: shadow-sm at rest, stronger shadows only for overlays",
+      "Refined and restrained controls — color signals action and state, never decoration",
+      "Dark mode is a first-class citizen"
+    ],
+    "rules": [
+      { "name": "The Verifiable Figure Rule", "body": "Money is never colored for decoration. Green means credit/positive, red means debit/negative, ink means neutral — and every colored figure must be traceable to a ledger entry.", "section": "colors" },
+      { "name": "The Gold Budget Rule", "body": "Harvest Gold appears on at most one primary action per screen. When everything is gold, nothing is.", "section": "colors" },
+      { "name": "The One Face Rule", "body": "Inter Variable is the only font family in the product. No monospace, no serif, no per-component font imports. Numeric columns use tabular-nums, not a second font.", "section": "typography" },
+      { "name": "The Stat Ceiling Rule", "body": "Sizes above 24px (text-3xl, text-4xl) are reserved for dashboard stat figures, never headings.", "section": "typography" },
+      { "name": "The Soft Lift Rule", "body": "If a resting card casts a visible shadow from across the room, it's wrong. Reserve real elevation for things that float above the page.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use Inter Variable for everything; tabular-nums on every monetary column.",
+      "Do keep body text ≥4.5:1 contrast — bump Text Muted (#6B7280) toward ink on tinted backgrounds.",
+      "Do scope color to action and state: blue = act/active, gold = key CTA, green/red = credit/debit.",
+      "Do give every interactive component default, hover, focus-visible, active, disabled, loading and error states.",
+      "Do use skeletons for loading and empty states that teach the interface."
+    ],
+    "donts": [
+      "Don't recreate legacy banking software: no cluttered gray form walls, tiny fonts, or 90s core-banking density.",
+      "Don't drift into the generic admin template look — interchangeable Bootstrap/AdminLTE surfaces.",
+      "Don't use side-stripe borders (border-left > 1px as accent), gradient text, or glassmorphism.",
+      "Don't color money decoratively — see The Verifiable Figure Rule.",
+      "Don't put more than one Harvest Gold action on a screen — see The Gold Budget Rule.",
+      "Don't add decorative motion; 150-250ms state transitions only, with prefers-reduced-motion alternatives."
+    ]
+  }
+}
