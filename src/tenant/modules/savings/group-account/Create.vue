@@ -1,29 +1,57 @@
 <template>
-  <card class="card shadow-md  border-0 px-2 bg-white dark:bg-neutral-800 rounded-md h-[82vh] overflow-hidden">
-    <span v-if="loading"></span>
-    <div class="grid grid-cols-8" v-else>
-      <div class="col-span-3">
-        <div class="flex flex-col font-sans">
-          <UploadLogo name="group_logo" :existing="existingGroupLogo" v-model:form="fields">
-            <template #header>
-              <h1 class="text-2xl font-black italic text-slate-900 tracking-tight">
-                {{ data?.action === 'edit' ? 'Update Group' : 'Register Group' }}
-              </h1>
-              <p class="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase mt-2">
-                Savings Institutional Onboarding Protocol
-              </p>
-            </template>
-          </UploadLogo>
-        </div>
-      </div>
-      <div class="col-span-5">
-        <Form :action="data?.action" parentStyle="grid  grid-cols-1 gap-3  " v-model:form="fields" />
-      </div>
+  <div class="h-[82vh] overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">
+    <div v-if="loading" class="flex h-full items-center justify-center">
+      <span class="size-9 animate-spin rounded-full border-[3px] border-[#052659]/15 border-t-[#052659]"></span>
     </div>
-  </card>
+
+    <div v-else class="grid h-full grid-cols-1 lg:grid-cols-12">
+      <!-- Brand rail: identity + logo + reassurance -->
+      <aside class="create-rail relative flex flex-col gap-7 border-b border-slate-100 bg-slate-50/70 px-6 py-8 lg:col-span-5 lg:border-b-0 lg:border-r dark:border-neutral-800 dark:bg-neutral-950/40">
+        <div class="flex items-start gap-3">
+          <span class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[#052659] text-white ring-1 ring-[#052659]/10">
+            <Users2 :size="20" />
+          </span>
+          <div class="min-w-0">
+            <h1 class="text-[20px] font-black leading-tight tracking-tight text-slate-900 dark:text-white">
+              {{ data?.action === 'edit' ? 'Update group' : 'Register a group' }}
+            </h1>
+            <p class="mt-1 text-[13px] font-medium leading-snug text-slate-600 dark:text-neutral-300">
+              Set up a savings group and add its members.
+            </p>
+          </div>
+        </div>
+
+        <UploadLogo name="group_logo" :existing="existingGroupLogo" v-model:form="fields">
+          <template #header>
+            <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Group logo</p>
+          </template>
+        </UploadLogo>
+
+        <div class="mt-auto rounded-xl border border-slate-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+          <div class="flex items-center gap-2">
+            <Info :size="14" class="text-[#cda434]" />
+            <p class="text-[13px] font-bold text-slate-700 dark:text-neutral-200">Good to know</p>
+          </div>
+          <ul class="mt-2 space-y-1.5 text-[12px] leading-relaxed text-slate-600 dark:text-neutral-400">
+            <li>Add members now, or invite them later.</li>
+            <li>The logo, contacts and details stay editable.</li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- Form -->
+      <section class="overflow-y-auto px-6 py-8 lg:col-span-7 md:px-8">
+        <h2 class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Group details</h2>
+        <div class="mt-5">
+          <Form :action="data?.action" parentStyle="grid grid-cols-1 gap-4" v-model:form="fields" />
+        </div>
+      </section>
+    </div>
+  </div>
 </template>
 <script setup lang="ts">
 import { computed, ref, onMounted, } from 'vue'
+import { Users2, Info } from 'lucide-vue-next'
 import { Form, UploadLogo } from '@/Global'
 const loading = ref(true),
   props = defineProps({
@@ -198,3 +226,16 @@ onMounted(() => {
 })
 
 </script>
+
+<style scoped>
+.create-rail {
+  animation: rail-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes rail-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .create-rail { animation: none; }
+}
+</style>
