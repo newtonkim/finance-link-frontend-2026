@@ -5,6 +5,7 @@ import { AlertCircle, TrendingUp } from 'lucide-vue-next';
 const emits = defineEmits(['update:form']);
 const OptionList = reactive({
   memberTypeOptions: [{ id: 'new_member', name: 'New Member' }, { id: 'existing_member', name: 'Existing Member' }],
+  roleOptions: [{ id: 'member', name: 'Member' }, { id: 'chairman', name: 'Group Chairman' }, { id: 'treasurer', name: 'Group Treasurer' }, { id: 'secretary', name: 'Group Secretary' }],
   salutationOptions: [{ id: 'Mr', name: 'Mr' }, { id: 'Mrs', name: 'Mrs' }, { id: 'Ms', name: 'Ms' }, { id: 'Dr', name: 'Dr' }, { id: 'Prof', name: 'Prof' }],
   genderOptions: [{ id: 'male', name: 'Male' }, { id: 'female', name: 'Female' }, { id: 'other', name: 'Other' }],
   maritalOptions: [{ id: 'single', name: 'Single' }, { id: 'married', name: 'Married' }, { id: 'divorced', name: 'Divorced' }, { id: 'widowed', name: 'Widowed' }]
@@ -29,8 +30,17 @@ const fields = ref<any[]>([
       url:'group-account-savings/collect-group-saving-account-list'+`?group_id=${props.data?.item?.id}`,
       dataOnMount: true,
       selectOnOneItem: true,
-       
+
     },
+  {
+    label: 'Group role',
+    name: 'member_role',
+    type: 'select',
+    required: false,
+    options: OptionList.roleOptions,
+    value: 'member',
+    placeholder: 'Select group role',
+  },
   {
     label: 'Full Name',
     name: 'full_name',

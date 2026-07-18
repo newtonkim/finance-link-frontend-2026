@@ -20,13 +20,11 @@ interface Account {
   is_active: boolean
   ifrs_category: string | null
 }
-interface Meta { current_page: number; last_page: number; total: number }
 type AccountType = 'ASSET' | 'LIABILITY' | 'EQUITY' | 'INCOME' | 'EXPENSE'
 type AccountTypeFilter = 'ALL' | AccountType
 
 // ─── State ────────────────────────────────────────────────────────────────────
 const accounts  = ref<Account[]>([])
-const meta      = ref<Meta>({ current_page: 1, last_page: 1, total: 0 })
 const loading   = ref(false)
 const search    = ref('')
 const typeFilter = ref<AccountTypeFilter>('ALL')
@@ -34,31 +32,17 @@ const showForm  = ref(false)
 let   timer: ReturnType<typeof setTimeout> | null = null
 
 // ─── Fetch ────────────────────────────────────────────────────────────────────
-async function fetchAccounts(page = 1) {
+// A chart of accounts is a bounded hierarchy — paginating it slices sections in
+// half (e.g. Non-Current Assets landing on page 2), so fetch it whole.
+async function fetchAccounts() {
   loading.value = true
   try {
     const res = await chartOfAccountsApi.list({
+      list: 1,
       search: search.value || undefined,
-      page,
       account_type: typeFilter.value === 'ALL' ? undefined : typeFilter.value
     })
     accounts.value = res.data?.data ?? []
-
-    if (res.data?.meta) {
-      meta.value = {
-        current_page: Number(res.data.meta.current_page ?? 1),
-        last_page: Number(res.data.meta.last_page ?? 1),
-        total: Number(res.data.meta.total ?? accounts.value.length),
-      }
-    } else if (res.data?.current_page) {
-      meta.value = {
-        current_page: Number(res.data.current_page ?? 1),
-        last_page: Number(res.data.last_page ?? 1),
-        total: Number(res.data.total ?? accounts.value.length),
-      }
-    } else {
-      meta.value = { current_page: 1, last_page: 1, total: accounts.value.length }
-    }
   } finally {
     loading.value = false
   }
@@ -66,12 +50,12 @@ async function fetchAccounts(page = 1) {
 
 watch(search, () => {
   if (timer) clearTimeout(timer)
-  timer = setTimeout(() => fetchAccounts(1), 400)
+  timer = setTimeout(() => fetchAccounts(), 400)
 })
 
-watch(typeFilter, () => fetchAccounts(1))
+watch(typeFilter, () => fetchAccounts())
 
-onMounted(() => fetchAccounts(1))
+onMounted(() => fetchAccounts())
 
 // ─── Group by account_type ────────────────────────────────────────────────────
 const grouped = computed(() => {
@@ -89,22 +73,6 @@ const collapsedGroups = ref<Set<string>>(new Set())
 function toggleGroup(type: string) {
   if (collapsedGroups.value.has(type)) collapsedGroups.value.delete(type)
   else collapsedGroups.value.add(type)
-}
-
-const pages = computed(() =>
-  Array.from({ length: meta.value.last_page }, (_, i) => i + 1),
-)
-const canGoPrev = computed(() => meta.value.current_page > 1)
-const canGoNext = computed(() => meta.value.current_page < meta.value.last_page)
-
-function goPrev() {
-  if (!canGoPrev.value) return
-  fetchAccounts(meta.value.current_page - 1)
-}
-
-function goNext() {
-  if (!canGoNext.value) return
-  fetchAccounts(meta.value.current_page + 1)
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -296,52 +264,12 @@ const typeFilters: Array<{ value: AccountTypeFilter; label: string }> = [
           </table>
         </div>
       </div>
-
-      <!-- Pagination -->
-      <div v-if="meta.last_page > 1" class="flex items-center justify-between">
-        <p class="text-xs text-neutral-400">
-          Page {{ meta.current_page }} of {{ meta.last_page }} ({{ meta.total }} accounts)
-        </p>
-        <div class="flex items-center gap-1">
-          <button
-            type="button"
-            @click="goPrev"
-            :disabled="!canGoPrev"
-            class="h-8 rounded-lg px-3 text-xs font-medium transition-colors"
-            :class="canGoPrev
-              ? 'text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800'
-              : 'cursor-not-allowed text-neutral-300 dark:text-neutral-700'"
-          >
-            Prev
-          </button>
-          <button
-            v-for="page in pages"
-            :key="page"
-            @click="fetchAccounts(page)"
-            class="h-8 w-8 rounded-lg text-xs font-medium transition-colors"
-            :class="page === meta.current_page ? ' bg-nfuko-primary text-white' : 'text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800'"
-          >
-            {{ page }}
-          </button>
-          <button
-            type="button"
-            @click="goNext"
-            :disabled="!canGoNext"
-            class="h-8 rounded-lg px-3 text-xs font-medium transition-colors"
-            :class="canGoNext
-              ? 'text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800'
-              : 'cursor-not-allowed text-neutral-300 dark:text-neutral-700'"
-          >
-            Next
-          </button>
-        </div>
-      </div>
     </template>
 
     <!-- Create Form -->
     <ChartOfAccountForm
       v-model:open="showForm"
-      @saved="fetchAccounts(1)"
+      @saved="fetchAccounts()"
     />
   </div>
 </template>

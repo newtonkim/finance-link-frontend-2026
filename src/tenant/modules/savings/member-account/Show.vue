@@ -307,6 +307,8 @@ function openStatement() {
     </div>
 
     <div class="noprint"><button onclick="window.print()">Print statement</button></div>
+    ${/* keep the script closing tag escaped as <\/script>: written un-escaped it
+         would terminate this SFC's script block and break Vue's template parser */ ''}
     <script>window.onload = function(){ setTimeout(function(){ window.print(); }, 350); };<\/script>
 </body></html>`
 

@@ -55,7 +55,7 @@ export default function useTableHelpers(props?: any, emit?: any) {
           ...values,
         },
         props: {
-          ...(props ?? {}),
+          ...props,
           state: values.value,
           url: url ?? createUrl(props?.url, 'print'),
         },
