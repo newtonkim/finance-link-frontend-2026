@@ -37,18 +37,14 @@ const quickInfo = computed(() => [
     },
     {
         label: "Contact",
-        value: props.data.phone || "—"
+        value: props.chairman?.phone || props.data.phone || "—"
     },
     {
         label: "Created",
         value: formatCleanDate(props.data.created_at)
     },
     ...(chairmanName.value
-        ? [
-            { label: "Chairman", value: chairmanName.value },
-            { label: "Chairman role", value: "Chairman" },
-            { label: "Chairman phone", value: props.chairman?.phone || "—" },
-        ]
+        ? [{ label: "Chairman", value: chairmanName.value }]
         : []),
 ])
 const imageLoadFailed = ref(false)
