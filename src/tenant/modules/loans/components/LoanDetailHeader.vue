@@ -17,6 +17,7 @@ import {
 } from '@/Global/ui/dropdown-menu'
 import type { LoanDetail } from '@/tenant/apis/loans/loansApi'
 import { isRestructuredTopupLoan, loanStatusLabel } from '../utils/loanStatus'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 const props = defineProps<{
   loan: LoanDetail
@@ -100,8 +101,8 @@ const isRestructuredTopup = computed(() => isRestructuredTopupLoan(props.loan))
         <template v-if="['active', 'disbursed', 'running', 'arrears'].includes(loan.status) && !isRestructuredTopup">
           <button
             class="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors shadow-sm dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale"
-            :disabled="!canTopup"
-            :title="!canTopup ? 'Top-up feature is disabled in settings' : ''"
+            :disabled="!canTopup || licenseState.readOnly"
+            :title="licenseState.readOnly ? 'License expired — renew to top up this loan' : !canTopup ? 'Top-up feature is disabled in settings' : ''"
             @click="emit('topup')"
           >
             <TrendingUp class="h-4 w-4" />
@@ -111,7 +112,9 @@ const isRestructuredTopup = computed(() => isRestructuredTopupLoan(props.loan))
           <DropdownMenu>
             <DropdownMenuTrigger as-child>
               <button
-                class="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3.5 py-2 text-sm font-medium text-neutral-700 shadow-sm transition-colors hover:bg-neutral-50 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-white"
+                :disabled="licenseState.readOnly"
+                :title="licenseState.readOnly ? 'License expired — renew to manage this loan' : ''"
+                class="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3.5 py-2 text-sm font-medium text-neutral-700 shadow-sm transition-colors hover:bg-neutral-50 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-40 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:text-white"
               >
                 <span>Manage</span>
                 <ChevronDown class="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
@@ -121,6 +124,7 @@ const isRestructuredTopup = computed(() => isRestructuredTopupLoan(props.loan))
             <DropdownMenuContent align="end" class="w-48">
               <DropdownMenuItem
                 class="flex items-center gap-2 cursor-pointer"
+                :disabled="licenseState.readOnly"
                 @click="emit('reschedule')"
               >
                 <Calendar class="h-4 w-4 text-neutral-500" />

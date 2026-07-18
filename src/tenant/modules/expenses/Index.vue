@@ -52,11 +52,17 @@
           @update:modelValue="(e) => { expenseStatus = e }"
         />
 
-        <Button v-if="mode === 'Categories'" @click="OpenThedrawer('create category')" class="bg-nfuko-action text-white shadow-md">
+        <Button v-if="mode === 'Categories'" @click="OpenThedrawer('create category')"
+          :disabled="licenseState.readOnly"
+          :title="licenseState.readOnly ? 'License expired — renew to create categories' : ''"
+          class="bg-nfuko-action text-white shadow-md disabled:cursor-not-allowed disabled:opacity-50">
             <Plus class="w-4 h-4 mr-2" />
             New Category
         </Button>
-        <Button v-else-if="mode === 'Expenses'" @click="OpenThedrawer('record expense')" class="bg-nfuko-primary text-white shadow-md">
+        <Button v-else-if="mode === 'Expenses'" @click="OpenThedrawer('record expense')"
+          :disabled="licenseState.readOnly"
+          :title="licenseState.readOnly ? 'License expired — renew to record expenses' : ''"
+          class="bg-nfuko-primary text-white shadow-md disabled:cursor-not-allowed disabled:opacity-50">
             <Plus class="w-4 h-4 mr-2" />
             Record Expense
         </Button>
@@ -71,14 +77,22 @@
 
     <template #actions="{ item }">
       <div class="flex justify-center gap-2">
-        <button v-if="['Submitted', 'Pending', 'Queried'].includes(item.status)" @click="OpenThedrawer('review', item)" title="Review" class="flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-600 transition-colors hover:bg-amber-100">
-          <HelpCircle class="w-4 h-4" /> Review
+        <button v-if="['Submitted', 'Pending', 'Queried'].includes(item.status)" @click="OpenThedrawer('review', item)"
+          :title="licenseState.readOnly ? 'View expense — license expired, review decisions are disabled' : 'Review'"
+          class="flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-600 transition-colors hover:bg-amber-100">
+          <Eye v-if="licenseState.readOnly" class="w-4 h-4" />
+          <HelpCircle v-else class="w-4 h-4" /> {{ licenseState.readOnly ? 'View' : 'Review' }}
         </button>
-        <button v-if="item.status === 'Approved'" @click="OpenThedrawer('pay', item)" title="Pay"
-          class="flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-600 transition-colors hover:bg-blue-100">
+        <button v-if="item.status === 'Approved'" @click="OpenThedrawer('pay', item)"
+          :disabled="licenseState.readOnly"
+          :title="licenseState.readOnly ? 'License expired — renew to pay expenses' : 'Pay'"
+          class="flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-600 transition-colors hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50">
           <Wallet class="w-4 h-4" /> Pay
         </button>
-        <button v-if="['Draft', 'Submitted', 'Queried'].includes(item.status)" @click="OpenThedrawer('record expense', item)" title="Edit" class="flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-blue-600 transition-colors hover:bg-blue-100">
+        <button v-if="['Draft', 'Submitted', 'Queried'].includes(item.status)" @click="OpenThedrawer('record expense', item)"
+          :disabled="licenseState.readOnly"
+          :title="licenseState.readOnly ? 'License expired — renew to edit expenses' : 'Edit'"
+          class="flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-blue-600 transition-colors hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50">
           <Edit class="w-4 h-4" />
         </button>
         <button v-if="['Paid', 'Rejected', 'Void', 'Reconciled', 'Approved'].includes(item.status)" @click="OpenThedrawer('review', item)" title="View"
@@ -116,6 +130,7 @@ import ExpenseReviewForm from './components/ExpenseReviewForm.vue'
 import ExpenseReports from './components/ExpenseReports.vue'
 import { useExpenseApi } from '@/tenant/apis/expenses/expenseApi'
 import { formawtacher } from '@/Global/Forminputs/formWatcher'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 const route = useRoute()
 const { createExpense, createExpenseCategory, getExpenseStats, approveExpense, rejectExpense, queryExpense, payExpense, updateExpense, getExpenseDetail } = useExpenseApi()
@@ -186,6 +201,8 @@ const columns = computed(() => {
 const drawerComponent = computed(() => automaticCreate.value[activeAction.value]?.component)
 
 async function OpenThedrawer(item: string, data: any = null) {
+  if (licenseState.readOnly && item !== 'review') return
+
   activeAction.value = item
   editingItem.value = data ? { ...data } : {}
   formData.value = {}
@@ -215,6 +232,8 @@ async function fetchStats() {
 }
 
 async function submitExpense(data: any) {
+  if (licenseState.readOnly) return
+
   formStore.loading = true
   const editingId = editingItem.value?.id
   const result = editingId ? await updateExpense(editingId, data) : await createExpense(data)
@@ -227,6 +246,8 @@ async function submitExpense(data: any) {
 }
 
 async function submitCategory(data: any) {
+  if (licenseState.readOnly) return
+
   formStore.loading = true
   const result = await createExpenseCategory(data)
   formStore.loading = false
@@ -237,6 +258,8 @@ async function submitCategory(data: any) {
 }
 
 async function handleApprove(data: any, comments: string = '') {
+    if (licenseState.readOnly) return
+
     formStore.loading = true
     const result = await approveExpense(data.id, { comments })
     formStore.loading = false
@@ -248,6 +271,8 @@ async function handleApprove(data: any, comments: string = '') {
 }
 
 async function handleReject(data: any, comments: string) {
+    if (licenseState.readOnly) return
+
     formStore.loading = true
     const result = await rejectExpense(data.id, comments)
     formStore.loading = false
@@ -259,6 +284,8 @@ async function handleReject(data: any, comments: string) {
 }
 
 async function handleQuery(data: any, comments: string) {
+    if (licenseState.readOnly) return
+
     formStore.loading = true
     const result = await queryExpense(data.id, comments)
     formStore.loading = false
@@ -270,6 +297,8 @@ async function handleQuery(data: any, comments: string) {
 }
 
 async function handlePay(data: any, submissionData: any) {
+  if (licenseState.readOnly) return
+
   formStore.loading = true
   const result = await payExpense(data.id, submissionData)
   formStore.loading = false
@@ -281,6 +310,8 @@ async function handlePay(data: any, submissionData: any) {
 }
 
 function saveExpense(type: string, data: any) {
+  if (licenseState.readOnly) return
+
   const action = automaticCreate.value[activeAction.value]?.action
   if (action) {
     const cleanData = Array.isArray(data) ? scopeValues(data) : data

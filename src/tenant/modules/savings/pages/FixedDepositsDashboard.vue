@@ -10,6 +10,7 @@ import CreateAccountDrawer from '../components/CreateAccountDrawer.vue'
 import { useRouter } from 'vue-router'
 import { setLocalValues } from '@/Global'
 import { savingsProductsApi } from '@/tenant/apis/savingsProducts/api'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 const router = useRouter()
 
@@ -64,6 +65,7 @@ function onSearch() {
 }
 
 async function runSweep() {
+  if (licenseState.readOnly) return
   sweeping.value = true
   sweepResult.value = null
   try {
@@ -138,14 +140,17 @@ onUnmounted(() => { if (searchTimer) clearTimeout(searchTimer) })
       </div>
       <div class="flex items-center gap-2">
         <button
-          class="inline-flex items-center gap-2 rounded-lg border-0 bg-[#052659] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#052659]/90"
+          :disabled="licenseState.readOnly"
+          :title="licenseState.readOnly ? 'License expired — renew to add an account' : ''"
+          class="inline-flex items-center gap-2 rounded-lg border-0 bg-[#052659] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#052659]/90 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#052659]"
           @click="createDrawer?.openDrawer()"
         >
           <Plus class="h-4 w-4" />
           Add Account
         </button>
         <button
-          type="button" @click="runSweep" :disabled="sweeping"
+          type="button" @click="runSweep" :disabled="sweeping || licenseState.readOnly"
+          :title="licenseState.readOnly ? 'License expired — renew to post interest' : ''"
           class="flex items-center gap-2 rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600 transition disabled:opacity-50 disabled:cursor-not-allowed dark:bg-amber-600 dark:hover:bg-amber-700"
         >
           <Zap class="h-4 w-4" />

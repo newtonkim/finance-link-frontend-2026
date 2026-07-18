@@ -4,6 +4,7 @@ import { Drawer } from '@/Global'
 import SearchableSelect from '@/Global/SearchableSelect.vue'
 import { toast } from 'vue-sonner'
 import { chartOfAccountsApi } from '@/tenant/apis/chartOfAccounts/chartOfAccountsApi'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 const props = defineProps<{
   open: boolean
@@ -279,6 +280,7 @@ const parentOptions = computed(() => {
 })
 
 async function handleSubmit() {
+  if (licenseState.readOnly) return
   loading.value = true
   errors.value = {}
 
@@ -321,6 +323,8 @@ async function handleSubmit() {
     title="Create Chart of Account"
     width="w-[500px]"
     showFooter
+    :save-disabled="licenseState.readOnly"
+    save-disabled-title="License expired — renew to create an account"
     @submit="handleSubmit"
   >
     <template #body>

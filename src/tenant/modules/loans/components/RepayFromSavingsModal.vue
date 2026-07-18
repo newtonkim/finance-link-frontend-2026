@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue'
 import { X, Calendar, Wallet, Banknote, FileText, CheckCircle2, Loader2, ChevronDown } from 'lucide-vue-next'
 import { formatMoneyValue, normalizeAmountInput, formatAmountInput, parseAmountInput } from '@/Global'
 import { savingsAccountsApi } from '@/tenant/apis/savingsAccounts/savingsAccountsApi'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 interface SavingsAccount {
   id: number
@@ -204,7 +205,7 @@ const allocationExceedsAmount = computed(() => allocationTotal.value > Number(fo
 
 // ── Submit ──────────────────────────────────────────────────────────────────
 function handleSubmit() {
-  if (!selectedAccountId.value || allocationExceedsAmount.value || insufficientBalance.value) return
+  if (!selectedAccountId.value || allocationExceedsAmount.value || insufficientBalance.value || licenseState.readOnly) return
   emit('submit', {
     savings_account_id: selectedAccountId.value,
     amount: form.value.amount,
@@ -490,7 +491,8 @@ function fmt(v: number | string | null | undefined) {
                 Cancel
               </button>
               <button
-                :disabled="posting || !form.description.trim() || !selectedAccountId || allocationExceedsAmount || insufficientBalance"
+                :disabled="posting || !form.description.trim() || !selectedAccountId || allocationExceedsAmount || insufficientBalance || licenseState.readOnly"
+                :title="licenseState.readOnly ? 'License expired — renew to post a repayment' : ''"
                 class="flex min-w-[180px] items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-bold text-white transition-colors hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 @click="handleSubmit"
               >

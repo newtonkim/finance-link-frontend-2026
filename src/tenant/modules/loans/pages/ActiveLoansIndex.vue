@@ -10,6 +10,7 @@ import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import LoanTopupModal from '../components/LoanTopupModal.vue'
 import { isRestructuredTopupLoan, loanStatusLabel } from '../utils/loanStatus'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 const router = useRouter()
 
@@ -28,6 +29,7 @@ const topupModalRef = ref<null | { show: () => void }>(null)
 const selectedTopupLoan = ref<any>(null)
 
 function openTopup(loan: any) {
+  if (licenseState.readOnly) return
   selectedTopupLoan.value = loan
   topupModalRef.value?.show()
 }
@@ -448,8 +450,8 @@ const tabs: { key: LoanTab; label: string; countKey: keyof typeof summary.value;
                     <button
                       v-if="['active', 'disbursed'].includes(loan.status) && !isRestructuredTopupLoan(loan)"
                       class="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale"
-                      :disabled="!settings.allow_top_up"
-                      :title="!settings.allow_top_up ? 'Top-up feature is disabled in settings' : ''"
+                      :disabled="!settings.allow_top_up || licenseState.readOnly"
+                      :title="licenseState.readOnly ? 'License expired — renew to top up this loan' : !settings.allow_top_up ? 'Top-up feature is disabled in settings' : ''"
                       @click="openTopup(loan)"
                     >
                       <TrendingUp class="h-3.5 w-3.5" />

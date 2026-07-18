@@ -51,7 +51,8 @@
               <div class="w-36">
                 <Button
                   type="submit"
-                  :disabled="isSaving"
+                  :disabled="isSaving || props.saveDisabled"
+                  :title="props.saveDisabledTitle"
                   class="h-10 w-full font-bold text-white transition-colors flex items-center justify-center gap-2"
                   :class="props.saveButtonClass || 'bg-emerald-600 hover:bg-[#052659]/90 shadow-sm'"
                 >
@@ -86,6 +87,8 @@ const props = withDefaults(
     cancelButtonText?: string;
     saveLoadingText?: string;
     loading?: boolean;
+    saveDisabled?: boolean;
+    saveDisabledTitle?: string;
   }>(),
   {
     width: "w-full sm:max-w-[520px]",
@@ -94,6 +97,8 @@ const props = withDefaults(
     cancelButtonText: "Cancel",
     saveLoadingText: "Saving...",
     loading: false,
+    saveDisabled: false,
+    saveDisabledTitle: "",
   }
 );
 
@@ -102,7 +107,7 @@ const isSaving = computed(() => props.loading || formStore.loading);
 
 const handleSave = () => {
   
-  if (isSaving.value) return;
+  if (isSaving.value || props.saveDisabled) return;
   emit("save", "create");
   emit("submit");
 };

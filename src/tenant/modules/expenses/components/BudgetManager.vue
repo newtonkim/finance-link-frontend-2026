@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useExpenseApi } from '@/tenant/apis/expenses/expenseApi'
 import { RefreshCw, Save, Calculator } from 'lucide-vue-next'
 import { notify } from '@/Global/Toasters'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 const expenseApi = useExpenseApi() as ReturnType<typeof useExpenseApi>
 
@@ -115,6 +116,8 @@ const getUtilizationColor = (percent: number) => {
 }
 
 const updateBudgetValue = (categoryId: number, amount: number) => {
+  if (licenseState.readOnly) return
+
   const index = budgets.value.findIndex(b => b.expense_category_id === categoryId)
   if (index !== -1) {
     budgets.value[index].allocated_amount = amount
@@ -131,6 +134,8 @@ const updateBudgetValue = (categoryId: number, amount: number) => {
 }
 
 const saveAllBudgets = async () => {
+  if (licenseState.readOnly) return
+
   saving.value = true
   try {
     const allocations = budgets.value
@@ -228,7 +233,9 @@ onMounted(async () => {
       </div>
 
       <div class="flex items-center gap-3 self-end">
-        <button @click="saveAllBudgets" :disabled="saving" class="flex items-center gap-2 rounded-xl bg-[#052659] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#052659]/90 disabled:opacity-50 dark:bg-nfuko-yellow dark:text-[#0050D8]">
+        <button @click="saveAllBudgets" :disabled="saving || licenseState.readOnly"
+          :title="licenseState.readOnly ? 'License expired — renew to update budgets' : ''"
+          class="flex items-center gap-2 rounded-xl bg-[#052659] px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#052659]/90 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-nfuko-yellow dark:text-[#0050D8]">
           <RefreshCw v-if="saving" class="h-4 w-4 animate-spin" />
           <Save v-else class="h-4 w-4" />
           Save All Budgets
@@ -297,7 +304,9 @@ onMounted(async () => {
               type="number"
               :value="getBudgetValue(cat.id) || ''"
               @input="e => updateBudgetValue(cat.id, Number((e.target as HTMLInputElement).value))"
-              class="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-sm font-semibold text-neutral-900 focus:border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:focus:border-nfuko-yellow"
+              :disabled="licenseState.readOnly"
+              :title="licenseState.readOnly ? 'License expired — renew to update budgets' : ''"
+              class="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-sm font-semibold text-neutral-900 focus:border-nfuko-primary focus:outline-none focus:ring-1 focus:ring-nfuko-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white dark:focus:border-nfuko-yellow"
               placeholder="0"
               min="0"
             />

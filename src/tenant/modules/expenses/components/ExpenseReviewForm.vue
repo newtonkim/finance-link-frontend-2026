@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import {
   CheckCircle, XCircle, HelpCircle, Clock, FileText, User,
   ShieldAlert, AlertTriangle, Banknote, Calendar, Tag, CreditCard,
@@ -7,6 +7,7 @@ import {
 } from 'lucide-vue-next'
 import { pomPinia } from 'septor-store'
 import { Badge } from '@/Global'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 const store = pomPinia()
 const currentUserId = (store as any).user?.id
@@ -20,8 +21,6 @@ const isSelfReview = computed(() => {
   return props.data?.created_by && currentUserId &&
     String(props.data.created_by) === String(currentUserId)
 })
-
-import { computed } from 'vue'
 
 const statusConfig: Record<string, { label: string; class: string }> = {
   Draft:     { label: 'Draft',     class: 'bg-neutral-100 text-neutral-500 border-neutral-200' },
@@ -213,15 +212,18 @@ function historyTextClass(action: string) {
 
       <textarea
         v-model="comments"
+        :disabled="licenseState.readOnly"
+        :title="licenseState.readOnly ? 'License expired — review decisions are disabled' : ''"
         placeholder="Add comments — required for Reject or Query..."
         rows="3"
-        class="w-full p-4 text-sm bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl focus:ring-2 focus:ring-nfuko-primary/20 focus:border-nfuko-primary outline-none transition-all dark:text-white resize-none"
+        class="w-full p-4 text-sm bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl focus:ring-2 focus:ring-nfuko-primary/20 focus:border-nfuko-primary outline-none transition-all disabled:cursor-not-allowed disabled:opacity-50 dark:text-white resize-none"
       />
 
       <div class="grid grid-cols-3 gap-3">
         <button
           @click="emit('reject', comments)"
-          :disabled="!comments.trim()"
+          :disabled="licenseState.readOnly || !comments.trim()"
+          :title="licenseState.readOnly ? 'License expired — renew to reject expenses' : ''"
           class="flex items-center justify-center gap-2 py-3 px-3 bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 rounded-xl font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-95"
         >
           <XCircle class="w-4 h-4" /> Reject
@@ -229,7 +231,8 @@ function historyTextClass(action: string) {
 
         <button
           @click="emit('query', comments)"
-          :disabled="!comments.trim()"
+          :disabled="licenseState.readOnly || !comments.trim()"
+          :title="licenseState.readOnly ? 'License expired — renew to query expenses' : ''"
           class="flex items-center justify-center gap-2 py-3 px-3 bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200 rounded-xl font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed active:scale-95"
         >
           <HelpCircle class="w-4 h-4" /> Query
@@ -237,7 +240,9 @@ function historyTextClass(action: string) {
 
         <button
           @click="emit('approve', comments)"
-          class="flex items-center justify-center gap-2 py-3 px-3 bg-nfuko-primary text-white hover:bg-[#002e35] rounded-xl font-bold text-sm shadow-md transition-all active:scale-95"
+          :disabled="licenseState.readOnly"
+          :title="licenseState.readOnly ? 'License expired — renew to approve expenses' : ''"
+          class="flex items-center justify-center gap-2 py-3 px-3 bg-nfuko-primary text-white hover:bg-[#002e35] rounded-xl font-bold text-sm shadow-md transition-all disabled:cursor-not-allowed disabled:opacity-40 active:scale-95"
         >
           <CheckCircle class="w-4 h-4" /> Approve
         </button>

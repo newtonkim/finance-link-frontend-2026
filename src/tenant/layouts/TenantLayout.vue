@@ -7,10 +7,23 @@ import TenantSidebar from './TenantSidebar.vue'
 import LicenseBanner from './LicenseBanner.vue'
 import { useCurrencyStore } from '@/stores/currency'
 import { saccoBrandingApi } from '@/tenant/apis/saccobranding/saccoBrandingApi'
+import { tenantClient } from '@/tenant/apis/tenantClient'
+import { applyLicenseStatus, type LicenseStatusPayload } from '@/tenant/apis/licenseState'
 
 const currencyStore = useCurrencyStore()
 
+async function loadLicenseStatus() {
+  try {
+    const { data } = await tenantClient.get<{ data: LicenseStatusPayload }>('/license-status')
+    applyLicenseStatus(data.data)
+  } catch {
+    // The shared response interceptor handles license-specific failures. Other
+    // startup errors should not prevent the tenant shell from loading.
+  }
+}
+
 onMounted(() => {
+  void loadLicenseStatus()
   currencyStore.load()
   saccoBrandingApi.get()
 })

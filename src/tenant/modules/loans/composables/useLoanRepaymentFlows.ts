@@ -3,6 +3,7 @@ import type { Ref } from 'vue'
 import type { LoanDetail } from '@/tenant/apis/loans/loansApi'
 import { loanSettingsApi } from '@/tenant/apis/settings/loanSettingsApi'
 import { loansApi } from '@/tenant/apis/loans/loansApi'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 type AllocationOrder =
   | 'principal_interest_penalties_charges'
@@ -60,6 +61,7 @@ export function useLoanRepaymentFlows(loan: Ref<LoanDetail | null>, refresh: () 
   }
 
   function openReceiveCash(row: any) {
+    if (licenseState.readOnly) return
     selectedInstallment.value = row
     if (!hasFetchedRepaymentOrder.value) {
       void fetchRepaymentAllocationOrder()
@@ -69,7 +71,7 @@ export function useLoanRepaymentFlows(loan: Ref<LoanDetail | null>, refresh: () 
   }
 
   async function handleReceiveCashSubmit(data: any) {
-    if (!loan.value) return
+    if (!loan.value || licenseState.readOnly) return
     isPostingCash.value = true
 
     try {
@@ -105,6 +107,7 @@ export function useLoanRepaymentFlows(loan: Ref<LoanDetail | null>, refresh: () 
   const selectedSavingsInstallment = ref<any>(null)
 
   function openSavingsRepayment(row: any) {
+    if (licenseState.readOnly) return
     selectedSavingsInstallment.value = row
     if (!hasFetchedRepaymentOrder.value) {
       void fetchRepaymentAllocationOrder()
@@ -119,7 +122,7 @@ export function useLoanRepaymentFlows(loan: Ref<LoanDetail | null>, refresh: () 
     payment_date: string
     description: string
   }) {
-    if (!loan.value) return
+    if (!loan.value || licenseState.readOnly) return
     isPostingSavings.value = true
     try {
       await loansApi.repayFromSavings(loan.value.id, {

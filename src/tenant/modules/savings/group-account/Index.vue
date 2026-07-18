@@ -67,7 +67,9 @@
           <button
             type="button"
             @click="createGroup"
-            class="inline-flex items-center gap-2 rounded-xl bg-[#182538] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#22344f]"
+            :disabled="licenseState.readOnly"
+            :title="licenseState.readOnly ? 'License expired — renew to create a group' : ''"
+            class="inline-flex items-center gap-2 rounded-xl bg-[#182538] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#22344f] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[#182538]"
           >
             <Plus :size="16" /> Create Group
           </button>
@@ -127,9 +129,11 @@
             :key="action.name"
             type="button"
             :aria-label="action.label"
-            :title="action.label"
+            :disabled="licenseState.readOnly && action.name !== 'view'"
+            :title="licenseState.readOnly && action.name !== 'view' ? `License expired — renew to ${action.label.toLowerCase()}` : action.label"
             :class="[
               'inline-flex items-center gap-1 whitespace-nowrap rounded-md border px-2 py-1 text-[11px] font-bold leading-none transition-colors',
+              licenseState.readOnly && action.name !== 'view' ? 'cursor-not-allowed opacity-40' : '',
               action.name === 'delete'
                 ? 'border-rose-200 text-rose-600 hover:bg-rose-50'
                 : action.name === 'add-member'
@@ -221,6 +225,7 @@ import {
   UsersRound,
   Plus,
 } from 'lucide-vue-next'
+import { licenseState } from '@/tenant/apis/licenseState'
 const Store = pomPinia(),
   automaticCreate = ref<any>({ drawerActions: true, actionSlot: null, item: null }),
   drawer = ref<any>(null),
@@ -401,10 +406,12 @@ function avatarClass(item: any) {
 }
 
 function runTableAction(item: any, action: string) {
+  if (licenseState.readOnly && action !== 'view') return
   drawer.value?.handleAction?.(item, action)
 }
 
 async function saveUser(type: string, data: any, sumited: any) {
+  if (licenseState.readOnly) return
   if (automaticCreate.value.actionSlot == 'create-none-member') {
     const checker = await addNoneExistingMember(formData.value, automaticCreate.value.item)
     if (checker.success == false) {
@@ -423,12 +430,15 @@ async function saveUser(type: string, data: any, sumited: any) {
   }
 }
 function createGroup() {
+  if (licenseState.readOnly) return
   automaticCreate.value = { drawerActions: true, actionSlot: null, item: null }
   drawerTitle.value = titleMap.add
   drawer.value.toggleDrawer()
   drawer.value.buttonTypeClicked = 'add'
 }
 function OpenThedrawer(item: any, actionSlot = 'create-none-member') {
+  const isDownload = ['download-group-savings-template', 'download-group-member-template'].includes(actionSlot)
+  if (licenseState.readOnly && !isDownload) return
   automaticCreate.value = { drawerActions: true, actionSlot, item }
   drawerTitle.value = { title: 'add member to group', width: addMemberDrawerWidth }
   drawer.value.toggleDrawer()

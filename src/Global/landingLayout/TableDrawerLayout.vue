@@ -84,7 +84,9 @@
     <div v-if="DrawerMounted">
         <Drawer v-if="drawerOpen" :width="drawerWidth" :showFooter="drawerShooter2" v-model:open="drawerOpen"
             :title="drawerTitle" @save="saveDrawerData" :saveButtonClass="props.saveButtonClass"
-            :saveButtonText="props.saveButtonText" :cancelButtonText="props.cancelButtonText">
+            :saveButtonText="props.saveButtonText" :cancelButtonText="props.cancelButtonText"
+            :saveDisabled="licenseState.readOnly"
+            saveDisabledTitle="License expired — renew to save changes">
             <template #body>
                 <!-- {{ drawerShowFooter }} -->
                 <div id="print-container-drawer">

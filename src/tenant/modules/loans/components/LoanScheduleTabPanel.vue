@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/Global/ui/dropdown-menu'
 import type { LoanScheduleEntry } from '@/tenant/apis/loans/loansApi'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 interface ScheduleTotals {
   principal_due: number
@@ -137,7 +138,9 @@ const emit = defineEmits<{
                 <DropdownMenu v-if="canShowMore(row)">
                   <DropdownMenuTrigger as-child>
                     <button
-                      class="inline-flex items-center justify-between gap-1 px-2.5 py-1.5 text-xs font-semibold text-blue-600 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
+                      :disabled="licenseState.readOnly"
+                      :title="licenseState.readOnly ? 'License expired — renew to post a repayment' : ''"
+                      class="inline-flex items-center justify-between gap-1 px-2.5 py-1.5 text-xs font-semibold text-blue-600 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       More
                       <ChevronDown class="h-3 w-3" />

@@ -14,6 +14,7 @@ import { notify } from '@/Global/Toasters/ToastMsg'
 import { loansApi, type RescheduleParams, type ReschedulePreviewResult } from '@/tenant/apis/loans/loansApi'
 import { loanProductsApi, type LoanProduct } from '@/tenant/apis/loanProducts/loanProductsApi'
 import { formatMoneyValue } from '@/Global'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 const props = defineProps<{
   open: boolean
@@ -142,7 +143,7 @@ async function handlePreview() {
 }
 
 async function handleSubmit() {
-  if (!props.loan?.id) return
+  if (!props.loan?.id || licenseState.readOnly) return
   isSubmitting.value = true
   try {
     await loansApi.reschedule(props.loan.id, buildParams())
@@ -672,7 +673,8 @@ function handleDone() {
                 Cancel
               </button>
               <button
-                :disabled="isSubmitting"
+                :disabled="isSubmitting || licenseState.readOnly"
+                :title="licenseState.readOnly ? 'License expired — renew to reschedule this loan' : ''"
                 class="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
                 @click="handleSubmit"
               >

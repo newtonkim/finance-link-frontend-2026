@@ -7,11 +7,30 @@ import { reactive } from 'vue'
  */
 export const licenseState = reactive({
   readOnly: false,
+  status: null as string | null,
+  expiresAt: null as string | null,
   message:
     'Your license has expired. You can still view your data, but adding, editing and deleting are disabled until you renew.',
 })
 
+export interface LicenseStatusPayload {
+  status: string
+  is_expired: boolean
+  read_only: boolean
+  expires_at: string | null
+  message: string | null
+}
+
+/** Apply the proactive status returned at tenant layout startup. */
+export function applyLicenseStatus(status: LicenseStatusPayload): void {
+  licenseState.status = status.status
+  licenseState.expiresAt = status.expires_at
+  licenseState.readOnly = status.read_only
+  if (status.message) licenseState.message = status.message
+}
+
 export function markLicenseExpired(message?: string) {
+  licenseState.status = 'expired'
   licenseState.readOnly = true
   if (message) licenseState.message = message
 }

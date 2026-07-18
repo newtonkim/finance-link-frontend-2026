@@ -26,6 +26,7 @@ import LoanTransactionsTabPanel from '../components/LoanTransactionsTabPanel.vue
 import LoanReschedulesTabPanel from '../components/LoanReschedulesTabPanel.vue'
 import LoanBeforeTopupTabPanel from '../components/LoanBeforeTopupTabPanel.vue'
 import LoanDetailHeader from '../components/LoanDetailHeader.vue'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 const route = useRoute()
 const router = useRouter()
@@ -124,8 +125,12 @@ onMounted(() => {
 const rescheduleDrawerOpen = ref(false)
 const topupModalRef = ref<null | { show: () => void }>(null)
 
-const handleTopup = () => topupModalRef.value?.show()
-const handleReschedule = () => (rescheduleDrawerOpen.value = true)
+const handleTopup = () => {
+  if (!licenseState.readOnly) topupModalRef.value?.show()
+}
+const handleReschedule = () => {
+  if (!licenseState.readOnly) rescheduleDrawerOpen.value = true
+}
 
 const goBack = () => {
   if (window.history.length > 1) router.back()
