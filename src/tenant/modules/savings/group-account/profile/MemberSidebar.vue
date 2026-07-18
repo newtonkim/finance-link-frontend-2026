@@ -8,12 +8,16 @@ const props = defineProps<{
     computedAge: string;
     uploadProcessing: boolean;
     formatDate: (d?: string) => string;
+    chairman?: Record<string, any> | null;
 }>(), emit = defineEmits<{
     avatarClick: [];
 }>();
 const formatCleanDate = (date: any) => {
     return date ? String(date).replace(/,/g, "") : "—"
 }
+const chairmanName = computed(() =>
+    (props.chairman?.member_name || props.chairman?.name || '').toString().trim() || null,
+);
 const quickInfo = computed(() => [
     {
         label: "Code",
@@ -39,6 +43,13 @@ const quickInfo = computed(() => [
         label: "Created",
         value: formatCleanDate(props.data.created_at)
     },
+    ...(chairmanName.value
+        ? [
+            { label: "Chairman", value: chairmanName.value },
+            { label: "Chairman role", value: "Chairman" },
+            { label: "Chairman phone", value: props.chairman?.phone || "—" },
+        ]
+        : []),
 ])
 const imageLoadFailed = ref(false)
 const groupImageUrl = computed(() => {

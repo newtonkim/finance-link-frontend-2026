@@ -32,6 +32,11 @@ const memberInitials = computed(() => getInitials(profileDetails.value?.details?
 const details = computed<Record<string, any>>(() => profileDetails.value?.details ?? {});
 const members = computed<any[]>(() => (Array.isArray(profileDetails.value?.members) ? profileDetails.value.members : []));
 
+// The group's chairman — surfaced in the sidebar quick info.
+const chairman = computed<any | null>(
+    () => members.value.find((m) => String(m?.member_role ?? '').toLowerCase() === 'chairman') ?? null,
+);
+
 // ── Add member to this group ─────────────────────────────────────────────────
 const groupId = computed<any>(() => getLocalValues("groupProfile" as any)?.id ?? details.value?.id);
 const addMemberOpen = ref(false);
@@ -207,7 +212,7 @@ const formatDateTime = (dateString?: string) => {
     <div class="min-h-screen bg-background text-foreground relative overflow-x-hidden">
       <div class="relative z-10 p-5 flex flex-col lg:flex-row gap-5 max-w-full overflow-hidden">
         <!-- Sidebar -->
-        <MemberSidebar class="w-full lg:w-[300px] shrink-0" :data="details" :computed-age="''"
+        <MemberSidebar class="w-full lg:w-[300px] shrink-0" :data="details" :chairman="chairman" :computed-age="''"
           :format-date="formatDate" :member-initials="memberInitials" :upload-processing="uploadProcessing" />
 
         <!-- Main content -->
