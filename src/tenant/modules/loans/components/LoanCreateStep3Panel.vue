@@ -2,6 +2,7 @@
 import { ArrowLeft, Save, Send, Shield, Calculator } from 'lucide-vue-next'
 import LoanEligibilityPanel from './LoanEligibilityPanel.vue'
 import { useLoanApplicationHelpers } from '../composables/useLoanApplicationHelpers'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 defineProps<{
     form: any
@@ -87,10 +88,14 @@ const { formatAmount } = useLoanApplicationHelpers()
                     <ArrowLeft class="h-4 w-4" /> Back
                 </button>
                 <div class="flex items-center gap-3">
-                    <button type="submit" :disabled="saving || submitting" class="flex items-center gap-2 rounded-xl border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-[#052659]/90 transition-colors disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
+                    <button type="submit" :disabled="saving || submitting || licenseState.readOnly"
+                        :title="licenseState.readOnly ? 'License expired — renew to save' : ''"
+                        class="flex items-center gap-2 rounded-xl border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-[#052659]/90 transition-colors disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
                         <Save class="h-4 w-4" />{{ saving ? 'Saving…' : 'Save Draft' }}
                     </button>
-                    <button type="button" :disabled="submitting || saving || !canSubmit" class="flex items-center gap-2 rounded-xl bg-[#052659] px-4 py-2 text-sm font-medium text-white hover:bg-[#052659]/90 transition-colors disabled:opacity-50 dark:bg-bg-nfuko-yellow dark:text-black" @click="emit('saveAndSubmit')">
+                    <button type="button" :disabled="submitting || saving || !canSubmit || licenseState.readOnly"
+                        :title="licenseState.readOnly ? 'License expired — renew to submit' : ''"
+                        class="flex items-center gap-2 rounded-xl bg-[#052659] px-4 py-2 text-sm font-medium text-white hover:bg-[#052659]/90 transition-colors disabled:opacity-50 dark:bg-bg-nfuko-yellow dark:text-black" @click="emit('saveAndSubmit')">
                         <Send class="h-4 w-4" />{{ submitting ? 'Submitting…' : 'Save & Submit' }}
                     </button>
                 </div>

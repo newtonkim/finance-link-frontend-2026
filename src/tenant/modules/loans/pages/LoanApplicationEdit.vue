@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { ArrowLeft, HandCoins, Save, Send, ChevronRight, Plus, Trash2, Shield } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
+import { licenseState } from '@/tenant/apis/licenseState'
 import { useLoanApplicationEdit } from '../composables/useLoanApplicationEdit'
 import { useLoanApplicationHelpers } from '../composables/useLoanApplicationHelpers'
 import LoanEligibilityPanel from '../components/LoanEligibilityPanel.vue'
@@ -233,10 +234,13 @@ function removeCollateralItem(i: number) { collateralItems.value.splice(i, 1) }
                         </button>
                         <div class="flex items-center gap-3">
                             <button type="button" class="rounded-xl border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-50 transition-colors dark:border-neutral-700 dark:text-neutral-300" @click="router.back()">Cancel</button>
-                            <button type="submit" :disabled="saving" class="flex items-center gap-2 rounded-xl border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-[#052659]/90 disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
+                            <button type="submit" :disabled="saving || licenseState.readOnly"
+                                :title="licenseState.readOnly ? 'License expired — renew to save' : ''"
+                                class="flex items-center gap-2 rounded-xl border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-[#052659]/90 disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
                                 <Save class="h-4 w-4" />{{ saving ? 'Saving…' : 'Save Draft' }}
                             </button>
-                            <button v-if="form.status === 'draft'" type="button" :disabled="submitting || !canSubmit"
+                            <button v-if="form.status === 'draft'" type="button" :disabled="submitting || !canSubmit || licenseState.readOnly"
+                                :title="licenseState.readOnly ? 'License expired — renew to submit' : ''"
                                 class="flex items-center gap-2 rounded-xl bg-[#052659] px-4 py-2 text-sm font-medium text-white hover:bg-[#052659]/90 disabled:opacity-50 dark:bg-bg-nfuko-yellow dark:text-black"
                                 @click="submit">
                                 <Send class="h-4 w-4" />{{ submitting ? 'Submitting…' : 'Submit Application' }}

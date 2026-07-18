@@ -62,12 +62,14 @@
           Fixed Deposit
         </button>
 
-        <button @click="openDrawer(item, 'withdrawal')"
-          class="flex items-center gap-1.5 px-3.5 py-2 text-[12px] font-bold rounded-lg border border-gray-200 text-gray-600 bg-white hover:bg-gray-50 hover:border-gray-300 transition-colors">
+        <button @click="openDrawer(item, 'withdrawal')" :disabled="licenseState.readOnly"
+          :title="licenseState.readOnly ? 'License expired — renew to withdraw' : ''"
+          class="flex items-center gap-1.5 px-3.5 py-2 text-[12px] font-bold rounded-lg border border-gray-200 text-gray-600 bg-white hover:bg-gray-50 hover:border-gray-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white">
           <CircleMinus :size="14" /> Withdraw
         </button>
-        <button @click="openDrawer(item, 'deposit')"
-          class="flex items-center gap-1.5 px-3.5 py-2 text-[12px] font-bold rounded-lg text-white bg-[#cda434] hover:bg-[#b8932e] shadow-sm transition-colors">
+        <button @click="openDrawer(item, 'deposit')" :disabled="licenseState.readOnly"
+          :title="licenseState.readOnly ? 'License expired — renew to deposit' : ''"
+          class="flex items-center gap-1.5 px-3.5 py-2 text-[12px] font-bold rounded-lg text-white bg-[#cda434] hover:bg-[#b8932e] shadow-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#cda434]">
           <CircleDollarSign :size="14" /> Deposit
         </button>
       </div>
@@ -109,6 +111,7 @@ import { Deposit, Withdrawal, Details } from "@/tenant/modules/savings/member-ac
 import { memberAccountApi, memberProfileApi } from "@/tenant/apis";
 import ViewAccountDrawer from "@/tenant/modules/savings/components/ViewAccountDrawer.vue";
 import EditAccountDrawer from "@/tenant/modules/savings/components/EditAccountDrawer.vue";
+import { licenseState } from "@/tenant/apis/licenseState";
 import { Create } from "@/tenant/modules/savings/member-account/index.ts";
 import { savingsProductsApi } from "@/tenant/apis/savingsProducts/api";
 

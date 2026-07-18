@@ -14,6 +14,7 @@ import {
 } from 'lucide-vue-next'
 import { useLoanApplicationHelpers } from '../composables/useLoanApplicationHelpers'
 import type { LoanApplication } from '../../../apis/loans/loanApplicationsApi'
+import { licenseState } from '@/tenant/apis/licenseState'
 
 defineProps<{
   application: LoanApplication
@@ -251,7 +252,9 @@ const { displayAmount } = useLoanApplicationHelpers()
       the loan account.
     </p>
     <button
-      class="flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700"
+      class="flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-green-600"
+      :disabled="licenseState.readOnly"
+      :title="licenseState.readOnly ? 'License expired — renew to disburse' : ''"
       @click="emit('openDisburse')"
     >
       <Banknote class="h-4 w-4" /> Process Disbursement

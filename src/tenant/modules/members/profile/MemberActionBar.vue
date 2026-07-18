@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue';
 
 import { Users, MinusCircle, PlusCircle, Trash2, ShieldCheck, ShieldX, Clock, AlertTriangle, RotateCcw } from 'lucide-vue-next';
+import { licenseState } from '@/tenant/apis/licenseState';
 const memberStatues = computed(() => [
     {
         name: "Rejected",
@@ -96,17 +97,17 @@ const handleDelete = () => {
             Member Groups
         </button>
 
-        <button @click="emit('withdraw')" :disabled="member?.status !== 'active'"
-            :title="member?.status !== 'active' ? 'Member must be approved before withdrawals' : ''"
-            :class="member?.status !== 'active'
+        <button @click="emit('withdraw')" :disabled="member?.status !== 'active' || licenseState.readOnly"
+            :title="licenseState.readOnly ? 'License expired — renew to withdraw' : member?.status !== 'active' ? 'Member must be approved before withdrawals' : ''"
+            :class="(member?.status !== 'active' || licenseState.readOnly)
                 ? 'flex items-center gap-2 px-[18px] py-[9px] text-[13px] font-bold rounded-full bg-gray-200 text-gray-400 cursor-not-allowed'
                 : 'flex items-center gap-2 px-[18px] py-[9px] text-[13px] font-bold rounded-full bg-[#f97316] text-white hover:bg-[#ea580c] transition-colors shadow-sm'">
             <MinusCircle :size="15" stroke-width="2.5" />
             Withdraw
         </button>
-        <button @click="emit('deposit')" :disabled="member?.status !== 'active'"
-            :title="member?.status !== 'active' ? 'Member must be approved before deposits' : ''"
-            :class="member?.status !== 'active'
+        <button @click="emit('deposit')" :disabled="member?.status !== 'active' || licenseState.readOnly"
+            :title="licenseState.readOnly ? 'License expired — renew to deposit' : member?.status !== 'active' ? 'Member must be approved before deposits' : ''"
+            :class="(member?.status !== 'active' || licenseState.readOnly)
                 ? 'flex items-center gap-2 px-[18px] py-[9px] text-[13px] font-bold rounded-full bg-gray-200 text-gray-400 cursor-not-allowed'
                 : 'flex items-center gap-2 px-[18px] py-[9px] text-[13px] font-bold rounded-full bg-[#16a34a] text-white hover:bg-[#15803d] transition-colors shadow-sm'">
             <PlusCircle :size="15" stroke-width="2.5" />
