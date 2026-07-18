@@ -881,7 +881,6 @@ const previewMoneyLocal = (f: any, r: any) => previewMoney(f, r, formatMoneyValu
             :locked-account-type="creatingAccount.lockedAccountType"
             :default-parent-gl-code="creatingAccount.defaultParentGlCode"
             :prefill-name="creatingAccount.prefillName"
-            require-parent
             @saved="onAccountSaved"
           />
         </div>

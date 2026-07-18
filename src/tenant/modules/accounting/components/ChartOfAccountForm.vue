@@ -11,7 +11,6 @@ const props = defineProps<{
   lockedAccountType?: 'ASSET' | 'LIABILITY' | 'EQUITY' | 'INCOME' | 'EXPENSE'
   defaultParentGlCode?: string
   prefillName?: string
-  requireParent?: boolean
 }>()
 
 interface SavedAccount {
@@ -283,12 +282,6 @@ async function handleSubmit() {
   if (licenseState.readOnly) return
   loading.value = true
   errors.value = {}
-
-  if (props.requireParent && !form.value.parent_id) {
-    errors.value.parent_id = ['Parent account is required.']
-    loading.value = false
-    return
-  }
 
   try {
     const payload = { ...form.value }
