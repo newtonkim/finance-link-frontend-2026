@@ -124,14 +124,14 @@ watch(groupImageUrl, () => {
 
                 <div class="divide-y divide-slate-100">
                     <div v-for="(item, index) in quickInfo" :key="index" class="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
-                        <span class="text-[15px] font-medium leading-none text-slate-500">
+                        <span v-if="item?.pill"
+                            class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1.5 text-[13px] font-black leading-none text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
                             {{ item?.label }}
                         </span>
-                        <span v-if="item?.pill"
-                            class="max-w-[58%] truncate rounded-full bg-emerald-50 px-3 py-1.5 text-[13px] font-black leading-none text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
-                            {{ item?.value || "—" }}
+                        <span v-else class="text-[15px] font-medium leading-none text-slate-500">
+                            {{ item?.label }}
                         </span>
-                        <span v-else class="max-w-[58%] truncate text-right text-[15px] font-black leading-none text-[#111827]">
+                        <span class="max-w-[58%] truncate text-right text-[15px] font-black leading-none text-[#111827]">
                             {{ item?.value || "—" }}
                         </span>
                     </div>
