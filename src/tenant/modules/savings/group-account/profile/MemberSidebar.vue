@@ -44,7 +44,7 @@ const quickInfo = computed(() => [
         value: formatCleanDate(props.data.created_at)
     },
     ...(chairmanName.value
-        ? [{ label: "Chairman", value: chairmanName.value }]
+        ? [{ label: "Chairman", value: chairmanName.value, pill: true }]
         : []),
 ])
 const imageLoadFailed = ref(false)
@@ -127,7 +127,11 @@ watch(groupImageUrl, () => {
                         <span class="text-[15px] font-medium leading-none text-slate-500">
                             {{ item?.label }}
                         </span>
-                        <span class="max-w-[58%] truncate text-right text-[15px] font-black leading-none text-[#111827]">
+                        <span v-if="item?.pill"
+                            class="max-w-[58%] truncate rounded-full bg-emerald-50 px-3 py-1.5 text-[13px] font-black leading-none text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
+                            {{ item?.value || "—" }}
+                        </span>
+                        <span v-else class="max-w-[58%] truncate text-right text-[15px] font-black leading-none text-[#111827]">
                             {{ item?.value || "—" }}
                         </span>
                     </div>
