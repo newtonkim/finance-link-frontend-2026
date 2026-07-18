@@ -8,7 +8,7 @@
         columns" @save="saveUser">
         <template #header-action>
             <div class="flex flex-col gap-3">
-                <PainPageHeader title="General charges list" dec="Manage SACCO general charges" />
+                <PainPageHeader title="General charges list" title-color="#031024" dec="Manage SACCO general charges" />
                 <router-link
                     :to="{ name: 'tenant-settings-loan-charges' }"
                     class="inline-flex items-center gap-2 self-start rounded-md bg-blue-50 px-3 py-2 text-sm text-blue-700 ring-1 ring-inset ring-blue-700/10 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"

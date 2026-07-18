@@ -1,6 +1,8 @@
 <template>
   <div  >
-    <h1 class="text-3xl font-black text-[#0050D8] dark:text-white tracking-tight">
+    <h1 class="text-3xl font-black dark:text-white tracking-tight"
+      :class="titleColor ? '' : 'text-[#0050D8]'"
+      :style="titleColor ? { color: titleColor } : undefined">
       {{ title }}
     </h1>
 
@@ -14,5 +16,6 @@
 const props = defineProps<{
   title?: string
   dec?: string
+  titleColor?: string
 }>()
 </script>
