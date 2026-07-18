@@ -3,7 +3,6 @@
     <TableDrawer
       :permissions="{
         create: 'group-saving-create',
-        view: 'group-saving-details',
         edit: 'group-saving-update',
         delete: 'group-saving-delete',
       }"
@@ -129,11 +128,11 @@
             :key="action.name"
             type="button"
             :aria-label="action.label"
-            :disabled="licenseState.readOnly && action.name !== 'view'"
-            :title="licenseState.readOnly && action.name !== 'view' ? `License expired — renew to ${action.label.toLowerCase()}` : action.label"
+            :disabled="licenseState.readOnly"
+            :title="licenseState.readOnly ? `License expired — renew to ${action.label.toLowerCase()}` : action.label"
             :class="[
               'inline-flex items-center gap-1 whitespace-nowrap rounded-md border px-2 py-1 text-[11px] font-bold leading-none transition-colors',
-              licenseState.readOnly && action.name !== 'view' ? 'cursor-not-allowed opacity-40' : '',
+              licenseState.readOnly ? 'cursor-not-allowed opacity-40' : '',
               action.name === 'delete'
                 ? 'border-rose-200 text-rose-600 hover:bg-rose-50'
                 : action.name === 'add-member'
@@ -202,7 +201,6 @@
           :data="{ ...data, action }"
           v-model:form="formData"
         />
-        <Details v-else-if="action === 'view'" :data="data" />
       </template>
     </TableDrawer>
   </div>
@@ -210,7 +208,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { pomPinia } from 'septor-store'
-import { Create, Details, AddGroupTab, GroupTemplate, SavingGroupMemberTemplate } from '.'
+import { Create, AddGroupTab, GroupTemplate, SavingGroupMemberTemplate } from '.'
 import { TableDrawer, addNumberCommas, setLocalValues, uploadTemplateColumData } from '@/Global'
 import { useRouter } from 'vue-router'
 import { groupSavingsApi } from '@/tenant/apis/savings/group-savingsApi'
@@ -218,7 +216,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   Edit3,
-  Eye,
   Trash2,
   UserPlus,
   Users,
@@ -252,10 +249,6 @@ const drawerSaveButtonClass = computed(() =>
     : 'bg-emerald-600 hover:bg-[#052659]/90 shadow-sm',
 )
 const titleMap: Record<string, { title: string; width: string }> = {
-  view: {
-    title: 'view group Savings account Details',
-    width: 'w-1/2',
-  },
   edit: {
     title: 'Update Group',
     width: 'w-1/2',
@@ -349,7 +342,6 @@ const statusFilters = computed(() => [
 ])
 
 const rowActions = [
-  { name: 'view', label: 'View', icon: Eye, handler: (item: any) => runTableAction(item, 'view') },
   { name: 'edit', label: 'Edit', icon: Edit3, handler: (item: any) => runTableAction(item, 'edit') },
   { name: 'add-member', label: 'Add member', icon: UserPlus, handler: (item: any) => OpenThedrawer(item) },
   { name: 'delete', label: 'Delete', icon: Trash2, handler: (item: any) => runTableAction(item, 'delete') },
@@ -406,7 +398,7 @@ function avatarClass(item: any) {
 }
 
 function runTableAction(item: any, action: string) {
-  if (licenseState.readOnly && action !== 'view') return
+  if (licenseState.readOnly) return
   drawer.value?.handleAction?.(item, action)
 }
 
