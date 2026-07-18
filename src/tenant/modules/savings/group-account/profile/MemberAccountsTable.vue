@@ -9,7 +9,7 @@
         <slot name="header-action" />
         <button type="button" @click="drawer?.createNewRecord?.()"
           class="inline-flex items-center gap-2 rounded-xl bg-[#182538] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#22344f]">
-          <Plus :size="16" /> Create Account
+          <Plus :size="16" /> Add New
         </button>
       </div>
     </template>

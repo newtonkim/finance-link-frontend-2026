@@ -213,7 +213,7 @@ const formatDateTime = (dateString?: string) => {
         <!-- Main content -->
         <div class="flex-1 flex flex-col gap-5 min-w-0">
           <!-- Toolbar -->
-          <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-3">
             <div class="min-w-0">
               <h2 class="truncate text-lg font-black tracking-tight text-gray-900">{{ details.group_name || details.name || 'Group profile' }}</h2>
               <p class="text-xs font-medium text-gray-400">{{ members.length }} member{{ members.length === 1 ? '' : 's' }} · savings group</p>
