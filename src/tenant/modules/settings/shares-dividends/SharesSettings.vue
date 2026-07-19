@@ -60,6 +60,7 @@ const settingsCards = [
     action: "Manage Capital →",
     slot: "share-capital",
     route: { name: "tenant-settings-Capitalize-list" },
+    actionClass: "bg-[#06265a] hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90",
   },
   {
     id: "share-transaction-charge",
@@ -68,6 +69,7 @@ const settingsCards = [
     action: "Configure Pricing →",
     type: "link",
     route: { name: "tenant-settings-share-transaction-charges-list" },
+    actionClass: "bg-[#06265a] hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90",
   },
   {
     id: "dividends",
@@ -123,7 +125,7 @@ function toggleDrawer(page: string) {
       <template #share-management>
         <button
           @click="toggleDrawer('share-management')"
-          class="text-nfuko-primary dark:text-bg-nfuko-yellow text-sm font-medium hover:underline"
+          class="inline-flex items-center justify-center rounded-xl bg-[#06265a] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90"
         >
           Manage Shares →
         </button>
@@ -158,7 +160,7 @@ function toggleDrawer(page: string) {
 
         <button
           @click="dividendDrawerOpen = true"
-          class="text-nfuko-primary dark:text-bg-nfuko-yellow text-sm font-medium hover:underline"
+          class="inline-flex items-center justify-center rounded-xl bg-[#06265a] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90"
         >
           Configure Dividends →
         </button>

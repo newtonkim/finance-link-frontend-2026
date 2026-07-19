@@ -12,7 +12,10 @@
             <!-- Primary action container -->
             <div class="mt-4 flex flex-wrap gap-3">
                 <RouterLink v-if="card.type === 'link'" :to="card.route" v-bind="card.route"
-                    class="inline-flex items-center justify-center rounded-xl bg-[#052659] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#052659]/90 dark:bg-[#052659] dark:text-white dark:hover:bg-[#052659]/90">
+                    :class="[
+                        'inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-medium text-white transition-colors',
+                        card.actionClass ?? 'bg-[#052659] hover:bg-[#052659]/90 dark:bg-[#052659] dark:text-white dark:hover:bg-[#052659]/90'
+                    ]">
                     {{ card.action }}
                 </RouterLink>
                 <!-- Secondary actions -->

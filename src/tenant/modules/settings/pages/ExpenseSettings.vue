@@ -29,7 +29,7 @@ const navigate = (path: string) => {
             <div class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Approval Thresholds</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Configure multi-level approval matrices based on expense amounts.</p>
-                <button @click="navigate('/tenant/settings/expense-management/approvals')" class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">
+                <button @click="navigate('/tenant/settings/expense-management/approvals')" class="inline-flex items-center justify-center rounded-xl bg-[#06265a] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90">
                     Manage Approvals →
                 </button>
             </div>
@@ -38,7 +38,7 @@ const navigate = (path: string) => {
             <div class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Budget Planning</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Set annual and monthly spending limits for each category.</p>
-                <button @click="navigate('/tenant/expenses?mode=Budgets')" class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">
+                <button @click="navigate('/tenant/expenses?mode=Budgets')" class="inline-flex items-center justify-center rounded-xl bg-[#06265a] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90">
                     Configure Budgets →
                 </button>
             </div>
@@ -47,7 +47,7 @@ const navigate = (path: string) => {
             <div class="rounded-2xl border border-neutral-100 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Expense Categories</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Organize and map expenses to your chart of accounts.</p>
-                <button @click="navigate('/tenant/expenses?mode=Categories')" class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">
+                <button @click="navigate('/tenant/expenses?mode=Categories')" class="inline-flex items-center justify-center rounded-xl bg-[#06265a] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90">
                     Manage Categories →
                 </button>
             </div>
@@ -68,7 +68,7 @@ const navigate = (path: string) => {
                     <h3 class="text-base font-semibold text-neutral-900 dark:text-white">Accounting Periods</h3>
                 </div>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Lock historical financial periods to prevent retroactive expense postings.</p>
-                <button @click="isPeriodDrawerOpen = true" class="text-sm font-medium text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">
+                <button @click="isPeriodDrawerOpen = true" class="inline-flex items-center justify-center rounded-xl bg-[#06265a] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90">
                     Manage Periods →
                 </button>
             </div>

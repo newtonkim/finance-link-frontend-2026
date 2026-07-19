@@ -83,7 +83,7 @@ const emit = defineEmits(['update:show'])
                                             @click="form.distribution_account_type = opt.value as any" :class="[
                                                 'flex items-center gap-2 px-3 py-2.5 rounded-xl border text-[13px] font-medium transition-all text-left',
                                                 form.distribution_account_type === opt.value
-                                                    ? ' bg-nfuko-primary border-nfuko-primary text-white dark:bg-bg-nfuko-yellow dark:border-bg-nfuko-yellow dark:text-nfuko-primary'
+                                                    ? 'bg-[#06265a] border-[#06265a] text-white dark:bg-[#06265a] dark:border-[#06265a] dark:text-white'
                                                     : 'bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300'
                                             ]">
                                             <span class="flex-1">{{ opt.label }}</span>
@@ -133,7 +133,7 @@ const emit = defineEmits(['update:show'])
                                             @click="form.frequency = opt.value as any" :class="[
                                                 'px-3 py-2 rounded-xl border text-[13px] font-medium transition-all',
                                                 form.frequency === opt.value
-                                                    ? ' bg-nfuko-primary shadow border-nfuko-primary text-white dark:bg-bg-nfuko-yellow dark:border-bg-nfuko-yellow dark:text-nfuko-primary'
+                                                    ? 'bg-[#06265a] shadow border-[#06265a] text-white dark:bg-[#06265a] dark:border-[#06265a] dark:text-white'
                                                     : 'bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300'
                                             ]">
                                             {{ opt.label }}
@@ -265,7 +265,7 @@ const emit = defineEmits(['update:show'])
                                         </div>
                                         <button @click="form.auto_distribute = !form.auto_distribute" :class="[
                                             'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-all duration-300',
-                                            form.auto_distribute ? ' bg-nfuko-primary dark:bg-bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'
+                                            form.auto_distribute ? 'bg-[#06265a] dark:bg-[#06265a]' : 'bg-neutral-200 dark:bg-neutral-700'
                                         ]">
                                             <span :class="[
                                                 'inline-flex h-4 w-4 rounded-full bg-white shadow transition-transform duration-300',
@@ -288,7 +288,7 @@ const emit = defineEmits(['update:show'])
                                         <button @click="form.carry_forward_remainder = !form.carry_forward_remainder"
                                             :class="[
                                                 'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-all duration-300',
-                                                form.carry_forward_remainder ? ' bg-nfuko-primary dark:bg-bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'
+                                                form.carry_forward_remainder ? 'bg-[#06265a] dark:bg-[#06265a]' : 'bg-neutral-200 dark:bg-neutral-700'
                                             ]">
                                             <span :class="[
                                                 'inline-flex h-4 w-4 rounded-full bg-white shadow transition-transform duration-300',
@@ -313,7 +313,7 @@ const emit = defineEmits(['update:show'])
                             'flex items-center gap-2 rounded-xl px-6 py-2.5 text-[13px] font-bold shadow-sm transition-all',
                             saving
                                 ? 'bg-neutral-300 text-neutral-500 cursor-not-allowed dark:bg-neutral-700'
-                                : ' bg-nfuko-primary text-white hover:bg-[#003030] dark:bg-bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-[#b8973e]'
+                                : 'bg-[#06265a] text-white hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90'
                         ]">
                             <Loader2 v-if="saving" class="h-3.5 w-3.5 animate-spin" />
                             {{ saving ? 'Saving...' : 'Update dividend sharing' }}

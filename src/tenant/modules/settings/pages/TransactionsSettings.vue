@@ -21,7 +21,7 @@ import { ArrowLeftRight } from 'lucide-vue-next'
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Deposits</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Configure rules and limits for member
                     deposits.</p>
-                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Manage Deposits
+                <button class="inline-flex items-center justify-center rounded-xl bg-[#06265a] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90">Manage Deposits
                     →</button>
             </div>
             <div
@@ -29,7 +29,7 @@ import { ArrowLeftRight } from 'lucide-vue-next'
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Withdrawals</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Define withdrawal procedures and
                     restrictions.</p>
-                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Manage
+                <button class="inline-flex items-center justify-center rounded-xl bg-[#06265a] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90">Manage
                     Withdrawals →</button>
             </div>
             <div
@@ -37,7 +37,7 @@ import { ArrowLeftRight } from 'lucide-vue-next'
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Fees & Charges</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Setup fees for various transaction types.
                 </p>
-                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Configure Fees
+                <button class="inline-flex items-center justify-center rounded-xl bg-[#06265a] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90">Configure Fees
                     →</button>
             </div>
             <div
@@ -45,7 +45,7 @@ import { ArrowLeftRight } from 'lucide-vue-next'
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Payment Channels</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Manage integration with various payment
                     gateways.</p>
-                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Manage Channels
+                <button class="inline-flex items-center justify-center rounded-xl bg-[#06265a] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90">Manage Channels
                     →</button>
             </div>
         </div>

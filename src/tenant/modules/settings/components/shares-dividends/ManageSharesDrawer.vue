@@ -79,7 +79,7 @@ const emit = defineEmits(['update:show', 'update:sharesCompulsory', 'update:minS
                                         </div>
                                         <button @click="emit('update:sharesCompulsory', !sharesCompulsory)" :class="[
                                             'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-all duration-300',
-                                            sharesCompulsory ? ' bg-nfuko-primary dark:bg-bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'
+                                            sharesCompulsory ? 'bg-[#06265a] dark:bg-[#06265a]' : 'bg-neutral-200 dark:bg-neutral-700'
                                         ]">
                                             <span :class="[
                                                 'inline-flex h-4 w-4 rounded-full bg-white shadow transition-transform duration-300',
@@ -144,7 +144,7 @@ const emit = defineEmits(['update:show', 'update:sharesCompulsory', 'update:minS
                                             </div>
                                             <button @click="emit('update:appliesToExisting', !appliesToExisting)" :class="[
                                                 'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-all duration-300',
-                                                appliesToExisting ? ' bg-nfuko-primary dark:bg-bg-nfuko-yellow' : 'bg-neutral-200 dark:bg-neutral-700'
+                                                appliesToExisting ? 'bg-[#06265a] dark:bg-[#06265a]' : 'bg-neutral-200 dark:bg-neutral-700'
                                             ]">
                                                 <span :class="[
                                                     'inline-flex h-4 w-4 rounded-full bg-white shadow transition-transform duration-300',
@@ -227,7 +227,7 @@ const emit = defineEmits(['update:show', 'update:sharesCompulsory', 'update:minS
                             'flex items-center gap-2 rounded-xl px-6 py-2.5 text-[13px] font-bold shadow-sm transition-all',
                             saving
                                 ? 'bg-neutral-300 text-neutral-500 cursor-not-allowed dark:bg-neutral-700'
-                                : 'bg-[#052659] text-white hover:bg-[#052659]/90 dark:bg-bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-[#052659]/90'
+                                : 'bg-[#06265a] text-white hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90'
                         ]">
                             <Loader2 v-if="saving" class="h-3.5 w-3.5 animate-spin" />
                             {{ saving ? 'Saving...' : 'Save Settings' }}
