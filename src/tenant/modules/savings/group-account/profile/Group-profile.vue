@@ -267,37 +267,37 @@ const formatDateTime = (dateString?: string) => {
                     <div class="size-6 rounded-md bg-[#cda434]/10 flex items-center justify-center shrink-0">
                       <component :is="section.icon" :size="13" class="text-[#cda434]" />
                     </div>
-                    <h3 class="text-[11px] font-bold text-gray-800 uppercase tracking-wide">{{ section.title }}</h3>
+                    <h3 class="text-[14px] font-bold text-gray-800 uppercase tracking-wide">{{ section.title }}</h3>
                   </div>
                   <div class="divide-y divide-gray-50">
                     <div v-for="f in section.fields" :key="f.key" class="flex items-start justify-between gap-3 px-3.5 py-2">
-                      <span class="flex items-center gap-1.5 text-[11px] font-medium text-gray-400 shrink-0 pt-px">
+                      <span class="flex items-center gap-1.5 text-[14px] font-medium text-gray-400 shrink-0 pt-px">
                         <component :is="f.icon" :size="12" class="shrink-0" />
                         {{ f.label }}
                       </span>
                       <div class="min-w-0 text-right">
                         <template v-if="f.type === 'badge'">
                           <span v-if="fieldValue(f.key)"
-                            :class="['inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold capitalize ring-1 ring-inset', badgeClass(fieldValue(f.key)!)]">
+                            :class="['inline-flex items-center rounded-full px-2 py-0.5 text-[14px] font-bold capitalize ring-1 ring-inset', badgeClass(fieldValue(f.key)!)]">
                             {{ fieldValue(f.key) }}
                           </span>
-                          <span v-else class="text-[13px] text-gray-300">—</span>
+                          <span v-else class="text-[14px] text-gray-300">—</span>
                         </template>
                         <div v-else-if="f.type === 'copy'" class="flex items-center justify-end gap-1.5">
-                          <span class="text-[12px] font-bold text-gray-900 font-mono truncate">{{ fieldValue(f.key) ?? '—' }}</span>
+                          <span class="text-[14px] font-bold text-gray-900 font-mono truncate">{{ fieldValue(f.key) ?? '—' }}</span>
                           <button v-if="fieldValue(f.key)" @click="copyField(f.key)"
                             class="shrink-0 text-gray-400 hover:text-[#cda434] transition-colors" title="Copy">
                             <component :is="copiedKey === f.key ? Check : Copy" :size="13" :class="copiedKey === f.key ? 'text-emerald-500' : ''" />
                           </button>
                         </div>
-                        <span v-else-if="f.type === 'currency'" class="text-[13px] font-bold text-gray-900">
+                        <span v-else-if="f.type === 'currency'" class="text-[14px] font-bold text-gray-900">
                           <template v-if="fieldValue(f.key) !== null">{{ currencyCode }} {{ formatCurrency(fieldValue(f.key)!) }}</template>
                           <span v-else class="text-gray-300">—</span>
                         </span>
-                        <span v-else-if="f.type === 'date'" class="text-[13px] font-bold text-gray-900">
+                        <span v-else-if="f.type === 'date'" class="text-[14px] font-bold text-gray-900">
                           {{ fieldValue(f.key) ? formatDate(fieldValue(f.key)!) : '—' }}
                         </span>
-                        <span v-else class="text-[13px] font-bold text-gray-900 break-words">
+                        <span v-else class="text-[14px] font-bold text-gray-900 break-words">
                           <template v-if="fieldValue(f.key)">{{ fieldValue(f.key) }}</template>
                           <span v-else class="text-gray-300">—</span>
                         </span>
