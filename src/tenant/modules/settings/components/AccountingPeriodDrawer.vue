@@ -111,7 +111,7 @@ onMounted(() => {
               <button
                 @click="toggleLock(customPeriod)"
                 :disabled="!customPeriod || toggling === customPeriod"
-                class="bg-nfuko-primary text-white hover:bg-nfuko-primary/90 disabled:opacity-50 h-9 px-4 rounded-lg text-sm font-bold shadow-sm transition-colors flex items-center justify-center dark:bg-nfuko-yellow dark:text-neutral-900"
+                class="bg-[#06265a] text-white hover:bg-[#06265a]/90 disabled:opacity-50 h-9 px-4 rounded-lg text-sm font-bold shadow-sm transition-colors flex items-center justify-center dark:bg-[#06265a] dark:text-white"
               >
                 <Loader2 v-if="toggling === customPeriod" class="w-4 h-4 animate-spin" />
                 <span v-else>Toggle Lock</span>

@@ -21,7 +21,7 @@
       <template #savings-accounts>
         <button
           @click="toggleDrawer('savings-accounts-setting')"
-          class="inline-flex items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-bold text-white transition-all hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
+          class="inline-flex items-center justify-center rounded-xl bg-[#06265a] px-4 py-2 text-sm font-bold text-white transition-all hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90"
         >
           Setup →
         </button>
@@ -29,7 +29,7 @@
       <template #group-savings>
         <button
           @click="toggleDrawer('savings-group-savings-setting')"
-          class="inline-flex items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-bold text-white transition-all hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
+          class="inline-flex items-center justify-center rounded-xl bg-[#06265a] px-4 py-2 text-sm font-bold text-white transition-all hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90"
         >
           Setup →
         </button>
@@ -38,7 +38,7 @@
       <template #savings-product-creation>
         <RouterLink
           to="/tenant/settings/savings-products"
-          class="inline-flex items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-bold text-white transition-all hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
+          class="inline-flex items-center justify-center rounded-xl bg-[#06265a] px-4 py-2 text-sm font-bold text-white transition-all hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90"
         >
           Manage Products →
         </RouterLink>

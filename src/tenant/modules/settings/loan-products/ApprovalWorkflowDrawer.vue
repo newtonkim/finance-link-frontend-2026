@@ -183,12 +183,12 @@ defineExpose({ openDrawer })
                            :class="!form.reschedule_fee_enabled ? 'opacity-40 pointer-events-none' : ''">
                         <button type="button" @click="form.reschedule_fee_type = 'flat'"
                           class="flex-1 py-1.5 font-medium transition-colors"
-                          :class="form.reschedule_fee_type === 'flat' ? 'bg-nfuko-primary text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
+                          :class="form.reschedule_fee_type === 'flat' ? 'bg-[#06265a] text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
                           Flat
                         </button>
                         <button type="button" @click="form.reschedule_fee_type = 'percentage'"
                           class="flex-1 py-1.5 font-medium border-l border-neutral-200 transition-colors dark:border-neutral-700"
-                          :class="form.reschedule_fee_type === 'percentage' ? 'bg-nfuko-primary text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
+                          :class="form.reschedule_fee_type === 'percentage' ? 'bg-[#06265a] text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
                           %
                         </button>
                       </div>
@@ -230,12 +230,12 @@ defineExpose({ openDrawer })
                            :class="!form.reschedule_product_change_fee_enabled ? 'opacity-40 pointer-events-none' : ''">
                         <button type="button" @click="form.reschedule_product_change_fee_type = 'flat'"
                           class="flex-1 py-1.5 font-medium transition-colors"
-                          :class="form.reschedule_product_change_fee_type === 'flat' ? 'bg-nfuko-primary text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
+                          :class="form.reschedule_product_change_fee_type === 'flat' ? 'bg-[#06265a] text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
                           Flat
                         </button>
                         <button type="button" @click="form.reschedule_product_change_fee_type = 'percentage'"
                           class="flex-1 py-1.5 font-medium border-l border-neutral-200 transition-colors dark:border-neutral-700"
-                          :class="form.reschedule_product_change_fee_type === 'percentage' ? 'bg-nfuko-primary text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
+                          :class="form.reschedule_product_change_fee_type === 'percentage' ? 'bg-[#06265a] text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
                           %
                         </button>
                       </div>
@@ -278,12 +278,12 @@ defineExpose({ openDrawer })
                            :class="!form.reschedule_same_product_fee_enabled ? 'opacity-40 pointer-events-none' : ''">
                         <button type="button" @click="form.reschedule_same_product_fee_type = 'flat'"
                           class="flex-1 py-1.5 font-medium transition-colors"
-                          :class="form.reschedule_same_product_fee_type === 'flat' ? 'bg-nfuko-primary text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
+                          :class="form.reschedule_same_product_fee_type === 'flat' ? 'bg-[#06265a] text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
                           Flat
                         </button>
                         <button type="button" @click="form.reschedule_same_product_fee_type = 'percentage'"
                           class="flex-1 py-1.5 font-medium border-l border-neutral-200 transition-colors dark:border-neutral-700"
-                          :class="form.reschedule_same_product_fee_type === 'percentage' ? 'bg-nfuko-primary text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
+                          :class="form.reschedule_same_product_fee_type === 'percentage' ? 'bg-[#06265a] text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
                           %
                         </button>
                       </div>
@@ -329,12 +329,12 @@ defineExpose({ openDrawer })
                            :class="!form.reschedule_other_charges_enabled ? 'opacity-40 pointer-events-none' : ''">
                         <button type="button" @click="form.reschedule_other_charges_type = 'flat'"
                           class="flex-1 py-1.5 font-medium transition-colors"
-                          :class="form.reschedule_other_charges_type === 'flat' ? 'bg-nfuko-primary text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
+                          :class="form.reschedule_other_charges_type === 'flat' ? 'bg-[#06265a] text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
                           Flat
                         </button>
                         <button type="button" @click="form.reschedule_other_charges_type = 'percentage'"
                           class="flex-1 py-1.5 font-medium border-l border-neutral-200 transition-colors dark:border-neutral-700"
-                          :class="form.reschedule_other_charges_type === 'percentage' ? 'bg-nfuko-primary text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
+                          :class="form.reschedule_other_charges_type === 'percentage' ? 'bg-[#06265a] text-white' : 'bg-white text-neutral-500 hover:bg-neutral-50 dark:bg-neutral-800 dark:text-neutral-400'">
                           %
                         </button>
                       </div>
@@ -385,7 +385,7 @@ defineExpose({ openDrawer })
                   type="submit"
                     :disabled="saving"
                 @click="handleSave"
-                  class="flex-1 h-11  mr-5 w-full font-bold bg-emerald-600 hover:bg-[#052659]/90 text-white shadow-sm transition-colors"
+                  class="flex-1 h-11 mr-5 w-full font-bold bg-[#06265a] hover:bg-[#06265a]/90 text-white shadow-sm transition-colors"
                 >
                 <Spinner v-if="saving" class="h-4 w-4" />
 

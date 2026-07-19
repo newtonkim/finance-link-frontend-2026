@@ -15,6 +15,7 @@ const loanProductCards = [
     type: 'link',
     route: { name: 'tenant-settings-loan-products' },
     action: 'Manage Types →',
+    actionClass: 'bg-[#06265a] hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90',
   },
   {
     title: 'Charges & Penalties',
@@ -22,6 +23,7 @@ const loanProductCards = [
     type: 'link',
     route: { name: 'tenant-settings-loan-charges' },
     action: 'Manage Charges →',
+    actionClass: 'bg-[#06265a] hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90',
   },
 ]
 const loanSettingsCards = [
@@ -114,7 +116,7 @@ function saveDrawerData(data: any) {
         <template #approval-settings>
           <button
             @click="openDrawer('approval')"
-            class="inline-flex items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-bold text-white transition-all hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
+            class="inline-flex items-center justify-center rounded-xl bg-[#06265a] px-4 py-2 text-sm font-bold text-white transition-all hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90"
           >
             Setup →
           </button>
@@ -122,7 +124,7 @@ function saveDrawerData(data: any) {
         <template #disbursement-settings>
           <button
             @click="openDrawer('disbursement')"
-            class="inline-flex items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-bold text-white transition-all hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
+            class="inline-flex items-center justify-center rounded-xl bg-[#06265a] px-4 py-2 text-sm font-bold text-white transition-all hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90"
           >
             Manage →
           </button>
@@ -130,7 +132,7 @@ function saveDrawerData(data: any) {
         <template #arrears-settings>
           <button
             @click="openDrawer('arrears')"
-            class="inline-flex items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-bold text-white transition-all hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
+            class="inline-flex items-center justify-center rounded-xl bg-[#06265a] px-4 py-2 text-sm font-bold text-white transition-all hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90"
           >
             Configure →
           </button>
@@ -138,7 +140,7 @@ function saveDrawerData(data: any) {
         <template #loans-settings>
           <button
             @click="openDrawer('loans-settings')"
-            class="inline-flex items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-bold text-white transition-all hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white"
+            class="inline-flex items-center justify-center rounded-xl bg-[#06265a] px-4 py-2 text-sm font-bold text-white transition-all hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90"
           >
             Configure →
           </button>

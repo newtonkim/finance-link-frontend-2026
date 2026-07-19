@@ -34,7 +34,8 @@ const settingsCards = [
         description: "Add and manage system users and staff.",
         type: "link",
         route: { name: "tenant-settings-staff" },
-        action: "Manage Staff →"
+        action: "Manage Staff →",
+        actionClass: "bg-[#06265a] hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90"
     },
     {
         title: "Roles & Permissions",
@@ -42,6 +43,7 @@ const settingsCards = [
         type: "link",
         action: "Configure Roles →",
         route: { name: "tenant-settings-members-roles-permission" },
+        actionClass: "bg-[#06265a] hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90",
     },
     {
         title: "KYC / Member Onboarding",
@@ -106,13 +108,13 @@ async function handleSave() {
         <SettingCard :settingsCards="settingsCards">
             <template #staff-payroll>
                 <div class="mt-4 flex flex-wrap gap-3 border-t border-neutral-100 pt-4 dark:border-neutral-800">
-                    <RouterLink :to="{ name: 'tenant-staff-salaries' }" class="inline-flex w-fit items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white">
+                    <RouterLink :to="{ name: 'tenant-staff-salaries' }" class="inline-flex w-fit items-center justify-center rounded-xl bg-[#06265a] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90">
                         Staff Salaries →
                     </RouterLink>
-                    <RouterLink :to="{ name: 'tenant-staff-allowances' }" class="inline-flex w-fit items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white">
+                    <RouterLink :to="{ name: 'tenant-staff-allowances' }" class="inline-flex w-fit items-center justify-center rounded-xl bg-[#06265a] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90">
                         Staff Allowances →
                     </RouterLink>
-                    <RouterLink :to="{ name: 'tenant-staff-advances' }" class="inline-flex w-fit items-center justify-center rounded-xl bg-nfuko-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-nfuko-action dark:bg-nfuko-yellow dark:text-nfuko-primary dark:hover:bg-nfuko-action dark:hover:text-white">
+                    <RouterLink :to="{ name: 'tenant-staff-advances' }" class="inline-flex w-fit items-center justify-center rounded-xl bg-[#06265a] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90">
                         Staff Advances →
                     </RouterLink>
                 </div>

@@ -21,7 +21,7 @@ import { BookOpen } from 'lucide-vue-next'
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Chart of Accounts</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Define and manage your general ledger
                     structure.</p>
-                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Manage COA
+                <button class="inline-flex items-center justify-center rounded-xl bg-[#06265a] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90">Manage COA
                     →</button>
             </div>
             <div
@@ -29,7 +29,7 @@ import { BookOpen } from 'lucide-vue-next'
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">GL Mapping</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Map products and transactions to GL
                     accounts.</p>
-                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Configure Mapping
+                <button class="inline-flex items-center justify-center rounded-xl bg-[#06265a] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90">Configure Mapping
                     →</button>
             </div>
             <div
@@ -37,7 +37,7 @@ import { BookOpen } from 'lucide-vue-next'
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Tax Settings</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Setup tax rates and reporting
                     requirements.</p>
-                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Manage Taxes
+                <button class="inline-flex items-center justify-center rounded-xl bg-[#06265a] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90">Manage Taxes
                     →</button>
             </div>
             <div
@@ -45,7 +45,7 @@ import { BookOpen } from 'lucide-vue-next'
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-white mb-4">Multi Currency</h3>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Configure multiple currencies and
                     exchange rates.</p>
-                <button class="text-sm font-medium  text-nfuko-primary dark:text-bg-nfuko-yellow hover:underline">Setup Currencies
+                <button class="inline-flex items-center justify-center rounded-xl bg-[#06265a] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#06265a]/90 dark:bg-[#06265a] dark:text-white dark:hover:bg-[#06265a]/90">Setup Currencies
                     →</button>
             </div>
         </div>
