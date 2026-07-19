@@ -26,6 +26,7 @@
                         <th class="px-6 py-3.5 text-[11px] font-bold uppercase tracking-[0.09em] text-slate-400">Transfer</th>
                         <th class="px-6 py-3.5 text-[11px] font-bold uppercase tracking-[0.09em] text-slate-400">Member</th>
                         <th class="px-6 py-3.5 text-[11px] font-bold uppercase tracking-[0.09em] text-slate-400">Flow</th>
+                        <th class="px-6 py-3.5 text-[11px] font-bold uppercase tracking-[0.09em] text-slate-400">Status</th>
                         <th class="px-6 py-3.5 text-right text-[11px] font-bold uppercase tracking-[0.09em] text-slate-400">Amount</th>
                         <th class="px-6 py-3.5 text-right text-[11px] font-bold uppercase tracking-[0.09em] text-slate-400 hide-on-print">Actions</th>
                     </tr>
@@ -37,6 +38,7 @@
                             <td class="px-6 py-4"><div class="h-3.5 w-28 rounded bg-slate-100 dark:bg-neutral-800" /><div class="mt-2 h-2.5 w-16 rounded bg-slate-100 dark:bg-neutral-800" /></td>
                             <td class="px-6 py-4"><div class="flex items-center gap-3"><div class="size-9 rounded-full bg-slate-100 dark:bg-neutral-800" /><div class="h-3.5 w-24 rounded bg-slate-100 dark:bg-neutral-800" /></div></td>
                             <td class="px-6 py-4"><div class="h-3.5 w-48 rounded bg-slate-100 dark:bg-neutral-800" /></td>
+                            <td class="px-6 py-4"><div class="h-5 w-20 rounded-full bg-slate-100 dark:bg-neutral-800" /></td>
                             <td class="px-6 py-4"><div class="ml-auto h-4 w-24 rounded bg-slate-100 dark:bg-neutral-800" /></td>
                             <td class="px-6 py-4"><div class="ml-auto h-7 w-16 rounded bg-slate-100 dark:bg-neutral-800" /></td>
                         </tr>
@@ -44,7 +46,7 @@
 
                     <!-- Empty -->
                     <tr v-else-if="!rows.length">
-                        <td colspan="5" class="px-6 py-20 text-center">
+                        <td colspan="6" class="px-6 py-20 text-center">
                             <div class="mx-auto flex max-w-xs flex-col items-center">
                                 <span class="mb-3 flex size-12 items-center justify-center rounded-full bg-slate-100 text-slate-400 dark:bg-neutral-800">
                                     <ArrowLeftRight :size="22" />
@@ -58,26 +60,17 @@
                     <!-- Rows -->
                     <tr v-else v-for="item in rows" :key="item.id ?? item.code"
                         class="group transition-colors hover:bg-[#052659]/2.5 dark:hover:bg-neutral-800/40">
-                        <!-- Transfer: code · date · status -->
+                        <!-- Transfer: code · date -->
                         <td class="px-6 py-4 align-top">
-                            <div class="flex items-center gap-1.5">
-                                <button type="button" @click="navigateToProfileFulldetailes(item)"
-                                    class="truncate font-mono text-[13px] font-bold text-[#052659] transition-colors hover:underline dark:text-white">
-                                    {{ item.code }}
-                                </button>
-                                <CopyData :show="item.code" />
-                            </div>
-                            <div class="mt-1.5 flex items-center gap-2">
-                                <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold capitalize leading-none ring-1 ring-inset"
-                                    :class="statusPill(item.status)">
-                                    <span class="size-1.5 rounded-full bg-current"></span>
-                                    {{ item.status }}
-                                </span>
-                                <span v-if="item.count > 1"
-                                    class="rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-500 dark:bg-neutral-800"
-                                    title="Contains more transactions">+{{ item.count - 1 }} more</span>
-                            </div>
-                            <div class="mt-1.5 text-[11px] font-medium text-slate-400">{{ fmtDate(item.created_at) }}</div>
+                            <CopyData :copy="item.code">
+                                <template #text>
+                                    <button type="button" @click="navigateToProfileFulldetailes(item)"
+                                        class="block max-w-48 truncate text-left font-mono text-[13px] font-bold text-[#052659] transition-colors hover:underline dark:text-white">
+                                        {{ item.code }}
+                                    </button>
+                                </template>
+                            </CopyData>
+                            <div class="mt-1 text-[11px] font-medium text-slate-400">{{ fmtDate(item.created_at) }}</div>
                         </td>
 
                         <!-- Member -->
@@ -104,6 +97,19 @@
                                     <div class="truncate font-mono text-[12px] font-bold text-emerald-800 dark:text-emerald-300">{{ item.transfer_to_account || '—' }}</div>
                                     <div class="truncate text-[10px] font-medium capitalize text-emerald-600/80">{{ item.transfer_to_product || 'account' }}</div>
                                 </div>
+                            </div>
+                        </td>
+
+                        <!-- Status -->
+                        <td class="px-6 py-4 align-top">
+                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold capitalize leading-none ring-1 ring-inset"
+                                :class="statusPill(item.status)">
+                                <span class="size-1.5 rounded-full bg-current"></span>
+                                {{ item.status }}
+                            </span>
+                            <div v-if="item.count > 1" class="mt-1.5">
+                                <span class="rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-500 dark:bg-neutral-800"
+                                    title="Contains more transactions">+{{ item.count - 1 }} more</span>
                             </div>
                         </td>
 
