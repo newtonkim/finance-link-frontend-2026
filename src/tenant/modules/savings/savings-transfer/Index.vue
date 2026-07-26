@@ -88,9 +88,9 @@
                         <!-- Flow: from → to -->
                         <td class="px-6 py-4 align-top">
                             <div class="flex items-center gap-2.5">
-                                <div class="min-w-0 rounded-lg bg-slate-50 px-2.5 py-1.5 ring-1 ring-slate-100 dark:bg-neutral-800/60 dark:ring-neutral-800">
-                                    <div class="truncate font-mono text-[12px] font-bold text-slate-700 dark:text-neutral-200">{{ item.transfer_from_account || '—' }}</div>
-                                    <div class="truncate text-[10px] font-medium capitalize text-slate-400">{{ item.transfer_from_product || 'account' }}</div>
+                                <div class="min-w-0 rounded-lg bg-rose-50/70 px-2.5 py-1.5 ring-1 ring-rose-100 dark:bg-rose-500/10 dark:ring-rose-500/20">
+                                    <div class="truncate font-mono text-[12px] font-bold text-rose-800 dark:text-rose-300">{{ item.transfer_from_account || '—' }}</div>
+                                    <div class="truncate text-[10px] font-medium capitalize text-rose-600/80">{{ item.transfer_from_product || 'account' }}</div>
                                 </div>
                                 <ArrowRight :size="15" class="shrink-0 text-slate-300" />
                                 <div class="min-w-0 rounded-lg bg-emerald-50/70 px-2.5 py-1.5 ring-1 ring-emerald-100 dark:bg-emerald-500/10 dark:ring-emerald-500/20">
