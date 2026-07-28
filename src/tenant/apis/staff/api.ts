@@ -5,9 +5,11 @@ export interface Staff {
   name: string
   email: string
   role: string
+  role_id?: number | null
   password?: string
   status: 'active' | 'inactive'
   is_tenant_admin?: boolean
+  is_loan_officer?: boolean
   branch_id?: number | null
   can_vote_on_loans?: boolean
   can_manage_branch?: boolean

@@ -1,4 +1,4 @@
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
 import { loanApplicationsApi } from '../../../apis/loans/loanApplicationsApi'
@@ -31,9 +31,11 @@ export function useLoanApplicationCreate() {
     fieldError,
   } = useLoanApplicationForm()
 
-  async function fetchStaff() {
+  async function fetchStaff(branchId?: number | null) {
     try {
-      const res = await tenantClient.post('/staff/users-drop-down', {})
+      const res = await tenantClient.post('/staff/users-drop-down', {
+        branch_id: branchId ?? undefined,
+      })
       staffOptions.value = res.data?.payload?.data ?? []
     } catch {
       // silently fail
@@ -104,8 +106,16 @@ export function useLoanApplicationCreate() {
     }
   }
 
+  watch(
+    () => form.value.branch_id,
+    (branchId, previousBranchId) => {
+      if (branchId !== previousBranchId) void fetchStaff(branchId)
+    },
+  )
+
   onMounted(async () => {
-    await Promise.all([fetchProducts(), fetchMembers(), fetchStaff(), fetchBranches()])
+    await Promise.all([fetchProducts(), fetchMembers(), fetchBranches()])
+    await fetchStaff(form.value.branch_id)
   })
 
   return {

@@ -50,10 +50,10 @@
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="mb-1 block text-xs font-medium text-neutral-700 dark:text-neutral-300">Role</label>
-                    <select v-model="form.role"
+                    <select v-model.number="form.role_id"
                         class="w-full rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-nfuko-primary focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-white">
-                        <option value="" disabled>— Select role —</option>
-                        <option v-for="r in roles" :key="r.id" :value="r.name">{{ r.name }}</option>
+                        <option :value="null" disabled>— Select role —</option>
+                        <option v-for="r in roles" :key="r.id" :value="r.id">{{ r.name }}</option>
                     </select>
                 </div>
                 <div>
@@ -75,6 +75,24 @@
                     <option v-for="b in branches" :key="b.id" :value="b.id">{{ b.name }}</option>
                 </select>
             </div>
+
+            <p class="px-1 text-xs font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+                Staff capabilities
+            </p>
+
+            <label
+                class="flex cursor-pointer items-start gap-3 rounded-xl border border-neutral-100 bg-neutral-50/50 p-4 dark:border-neutral-800 dark:bg-neutral-800/30">
+                <input type="checkbox" v-model="form.is_loan_officer"
+                    class="mt-0.5 h-4 w-4 rounded accent-nfuko-primary cursor-pointer" />
+                <div>
+                    <p class="text-sm font-semibold text-neutral-900 dark:text-white">
+                        Can be assigned as a loan officer
+                    </p>
+                    <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                        Makes this active staff member available in loan application officer selections.
+                    </p>
+                </div>
+            </label>
 
             <!-- System Admin toggle -->
             <label
@@ -133,11 +151,9 @@
                 </div>
 
                 <div>
-                    <!-- @click="handleSave" -->
                     <Button :disabled="saving" @click="save" type="submit"
                         class="flex-1 h-11  w-full font-bold bg-emerald-600 hover:bg-[#052659]/90 text-white shadow-sm transition-colors">
-                        Save
-
+                        {{ saving ? 'Saving…' : isEditing ? 'Save Changes' : 'Create Staff' }}
                     </Button>
                 </div>
             </div>
@@ -146,7 +162,7 @@
     </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { Check, Vote, GitBranch, CheckSquare, Eye, EyeOff } from 'lucide-vue-next'
 import { useStaffStore } from '@/stores/staffStore'
 import type { Staff } from '@/tenant/apis/staff/api'
@@ -158,7 +174,7 @@ import {
     SheetFooter,
 } from '@/Global';
 const staffStore = useStaffStore()
-const emits = defineEmits(['cancel'])
+const emits = defineEmits(['cancel', 'saved'])
 
 const handleCancel = () => emits('cancel')
 
@@ -172,7 +188,7 @@ const props = defineProps({
 })
 
 // ─── Drawer state ─────────────────────────────────────────────────────────────
-const isEditing = ref(false)
+const isEditing = computed(() => props.data?.action === 'edit')
 const saving = ref(false)
 const currentId = ref<number | null>(null)
 const showPassword = ref(false)
@@ -181,9 +197,11 @@ const defaultForm = () => ({
     name: '',
     email: '',
     role: 'Staff',
+    role_id: null as number | null,
     password: '',
     status: 'active' as 'active' | 'inactive',
     is_tenant_admin: false,
+    is_loan_officer: false,
     branch_id: null as number | null,
     can_vote_on_loans: false,
     can_manage_branch: false,
@@ -214,14 +232,17 @@ onMounted(async () => {
 watch(
     () => props.data,
     (staff) => {
-        if (staff) openEdit(staff as Staff)
+        if (staff?.action === 'edit') {
+            openEdit(staff as Staff)
+        } else {
+            openCreate()
+        }
     },
     { immediate: true }
 )
 
 function openEdit(staff: Staff) {
     if (!staff) return
-    isEditing.value = true
     const recordId = Number((staff as any).id ?? (staff as any).staff_id ?? 0)
     currentId.value = Number.isFinite(recordId) && recordId > 0 ? recordId : null
     showPassword.value = false
@@ -229,9 +250,11 @@ function openEdit(staff: Staff) {
         name: (staff as any).staff_fall_name ?? staff.name ?? '',
         email: (staff as any).staff_email ?? staff.email ?? '',
         role: (staff as any).system_role ?? staff.role ?? 'Staff',
+        role_id: Number((staff as any).system_role_id ?? staff.role_id ?? 0) || null,
         password: '',
         status: (staff as any).status ?? 'active',
         is_tenant_admin: normalizeBoolean((staff as any).is_tenant_admin),
+        is_loan_officer: normalizeBoolean((staff as any).is_loan_officer),
         branch_id: (staff as any).branch_id ?? null,
         can_vote_on_loans: normalizeBoolean((staff as any).can_vote_on_loans),
         can_manage_branch: normalizeBoolean((staff as any).can_manage_branch),
@@ -239,9 +262,15 @@ function openEdit(staff: Staff) {
     }
 }
 
+function openCreate() {
+    currentId.value = null
+    showPassword.value = false
+    form.value = defaultForm()
+}
+
 async function save() {
-    if (!form.value.name || !form.value.email) {
-        toast.error('Name and email are required.')
+    if (!form.value.name || !form.value.email || !form.value.role_id) {
+        toast.error('Name, email and role are required.')
         return
     }
     if (!isEditing.value && !form.value.password) {
@@ -250,25 +279,29 @@ async function save() {
     }
     saving.value = true
     try {
+        const selectedRole = roles.value.find((role) => role.id === Number(form.value.role_id))
+        const payload: Partial<Staff> = {
+            name: form.value.name,
+            email: form.value.email,
+            role: selectedRole?.name ?? form.value.role,
+            role_id: Number(form.value.role_id),
+            status: form.value.status,
+            is_tenant_admin: Boolean(form.value.is_tenant_admin),
+            is_loan_officer: Boolean(form.value.is_loan_officer),
+            branch_id: form.value.branch_id ?? null,
+            can_vote_on_loans: Boolean(form.value.can_vote_on_loans),
+            can_manage_branch: Boolean(form.value.can_manage_branch),
+            can_finalise_loan: Boolean(form.value.can_finalise_loan),
+            password: form.value.password,
+        }
+
         if (isEditing.value && currentId.value) {
-            const payload: Partial<Staff> = {
-                name: form.value.name,
-                email: form.value.email,
-                role: form.value.role,
-                status: form.value.status,
-                is_tenant_admin: Boolean(form.value.is_tenant_admin),
-                branch_id: form.value.branch_id ?? null,
-                can_vote_on_loans: Boolean(form.value.can_vote_on_loans),
-                can_manage_branch: Boolean(form.value.can_manage_branch),
-                can_finalise_loan: Boolean(form.value.can_finalise_loan),
-                password: form.value.password,
-            }
             if (!payload.password) delete payload.password
             await staffStore.updateStaff(currentId.value, payload)
         } else {
-            await staffStore.createStaff(form.value as Staff)
+            await staffStore.createStaff(payload as Staff)
         }
-        await staffStore.fetchStaffList()
+        emits('saved')
     } catch {
         // error shown by store
     } finally {

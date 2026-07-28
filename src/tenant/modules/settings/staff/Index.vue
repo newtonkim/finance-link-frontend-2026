@@ -1,13 +1,13 @@
 <template>
-    <TableDrawer :permissions="{
-        // create: 'staff-create',
+    <TableDrawer ref="staffTable" :permissions="{
+        create: 'staff-create',
         view: 'staff-details',
-        // edit: 'staff-update',
+        edit: 'staff-update',
         delete: 'staff-delete'
     }" drawerWidth=" w-2/4"
     :drawerShowFooter="false"
-    
-     :showAddButton="false" :url="tableUrl" state="staffList" :drawerTitle="drawerTitle"
+     :addButtonText="{ icon: UserPlus, text: 'Add Staff' }"
+     :showAddButton="true" :url="tableUrl" state="staffList" :drawerTitle="drawerTitle"
         :showTableAction="false" :columns="columns" @save="saveUser">
         <template #header-action>
             <PainPageHeader title="Staff list"
@@ -19,9 +19,12 @@
             <StatusButtonsHorizontal v-memo="[statusFilter]" :filters="filters" v-model="statusFilter" />
         </template>
         <template #drawer="{ action, data }">
-            <!-- --- -->
-            <Create v-if="['add'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
-            <Edit v-if="['edit'].includes(action)" :data="{ ...data, action }" v-model:form="formData" />
+            <Edit
+                v-if="['add', 'edit'].includes(action)"
+                :data="{ ...data, action }"
+                @cancel="closeDrawer"
+                @saved="handleSaved"
+            />
             <Details v-if="['view'].includes(action)" :data="data" />
         </template>
         <template #workflow_permissions="{ item }">
@@ -45,10 +48,12 @@
 </template>
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { Create, Details, Edit } from '.'
+import { UserPlus } from 'lucide-vue-next'
+import { Details, Edit } from '.'
 import { TableDrawer, StatusButtonsHorizontal, PainPageHeader } from '@/Global'
-const formData = ref<Record<string, any>>({}), statusFilter = ref('all'),
-    drawerTitle = ref('Create a sacco staff'), filters = ['active', 'pendding'],
+const staffTable = ref<any>(null)
+const statusFilter = ref('all'),
+    drawerTitle = ref('Add Staff'), filters = ['active', 'inactive'],
     tableUrl = computed(() => `/staff/list?status=${statusFilter.value}`),
     title: Record<string, string> = {
         "view": "View  Details",
@@ -59,9 +64,19 @@ function saveUser(type: string, data: any) {
     if (title?.[type]) drawerTitle.value = title?.[type]
 }
 
+function closeDrawer() {
+    if (staffTable.value?.drawerOpen) staffTable.value.toggleDrawer()
+}
+
+function handleSaved() {
+    closeDrawer()
+    staffTable.value?.refresh()
+}
+
 function permissionTags(item: any): string[] {
     const permissions: string[] = []
     const isEnabled = (value: unknown) => value === true || value === 1 || value === '1'
+    if (isEnabled(item?.is_loan_officer)) permissions.push('Loan Officer')
     if (isEnabled(item?.can_vote_on_loans)) permissions.push('Vote')
     if (isEnabled(item?.can_manage_branch)) permissions.push('Manage Branch')
     if (isEnabled(item?.can_finalise_loan)) permissions.push('Finalise Loan')
