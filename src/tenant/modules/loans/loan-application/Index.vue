@@ -271,9 +271,11 @@ function statusLabel(status?: string): string {
 }
 function statusPill(status?: string): string {
   const s = String(status ?? '').toLowerCase()
-  if (['approved', 'disbursed', 'active'].includes(s)) return 'bg-emerald-50 text-emerald-700 ring-emerald-600/20'
-  if (['rejected', 'declined', 'cancelled'].includes(s)) return 'bg-rose-50 text-rose-600 ring-rose-600/20'
-  if (['draft'].includes(s)) return 'bg-slate-100 text-slate-600 ring-slate-500/20'
+  // Once an application is disbursed the backend surfaces the live loan status
+  // (active, arrears, closed, completed, written_off) in place of "disbursed".
+  if (['approved', 'disbursed', 'active', 'completed'].includes(s)) return 'bg-emerald-50 text-emerald-700 ring-emerald-600/20'
+  if (['arrears', 'overdue', 'defaulted', 'written_off', 'written-off', 'rejected', 'declined', 'cancelled'].includes(s)) return 'bg-rose-50 text-rose-600 ring-rose-600/20'
+  if (['closed', 'draft'].includes(s)) return 'bg-slate-100 text-slate-600 ring-slate-500/20'
   return 'bg-amber-50 text-amber-700 ring-amber-600/20'
 }
 
