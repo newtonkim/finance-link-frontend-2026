@@ -20,6 +20,7 @@ export interface AuthUser {
   name: string
   email: string
   avatar?: string | null
+  avatar_url?: string | null
   [key: string]: unknown
 }
 

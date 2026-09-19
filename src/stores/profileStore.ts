@@ -32,7 +32,16 @@ export const useProfileStore = defineStore('profile', () => {
       name: details?.name || tenantUser?.name || authUser?.name || 'User',
       email: details?.email || tenantUser?.email || authUser?.email || '',
       role: details?.role || (authUser as any)?.role || 'Administrator',
-      avatar: details?.avatar || tenantUser?.avatar || authUser?.avatar || null,
+      // Prefer avatar_url: `avatar` is a bare storage path, which the browser
+      // would resolve against the current page and fail to load.
+      avatar:
+        (details as any)?.avatar_url ||
+        details?.avatar ||
+        (tenantUser as any)?.avatar_url ||
+        tenantUser?.avatar ||
+        (authUser as any)?.avatar_url ||
+        authUser?.avatar ||
+        null,
       status: details?.status || 'active',
       is_tenant_admin: details?.is_tenant_admin || false,
       branch_id: details?.branch_id || null,
