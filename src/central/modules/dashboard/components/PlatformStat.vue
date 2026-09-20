@@ -2,48 +2,49 @@
 import type { Component } from 'vue'
 
 /**
- * One headline figure. Deliberately not a card: the dashboard already nests enough
- * containers, and a rule between figures reads as a set without boxing each one.
+ * Headline figure, built to the same spec as the stat cards on Tenants, Licenses
+ * and Platform Users: accent rail, tinted icon tile, uppercase label, heavy value.
  */
 defineProps<{
   label: string
   value: string
-  /** Secondary line. Kept factual — a count or a state, not a fabricated trend. */
-  note?: string
-  /** Draws the note in the warning tone. Paired with text, never colour alone. */
+  /** Secondary line. Factual — a count or a state, never a fabricated trend. */
+  sub?: string
+  /** Renders the sub line in the danger tone. Always paired with wording. */
   alert?: boolean
   icon?: Component
+  /** Accent rail colour, e.g. 'bg-green-500'. */
+  accent?: string
+  iconBg?: string
+  iconColor?: string
   loading?: boolean
 }>()
 </script>
 
 <template>
-  <div class="flex flex-col gap-2 px-5 py-5 sm:px-6">
-    <div class="flex items-center gap-2">
-      <component
-        :is="icon"
-        v-if="icon"
-        class="size-4 text-neutral-400 dark:text-neutral-500"
-        aria-hidden="true"
-      />
-      <span class="text-[13px] font-medium text-neutral-500 dark:text-neutral-400">{{ label }}</span>
+  <div
+    class="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-5 shadow-sm"
+  >
+    <div :class="['absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl', accent ?? 'bg-neutral-300']" />
+
+    <div class="pl-1">
+      <div :class="['flex size-9 items-center justify-center rounded-xl mb-3', iconBg ?? 'bg-neutral-100']">
+        <component :is="icon" v-if="icon" :class="['size-4', iconColor ?? 'text-neutral-500']" aria-hidden="true" />
+      </div>
+
+      <p class="text-xs font-semibold uppercase tracking-wide text-neutral-400 mb-1">{{ label }}</p>
+
+      <div v-if="loading" class="h-8 w-24 animate-pulse rounded-md bg-neutral-100 dark:bg-neutral-800"></div>
+      <p v-else class="text-2xl font-black tabular-nums">{{ value }}</p>
+
+      <div v-if="loading" class="mt-1 h-3 w-16 animate-pulse rounded bg-neutral-100 dark:bg-neutral-800"></div>
+      <p
+        v-else-if="sub"
+        class="text-xs mt-1"
+        :class="alert ? 'font-semibold text-red-600 dark:text-red-400' : 'text-neutral-400'"
+      >
+        {{ sub }}
+      </p>
     </div>
-
-    <div v-if="loading" class="h-8 w-24 animate-pulse rounded-md bg-neutral-200/70 dark:bg-white/10"></div>
-    <p
-      v-else
-      class="text-[28px] font-semibold leading-none tracking-tight text-neutral-900 tabular-nums dark:text-white"
-    >
-      {{ value }}
-    </p>
-
-    <div v-if="loading" class="h-3 w-16 animate-pulse rounded bg-neutral-100 dark:bg-white/5"></div>
-    <p
-      v-else-if="note"
-      class="text-[12px] font-medium"
-      :class="alert ? 'text-nfuko-danger' : 'text-neutral-500 dark:text-neutral-400'"
-    >
-      {{ note }}
-    </p>
   </div>
 </template>
