@@ -2,6 +2,7 @@ import { getSubdomainName } from '@/Global'
 import axios from 'axios'
 import { getBearerToken } from 'septor-store';
 import { handleLicenseError } from './licenseState'
+import { endTenantSession } from './tenantSession'
 // import { getBearerToken } from 'septor-store';
 
 
@@ -64,6 +65,15 @@ tenantClient.interceptors.response.use(
   (response) => response,
   (error) => {
     handleLicenseError(error)
+
+    // A rejected token means the session is over — the token was revoked, it
+    // expired, or the tenant database it belonged to no longer exists. Without
+    // this the app kept rendering the lists it had already cached, so a dead
+    // session still showed the previous sacco's members and branding.
+    if (error?.response?.status === 401) {
+      endTenantSession()
+    }
+
     return Promise.reject(error)
   },
 )
