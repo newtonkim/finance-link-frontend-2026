@@ -1,371 +1,351 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue'
 import {
-    Users,
-    DollarSign,
-    TrendingUp,
-    AlertTriangle,
-    ShieldAlert,
-    CreditCard,
-    ChevronDown,
-} from 'lucide-vue-next';
-import { Card, CardContent } from '@/Global/ui/card';
-import { Button } from '@/Global/ui/button';
-import { pomPinia } from 'septor-store';
-import { fetchTableData } from '@/Global';
-import AnalysisTiles from './componets/analysisTiles.vue';
-const Store = pomPinia() as any;
-const dataCollection = ref(Store?.dashboardAnalytics?.payload??{});
+  Building2,
+  CircleAlert,
+  Coins,
+  HandCoins,
+  PiggyBank,
+  RefreshCw,
+  ShieldCheck,
+  Users,
+} from 'lucide-vue-next'
+import {
+  centralDashboardApi,
+  emptyAnalytics,
+  type DashboardAnalytics,
+} from '@/central/modules/apis/dashboard/dashboardApi'
+import AttentionFeed from './components/AttentionFeed.vue'
+import GrowthChart from './components/GrowthChart.vue'
+import PlatformStat from './components/PlatformStat.vue'
 
-async function intialize() {
-    await fetchTableData({
-         data: {}, props: {
-             url: '/central/dashboard/analytics',
-             state: 'dashboardAnalytics'
-         }, Store
-     });
+const api = centralDashboardApi()
+
+const data = ref<DashboardAnalytics>(emptyAnalytics())
+const loading = ref(true)
+const error = ref<string | null>(null)
+
+async function load() {
+  loading.value = true
+  error.value = null
+  try {
+    data.value = await api.getAnalytics()
+  } catch (e: any) {
+    error.value = e?.response?.data?.message ?? 'Could not load platform metrics.'
+  } finally {
+    loading.value = false
+  }
 }
-onMounted(() => {
-intialize()
-});
- 
-const salesData = [
-    { month: 'Jan', value: 45 },
-    { month: 'Feb', value: 52 },
-    { month: 'Mar', value: 48 },
-    { month: 'Apr', value: 61 },
-    { month: 'May', value: 55 },
-    { month: 'Jun', value: 67 },
-    { month: 'Jul', value: 80 },
-    { month: 'Aug', value: 75 },
-    { month: 'Sep', value: 90 },
-    { month: 'Oct', value: 85 },
-    { month: 'Nov', value: 100 },
-    { month: 'Dec', value: 110 },
-];
 
-const categoryData = [
-    { name: 'Electronics', color: ' bg-nfuko-primary', value: 68, amount: '$85,000' },
-    { name: 'Fashion', color: '#2d9d78', value: 20, amount: '$25,000' },
-    { name: 'Health & Wellness', color: '#9bb5a5', value: 8, amount: '$10,000' },
-    { name: 'Home & Living', color: '#d1dfdb', value: 4, amount: '$5,000' },
-];
+onMounted(load)
 
-const recentActivity = [
-    {
-        id: 1,
-        title: 'Order #2048',
-        subtitle: 'John Doe • 12 Jan 25',
-        type: 'New Order',
-        typeColor: 'bg-neutral-100 text-neutral-600',
-        icon: CreditCard,
-        iconBg: 'bg-emerald-50 text-emerald-600'
-    },
-    {
-        id: 2,
-        title: 'Low Stock Alert',
-        subtitle: 'MacBook Air M2 • 10 Jan 25',
-        type: 'Low Stock',
-        typeColor: 'bg-rose-50 text-rose-600',
-        icon: AlertTriangle,
-        iconBg: 'bg-rose-50 text-rose-600'
-    },
-    {
-        id: 3,
-        title: 'Promo code "SUMMER20"',
-        subtitle: 'Applied 52 times • 8 Jan 25',
-        type: 'Campaign',
-        typeColor: 'bg-emerald-50 text-emerald-600',
-        icon: TrendingUp,
-        iconBg: 'bg-blue-50 text-blue-600'
-    }
-];
+const currency = computed(() => data.value.currency)
 
-const topProducts = [
-    {
-        name: 'iPhone 15 Pro',
-        stocks: '6,200',
-        price: '$999.00',
-        sales: '4,800',
-        earnings: '$4,795,200',
-        icon: '📱'
-    },
-    {
-        name: 'MacBook Air M2',
-        stocks: '1,020',
-        price: '$1,299',
-        sales: '3,200',
-        earnings: '$4,156,800',
-        icon: '💻'
-    },
-    {
-        name: 'Google Pixel 8',
-        stocks: '1,500',
-        price: '$699.00',
-        sales: '800',
-        earnings: '$559,200',
-        icon: '📱'
-    },
-    {
-        name: 'Nike Air Max 90',
-        stocks: '2,400',
-        price: '$130.00',
-        sales: '1,800',
-        earnings: '$234,000',
-        icon: '👟'
-    }
-];
+/** Full precision with separators — the reach figures are the ones people quote. */
+function money(value: number): string {
+  return new Intl.NumberFormat('en-UG', { maximumFractionDigits: 0 }).format(Number(value || 0))
+}
+
+/** Compact form for the headline row, where the magnitude matters more than the digits. */
+function moneyCompact(value: number): string {
+  const n = Number(value || 0)
+  if (Math.abs(n) >= 1_000_000) return `${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}M`
+  if (Math.abs(n) >= 1_000) return `${(n / 1_000).toFixed(n % 1_000 === 0 ? 0 : 1)}K`
+  return money(n)
+}
+
+function count(value: number): string {
+  return new Intl.NumberFormat('en-UG').format(Number(value || 0))
+}
+
+const updatedAt = computed(() => {
+  if (!data.value.generated_at) return ''
+  return new Date(data.value.generated_at).toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+})
+
+const tenantNote = computed(() => {
+  const { total, active, suspended } = data.value.tenants
+  if (!total) return 'None provisioned yet'
+  if (suspended) return `${active} active · ${suspended} suspended`
+  return `${active} active`
+})
+
+const licenceNote = computed(() => {
+  const { expired, expiring_30_days: soon } = data.value.licenses
+  if (expired) return `${expired} expired`
+  if (soon) return `${soon} expiring within 30 days`
+  return 'All current'
+})
+
+const licenceAlert = computed(() => data.value.licenses.expired > 0)
+
+const reachNote = computed(() => {
+  const { tenants_counted: counted, tenants_unreachable: unreachable } = data.value.reach
+  const base = `Across ${counted} ${counted === 1 ? 'sacco' : 'saccos'}`
+  return unreachable ? `${base} · ${unreachable} unavailable` : base
+})
+
+const planRows = computed(() => data.value.plans)
+const hasPlansInUse = computed(() => planRows.value.some((p) => p.active_licences > 0))
 </script>
 
 <template>
-    <div class="p-6 space-y-8">
-        <!-- Platform Overview Heading -->
-        <div class="flex items-center justify-between">
-            <h2 class="text-lg font-bold text-neutral-800 dark:text-white tracking-tight">Platform Overview</h2>
-        </div>
-       <AnalysisTiles :data="Store?.dashboardAnalytics?.payload"/>
+  <div class="mx-auto w-full max-w-[1400px] space-y-6 p-4 sm:p-6">
+    <!-- Header -->
+    <header class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h1 class="text-[22px] font-semibold tracking-tight text-neutral-900 dark:text-white">Platform</h1>
+        <p class="mt-1 text-[13px] text-neutral-500 dark:text-neutral-400">
+          <span v-if="updatedAt">Updated {{ updatedAt }}</span>
+          <span v-else>Loading platform metrics…</span>
+        </p>
+      </div>
 
-       
-        <!-- Charts Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Sales Revenue Chart -->
-            <Card
-                class="lg:col-span-2 border-neutral-100 dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-3xl p-6">
-                <div class="flex items-center justify-between mb-8">
-                    <div class="flex items-center gap-2">
-                        <svg class="size-5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2.5">
-                            <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
-                            <path d="M22 12A10 10 0 0 0 12 2v10z" />
-                        </svg>
-                        <h3 class="font-bold text-neutral-900 dark:text-white text-lg">Sales Revenue</h3>
-                    </div>
-                    <div class="flex items-center gap-6">
-                        <div class="flex bg-neutral-100/80 dark:bg-white/10 p-1 rounded-xl gap-1">
-                            <Button variant="ghost" size="sm"
-                                class="h-8 rounded-lg text-[11px] font-bold bg-white dark:bg-white/15 dark:text-white shadow-sm px-4">Monthly</Button>
-                            <Button variant="ghost" size="sm"
-                                class="h-8 rounded-lg text-[11px] font-bold text-neutral-400 dark:text-neutral-500 px-4">Quarterly</Button>
-                            <Button variant="ghost" size="sm"
-                                class="h-8 rounded-lg text-[11px] font-bold text-neutral-400 dark:text-neutral-500 px-4">Yearly</Button>
-                        </div>
-                    </div>
-                </div>
+      <button
+        type="button"
+        class="inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-[13px] font-semibold text-neutral-700 transition-colors duration-150 hover:bg-neutral-50 disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-nfuko-primary dark:border-white/10 dark:bg-white/5 dark:text-neutral-200 dark:hover:bg-white/10"
+        :disabled="loading"
+        @click="load"
+      >
+        <RefreshCw class="size-4" :class="loading && 'animate-spin'" aria-hidden="true" />
+        Refresh
+      </button>
+    </header>
 
-                <div class="flex items-center gap-4 mb-10 text-[10px] font-bold uppercase tracking-widest">
-                    <div class="flex items-center gap-2">
-                        <div class="size-2 rounded-full  bg-nfuko-primary dark:bg-white"></div>
-                        <span class="text-neutral-400 dark:text-neutral-500">One-Time Revenue</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <div class="size-2 rounded-full bg-nfuko-nav-text"></div>
-                        <span class="text-neutral-400 dark:text-neutral-500">Recurring Revenue</span>
-                    </div>
-                </div>
-
-                <!-- Mock Bar Chart -->
-                <div
-                    class="h-64 flex items-end justify-between gap-1 w-full pt-4 border-l border-b border-neutral-100 dark:border-white/10 relative">
-                    <!-- Grid Lines -->
-                    <div class="absolute inset-x-0 top-0 border-t border-neutral-50 dark:border-white/5 h-px"></div>
-                    <div class="absolute inset-x-0 top-1/4 border-t border-neutral-50 dark:border-white/5 h-px"></div>
-                    <div class="absolute inset-x-0 top-2/4 border-t border-neutral-50 dark:border-white/5 h-px"></div>
-                    <div class="absolute inset-x-0 top-3/4 border-t border-neutral-50 dark:border-white/5 h-px"></div>
-
-                    <!-- Y-Axis Mock -->
-                    <div
-                        class="absolute -left-10 inset-y-0 flex flex-col justify-between text-[10px] font-bold text-neutral-300 dark:text-neutral-600 py-2">
-                        <span>150K</span>
-                        <span>100K</span>
-                        <span>50K</span>
-                        <span>0</span>
-                    </div>
-
-                    <div v-for="bar in salesData" :key="bar.month"
-                        class="group relative flex-1 flex flex-col items-center gap-2">
-                        <div class="w-full flex flex-col items-center gap-1">
-                            <div class="w-2 md:w-5  bg-nfuko-primary dark:bg-white/80 rounded-t-[2px] transition-all duration-500 group-hover:bg-neutral-900 dark:group-hover:bg-white"
-                                :style="{ height: `${bar.value * 1.2}px` }"></div>
-                            <div class="w-2 md:w-5 bg-nfuko-nav-text rounded-t-[2px] transition-all duration-500 group-hover:bg-[#8aa394]"
-                                :style="{ height: `${bar.value * 0.7}px` }"></div>
-                        </div>
-                        <span
-                            class="text-[10px] font-bold text-neutral-400 dark:text-neutral-600 uppercase tracking-tighter">{{
-                                bar.month
-                            }}</span>
-                    </div>
-                </div>
-            </Card>
-
-            <!-- Top Categories Chart -->
-            <Card class="border-neutral-100 dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-3xl p-6">
-                <div class="flex items-center justify-between mb-8">
-                    <h3 class="font-bold text-neutral-900 dark:text-white">Top Categories</h3>
-                    <Button variant="ghost" size="sm"
-                        class="text-[11px] font-bold text-neutral-400 hover:text-neutral-900 dark:hover:text-white">See
-                        All</Button>
-                </div>
-
-                <!-- Mock Donut Chart -->
-                <div class="flex flex-col items-center gap-10 py-4">
-                    <div class="relative size-48">
-                        <svg viewBox="0 0 100 100" class="rotate-[-90deg]">
-                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#d1dfdb" stroke-width="12"
-                                class="dark:opacity-30" />
-                            <circle cx="50" cy="50" r="40" fill="transparent" stroke=" bg-nfuko-primary" stroke-width="12"
-                                stroke-dasharray="251.2" stroke-dashoffset="80" class="dark:stroke-white/80" />
-                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#2d9d78" stroke-width="12"
-                                stroke-dasharray="251.2" stroke-dashoffset="185" />
-                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#9bb5a5" stroke-width="12"
-                                stroke-dasharray="251.2" stroke-dashoffset="235" />
-                        </svg>
-                        <div class="absolute inset-0 flex flex-col items-center justify-center">
-                            <span
-                                class="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest mb-1">Total
-                                Sales</span>
-                            <span
-                                class="text-2xl font-bold text-neutral-900 dark:text-white tracking-tight">$125,000</span>
-                        </div>
-                    </div>
-
-                    <div class="w-full space-y-5 px-2">
-                        <div v-for="cat in categoryData" :key="cat.name"
-                            class="flex items-center justify-between group cursor-pointer">
-                            <div class="flex items-center gap-3">
-                                <div class="size-2 rounded-full" :style="{ backgroundColor: cat.color }"></div>
-                                <span
-                                    class="text-[13px] font-bold text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors">{{
-                                        cat.name }}</span>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <span class="text-[13px] font-bold text-neutral-900 dark:text-white">{{ cat.amount
-                                    }}</span>
-                                <span
-                                    class="text-[13px] font-bold text-neutral-400 dark:text-neutral-500 w-8 text-right">{{
-                                        cat.value
-                                    }}%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </Card>
-        </div>
-
-        <!-- Bottom Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Recent Activity -->
-            <Card class="border-neutral-100 dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-3xl p-6">
-                <div class="flex items-center justify-between mb-8">
-                    <div class="flex items-center gap-2">
-                        <svg class="size-5 text-neutral-400 dark:text-neutral-500" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2.5">
-                            <circle cx="12" cy="12" r="10" />
-                            <polyline points="12 6 12 12 16 14" />
-                        </svg>
-                        <h3 class="font-bold text-neutral-900 dark:text-white text-lg">Recent Activity</h3>
-                    </div>
-                    <Button variant="ghost" size="sm"
-                        class="text-[11px] font-bold text-neutral-400 hover:text-neutral-900 dark:hover:text-white px-0">See
-                        All</Button>
-                </div>
-
-                <div class="space-y-6">
-                    <div v-for="activity in recentActivity" :key="activity.id"
-                        class="flex items-center gap-4 group cursor-pointer">
-                        <div
-                            :class="['size-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-105', activity.iconBg]">
-                            <component :is="activity.icon" class="size-5" />
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center justify-between mb-1">
-                                <h4 class="text-[13px] font-bold text-neutral-900 dark:text-white truncate">{{
-                                    activity.title }}</h4>
-                                <span
-                                    :class="['text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tight', activity.typeColor]">
-                                    {{ activity.type }}
-                                </span>
-                            </div>
-                            <p class="text-[11px] font-medium text-neutral-400 dark:text-neutral-500 truncate">{{
-                                activity.subtitle }}</p>
-                        </div>
-                    </div>
-                </div>
-            </Card>
-
-            <!-- Top Products -->
-            <Card
-                class="lg:col-span-2 border-neutral-100 dark:border-white/10 dark:bg-[#151515] shadow-sm rounded-3xl p-6">
-                <div class="flex items-center justify-between mb-8">
-                    <h3 class="font-bold text-neutral-900 dark:text-white text-lg">Top Products</h3>
-                    <div class="flex items-center gap-4">
-                        <Button variant="ghost" size="sm"
-                            class="text-[11px] font-bold text-neutral-400 hover:text-neutral-900 dark:hover:text-white">
-                            <svg class="size-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2.5">
-                                <path d="M3 6h18M6 12h12M10 18h4" />
-                            </svg>
-                            Sort
-                        </Button>
-                        <Button variant="ghost" size="sm"
-                            class="text-[11px] font-bold text-neutral-400 hover:text-neutral-900 dark:hover:text-white">
-                            <svg class="size-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2.5">
-                                <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" />
-                            </svg>
-                            Filter
-                        </Button>
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead>
-                            <tr
-                                class="text-left text-[11px] font-bold text-neutral-300 dark:text-neutral-600 uppercase tracking-widest border-b border-neutral-50 dark:border-white/10">
-                                <th class="pb-4 font-bold">Product</th>
-                                <th class="pb-4 font-bold text-right">Stocks</th>
-                                <th class="pb-4 font-bold text-right">Price</th>
-                                <th class="pb-4 font-bold text-right">Sales</th>
-                                <th class="pb-4 font-bold text-right">Earnings</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-neutral-50/50 dark:divide-white/5">
-                            <tr v-for="product in topProducts" :key="product.name"
-                                class="group hover:bg-neutral-50/50 dark:hover:bg-white/5 transition-colors">
-                                <td class="py-4">
-                                    <div class="flex items-center gap-3">
-                                        <div
-                                            class="size-9 rounded-lg bg-neutral-100 dark:bg-white/10 flex items-center justify-center text-lg">
-                                            {{ product.icon }}
-                                        </div>
-                                        <span class="text-[13px] font-bold text-neutral-900 dark:text-white">{{
-                                            product.name }}</span>
-                                    </div>
-                                </td>
-                                <td
-                                    class="py-4 text-right text-[13px] font-medium text-neutral-500 dark:text-neutral-400">
-                                    {{ product.stocks
-                                    }}</td>
-                                <td
-                                    class="py-4 text-right text-[13px] font-medium text-neutral-500 dark:text-neutral-400">
-                                    {{ product.price }}
-                                </td>
-                                <td
-                                    class="py-4 text-right text-[13px] font-medium text-neutral-500 dark:text-neutral-400">
-                                    {{ product.sales }}
-                                </td>
-                                <td class="py-4 text-right text-[13px] font-bold text-neutral-900 dark:text-white">{{
-                                    product.earnings
-                                    }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </Card>
-        </div>
+    <!-- Load failure -->
+    <div
+      v-if="error"
+      class="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 dark:border-red-500/20 dark:bg-red-500/10"
+      role="alert"
+    >
+      <CircleAlert class="mt-0.5 size-5 shrink-0 text-nfuko-danger" aria-hidden="true" />
+      <div class="flex-1">
+        <p class="text-[14px] font-semibold text-red-900 dark:text-red-200">{{ error }}</p>
+        <button
+          type="button"
+          class="mt-2 text-[13px] font-semibold text-red-800 underline underline-offset-2 dark:text-red-300"
+          @click="load"
+        >
+          Try again
+        </button>
+      </div>
     </div>
-</template>
 
-<style scoped>
-/* Custom animations or refinements */
-</style>
+    <!-- What needs doing, before what looks good -->
+    <AttentionFeed :items="data.attention" :loading="loading" />
+
+    <!-- Headline figures -->
+    <section
+      class="grid grid-cols-1 overflow-hidden rounded-2xl border border-neutral-200 bg-white divide-y divide-neutral-100 sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4 dark:divide-white/5 dark:border-white/10 dark:bg-[#151515]"
+      aria-label="Platform headline figures"
+    >
+      <PlatformStat
+        label="Tenants"
+        :value="count(data.tenants.total)"
+        :note="tenantNote"
+        :icon="Building2"
+        :loading="loading"
+        class="sm:border-r sm:border-neutral-100 dark:sm:border-white/5"
+      />
+      <PlatformStat
+        label="Active licences"
+        :value="count(data.licenses.active)"
+        :note="licenceNote"
+        :alert="licenceAlert"
+        :icon="ShieldCheck"
+        :loading="loading"
+        class="lg:border-r lg:border-neutral-100 dark:lg:border-white/5"
+      />
+      <PlatformStat
+        :label="`Recurring revenue (${currency})`"
+        :value="moneyCompact(data.revenue.mrr)"
+        :note="`${money(data.revenue.arr)} ${currency} annualised`"
+        :icon="Coins"
+        :loading="loading"
+        class="sm:border-r sm:border-neutral-100 dark:sm:border-white/5"
+      />
+      <PlatformStat
+        label="Members reached"
+        :value="count(data.reach.members)"
+        :note="reachNote"
+        :icon="Users"
+        :loading="loading"
+      />
+    </section>
+
+    <!-- Growth + money under management -->
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div class="lg:col-span-2">
+        <GrowthChart :points="data.growth" :loading="loading" />
+      </div>
+
+      <section
+        class="flex flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white dark:border-white/10 dark:bg-[#151515]"
+        aria-labelledby="managed-heading"
+      >
+        <header class="px-5 py-4">
+          <h2 id="managed-heading" class="text-base font-semibold text-neutral-900 dark:text-white">
+            Under management
+          </h2>
+          <p class="mt-1 text-[12px] text-neutral-500 dark:text-neutral-400">{{ reachNote }}</p>
+        </header>
+
+        <div class="flex flex-1 flex-col justify-center gap-6 px-5 pb-6">
+          <div>
+            <div class="flex items-center gap-2">
+              <PiggyBank class="size-4 text-neutral-400 dark:text-neutral-500" aria-hidden="true" />
+              <span class="text-[13px] font-medium text-neutral-500 dark:text-neutral-400">Member savings</span>
+            </div>
+            <div v-if="loading" class="mt-2 h-7 w-32 animate-pulse rounded bg-neutral-100 dark:bg-white/10"></div>
+            <p v-else class="mt-2 text-[24px] font-semibold tracking-tight text-neutral-900 tabular-nums dark:text-white">
+              {{ money(data.reach.savings_balance) }}
+              <span class="text-[13px] font-medium text-neutral-500 dark:text-neutral-400">{{ currency }}</span>
+            </p>
+          </div>
+
+          <div>
+            <div class="flex items-center gap-2">
+              <HandCoins class="size-4 text-neutral-400 dark:text-neutral-500" aria-hidden="true" />
+              <span class="text-[13px] font-medium text-neutral-500 dark:text-neutral-400">Loans outstanding</span>
+            </div>
+            <div v-if="loading" class="mt-2 h-7 w-32 animate-pulse rounded bg-neutral-100 dark:bg-white/10"></div>
+            <p v-else class="mt-2 text-[24px] font-semibold tracking-tight text-neutral-900 tabular-nums dark:text-white">
+              {{ money(data.reach.loans_outstanding) }}
+              <span class="text-[13px] font-medium text-neutral-500 dark:text-neutral-400">{{ currency }}</span>
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Plans + recent tenants -->
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <!-- A handful of plans is a table, not a donut -->
+      <section
+        class="overflow-hidden rounded-2xl border border-neutral-200 bg-white dark:border-white/10 dark:bg-[#151515]"
+        aria-labelledby="plans-heading"
+      >
+        <header class="border-b border-neutral-100 px-5 py-4 dark:border-white/10">
+          <h2 id="plans-heading" class="text-base font-semibold text-neutral-900 dark:text-white">Plans</h2>
+        </header>
+
+        <div v-if="loading" class="space-y-3 p-5">
+          <div v-for="n in 3" :key="n" class="h-9 animate-pulse rounded bg-neutral-100 dark:bg-white/5"></div>
+        </div>
+
+        <p v-else-if="!planRows.length" class="px-5 py-6 text-[13px] text-neutral-500 dark:text-neutral-400">
+          No plans configured yet.
+        </p>
+
+        <div v-else class="overflow-x-auto">
+          <table class="w-full text-left">
+            <thead>
+              <tr class="border-b border-neutral-100 dark:border-white/10">
+                <th class="px-5 py-2.5 text-[12px] font-semibold text-neutral-500 dark:text-neutral-400">Plan</th>
+                <th class="px-5 py-2.5 text-right text-[12px] font-semibold text-neutral-500 dark:text-neutral-400">
+                  Price
+                </th>
+                <th class="px-5 py-2.5 text-right text-[12px] font-semibold text-neutral-500 dark:text-neutral-400">
+                  Live
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-neutral-100 dark:divide-white/5">
+              <tr
+                v-for="plan in planRows"
+                :key="plan.id"
+                class="transition-colors duration-150 hover:bg-neutral-50 dark:hover:bg-white/5"
+              >
+                <td class="px-5 py-3">
+                  <p class="truncate text-[14px] font-medium text-neutral-900 dark:text-white">{{ plan.name }}</p>
+                  <p class="text-[12px] text-neutral-500 capitalize dark:text-neutral-400">{{ plan.billing_cycle }}</p>
+                </td>
+                <td class="px-5 py-3 text-right text-[14px] tabular-nums text-neutral-700 dark:text-neutral-300">
+                  {{ money(plan.price) }}
+                </td>
+                <td class="px-5 py-3 text-right">
+                  <span
+                    class="inline-flex min-w-7 justify-center rounded-full px-2 py-0.5 text-[12px] font-semibold tabular-nums"
+                    :class="
+                      plan.active_licences
+                        ? 'bg-nfuko-primary/10 text-nfuko-primary dark:bg-white/10 dark:text-nfuko-accent'
+                        : 'bg-neutral-100 text-neutral-600 dark:bg-white/5 dark:text-neutral-400'
+                    "
+                  >
+                    {{ plan.active_licences }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p
+            v-if="!hasPlansInUse"
+            class="border-t border-neutral-100 px-5 py-3 text-[12px] text-neutral-500 dark:border-white/10 dark:text-neutral-400"
+          >
+            No plan currently has a live licence, so recurring revenue reads zero.
+          </p>
+        </div>
+      </section>
+
+      <!-- Recent tenants -->
+      <section
+        class="overflow-hidden rounded-2xl border border-neutral-200 bg-white dark:border-white/10 dark:bg-[#151515]"
+        aria-labelledby="recent-heading"
+      >
+        <header class="border-b border-neutral-100 px-5 py-4 dark:border-white/10">
+          <h2 id="recent-heading" class="text-base font-semibold text-neutral-900 dark:text-white">
+            Recent tenants
+          </h2>
+        </header>
+
+        <div v-if="loading" class="space-y-3 p-5">
+          <div v-for="n in 3" :key="n" class="h-9 animate-pulse rounded bg-neutral-100 dark:bg-white/5"></div>
+        </div>
+
+        <div v-else-if="!data.recent_tenants.length" class="px-5 py-6">
+          <p class="text-[14px] font-medium text-neutral-900 dark:text-white">No saccos yet</p>
+          <p class="mt-1 text-[13px] text-neutral-500 dark:text-neutral-400">
+            Provisioned saccos appear here as they are onboarded.
+          </p>
+        </div>
+
+        <ul v-else class="divide-y divide-neutral-100 dark:divide-white/5">
+          <li
+            v-for="tenant in data.recent_tenants"
+            :key="tenant.subdomain"
+            class="flex items-center gap-4 px-5 py-3 transition-colors duration-150 hover:bg-neutral-50 dark:hover:bg-white/5"
+          >
+            <div
+              class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-nfuko-primary/10 text-[13px] font-semibold text-nfuko-primary dark:bg-white/10 dark:text-nfuko-accent"
+              aria-hidden="true"
+            >
+              {{ tenant.name.charAt(0).toUpperCase() }}
+            </div>
+
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-[14px] font-medium text-neutral-900 dark:text-white">{{ tenant.name }}</p>
+              <p class="truncate text-[12px] text-neutral-500 dark:text-neutral-400">
+                {{ tenant.subdomain }} · joined {{ tenant.created_at }}
+              </p>
+            </div>
+
+            <span
+              class="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold"
+              :class="
+                tenant.licence_active
+                  ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300'
+                  : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-300'
+              "
+            >
+              {{ tenant.licence_active ? 'Licensed' : 'Unlicensed' }}
+            </span>
+          </li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</template>
