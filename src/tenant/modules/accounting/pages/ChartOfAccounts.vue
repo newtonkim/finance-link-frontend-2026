@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, computed } from 'vue'
+import { isAxiosError } from 'axios'
 import { Search, Plus, ChevronRight, ChevronDown } from 'lucide-vue-next'
 import { Spinner } from '@/Global'
 import { chartOfAccountsApi } from '@/tenant/apis/chartOfAccounts/chartOfAccountsApi'
@@ -27,6 +28,7 @@ type AccountTypeFilter = 'ALL' | AccountType
 // ─── State ────────────────────────────────────────────────────────────────────
 const accounts  = ref<Account[]>([])
 const loading   = ref(false)
+const loadError = ref('')
 const search    = ref('')
 const typeFilter = ref<AccountTypeFilter>('ALL')
 const showForm  = ref(false)
@@ -41,6 +43,7 @@ function openCreateForm() {
 // half (e.g. Non-Current Assets landing on page 2), so fetch it whole.
 async function fetchAccounts() {
   loading.value = true
+  loadError.value = ''
   try {
     const res = await chartOfAccountsApi.list({
       list: 1,
@@ -48,6 +51,10 @@ async function fetchAccounts() {
       account_type: typeFilter.value === 'ALL' ? undefined : typeFilter.value
     })
     accounts.value = res.data?.data ?? []
+  } catch (error) {
+    loadError.value = isAxiosError(error)
+      ? error.response?.data?.message || 'Unable to load chart of accounts. Please try again.'
+      : 'Unable to load chart of accounts. Please try again.'
   } finally {
     loading.value = false
   }
@@ -158,6 +165,11 @@ const typeFilters: Array<{ value: AccountTypeFilter; label: string }> = [
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center py-16">
       <Spinner class="h-6 w-6  text-nfuko-primary" />
+    </div>
+
+    <div v-else-if="loadError" role="alert" class="rounded-2xl border border-red-200 bg-red-50 p-6 text-red-700">
+      <p>{{ loadError }}</p>
+      <button type="button" class="mt-3 underline" @click="fetchAccounts">Try again</button>
     </div>
 
     <!-- Empty -->
