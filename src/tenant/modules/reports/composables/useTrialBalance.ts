@@ -34,12 +34,6 @@ export function useTrialBalance() {
   // Drill-down drawer
   const drawerOpen     = ref(false)
   const drawerAccount  = ref<any>(null)
-  const drawerLines    = ref<any[]>([])
-  const drawerPage     = ref(1)
-  const drawerTotal    = ref(0)
-  const drawerLastPage = ref(1)
-  const drawerLoading  = ref(false)
-  const drawerError    = ref<string | null>(null)
 
   // ── Computed ────────────────────────────────────────────────────────────────
   const allAccounts = computed(() => result.value?.accounts ?? [])
@@ -91,43 +85,14 @@ export function useTrialBalance() {
     }
   }
 
-  async function openDrillDown(account: any, side: 'debit' | 'credit') {
+  function openDrillDown(account: any, side: 'debit' | 'credit') {
     if (!account.is_postable) return
     const amount = side === 'debit'
-      ? (mode.value === 'period' ? account.period_debit  : account.closing_debit)
+      ? (mode.value === 'period' ? account.period_debit : account.closing_debit)
       : (mode.value === 'period' ? account.period_credit : account.closing_credit)
     if (!amount) return
     drawerAccount.value = account
-    drawerPage.value    = 1
-    drawerLines.value   = []
-    drawerOpen.value    = true
-    await fetchDrillDown()
-  }
-
-  async function fetchDrillDown() {
-    if (!drawerAccount.value) return
-    drawerLoading.value = true
-    drawerError.value   = null
-    try {
-      const res = await trialBalanceApi.getLedgerLines({
-        account_id: drawerAccount.value.id,
-        from: drFrom.value,
-        to:   drTo.value,
-        page: drawerPage.value,
-      })
-      drawerLines.value    = drawerPage.value === 1 ? res.data : [...drawerLines.value, ...res.data]
-      drawerTotal.value    = res.total
-      drawerLastPage.value = res.last_page
-    } catch (e: any) {
-      drawerError.value = e?.response?.data?.message ?? 'Failed to load ledger lines.'
-    } finally {
-      drawerLoading.value = false
-    }
-  }
-
-  async function loadMore() {
-    drawerPage.value++
-    await fetchDrillDown()
+    drawerOpen.value = true
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -365,8 +330,8 @@ export function useTrialBalance() {
   return {
     mode, asOfDate, periodFrom, periodTo, hideZero, loading, result, exporting, error,
     accounts, totals, isBalanced, drFrom, drTo,
-    drawerOpen, drawerAccount, drawerLines, drawerPage, drawerTotal, drawerLastPage, drawerLoading, drawerError,
-    generate, openDrillDown, loadMore,
+    drawerOpen, drawerAccount,
+    generate, openDrillDown,
     exportCsv, exportExcel, exportPdf,
     fmt, fmtCell, fmtNum, typeColor, dateLabel,
   }

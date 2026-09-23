@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { Scale, X, AlertTriangle, CheckCircle, Download } from 'lucide-vue-next'
+import { Scale, AlertTriangle, CheckCircle, Download } from 'lucide-vue-next'
 import { Spinner } from '@/Global'
+import LedgerDrillDownDrawer from '../components/LedgerDrillDownDrawer.vue'
 import { useTrialBalance } from '../composables/useTrialBalance'
 
 const {
   mode, asOfDate, periodFrom, periodTo, hideZero, loading, result, exporting, error,
   accounts, totals, isBalanced, drFrom, drTo,
-  drawerOpen, drawerAccount, drawerLines, drawerPage, drawerTotal, drawerLastPage, drawerLoading, drawerError,
-  generate, openDrillDown, loadMore,
+  drawerOpen, drawerAccount,
+  generate, openDrillDown,
   exportCsv, exportExcel, exportPdf,
   fmt, fmtCell, typeColor,
 } = useTrialBalance()
@@ -205,67 +206,6 @@ const {
     </template>
 
     <!-- Drill-down drawer -->
-    <Teleport to="body">
-      <div v-if="drawerOpen" class="fixed inset-0 z-50 flex justify-end" @click.self="drawerOpen = false">
-        <div class="h-full w-full max-w-xl bg-white dark:bg-neutral-900 shadow-2xl flex flex-col">
-          <!-- Drawer header -->
-          <div class="flex items-center justify-between px-6 py-4 border-b border-neutral-100 dark:border-neutral-800">
-            <div>
-              <p class="text-xs font-mono text-neutral-400">{{ drawerAccount?.gl_code }}</p>
-              <p class="font-bold text-neutral-900 dark:text-white">{{ drawerAccount?.name }}</p>
-              <p class="text-xs text-neutral-400 mt-0.5">{{ drFrom }} → {{ drTo }}</p>
-            </div>
-            <button @click="drawerOpen = false" class="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800">
-              <X class="w-4 h-4 text-neutral-500" />
-            </button>
-          </div>
-
-          <!-- Drawer body -->
-          <div class="flex-1 overflow-y-auto">
-            <div v-if="drawerLoading && drawerPage === 1" class="flex items-center justify-center py-12">
-              <Spinner class="h-6 w-6 text-nfuko-primary" />
-            </div>
-            <table v-else class="w-full text-xs">
-              <thead class="sticky top-0 bg-neutral-50 dark:bg-neutral-800 font-bold uppercase tracking-wider text-neutral-400">
-                <tr>
-                  <th class="px-4 py-3 text-left">Date</th>
-                  <th class="px-4 py-3 text-left">Reference</th>
-                  <th class="px-4 py-3 text-right">Debit</th>
-                  <th class="px-4 py-3 text-right">Credit</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
-                <tr v-for="(line, i) in drawerLines" :key="i"
-                  class="hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition">
-                  <td class="px-4 py-2.5 text-neutral-500">{{ line.date }}</td>
-                  <td class="px-4 py-2.5">
-                    <div class="font-mono text-neutral-700 dark:text-neutral-300">{{ line.entry_no }}</div>
-                    <div class="text-neutral-400 truncate max-w-[180px]">{{ line.description }}</div>
-                  </td>
-                  <td class="px-4 py-2.5 text-right text-blue-600 font-semibold">{{ line.debit ? fmt(line.debit) : '—' }}</td>
-                  <td class="px-4 py-2.5 text-right text-orange-600 font-semibold">{{ line.credit ? fmt(line.credit) : '—' }}</td>
-                </tr>
-                <tr v-if="!drawerLines.length && !drawerLoading">
-                  <td colspan="4" class="px-4 py-12 text-center text-neutral-400">No transactions in this period.</td>
-                </tr>
-              </tbody>
-            </table>
-
-            <!-- Load more -->
-            <div v-if="drawerPage < drawerLastPage" class="p-4 text-center">
-              <button @click="loadMore" :disabled="drawerLoading"
-                class="text-xs font-bold text-nfuko-primary hover:underline disabled:opacity-50">
-                {{ drawerLoading ? 'Loading...' : `Load more — page ${drawerPage + 1} of ${drawerLastPage}` }}
-              </button>
-            </div>
-          </div>
-
-          <!-- Footer -->
-          <div class="px-6 py-3 border-t border-neutral-100 dark:border-neutral-800 text-xs text-neutral-500">
-            {{ drawerTotal }} transaction{{ drawerTotal !== 1 ? 's' : '' }}
-          </div>
-        </div>
-      </div>
-    </Teleport>
+    <LedgerDrillDownDrawer v-model:open="drawerOpen" :account="drawerAccount" :from="drFrom" :to="drTo" />
   </div>
 </template>

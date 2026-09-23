@@ -351,7 +351,7 @@ export const tenantRoutes: MenuRoutes[] = [
             path: 'reports/balance-sheet',
             label: 'Balance Sheet',
             showSideBar: true,
-            component: () => import('@/tenant/components/globals/ComingSoon.vue'),
+            component: () => import('@/tenant/modules/reports/pages/BalanceSheet.vue'),
           },
           {
             path: 'reports/cash-flow',

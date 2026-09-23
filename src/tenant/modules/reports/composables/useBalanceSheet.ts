@@ -51,7 +51,10 @@ export function useBalanceSheet(options: { autoLoad?: boolean } = {}) {
     }
   })
 
+  let requestVersion = 0
+
   async function generate() {
+    const version = ++requestVersion
     loading.value = true
     error.value   = null
     try {
@@ -60,14 +63,16 @@ export function useBalanceSheet(options: { autoLoad?: boolean } = {}) {
         compare_to: compareTo.value || undefined,
         hide_zero: hideZero.value ? 1 : 0,
       })
+      if (version !== requestVersion) return
       result.value    = res
       compareTo.value = res.compare_to
       expanded.value  = defaultExpandedKeys(res)
-    } catch (e: any) {
+    } catch (e: unknown) {
+      if (version !== requestVersion) return
       result.value = null
-      error.value  = e?.response?.data?.message ?? 'Failed to load balance sheet.'
+      error.value  = (e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to load balance sheet.'
     } finally {
-      loading.value = false
+      if (version === requestVersion) loading.value = false
     }
   }
 

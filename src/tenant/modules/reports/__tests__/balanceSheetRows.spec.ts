@@ -20,7 +20,7 @@ describe('buildStatementRows', () => {
       'grand-total:Total Liabilities & Equity',
     ])
     expect(rows[1]).toMatchObject({ amount: 165000, compareAmount: 160000, hasChildren: true, expanded: false, depth: 1 })
-    expect(rows.at(-1)).toMatchObject({ amount: 165000, compareAmount: 160000 })
+    expect(rows[rows.length - 1]).toMatchObject({ amount: 165000, compareAmount: 160000 })
   })
 
   it('expands a group into children followed by a subtotal, blanking the header amount', () => {

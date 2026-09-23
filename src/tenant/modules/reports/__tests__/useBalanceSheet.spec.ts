@@ -59,3 +59,18 @@ describe('useBalanceSheet', () => {
     expect(bs.loading.value).toBe(false)
   })
 })
+
+it('keeps the latest report when responses arrive out of order', async () => {
+  let resolveOld!: (value: ReturnType<typeof balanceSheetFixture>) => void
+  getBalanceSheet.mockImplementationOnce(() => new Promise(resolve => { resolveOld = resolve }))
+  const newer = { ...balanceSheetFixture(), as_at: '2026-10-31' }
+  getBalanceSheet.mockResolvedValueOnce(newer)
+  const bs = useBalanceSheet({ autoLoad: false })
+  const first = bs.generate()
+  bs.asAt.value = '2026-10-31'
+  await bs.generate()
+  resolveOld(balanceSheetFixture())
+  await first
+  expect(bs.result.value?.as_at).toBe('2026-10-31')
+  expect(bs.loading.value).toBe(false)
+})
