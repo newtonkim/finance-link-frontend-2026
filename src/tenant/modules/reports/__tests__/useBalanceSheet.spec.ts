@@ -11,7 +11,9 @@ import { useBalanceSheet } from '../composables/useBalanceSheet'
 import { balanceSheetFixture } from './fixtures/balanceSheet'
 
 describe('useBalanceSheet', () => {
-  beforeEach(() => getBalanceSheet.mockReset())
+  beforeEach(() => {
+    getBalanceSheet.mockReset()
+  })
 
   it('loads, adopts the server comparison date and expands top-level groups', async () => {
     getBalanceSheet.mockResolvedValue(balanceSheetFixture())
