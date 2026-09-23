@@ -52,3 +52,22 @@ npm run test:unit
 ```sh
 npm run lint
 ```
+
+### Vercel demo domains
+
+For the production build, configure these Vercel environment variables:
+
+- `VITE_BASE_URL=vercel.app`
+- `VITE_CENTRAL_DOMAIN=finance-link-frontend-2026.vercel.app`
+- `VITE_BACKEND_URL=https://finance-link-backend-2026-production-n5gk0u.laravel.cloud/api/v1`
+- `VITE_ENCRYPT_STORAGE`: use the existing frontend storage value.
+
+Redeploy after saving the variables. The central domain opens `/central/login`;
+`mfukodemo.vercel.app` opens `/tenant/login` and sends `mfukodemo` as the tenant
+subdomain. Create that tenant through central admin before signing in. The central
+domain takes precedence over stored tenant context. These frontend routing rules
+do not replace backend authentication or tenant authorization.
+
+For a custom domain, use its shared parent as `VITE_BASE_URL` (for example,
+`mfukoplus.com`). `VITE_CENTRAL_DOMAIN` is optional when central admin uses that
+parent domain directly. Leave both blank for local development with localhost.

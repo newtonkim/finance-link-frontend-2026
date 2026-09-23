@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import { isAxiosError } from 'axios';
 import { Eye, EyeOff, ShieldCheck, Lock } from 'lucide-vue-next';
 import {  Button,  Input,  Label,  InputError,  Spinner,  AuthBase,storeUserLogedinData, storeUserPermissions,setSystemBranding,  keysToUse,  appendOnAjsonStore} from '@/Global';
+import { getSubdomainName } from '@/Global';
 import { tenantClient } from '@/tenant/apis/tenantClient';
 import { setBearerToken } from 'septor-store';
 import { useBranchStore } from '@/stores/branchStore';
@@ -12,13 +13,8 @@ import TenantBrandMark from '@/tenant/components/globals/TenantBrandMark.vue';
 const router = useRouter()
 const branchStore = useBranchStore()
 
-// Extract subdomain from hostname: "naivasha-sacco.localhost" → "naivasha-sacco"
-const subdomain = computed(() => {
-  const hostname = window.location.hostname;
-  if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) return null;
-  const parts = hostname.split('.');
-  return parts.length >= 2 ? parts[0] : null;
-});
+// Use the same tenant resolution as routing and API requests.
+const subdomain = computed(() => getSubdomainName());
 
 /**
  * Last-resort name formatting from the subdomain when the backend can't
