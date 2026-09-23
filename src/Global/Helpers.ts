@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // import Swal from "sweetalert2";
 import { EncryptStorage } from 'encrypt-storage'
+import { isCentralHostname, resolveTenantSubdomain } from './tenantDomain'
 // import { apiClient, apiClient as customAxios } from '@/central/api/client'
 const encryptStorage = new EncryptStorage(import.meta.env.VITE_ENCRYPT_STORAGE)
 import { notify } from '@/Global/Toasters'
@@ -659,47 +660,25 @@ export function useInitials(): UseInitialsReturn {
 }
 
 export function getTenantSubdomain(): string | null {
-  const hostname = window.location.hostname
-
-  // Ignore raw IP addresses
-  if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname)) return null
-
-  // Extract the central domain from env (strips http:// if present)
-  // staging: "staging.mfukoplus.com"
-  // production: "mfukoplus.com"
-  const centralDomain = (import.meta.env.VITE_BASE_URL as string)
-    ?.replace(/^https?:\/\//, '')
-    .replace(/\/$/, '')
-    .split(':')[0] // Strip port if present
-    .toLowerCase()
-
-  // Fallback for local development on localhost
-  if (!centralDomain && hostname.endsWith('.localhost')) {
-    return hostname.split('.')[0]
-  }
-
-  // If hostname exactly matches central domain → not a tenant
-  if (!centralDomain || hostname === centralDomain) return null
-
-  // If hostname ends with .{centralDomain} → extract the subdomain prefix
-  // e.g. "abc.staging.mfukoplus.com" or "abc.mfukoplus.com"
-  if (hostname.endsWith(`.${centralDomain}`)) {
-    const subdomain = hostname.slice(0, -(centralDomain.length + 1))
-    if (!subdomain || ['admin', 'www', 'localhost', 'api', 'central'].includes(subdomain)) return null
-    return subdomain
-  }
-
-  // Hostname doesn't match central domain at all — fail safe
-  return null
+  return resolveTenantSubdomain(
+    window.location.hostname,
+    import.meta.env.VITE_BASE_URL,
+    import.meta.env.VITE_CENTRAL_DOMAIN,
+  )
 }
 
 export function getSubdomainName() {
-  const subdomain =
-    getTenantSubdomain() ??
+  // A central host must never inherit a tenant from a previous session.
+  if (isCentralHostname(
+    window.location.hostname,
+    import.meta.env.VITE_BASE_URL,
+    import.meta.env.VITE_CENTRAL_DOMAIN,
+  )) return null
+
+  return getTenantSubdomain() ??
     localStorage.getItem('tenant_subdomain') ??
     (import.meta.env.VITE_TENANT_SUBDOMAIN as string | undefined) ??
     null
-  return subdomain
 }
 
 export function RouteStructure(route: any, routePath: string | null) {
