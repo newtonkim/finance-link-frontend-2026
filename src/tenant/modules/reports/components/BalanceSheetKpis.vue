@@ -3,7 +3,7 @@ import { CheckCircle2, AlertTriangle, TrendingUp, TrendingDown } from 'lucide-vu
 import type { BalanceSheetKpi } from '../composables/useBalanceSheet'
 import { formatAccounting, formatShortDate } from '../utils/accountingFormat'
 
-defineProps<{ kpis: BalanceSheetKpi[]; isBalanced: boolean; difference: number; compareTo: string }>()
+defineProps<{ kpis: BalanceSheetKpi[]; isBalanced: boolean; difference: number; compareTo?: string }>()
 </script>
 
 <template>
@@ -12,7 +12,7 @@ defineProps<{ kpis: BalanceSheetKpi[]; isBalanced: boolean; difference: number; 
       class="rounded-2xl border border-neutral-100 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
       <p class="text-[11px] font-bold uppercase tracking-[0.12em] text-neutral-400">{{ kpi.label }}</p>
       <p class="mt-2 text-xl font-bold tabular-nums text-neutral-900 dark:text-white">{{ formatAccounting(kpi.amount) }}</p>
-      <p class="mt-1 flex items-center gap-1 text-xs text-neutral-500">
+      <p v-if="compareTo" class="mt-1 flex items-center gap-1 text-xs text-neutral-500">
         <template v-if="kpi.change !== null">
           <TrendingUp v-if="kpi.change >= 0" class="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
           <TrendingDown v-else class="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />

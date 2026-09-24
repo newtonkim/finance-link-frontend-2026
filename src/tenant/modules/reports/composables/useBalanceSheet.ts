@@ -9,6 +9,14 @@ function todayIso(): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }
 
+export interface ReportSelection {
+  mode: 'as-at' | 'compare'
+  firstFrom: string
+  firstTo: string
+  secondFrom: string
+  secondTo: string
+}
+
 export interface BalanceSheetKpi {
   key: 'assets' | 'liabilities' | 'equity'
   label: string
@@ -19,7 +27,14 @@ export interface BalanceSheetKpi {
 
 export function useBalanceSheet(options: { autoLoad?: boolean } = {}) {
   const asAt      = ref(todayIso())
-  const compareTo = ref('')          // empty → server picks the prior financial year end
+  const mode = ref<'as-at' | 'compare'>('as-at')
+  const year = new Date().getFullYear()
+  const firstFrom = ref(`${year}-01-01`)
+  const firstTo = ref(todayIso())
+  const secondFrom = ref(`${year - 1}-01-01`)
+  const secondTo = ref(`${year - 1}-12-31`)
+  const selection = ref<ReportSelection | null>(null)
+  const showComparison = computed(() => selection.value?.mode === 'compare')
   const hideZero  = ref(true)
   const loading   = ref(false)
   const error     = ref<string | null>(null)
@@ -46,7 +61,7 @@ export function useBalanceSheet(options: { autoLoad?: boolean } = {}) {
   const drillRange = computed(() => {
     if (!result.value) return null
     return {
-      from: result.value.financial_year?.start_date ?? `${result.value.as_at.slice(0, 4)}-01-01`,
+      from: (showComparison.value ? selection.value?.firstFrom : null) ?? result.value.financial_year?.start_date ?? `${result.value.as_at.slice(0, 4)}-01-01`,
       to: result.value.as_at,
     }
   })
@@ -55,17 +70,31 @@ export function useBalanceSheet(options: { autoLoad?: boolean } = {}) {
 
   async function generate() {
     const version = ++requestVersion
+    const selected: ReportSelection = {
+      mode: mode.value, firstFrom: firstFrom.value, firstTo: firstTo.value,
+      secondFrom: secondFrom.value, secondTo: secondTo.value,
+    }
+    const validDate = (date: string) => /^\d{4}-\d{2}-\d{2}$/.test(date) && !Number.isNaN(Date.parse(date))
+    if (selected.mode === 'compare'
+      ? ![selected.firstFrom, selected.firstTo, selected.secondFrom, selected.secondTo].every(validDate)
+        || selected.firstFrom > selected.firstTo || selected.secondFrom > selected.secondTo
+      : !validDate(asAt.value)) {
+      result.value = null
+      error.value = 'Enter valid dates. Each period start must be on or before its end.'
+      loading.value = false
+      return
+    }
     loading.value = true
     error.value   = null
     try {
       const res = await balanceSheetApi.getBalanceSheet({
-        as_at: asAt.value,
-        compare_to: compareTo.value || undefined,
+        as_at: selected.mode === 'compare' ? selected.firstTo : asAt.value,
+        compare_to: selected.mode === 'compare' ? selected.secondTo : asAt.value,
         hide_zero: hideZero.value ? 1 : 0,
       })
       if (version !== requestVersion) return
       result.value    = res
-      compareTo.value = res.compare_to
+      selection.value = selected
       expanded.value  = defaultExpandedKeys(res)
     } catch (e: unknown) {
       if (version !== requestVersion) return
@@ -89,7 +118,7 @@ export function useBalanceSheet(options: { autoLoad?: boolean } = {}) {
   if (options.autoLoad !== false) onMounted(generate)
 
   return {
-    asAt, compareTo, hideZero, loading, error, result, expanded,
+    asAt, mode, firstFrom, firstTo, secondFrom, secondTo, selection, showComparison, hideZero, loading, error, result, expanded,
     rows, totals, isBalanced, kpis, drillRange,
     generate, toggle, expandAll, collapseAll,
   }

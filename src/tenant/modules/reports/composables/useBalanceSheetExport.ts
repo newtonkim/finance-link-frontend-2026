@@ -1,4 +1,4 @@
-import { ref, type Ref } from 'vue'
+import { computed, ref, type Ref } from 'vue'
 import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
@@ -7,25 +7,35 @@ import type { BalanceSheetResponse } from '@/tenant/apis/reports/balanceSheetApi
 import type { StatementRow } from '../utils/balanceSheetRows'
 import { formatAccounting, formatLongDate, formatShortDate } from '../utils/accountingFormat'
 
+import type { ReportSelection } from './useBalanceSheet'
+
 const round2 = (v: number) => Math.round(v * 100) / 100
 const indent = (depth: number) => '  '.repeat(Math.max(depth - 1, 0))
 
-export function useBalanceSheetExport(result: Ref<BalanceSheetResponse | null>, rows: Ref<StatementRow[]>) {
+export function useBalanceSheetExport(result: Ref<BalanceSheetResponse | null>, rows: Ref<StatementRow[]>, selection?: Ref<ReportSelection | null>) {
   const exporting = ref(false)
+  const comparison = computed(() => selection ? selection.value?.mode === 'compare' : true)
+  const columns = <T>(cells: T[], singleCount: number): T[] => comparison.value ? cells : cells.slice(0, singleCount)
+  function periodLabel(which: 'first' | 'second', fallback: string): string {
+    const s = selection?.value
+    return s?.mode === 'compare'
+      ? `Period ${which === 'first' ? 1 : 2}: ${s[`${which}From`]} to ${s[`${which}To`]} (closing ${fallback})`
+      : formatShortDate(fallback)
+  }
 
   function header(r: BalanceSheetResponse): string[] {
-    return ['GL Code', 'Account', formatShortDate(r.as_at), formatShortDate(r.compare_to), 'Change']
+    return columns(['GL Code', 'Account', periodLabel('first', r.as_at), periodLabel('second', r.compare_to), 'Difference (1 - 2)'], 3)
   }
 
   /** Numeric cells stay numbers (or null) so spreadsheets can sum them. */
   function dataRows(): (string | number | null)[][] {
-    return rows.value.map(row => [
+    return rows.value.map(row => columns([
       row.glCode ?? '',
       row.kind === 'section' ? row.label.toUpperCase() : indent(row.depth) + row.label,
       row.amount === null ? null : round2(row.amount),
       row.compareAmount === null ? null : round2(row.compareAmount),
       row.amount === null || row.compareAmount === null ? null : round2(row.amount - row.compareAmount),
-    ])
+    ], 3))
   }
 
   function download(blob: Blob, filename: string) {
@@ -88,13 +98,13 @@ export function useBalanceSheetExport(result: Ref<BalanceSheetResponse | null>, 
       const kinds = rows.value.map(row => row.kind)
       autoTable(doc, {
         startY: 38,
-        head: [['Account', formatShortDate(r.as_at), formatShortDate(r.compare_to), 'Change']],
-        body: rows.value.map(row => [
+        head: [header(r).slice(1)],
+        body: rows.value.map(row => columns([
           row.kind === 'section' ? row.label.toUpperCase() : indent(row.depth) + row.label,
           formatAccounting(row.amount),
           formatAccounting(row.compareAmount),
           row.amount === null || row.compareAmount === null ? '' : formatAccounting(row.amount - row.compareAmount),
-        ]),
+        ], 2)),
         theme: 'plain',
         headStyles: { fontStyle: 'bold', fontSize: 8, textColor: 60, lineWidth: { bottom: 0.3 }, lineColor: 60 },
         bodyStyles: { fontSize: 8, cellPadding: { top: 1.2, bottom: 1.2, left: 2, right: 2 } },
