@@ -15,15 +15,15 @@ describe('useBalanceSheet', () => {
     getBalanceSheet.mockReset()
   })
 
-  it('loads, adopts the server comparison date and expands top-level groups', async () => {
+  it('loads a standalone snapshot and expands top-level groups', async () => {
     getBalanceSheet.mockResolvedValue(balanceSheetFixture())
     const bs = useBalanceSheet({ autoLoad: false })
     bs.asAt.value = '2026-09-30'
 
     await bs.generate()
 
-    expect(getBalanceSheet).toHaveBeenCalledWith({ as_at: '2026-09-30', compare_to: undefined, hide_zero: 1 })
-    expect(bs.compareTo.value).toBe('2025-12-31')
+    expect(getBalanceSheet).toHaveBeenCalledWith({ as_at: '2026-09-30', compare_to: '2026-09-30', hide_zero: 1 })
+    expect(bs.showComparison.value).toBe(false)
     expect(bs.rows.value.some(r => r.label === 'Cash at Bank')).toBe(true)
     expect(bs.isBalanced.value).toBe(true)
     expect(bs.kpis.value.map(k => k.key)).toEqual(['assets', 'liabilities', 'equity'])
@@ -74,3 +74,32 @@ it('keeps the latest report when responses arrive out of order', async () => {
   expect(bs.result.value?.as_at).toBe('2026-10-31')
   expect(bs.loading.value).toBe(false)
 })
+
+ it('uses independent period ends and keeps generated selection stable while editing', async () => {
+   getBalanceSheet.mockResolvedValue(balanceSheetFixture())
+   const bs = useBalanceSheet({ autoLoad: false })
+   bs.mode.value = 'compare'
+   bs.asAt.value = '2020-01-01'
+   bs.firstFrom.value = '2026-01-01'
+   bs.firstTo.value = '2026-03-31'
+   bs.secondFrom.value = '2026-04-01'
+   bs.secondTo.value = '2026-06-30'
+   await bs.generate()
+   expect(getBalanceSheet).toHaveBeenLastCalledWith({ as_at: '2026-03-31', compare_to: '2026-06-30', hide_zero: 1 })
+   expect(bs.showComparison.value).toBe(true)
+   bs.mode.value = 'as-at'
+   bs.firstFrom.value = '2025-01-01'
+   expect(bs.showComparison.value).toBe(true)
+   expect(bs.selection.value?.firstFrom).toBe('2026-01-01')
+   expect(bs.asAt.value).toBe('2020-01-01')
+ })
+ it('rejects reversed ranges without requesting a report', async () => {
+   getBalanceSheet.mockClear()
+   const bs = useBalanceSheet({ autoLoad: false })
+   bs.mode.value = 'compare'
+   bs.firstFrom.value = '2026-12-31'
+   bs.firstTo.value = '2026-01-01'
+   await bs.generate()
+   expect(getBalanceSheet).not.toHaveBeenCalled()
+   expect(bs.error.value).toContain('period start')
+ })

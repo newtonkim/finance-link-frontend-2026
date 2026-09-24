@@ -5,7 +5,7 @@ import type { BalanceSheetLine } from '@/tenant/apis/reports/balanceSheetApi'
 import type { StatementRow } from '../utils/balanceSheetRows'
 import { formatAccounting } from '../utils/accountingFormat'
 
-const props = defineProps<{ row: StatementRow }>()
+const props = withDefaults(defineProps<{ row: StatementRow; showComparison?: boolean }>(), { showComparison: true })
 const emit = defineEmits<{ toggle: [key: string]; drill: [line: BalanceSheetLine] }>()
 
 const change = computed(() =>
@@ -46,7 +46,7 @@ const COMPUTED_HINT = 'Calculated from income and expense accounts — no year-e
 <template>
   <!-- Section heading -->
   <tr v-if="row.kind === 'section'">
-    <td colspan="4" class="px-4 pt-7 pb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-nfuko-primary">
+    <td :colspan="showComparison ? 4 : 2" class="px-4 pt-7 pb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-nfuko-primary">
       {{ row.label }}
     </td>
   </tr>
@@ -95,12 +95,12 @@ const COMPUTED_HINT = 'Calculated from income and expense accounts — no year-e
     </td>
 
     <!-- Comparison amount -->
-    <td class="px-4 py-2 text-right text-sm tabular-nums whitespace-nowrap text-neutral-500 dark:text-neutral-400">
+    <td v-if="showComparison" class="px-4 py-2 text-right text-sm tabular-nums whitespace-nowrap text-neutral-500 dark:text-neutral-400">
       <span :class="['inline-block min-w-[7rem] py-0.5', amountRule]">{{ formatAccounting(row.compareAmount) }}</span>
     </td>
 
     <!-- Change -->
-    <td :class="['px-4 py-2 text-right text-xs tabular-nums whitespace-nowrap', changeClass]">
+    <td v-if="showComparison" :class="['px-4 py-2 text-right text-xs tabular-nums whitespace-nowrap', changeClass]">
       {{ formatAccounting(change) }}
     </td>
   </tr>

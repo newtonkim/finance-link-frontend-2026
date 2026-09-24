@@ -74,3 +74,30 @@ describe('balance sheet exports', () => {
     expect(pdf).toContain('165000.00')
   })
 })
+
+it('exports a standalone report without comparison or difference columns', () => {
+  writeFile.mockClear()
+  const report = balanceSheetFixture()
+  const actions = useBalanceSheetExport(ref(report), ref(buildStatementRows(report, new Set())), ref({
+    mode: 'as-at', firstFrom: '', firstTo: '', secondFrom: '', secondTo: '',
+  }))
+  actions.exportExcel()
+  const workbook = writeFile.mock.calls[0]![0]
+  const data = XLSX.utils.sheet_to_json<(string | number)[]>(workbook.Sheets['Balance Sheet'], { header: 1 })
+  expect(data[4]).toHaveLength(3)
+  expect(data[data.length - 1]).toHaveLength(3)
+  expect(JSON.stringify(data)).not.toContain('Difference')
+})
+
+it('includes both independent date ranges in comparison exports', () => {
+  writeFile.mockClear()
+  const report = balanceSheetFixture()
+  const actions = useBalanceSheetExport(ref(report), ref(buildStatementRows(report, new Set())), ref({
+    mode: 'compare', firstFrom: '2026-07-01', firstTo: '2026-09-30', secondFrom: '2025-10-01', secondTo: '2025-12-31',
+  }))
+  actions.exportExcel()
+  const data = XLSX.utils.sheet_to_json<(string | number)[]>(writeFile.mock.calls[0]![0].Sheets['Balance Sheet'], { header: 1 })
+  expect(data[4]![2]).toContain('2026-07-01 to 2026-09-30')
+  expect(data[4]![3]).toContain('2025-10-01 to 2025-12-31')
+  expect(data[4]![4]).toBe('Difference (1 - 2)')
+})

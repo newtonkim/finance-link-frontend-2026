@@ -11,12 +11,12 @@ import BalanceSheetKpis from '../components/BalanceSheetKpis.vue'
 import LedgerDrillDownDrawer, { type DrillAccount } from '../components/LedgerDrillDownDrawer.vue'
 
 const {
-  asAt, compareTo, hideZero, loading, error, result,
+  asAt, mode, firstFrom, firstTo, secondFrom, secondTo, selection, showComparison, hideZero, loading, error, result,
   rows, totals, isBalanced, kpis, drillRange,
   generate, toggle, expandAll, collapseAll,
 } = useBalanceSheet()
 
-const { exporting, exportCsv, exportExcel, exportPdf } = useBalanceSheetExport(result, rows)
+const { exporting, exportCsv, exportExcel, exportPdf } = useBalanceSheetExport(result, rows, selection)
 
 const drawerOpen    = ref(false)
 const drawerAccount = ref<DrillAccount | null>(null)
@@ -60,13 +60,33 @@ const ghostBtn   = 'flex items-center gap-1.5 rounded-lg border border-neutral-2
     <form class="flex flex-wrap items-end gap-4 rounded-2xl border border-neutral-100 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
       @submit.prevent="generate">
       <label class="flex flex-col gap-1">
-        <span class="text-xs text-neutral-400">As at</span>
+        <span class="text-xs text-neutral-500">Report mode</span>
+        <select v-model="mode" :class="inputClass">
+          <option value="as-at">As-at report</option>
+          <option value="compare">Compare periods</option>
+        </select>
+      </label>
+      <label v-if="mode === 'as-at'" class="flex flex-col gap-1">
+        <span class="text-xs text-neutral-500">As at</span>
         <input v-model="asAt" type="date" required :class="inputClass" />
       </label>
-      <label class="flex flex-col gap-1">
-        <span class="text-xs text-neutral-400">Compare to</span>
-        <input v-model="compareTo" type="date" :max="asAt" :class="inputClass" />
-      </label>
+      <template v-else>
+        <fieldset class="flex flex-wrap gap-3">
+          <legend class="mb-1 text-sm font-semibold">Period 1</legend>
+          <label class="flex flex-col gap-1"><span class="text-xs text-neutral-500">From</span>
+            <input v-model="firstFrom" type="date" required :max="firstTo" :class="inputClass" /></label>
+          <label class="flex flex-col gap-1"><span class="text-xs text-neutral-500">To</span>
+            <input v-model="firstTo" type="date" required :min="firstFrom" :class="inputClass" /></label>
+        </fieldset>
+        <fieldset class="flex flex-wrap gap-3">
+          <legend class="mb-1 text-sm font-semibold">Period 2</legend>
+          <label class="flex flex-col gap-1"><span class="text-xs text-neutral-500">From</span>
+            <input v-model="secondFrom" type="date" required :max="secondTo" :class="inputClass" /></label>
+          <label class="flex flex-col gap-1"><span class="text-xs text-neutral-500">To</span>
+            <input v-model="secondTo" type="date" required :min="secondFrom" :class="inputClass" /></label>
+        </fieldset>
+        <p class="w-full text-xs text-neutral-500">Closing balances include all postings up to each period end. Difference = Period 1 closing balance − Period 2 closing balance.</p>
+      </template>
       <button type="submit" :disabled="loading"
         class="rounded-full bg-nfuko-primary px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-nfuko-primary/90 disabled:opacity-60">
         Generate
@@ -106,7 +126,7 @@ const ghostBtn   = 'flex items-center gap-1.5 rounded-lg border border-neutral-2
     </div>
 
     <template v-if="result && totals && !loading">
-      <BalanceSheetKpis :kpis="kpis" :is-balanced="isBalanced" :difference="totals.current.difference" :compare-to="result.compare_to" />
+      <BalanceSheetKpis :kpis="kpis" :is-balanced="isBalanced" :difference="totals.current.difference" :compare-to="showComparison ? result.compare_to : undefined" />
 
       <!-- Out-of-balance banner -->
       <div v-if="!isBalanced"
@@ -125,7 +145,12 @@ const ghostBtn   = 'flex items-center gap-1.5 rounded-lg border border-neutral-2
         <header class="border-b border-neutral-100 px-6 py-6 text-center dark:border-neutral-800">
           <p class="text-xs font-bold uppercase tracking-[0.2em] text-neutral-400">{{ saccoBrandingState.sacco_name || 'SACCO' }}</p>
           <h2 class="mt-1 text-lg font-bold text-neutral-900 dark:text-white">Statement of Financial Position</h2>
-          <p class="text-sm text-neutral-500">As at {{ formatLongDate(result.as_at) }}</p>
+          <p v-if="!showComparison" class="text-sm text-neutral-500">As at {{ formatLongDate(result.as_at) }}</p>
+          <p v-else-if="selection" class="text-sm text-neutral-500">
+            Period 1: {{ formatShortDate(selection.firstFrom) }} – {{ formatShortDate(selection.firstTo) }}<br />
+            Period 2: {{ formatShortDate(selection.secondFrom) }} – {{ formatShortDate(selection.secondTo) }}<br />
+            Closing balances · Difference = Period 1 − Period 2
+          </p>
         </header>
 
         <div class="overflow-x-auto px-2 pb-4">
@@ -133,13 +158,13 @@ const ghostBtn   = 'flex items-center gap-1.5 rounded-lg border border-neutral-2
             <thead>
               <tr class="text-[11px] font-bold uppercase tracking-wider text-neutral-400">
                 <th class="px-4 pt-4 pb-2 text-left font-bold">Account</th>
-                <th class="px-4 pt-4 pb-2 text-right font-bold text-neutral-700 dark:text-neutral-200">{{ formatShortDate(result.as_at) }}</th>
-                <th class="px-4 pt-4 pb-2 text-right font-bold">{{ formatShortDate(result.compare_to) }}</th>
-                <th class="px-4 pt-4 pb-2 text-right font-bold">Change</th>
+                <th class="px-4 pt-4 pb-2 text-right font-bold text-neutral-700 dark:text-neutral-200">{{ showComparison ? 'Period 1 closing · ' : '' }}{{ formatShortDate(result.as_at) }}</th>
+                <th v-if="showComparison" class="px-4 pt-4 pb-2 text-right font-bold">Period 2 closing · {{ formatShortDate(result.compare_to) }}</th>
+                <th v-if="showComparison" class="px-4 pt-4 pb-2 text-right font-bold">Difference (1 − 2)</th>
               </tr>
             </thead>
             <tbody>
-              <BalanceSheetRow v-for="row in rows" :key="row.key" :row="row" @toggle="toggle" @drill="openDrill" />
+              <BalanceSheetRow v-for="row in rows" :key="row.key" :row="row" :show-comparison="showComparison" @toggle="toggle" @drill="openDrill" />
             </tbody>
           </table>
         </div>
