@@ -13,7 +13,8 @@ import {
     Shield,
     CalendarDays,
     Wallet,
-    Archive
+    Archive,
+    Handshake
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -32,6 +33,7 @@ const modules = [
     { name: 'System', icon: Shield, path: '/tenant/settings/system', color: 'bg-slate-50 text-slate-600 dark:bg-slate-900/20 dark:text-slate-400' },
     { name: 'Expense Management', icon: Wallet, path: '/tenant/settings/expense-management', color: 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400' },
     { name: 'Asset Management', icon: Archive, path: '/tenant/settings/assets', color: 'bg-teal-50 text-teal-600 dark:bg-teal-900/20 dark:text-teal-400' },
+    { name: 'Guarantor', icon: Handshake, path: '/tenant/settings/guarantor', color: 'bg-violet-50 text-violet-600 dark:bg-violet-900/20 dark:text-violet-400' },
 ]
 
 const navigate = (path: string) => {
