@@ -150,6 +150,7 @@ const statusLabels: Record<LoanApplicationGuarantor['status'], string> = {
   withdrawn: 'Removed',
   locked: 'Holding savings',
   released: 'Released',
+  invoked: 'Drawn on',
 }
 
 const statusClasses: Record<LoanApplicationGuarantor['status'], string> = {
@@ -161,6 +162,7 @@ const statusClasses: Record<LoanApplicationGuarantor['status'], string> = {
   withdrawn: 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400',
   locked: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
   released: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300',
+  invoked: 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300',
 }
 
 function canSendRequest(g: LoanApplicationGuarantor) {

@@ -26,6 +26,7 @@ import LoanTransactionsTabPanel from '../components/LoanTransactionsTabPanel.vue
 import LoanReschedulesTabPanel from '../components/LoanReschedulesTabPanel.vue'
 import LoanBeforeTopupTabPanel from '../components/LoanBeforeTopupTabPanel.vue'
 import LoanDetailHeader from '../components/LoanDetailHeader.vue'
+import GuarantorRecoveryDrawer from '../components/GuarantorRecoveryDrawer.vue'
 import { licenseState } from '@/tenant/apis/licenseState'
 
 const route = useRoute()
@@ -125,6 +126,8 @@ onMounted(() => {
 const rescheduleDrawerOpen = ref(false)
 const topupModalRef = ref<null | { show: () => void }>(null)
 
+const recoveryDrawerOpen = ref(false)
+
 const handleTopup = () => {
   if (!licenseState.readOnly) topupModalRef.value?.show()
 }
@@ -185,6 +188,7 @@ const activeComponent = computed(() => {
         :can-topup="settings.allow_top_up"
         @topup="handleTopup"
         @reschedule="handleReschedule"
+        @recover="recoveryDrawerOpen = true"
       />
 
       <div class="border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-800/20">
@@ -304,4 +308,5 @@ const activeComponent = computed(() => {
 
   <LoanTopupModal ref="topupModalRef" :loan="loan" />
   <LoanRescheduleDrawer v-model:open="rescheduleDrawerOpen" :loan="loan" @success="refresh" />
+  <GuarantorRecoveryDrawer v-model:open="recoveryDrawerOpen" :loan-id="loan?.id ?? null" />
 </template>
