@@ -299,12 +299,19 @@ export interface GuarantorArrearsRow {
   }[]
 }
 
+/**
+ * One account's part in a recovery. A member's line takes from their savings
+ * account; a group guarantor's line takes from a group savings account instead,
+ * so its member and savings account ids are null.
+ */
 export interface GuarantorRecoveryLine {
   id?: number
   source: 'borrower' | 'guarantor'
-  member_id: number
+  member_id: number | null
   name: string | null
-  savings_account_id: number
+  savings_account_id: number | null
+  group_savings_account_id: number | null
+  is_group?: boolean
   account_no: string | null
   amount: number
   repaid_amount?: number
@@ -326,7 +333,6 @@ export interface GuarantorRecoveryPlan {
   shortfall: number
   recovery_loan_term_months: number
   lines: GuarantorRecoveryLine[]
-  unsupported_guarantors: { loan_application_guarantor_id: number; name: string | null; guarantee_amount: number; reason: string }[]
 }
 
 export interface GuarantorRecoveryScheduleRow {
