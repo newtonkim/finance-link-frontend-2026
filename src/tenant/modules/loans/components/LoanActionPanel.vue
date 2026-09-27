@@ -101,6 +101,21 @@ const { displayAmount } = useLoanApplicationHelpers()
     </div>
   </div>
 
+  <!-- Awaiting guarantors: moves on by itself once enough guarantors accept -->
+  <div
+    v-else-if="application.status === 'awaiting_guarantors'"
+    class="rounded-2xl border border-orange-100 bg-orange-50/50 p-5 dark:border-orange-900/40 dark:bg-orange-900/10"
+  >
+    <p class="mb-1 text-sm font-semibold text-orange-800 dark:text-orange-300">
+      Awaiting Guarantors
+    </p>
+    <p class="text-xs text-orange-700 dark:text-orange-400">
+      This application was submitted and is waiting for its guarantors to accept. It moves to
+      Submitted by itself once enough have accepted. Send reminders, record answers, or replace
+      guarantors who declined in the Guarantors panel.
+    </p>
+  </div>
+
   <!-- Awaiting docs: resume review -->
   <div
     v-else-if="application.status === 'awaiting_documents'"

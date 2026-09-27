@@ -10,6 +10,7 @@ export function useLoanApplicationHelpers() {
       case 'under_review':
         return 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
       case 'awaiting_documents':
+      case 'awaiting_guarantors':
         return 'bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
       case 'recommended':
         return 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'

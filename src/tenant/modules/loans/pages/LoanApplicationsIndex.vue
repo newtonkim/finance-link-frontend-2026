@@ -212,7 +212,7 @@ const countMap = computed<Record<string, { total: number; total_amount: number }
   }
   return map
 })
-const IN_REVIEW = ['submitted', 'under_review', 'awaiting_documents', 'recommended', 'committee_voting']
+const IN_REVIEW = ['awaiting_guarantors', 'submitted', 'under_review', 'awaiting_documents', 'recommended', 'committee_voting']
 const sumOf = (keys: string[], field: 'total' | 'total_amount') =>
   keys.reduce((s, k) => s + (countMap.value[k]?.[field] ?? 0), 0)
 
