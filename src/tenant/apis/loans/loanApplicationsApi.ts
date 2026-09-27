@@ -227,7 +227,7 @@ export interface LoanApplicationGuarantor {
   guarantor_code: string | null
   guarantee_amount: number
   guarantee_amount_formatted: string
-  status: 'proposed' | 'requested' | 'accepted' | 'declined' | 'expired' | 'withdrawn' | 'locked' | 'released'
+  status: 'proposed' | 'requested' | 'accepted' | 'declined' | 'expired' | 'withdrawn' | 'locked' | 'released' | 'invoked'
   requested_at: string | null
   consent_expires_at: string | null
   responded_at: string | null
@@ -291,6 +291,80 @@ export interface GuarantorArrearsRow {
     arrears_notified_at: string | null
     arrears_notice_count: number
   }[]
+}
+
+export interface GuarantorRecoveryLine {
+  id?: number
+  source: 'borrower' | 'guarantor'
+  member_id: number
+  name: string | null
+  savings_account_id: number
+  account_no: string | null
+  amount: number
+  repaid_amount?: number
+  owed?: number
+}
+
+/** Who would pay what to recover a defaulted loan, and whether it can be recovered now. */
+export interface GuarantorRecoveryPlan {
+  eligible: boolean
+  reasons: string[]
+  loan_id: number
+  loan_no: string
+  days_past_due: number
+  outstanding_balance: number
+  requested_amount: number
+  borrower_amount: number
+  guarantor_amount: number
+  planned_amount: number
+  shortfall: number
+  recovery_loan_term_months: number
+  lines: GuarantorRecoveryLine[]
+  unsupported_guarantors: { loan_application_guarantor_id: number; name: string | null; guarantee_amount: number; reason: string }[]
+}
+
+export interface GuarantorRecoveryScheduleRow {
+  installment_no: number
+  due_date: string
+  amount: number
+  paid: number
+  status: 'paid' | 'partial' | 'pending' | 'overdue'
+}
+
+export interface GuarantorRecovery {
+  id: number
+  code: string
+  status: 'pending_approval' | 'executed' | 'rejected'
+  loan_id: number
+  loan_no: string | null
+  member_id: number
+  borrower_name: string | null
+  requested_amount: number
+  borrower_amount: number
+  guarantor_amount: number
+  guarantor_amount_formatted: string
+  notes: string | null
+  initiated_by: string | null
+  initiated_by_id: number | null
+  initiated_at: string | null
+  approved_by: string | null
+  approved_at: string | null
+  rejected_at: string | null
+  rejection_reason: string | null
+  executed_at: string | null
+  recovery_loan: {
+    status: 'open' | 'settled'
+    term_months: number
+    repaid: number
+    outstanding: number
+    outstanding_formatted: string
+    overdue: number
+    next_due_date: string | null
+    next_due_amount: number | null
+  } | null
+  lines: GuarantorRecoveryLine[]
+  schedule?: GuarantorRecoveryScheduleRow[]
+  repayments?: { id: number; amount: number; payment_date: string; payment_mode: string | null; reference: string | null }[]
 }
 
 /** Guarantor adequacy as the server works it out from the SACCO's guarantor settings. */
@@ -630,6 +704,36 @@ export const loanApplicationsApi = {
     return tenantClient.post<{ message: string; data: { notified: number } }>(
       `/loans/${loanId}/guarantors/notify-arrears`,
     )
+  },
+  // ─── Recovering defaulted loans from guarantors ───────────────────────────
+  guarantorRecoveryPlan(loanId: number, amount?: number) {
+    return tenantClient.get<{ data: GuarantorRecoveryPlan }>(`/loans/${loanId}/guarantor-recovery/plan`, {
+      params: amount ? { amount } : {},
+    })
+  },
+  proposeGuarantorRecovery(loanId: number, data: { amount?: number; notes?: string }) {
+    return tenantClient.post<{ message: string; data: GuarantorRecovery }>(`/loans/${loanId}/guarantor-recovery`, data)
+  },
+  guarantorRecoveries(params: { status?: string; recovery_loan_status?: string; loan_id?: number } = {}) {
+    return tenantClient.get<{ data: GuarantorRecovery[]; meta: { current_page: number; last_page: number; total: number } }>(
+      '/guarantor-recoveries',
+      { params },
+    )
+  },
+  guarantorRecovery(id: number) {
+    return tenantClient.get<{ data: GuarantorRecovery }>(`/guarantor-recoveries/${id}`)
+  },
+  approveGuarantorRecovery(id: number) {
+    return tenantClient.post<{ message: string; data: GuarantorRecovery }>(`/guarantor-recoveries/${id}/approve`)
+  },
+  rejectGuarantorRecovery(id: number, reason: string) {
+    return tenantClient.post<{ message: string; data: GuarantorRecovery }>(`/guarantor-recoveries/${id}/reject`, { reason })
+  },
+  repayGuarantorRecovery(
+    id: number,
+    data: { amount: number; payment_date?: string; payment_mode?: string; reference?: string },
+  ) {
+    return tenantClient.post<{ message: string; data: GuarantorRecovery }>(`/guarantor-recoveries/${id}/repayments`, data)
   },
   guarantorSummary(applicationId: number) {
     return tenantClient.get<{ data: GuarantorSummary }>(`/loan-applications/${applicationId}/guarantors/summary`)

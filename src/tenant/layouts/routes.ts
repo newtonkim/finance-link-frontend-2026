@@ -217,6 +217,12 @@ export const tenantRoutes: MenuRoutes[] = [
             component: () => import('@/tenant/modules/loans/pages/GuarantorsAtRisk.vue'),
           },
           {
+            path: 'guarantor-recoveries',
+            label: 'Guarantor Recoveries',
+            showSideBar: true,
+            component: () => import('@/tenant/modules/loans/pages/GuarantorRecoveries.vue'),
+          },
+          {
             path: 'aging-report',
             label: 'Aging Report',
             showSideBar: true,

@@ -7,8 +7,7 @@ import {
   History,
   ChevronDown,
   TrendingUp,
-  Calendar,
-} from 'lucide-vue-next'
+  Calendar, ShieldAlert } from 'lucide-vue-next'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,6 +35,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'topup'): void
   (e: 'reschedule'): void
+  (e: 'recover'): void
 }>()
 
 const isRestructuredTopup = computed(() => isRestructuredTopupLoan(props.loan))
@@ -129,6 +129,15 @@ const isRestructuredTopup = computed(() => isRestructuredTopupLoan(props.loan))
               >
                 <Calendar class="h-4 w-4 text-neutral-500" />
                 <span>Reschedule Loan</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                v-if="loan.status === 'arrears' || loan.status === 'disbursed'"
+                class="flex items-center gap-2 cursor-pointer"
+                :disabled="licenseState.readOnly"
+                @click="emit('recover')"
+              >
+                <ShieldAlert class="h-4 w-4 text-neutral-500" />
+                <span>Recover from Guarantors</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
