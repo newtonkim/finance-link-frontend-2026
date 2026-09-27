@@ -59,6 +59,7 @@ function recovery(overrides: Record<string, unknown> = {}) {
         member_id: 3,
         name: 'Jane Borrower',
         savings_account_id: 1,
+        group_savings_account_id: null,
         account_no: 'ACC-1',
         amount: 200,
       },
@@ -68,6 +69,7 @@ function recovery(overrides: Record<string, unknown> = {}) {
         member_id: 4,
         name: 'Guy Guarantor',
         savings_account_id: 2,
+        group_savings_account_id: null,
         account_no: 'ACC-2',
         amount: 800,
       },
@@ -96,6 +98,36 @@ describe('GuarantorRecoveries', () => {
     expect(wrapper.text()).toContain('GRC000001')
     expect(wrapper.text()).toContain('Guy Guarantor')
     expect(wrapper.text()).toContain('Would take')
+  })
+
+  it("shows a group guarantor's share as coming from group savings", async () => {
+    api.guarantorRecoveries.mockResolvedValue({
+      data: {
+        data: [
+          recovery({
+            lines: [
+              {
+                id: 3,
+                source: 'guarantor',
+                member_id: null,
+                name: 'Umoja Group',
+                savings_account_id: null,
+                group_savings_account_id: 12,
+                is_group: true,
+                account_no: 'GSA-12',
+                amount: 400,
+              },
+            ],
+          }),
+        ],
+      },
+    })
+    const wrapper = mountPage()
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Umoja Group')
+    expect(wrapper.text()).toContain('group guarantor')
+    expect(wrapper.text()).toContain('GSA-12')
   })
 
   it('approves a recovery someone else proposed', async () => {

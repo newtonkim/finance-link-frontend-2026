@@ -270,7 +270,15 @@ function formatDate(value: string | null) {
                 <span>
                   {{ line.name ?? '—' }}
                   <span class="text-xs text-neutral-400">
-                    · {{ line.source === 'borrower' ? 'own savings' : 'guarantor' }} ·
+                    ·
+                    {{
+                      line.source === 'borrower'
+                        ? 'own savings'
+                        : line.group_savings_account_id
+                          ? 'group guarantor'
+                          : 'guarantor'
+                    }}
+                    ·
                     {{ line.account_no }}
                   </span>
                 </span>

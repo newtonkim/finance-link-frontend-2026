@@ -166,31 +166,24 @@ async function propose() {
             >
               <li
                 v-for="line in group.lines"
-                :key="line.savings_account_id"
+                :key="
+                  line.group_savings_account_id
+                    ? `g${line.group_savings_account_id}`
+                    : `m${line.savings_account_id}`
+                "
                 class="flex justify-between px-3 py-2"
               >
                 <span>
                   <span class="font-medium">{{ line.name ?? '—' }}</span>
-                  <span class="text-xs text-neutral-400"> · {{ line.account_no }}</span>
+                  <span class="text-xs text-neutral-400">
+                    <span v-if="line.group_savings_account_id"> · group</span> ·
+                    {{ line.account_no }}</span
+                  >
                 </span>
                 <span class="font-semibold">{{ formatMoneyValue(line.amount) }}</span>
               </li>
             </ul>
             <p v-else class="text-xs italic text-neutral-400">None</p>
-          </div>
-
-          <div
-            v-if="plan.unsupported_guarantors.length"
-            class="rounded-xl border border-neutral-200 p-3 text-xs dark:border-neutral-800"
-          >
-            <p class="mb-1 font-semibold">Not recovered here</p>
-            <p
-              v-for="g in plan.unsupported_guarantors"
-              :key="g.loan_application_guarantor_id"
-              class="text-neutral-500"
-            >
-              {{ g.name }} ({{ formatMoneyValue(g.guarantee_amount) }}): {{ g.reason }}
-            </p>
           </div>
 
           <p v-if="plan.guarantor_amount > 0" class="text-xs text-neutral-500">
