@@ -440,6 +440,9 @@ const coveragePercent = computed(() => {
             <span v-if="g.status === 'locked' && g.locked_at" class="text-neutral-400">
               since {{ formatDate(g.locked_at) }}
             </span>
+            <span v-if="g.status === 'locked' && g.arrears_notified_at" class="text-orange-600">
+              · warned of arrears {{ formatDate(g.arrears_notified_at) }}
+            </span>
             <span v-if="g.status === 'released' && g.released_at" class="text-neutral-400">
               {{ formatDate(g.released_at)
               }}{{ g.release_reason === 'loan_closed' ? ' · loan closed' : '' }}

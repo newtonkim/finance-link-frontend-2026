@@ -239,6 +239,8 @@ export interface LoanApplicationGuarantor {
   locked_at: string | null
   released_at: string | null
   release_reason: string | null
+  arrears_notified_at: string | null
+  arrears_notice_count: number
   note: string | null
   created_at: string
 }
@@ -268,6 +270,29 @@ export interface GuarantorCapacity {
   }[]
 }
 
+/** An overdue loan that guarantees stand behind, as listed on Guarantors at Risk. */
+export interface GuarantorArrearsRow {
+  loan_id: number
+  loan_no: string
+  borrower_name: string | null
+  member_id: number
+  days_past_due: number
+  arrears_amount: number
+  arrears_amount_formatted: string
+  arrears_since: string
+  guaranteed_amount: number
+  guarantors: {
+    id: number
+    guarantor_type: 'individual' | 'group'
+    guarantor_id: number
+    name: string | null
+    guarantee_amount: number
+    guarantee_amount_formatted: string
+    arrears_notified_at: string | null
+    arrears_notice_count: number
+  }[]
+}
+
 /** Guarantor adequacy as the server works it out from the SACCO's guarantor settings. */
 export interface GuarantorSummary {
   rules: {
@@ -281,6 +306,8 @@ export interface GuarantorSummary {
     consent_required: boolean
     consent_expiry_days: number
     hold_savings: boolean
+    arrears_notice_days: number
+    arrears_reminder_days: number
   }
   /** With consent required, only accepted guarantees are counted here. */
   guarantor_count: number
@@ -591,6 +618,18 @@ export const loanApplicationsApi = {
       summary: GuarantorSummary
       application_status: string
     }>(`/loan-applications/${applicationId}/guarantors/${guarantorId}/consent`, form)
+  },
+  /** Overdue loans with guarantees standing behind them, most overdue first. */
+  guarantorArrears() {
+    return tenantClient.get<{ data: GuarantorArrearsRow[]; rules: GuarantorSummary['rules'] }>(
+      '/loan-guarantors/arrears',
+    )
+  },
+  /** Warn an overdue loan's guarantors now, without waiting for the daily run. */
+  notifyGuarantorsOfArrears(loanId: number) {
+    return tenantClient.post<{ message: string; data: { notified: number } }>(
+      `/loans/${loanId}/guarantors/notify-arrears`,
+    )
   },
   guarantorSummary(applicationId: number) {
     return tenantClient.get<{ data: GuarantorSummary }>(`/loan-applications/${applicationId}/guarantors/summary`)
