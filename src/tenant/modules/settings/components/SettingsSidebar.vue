@@ -15,7 +15,8 @@ import {
     ChevronRight,
     CalendarDays,
     Wallet,
-    Archive
+    Archive,
+    Handshake
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -35,6 +36,7 @@ const modules = [
     {permission:"settings-module-link-view", name: 'Public Holidays & Leave', icon: CalendarDays, path: '/tenant/settings/public-holidays' },
     {permission:"settings-module-link-view", name: 'Expense Management', icon: Wallet, path: '/tenant/settings/expense-management' },
     {permission:"settings-module-link-view", name: 'Asset Management', icon: Archive, path: '/tenant/settings/assets' },
+    {permission:"settings-module-link-view", name: 'Guarantor', icon: Handshake, path: '/tenant/settings/guarantor' },
 ]
 
 const isActive = (path: string) => route.path.startsWith(path)

@@ -9,6 +9,7 @@ const MembersSettings = () => import('@/tenant/modules/settings/roles-permission
 const LoansSettings = () => import('./loan-products/index.vue')
 const SavingsSettings = () => import('./pages/SavingsSettings.vue')
 const SharesSettings = () => import('./shares-dividends/SharesSettings.vue')
+const GuarantorSettings = () => import('./guarantor/index.vue')
 const TransactionsSettings = () => import('./pages/TransactionsSettings.vue')
 const AccountingSettings = () => import('./pages/AccountingSettings.vue')
 const ComplianceSettings = () => import('./pages/ComplianceSettings.vue')
@@ -180,6 +181,11 @@ export const settingsRoutes: RouteRecordRaw[] = [
         path: 'compliance',
         name: 'tenant-settings-compliance',
         component: ComplianceSettings,
+      },
+      {
+        path: 'guarantor',
+        name: 'tenant-settings-guarantor',
+        component: GuarantorSettings,
       },
       {
         path: 'notifications',
