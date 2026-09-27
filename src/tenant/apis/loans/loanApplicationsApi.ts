@@ -216,6 +216,47 @@ export interface LoanApplicationListParams {
   per_page?: number
 }
 
+export interface LoanApplicationGuarantor {
+  id: number
+  code: string | null
+  loan_application_id: number
+  guarantor_type: 'individual' | 'group'
+  guarantor_id: number
+  guarantor_account_id: number | null
+  name: string | null
+  guarantor_code: string | null
+  guarantee_amount: number
+  guarantee_amount_formatted: string
+  status: 'proposed' | 'accepted' | 'declined' | 'withdrawn'
+  note: string | null
+  created_at: string
+}
+
+/** Guarantor adequacy as the server works it out from the SACCO's guarantor settings. */
+export interface GuarantorSummary {
+  rules: {
+    required: boolean
+    minimum: number
+    maximum: number
+    members_only: boolean
+    allow_self_guarantee: boolean
+    exposure_percentage: number
+    coverage_percentage: number
+  }
+  guarantor_count: number
+  remaining_guarantors: number
+  loan_amount: number
+  pledged_amount: number
+  borrower_free_savings: number
+  covered_amount: number
+  required_coverage_amount: number
+  coverage_shortfall: number
+  count_met: boolean
+  coverage_met: boolean
+  adequate: boolean
+  problems: string[]
+}
+
 export interface PendingDisbursementParams {
   page?: number
   per_page?: number
@@ -460,12 +501,47 @@ export const loanApplicationsApi = {
   
   // ─── Guarantors ─────────────────────────────────────────────────────────────
   listGuarantors(applicationId: number) {
-    return tenantClient.get(`/loan-applications/${applicationId}/guarantors`)
+    return tenantClient.get<{ data: LoanApplicationGuarantor[]; summary: GuarantorSummary }>(
+      `/loan-applications/${applicationId}/guarantors`,
+    )
   },
-  addGuarantor(applicationId: number, data: any) {
-    return tenantClient.post(`/loan-applications/${applicationId}/guarantors`, data)
+  addGuarantor(
+    applicationId: number,
+    data: {
+      guarantor_type: 'individual' | 'group'
+      guarantor_id: number
+      guarantor_account_id?: number | null
+      guarantee_amount: number
+      note?: string | null
+    },
+  ) {
+    return tenantClient.post<{ data: LoanApplicationGuarantor; summary: GuarantorSummary }>(
+      `/loan-applications/${applicationId}/guarantors`,
+      data,
+    )
   },
   removeGuarantor(applicationId: number, guarantorId: number) {
-    return tenantClient.delete(`/loan-applications/${applicationId}/guarantors/${guarantorId}`)
+    return tenantClient.delete<{ summary: GuarantorSummary }>(
+      `/loan-applications/${applicationId}/guarantors/${guarantorId}`,
+    )
+  },
+  guarantorSummary(applicationId: number) {
+    return tenantClient.get<{ data: GuarantorSummary }>(`/loan-applications/${applicationId}/guarantors/summary`)
+  },
+  guarantorCapacity(guarantorType: 'individual' | 'group', guarantorId: number) {
+    return tenantClient.get('/loan-guarantors/capacity', {
+      params: { guarantor_type: guarantorType, guarantor_id: guarantorId },
+    })
+  },
+  /**
+   * Saves every guarantor picked on the application screen in one go: either all are
+   * saved or, if any breaks a guarantor rule, none are and a 422 names the problem.
+   * Rows are sent as the pickers produced them; the server reads each shape.
+   */
+  saveGuarantors(applicationId: number, guarantors: any[]) {
+    return tenantClient.post('/loan-applications/save-guarantors', {
+      application_id: applicationId,
+      guarantors,
+    })
   },
 }
