@@ -227,15 +227,45 @@ export interface LoanApplicationGuarantor {
   guarantor_code: string | null
   guarantee_amount: number
   guarantee_amount_formatted: string
-  status: 'proposed' | 'requested' | 'accepted' | 'declined' | 'expired' | 'withdrawn'
+  status: 'proposed' | 'requested' | 'accepted' | 'declined' | 'expired' | 'withdrawn' | 'locked' | 'released'
   requested_at: string | null
   consent_expires_at: string | null
   responded_at: string | null
   response_channel: 'member_portal' | 'officer' | null
   decline_reason: string | null
   consent_document_url: string | null
+  /** Set once the loan is disbursed and the guarantee is locked to it. */
+  loan_id: number | null
+  locked_at: string | null
+  released_at: string | null
+  release_reason: string | null
   note: string | null
   created_at: string
+}
+
+/** A member's or group's standing as a guarantor. */
+export interface GuarantorCapacity {
+  guarantor_type: 'individual' | 'group'
+  guarantor_id: number
+  free_capacity: number
+  free_capacity_formatted: string
+  savings_balance: number
+  held_amount: number
+  held_amount_formatted: string
+  available_to_withdraw: number
+  available_to_withdraw_formatted: string
+  guarantees: {
+    id: number
+    status: LoanApplicationGuarantor['status']
+    guarantee_amount: number
+    guarantee_amount_formatted: string
+    loan_application_id: number
+    application_no: string | null
+    borrower_name: string | null
+    loan_id: number | null
+    loan_no: string | null
+    locked_at: string | null
+  }[]
 }
 
 /** Guarantor adequacy as the server works it out from the SACCO's guarantor settings. */
@@ -250,6 +280,7 @@ export interface GuarantorSummary {
     coverage_percentage: number
     consent_required: boolean
     consent_expiry_days: number
+    hold_savings: boolean
   }
   /** With consent required, only accepted guarantees are counted here. */
   guarantor_count: number
@@ -565,7 +596,7 @@ export const loanApplicationsApi = {
     return tenantClient.get<{ data: GuarantorSummary }>(`/loan-applications/${applicationId}/guarantors/summary`)
   },
   guarantorCapacity(guarantorType: 'individual' | 'group', guarantorId: number) {
-    return tenantClient.get('/loan-guarantors/capacity', {
+    return tenantClient.get<{ data: GuarantorCapacity }>('/loan-guarantors/capacity', {
       params: { guarantor_type: guarantorType, guarantor_id: guarantorId },
     })
   },

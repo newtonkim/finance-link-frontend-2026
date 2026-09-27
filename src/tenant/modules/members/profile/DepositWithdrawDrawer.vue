@@ -5,6 +5,7 @@ import { X, ArrowDownLeft, ArrowUpRight, Calendar, UserCircle2, FileText, Messag
 import SearchableSelect from '@/Global/SearchableSelect.vue';
 import { tenantClient } from '@/tenant/apis/tenantClient';
 import { formatMoneyValue } from '@/Global';
+import { loanApplicationsApi } from '@/tenant/apis/loans';
 
 const props = defineProps<{
     member: Record<string, any>;
@@ -64,10 +65,31 @@ const withdrawableAmount = computed(() => {
     return acc.consider_min_balance ? (acc.withdrawable_amount as number) : (acc.balance as number);
 });
 
+// Savings this member has pledged as a guarantor. Holds are per member, across all
+// their accounts, so this limits a withdrawal from any one of them.
+const guaranteeHold = ref<{ held: number; available: number } | null>(null);
+
+async function loadGuaranteeHold() {
+    guaranteeHold.value = null;
+    if (!props.member?.id) return;
+    try {
+        const res = await loanApplicationsApi.guarantorCapacity('individual', Number(props.member.id));
+        const data = res.data?.data;
+        if (data && data.held_amount > 0) {
+            guaranteeHold.value = { held: data.held_amount, available: data.available_to_withdraw };
+        }
+    } catch {
+        // Informational only; the server still enforces the hold.
+    }
+}
+
 const withdrawalAmountError = computed(() => {
     if (drawerOpen.value !== 'withdraw') return '';
     const amt = Number(form.amount);
     if (!amt || amt <= 0) return '';
+    if (guaranteeHold.value && amt > guaranteeHold.value.available) {
+        return `${props.currencyCode} ${formatMoneyValue(guaranteeHold.value.held)} of this member's savings is held as a guarantee. Max: ${props.currencyCode} ${formatMoneyValue(guaranteeHold.value.available)}`;
+    }
     const max = withdrawableAmount.value;
     if (max === null) return '';
     if (amt > max) {
@@ -129,6 +151,7 @@ function open(type: 'deposit' | 'withdraw') {
         use_for_loan_repayment: 'no',
     });
     errors.value = {};
+    if (type === 'withdraw') loadGuaranteeHold();
 }
 
 function close() {
@@ -232,6 +255,16 @@ defineExpose({ open });
                                         select one
                                     </p>
                                 </div>
+                            </div>
+
+                            <!-- Guarantee hold (withdrawal) -->
+                            <div v-if="drawerOpen === 'withdraw' && guaranteeHold"
+                                class="flex flex-wrap items-center gap-4 px-4 py-2.5 rounded-xl bg-orange-50 border border-orange-200 text-[12px] font-medium text-orange-800">
+                                <span>Held as guarantee: <strong>{{ currencyCode }} {{
+                                    formatMoneyValue(guaranteeHold.held) }}</strong></span>
+                                <span class="text-orange-400">|</span>
+                                <span>Available across all accounts: <strong>{{ currencyCode }} {{
+                                    formatMoneyValue(guaranteeHold.available) }}</strong></span>
                             </div>
 
                             <!-- Min balance badge (withdrawal) -->

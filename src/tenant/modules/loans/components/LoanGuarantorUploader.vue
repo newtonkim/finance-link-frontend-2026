@@ -148,6 +148,8 @@ const statusLabels: Record<LoanApplicationGuarantor['status'], string> = {
   declined: 'Declined',
   expired: 'Request expired',
   withdrawn: 'Removed',
+  locked: 'Holding savings',
+  released: 'Released',
 }
 
 const statusClasses: Record<LoanApplicationGuarantor['status'], string> = {
@@ -157,6 +159,8 @@ const statusClasses: Record<LoanApplicationGuarantor['status'], string> = {
   declined: 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300',
   expired: 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
   withdrawn: 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400',
+  locked: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
+  released: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300',
 }
 
 function canSendRequest(g: LoanApplicationGuarantor) {
@@ -432,6 +436,13 @@ const coveragePercent = computed(() => {
           <span class="flex flex-wrap items-center gap-1 text-[10px]">
             <span class="rounded-full px-2 py-0.5 font-medium" :class="statusClasses[g.status]">
               {{ statusLabels[g.status] }}
+            </span>
+            <span v-if="g.status === 'locked' && g.locked_at" class="text-neutral-400">
+              since {{ formatDate(g.locked_at) }}
+            </span>
+            <span v-if="g.status === 'released' && g.released_at" class="text-neutral-400">
+              {{ formatDate(g.released_at)
+              }}{{ g.release_reason === 'loan_closed' ? ' · loan closed' : '' }}
             </span>
             <span v-if="g.status === 'requested' && g.consent_expires_at" class="text-neutral-400">
               by {{ formatDate(g.consent_expires_at) }}
