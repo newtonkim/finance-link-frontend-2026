@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
+import { isAxiosError } from 'axios'
 import { Drawer } from '@/Global'
 import SearchableSelect from '@/Global/SearchableSelect.vue'
 import { toast } from 'vue-sonner'
 import { chartOfAccountsApi } from '@/tenant/apis/chartOfAccounts/chartOfAccountsApi'
+import { incomeStatementMappings } from '../incomeStatementMapping'
 import { licenseState } from '@/tenant/apis/licenseState'
 
 const props = defineProps<{
@@ -51,6 +53,7 @@ const form = ref({
   allow_manual: true,
   account_subtype: '',
   ifrs_category: '',
+  income_statement_line: null as string | null,
 })
 
 interface Account {
@@ -109,11 +112,12 @@ watch(
         allow_manual: true,
         account_subtype: '',
         ifrs_category: '',
+  income_statement_line: null as string | null,
       }
       errors.value = {}
 
       try {
-        const res = await chartOfAccountsApi.list({ list: 1 } as any)
+        const res = await chartOfAccountsApi.list({ list: 1 })
         parentAccounts.value = Array.isArray(res.data?.data)
           ? res.data.data
           : Array.isArray(res.data)
@@ -285,6 +289,7 @@ async function handleSubmit() {
 
   try {
     const payload = { ...form.value }
+    if (!incomeStatementMappings.some(l => l.type === payload.account_type && l.key === payload.income_statement_line)) payload.income_statement_line = null
     if (payload.parent_id === '') payload.parent_id = null
     const res = await chartOfAccountsApi.store(payload)
     const created = res.data?.data ?? res.data
@@ -297,11 +302,11 @@ async function handleSubmit() {
       parent_id: created.parent_id ?? null,
     })
     emit('update:open', false)
-  } catch (error: any) {
-    if (error.response?.data?.errors) {
+  } catch (error: unknown) {
+    if (isAxiosError(error) && error.response?.data?.errors) {
       errors.value = error.response.data.errors
     } else {
-      toast.error(error.response?.data?.message || 'Failed to create chart of account')
+      toast.error(isAxiosError(error) ? error.response?.data?.message || 'Failed to create chart of account' : 'Failed to create chart of account')
     }
   } finally {
     loading.value = false
@@ -321,6 +326,14 @@ async function handleSubmit() {
     @submit="handleSubmit"
   >
     <template #body>
+      <label v-if="form.account_type === 'INCOME' || form.account_type === 'EXPENSE'" class="mb-4 flex flex-col gap-2 text-sm">
+        Income statement line
+        <select v-model="form.income_statement_line" class="rounded-lg border border-neutral-200 bg-white p-2 dark:border-neutral-700 dark:bg-neutral-900">
+          <option :value="null">Inherit from parent / unclassified</option>
+          <option v-for="line in incomeStatementMappings.filter(l => l.type === form.account_type)" :key="line.key" :value="line.key">{{ line.label }}</option>
+        </select>
+        <span v-if="errors.income_statement_line" class="text-xs text-red-500">{{ errors.income_statement_line[0] }}</span>
+      </label>
       <div class="flex flex-col gap-5">
         <!-- Account Type & Name -->
         <div class="grid grid-cols-2 gap-4">
@@ -337,6 +350,7 @@ async function handleSubmit() {
             <select
               v-else
               v-model="form.account_type"
+              aria-label="Account type"
               class="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:border-nfuko-primary dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
             >
               <option value="ASSET">Asset</option>

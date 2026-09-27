@@ -3,6 +3,8 @@ import { ref, watch, onBeforeUnmount } from 'vue'
 import { DialogRoot, DialogPortal, DialogOverlay, DialogContent, DialogTitle, DialogDescription } from 'reka-ui'
 import { X } from 'lucide-vue-next'
 import { Spinner, formatMoneyValue } from '@/Global'
+import { incomeStatementApi } from '@/tenant/apis/reports/incomeStatementApi'
+import { formatStatementMoney } from '../utils/incomeStatementFormat'
 import { trialBalanceApi } from '@/tenant/apis/reports/trialBalanceApi'
 
 export interface DrillAccount {
@@ -11,15 +13,16 @@ export interface DrillAccount {
   name: string
 }
 
-const props = defineProps<{ account: DrillAccount | null; from: string; to: string }>()
+const props = defineProps<{ account: DrillAccount | null; from: string; to: string; source?: 'income-statement'; branchId?: number | null }>()
 const open = defineModel<boolean>('open', { required: true })
 
 interface LedgerLine {
   date: string
   entry_no: string
   description: string | null
-  debit: number
-  credit: number
+  debit: number | string
+  credit: number | string
+  running_movement?: string
 }
 const lines = ref<LedgerLine[]>([])
 const page     = ref(1)
@@ -38,8 +41,9 @@ async function fetchPage(nextPage = 1) {
   loading.value = true
   error.value = null
   try {
-    const res = await trialBalanceApi.getLedgerLines({
+    const res = await (props.source === 'income-statement' ? incomeStatementApi : trialBalanceApi).getLedgerLines({
       account_id: props.account.id, from: props.from, to: props.to, page: nextPage,
+      ...(props.source === 'income-statement' ? { branch_id: props.branchId ?? null } : {}),
     })
     if (requestVersion !== version) return
     lines.value = nextPage === 1 ? res.data : [...lines.value, ...res.data]
@@ -58,7 +62,7 @@ function loadMore() {
 }
 
 watch(
-  () => [open.value, props.account?.id, props.from, props.to] as const,
+  () => [open.value, props.account?.id, props.from, props.to, props.source, props.branchId] as const,
   ([isOpen]) => {
     ++version
     loading.value = false
@@ -103,6 +107,7 @@ onBeforeUnmount(() => { ++version })
                 <th class="px-4 py-3 text-left">Reference</th>
                 <th class="px-4 py-3 text-right">Debit</th>
                 <th class="px-4 py-3 text-right">Credit</th>
+                <th v-if="source === 'income-statement'" class="px-4 py-3 text-right">Running surplus movement</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
@@ -112,11 +117,12 @@ onBeforeUnmount(() => { ++version })
                   <div class="font-mono text-neutral-700 dark:text-neutral-300">{{ line.entry_no }}</div>
                   <div class="text-neutral-400 truncate max-w-[180px]">{{ line.description }}</div>
                 </td>
-                <td class="px-4 py-2.5 text-right text-blue-600 font-semibold">{{ line.debit ? formatMoneyValue(line.debit) : '—' }}</td>
-                <td class="px-4 py-2.5 text-right text-orange-600 font-semibold">{{ line.credit ? formatMoneyValue(line.credit) : '—' }}</td>
+                <td class="px-4 py-2.5 text-right text-blue-600 font-semibold">{{ source === 'income-statement' ? formatStatementMoney(String(line.debit)) : line.debit ? formatMoneyValue(line.debit) : '—' }}</td>
+                <td class="px-4 py-2.5 text-right text-orange-600 font-semibold">{{ source === 'income-statement' ? formatStatementMoney(String(line.credit)) : line.credit ? formatMoneyValue(line.credit) : '—' }}</td>
+                <td v-if="source === 'income-statement'" class="px-4 py-2.5 text-right tabular-nums">{{ formatStatementMoney(line.running_movement ?? '0.00') }}</td>
               </tr>
               <tr v-if="!lines.length && !loading">
-                <td colspan="4" class="px-4 py-12 text-center text-neutral-400">No transactions in this period.</td>
+                <td :colspan="source === 'income-statement' ? 5 : 4" class="px-4 py-12 text-center text-neutral-400">No transactions in this period.</td>
               </tr>
             </tbody>
           </table>

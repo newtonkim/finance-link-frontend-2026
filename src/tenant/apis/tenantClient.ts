@@ -45,7 +45,7 @@ tenantClient.interceptors.request.use((config) => {
       const activeBranchId: number | null = ctx?.active_branch_id ?? null
       if (activeBranchId !== null) {
         // For GET list endpoints — backend reads ?branch_id= for filter
-        if (config.method === 'get') {
+        if (config.method === 'get' && !Object.prototype.hasOwnProperty.call(config.params ?? {}, 'branch_id')) {
           config.params = { ...config.params, branch_id: activeBranchId }
         }
         // For all methods — backend reads X-Acting-Branch-Id to stamp writes

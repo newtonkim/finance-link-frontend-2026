@@ -83,7 +83,7 @@ async function mountOpen(props: Record<string, any>) {
 describe('ChartOfAccountForm - lockedAccountType', () => {
   it('renders Account Type as read-only when locked', async () => {
     const wrapper = await mountOpen({ lockedAccountType: 'INCOME' })
-    expect(wrapper.find('select').exists()).toBe(false)
+    expect(wrapper.find('select[aria-label="Account type"]').exists()).toBe(false)
     expect(wrapper.text()).toContain('Income')
   })
 })
