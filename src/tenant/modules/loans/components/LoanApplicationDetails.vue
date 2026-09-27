@@ -10,6 +10,7 @@ const columns = [
     { key: 'type', label: 'Type' },
     { key: 'name', label: 'Name' },
     { key: 'contribution', label: 'Amount' },
+    { key: 'status', label: 'Status' },
 ]
 const myGroupsColumns = [
     { key: 'member_code', label: 'Member Code', copy: true, sticky: 'left' },
