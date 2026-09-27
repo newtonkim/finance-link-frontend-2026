@@ -128,6 +128,14 @@ async function finalize() {
 
     const data = res.data.data
     toast.success(data.message || 'Top-up submitted successfully.')
+    // The old loan's guarantors are carried onto the new application where they can;
+    // name the ones who could not be, so staff know to find replacements.
+    const skipped: { name: string | null; reason: string }[] = data.guarantors_skipped ?? []
+    if (skipped.length) {
+      toast.warning(
+        `Not carried over: ${skipped.map((g) => `${g.name ?? 'a guarantor'} (${g.reason})`).join('; ')}`,
+      )
+    }
     emit('success')
     close()
 

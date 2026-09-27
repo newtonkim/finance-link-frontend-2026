@@ -9,7 +9,7 @@ import {
 } from '@/Global'
 import Button from '@/Global/ui/button/Button.vue'
 import { notify } from '@/Global/Toasters'
-import { Trash2, Send, ClipboardCheck, FileText } from 'lucide-vue-next'
+import { Trash2, Send, ClipboardCheck, FileText, Repeat } from 'lucide-vue-next'
 import { loanApplicationsApi, loanApplicationsApi2 } from '@/tenant/apis/loans'
 import type {
   GuarantorSummary,
@@ -244,6 +244,53 @@ async function saveRecordedAnswer() {
   }
 }
 
+// ─── Replacing a guarantor on a running loan ────────────────────────────────
+const replaceOpen = ref(false)
+const replacing = ref<LoanApplicationGuarantor | null>(null)
+type PickedMember = { member_id: number; account_id?: number; name: string }
+const replacementSelected = ref<(string | number)[]>([])
+const replacement = ref<{ member_id: number; account_id?: number; name: string } | null>(null)
+const replacementAmount = ref('')
+
+function openReplace(g: LoanApplicationGuarantor) {
+  replacing.value = g
+  replacementSelected.value = []
+  replacement.value = null
+  replacementAmount.value = String(g.guarantee_amount)
+  replaceOpen.value = true
+}
+
+function pickReplacement(items: PickedMember[]) {
+  const picked = items[items.length - 1]
+  replacement.value = picked
+    ? { member_id: picked.member_id, account_id: picked.account_id, name: picked.name }
+    : null
+}
+
+async function saveReplace() {
+  const g = replacing.value
+  const amount = Number(replacementAmount.value.replace(/,/g, ''))
+  if (!g || !replacement.value) {
+    notify({ type: 'error', msg: 'Pick the new guarantor.' })
+    await nextTick()
+    replaceOpen.value = true
+    return
+  }
+  try {
+    const res = await loanApplicationsApi.substituteGuarantor(g.id, {
+      guarantor_type: 'individual',
+      guarantor_id: replacement.value.member_id,
+      guarantor_account_id: replacement.value.account_id ?? null,
+      guarantee_amount: amount > 0 ? amount : undefined,
+    })
+    notify({ type: 'success', msg: res.data.message })
+    await loadGuarantors()
+    emit('updated', 1)
+  } catch (err) {
+    notify({ type: 'error', msg: errorMessage(err, 'Could not replace the guarantor.') })
+  }
+}
+
 function SetGuarantorContribution(item: any) {
   guarantors.value[item.id] = item
 }
@@ -466,6 +513,17 @@ const coveragePercent = computed(() => {
               <FileText class="h-3 w-3" /> Signed form
             </a>
           </span>
+          <span v-if="g.substitutes_id && g.status !== 'locked'" class="text-[10px] text-blue-600">
+            Replacement, waiting to take over
+          </span>
+          <span
+            v-if="g.status === 'locked' && g.release_requested_at"
+            class="text-[10px] text-orange-600"
+          >
+            Asked to be replaced{{
+              g.release_request_reason ? `: “${g.release_request_reason}”` : ''
+            }}
+          </span>
           <span
             v-if="g.status === 'declined' && g.decline_reason"
             class="text-[10px] italic text-red-500"
@@ -477,7 +535,17 @@ const coveragePercent = computed(() => {
           <span class="text-[11px] font-semibold text-nfuko-action">{{
             g.guarantee_amount_formatted
           }}</span>
-          <template v-if="editable !== false">
+          <button
+            v-if="g.status === 'locked'"
+            type="button"
+            class="text-neutral-400 transition hover:text-nfuko-action"
+            :title="`Replace ${g.name ?? 'guarantor'}`"
+            @click="openReplace(g)"
+          >
+            <Repeat class="h-4 w-4" />
+          </button>
+          <!-- A replacement on a running loan is asked and answered like any other. -->
+          <template v-if="editable !== false || g.substitutes_id">
             <button
               v-if="canSendRequest(g)"
               type="button"
@@ -498,6 +566,7 @@ const coveragePercent = computed(() => {
               <ClipboardCheck class="h-4 w-4" />
             </button>
             <button
+              v-if="editable !== false"
               type="button"
               :disabled="removingId === g.id"
               class="text-neutral-400 transition hover:text-red-500 disabled:opacity-50"
@@ -512,6 +581,45 @@ const coveragePercent = computed(() => {
     </ul>
     <div v-else class="text-xs italic text-neutral-400">No guarantors added yet</div>
   </div>
+
+  <Modal
+    v-model="replaceOpen"
+    :title="`Replace ${replacing?.name ?? 'guarantor'}`"
+    action-text="Replace"
+    @submit="saveReplace"
+  >
+    <template #body>
+      <div class="space-y-4 text-sm">
+        <p class="text-xs text-neutral-500">
+          The new guarantor must guarantee at least what is still at stake.
+          <template v-if="consentRequired">
+            They are asked to accept first; {{ replacing?.name ?? 'the current guarantor' }} stays
+            until they do.
+          </template>
+        </p>
+        <MultiSearchableSelect
+          v-model="replacementSelected"
+          :options="[]"
+          url="global/member-dropdown-list-total-balance-accouts"
+          placeholder="Select the new guarantor"
+          @update:itemSelected="pickReplacement"
+        />
+        <p v-if="replacement" class="text-xs">
+          New guarantor: <strong>{{ replacement.name }}</strong>
+        </p>
+        <div>
+          <label class="text-xs font-medium text-neutral-600 dark:text-neutral-400"
+            >Amount to guarantee</label
+          >
+          <input
+            v-model="replacementAmount"
+            inputmode="decimal"
+            class="mt-1 w-full rounded-xl border border-neutral-200 bg-transparent px-3 py-2 dark:border-neutral-700"
+          />
+        </div>
+      </div>
+    </template>
+  </Modal>
 
   <Modal
     v-model="recordOpen"

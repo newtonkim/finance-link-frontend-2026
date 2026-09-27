@@ -241,6 +241,12 @@ export interface LoanApplicationGuarantor {
   release_reason: string | null
   arrears_notified_at: string | null
   arrears_notice_count: number
+  /** On a replacement: the guarantee it is taking over from. */
+  substitutes_id: number | null
+  substituted_by_id: number | null
+  release_requested_at: string | null
+  release_request_reason: string | null
+  recovered_amount?: number
   note: string | null
   created_at: string
 }
@@ -365,6 +371,53 @@ export interface GuarantorRecovery {
   lines: GuarantorRecoveryLine[]
   schedule?: GuarantorRecoveryScheduleRow[]
   repayments?: { id: number; amount: number; payment_date: string; payment_mode: string | null; reference: string | null }[]
+}
+
+export interface GuarantorExposureRow {
+  guarantor_type: 'individual' | 'group'
+  guarantor_id: number
+  name: string | null
+  code: string | null
+  guarantees: number
+  pledged_amount: number
+  held_amount: number
+  held_amount_formatted: string
+  savings_balance: number
+  held_share: number | null
+  overdue_loans: number
+  recovered_to_date: number
+  release_requested: boolean
+}
+
+export interface GuarantorPendingConsentRow {
+  id: number
+  loan_application_id: number
+  application_no: string | null
+  loan_id: number | null
+  loan_no: string | null
+  borrower_name: string | null
+  guarantor_type: 'individual' | 'group'
+  name: string | null
+  guarantee_amount: number
+  guarantee_amount_formatted: string
+  requested_at: string | null
+  consent_expires_at: string | null
+  is_replacement: boolean
+}
+
+export interface GuarantorReleaseRequestRow {
+  id: number
+  loan_id: number | null
+  loan_no: string | null
+  loan_application_id: number
+  borrower_name: string | null
+  guarantor_type: 'individual' | 'group'
+  name: string | null
+  guarantee_amount: number
+  guarantee_amount_formatted: string
+  release_requested_at: string
+  release_request_reason: string | null
+  replacement_pending: string | null
 }
 
 /** Guarantor adequacy as the server works it out from the SACCO's guarantor settings. */
@@ -734,6 +787,35 @@ export const loanApplicationsApi = {
     data: { amount: number; payment_date?: string; payment_mode?: string; reference?: string },
   ) {
     return tenantClient.post<{ message: string; data: GuarantorRecovery }>(`/guarantor-recoveries/${id}/repayments`, data)
+  },
+  // ─── Replacing guarantors and reports ──────────────────────────────────────
+  substituteGuarantor(
+    guarantorId: number,
+    data: {
+      guarantor_type: 'individual' | 'group'
+      guarantor_id: number
+      guarantor_account_id?: number | null
+      guarantee_amount?: number
+      note?: string
+    },
+  ) {
+    return tenantClient.post<{ message: string; data: LoanApplicationGuarantor }>(
+      `/loan-guarantors/${guarantorId}/substitute`,
+      data,
+    )
+  },
+  guarantorExposure() {
+    return tenantClient.get<{ data: GuarantorExposureRow[] }>('/loan-guarantors/report', { params: { view: 'exposure' } })
+  },
+  guarantorPendingConsents() {
+    return tenantClient.get<{ data: GuarantorPendingConsentRow[] }>('/loan-guarantors/report', {
+      params: { view: 'pending_consents' },
+    })
+  },
+  guarantorReleaseRequests() {
+    return tenantClient.get<{ data: GuarantorReleaseRequestRow[] }>('/loan-guarantors/report', {
+      params: { view: 'release_requests' },
+    })
   },
   guarantorSummary(applicationId: number) {
     return tenantClient.get<{ data: GuarantorSummary }>(`/loan-applications/${applicationId}/guarantors/summary`)
