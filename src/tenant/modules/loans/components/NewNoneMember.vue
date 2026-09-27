@@ -134,6 +134,13 @@ const fields = ref<any[]>([
     placeholder: 'Enter opening balance',
   },
   {
+    label: 'amount pledged',
+    name: 'guarantee_amount',
+    type: 'money',
+    required: true,
+    placeholder: 'Amount this guarantor is pledging',
+  },
+  {
     label: 'joined date',
     name: 'joined_date',
     type: 'date',
