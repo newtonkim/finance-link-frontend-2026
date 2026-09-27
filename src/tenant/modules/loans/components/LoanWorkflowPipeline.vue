@@ -18,7 +18,7 @@ const workflowSteps = [
 ]
 
 const statusOrder: Record<string, number> = {
-    draft: 0, submitted: 1,
+    draft: 0, submitted: 1, awaiting_guarantors: 1,
     under_review: 2, awaiting_documents: 2,
     recommended: 3,
     approved: 4, disbursement_pending: 4,
@@ -32,6 +32,7 @@ const isTerminalNegative = computed(() =>
 const pipelineSubLabel = computed(() => {
     switch (props.application.status) {
         case 'awaiting_documents':   return 'Awaiting Docs'
+        case 'awaiting_guarantors':  return 'Awaiting Guarantors'
         case 'disbursement_pending': return 'Pending Disbursement'
         default: return null
     }

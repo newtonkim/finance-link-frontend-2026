@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import { ref, watch, computed, onMounted } from 'vue'
-import { Drawer, MultiSearchableSelect, StatusButtonsHorizontal, formatCurrency } from '@/Global'
+import { ref, watch, computed, onMounted, nextTick } from 'vue'
+import {
+  Drawer,
+  Modal,
+  MultiSearchableSelect,
+  StatusButtonsHorizontal,
+  formatCurrency,
+} from '@/Global'
 import Button from '@/Global/ui/button/Button.vue'
 import { notify } from '@/Global/Toasters'
-import { Trash2 } from 'lucide-vue-next'
+import { Trash2, Send, ClipboardCheck, FileText } from 'lucide-vue-next'
 import { loanApplicationsApi, loanApplicationsApi2 } from '@/tenant/apis/loans'
 import type {
   GuarantorSummary,
@@ -120,6 +126,118 @@ async function removeGuarantor(guarantor: LoanApplicationGuarantor) {
   }
 }
 
+// ─── Consent ────────────────────────────────────────────────────────────────
+const consentRequired = computed(() => summary.value?.rules.consent_required ?? false)
+const sendingId = ref<number | null>(null)
+const recording = ref<LoanApplicationGuarantor | null>(null)
+const recordOpen = ref(false)
+const recordForm = ref<{
+  decision: 'accepted' | 'declined'
+  reason: string
+  document: File | null
+}>({
+  decision: 'accepted',
+  reason: '',
+  document: null,
+})
+
+const statusLabels: Record<LoanApplicationGuarantor['status'], string> = {
+  proposed: 'Not asked yet',
+  requested: 'Waiting for answer',
+  accepted: 'Accepted',
+  declined: 'Declined',
+  expired: 'Request expired',
+  withdrawn: 'Removed',
+}
+
+const statusClasses: Record<LoanApplicationGuarantor['status'], string> = {
+  proposed: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300',
+  requested: 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  accepted: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
+  declined: 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+  expired: 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+  withdrawn: 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400',
+}
+
+function canSendRequest(g: LoanApplicationGuarantor) {
+  return (
+    consentRequired.value && ['proposed', 'requested', 'expired', 'declined'].includes(g.status)
+  )
+}
+
+function canRecordAnswer(g: LoanApplicationGuarantor) {
+  return ['proposed', 'requested', 'expired'].includes(g.status)
+}
+
+function formatDate(value: string | null) {
+  return value
+    ? new Date(value).toLocaleDateString(undefined, {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      })
+    : ''
+}
+
+function replaceGuarantor(updated: LoanApplicationGuarantor) {
+  current.value = current.value.map((g) => (g.id === updated.id ? updated : g))
+}
+
+async function sendRequest(g: LoanApplicationGuarantor) {
+  sendingId.value = g.id
+  try {
+    const res = await loanApplicationsApi.requestGuarantorConsent(props.application.id, g.id)
+    replaceGuarantor(res.data.data)
+    summary.value = res.data.summary
+    notify({ type: 'success', msg: `Request sent to ${g.name ?? 'the guarantor'}.` })
+  } catch (err) {
+    notify({ type: 'error', msg: errorMessage(err, 'Could not send the request.') })
+  } finally {
+    sendingId.value = null
+  }
+}
+
+function openRecordAnswer(g: LoanApplicationGuarantor) {
+  recording.value = g
+  recordForm.value = { decision: 'accepted', reason: '', document: null }
+  recordOpen.value = true
+}
+
+function onDocumentPicked(event: Event) {
+  recordForm.value.document = (event.target as HTMLInputElement).files?.[0] ?? null
+}
+
+async function saveRecordedAnswer() {
+  const g = recording.value
+  if (!g) return
+  if (recordForm.value.decision === 'declined' && !recordForm.value.reason.trim()) {
+    notify({ type: 'error', msg: 'Give the reason the guarantor declined.' })
+    // The modal closes itself on submit; reopen it so the answer is not lost.
+    await nextTick()
+    recordOpen.value = true
+    return
+  }
+  try {
+    const res = await loanApplicationsApi.recordGuarantorConsent(props.application.id, g.id, {
+      decision: recordForm.value.decision,
+      reason: recordForm.value.reason.trim() || undefined,
+      document: recordForm.value.document,
+    })
+    replaceGuarantor(res.data.data)
+    summary.value = res.data.summary
+    notify({
+      type: 'success',
+      msg: res.data.data.status === 'accepted' ? 'Recorded as accepted.' : 'Recorded as declined.',
+    })
+    // Enough acceptances move a waiting application on, so the page needs to reload.
+    if (res.data.application_status !== props.application.status) emit('updated', 1)
+  } catch (err) {
+    notify({ type: 'error', msg: errorMessage(err, 'Could not record the answer.') })
+  } finally {
+    recording.value = null
+  }
+}
+
 function SetGuarantorContribution(item: any) {
   guarantors.value[item.id] = item
 }
@@ -162,6 +280,10 @@ const coveragePercent = computed(() => {
         <span v-else>Guarantors are optional for this loan</span>
         <span>{{ summary.adequate ? 'Ready to submit' : 'Not enough yet' }}</span>
       </div>
+      <p v-if="consentRequired">
+        Guarantors must accept before they count.
+        <span v-if="summary.pending_count">{{ summary.pending_count }} waiting for an answer.</span>
+      </p>
       <div v-if="coveragePercent !== null && summary.rules.required">
         <div class="mb-1 flex justify-between">
           <span>Coverage (pledges + borrower's free savings)</span>
@@ -302,33 +424,122 @@ const coveragePercent = computed(() => {
         :key="g.id"
         class="flex items-center justify-between rounded-xl border border-neutral-200 px-4 py-2 dark:border-neutral-800"
       >
-        <div class="flex min-w-0 flex-col">
+        <div class="flex min-w-0 flex-col gap-0.5">
           <span class="truncate text-[12px] font-semibold text-neutral-800 dark:text-neutral-100">{{
             g.name ?? '—'
           }}</span>
-          <span class="text-[10px] capitalize text-neutral-400"
-            >{{ g.guarantor_type }} · {{ g.status }}</span
+          <span class="text-[10px] capitalize text-neutral-400">{{ g.guarantor_type }}</span>
+          <span class="flex flex-wrap items-center gap-1 text-[10px]">
+            <span class="rounded-full px-2 py-0.5 font-medium" :class="statusClasses[g.status]">
+              {{ statusLabels[g.status] }}
+            </span>
+            <span v-if="g.status === 'requested' && g.consent_expires_at" class="text-neutral-400">
+              by {{ formatDate(g.consent_expires_at) }}
+            </span>
+            <span v-if="g.responded_at" class="text-neutral-400">
+              {{ formatDate(g.responded_at)
+              }}{{ g.response_channel === 'officer' ? ' · recorded by staff' : '' }}
+            </span>
+            <a
+              v-if="g.consent_document_url"
+              :href="g.consent_document_url"
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-0.5 text-nfuko-action hover:underline"
+            >
+              <FileText class="h-3 w-3" /> Signed form
+            </a>
+          </span>
+          <span
+            v-if="g.status === 'declined' && g.decline_reason"
+            class="text-[10px] italic text-red-500"
           >
+            “{{ g.decline_reason }}”
+          </span>
         </div>
         <div class="flex items-center gap-3">
           <span class="text-[11px] font-semibold text-nfuko-action">{{
             g.guarantee_amount_formatted
           }}</span>
-          <button
-            v-if="editable !== false"
-            type="button"
-            :disabled="removingId === g.id"
-            class="text-neutral-400 transition hover:text-red-500 disabled:opacity-50"
-            :title="`Remove ${g.name ?? 'guarantor'}`"
-            @click="removeGuarantor(g)"
-          >
-            <Trash2 class="h-4 w-4" />
-          </button>
+          <template v-if="editable !== false">
+            <button
+              v-if="canSendRequest(g)"
+              type="button"
+              :disabled="sendingId === g.id"
+              class="text-neutral-400 transition hover:text-nfuko-action disabled:opacity-50"
+              :title="g.status === 'proposed' ? 'Ask to accept' : 'Send the request again'"
+              @click="sendRequest(g)"
+            >
+              <Send class="h-4 w-4" />
+            </button>
+            <button
+              v-if="canRecordAnswer(g)"
+              type="button"
+              class="text-neutral-400 transition hover:text-emerald-600"
+              title="Record the guarantor's answer"
+              @click="openRecordAnswer(g)"
+            >
+              <ClipboardCheck class="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              :disabled="removingId === g.id"
+              class="text-neutral-400 transition hover:text-red-500 disabled:opacity-50"
+              :title="`Remove ${g.name ?? 'guarantor'}`"
+              @click="removeGuarantor(g)"
+            >
+              <Trash2 class="h-4 w-4" />
+            </button>
+          </template>
         </div>
       </li>
     </ul>
     <div v-else class="text-xs italic text-neutral-400">No guarantors added yet</div>
   </div>
+
+  <Modal
+    v-model="recordOpen"
+    :title="`Answer from ${recording?.name ?? 'guarantor'}`"
+    action-text="Save answer"
+    @submit="saveRecordedAnswer"
+  >
+    <template #body>
+      <div class="space-y-4 text-sm">
+        <p class="text-xs text-neutral-500">
+          Use this when the guarantor answered in person or on a signed form, rather than through
+          the member portal.
+        </p>
+        <div class="flex gap-4">
+          <label class="flex items-center gap-2">
+            <input v-model="recordForm.decision" type="radio" value="accepted" /> Accepted
+          </label>
+          <label class="flex items-center gap-2">
+            <input v-model="recordForm.decision" type="radio" value="declined" /> Declined
+          </label>
+        </div>
+        <div v-if="recordForm.decision === 'declined'" class="space-y-1">
+          <label class="text-xs font-medium text-neutral-600 dark:text-neutral-400">Reason</label>
+          <textarea
+            v-model="recordForm.reason"
+            rows="2"
+            maxlength="500"
+            class="w-full rounded-xl border border-neutral-200 bg-transparent px-3 py-2 text-sm dark:border-neutral-700"
+          />
+        </div>
+        <div class="space-y-1">
+          <label class="text-xs font-medium text-neutral-600 dark:text-neutral-400">
+            Signed form (optional, PDF or image)
+          </label>
+          <input
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png"
+            class="block w-full text-xs"
+            @change="onDocumentPicked"
+          />
+        </div>
+      </div>
+    </template>
+  </Modal>
 
   <Drawer
     :open="statusFilter === 'n-members'"

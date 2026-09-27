@@ -150,6 +150,10 @@ const loanOptions:any = {
     label: 'Under Review',
     className: 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 inline-flex items-center px-3 py-0 text-sm font-medium rounded-full ',
   },
+  awaiting_guarantors: {
+    label: 'Awaiting Guarantors',
+    className: 'bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 inline-flex items-center px-3 py-0 text-sm font-medium rounded-full ',
+  },
   awaiting_documents: {
     label: 'Awaiting Documents',
     className: 'bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 inline-flex items-center px-3 py-0 text-sm font-medium rounded-full ',

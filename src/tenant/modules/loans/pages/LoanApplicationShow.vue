@@ -64,7 +64,7 @@ const workflowStepKeys = ['draft', 'submitted', 'under_review', 'recommended', '
 
 const statusToStepIndex: Record<string, number> = {
   draft: 0,
-  submitted: 1,
+  submitted: 1, awaiting_guarantors: 1,
   under_review: 2, awaiting_documents: 2, returned_for_correction: 1,
   recommended: 3, officer_recommended: 3, bm_recommended: 3, committee_voting: 3,
   approved: 4, disbursement_pending: 4,
@@ -119,9 +119,11 @@ const stepSummary = computed(() => {
 })
 
 const editableStatuses          = ['draft', 'returned_for_correction']
-const cancellableStatuses       = ['draft', 'submitted', 'under_review', 'awaiting_documents', 'officer_recommended', 'bm_recommended', 'committee_voting']
+const cancellableStatuses       = ['draft', 'awaiting_guarantors', 'submitted', 'under_review', 'awaiting_documents', 'officer_recommended', 'bm_recommended', 'committee_voting']
 const reopenableStatuses        = ['cancelled', 'declined']
 const documentEditableStatuses  = ['draft', 'submitted', 'awaiting_documents', 'returned_for_correction']
+// Matches the statuses in which the server lets guarantors change.
+const guarantorEditableStatuses = ['draft', 'submitted', 'under_review', 'awaiting_documents', 'awaiting_guarantors', 'returned_for_correction']
 
 const hasMissingDocsForStage = ref(false)
 function handleDocStatusChange(missing: boolean) {
@@ -134,6 +136,7 @@ const currentDocStage = computed(() => {
   switch (application.value?.status) {
     case 'draft':               return 'draft'
     case 'submitted':
+    case 'awaiting_guarantors':
     case 'awaiting_documents':  return 'submission'
     case 'under_review':        return 'review'
     case 'officer_recommended':
@@ -273,7 +276,7 @@ const showDetailsSection = computed(() => !isApproved.value && !isDisbursed.valu
           v-if="application.id && !isApproved" 
           :application-id="application.id"
           :application="application"
-          :editable="documentEditableStatuses.includes(application.status ?? '')"
+          :editable="guarantorEditableStatuses.includes(application.status ?? '')"
           :current-stage="currentDocStage"
           @updated="loadApplication"
           @status-change="handleDocStatusChange"

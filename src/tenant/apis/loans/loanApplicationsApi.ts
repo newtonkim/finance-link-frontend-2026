@@ -227,7 +227,13 @@ export interface LoanApplicationGuarantor {
   guarantor_code: string | null
   guarantee_amount: number
   guarantee_amount_formatted: string
-  status: 'proposed' | 'accepted' | 'declined' | 'withdrawn'
+  status: 'proposed' | 'requested' | 'accepted' | 'declined' | 'expired' | 'withdrawn'
+  requested_at: string | null
+  consent_expires_at: string | null
+  responded_at: string | null
+  response_channel: 'member_portal' | 'officer' | null
+  decline_reason: string | null
+  consent_document_url: string | null
   note: string | null
   created_at: string
 }
@@ -242,9 +248,16 @@ export interface GuarantorSummary {
     allow_self_guarantee: boolean
     exposure_percentage: number
     coverage_percentage: number
+    consent_required: boolean
+    consent_expiry_days: number
   }
+  /** With consent required, only accepted guarantees are counted here. */
   guarantor_count: number
   remaining_guarantors: number
+  pending_count: number
+  pending_amount: number
+  declined_count: number
+  expired_count: number
   loan_amount: number
   pledged_amount: number
   borrower_free_savings: number
@@ -254,6 +267,7 @@ export interface GuarantorSummary {
   count_met: boolean
   coverage_met: boolean
   adequate: boolean
+  adequate_if_pending_accept: boolean
   problems: string[]
 }
 
@@ -524,6 +538,28 @@ export const loanApplicationsApi = {
     return tenantClient.delete<{ summary: GuarantorSummary }>(
       `/loan-applications/${applicationId}/guarantors/${guarantorId}`,
     )
+  },
+  /** Send, or send again, the request asking a guarantor to accept or decline. */
+  requestGuarantorConsent(applicationId: number, guarantorId: number) {
+    return tenantClient.post<{ data: LoanApplicationGuarantor; summary: GuarantorSummary }>(
+      `/loan-applications/${applicationId}/guarantors/${guarantorId}/request-consent`,
+    )
+  },
+  /** Record a guarantor's answer on their behalf, optionally attaching the signed form. */
+  recordGuarantorConsent(
+    applicationId: number,
+    guarantorId: number,
+    data: { decision: 'accepted' | 'declined'; reason?: string; document?: File | null },
+  ) {
+    const form = new FormData()
+    form.append('decision', data.decision)
+    if (data.reason) form.append('reason', data.reason)
+    if (data.document) form.append('document', data.document)
+    return tenantClient.post<{
+      data: LoanApplicationGuarantor
+      summary: GuarantorSummary
+      application_status: string
+    }>(`/loan-applications/${applicationId}/guarantors/${guarantorId}/consent`, form)
   },
   guarantorSummary(applicationId: number) {
     return tenantClient.get<{ data: GuarantorSummary }>(`/loan-applications/${applicationId}/guarantors/summary`)
