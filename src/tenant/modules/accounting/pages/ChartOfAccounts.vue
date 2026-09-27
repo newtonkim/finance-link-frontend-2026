@@ -5,6 +5,7 @@ import { Search, Plus, ChevronRight, ChevronDown } from 'lucide-vue-next'
 import { Spinner } from '@/Global'
 import { chartOfAccountsApi } from '@/tenant/apis/chartOfAccounts/chartOfAccountsApi'
 import ChartOfAccountForm from '../components/ChartOfAccountForm.vue'
+import { incomeStatementMappings } from '../incomeStatementMapping'
 import { licenseState } from '@/tenant/apis/licenseState'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -21,6 +22,7 @@ interface Account {
   is_postable: boolean
   is_active: boolean
   ifrs_category: string | null
+  income_statement_line: string | null
 }
 type AccountType = 'ASSET' | 'LIABILITY' | 'EQUITY' | 'INCOME' | 'EXPENSE'
 type AccountTypeFilter = 'ALL' | AccountType
@@ -32,6 +34,25 @@ const loadError = ref('')
 const search    = ref('')
 const typeFilter = ref<AccountTypeFilter>('ALL')
 const showForm  = ref(false)
+const mappingSaving = ref(new Set<number>())
+const mappingError = ref('')
+async function saveMapping(account: Account, event: Event) {
+  const select = event.target as HTMLSelectElement
+  const value = select.value || null
+  if (licenseState.readOnly || mappingSaving.value.has(account.id)) return
+  mappingSaving.value.add(account.id)
+  mappingError.value = ''
+  try {
+    await chartOfAccountsApi.update(account.id, {
+      gl_code: account.gl_code, name: account.name, account_type: account.account_type,
+      normal_balance: account.normal_balance, income_statement_line: value,
+    })
+    account.income_statement_line = value
+  } catch (error) {
+    select.value = account.income_statement_line ?? ''
+    mappingError.value = isAxiosError(error) ? error.response?.data?.message || 'Unable to save mapping.' : 'Unable to save mapping.'
+  } finally { mappingSaving.value.delete(account.id) }
+}
 let   timer: ReturnType<typeof setTimeout> | null = null
 
 function openCreateForm() {
@@ -116,6 +137,7 @@ const typeFilters: Array<{ value: AccountTypeFilter; label: string }> = [
 
 <template>
   <div class="flex flex-col gap-6 p-6">
+    <p v-if="mappingError" role="alert" class="text-sm text-red-600">{{ mappingError }}</p>
     <!-- Header -->
     <div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
       <div>
@@ -201,7 +223,7 @@ const typeFilters: Array<{ value: AccountTypeFilter; label: string }> = [
         </button>
 
         <!-- Rows -->
-        <div v-show="!collapsedGroups.has(type)">
+        <div v-show="!collapsedGroups.has(type)" class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
               <tr class="bg-neutral-50 dark:bg-neutral-800/40">
@@ -211,6 +233,7 @@ const typeFilters: Array<{ value: AccountTypeFilter; label: string }> = [
                 <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wide text-neutral-400">Normal Balance</th>
                 <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wide text-neutral-400">Postable</th>
                 <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wide text-neutral-400">Status</th>
+                <th v-if="type === 'INCOME' || type === 'EXPENSE'" class="px-6 py-3 text-left text-xs text-neutral-400">Income statement line</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-neutral-50 dark:divide-neutral-800">
@@ -277,6 +300,12 @@ const typeFilters: Array<{ value: AccountTypeFilter; label: string }> = [
                   >
                     {{ account.is_active ? 'Active' : 'Inactive' }}
                   </span>
+                </td>
+                <td v-if="type === 'INCOME' || type === 'EXPENSE'" class="px-6 py-3">
+                  <select :value="account.income_statement_line ?? ''" :aria-label="`Income statement line for ${account.name}`" :disabled="licenseState.readOnly || mappingSaving.has(account.id)" class="max-w-52 rounded-lg border border-neutral-200 bg-white p-2 text-xs dark:border-neutral-700 dark:bg-neutral-900" @change="saveMapping(account, $event)">
+                    <option value="">Inherit from parent / unclassified</option>
+                    <option v-for="line in incomeStatementMappings.filter(l => l.type === account.account_type)" :key="line.key" :value="line.key">{{ line.label }}</option>
+                  </select>
                 </td>
               </tr>
             </tbody>

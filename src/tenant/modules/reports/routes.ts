@@ -6,6 +6,11 @@ import TrialBalance from './pages/TrialBalance.vue'
 
 export const reportsRoutes: RouteRecordRaw[] = [
   {
+    path: 'reports/income-statement',
+    name: 'tenant-income-statement',
+    component: () => import('./pages/IncomeStatement.vue'),
+  },
+  {
     path: 'reports',
     name: 'tenant-reports',
     component: Reports,

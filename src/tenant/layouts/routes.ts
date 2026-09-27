@@ -343,9 +343,9 @@ export const tenantRoutes: MenuRoutes[] = [
           },
           {
             path: 'reports/income-statement',
-            label: 'Income Statement(P&L)',
+            label: 'Income Statement',
             showSideBar: true,
-            component: () => import('@/tenant/components/globals/ComingSoon.vue'),
+            component: () => import('@/tenant/modules/reports/pages/IncomeStatement.vue'),
           },
           {
             path: 'reports/balance-sheet',

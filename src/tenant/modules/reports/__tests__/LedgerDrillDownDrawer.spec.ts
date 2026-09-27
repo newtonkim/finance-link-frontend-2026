@@ -2,14 +2,15 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import LedgerDrillDownDrawer from '../components/LedgerDrillDownDrawer.vue'
 
-const { getLedgerLines } = vi.hoisted(() => ({ getLedgerLines: vi.fn() }))
+const { getLedgerLines, getIncomeLedger } = vi.hoisted(() => ({ getLedgerLines: vi.fn(), getIncomeLedger: vi.fn() }))
 vi.mock('@/Global', () => ({ Spinner: { template: '<span>Loading</span>' }, formatMoneyValue: String }))
 vi.mock('@/tenant/apis/reports/trialBalanceApi', () => ({ trialBalanceApi: { getLedgerLines } }))
+vi.mock('@/tenant/apis/reports/incomeStatementApi', () => ({ incomeStatementApi: { getLedgerLines: getIncomeLedger } }))
 const account = { id: 1, gl_code: '11101', name: 'Cash' }
 const mounts: ReturnType<typeof mount>[] = []
-function drawer() {
+function drawer(source?: 'income-statement') {
   const wrapper = mount(LedgerDrillDownDrawer, {
-    props: { open: true, account, from: '2026-01-01', to: '2026-09-30' },
+    props: { source, open: true, account, from: '2026-01-01', to: '2026-09-30' },
     global: { stubs: { DialogRoot: { template: '<div><slot /></div>' }, DialogPortal: { template: '<div><slot /></div>' }, DialogContent: { template: '<div><slot /></div>' }, DialogTitle: { template: '<h2><slot /></h2>' }, DialogDescription: { template: '<p><slot /></p>' }, DialogOverlay: true } },
   })
   mounts.push(wrapper)
@@ -45,4 +46,14 @@ describe('ledger drawer', () => {
     expect(w.text()).toContain('NEW ACCOUNT')
     expect(w.text()).not.toContain('OLD ACCOUNT')
   })
+})
+
+it('uses the income-statement scope and preserves decimal running movement', async () => {
+  getIncomeLedger.mockResolvedValue({ data: [{ date: '2026-01-01', entry_no: 'IS-1', debit: '0.00', credit: '90071992547409.91', running_movement: '90071992547409.91' }], total: 1, last_page: 1 })
+  const w = drawer('income-statement')
+  await flushPromises()
+  expect(getIncomeLedger).toHaveBeenCalledWith({ account_id: 1, from: '2026-01-01', to: '2026-09-30', page: 1, branch_id: null })
+  expect(getLedgerLines).not.toHaveBeenCalled()
+  expect(w.text()).toContain('90,071,992,547,409.91')
+  expect(w.text()).toContain('Running surplus movement')
 })

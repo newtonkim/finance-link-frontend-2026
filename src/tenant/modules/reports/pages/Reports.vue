@@ -79,6 +79,8 @@ function fmt(value: string | number | null): string {
       </div>
     </div>
 
+    <RouterLink to="/tenant/reports/income-statement" class="text-sm font-semibold text-nfuko-primary underline underline-offset-4">Income Statement — income, expenses and period surplus</RouterLink>
+
     <!-- Quick Navigation Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       <RouterLink to="/tenant/reports/trial-balance"
