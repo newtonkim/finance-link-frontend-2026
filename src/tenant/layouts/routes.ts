@@ -375,7 +375,7 @@ export const tenantRoutes: MenuRoutes[] = [
             path: 'reports/cash-flow',
             label: 'Cash Flow',
             showSideBar: true,
-            component: () => import('@/tenant/components/globals/ComingSoon.vue'),
+            component: () => import('@/tenant/modules/reports/pages/CashFlow.vue'),
           },
         ],
       },
