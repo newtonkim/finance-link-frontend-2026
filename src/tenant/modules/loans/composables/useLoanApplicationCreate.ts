@@ -87,14 +87,24 @@ export function useLoanApplicationCreate() {
   async function saveAndSubmit() {
     submitting.value = true
     errors.value = {}
+    let id: number | null = null
     try {
       const createRes = await loanApplicationsApi.create(form.value)
-      const id = createRes.data?.data?.id ?? createRes.data?.id
+      id = createRes.data?.data?.id ?? createRes.data?.id
       await loanApplicationsApi.submit(id)
       toast.success('Loan application submitted for review.')
       router.push({ name: 'tenant-loans-show', params: { id } })
     } catch (err: any) {
-      if (err?.response?.status === 422) {
+      // The draft is already saved when submission is refused (e.g. guarantors still
+      // to be added). Open it instead of staying here, where retrying would save it again.
+      if (id) {
+        const errs = err?.response?.data?.errors ?? {}
+        const reason = (Object.values(errs)[0] as string[] | undefined)?.[0]
+          ?? err?.response?.data?.message
+          ?? 'Submission failed.'
+        toast.error('Loan application saved as a draft but not submitted.', { description: reason })
+        router.push({ name: 'tenant-loans-show', params: { id } })
+      } else if (err?.response?.status === 422) {
         const errs = err.response.data.errors ?? {}
         errors.value = errs
         Object.values(errs).forEach((messages: any) => toast.error(messages[0]))
